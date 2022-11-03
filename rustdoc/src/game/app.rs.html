@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/app.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../game/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/app.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../game/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -894,901 +894,901 @@
 <span id="894">894</span>
 <span id="895">895</span>
 <span id="896">896</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">maplit::btreemap</span>;
-<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>maplit::btreemap;
+<span class="kw">use </span>structopt::StructOpt;
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::colors::ColorScheme</span>;
-<span class="kw">use</span> <span class="ident">map_gui::options::Options</span>;
-<span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">unzoomed_agent_radius</span>, <span class="ident">AgentCache</span>, <span class="ident">DrawMap</span>, <span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::CameraState</span>;
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model::AreaType</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Analytics</span>, <span class="ident">Sim</span>, <span class="ident">SimCallback</span>, <span class="ident">SimFlags</span>, <span class="ident">VehicleType</span>};
-<span class="kw">use</span> <span class="ident">synthpop::Scenario</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Cached</span>, <span class="ident">Canvas</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>};
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{Bounds, Circle, Distance, Duration, FindClosest, Polygon, Pt2D, Time};
+<span class="kw">use </span>map_gui::colors::ColorScheme;
+<span class="kw">use </span>map_gui::options::Options;
+<span class="kw">use </span>map_gui::render::{unzoomed_agent_radius, AgentCache, DrawMap, DrawOptions, Renderable};
+<span class="kw">use </span>map_gui::tools::CameraState;
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::AreaType;
+<span class="kw">use </span>map_model::{BufferType, IntersectionID, LaneType, Map, Traversable};
+<span class="kw">use </span>sim::{AgentID, Analytics, Sim, SimCallback, SimFlags, VehicleType};
+<span class="kw">use </span>synthpop::Scenario;
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::{Cached, Canvas, EventCtx, GfxCtx, Prerender, SharedAppState, State};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::challenges::HighScore</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::Warping</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::apply_map_edits</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer::Layer</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::dashboards::DashTab</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">TutorialState</span>};
+<span class="kw">use </span><span class="kw">crate</span>::challenges::HighScore;
+<span class="kw">use </span><span class="kw">crate</span>::common::Warping;
+<span class="kw">use </span><span class="kw">crate</span>::edit::apply_map_edits;
+<span class="kw">use </span><span class="kw">crate</span>::layer::Layer;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::dashboards::DashTab;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::{GameplayMode, TutorialState};
 
-<span class="comment">// Convenient typedef</span>
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Transition</span> <span class="op">=</span> <span class="ident">widgetry::Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span>;
+<span class="comment">// Convenient typedef
+</span><span class="kw">pub type </span>Transition = widgetry::Transition&lt;App&gt;;
 
-<span class="doccomment">/// The top-level data that lasts through the entire game, no matter what state the game is in.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">App</span> {
-    <span class="doccomment">/// State (like the simulation and drawing stuff) associated with the &quot;primary&quot; map.</span>
-    <span class="kw">pub</span> <span class="ident">primary</span>: <span class="ident">PerMap</span>,
-    <span class="doccomment">/// Represents state for a different version of the `primary` map. `swap_map` can be used to</span>
-    <span class="doccomment">/// switch the primary and secondary state. This is currently used to compare an edited and</span>
-    <span class="doccomment">/// unedited map for Ungap the Map and as a debug mode to compare different files representing</span>
-    <span class="doccomment">/// the same area.</span>
-    <span class="kw">pub</span> <span class="ident">secondary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PerMap</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">store_unedited_map_in_secondary</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// The top-level data that lasts through the entire game, no matter what state the game is in.
+</span><span class="kw">pub struct </span>App {
+    <span class="doccomment">/// State (like the simulation and drawing stuff) associated with the &quot;primary&quot; map.
+    </span><span class="kw">pub </span>primary: PerMap,
+    <span class="doccomment">/// Represents state for a different version of the `primary` map. `swap_map` can be used to
+    /// switch the primary and secondary state. This is currently used to compare an edited and
+    /// unedited map for Ungap the Map and as a debug mode to compare different files representing
+    /// the same area.
+    </span><span class="kw">pub </span>secondary: <span class="prelude-ty">Option</span>&lt;PerMap&gt;,
+    <span class="kw">pub </span>store_unedited_map_in_secondary: bool,
 
-    <span class="kw">pub</span> <span class="ident">cs</span>: <span class="ident">ColorScheme</span>,
-    <span class="kw">pub</span> <span class="ident">opts</span>: <span class="ident">Options</span>,
+    <span class="kw">pub </span>cs: ColorScheme,
+    <span class="kw">pub </span>opts: Options,
 
-    <span class="kw">pub</span> <span class="ident">per_obj</span>: <span class="ident">PerObjectActions</span>,
+    <span class="kw">pub </span>per_obj: PerObjectActions,
 
-    <span class="doccomment">/// Static data that lasts the entire session. Use sparingly.</span>
-    <span class="kw">pub</span> <span class="ident">session</span>: <span class="ident">SessionState</span>,
+    <span class="doccomment">/// Static data that lasts the entire session. Use sparingly.
+    </span><span class="kw">pub </span>session: SessionState,
 }
 
-<span class="kw">impl</span> <span class="ident">App</span> {
-    <span class="comment">// TODO Should the prebaked methods be on primary along with the data?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_prebaked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="kw-2">&amp;</span><span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">m</span>, <span class="ident">s</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="ident">m</span>, <span class="ident">s</span>))
+<span class="kw">impl </span>App {
+    <span class="comment">// TODO Should the prebaked methods be on primary along with the data?
+    </span><span class="kw">pub fn </span>has_prebaked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>MapName, <span class="kw-2">&amp;</span>String)&gt; {
+        <span class="self">self</span>.primary.prebaked.as_ref().map(|(m, s, <span class="kw">_</span>)| (m, s))
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prebaked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Analytics</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">2</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_prebaked</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">prebaked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">String</span>, <span class="ident">Analytics</span>)<span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span> <span class="op">=</span> <span class="ident">prebaked</span>;
+    <span class="kw">pub fn </span>prebaked(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Analytics {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.primary.prebaked.as_ref().unwrap().<span class="number">2
+    </span>}
+    <span class="kw">pub fn </span>set_prebaked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prebaked: <span class="prelude-ty">Option</span>&lt;(MapName, String, Analytics)&gt;) {
+        <span class="self">self</span>.primary.prebaked = prebaked;
 
-        <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">a</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">prebaked</span> {
-                <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>};
+        <span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref </span>a)) = <span class="self">self</span>.primary.prebaked {
+                <span class="kw">use </span>abstutil::{prettyprint_usize, serialized_size_bytes};
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- road_thruput: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">road_thruput</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.road_thruput))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- intersection_thruput: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">intersection_thruput</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.intersection_thruput))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- traffic_signal_thruput: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">traffic_signal_thruput</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.traffic_signal_thruput))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- demand : {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">demand</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.demand))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- bus_arrivals : {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">bus_arrivals</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.bus_arrivals))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- passengers_boarding: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">passengers_boarding</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.passengers_boarding))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- passengers_alighting: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">passengers_alighting</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.passengers_alighting))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- started_trips: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">started_trips</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.started_trips))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- finished_trips: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">finished_trips</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.finished_trips))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- trip_log: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">trip_log</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.trip_log))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- intersection_delays: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">intersection_delays</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.intersection_delays))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- parking_lane_changes: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">parking_lane_changes</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.parking_lane_changes))
                 );
                 <span class="macro">println!</span>(
                     <span class="string">&quot;- parking_lot_changes: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">parking_lot_changes</span>))
+                    prettyprint_usize(serialized_size_bytes(<span class="kw-2">&amp;</span>a.parking_lot_changes))
                 );
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>, <span class="ident">show_objs</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ShowObject</span>) {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>;
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, opts: DrawOptions, show_objs: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ShowObject) {
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map;
+        <span class="kw">let </span>draw_map = <span class="kw-2">&amp;</span><span class="self">self</span>.primary.draw_map;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sample_intersection</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>sample_intersection: <span class="prelude-ty">Option</span>&lt;String&gt; = <span class="prelude-val">None</span>;
 
-        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="self">self</span>.<span class="ident">cs</span>.<span class="ident">void_background</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">boundary_polygon</span>);
+        g.clear(<span class="self">self</span>.cs.void_background);
+        g.redraw(<span class="kw-2">&amp;</span>draw_map.boundary_polygon);
 
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-            <span class="kw">let</span> <span class="ident">layers</span> <span class="op">=</span> <span class="ident">show_objs</span>.<span class="ident">layers</span>();
-            <span class="kw">if</span> <span class="ident">layers</span>.<span class="ident">show_areas</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_areas</span>);
+        <span class="kw">if </span>g.canvas.is_unzoomed() {
+            <span class="kw">let </span>layers = show_objs.layers();
+            <span class="kw">if </span>layers.show_areas {
+                g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_areas);
             }
-            <span class="kw">if</span> <span class="ident">layers</span>.<span class="ident">show_parking_lots</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_parking_lots</span>);
+            <span class="kw">if </span>layers.show_parking_lots {
+                g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_unzoomed_parking_lots);
             }
-            <span class="kw">if</span> <span class="ident">layers</span>.<span class="ident">show_intersections</span> <span class="op">|</span><span class="op">|</span> <span class="ident">layers</span>.<span class="ident">show_lanes</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(
-                    <span class="kw-2">&amp;</span><span class="self">self</span>
-                        .<span class="ident">primary</span>
-                        .<span class="ident">draw_map</span>
-                        .<span class="ident">draw_all_unzoomed_roads_and_intersections</span>,
+            <span class="kw">if </span>layers.show_intersections || layers.show_lanes {
+                g.redraw(
+                    <span class="kw-2">&amp;</span><span class="self">self
+                        </span>.primary
+                        .draw_map
+                        .draw_all_unzoomed_roads_and_intersections,
                 );
             }
-            <span class="kw">if</span> <span class="ident">layers</span>.<span class="ident">show_buildings</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_building_outlines</span>);
+            <span class="kw">if </span>layers.show_buildings {
+                g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_buildings);
+                g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_building_outlines);
             }
 
-            <span class="comment">// Still show some shape selection when zoomed out.</span>
-            <span class="comment">// TODO Refactor! Ideally use get_obj</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Area</span>(<span class="ident">id</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="self">self</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">draw_map</span>.<span class="ident">get_a</span>(<span class="ident">id</span>).<span class="ident">get_outline</span>(<span class="ident">map</span>));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">id</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="self">self</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">draw_map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>).<span class="ident">get_outline</span>(<span class="ident">map</span>));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">id</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="comment">// Actually, don&#39;t use get_outline here! Full polygon is easier to see.</span>
-                <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="self">self</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">id</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="self">self</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+            <span class="comment">// Still show some shape selection when zoomed out.
+            // TODO Refactor! Ideally use get_obj
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Area(id)) = <span class="self">self</span>.primary.current_selection {
+                g.draw_polygon(<span class="self">self</span>.cs.selected, draw_map.get_a(id).get_outline(map));
+            } <span class="kw">else if let </span><span class="prelude-val">Some</span>(ID::Road(id)) = <span class="self">self</span>.primary.current_selection {
+                g.draw_polygon(<span class="self">self</span>.cs.selected, draw_map.get_r(id).get_outline(map));
+            } <span class="kw">else if let </span><span class="prelude-val">Some</span>(ID::Intersection(id)) = <span class="self">self</span>.primary.current_selection {
+                <span class="comment">// Actually, don&#39;t use get_outline here! Full polygon is easier to see.
+                </span>g.draw_polygon(<span class="self">self</span>.cs.selected, map.get_i(id).polygon.clone());
+            } <span class="kw">else if let </span><span class="prelude-val">Some</span>(ID::Building(id)) = <span class="self">self</span>.primary.current_selection {
+                g.draw_polygon(<span class="self">self</span>.cs.selected, map.get_b(id).polygon.clone());
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>();
-            <span class="ident">cache</span>.<span class="ident">draw_unzoomed_agents</span>(
-                <span class="ident">g</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">sim</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cs</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">opts</span>,
+            <span class="kw">let </span><span class="kw-2">mut </span>cache = <span class="self">self</span>.primary.agents.borrow_mut();
+            cache.draw_unzoomed_agents(
+                g,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.primary.sim,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.cs,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.opts,
             );
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">primary</span>
-                .<span class="ident">current_selection</span>
-                .<span class="ident">as_ref</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">agent_id</span>())
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = <span class="self">self
+                </span>.primary
+                .current_selection
+                .as_ref()
+                .and_then(|id| id.agent_id())
             {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">canonical_pt_for_agent</span>(<span class="ident">a</span>, <span class="ident">map</span>) {
-                    <span class="comment">// Usually we show selection with an outline, but no thickness/color is really</span>
-                    <span class="comment">// visible for these tiny crowded dots.</span>
-                    <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-                        <span class="self">self</span>.<span class="ident">cs</span>.<span class="ident">selected</span>,
-                        <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">unzoomed_agent_radius</span>(<span class="ident">a</span>.<span class="ident">to_vehicle_type</span>())).<span class="ident">to_polygon</span>(),
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = <span class="self">self</span>.primary.sim.canonical_pt_for_agent(a, map) {
+                    <span class="comment">// Usually we show selection with an outline, but no thickness/color is really
+                    // visible for these tiny crowded dots.
+                    </span>g.draw_polygon(
+                        <span class="self">self</span>.cs.selected,
+                        Circle::new(pt, unzoomed_agent_radius(a.to_vehicle_type())).to_polygon(),
                     );
                 }
             }
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>();
-            <span class="kw">let</span> <span class="ident">objects</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_renderables_back_to_front</span>(
-                <span class="ident">g</span>.<span class="ident">get_screen_bounds</span>(),
-                <span class="ident">g</span>.<span class="ident">prerender</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">cache</span>,
-                <span class="ident">show_objs</span>,
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>cache = <span class="self">self</span>.primary.agents.borrow_mut();
+            <span class="kw">let </span>objects = <span class="self">self</span>.get_renderables_back_to_front(
+                g.get_screen_bounds(),
+                g.prerender,
+                <span class="kw-2">&amp;mut </span>cache,
+                show_objs,
             );
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drawn_all_buildings</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drawn_all_areas</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>drawn_all_buildings = <span class="bool-val">false</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>drawn_all_areas = <span class="bool-val">false</span>;
 
-            <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">objects</span> {
-                <span class="ident">obj</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="self">self</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>);
+            <span class="kw">for </span>obj <span class="kw">in </span>objects {
+                obj.draw(g, <span class="self">self</span>, <span class="kw-2">&amp;</span>opts);
 
-                <span class="kw">match</span> <span class="ident">obj</span>.<span class="ident">get_id</span>() {
-                    <span class="ident">ID::Building</span>(<span class="kw">_</span>) =&gt; {
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">drawn_all_buildings</span> {
-                            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
-                            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_building_outlines</span>);
-                            <span class="ident">drawn_all_buildings</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="kw">match </span>obj.get_id() {
+                    ID::Building(<span class="kw">_</span>) =&gt; {
+                        <span class="kw">if </span>!drawn_all_buildings {
+                            g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_buildings);
+                            g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_building_outlines);
+                            drawn_all_buildings = <span class="bool-val">true</span>;
                         }
                     }
-                    <span class="ident">ID::Area</span>(<span class="kw">_</span>) =&gt; {
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">drawn_all_areas</span> {
-                            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_areas</span>);
-                            <span class="ident">drawn_all_areas</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    ID::Area(<span class="kw">_</span>) =&gt; {
+                        <span class="kw">if </span>!drawn_all_areas {
+                            g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_areas);
+                            drawn_all_areas = <span class="bool-val">true</span>;
                         }
                     }
-                    <span class="kw">_</span> =&gt; {}
+                    <span class="kw">_ </span>=&gt; {}
                 }
 
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>.<span class="ident">get_id</span>()) {
-                    <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="self">self</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="ident">map</span>));
+                <span class="kw">if </span><span class="self">self</span>.primary.current_selection == <span class="prelude-val">Some</span>(obj.get_id()) {
+                    g.draw_polygon(<span class="self">self</span>.cs.selected, obj.get_outline(map));
                 }
 
-                <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">is_screencap</span>() <span class="op">&amp;&amp;</span> <span class="ident">sample_intersection</span>.<span class="ident">is_none</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_id</span>() {
-                        <span class="ident">sample_intersection</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;_i{}&quot;</span>, <span class="ident">id</span>.<span class="number">0</span>));
+                <span class="kw">if </span>g.is_screencap() &amp;&amp; sample_intersection.is_none() {
+                    <span class="kw">if let </span>ID::Intersection(id) = obj.get_id() {
+                        sample_intersection = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;_i{}&quot;</span>, id.<span class="number">0</span>));
                     }
                 }
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">sample_intersection</span> {
-            <span class="ident">g</span>.<span class="ident">set_screencap_naming_hint</span>(<span class="ident">i</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = sample_intersection {
+            g.set_screencap_naming_hint(i);
         }
     }
 
-    <span class="doccomment">/// Assumes some defaults.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recalculate_current_selection</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
-        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>(), <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
+    <span class="doccomment">/// Assumes some defaults.
+    </span><span class="kw">pub fn </span>recalculate_current_selection(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) {
+        <span class="self">self</span>.primary.current_selection =
+            <span class="self">self</span>.calculate_current_selection(ctx, <span class="kw-2">&amp;</span>ShowEverything::new(), <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>(), <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
+    <span class="kw">pub fn </span>mouseover_unzoomed_roads_and_intersections(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="self">self</span>.calculate_current_selection(ctx, <span class="kw-2">&amp;</span>ShowEverything::new(), <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mouseover_unzoomed_intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>(), <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">id</span>, <span class="ident">ID::Intersection</span>(<span class="kw">_</span>)))
+    <span class="kw">pub fn </span>mouseover_unzoomed_intersections(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="self">self</span>.calculate_current_selection(ctx, <span class="kw-2">&amp;</span>ShowEverything::new(), <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
+            .filter(|id| <span class="macro">matches!</span>(id, ID::Intersection(<span class="kw">_</span>)))
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mouseover_unzoomed_buildings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>(), <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>)
+    <span class="kw">pub fn </span>mouseover_unzoomed_buildings(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="self">self</span>.calculate_current_selection(ctx, <span class="kw-2">&amp;</span>ShowEverything::new(), <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mouseover_unzoomed_everything</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>(), <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>)
+    <span class="kw">pub fn </span>mouseover_unzoomed_everything(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="self">self</span>.calculate_current_selection(ctx, <span class="kw-2">&amp;</span>ShowEverything::new(), <span class="bool-val">false</span>, <span class="bool-val">true</span>, <span class="bool-val">true</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mouseover_debug_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">show_objs</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ShowObject</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">calculate_current_selection</span>(<span class="ident">ctx</span>, <span class="ident">show_objs</span>, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>)
+    <span class="kw">pub fn </span>mouseover_debug_mode(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, show_objs: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ShowObject) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="self">self</span>.calculate_current_selection(ctx, show_objs, <span class="bool-val">true</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">calculate_current_selection</span>(
+    <span class="kw">fn </span>calculate_current_selection(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">show_objs</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ShowObject</span>,
-        <span class="ident">debug_mode</span>: <span class="ident">bool</span>,
-        <span class="ident">unzoomed_roads_and_intersections</span>: <span class="ident">bool</span>,
-        <span class="ident">unzoomed_buildings</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>();
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        show_objs: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ShowObject,
+        debug_mode: bool,
+        unzoomed_roads_and_intersections: bool,
+        unzoomed_buildings: bool,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="kw">let </span>unzoomed = ctx.canvas.is_unzoomed();
 
-        <span class="comment">// Unzoomed mode. Ignore when debugging areas.</span>
-        <span class="kw">if</span> <span class="ident">unzoomed</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">debug_mode</span> <span class="op">|</span><span class="op">|</span> <span class="ident">unzoomed_roads_and_intersections</span> <span class="op">|</span><span class="op">|</span> <span class="ident">unzoomed_buildings</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="comment">// Unzoomed mode. Ignore when debugging areas.
+        </span><span class="kw">if </span>unzoomed &amp;&amp; !(debug_mode || unzoomed_roads_and_intersections || unzoomed_buildings) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>()<span class="question-mark">?</span>;
+        <span class="kw">let </span>pt = ctx.canvas.get_cursor_in_map_space()<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">objects</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_renderables_back_to_front</span>(
-            <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">3.0</span>)).<span class="ident">get_bounds</span>(),
-            <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">cache</span>,
-            <span class="ident">show_objs</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>cache = <span class="self">self</span>.primary.agents.borrow_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>objects = <span class="self">self</span>.get_renderables_back_to_front(
+            Circle::new(pt, Distance::meters(<span class="number">3.0</span>)).get_bounds(),
+            ctx.prerender,
+            <span class="kw-2">&amp;mut </span>cache,
+            show_objs,
         );
-        <span class="ident">objects</span>.<span class="ident">reverse</span>();
+        objects.reverse();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">small_agents</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ID</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>small_agents: Vec&lt;(ID, Pt2D)&gt; = Vec::new();
 
-        <span class="comment">// In most cases, this loop is greedy -- as soon as we find the first object containing the</span>
-        <span class="comment">// cursor, return it. But if we happen to match a pedestrian or bike while zoomed in, there</span>
-        <span class="comment">// might be several overlapping hitboxes. Collect them all in small_agents, then pick the</span>
-        <span class="comment">// closest to the cursor.</span>
-        <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">objects</span> {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">get_id</span>();
-            <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Area</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">debug_mode</span> {
+        <span class="comment">// In most cases, this loop is greedy -- as soon as we find the first object containing the
+        // cursor, return it. But if we happen to match a pedestrian or bike while zoomed in, there
+        // might be several overlapping hitboxes. Collect them all in small_agents, then pick the
+        // closest to the cursor.
+        </span><span class="kw">for </span>obj <span class="kw">in </span>objects {
+            <span class="kw">let </span>id = obj.get_id();
+            <span class="kw">match </span>id {
+                ID::Area(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">if </span>!debug_mode {
                         <span class="kw">continue</span>;
                     }
                 }
-                <span class="ident">ID::Road</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">unzoomed_roads_and_intersections</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">unzoomed</span> {
+                ID::Road(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">if </span>!unzoomed_roads_and_intersections || !unzoomed {
                         <span class="kw">continue</span>;
                     }
                 }
-                <span class="ident">ID::Intersection</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">unzoomed</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unzoomed_roads_and_intersections</span> {
+                ID::Intersection(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">if </span>unzoomed &amp;&amp; !unzoomed_roads_and_intersections {
                         <span class="kw">continue</span>;
                     }
                 }
-                <span class="ident">ID::Building</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">unzoomed</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">unzoomed_buildings</span> {
+                ID::Building(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">if </span>unzoomed &amp;&amp; !unzoomed_buildings {
                         <span class="kw">continue</span>;
                     }
                 }
-                <span class="kw">_</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">unzoomed</span> {
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw">if </span>unzoomed {
                         <span class="kw">continue</span>;
                     }
                 }
             }
-            <span class="kw">if</span> <span class="ident">obj</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-                <span class="kw">if</span> <span class="ident">unzoomed</span> {
-                    <span class="comment">// If we&#39;re selecting agents unzoomed, they&#39;re all tiny circles, and we really</span>
-                    <span class="comment">// don&#39;t care about picking the one closest to the cursor.</span>
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);
+            <span class="kw">if </span>obj.contains_pt(pt, <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map) {
+                <span class="kw">if </span>unzoomed {
+                    <span class="comment">// If we&#39;re selecting agents unzoomed, they&#39;re all tiny circles, and we really
+                    // don&#39;t care about picking the one closest to the cursor.
+                    </span><span class="kw">return </span><span class="prelude-val">Some</span>(id);
                 }
 
-                <span class="kw">match</span> <span class="ident">id</span> {
-                    <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) =&gt; {}
-                    <span class="ident">ID::Car</span>(<span class="ident">c</span>) =&gt; {
-                        <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">VehicleType::Bike</span> {
-                            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);
+                <span class="kw">match </span>id {
+                    ID::Pedestrian(<span class="kw">_</span>) =&gt; {}
+                    ID::Car(c) =&gt; {
+                        <span class="kw">if </span>c.vehicle_type != VehicleType::Bike {
+                            <span class="kw">return </span><span class="prelude-val">Some</span>(id);
                         }
                     }
-                    <span class="kw">_</span> =&gt; {
-                        <span class="comment">// Once we match at least one small agent, keep scanning through all</span>
-                        <span class="comment">// possible hits. Ignore lanes and intersections and other thngs; they have</span>
-                        <span class="comment">// a lower z-order.</span>
-                        <span class="kw">if</span> <span class="ident">small_agents</span>.<span class="ident">is_empty</span>() {
-                            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);
-                        } <span class="kw">else</span> {
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="comment">// Once we match at least one small agent, keep scanning through all
+                        // possible hits. Ignore lanes and intersections and other thngs; they have
+                        // a lower z-order.
+                        </span><span class="kw">if </span>small_agents.is_empty() {
+                            <span class="kw">return </span><span class="prelude-val">Some</span>(id);
+                        } <span class="kw">else </span>{
                             <span class="kw">continue</span>;
                         }
                     }
                 }
 
-                <span class="ident">small_agents</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>).<span class="ident">center</span>()));
+                small_agents.push((id, obj.get_outline(<span class="kw-2">&amp;</span><span class="self">self</span>.primary.map).center()));
             }
         }
 
-        <span class="kw">let</span> (<span class="ident">id</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">small_agents</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">center</span>)<span class="op">|</span> <span class="ident">center</span>.<span class="ident">fast_dist</span>(<span class="ident">pt</span>))<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">id</span>)
+        <span class="kw">let </span>(id, <span class="kw">_</span>) = small_agents
+            .into_iter()
+            .min_by_key(|(<span class="kw">_</span>, center)| center.fast_dist(pt))<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(id)
     }
 
-    <span class="comment">// TODO This could probably belong to DrawMap again, but it&#39;s annoying to plumb things that</span>
-    <span class="comment">// State does, like show_icons_for() and show().</span>
-    <span class="kw">fn</span> <span class="ident">get_renderables_back_to_front</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>,
-        <span class="ident">bounds</span>: <span class="ident">Bounds</span>,
-        <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
-        <span class="ident">agents</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">AgentCache</span>,
-        <span class="ident">show_objs</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">ShowObject</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> (<span class="kw">dyn</span> <span class="ident">Renderable</span> <span class="op">+</span> <span class="lifetime">&#39;a</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>;
+    <span class="comment">// TODO This could probably belong to DrawMap again, but it&#39;s annoying to plumb things that
+    // State does, like show_icons_for() and show().
+    </span><span class="kw">fn </span>get_renderables_back_to_front&lt;<span class="lifetime">&#39;a</span>&gt;(
+        <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>,
+        bounds: Bounds,
+        prerender: <span class="kw-2">&amp;</span>Prerender,
+        agents: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>AgentCache,
+        show_objs: <span class="kw-2">&amp;</span><span class="kw">dyn </span>ShowObject,
+    ) -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>(<span class="kw">dyn </span>Renderable + <span class="lifetime">&#39;a</span>)&gt; {
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map;
+        <span class="kw">let </span>draw_map = <span class="kw-2">&amp;</span><span class="self">self</span>.primary.draw_map;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transit_stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">agents_on</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Traversable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>areas: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>parking_lots: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>lanes: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>roads: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>intersections: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>buildings: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>transit_stops: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>agents_on: Vec&lt;Traversable&gt; = Vec::new();
 
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">draw_map</span>.<span class="ident">get_matching_objects</span>(<span class="ident">bounds</span>) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">show_objs</span>.<span class="ident">show</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
+        <span class="kw">for </span>id <span class="kw">in </span>draw_map.get_matching_objects(bounds) {
+            <span class="kw">if </span>!show_objs.show(<span class="kw-2">&amp;</span>id) {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Area</span>(<span class="ident">id</span>) =&gt; <span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">draw_map</span>.<span class="ident">get_a</span>(<span class="ident">id</span>)),
-                <span class="ident">ID::Road</span>(<span class="ident">id</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">draw_map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>);
-                    <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
-                        <span class="ident">agents_on</span>.<span class="ident">push</span>(<span class="ident">Traversable::Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>));
-                        <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">lane</span>);
+            <span class="kw">match </span>id {
+                ID::Area(id) =&gt; areas.push(draw_map.get_a(id)),
+                ID::Road(id) =&gt; {
+                    <span class="kw">let </span>road = draw_map.get_r(id);
+                    <span class="kw">for </span>lane <span class="kw">in </span><span class="kw-2">&amp;</span>road.lanes {
+                        agents_on.push(Traversable::Lane(lane.id));
+                        lanes.push(lane);
                     }
-                    <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>).<span class="ident">transit_stops</span> {
-                        <span class="kw">if</span> <span class="ident">show_objs</span>.<span class="ident">show</span>(<span class="kw-2">&amp;</span><span class="ident">ID::TransitStop</span>(<span class="kw-2">*</span><span class="ident">ts</span>)) {
-                            <span class="ident">transit_stops</span>.<span class="ident">push</span>(<span class="ident">draw_map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">ts</span>));
+                    <span class="kw">for </span>ts <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_r(id).transit_stops {
+                        <span class="kw">if </span>show_objs.show(<span class="kw-2">&amp;</span>ID::TransitStop(<span class="kw-2">*</span>ts)) {
+                            transit_stops.push(draw_map.get_ts(<span class="kw-2">*</span>ts));
                         }
                     }
-                    <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">road</span>);
+                    roads.push(road);
                 }
-                <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) =&gt; {
-                    <span class="ident">intersections</span>.<span class="ident">push</span>(<span class="ident">draw_map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
-                    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">turns</span> {
-                        <span class="ident">agents_on</span>.<span class="ident">push</span>(<span class="ident">Traversable::Turn</span>(<span class="ident">t</span>.<span class="ident">id</span>));
+                ID::Intersection(id) =&gt; {
+                    intersections.push(draw_map.get_i(id));
+                    <span class="kw">for </span>t <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_i(id).turns {
+                        agents_on.push(Traversable::Turn(t.id));
                     }
                 }
-                <span class="ident">ID::Building</span>(<span class="ident">id</span>) =&gt; <span class="ident">buildings</span>.<span class="ident">push</span>(<span class="ident">draw_map</span>.<span class="ident">get_b</span>(<span class="ident">id</span>)),
-                <span class="ident">ID::ParkingLot</span>(<span class="ident">id</span>) =&gt; {
-                    <span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">draw_map</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>));
-                    <span class="comment">// Slight hack</span>
-                    <span class="ident">agents_on</span>.<span class="ident">push</span>(<span class="ident">Traversable::Lane</span>(<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>).<span class="ident">driving_pos</span>.<span class="ident">lane</span>()));
+                ID::Building(id) =&gt; buildings.push(draw_map.get_b(id)),
+                ID::ParkingLot(id) =&gt; {
+                    parking_lots.push(draw_map.get_pl(id));
+                    <span class="comment">// Slight hack
+                    </span>agents_on.push(Traversable::Lane(map.get_pl(id).driving_pos.lane()));
                 }
 
-                <span class="ident">ID::Lane</span>(<span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">ID::TransitStop</span>(<span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">ID::Car</span>(<span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, <span class="ident">id</span>)
+                ID::Lane(<span class="kw">_</span>)
+                | ID::TransitStop(<span class="kw">_</span>)
+                | ID::Car(<span class="kw">_</span>)
+                | ID::Pedestrian(<span class="kw">_</span>)
+                | ID::PedCrowd(<span class="kw">_</span>) =&gt; {
+                    <span class="macro">panic!</span>(<span class="string">&quot;{:?} shouldn&#39;t be in the quadtree&quot;</span>, id)
                 }
             }
         }
 
-        <span class="comment">// From background to foreground Z-order</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borrows</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">areas</span>);
-        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">parking_lots</span>);
-        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">lanes</span>);
-        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">roads</span>);
-        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">intersections</span>);
-        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">buildings</span>);
-        <span class="ident">borrows</span>.<span class="ident">extend</span>(<span class="ident">transit_stops</span>);
+        <span class="comment">// From background to foreground Z-order
+        </span><span class="kw">let </span><span class="kw-2">mut </span>borrows: Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; = Vec::new();
+        borrows.extend(areas);
+        borrows.extend(parking_lots);
+        borrows.extend(lanes);
+        borrows.extend(roads);
+        borrows.extend(intersections);
+        borrows.extend(buildings);
+        borrows.extend(transit_stops);
 
-        <span class="comment">// Expand all of the Traversables into agents, populating the cache if needed.</span>
-        <span class="kw">for</span> <span class="ident">on</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">agents_on</span> {
-            <span class="ident">agents</span>.<span class="ident">populate_if_needed</span>(<span class="kw-2">*</span><span class="ident">on</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cs</span>, <span class="ident">prerender</span>);
+        <span class="comment">// Expand all of the Traversables into agents, populating the cache if needed.
+        </span><span class="kw">for </span>on <span class="kw">in </span><span class="kw-2">&amp;</span>agents_on {
+            agents.populate_if_needed(<span class="kw-2">*</span>on, map, <span class="kw-2">&amp;</span><span class="self">self</span>.primary.sim, <span class="kw-2">&amp;</span><span class="self">self</span>.cs, prerender);
         }
 
-        <span class="kw">for</span> <span class="ident">on</span> <span class="kw">in</span> <span class="ident">agents_on</span> {
-            <span class="kw">for</span> <span class="ident">obj</span> <span class="kw">in</span> <span class="ident">agents</span>.<span class="ident">get</span>(<span class="ident">on</span>) {
-                <span class="ident">borrows</span>.<span class="ident">push</span>(<span class="ident">obj</span>);
+        <span class="kw">for </span>on <span class="kw">in </span>agents_on {
+            <span class="kw">for </span>obj <span class="kw">in </span>agents.get(on) {
+                borrows.push(obj);
             }
         }
 
-        <span class="ident">borrows</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">get_zorder</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">show_zorder</span>);
+        borrows.retain(|x| x.get_zorder() &lt;= <span class="self">self</span>.primary.draw_map.show_zorder);
 
-        <span class="comment">// This is a stable sort.</span>
-        <span class="ident">borrows</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">get_zorder</span>());
+        <span class="comment">// This is a stable sort.
+        </span>borrows.sort_by_key(|x| x.get_zorder());
 
-        <span class="ident">borrows</span>
+        borrows
     }
 
-    <span class="doccomment">/// Ensure the map edits are blank, reset the simulation, and blank out prebaked results.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_everything</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;reset map and sim&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="self">self</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
-            <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
+    <span class="doccomment">/// Ensure the map edits are blank, reset the simulation, and blank out prebaked results.
+    </span><span class="kw">pub fn </span>clear_everything(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
+        ctx.loading_screen(<span class="string">&quot;reset map and sim&quot;</span>, |ctx, timer| {
+            apply_map_edits(ctx, <span class="self">self</span>, <span class="self">self</span>.primary.map.new_edits());
+            <span class="self">self</span>.primary.map.recalculate_pathfinding_after_edits(timer);
 
-            <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
-            <span class="self">self</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
+            <span class="self">self</span>.primary.clear_sim();
+            <span class="self">self</span>.set_prebaked(<span class="prelude-val">None</span>);
         });
     }
 
-    <span class="doccomment">/// This swaps the primary and secondary PerMaps. Depending on what state the rest of the app</span>
-    <span class="doccomment">/// is in, things like IDs might totally change!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">swap_map</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">secondary</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">secondary</span>.<span class="ident">take</span>().<span class="ident">expect</span>(<span class="string">&quot;no secondary map set&quot;</span>);
-        <span class="kw">let</span> <span class="ident">primary</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">primary</span>, <span class="ident">secondary</span>);
-        <span class="self">self</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">primary</span>);
+    <span class="doccomment">/// This swaps the primary and secondary PerMaps. Depending on what state the rest of the app
+    /// is in, things like IDs might totally change!
+    </span><span class="kw">pub fn </span>swap_map(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>secondary = <span class="self">self</span>.secondary.take().expect(<span class="string">&quot;no secondary map set&quot;</span>);
+        <span class="kw">let </span>primary = std::mem::replace(<span class="kw-2">&amp;mut </span><span class="self">self</span>.primary, secondary);
+        <span class="self">self</span>.secondary = <span class="prelude-val">Some</span>(primary);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">App</span> {
-    <span class="doccomment">/// If an intersection was clicked, return its ID.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">click_on_intersection</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="ident">S</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="ident">label</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>);
+<span class="kw">impl </span>App {
+    <span class="doccomment">/// If an intersection was clicked, return its ID.
+    </span><span class="kw">pub fn </span>click_on_intersection&lt;S: Into&lt;String&gt;&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        label: S,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;IntersectionID&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Intersection(i)) = <span class="self">self</span>.primary.current_selection {
+            <span class="kw">if </span><span class="self">self</span>.per_obj.left_click(ctx, label) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(i);
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="comment">// I haven&#39;t measured build or runtime impact of inlining vs not, but I assume for these simple</span>
-<span class="comment">// accessors it makes sense.</span>
-<span class="kw">impl</span> <span class="ident">map_gui::AppLike</span> <span class="kw">for</span> <span class="ident">App</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Map</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>
+<span class="comment">// I haven&#39;t measured build or runtime impact of inlining vs not, but I assume for these simple
+// accessors it makes sense.
+</span><span class="kw">impl </span>map_gui::AppLike <span class="kw">for </span>App {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Map {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">sim</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Sim</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">sim</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>sim(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Sim {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.primary.sim
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">cs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cs</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>cs(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ColorScheme {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.cs
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mut_cs</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">ColorScheme</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">cs</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>mut_cs(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>ColorScheme {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.cs
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">draw_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">DrawMap</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>draw_map(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>DrawMap {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.primary.draw_map
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mut_draw_map</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">DrawMap</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>mut_draw_map(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>DrawMap {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.primary.draw_map
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Options</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">opts</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>opts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Options {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.opts
     }
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">mut_opts</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Options</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">opts</span>
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>mut_opts(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Options {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.opts
     }
 
-    <span class="kw">fn</span> <span class="ident">map_switched</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">map</span>: <span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
+    <span class="kw">fn </span>map_switched(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, map: Map, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="kw">let </span>sim = Sim::new(<span class="kw-2">&amp;</span>map, <span class="self">self</span>.primary.current_flags.sim_flags.opts.clone());
 
-        <span class="ident">CameraState::save</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>());
-        <span class="self">self</span>.<span class="ident">primary</span> <span class="op">=</span> <span class="ident">PerMap::map_loaded</span>(
-            <span class="ident">map</span>,
-            <span class="ident">sim</span>,
-            <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">clone</span>(),
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">opts</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cs</span>,
-            <span class="ident">ctx</span>,
-            <span class="ident">timer</span>,
+        CameraState::save(ctx.canvas, <span class="self">self</span>.primary.map.get_name());
+        <span class="self">self</span>.primary = PerMap::map_loaded(
+            map,
+            sim,
+            <span class="self">self</span>.primary.current_flags.clone(),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.opts,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.cs,
+            ctx,
+            timer,
         );
-        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">init_camera_for_loaded_map</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="self">self</span>.primary.init_camera_for_loaded_map(ctx);
+        <span class="self">self</span>.secondary = <span class="prelude-val">None</span>;
 
-        <span class="comment">// This may override user settings unexpectedly, but way more often, I think matching units</span>
-        <span class="comment">// based on the country is intuitive.</span>
-        <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">units</span>.<span class="ident">metric</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span>.<span class="ident">uses_metric</span>();
+        <span class="comment">// This may override user settings unexpectedly, but way more often, I think matching units
+        // based on the country is intuitive.
+        </span><span class="self">self</span>.opts.units.metric = <span class="self">self</span>.primary.map.get_name().city.uses_metric();
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_with_opts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">opts</span>: <span class="ident">DrawOptions</span>) {
-        <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>());
+    <span class="kw">fn </span>draw_with_opts(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, opts: DrawOptions) {
+        <span class="self">self</span>.draw(g, opts, <span class="kw-2">&amp;</span>ShowEverything::new());
     }
-    <span class="kw">fn</span> <span class="ident">make_warper</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">pt</span>: <span class="ident">Pt2D</span>,
-        <span class="ident">target_cam_zoom</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
-        <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Warping::new_state</span>(<span class="ident">ctx</span>, <span class="ident">pt</span>, <span class="ident">target_cam_zoom</span>, <span class="ident">id</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">primary</span>)
+    <span class="kw">fn </span>make_warper(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        pt: Pt2D,
+        target_cam_zoom: <span class="prelude-ty">Option</span>&lt;f64&gt;,
+        id: <span class="prelude-ty">Option</span>&lt;ID&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        Warping::new_state(ctx, pt, target_cam_zoom, id, <span class="kw-2">&amp;mut </span><span class="self">self</span>.primary)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShowLayers</span> {
-    <span class="kw">pub</span> <span class="ident">show_buildings</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">show_parking_lots</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">show_intersections</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">show_lanes</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">show_areas</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">show_labels</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>ShowLayers {
+    <span class="kw">pub </span>show_buildings: bool,
+    <span class="kw">pub </span>show_parking_lots: bool,
+    <span class="kw">pub </span>show_intersections: bool,
+    <span class="kw">pub </span>show_lanes: bool,
+    <span class="kw">pub </span>show_areas: bool,
+    <span class="kw">pub </span>show_labels: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">ShowLayers</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ShowLayers</span> {
-        <span class="ident">ShowLayers</span> {
-            <span class="ident">show_buildings</span>: <span class="bool-val">true</span>,
-            <span class="ident">show_parking_lots</span>: <span class="bool-val">true</span>,
-            <span class="ident">show_intersections</span>: <span class="bool-val">true</span>,
-            <span class="ident">show_lanes</span>: <span class="bool-val">true</span>,
-            <span class="ident">show_areas</span>: <span class="bool-val">true</span>,
-            <span class="ident">show_labels</span>: <span class="bool-val">false</span>,
+<span class="kw">impl </span>ShowLayers {
+    <span class="kw">pub fn </span>new() -&gt; ShowLayers {
+        ShowLayers {
+            show_buildings: <span class="bool-val">true</span>,
+            show_parking_lots: <span class="bool-val">true</span>,
+            show_intersections: <span class="bool-val">true</span>,
+            show_lanes: <span class="bool-val">true</span>,
+            show_areas: <span class="bool-val">true</span>,
+            show_labels: <span class="bool-val">false</span>,
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ShowObject</span> {
-    <span class="kw">fn</span> <span class="ident">show</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">ID</span>) -&gt; <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">layers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ShowLayers</span>;
+<span class="kw">pub trait </span>ShowObject {
+    <span class="kw">fn </span>show(<span class="kw-2">&amp;</span><span class="self">self</span>, obj: <span class="kw-2">&amp;</span>ID) -&gt; bool;
+    <span class="kw">fn </span>layers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ShowLayers;
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShowEverything</span> {
-    <span class="ident">layers</span>: <span class="ident">ShowLayers</span>,
+<span class="kw">pub struct </span>ShowEverything {
+    layers: ShowLayers,
 }
 
-<span class="kw">impl</span> <span class="ident">ShowEverything</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">ShowEverything</span> {
-        <span class="ident">ShowEverything</span> {
-            <span class="ident">layers</span>: <span class="ident">ShowLayers::new</span>(),
+<span class="kw">impl </span>ShowEverything {
+    <span class="kw">pub fn </span>new() -&gt; ShowEverything {
+        ShowEverything {
+            layers: ShowLayers::new(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ShowObject</span> <span class="kw">for</span> <span class="ident">ShowEverything</span> {
-    <span class="kw">fn</span> <span class="ident">show</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">ID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
+<span class="kw">impl </span>ShowObject <span class="kw">for </span>ShowEverything {
+    <span class="kw">fn </span>show(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>ID) -&gt; bool {
+        <span class="bool-val">true
+    </span>}
+
+    <span class="kw">fn </span>layers(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>ShowLayers {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.layers
     }
-
-    <span class="kw">fn</span> <span class="ident">layers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ShowLayers</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">layers</span>
-    }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">StructOpt</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Flags</span> {
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">sim_flags</span>: <span class="ident">SimFlags</span>,
-    <span class="doccomment">/// If true, all map edits immediately apply to the live simulation. Otherwise, most edits</span>
-    <span class="doccomment">/// require resetting to midnight.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">live_map_edits</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Display an extra area with this name on the map. This gets applied to every map loaded, if</span>
-    <span class="doccomment">/// the area is within map bounds.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">study_area</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, StructOpt)]
+</span><span class="kw">pub struct </span>Flags {
+    <span class="attribute">#[structopt(flatten)]
+    </span><span class="kw">pub </span>sim_flags: SimFlags,
+    <span class="doccomment">/// If true, all map edits immediately apply to the live simulation. Otherwise, most edits
+    /// require resetting to midnight.
+    </span><span class="attribute">#[structopt(long)]
+    </span><span class="kw">pub </span>live_map_edits: bool,
+    <span class="doccomment">/// Display an extra area with this name on the map. This gets applied to every map loaded, if
+    /// the area is within map bounds.
+    </span><span class="attribute">#[structopt(long)]
+    </span><span class="kw">pub </span>study_area: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="doccomment">/// All of the state that&#39;s bound to a specific map.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PerMap</span> {
-    <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">Map</span>,
-    <span class="kw">pub</span> <span class="ident">draw_map</span>: <span class="ident">DrawMap</span>,
-    <span class="kw">pub</span> <span class="ident">sim</span>: <span class="ident">Sim</span>,
-    <span class="kw">pub</span> <span class="ident">agents</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">AgentCache</span><span class="op">&gt;</span>,
+<span class="doccomment">/// All of the state that&#39;s bound to a specific map.
+</span><span class="kw">pub struct </span>PerMap {
+    <span class="kw">pub </span>map: Map,
+    <span class="kw">pub </span>draw_map: DrawMap,
+    <span class="kw">pub </span>sim: Sim,
+    <span class="kw">pub </span>agents: RefCell&lt;AgentCache&gt;,
 
-    <span class="kw">pub</span> <span class="ident">current_selection</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">current_flags</span>: <span class="ident">Flags</span>,
-    <span class="kw">pub</span> <span class="ident">last_warped_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">sim_cb</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimCallback</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// If we ever left edit mode and resumed without restarting from midnight, this is true.</span>
-    <span class="kw">pub</span> <span class="ident">dirty_from_edits</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Any ScenarioModifiers in effect?</span>
-    <span class="kw">pub</span> <span class="ident">has_modified_trips</span>: <span class="ident">bool</span>,
+    <span class="kw">pub </span>current_selection: <span class="prelude-ty">Option</span>&lt;ID&gt;,
+    <span class="kw">pub </span>current_flags: Flags,
+    <span class="kw">pub </span>last_warped_from: <span class="prelude-ty">Option</span>&lt;(Pt2D, f64)&gt;,
+    <span class="kw">pub </span>sim_cb: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>SimCallback&gt;&gt;,
+    <span class="doccomment">/// If we ever left edit mode and resumed without restarting from midnight, this is true.
+    </span><span class="kw">pub </span>dirty_from_edits: bool,
+    <span class="doccomment">/// Any ScenarioModifiers in effect?
+    </span><span class="kw">pub </span>has_modified_trips: bool,
 
-    <span class="doccomment">/// If the map has been edited and `app.store_unedited_map_in_secondary` is false, store the</span>
-    <span class="doccomment">/// unedited map here.</span>
-    <span class="kw">pub</span> <span class="ident">unedited_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Map</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// If the map has been edited and `app.store_unedited_map_in_secondary` is false, store the
+    /// unedited map here.
+    </span><span class="kw">pub </span>unedited_map: <span class="prelude-ty">Option</span>&lt;Map&gt;,
 
-    <span class="kw">pub</span> <span class="ident">layer</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.</span>
-    <span class="kw">pub</span> <span class="ident">suspended_sim</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Sim</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and</span>
-    <span class="doccomment">/// scenario name too.</span>
-    <span class="comment">// TODO Embed that in Analytics directly instead.</span>
-    <span class="ident">prebaked</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">String</span>, <span class="ident">Analytics</span>)<span class="op">&gt;</span>,
-    <span class="doccomment">/// The most recent Scenario loaded from a file. Don&#39;t depend on it always matching the current</span>
-    <span class="doccomment">/// gameplay mode; always verify the name matches what&#39;s needed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Storing this may cost some memory, but otherwise resetting to midnight would require</span>
-    <span class="doccomment">/// loading it again from a file. This is particularly painful on the web!</span>
-    <span class="kw">pub</span> <span class="ident">scenario</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Scenario</span><span class="op">&gt;</span>,
+    <span class="kw">pub </span>layer: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>Layer&gt;&gt;,
+    <span class="doccomment">/// Only filled out in edit mode. Stored here once to avoid lots of clones. Used for preview.
+    </span><span class="kw">pub </span>suspended_sim: <span class="prelude-ty">Option</span>&lt;Sim&gt;,
+    <span class="doccomment">/// Only exists in some gameplay modes. Must be carefully reset otherwise. Has the map and
+    /// scenario name too.
+    </span><span class="comment">// TODO Embed that in Analytics directly instead.
+    </span>prebaked: <span class="prelude-ty">Option</span>&lt;(MapName, String, Analytics)&gt;,
+    <span class="doccomment">/// The most recent Scenario loaded from a file. Don&#39;t depend on it always matching the current
+    /// gameplay mode; always verify the name matches what&#39;s needed.
+    ///
+    /// Storing this may cost some memory, but otherwise resetting to midnight would require
+    /// loading it again from a file. This is particularly painful on the web!
+    </span><span class="kw">pub </span>scenario: <span class="prelude-ty">Option</span>&lt;Scenario&gt;,
 
-    <span class="doccomment">/// Is this the original &quot;secondary&quot; state, loaded via --diff?</span>
-    <span class="kw">pub</span> <span class="ident">is_secondary</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Is this the original &quot;secondary&quot; state, loaded via --diff?
+    </span><span class="kw">pub </span>is_secondary: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">PerMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_loaded</span>(
-        <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">Map</span>,
-        <span class="ident">sim</span>: <span class="ident">Sim</span>,
-        <span class="ident">flags</span>: <span class="ident">Flags</span>,
-        <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
-        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="ident">PerMap</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="ident">flags</span>.<span class="ident">study_area</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">add_study_area</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">name</span>) {
-                <span class="macro">error!</span>(<span class="string">&quot;Didn&#39;t apply study area {}: {}&quot;</span>, <span class="ident">name</span>, <span class="ident">err</span>);
+<span class="kw">impl </span>PerMap {
+    <span class="kw">pub fn </span>map_loaded(
+        <span class="kw-2">mut </span>map: Map,
+        sim: Sim,
+        flags: Flags,
+        opts: <span class="kw-2">&amp;</span>Options,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; PerMap {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>name) = flags.study_area {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = add_study_area(<span class="kw-2">&amp;mut </span>map, name) {
+                <span class="macro">error!</span>(<span class="string">&quot;Didn&#39;t apply study area {}: {}&quot;</span>, name, err);
             }
         }
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;draw_map&quot;</span>);
-        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">DrawMap::new</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>, <span class="ident">cs</span>, <span class="ident">timer</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;draw_map&quot;</span>);
+        timer.start(<span class="string">&quot;draw_map&quot;</span>);
+        <span class="kw">let </span>draw_map = DrawMap::new(ctx, <span class="kw-2">&amp;</span>map, opts, cs, timer);
+        timer.stop(<span class="string">&quot;draw_map&quot;</span>);
 
-        <span class="ident">PerMap</span> {
-            <span class="ident">map</span>,
-            <span class="ident">draw_map</span>,
-            <span class="ident">sim</span>,
-            <span class="ident">agents</span>: <span class="ident">RefCell::new</span>(<span class="ident">AgentCache::new</span>()),
-            <span class="ident">current_selection</span>: <span class="prelude-val">None</span>,
-            <span class="ident">current_flags</span>: <span class="ident">flags</span>,
-            <span class="ident">last_warped_from</span>: <span class="prelude-val">None</span>,
-            <span class="ident">sim_cb</span>: <span class="prelude-val">None</span>,
-            <span class="ident">dirty_from_edits</span>: <span class="bool-val">false</span>,
-            <span class="ident">has_modified_trips</span>: <span class="bool-val">false</span>,
-            <span class="ident">unedited_map</span>: <span class="prelude-val">None</span>,
-            <span class="ident">layer</span>: <span class="prelude-val">None</span>,
-            <span class="ident">suspended_sim</span>: <span class="prelude-val">None</span>,
-            <span class="ident">prebaked</span>: <span class="prelude-val">None</span>,
-            <span class="ident">scenario</span>: <span class="prelude-val">None</span>,
-            <span class="ident">is_secondary</span>: <span class="bool-val">false</span>,
+        PerMap {
+            map,
+            draw_map,
+            sim,
+            agents: RefCell::new(AgentCache::new()),
+            current_selection: <span class="prelude-val">None</span>,
+            current_flags: flags,
+            last_warped_from: <span class="prelude-val">None</span>,
+            sim_cb: <span class="prelude-val">None</span>,
+            dirty_from_edits: <span class="bool-val">false</span>,
+            has_modified_trips: <span class="bool-val">false</span>,
+            unedited_map: <span class="prelude-val">None</span>,
+            layer: <span class="prelude-val">None</span>,
+            suspended_sim: <span class="prelude-val">None</span>,
+            prebaked: <span class="prelude-val">None</span>,
+            scenario: <span class="prelude-val">None</span>,
+            is_secondary: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init_camera_for_loaded_map</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">CameraState::load</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()) {
-            <span class="comment">// If we didn&#39;t restore a previous camera position, start zoomed out, centered on the</span>
-            <span class="comment">// map&#39;s center.</span>
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">min_zoom</span>();
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>
-                .<span class="ident">center_on_map_pt</span>(<span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">center</span>());
+    <span class="kw">pub fn </span>init_camera_for_loaded_map(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
+        <span class="kw">if </span>!CameraState::load(ctx, <span class="self">self</span>.map.get_name()) {
+            <span class="comment">// If we didn&#39;t restore a previous camera position, start zoomed out, centered on the
+            // map&#39;s center.
+            </span>ctx.canvas.cam_zoom = ctx.canvas.min_zoom();
+            ctx.canvas
+                .center_on_map_pt(<span class="self">self</span>.map.get_boundary_polygon().center());
         }
     }
 
-    <span class="doccomment">/// Returns whatever was there</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_sim</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Sim</span> {
-        <span class="self">self</span>.<span class="ident">dirty_from_edits</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="ident">std::mem::replace</span>(
-            <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">sim</span>,
-            <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">opts</span>.<span class="ident">clone</span>()),
+    <span class="doccomment">/// Returns whatever was there
+    </span><span class="kw">pub fn </span>clear_sim(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Sim {
+        <span class="self">self</span>.dirty_from_edits = <span class="bool-val">false</span>;
+        std::mem::replace(
+            <span class="kw-2">&amp;mut </span><span class="self">self</span>.sim,
+            Sim::new(<span class="kw-2">&amp;</span><span class="self">self</span>.map, <span class="self">self</span>.current_flags.sim_flags.opts.clone()),
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canonical_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">ID::Road</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">maybe_get_r</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">first_pt</span>()),
-            <span class="ident">ID::Lane</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">maybe_get_l</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">first_pt</span>()),
-            <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">maybe_get_i</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
-            <span class="ident">ID::Building</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">maybe_get_b</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
-            <span class="ident">ID::ParkingLot</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">maybe_get_pl</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
-            <span class="ident">ID::Car</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>.<span class="ident">sim</span>.<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID::Car</span>(<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>),
-            <span class="ident">ID::Pedestrian</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>
-                .<span class="ident">sim</span>
-                .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>),
-            <span class="ident">ID::PedCrowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) =&gt; <span class="self">self</span>
-                .<span class="ident">sim</span>
-                .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">members</span>[<span class="number">0</span>]), <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>),
-            <span class="ident">ID::TransitStop</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>
-                .<span class="ident">map</span>
-                .<span class="ident">maybe_get_ts</span>(<span class="ident">id</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">bs</span><span class="op">|</span> <span class="ident">bs</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>)),
-            <span class="ident">ID::Area</span>(<span class="ident">id</span>) =&gt; <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">maybe_get_a</span>(<span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()),
+    <span class="kw">pub fn </span>canonical_point(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ID) -&gt; <span class="prelude-ty">Option</span>&lt;Pt2D&gt; {
+        <span class="kw">match </span>id {
+            ID::Road(id) =&gt; <span class="self">self</span>.map.maybe_get_r(id).map(|r| r.center_pts.first_pt()),
+            ID::Lane(id) =&gt; <span class="self">self</span>.map.maybe_get_l(id).map(|l| l.first_pt()),
+            ID::Intersection(id) =&gt; <span class="self">self</span>.map.maybe_get_i(id).map(|i| i.polygon.center()),
+            ID::Building(id) =&gt; <span class="self">self</span>.map.maybe_get_b(id).map(|b| b.polygon.center()),
+            ID::ParkingLot(id) =&gt; <span class="self">self</span>.map.maybe_get_pl(id).map(|pl| pl.polygon.center()),
+            ID::Car(id) =&gt; <span class="self">self</span>.sim.canonical_pt_for_agent(AgentID::Car(id), <span class="kw-2">&amp;</span><span class="self">self</span>.map),
+            ID::Pedestrian(id) =&gt; <span class="self">self
+                </span>.sim
+                .canonical_pt_for_agent(AgentID::Pedestrian(id), <span class="kw-2">&amp;</span><span class="self">self</span>.map),
+            ID::PedCrowd(<span class="kw-2">ref </span>members) =&gt; <span class="self">self
+                </span>.sim
+                .canonical_pt_for_agent(AgentID::Pedestrian(members[<span class="number">0</span>]), <span class="kw-2">&amp;</span><span class="self">self</span>.map),
+            ID::TransitStop(id) =&gt; <span class="self">self
+                </span>.map
+                .maybe_get_ts(id)
+                .map(|bs| bs.sidewalk_pos.pt(<span class="kw-2">&amp;</span><span class="self">self</span>.map)),
+            ID::Area(id) =&gt; <span class="self">self</span>.map.maybe_get_a(id).map(|a| a.polygon.center()),
         }
     }
 }
 
-<span class="comment">// TODO Serialize these, but in a very careful, future-compatible way</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SessionState</span> {
-    <span class="kw">pub</span> <span class="ident">tutorial</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TutorialState</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">high_scores</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">GameplayMode</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">HighScore</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">info_panel_tab</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">last_gmns_timing_csv</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">dash_tab</span>: <span class="ident">DashTab</span>,
-    <span class="kw">pub</span> <span class="ident">buffer_lane_type</span>: <span class="ident">LaneType</span>,
+<span class="comment">// TODO Serialize these, but in a very careful, future-compatible way
+</span><span class="kw">pub struct </span>SessionState {
+    <span class="kw">pub </span>tutorial: <span class="prelude-ty">Option</span>&lt;TutorialState&gt;,
+    <span class="kw">pub </span>high_scores: BTreeMap&lt;GameplayMode, Vec&lt;HighScore&gt;&gt;,
+    <span class="kw">pub </span>info_panel_tab: BTreeMap&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt;,
+    <span class="kw">pub </span>last_gmns_timing_csv: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>dash_tab: DashTab,
+    <span class="kw">pub </span>buffer_lane_type: LaneType,
 
-    <span class="comment">// Specific to the ungap tool</span>
-    <span class="kw">pub</span> <span class="ident">elevation_contours</span>: <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">MapName</span>, (<span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>, <span class="ident">ToggleZoomed</span>)<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">routing_preferences</span>: <span class="ident"><span class="kw">crate</span>::ungap::RoutingPreferences</span>,
-    <span class="kw">pub</span> <span class="ident">ungap_current_trip_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="comment">// Map and edit change key</span>
-    <span class="kw">pub</span> <span class="ident">mode_shift</span>: <span class="ident">Cached</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">usize</span>), <span class="ident"><span class="kw">crate</span>::ungap::ModeShiftData</span><span class="op">&gt;</span>,
+    <span class="comment">// Specific to the ungap tool
+    </span><span class="kw">pub </span>elevation_contours: Cached&lt;MapName, (FindClosest&lt;Distance&gt;, ToggleZoomed)&gt;,
+    <span class="kw">pub </span>routing_preferences: <span class="kw">crate</span>::ungap::RoutingPreferences,
+    <span class="kw">pub </span>ungap_current_trip_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="comment">// Map and edit change key
+    </span><span class="kw">pub </span>mode_shift: Cached&lt;(MapName, usize), <span class="kw">crate</span>::ungap::ModeShiftData&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SessionState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">SessionState</span> {
-        <span class="ident">SessionState</span> {
-            <span class="ident">tutorial</span>: <span class="prelude-val">None</span>,
-            <span class="ident">high_scores</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">info_panel_tab</span>: <span class="macro">btreemap!</span> {
-                <span class="string">&quot;lane&quot;</span> =&gt; <span class="string">&quot;info&quot;</span>,
-                <span class="string">&quot;intersection&quot;</span> =&gt; <span class="string">&quot;info&quot;</span>,
-                <span class="string">&quot;bldg&quot;</span> =&gt; <span class="string">&quot;info&quot;</span>,
-                <span class="string">&quot;person&quot;</span> =&gt; <span class="string">&quot;trips&quot;</span>,
-                <span class="string">&quot;bus&quot;</span> =&gt; <span class="string">&quot;status&quot;</span>,
+<span class="kw">impl </span>SessionState {
+    <span class="kw">pub fn </span>empty() -&gt; SessionState {
+        SessionState {
+            tutorial: <span class="prelude-val">None</span>,
+            high_scores: BTreeMap::new(),
+            info_panel_tab: <span class="macro">btreemap! </span>{
+                <span class="string">&quot;lane&quot; </span>=&gt; <span class="string">&quot;info&quot;</span>,
+                <span class="string">&quot;intersection&quot; </span>=&gt; <span class="string">&quot;info&quot;</span>,
+                <span class="string">&quot;bldg&quot; </span>=&gt; <span class="string">&quot;info&quot;</span>,
+                <span class="string">&quot;person&quot; </span>=&gt; <span class="string">&quot;trips&quot;</span>,
+                <span class="string">&quot;bus&quot; </span>=&gt; <span class="string">&quot;status&quot;</span>,
             },
-            <span class="ident">last_gmns_timing_csv</span>: <span class="prelude-val">None</span>,
-            <span class="ident">dash_tab</span>: <span class="ident">DashTab::TripTable</span>,
-            <span class="ident">buffer_lane_type</span>: <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>),
+            last_gmns_timing_csv: <span class="prelude-val">None</span>,
+            dash_tab: DashTab::TripTable,
+            buffer_lane_type: LaneType::Buffer(BufferType::Stripes),
 
-            <span class="ident">elevation_contours</span>: <span class="ident">Cached::new</span>(),
-            <span class="ident">routing_preferences</span>: <span class="ident"><span class="kw">crate</span>::ungap::RoutingPreferences::default</span>(),
-            <span class="ident">ungap_current_trip_name</span>: <span class="prelude-val">None</span>,
-            <span class="ident">mode_shift</span>: <span class="ident">Cached::new</span>(),
+            elevation_contours: Cached::new(),
+            routing_preferences: <span class="kw">crate</span>::ungap::RoutingPreferences::default(),
+            ungap_current_trip_name: <span class="prelude-val">None</span>,
+            mode_shift: Cached::new(),
         }
     }
 }
 
-<span class="comment">// TODO Reconsider this; maybe it does belong in widgetry.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PerObjectActions</span> {
-    <span class="kw">pub</span> <span class="ident">click_action</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="comment">// TODO Reconsider this; maybe it does belong in widgetry.
+</span><span class="kw">pub struct </span>PerObjectActions {
+    <span class="kw">pub </span>click_action: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PerObjectActions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">PerObjectActions</span> {
-        <span class="ident">PerObjectActions</span> { <span class="ident">click_action</span>: <span class="prelude-val">None</span> }
+<span class="kw">impl </span>PerObjectActions {
+    <span class="kw">pub fn </span>new() -&gt; PerObjectActions {
+        PerObjectActions { click_action: <span class="prelude-val">None </span>}
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">click_action</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>reset(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.click_action = <span class="prelude-val">None</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_click</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="ident">S</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">old</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">click_action</span> {
+    <span class="kw">pub fn </span>left_click&lt;S: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, label: S) -&gt; bool {
+        <span class="kw">let </span>label = label.into();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>old) = <span class="self">self</span>.click_action {
             <span class="macro">panic!</span>(<span class="string">&quot;left_click for \&quot;{old}\&quot; already called; can&#39;t also do \&quot;{label}\&quot;&quot;</span>);
         }
-        <span class="self">self</span>.<span class="ident">click_action</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">label</span>);
-        <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>()
+        <span class="self">self</span>.click_action = <span class="prelude-val">Some</span>(label);
+        ctx.normal_left_click()
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FindDelayedIntersections</span> {
-    <span class="kw">pub</span> <span class="ident">halt_limit</span>: <span class="ident">Duration</span>,
-    <span class="kw">pub</span> <span class="ident">report_limit</span>: <span class="ident">Duration</span>,
+<span class="kw">pub struct </span>FindDelayedIntersections {
+    <span class="kw">pub </span>halt_limit: Duration,
+    <span class="kw">pub </span>report_limit: Duration,
 
-    <span class="kw">pub</span> <span class="ident">currently_delayed</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">IntersectionID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub </span>currently_delayed: Vec&lt;(IntersectionID, Time)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SimCallback</span> <span class="kw">for</span> <span class="ident">FindDelayedIntersections</span> {
-    <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">currently_delayed</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">delayed_intersections</span>(<span class="self">self</span>.<span class="ident">report_limit</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">t</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">currently_delayed</span>.<span class="ident">get</span>(<span class="number">0</span>) {
-            <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">halt_limit</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+<span class="kw">impl </span>SimCallback <span class="kw">for </span>FindDelayedIntersections {
+    <span class="kw">fn </span>run(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sim: <span class="kw-2">&amp;</span>Sim, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="self">self</span>.currently_delayed = sim.delayed_intersections(<span class="self">self</span>.report_limit);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, t)) = <span class="self">self</span>.currently_delayed.get(<span class="number">0</span>) {
+            sim.time() - <span class="kw-2">*</span>t &gt;= <span class="self">self</span>.halt_limit
+        } <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SharedAppState</span> <span class="kw">for</span> <span class="ident">App</span> {
-    <span class="kw">fn</span> <span class="ident">before_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">per_obj</span>.<span class="ident">reset</span>();
+<span class="kw">impl </span>SharedAppState <span class="kw">for </span>App {
+    <span class="kw">fn </span>before_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.per_obj.reset();
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">DrawOptions::new</span>(), <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>());
+    <span class="kw">fn </span>draw_default(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="self">self</span>.draw(g, DrawOptions::new(), <span class="kw-2">&amp;</span>ShowEverything::new());
     }
 
-    <span class="kw">fn</span> <span class="ident">dump_before_abort</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
+    <span class="kw">fn </span>dump_before_abort(<span class="kw-2">&amp;</span><span class="self">self</span>, canvas: <span class="kw-2">&amp;</span>Canvas) {
         <span class="macro">println!</span>();
         <span class="macro">println!</span>(
-            <span class="string">&quot;********************************************************************************&quot;</span>
-        );
-        <span class="ident">CameraState::save</span>(<span class="ident">canvas</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>());
+            <span class="string">&quot;********************************************************************************&quot;
+        </span>);
+        CameraState::save(canvas, <span class="self">self</span>.primary.map.get_name());
         <span class="macro">println!</span>(
             <span class="string">&quot;Crash! Please report to https://github.com/a-b-street/abstreet/issues/ and include \
-             all output.txt; at least everything starting from the stack trace above!&quot;</span>
-        );
+             all output.txt; at least everything starting from the stack trace above!&quot;
+        </span>);
 
         <span class="macro">println!</span>();
-        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">dump_before_abort</span>();
+        <span class="self">self</span>.primary.sim.dump_before_abort();
 
         <span class="macro">println!</span>();
         <span class="macro">println!</span>(<span class="string">&quot;Camera:&quot;</span>);
         <span class="macro">println!</span>(
             <span class="string">r#&quot;{{ &quot;cam_x&quot;: {}, &quot;cam_y&quot;: {}, &quot;cam_zoom&quot;: {} }}&quot;#</span>,
-            <span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="ident">canvas</span>.<span class="ident">cam_y</span>, <span class="ident">canvas</span>.<span class="ident">cam_zoom</span>
+            canvas.cam_x, canvas.cam_y, canvas.cam_zoom
         );
 
         <span class="macro">println!</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">if </span><span class="self">self</span>.primary.map.get_edits().commands.is_empty() {
             <span class="macro">println!</span>(<span class="string">&quot;No edits&quot;</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">abstio::write_json</span>(
-                <span class="string">&quot;edits_during_crash.json&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">to_permanent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
+        } <span class="kw">else </span>{
+            abstio::write_json(
+                <span class="string">&quot;edits_during_crash.json&quot;</span>.to_string(),
+                <span class="kw-2">&amp;</span><span class="self">self</span>.primary.map.get_edits().to_permanent(<span class="kw-2">&amp;</span><span class="self">self</span>.primary.map),
             );
             <span class="macro">println!</span>(<span class="string">&quot;Please include edits_during_crash.json in your bug report.&quot;</span>);
         }
 
-        <span class="comment">// Repeat, because it can be hard to see the top of the report if it&#39;s long</span>
-        <span class="macro">println!</span>();
+        <span class="comment">// Repeat, because it can be hard to see the top of the report if it&#39;s long
+        </span><span class="macro">println!</span>();
         <span class="macro">println!</span>(
             <span class="string">&quot;Crash! Please report to https://github.com/a-b-street/abstreet/issues/ and include \
-             all output.txt; at least everything above here until the start of the report!&quot;</span>
-        );
+             all output.txt; at least everything above here until the start of the report!&quot;
+        </span>);
         <span class="macro">println!</span>(
-            <span class="string">&quot;********************************************************************************&quot;</span>
-        );
+            <span class="string">&quot;********************************************************************************&quot;
+        </span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">before_quit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
-        <span class="ident">CameraState::save</span>(<span class="ident">canvas</span>, <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>());
+    <span class="kw">fn </span>before_quit(<span class="kw-2">&amp;</span><span class="self">self</span>, canvas: <span class="kw-2">&amp;</span>Canvas) {
+        CameraState::save(canvas, <span class="self">self</span>.primary.map.get_name());
     }
 
-    <span class="kw">fn</span> <span class="ident">free_memory</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">free_memory</span>();
+    <span class="kw">fn </span>free_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.primary.draw_map.free_memory();
     }
 }
 
-<span class="doccomment">/// Load an extra GeoJSON file, and add the area to the map dynamically.</span>
-<span class="kw">fn</span> <span class="ident">add_study_area</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Map</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">require_in_bounds</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="ident">tags</span>) <span class="kw">in</span> <span class="ident">Polygon::from_geojson_bytes</span>(
-        <span class="kw-2">&amp;</span><span class="ident">abstio::slurp_file</span>(<span class="ident">abstio::path</span>(<span class="macro">format!</span>(<span class="string">&quot;system/study_areas/{}.geojson&quot;</span>, <span class="ident">name</span>)))<span class="question-mark">?</span>,
-        <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>(),
-        <span class="ident">require_in_bounds</span>,
-    )<span class="question-mark">?</span> {
-        <span class="ident">map</span>.<span class="ident">hack_add_area</span>(<span class="ident">AreaType::StudyArea</span>, <span class="ident">polygon</span>, <span class="ident">tags</span>);
+<span class="doccomment">/// Load an extra GeoJSON file, and add the area to the map dynamically.
+</span><span class="kw">fn </span>add_study_area(map: <span class="kw-2">&amp;mut </span>Map, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>require_in_bounds = <span class="bool-val">true</span>;
+    <span class="kw">for </span>(polygon, tags) <span class="kw">in </span>Polygon::from_geojson_bytes(
+        <span class="kw-2">&amp;</span>abstio::slurp_file(abstio::path(<span class="macro">format!</span>(<span class="string">&quot;system/study_areas/{}.geojson&quot;</span>, name)))<span class="question-mark">?</span>,
+        map.get_gps_bounds(),
+        require_in_bounds,
+    )<span class="question-mark">? </span>{
+        map.hack_add_area(AreaType::StudyArea, polygon, tags);
     }
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

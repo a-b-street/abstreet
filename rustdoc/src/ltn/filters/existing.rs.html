@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/filters/existing.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>existing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/filters/existing.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>existing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -132,139 +132,139 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::render::DrawMap</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Map</span>, <span class="ident">Road</span>};
-<span class="kw">use</span> <span class="ident">widgetry::EventCtx</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::{Tags, Timer};
+<span class="kw">use </span>geom::Distance;
+<span class="kw">use </span>map_gui::render::DrawMap;
+<span class="kw">use </span>map_model::{osm, Map, Road};
+<span class="kw">use </span>widgetry::EventCtx;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">mut_edits</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">RoadFilter</span>};
+<span class="kw">use crate</span>::{mut_edits, App, FilterType, RoadFilter};
 
-<span class="doccomment">/// Detect roads that&#39;re modelled in OSM as cycleways, but really are regular roads with modal</span>
-<span class="doccomment">/// filters. Transform them into normal roads, and instead use this tool&#39;s explicit representation</span>
-<span class="doccomment">/// for filters.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Also detect modal filters defined in OSM as points.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transform_existing_filters</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filtered_roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">detect_filters</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>) {
-        <span class="ident">edits</span>
-            .<span class="ident">commands</span>
-            .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                <span class="comment">// Produce a fixed [sidewalk, driving, driving, sidewalk] configuration. We could get</span>
-                <span class="comment">// fancier and copy the tags of one of the roads we&#39;re connected to, but there might be</span>
-                <span class="comment">// turn lanes or something extraneous there.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
-                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
-                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
-                <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;both&quot;</span>);
-                <span class="ident">new</span>.<span class="ident">lanes_ltr</span> <span class="op">=</span>
-                    <span class="ident">osm2streets::get_lane_specs_ltr</span>(<span class="kw-2">&amp;</span><span class="ident">tags</span>, <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_config</span>());
+<span class="doccomment">/// Detect roads that&#39;re modelled in OSM as cycleways, but really are regular roads with modal
+/// filters. Transform them into normal roads, and instead use this tool&#39;s explicit representation
+/// for filters.
+///
+/// Also detect modal filters defined in OSM as points.
+</span><span class="kw">pub fn </span>transform_existing_filters(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.per_map.map.get_edits().clone();
+    <span class="kw">let </span><span class="kw-2">mut </span>filtered_roads = Vec::new();
+    <span class="kw">for </span>r <span class="kw">in </span>detect_filters(<span class="kw-2">&amp;</span>app.per_map.map) {
+        edits
+            .commands
+            .push(app.per_map.map.edit_road_cmd(r.id, |new| {
+                <span class="comment">// Produce a fixed [sidewalk, driving, driving, sidewalk] configuration. We could get
+                // fancier and copy the tags of one of the roads we&#39;re connected to, but there might be
+                // turn lanes or something extraneous there.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>tags = Tags::empty();
+                tags.insert(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
+                tags.insert(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
+                tags.insert(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;both&quot;</span>);
+                new.lanes_ltr =
+                    osm2streets::get_lane_specs_ltr(<span class="kw-2">&amp;</span>tags, app.per_map.map.get_config());
             }));
-        <span class="ident">filtered_roads</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+        filtered_roads.push(r.id);
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
-        <span class="ident">app</span>.<span class="ident">per_map</span>
-            .<span class="ident">draw_map</span>
-            .<span class="ident">draw_all_unzoomed_roads_and_intersections</span> <span class="op">=</span>
-            <span class="ident">DrawMap::regenerate_unzoomed_layer</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>, <span class="ident">timer</span>);
-        <span class="comment">// No need to recreate_road or recreate_intersection. They mostly have zoomed-in effects we</span>
-        <span class="comment">// ignore. The thickened polygon may change slightly due to width, but it&#39;s negligible.</span>
+    <span class="kw">if </span>!edits.commands.is_empty() {
+        app.per_map.map.must_apply_edits(edits, timer);
+        app.per_map
+            .draw_map
+            .draw_all_unzoomed_roads_and_intersections =
+            DrawMap::regenerate_unzoomed_layer(ctx, <span class="kw-2">&amp;</span>app.per_map.map, <span class="kw-2">&amp;</span>app.cs, <span class="kw-2">&amp;</span>app.opts, timer);
+        <span class="comment">// No need to recreate_road or recreate_intersection. They mostly have zoomed-in effects we
+        // ignore. The thickened polygon may change slightly due to width, but it&#39;s negligible.
 
-        <span class="comment">// Create the filters after applying edits, since road length may change.</span>
-        <span class="comment">//</span>
-        <span class="comment">// (And don&#39;t call before_edit; this transformation happens before the user starts editing</span>
-        <span class="comment">// anything)</span>
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">filtered_roads</span> {
-            <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">insert</span>(
-                <span class="ident">r</span>,
-                <span class="ident">RoadFilter</span> {
-                    <span class="ident">dist</span>: <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
-                    <span class="ident">filter_type</span>: <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bus_routes_on_road</span>(<span class="ident">r</span>).<span class="ident">is_empty</span>() {
-                        <span class="ident">FilterType::WalkCycleOnly</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">FilterType::BusGate</span>
+        // Create the filters after applying edits, since road length may change.
+        //
+        // (And don&#39;t call before_edit; this transformation happens before the user starts editing
+        // anything)
+        </span><span class="kw">for </span>r <span class="kw">in </span>filtered_roads {
+            <span class="macro">mut_edits!</span>(app).roads.insert(
+                r,
+                RoadFilter {
+                    dist: app.per_map.map.get_r(r).length() / <span class="number">2.0</span>,
+                    filter_type: <span class="kw">if </span>app.per_map.map.get_bus_routes_on_road(r).is_empty() {
+                        FilterType::WalkCycleOnly
+                    } <span class="kw">else </span>{
+                        FilterType::BusGate
                     },
-                    <span class="ident">user_modified</span>: <span class="bool-val">false</span>,
+                    user_modified: <span class="bool-val">false</span>,
                 },
             );
         }
     }
 
-    <span class="comment">// Now handle modal filters defined as points in OSM</span>
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="kw">for</span> <span class="ident">dist</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">barrier_nodes</span> {
-            <span class="comment">// The road might also be marked as non-driving. This&#39;ll move the filter position from</span>
-            <span class="comment">// the center.</span>
-            <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">insert</span>(
-                <span class="ident">r</span>.<span class="ident">id</span>,
-                <span class="ident">RoadFilter</span> {
-                    <span class="ident">dist</span>: <span class="kw-2">*</span><span class="ident">dist</span>,
-                    <span class="ident">filter_type</span>: <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bus_routes_on_road</span>(<span class="ident">r</span>.<span class="ident">id</span>).<span class="ident">is_empty</span>() {
-                        <span class="ident">FilterType::WalkCycleOnly</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">FilterType::BusGate</span>
+    <span class="comment">// Now handle modal filters defined as points in OSM
+    </span><span class="kw">for </span>r <span class="kw">in </span>app.per_map.map.all_roads() {
+        <span class="kw">for </span>dist <span class="kw">in </span><span class="kw-2">&amp;</span>r.barrier_nodes {
+            <span class="comment">// The road might also be marked as non-driving. This&#39;ll move the filter position from
+            // the center.
+            </span><span class="macro">mut_edits!</span>(app).roads.insert(
+                r.id,
+                RoadFilter {
+                    dist: <span class="kw-2">*</span>dist,
+                    filter_type: <span class="kw">if </span>app.per_map.map.get_bus_routes_on_road(r.id).is_empty() {
+                        FilterType::WalkCycleOnly
+                    } <span class="kw">else </span>{
+                        FilterType::BusGate
                     },
-                    <span class="ident">user_modified</span>: <span class="bool-val">false</span>,
+                    user_modified: <span class="bool-val">false</span>,
                 },
             );
         }
     }
 
-    <span class="comment">// Now that we&#39;ve applied all pre-existing filters, calculate the RoutingParams.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
-    <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
-    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">routing_params_before_changes</span> <span class="op">=</span> <span class="ident">params</span>;
+    <span class="comment">// Now that we&#39;ve applied all pre-existing filters, calculate the RoutingParams.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>params = app.per_map.map.routing_params().clone();
+    app.edits().update_routing_params(<span class="kw-2">&amp;mut </span>params);
+    app.per_map.routing_params_before_changes = params;
 
-    <span class="comment">// Do not call map.keep_pathfinder_despite_edits or recalculate_pathfinding_after_edits. We</span>
-    <span class="comment">// should NEVER use the map&#39;s built-in pathfinder in this app. If we do, crash.</span>
-}
+    <span class="comment">// Do not call map.keep_pathfinder_despite_edits or recalculate_pathfinding_after_edits. We
+    // should NEVER use the map&#39;s built-in pathfinder in this app. If we do, crash.
+</span>}
 
-<span class="kw">fn</span> <span class="ident">detect_filters</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Road</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filtered_roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="lifetime">&#39;ROAD</span>: <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="comment">// A/B Street currently treats most footpaths as cycle-focused. Don&#39;t look at the lane</span>
-        <span class="comment">// configuration; just look for this one tag. For example,</span>
-        <span class="comment">// https://www.openstreetmap.org/way/392685069 is a highway=footway that is NOT a filtered</span>
-        <span class="comment">// road.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;cycleway&quot;</span>) {
+<span class="kw">fn </span>detect_filters(map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Road&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>filtered_roads = Vec::new();
+    <span class="lifetime">&#39;ROAD</span>: <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+        <span class="comment">// A/B Street currently treats most footpaths as cycle-focused. Don&#39;t look at the lane
+        // configuration; just look for this one tag. For example,
+        // https://www.openstreetmap.org/way/392685069 is a highway=footway that is NOT a filtered
+        // road.
+        </span><span class="kw">if </span>!r.osm_tags.is(osm::HIGHWAY, <span class="string">&quot;cycleway&quot;</span>) {
             <span class="kw">continue</span>;
         }
-        <span class="comment">// A one-way cycleway is usually part of a complicated junction, like</span>
-        <span class="comment">// https://www.openstreetmap.org/way/1002273098</span>
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
+        <span class="comment">// A one-way cycleway is usually part of a complicated junction, like
+        // https://www.openstreetmap.org/way/1002273098
+        </span><span class="kw">if </span>r.osm_tags.is(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>) {
             <span class="kw">continue</span>;
         }
-        <span class="comment">// Long cycleways are probably not physically driveable. Like</span>
-        <span class="comment">// https://www.openstreetmap.org/way/174529602</span>
-        <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="ident">Distance::meters</span>(<span class="number">20.0</span>) {
+        <span class="comment">// Long cycleways are probably not physically driveable. Like
+        // https://www.openstreetmap.org/way/174529602
+        </span><span class="kw">if </span>r.length() &gt; Distance::meters(<span class="number">20.0</span>) {
             <span class="kw">continue</span>;
         }
-        <span class="comment">// Make sure both ends connect a driveable road, to avoid connections like</span>
-        <span class="comment">// https://www.openstreetmap.org/way/881433973</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_degenerate</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">r</span>.<span class="ident">src_i</span>, <span class="ident">r</span>.<span class="ident">dst_i</span>] {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_driveable</span>()) {
-                <span class="kw">continue</span> <span class="lifetime">&#39;ROAD</span>;
+        <span class="comment">// Make sure both ends connect a driveable road, to avoid connections like
+        // https://www.openstreetmap.org/way/881433973
+        </span><span class="kw">let </span><span class="kw-2">mut </span>num_degenerate = <span class="number">0</span>;
+        <span class="kw">for </span>i <span class="kw">in </span>[r.src_i, r.dst_i] {
+            <span class="kw">let </span>i = map.get_i(i);
+            <span class="kw">if </span>!i.roads.iter().any(|r| map.get_r(<span class="kw-2">*</span>r).is_driveable()) {
+                <span class="kw">continue </span><span class="lifetime">&#39;ROAD</span>;
             }
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_degenerate</span>() {
-                <span class="ident">num_degenerate</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="kw">if </span>i.is_degenerate() {
+                num_degenerate += <span class="number">1</span>;
             }
         }
-        <span class="comment">// Make sure the OSM way was split for the no-car section by looking for a degenerate</span>
-        <span class="comment">// intersection on at least one end. Avoid https://www.openstreetmap.org/node/4603472923,</span>
-        <span class="comment">// but still detect https://www.openstreetmap.org/way/51538523</span>
-        <span class="kw">if</span> <span class="ident">num_degenerate</span> <span class="op">==</span> <span class="number">0</span> {
+        <span class="comment">// Make sure the OSM way was split for the no-car section by looking for a degenerate
+        // intersection on at least one end. Avoid https://www.openstreetmap.org/node/4603472923,
+        // but still detect https://www.openstreetmap.org/way/51538523
+        </span><span class="kw">if </span>num_degenerate == <span class="number">0 </span>{
             <span class="kw">continue</span>;
         }
 
-        <span class="ident">filtered_roads</span>.<span class="ident">push</span>(<span class="ident">r</span>);
+        filtered_roads.push(r);
     }
-    <span class="ident">filtered_roads</span>
+    filtered_roads
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

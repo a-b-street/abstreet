@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/download.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>download.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstio/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/download.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>download.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstio/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -93,100 +93,100 @@
 <span id="93">93</span>
 <span id="94">94</span>
 <span id="95">95</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io::Write</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::io::Write;
 
-<span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">Context</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">futures_channel::mpsc</span>;
+<span class="kw">use </span>anyhow::{Context, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>futures_channel::mpsc;
 
-<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
+<span class="kw">use </span>abstutil::prettyprint_usize;
 
-<span class="doccomment">/// Downloads bytes from a URL. This must be called with a tokio runtime somewhere. The caller</span>
-<span class="doccomment">/// creates an mpsc channel pair and provides the sender. Progress will be described through it.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_bytes</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-    <span class="ident">url</span>: <span class="ident">I</span>,
-    <span class="ident">post_body</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">progress</span>: <span class="kw-2">&amp;mut</span> <span class="ident">mpsc::Sender</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">as_ref</span>();
-    <span class="macro">info!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">resp</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">body</span>) <span class="op">=</span> <span class="ident">post_body</span> {
-        <span class="ident">reqwest::Client::new</span>()
-            .<span class="ident">post</span>(<span class="ident">url</span>)
-            .<span class="ident">body</span>(<span class="ident">body</span>)
-            .<span class="ident">send</span>()
-            .<span class="kw">await</span>
-            .<span class="ident">unwrap</span>()
-    } <span class="kw">else</span> {
-        <span class="ident">reqwest::get</span>(<span class="ident">url</span>).<span class="kw">await</span>.<span class="ident">unwrap</span>()
+<span class="doccomment">/// Downloads bytes from a URL. This must be called with a tokio runtime somewhere. The caller
+/// creates an mpsc channel pair and provides the sender. Progress will be described through it.
+</span><span class="kw">pub async fn </span>download_bytes&lt;I: AsRef&lt;str&gt;&gt;(
+    url: I,
+    post_body: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    progress: <span class="kw-2">&amp;mut </span>mpsc::Sender&lt;String&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;u8&gt;&gt; {
+    <span class="kw">let </span>url = url.as_ref();
+    <span class="macro">info!</span>(<span class="string">&quot;Downloading {}&quot;</span>, url);
+    <span class="kw">let </span><span class="kw-2">mut </span>resp = <span class="kw">if let </span><span class="prelude-val">Some</span>(body) = post_body {
+        reqwest::Client::new()
+            .post(url)
+            .body(body)
+            .send()
+            .<span class="kw">await
+            </span>.unwrap()
+    } <span class="kw">else </span>{
+        reqwest::get(url).<span class="kw">await</span>.unwrap()
     };
-    <span class="ident">resp</span>.<span class="ident">error_for_status_ref</span>()
-        .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">url</span>.<span class="ident">to_string</span>())<span class="question-mark">?</span>;
+    resp.error_for_status_ref()
+        .with_context(|| url.to_string())<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">total_size</span> <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">content_length</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">usize</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">chunk</span>) <span class="op">=</span> <span class="ident">resp</span>.<span class="ident">chunk</span>().<span class="kw">await</span>.<span class="ident">unwrap</span>() {
-        <span class="comment">// TODO Throttle?</span>
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">total_size</span> {
+    <span class="kw">let </span>total_size = resp.content_length().map(|x| x <span class="kw">as </span>usize);
+    <span class="kw">let </span><span class="kw-2">mut </span>bytes = Vec::new();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(chunk) = resp.chunk().<span class="kw">await</span>.unwrap() {
+        <span class="comment">// TODO Throttle?
+        </span><span class="kw">let </span>msg = <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = total_size {
             <span class="macro">format!</span>(
                 <span class="string">&quot;{:.2}% ({} / {} bytes)&quot;</span>,
-                (<span class="ident">bytes</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">n</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="number">100.0</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">bytes</span>.<span class="ident">len</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)
+                (bytes.len() <span class="kw">as </span>f64) / (n <span class="kw">as </span>f64) * <span class="number">100.0</span>,
+                prettyprint_usize(bytes.len()),
+                prettyprint_usize(n)
             )
-        } <span class="kw">else</span> {
-            <span class="comment">// One example where the HTTP response won&#39;t say the response size is the Overpass API</span>
-            <span class="macro">format!</span>(
+        } <span class="kw">else </span>{
+            <span class="comment">// One example where the HTTP response won&#39;t say the response size is the Overpass API
+            </span><span class="macro">format!</span>(
                 <span class="string">&quot;{} bytes (unknown total size)&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">bytes</span>.<span class="ident">len</span>())
+                prettyprint_usize(bytes.len())
             )
         };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">progress</span>.<span class="ident">try_send</span>(<span class="ident">msg</span>) {
-            <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t send download progress message: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = progress.try_send(msg) {
+            <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t send download progress message: {}&quot;</span>, err);
         }
 
-        <span class="ident">bytes</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">chunk</span>).<span class="ident">unwrap</span>();
+        bytes.write_all(<span class="kw-2">&amp;</span>chunk).unwrap();
     }
     <span class="macro">println!</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">bytes</span>)
+    <span class="prelude-val">Ok</span>(bytes)
 }
 
-<span class="doccomment">/// Download a file from a URL. This must be called with a tokio runtime somewhere. Progress will</span>
-<span class="doccomment">/// be printed to STDOUT.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_to_file</span><span class="op">&lt;</span><span class="ident">I1</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>, <span class="ident">I2</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-    <span class="ident">url</span>: <span class="ident">I1</span>,
-    <span class="ident">post_body</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">path</span>: <span class="ident">I2</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">tx</span>, <span class="ident">rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1000</span>);
-    <span class="ident">print_download_progress</span>(<span class="ident">rx</span>);
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">download_bytes</span>(<span class="ident">url</span>, <span class="ident">post_body</span>, <span class="kw-2">&amp;mut</span> <span class="ident">tx</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">as_ref</span>();
-    <span class="op">|</span><span class="op">|</span> -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="ident">fs_err::create_dir_all</span>(<span class="ident">std::path::Path::new</span>(<span class="ident">path</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span> <span class="op">=</span> <span class="ident">fs_err::File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="ident">file</span>.<span class="ident">write_all</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)<span class="question-mark">?</span>;
+<span class="doccomment">/// Download a file from a URL. This must be called with a tokio runtime somewhere. Progress will
+/// be printed to STDOUT.
+</span><span class="kw">pub async fn </span>download_to_file&lt;I1: AsRef&lt;str&gt;, I2: AsRef&lt;str&gt;&gt;(
+    url: I1,
+    post_body: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    path: I2,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>(<span class="kw-2">mut </span>tx, rx) = futures_channel::mpsc::channel(<span class="number">1000</span>);
+    print_download_progress(rx);
+    <span class="kw">let </span>bytes = download_bytes(url, post_body, <span class="kw-2">&amp;mut </span>tx).<span class="kw">await</span><span class="question-mark">?</span>;
+    <span class="kw">let </span>path = path.as_ref();
+    || -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        fs_err::create_dir_all(std::path::Path::new(path).parent().unwrap())<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>file = fs_err::File::create(path)<span class="question-mark">?</span>;
+        file.write_all(<span class="kw-2">&amp;</span>bytes)<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }()
-    .<span class="ident">with_context</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">to_string</span>())
+    .with_context(|| path.to_string())
 }
 
-<span class="doccomment">/// Print download progress to STDOUT. Pass this the receiver, then call download_to_file or</span>
-<span class="doccomment">/// download_bytes with the sender.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">print_download_progress</span>(<span class="kw-2">mut</span> <span class="ident">progress</span>: <span class="ident">mpsc::Receiver</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
-    <span class="ident">tokio::task::spawn_blocking</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> <span class="kw">loop</span> {
-        <span class="kw">match</span> <span class="ident">progress</span>.<span class="ident">try_next</span>() {
-            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">msg</span>)) =&gt; {
-                <span class="ident">abstutil::clear_current_line</span>();
-                <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">msg</span>);
-                <span class="ident">std::io::stdout</span>().<span class="ident">flush</span>().<span class="ident">unwrap</span>();
+<span class="doccomment">/// Print download progress to STDOUT. Pass this the receiver, then call download_to_file or
+/// download_bytes with the sender.
+</span><span class="kw">pub fn </span>print_download_progress(<span class="kw-2">mut </span>progress: mpsc::Receiver&lt;String&gt;) {
+    tokio::task::spawn_blocking(<span class="kw">move </span>|| <span class="kw">loop </span>{
+        <span class="kw">match </span>progress.try_next() {
+            <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(msg)) =&gt; {
+                abstutil::clear_current_line();
+                <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, msg);
+                std::io::stdout().flush().unwrap();
             }
             <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>) =&gt; <span class="kw">break</span>,
-            <span class="comment">// Per</span>
-            <span class="comment">// https://docs.rs/futures-channel/0.3.14/futures_channel/mpsc/struct.Receiver.html#method.try_next,</span>
-            <span class="comment">// this means no messages are available yet</span>
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {}
+            <span class="comment">// Per
+            // https://docs.rs/futures-channel/0.3.14/futures_channel/mpsc/struct.Receiver.html#method.try_next,
+            // this means no messages are available yet
+            </span><span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {}
         }
     });
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

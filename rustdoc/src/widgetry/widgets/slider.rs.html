@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/slider.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>slider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/slider.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>slider.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -330,337 +330,337 @@
 <span id="330">330</span>
 <span id="331">331</span>
 <span id="332">332</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Circle, Distance, Polygon, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+<span class="kw">use crate</span>::{
+    Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, Widget, WidgetImpl, WidgetOutput,
 };
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Slider</span> {
-    <span class="ident">current_percent</span>: <span class="ident">f64</span>,
-    <span class="ident">mouse_on_slider</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">dragging</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>Slider {
+    current_percent: f64,
+    mouse_on_slider: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) dragging: bool,
 
-    <span class="ident">style</span>: <span class="ident">Style</span>,
-    <span class="ident">label</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    style: Style,
+    label: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
+    draw: Drawable,
 
-    <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>,
-    <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
+    top_left: ScreenPt,
+    dims: ScreenDims,
 }
 
-<span class="kw">enum</span> <span class="ident">Style</span> {
-    <span class="ident">Horizontal</span> { <span class="ident">main_bg_len</span>: <span class="ident">f64</span>, <span class="ident">dragger_len</span>: <span class="ident">f64</span> },
-    <span class="ident">Vertical</span> { <span class="ident">main_bg_len</span>: <span class="ident">f64</span>, <span class="ident">dragger_len</span>: <span class="ident">f64</span> },
-    <span class="ident">Area</span> { <span class="ident">width</span>: <span class="ident">f64</span> },
+<span class="kw">enum </span>Style {
+    Horizontal { main_bg_len: f64, dragger_len: f64 },
+    Vertical { main_bg_len: f64, dragger_len: f64 },
+    Area { width: f64 },
 }
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCROLLBAR_BG_WIDTH</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">8.0</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">AREA_SLIDER_BG_WIDTH</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">10.0</span>;
+<span class="kw">pub const </span>SCROLLBAR_BG_WIDTH: f64 = <span class="number">8.0</span>;
+<span class="kw">pub const </span>AREA_SLIDER_BG_WIDTH: f64 = <span class="number">10.0</span>;
 
-<span class="kw">impl</span> <span class="ident">Style</span> {
-    <span class="kw">fn</span> <span class="ident">padding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">EdgeInsets</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Style::Horizontal</span> { .. } <span class="op">|</span> <span class="ident">Style::Vertical</span> { .. } =&gt; <span class="ident">EdgeInsets::zero</span>(),
-            <span class="ident">Style::Area</span> { .. } =&gt; <span class="ident">EdgeInsets</span> {
-                <span class="ident">top</span>: <span class="number">10.0</span>,
-                <span class="ident">bottom</span>: <span class="number">10.0</span>,
-                <span class="ident">left</span>: <span class="number">20.0</span>,
-                <span class="ident">right</span>: <span class="number">20.0</span>,
+<span class="kw">impl </span>Style {
+    <span class="kw">fn </span>padding(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; EdgeInsets {
+        <span class="kw">match </span><span class="self">self </span>{
+            Style::Horizontal { .. } | Style::Vertical { .. } =&gt; EdgeInsets::zero(),
+            Style::Area { .. } =&gt; EdgeInsets {
+                top: <span class="number">10.0</span>,
+                bottom: <span class="number">10.0</span>,
+                left: <span class="number">20.0</span>,
+                right: <span class="number">20.0</span>,
             },
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">inner_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Style::Horizontal</span> { <span class="ident">main_bg_len</span>, .. } =&gt; {
-                <span class="ident">ScreenDims::new</span>(<span class="kw-2">*</span><span class="ident">main_bg_len</span>, <span class="ident">SCROLLBAR_BG_WIDTH</span>)
+    <span class="kw">fn </span>inner_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="kw">match </span><span class="self">self </span>{
+            Style::Horizontal { main_bg_len, .. } =&gt; {
+                ScreenDims::new(<span class="kw-2">*</span>main_bg_len, SCROLLBAR_BG_WIDTH)
             }
-            <span class="ident">Style::Vertical</span> { <span class="ident">main_bg_len</span>, .. } =&gt; {
-                <span class="ident">ScreenDims::new</span>(<span class="ident">SCROLLBAR_BG_WIDTH</span>, <span class="kw-2">*</span><span class="ident">main_bg_len</span>)
+            Style::Vertical { main_bg_len, .. } =&gt; {
+                ScreenDims::new(SCROLLBAR_BG_WIDTH, <span class="kw-2">*</span>main_bg_len)
             }
-            <span class="ident">Style::Area</span> { <span class="ident">width</span> } =&gt; <span class="ident">ScreenDims::new</span>(<span class="kw-2">*</span><span class="ident">width</span>, <span class="ident">AREA_SLIDER_BG_WIDTH</span>),
+            Style::Area { width } =&gt; ScreenDims::new(<span class="kw-2">*</span>width, AREA_SLIDER_BG_WIDTH),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Slider</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">horizontal_scrollbar</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">width</span>: <span class="ident">f64</span>,
-        <span class="ident">dragger_len</span>: <span class="ident">f64</span>,
-        <span class="ident">current_percent</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Slider::new_widget</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">Style::Horizontal</span> {
-                <span class="ident">main_bg_len</span>: <span class="ident">width</span>,
-                <span class="ident">dragger_len</span>,
+<span class="kw">impl </span>Slider {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>horizontal_scrollbar(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        width: f64,
+        dragger_len: f64,
+        current_percent: f64,
+    ) -&gt; Widget {
+        Slider::new_widget(
+            ctx,
+            Style::Horizontal {
+                main_bg_len: width,
+                dragger_len,
             },
-            <span class="ident">current_percent</span>,
-            <span class="comment">// Don&#39;t emit Outcome::Changed for scollbars</span>
-            <span class="prelude-val">None</span>,
+            current_percent,
+            <span class="comment">// Don&#39;t emit Outcome::Changed for scollbars
+            </span><span class="prelude-val">None</span>,
         )
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">vertical_scrollbar</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">height</span>: <span class="ident">f64</span>,
-        <span class="ident">dragger_len</span>: <span class="ident">f64</span>,
-        <span class="ident">current_percent</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Slider::new_widget</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">Style::Vertical</span> {
-                <span class="ident">main_bg_len</span>: <span class="ident">height</span>,
-                <span class="ident">dragger_len</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>vertical_scrollbar(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        height: f64,
+        dragger_len: f64,
+        current_percent: f64,
+    ) -&gt; Widget {
+        Slider::new_widget(
+            ctx,
+            Style::Vertical {
+                main_bg_len: height,
+                dragger_len,
             },
-            <span class="ident">current_percent</span>,
-            <span class="comment">// Don&#39;t emit Outcome::Changed for scollbars</span>
-            <span class="prelude-val">None</span>,
+            current_percent,
+            <span class="comment">// Don&#39;t emit Outcome::Changed for scollbars
+            </span><span class="prelude-val">None</span>,
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">area</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">width</span>: <span class="ident">f64</span>, <span class="ident">current_percent</span>: <span class="ident">f64</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Slider::new_widget</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">Style::Area</span> { <span class="ident">width</span> },
-            <span class="ident">current_percent</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">label</span>.<span class="ident">to_string</span>()),
+    <span class="kw">pub fn </span>area(ctx: <span class="kw-2">&amp;</span>EventCtx, width: f64, current_percent: f64, label: <span class="kw-2">&amp;</span>str) -&gt; Widget {
+        Slider::new_widget(
+            ctx,
+            Style::Area { width },
+            current_percent,
+            <span class="prelude-val">Some</span>(label.to_string()),
         )
-        .<span class="ident">named</span>(<span class="ident">label</span>)
+        .named(label)
     }
 
-    <span class="kw">fn</span> <span class="ident">new_widget</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">style</span>: <span class="ident">Style</span>,
-        <span class="ident">current_percent</span>: <span class="ident">f64</span>,
-        <span class="ident">label</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Slider</span> {
-            <span class="ident">current_percent</span>,
-            <span class="ident">mouse_on_slider</span>: <span class="bool-val">false</span>,
-            <span class="ident">dragging</span>: <span class="bool-val">false</span>,
-            <span class="ident">style</span>,
-            <span class="ident">draw</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">label</span>,
+    <span class="kw">fn </span>new_widget(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        style: Style,
+        current_percent: f64,
+        label: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    ) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = Slider {
+            current_percent,
+            mouse_on_slider: <span class="bool-val">false</span>,
+            dragging: <span class="bool-val">false</span>,
+            style,
+            draw: Drawable::empty(ctx),
+            label,
 
-            <span class="ident">top_left</span>: <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="ident">dims</span>: <span class="ident">ScreenDims::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            top_left: ScreenPt::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            dims: ScreenDims::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
         };
-        <span class="ident">s</span>.<span class="ident">recalc</span>(<span class="ident">ctx</span>);
-        <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">s</span>))
+        s.recalc(ctx);
+        Widget::new(Box::new(s))
     }
 
-    <span class="kw">fn</span> <span class="ident">recalc</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+    <span class="kw">fn </span>recalc(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">style</span> {
-            <span class="ident">Style::Horizontal</span> { .. } <span class="op">|</span> <span class="ident">Style::Vertical</span> { .. } =&gt; {
-                <span class="kw">let</span> <span class="ident">inner_dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">inner_dims</span>();
-                <span class="comment">// The background</span>
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">field_bg</span>,
-                    <span class="ident">Polygon::rectangle</span>(<span class="ident">inner_dims</span>.<span class="ident">width</span>, <span class="ident">inner_dims</span>.<span class="ident">height</span>),
+        <span class="kw">match </span><span class="self">self</span>.style {
+            Style::Horizontal { .. } | Style::Vertical { .. } =&gt; {
+                <span class="kw">let </span>inner_dims = <span class="self">self</span>.style.inner_dims();
+                <span class="comment">// The background
+                </span>batch.push(
+                    ctx.style.field_bg,
+                    Polygon::rectangle(inner_dims.width, inner_dims.height),
                 );
 
-                <span class="comment">// The draggy thing</span>
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span> {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>
+                <span class="comment">// The draggy thing
+                </span>batch.push(
+                    <span class="kw">if </span><span class="self">self</span>.mouse_on_slider {
+                        ctx.style.btn_solid.bg_hover
+                    } <span class="kw">else </span>{
+                        ctx.style.btn_solid.bg
                     },
-                    <span class="self">self</span>.<span class="ident">button_geom</span>(),
+                    <span class="self">self</span>.button_geom(),
                 );
             }
-            <span class="ident">Style::Area</span> { .. } =&gt; {
-                <span class="comment">// Full dims</span>
-                <span class="kw">let</span> <span class="ident">inner_dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">inner_dims</span>();
-                <span class="comment">// The background</span>
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">field_bg</span>.<span class="ident">dull</span>(<span class="number">0.5</span>),
-                    <span class="ident">Polygon::pill</span>(<span class="ident">inner_dims</span>.<span class="ident">width</span>, <span class="ident">inner_dims</span>.<span class="ident">height</span>),
+            Style::Area { .. } =&gt; {
+                <span class="comment">// Full dims
+                </span><span class="kw">let </span>inner_dims = <span class="self">self</span>.style.inner_dims();
+                <span class="comment">// The background
+                </span>batch.push(
+                    ctx.style.field_bg.dull(<span class="number">0.5</span>),
+                    Polygon::pill(inner_dims.width, inner_dims.height),
                 );
 
-                <span class="comment">// So far</span>
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">Color::hex</span>(<span class="string">&quot;#F4DF4D&quot;</span>),
-                    <span class="ident">Polygon::pill</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> <span class="ident">inner_dims</span>.<span class="ident">width</span>, <span class="ident">inner_dims</span>.<span class="ident">height</span>),
+                <span class="comment">// So far
+                </span>batch.push(
+                    Color::hex(<span class="string">&quot;#F4DF4D&quot;</span>),
+                    Polygon::pill(<span class="self">self</span>.current_percent * inner_dims.width, inner_dims.height),
                 );
 
-                <span class="comment">// The circle dragger</span>
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span> {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>
-                    } <span class="kw">else</span> {
-                        <span class="comment">// we don&#39;t want to use `ctx.style.btn_solid.bg` because it achieves it&#39;s</span>
-                        <span class="comment">// &quot;dulling&quot; with opacity, which causes the slider to &quot;peak through&quot; and</span>
-                        <span class="comment">// looks weird.</span>
-                        <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>.<span class="ident">dull</span>(<span class="number">0.2</span>)
+                <span class="comment">// The circle dragger
+                </span>batch.push(
+                    <span class="kw">if </span><span class="self">self</span>.mouse_on_slider {
+                        ctx.style.btn_solid.bg_hover
+                    } <span class="kw">else </span>{
+                        <span class="comment">// we don&#39;t want to use `ctx.style.btn_solid.bg` because it achieves it&#39;s
+                        // &quot;dulling&quot; with opacity, which causes the slider to &quot;peak through&quot; and
+                        // looks weird.
+                        </span>ctx.style.btn_solid.bg_hover.dull(<span class="number">0.2</span>)
                     },
-                    <span class="self">self</span>.<span class="ident">button_geom</span>(),
+                    <span class="self">self</span>.button_geom(),
                 );
             }
         }
 
-        <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">padding</span>();
-        <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">translate</span>(<span class="ident">padding</span>.<span class="ident">left</span>, <span class="ident">padding</span>.<span class="ident">top</span>);
-        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">inner_dims</span>().<span class="ident">pad</span>(<span class="ident">padding</span>);
-        <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+        <span class="kw">let </span>padding = <span class="self">self</span>.style.padding();
+        batch = batch.translate(padding.left, padding.top);
+        <span class="self">self</span>.dims = <span class="self">self</span>.style.inner_dims().pad(padding);
+        <span class="self">self</span>.draw = ctx.upload(batch);
     }
 
-    <span class="comment">// Doesn&#39;t touch self.top_left</span>
-    <span class="kw">fn</span> <span class="ident">button_geom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">style</span> {
-            <span class="ident">Style::Horizontal</span> {
-                <span class="ident">main_bg_len</span>,
-                <span class="ident">dragger_len</span>,
-            } =&gt; <span class="ident">Polygon::pill</span>(<span class="ident">dragger_len</span>, <span class="ident">SCROLLBAR_BG_WIDTH</span>)
-                .<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>), <span class="number">0.0</span>),
-            <span class="ident">Style::Vertical</span> {
-                <span class="ident">main_bg_len</span>,
-                <span class="ident">dragger_len</span>,
-            } =&gt; <span class="ident">Polygon::pill</span>(<span class="ident">SCROLLBAR_BG_WIDTH</span>, <span class="ident">dragger_len</span>)
-                .<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>)),
-            <span class="ident">Style::Area</span> { <span class="ident">width</span> } =&gt; <span class="ident">Circle::new</span>(
-                <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> <span class="ident">width</span>, <span class="ident">AREA_SLIDER_BG_WIDTH</span> <span class="op">/</span> <span class="number">2.0</span>),
-                <span class="ident">Distance::meters</span>(<span class="number">16.0</span>),
+    <span class="comment">// Doesn&#39;t touch self.top_left
+    </span><span class="kw">fn </span>button_geom(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Polygon {
+        <span class="kw">match </span><span class="self">self</span>.style {
+            Style::Horizontal {
+                main_bg_len,
+                dragger_len,
+            } =&gt; Polygon::pill(dragger_len, SCROLLBAR_BG_WIDTH)
+                .translate(<span class="self">self</span>.current_percent * (main_bg_len - dragger_len), <span class="number">0.0</span>),
+            Style::Vertical {
+                main_bg_len,
+                dragger_len,
+            } =&gt; Polygon::pill(SCROLLBAR_BG_WIDTH, dragger_len)
+                .translate(<span class="number">0.0</span>, <span class="self">self</span>.current_percent * (main_bg_len - dragger_len)),
+            Style::Area { width } =&gt; Circle::new(
+                Pt2D::new(<span class="self">self</span>.current_percent * width, AREA_SLIDER_BG_WIDTH / <span class="number">2.0</span>),
+                Distance::meters(<span class="number">16.0</span>),
             )
-            .<span class="ident">to_polygon</span>(),
+            .to_polygon(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">pt_to_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) -&gt; <span class="ident">f64</span> {
-        <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">padding</span>();
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">translated</span>(
-            <span class="op">-</span><span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">padding</span>.<span class="ident">left</span>,
-            <span class="op">-</span><span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">padding</span>.<span class="ident">top</span>,
+    <span class="kw">fn </span>pt_to_percent(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: ScreenPt) -&gt; f64 {
+        <span class="kw">let </span>padding = <span class="self">self</span>.style.padding();
+        <span class="kw">let </span>pt = pt.translated(
+            -<span class="self">self</span>.top_left.x - padding.left,
+            -<span class="self">self</span>.top_left.y - padding.top,
         );
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">style</span> {
-            <span class="ident">Style::Horizontal</span> {
-                <span class="ident">main_bg_len</span>,
-                <span class="ident">dragger_len</span>,
-            } =&gt; (<span class="ident">pt</span>.<span class="ident">x</span> <span class="op">-</span> (<span class="ident">dragger_len</span> <span class="op">/</span> <span class="number">2.0</span>)) <span class="op">/</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>),
-            <span class="ident">Style::Vertical</span> {
-                <span class="ident">main_bg_len</span>,
-                <span class="ident">dragger_len</span>,
-            } =&gt; (<span class="ident">pt</span>.<span class="ident">y</span> <span class="op">-</span> (<span class="ident">dragger_len</span> <span class="op">/</span> <span class="number">2.0</span>)) <span class="op">/</span> (<span class="ident">main_bg_len</span> <span class="op">-</span> <span class="ident">dragger_len</span>),
-            <span class="ident">Style::Area</span> { <span class="ident">width</span> } =&gt; <span class="ident">pt</span>.<span class="ident">x</span> <span class="op">/</span> <span class="ident">width</span>,
+        <span class="kw">match </span><span class="self">self</span>.style {
+            Style::Horizontal {
+                main_bg_len,
+                dragger_len,
+            } =&gt; (pt.x - (dragger_len / <span class="number">2.0</span>)) / (main_bg_len - dragger_len),
+            Style::Vertical {
+                main_bg_len,
+                dragger_len,
+            } =&gt; (pt.y - (dragger_len / <span class="number">2.0</span>)) / (main_bg_len - dragger_len),
+            Style::Area { width } =&gt; pt.x / width,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">current_percent</span>
+    <span class="kw">pub fn </span>get_percent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.current_percent
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">num_items</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-        (<span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">*</span> (<span class="ident">num_items</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">-</span> <span class="number">1.0</span>)) <span class="kw">as</span> <span class="ident">usize</span>
+    <span class="kw">pub fn </span>get_value(<span class="kw-2">&amp;</span><span class="self">self</span>, num_items: usize) -&gt; usize {
+        (<span class="self">self</span>.current_percent * (num_items <span class="kw">as </span>f64 - <span class="number">1.0</span>)) <span class="kw">as </span>usize
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_percent</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">percent</span>: <span class="ident">f64</span>) {
-        <span class="macro">assert!</span>((<span class="number">0.0</span>..<span class="op">=</span><span class="number">1.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">percent</span>));
-        <span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">=</span> <span class="ident">percent</span>;
-        <span class="self">self</span>.<span class="ident">recalc</span>(<span class="ident">ctx</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
-            <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">button_geom</span>()
-                .<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span>)
-                .<span class="ident">contains_pt</span>(<span class="ident">pt</span>.<span class="ident">to_pt</span>());
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">pub fn </span>set_percent(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, percent: f64) {
+        <span class="macro">assert!</span>((<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>percent));
+        <span class="self">self</span>.current_percent = percent;
+        <span class="self">self</span>.recalc(ctx);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_screen_space() {
+            <span class="self">self</span>.mouse_on_slider = <span class="self">self
+                </span>.button_geom()
+                .translate(<span class="self">self</span>.top_left.x, <span class="self">self</span>.top_left.y)
+                .contains_pt(pt.to_pt());
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.mouse_on_slider = <span class="bool-val">false</span>;
         }
     }
 
-    <span class="comment">// True if anything changed</span>
-    <span class="kw">fn</span> <span class="ident">inner_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_moved_mouse</span>().<span class="ident">is_some</span>() {
-                <span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">pt_to_percent</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>())
-                    .<span class="ident">min</span>(<span class="number">1.0</span>)
-                    .<span class="ident">max</span>(<span class="number">0.0</span>);
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+    <span class="comment">// True if anything changed
+    </span><span class="kw">fn </span>inner_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; bool {
+        <span class="kw">if </span><span class="self">self</span>.dragging {
+            <span class="kw">if </span>ctx.input.get_moved_mouse().is_some() {
+                <span class="self">self</span>.current_percent = <span class="self">self
+                    </span>.pt_to_percent(ctx.canvas.get_cursor())
+                    .min(<span class="number">1.0</span>)
+                    .max(<span class="number">0.0</span>);
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-                <span class="self">self</span>.<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+            <span class="kw">if </span>ctx.input.left_mouse_button_released() {
+                <span class="self">self</span>.dragging = <span class="bool-val">false</span>;
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
-        <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">padding</span>();
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
-                <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">button_geom</span>()
-                    .<span class="ident">translate</span>(
-                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span>,
-                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span>,
+        <span class="kw">let </span>padding = <span class="self">self</span>.style.padding();
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="kw">let </span>old = <span class="self">self</span>.mouse_on_slider;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                <span class="self">self</span>.mouse_on_slider = <span class="self">self
+                    </span>.button_geom()
+                    .translate(
+                        <span class="self">self</span>.top_left.x + padding.left,
+                        <span class="self">self</span>.top_left.y + padding.top,
                     )
-                    .<span class="ident">contains_pt</span>(<span class="ident">pt</span>.<span class="ident">to_pt</span>());
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                    .contains_pt(pt.to_pt());
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.mouse_on_slider = <span class="bool-val">false</span>;
             }
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">!</span><span class="op">=</span> <span class="ident">old</span>;
+            <span class="kw">return </span><span class="self">self</span>.mouse_on_slider != old;
         }
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mouse_on_slider</span> {
-                <span class="self">self</span>.<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="kw">if </span>ctx.input.left_mouse_button_pressed() {
+            <span class="kw">if </span><span class="self">self</span>.mouse_on_slider {
+                <span class="self">self</span>.dragging = <span class="bool-val">true</span>;
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
 
-            <span class="comment">// Did we click somewhere else on the bar?</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
-                <span class="kw">if</span> <span class="ident">Polygon::rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>)
-                    .<span class="ident">translate</span>(
-                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">left</span>,
-                        <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">top</span>,
+            <span class="comment">// Did we click somewhere else on the bar?
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                <span class="kw">if </span>Polygon::rectangle(<span class="self">self</span>.dims.width, <span class="self">self</span>.dims.height)
+                    .translate(
+                        <span class="self">self</span>.top_left.x + padding.left,
+                        <span class="self">self</span>.top_left.y + padding.top,
                     )
-                    .<span class="ident">contains_pt</span>(<span class="ident">pt</span>.<span class="ident">to_pt</span>())
+                    .contains_pt(pt.to_pt())
                 {
-                    <span class="self">self</span>.<span class="ident">current_percent</span> <span class="op">=</span> <span class="self">self</span>
-                        .<span class="ident">pt_to_percent</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>())
-                        .<span class="ident">min</span>(<span class="number">1.0</span>)
-                        .<span class="ident">max</span>(<span class="number">0.0</span>);
-                    <span class="self">self</span>.<span class="ident">mouse_on_slider</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="self">self</span>.<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
+                    <span class="self">self</span>.current_percent = <span class="self">self
+                        </span>.pt_to_percent(ctx.canvas.get_cursor())
+                        .min(<span class="number">1.0</span>)
+                        .max(<span class="number">0.0</span>);
+                    <span class="self">self</span>.mouse_on_slider = <span class="bool-val">true</span>;
+                    <span class="self">self</span>.dragging = <span class="bool-val">true</span>;
+                    <span class="kw">return </span><span class="bool-val">true</span>;
                 }
             }
         }
-        <span class="bool-val">false</span>
-    }
+        <span class="bool-val">false
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Slider</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">dims</span>
+<span class="kw">impl </span>WidgetImpl <span class="kw">for </span>Slider {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="self">self</span>.dims
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
-        <span class="self">self</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">top_left</span>;
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+        <span class="self">self</span>.top_left = top_left;
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">inner_event</span>(<span class="ident">ctx</span>) {
-            <span class="self">self</span>.<span class="ident">recalc</span>(<span class="ident">ctx</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">label</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">label</span> {
-                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="ident">label</span>.<span class="ident">clone</span>());
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, output: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="kw">if </span><span class="self">self</span>.inner_event(ctx) {
+            <span class="self">self</span>.recalc(ctx);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>label) = <span class="self">self</span>.label {
+                output.outcome = Outcome::Changed(label.clone());
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
-        <span class="comment">// TODO Since the sliders in Panels are scrollbars outside of the clipping rectangle,</span>
-        <span class="comment">// this stays for now. It has no effect for other sliders.</span>
-        <span class="ident">g</span>.<span class="ident">canvas</span>
-            .<span class="ident">mark_covered_area</span>(<span class="ident">ScreenRectangle::top_left</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">dims</span>));
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw_at(<span class="self">self</span>.top_left, <span class="kw-2">&amp;</span><span class="self">self</span>.draw);
+        <span class="comment">// TODO Since the sliders in Panels are scrollbars outside of the clipping rectangle,
+        // this stays for now. It has no effect for other sliders.
+        </span>g.canvas
+            .mark_covered_area(ScreenRectangle::top_left(<span class="self">self</span>.top_left, <span class="self">self</span>.dims));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

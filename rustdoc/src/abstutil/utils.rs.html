@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstutil/src/utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstutil/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstutil/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstutil/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstutil/src/utils.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>utils.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstutil/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstutil/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstutil/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -68,75 +68,75 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
+<span class="kw">use </span>std::fmt::Write;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plain_list_names</span>(<span class="ident">names</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">names</span>.<span class="ident">len</span>();
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">n</span>) <span class="kw">in</span> <span class="ident">names</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">len</span> <span class="op">-</span> <span class="number">1</span> {
-                <span class="kw">if</span> <span class="ident">len</span> <span class="op">==</span> <span class="number">2</span> {
-                    <span class="macro">write!</span>(<span class="ident">s</span>, <span class="string">&quot; and &quot;</span>).<span class="ident">unwrap</span>();
-                } <span class="kw">else</span> {
-                    <span class="macro">write!</span>(<span class="ident">s</span>, <span class="string">&quot;, and &quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">pub fn </span>plain_list_names(names: BTreeSet&lt;String&gt;) -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>s = String::new();
+    <span class="kw">let </span>len = names.len();
+    <span class="kw">for </span>(idx, n) <span class="kw">in </span>names.into_iter().enumerate() {
+        <span class="kw">if </span>idx != <span class="number">0 </span>{
+            <span class="kw">if </span>idx == len - <span class="number">1 </span>{
+                <span class="kw">if </span>len == <span class="number">2 </span>{
+                    <span class="macro">write!</span>(s, <span class="string">&quot; and &quot;</span>).unwrap();
+                } <span class="kw">else </span>{
+                    <span class="macro">write!</span>(s, <span class="string">&quot;, and &quot;</span>).unwrap();
                 }
-            } <span class="kw">else</span> {
-                <span class="macro">write!</span>(<span class="ident">s</span>, <span class="string">&quot;, &quot;</span>).<span class="ident">unwrap</span>();
+            } <span class="kw">else </span>{
+                <span class="macro">write!</span>(s, <span class="string">&quot;, &quot;</span>).unwrap();
             }
         }
-        <span class="macro">write!</span>(<span class="ident">s</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">n</span>).<span class="ident">unwrap</span>();
+        <span class="macro">write!</span>(s, <span class="string">&quot;{}&quot;</span>, n).unwrap();
     }
-    <span class="ident">s</span>
+    s
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prettyprint_usize</span>(<span class="ident">x</span>: <span class="ident">usize</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">num</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">num</span>.<span class="ident">len</span>();
-    <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">num</span>.<span class="ident">chars</span>() {
-        <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">c</span>);
-        <span class="ident">i</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">if</span> <span class="ident">i</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">i</span> <span class="op">%</span> <span class="number">3</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="string">&#39;,&#39;</span>);
+<span class="kw">pub fn </span>prettyprint_usize(x: usize) -&gt; String {
+    <span class="kw">let </span>num = <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, x);
+    <span class="kw">let </span><span class="kw-2">mut </span>result = String::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>i = num.len();
+    <span class="kw">for </span>c <span class="kw">in </span>num.chars() {
+        result.push(c);
+        i -= <span class="number">1</span>;
+        <span class="kw">if </span>i &gt; <span class="number">0 </span>&amp;&amp; i % <span class="number">3 </span>== <span class="number">0 </span>{
+            result.push(<span class="string">&#39;,&#39;</span>);
         }
     }
-    <span class="ident">result</span>
+    result
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prettyprint_bytes</span>(<span class="ident">bytes</span>: <span class="ident">u64</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">if</span> <span class="ident">bytes</span> <span class="op">&lt;</span> <span class="number">1024</span> {
-        <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{} bytes&quot;</span>, <span class="ident">bytes</span>);
+<span class="kw">pub fn </span>prettyprint_bytes(bytes: u64) -&gt; String {
+    <span class="kw">if </span>bytes &lt; <span class="number">1024 </span>{
+        <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;{} bytes&quot;</span>, bytes);
     }
-    <span class="kw">let</span> <span class="ident">kb</span> <span class="op">=</span> (<span class="ident">bytes</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">1024.0</span>;
-    <span class="kw">if</span> <span class="ident">kb</span> <span class="op">&lt;</span> <span class="number">1024.0</span> {
-        <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{} KB&quot;</span>, <span class="ident">kb</span> <span class="kw">as</span> <span class="ident">usize</span>);
+    <span class="kw">let </span>kb = (bytes <span class="kw">as </span>f64) / <span class="number">1024.0</span>;
+    <span class="kw">if </span>kb &lt; <span class="number">1024.0 </span>{
+        <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;{} KB&quot;</span>, kb <span class="kw">as </span>usize);
     }
-    <span class="kw">let</span> <span class="ident">mb</span> <span class="op">=</span> <span class="ident">kb</span> <span class="op">/</span> <span class="number">1024.0</span>;
-    <span class="macro">format!</span>(<span class="string">&quot;{} MB&quot;</span>, <span class="ident">mb</span> <span class="kw">as</span> <span class="ident">usize</span>)
+    <span class="kw">let </span>mb = kb / <span class="number">1024.0</span>;
+    <span class="macro">format!</span>(<span class="string">&quot;{} MB&quot;</span>, mb <span class="kw">as </span>usize)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abbreviated_format</span>(<span class="ident">x</span>: <span class="ident">usize</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">if</span> <span class="ident">x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1000</span> {
-        <span class="kw">let</span> <span class="ident">ks</span> <span class="op">=</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">/</span> <span class="number">1000.0</span>;
-        <span class="macro">format!</span>(<span class="string">&quot;{:.1}k&quot;</span>, <span class="ident">ks</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">x</span>.<span class="ident">to_string</span>()
+<span class="kw">pub fn </span>abbreviated_format(x: usize) -&gt; String {
+    <span class="kw">if </span>x &gt;= <span class="number">1000 </span>{
+        <span class="kw">let </span>ks = x <span class="kw">as </span>f32 / <span class="number">1000.0</span>;
+        <span class="macro">format!</span>(<span class="string">&quot;{:.1}k&quot;</span>, ks)
+    } <span class="kw">else </span>{
+        x.to_string()
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">basename</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">I</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">std::path::Path::new</span>(<span class="ident">path</span>.<span class="ident">as_ref</span>())
-        .<span class="ident">file_stem</span>()
-        .<span class="ident">unwrap</span>()
-        .<span class="ident">to_os_string</span>()
-        .<span class="ident">into_string</span>()
-        .<span class="ident">unwrap</span>()
+<span class="kw">pub fn </span>basename&lt;I: AsRef&lt;str&gt;&gt;(path: I) -&gt; String {
+    std::path::Path::new(path.as_ref())
+        .file_stem()
+        .unwrap()
+        .to_os_string()
+        .into_string()
+        .unwrap()
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parent_path</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">std::path::Path::new</span>(<span class="ident">path</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>().<span class="ident">display</span>())
+<span class="kw">pub fn </span>parent_path(path: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, std::path::Path::new(path).parent().unwrap().display())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstutil" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstutil" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

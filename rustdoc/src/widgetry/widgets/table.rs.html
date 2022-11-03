@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/table.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/table.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -302,309 +302,309 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom::Polygon</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>geom::Polygon;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">include_labeled_bytes</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+<span class="kw">use crate</span>::{
+    include_labeled_bytes, Color, ControlState, EventCtx, GeomBatch, Key, Line, Panel, Text,
+    TextExt, Widget,
 };
 
-<span class="kw">const</span> <span class="ident">ROWS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">8</span>;
+<span class="kw">const </span>ROWS: usize = <span class="number">8</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="ident">id</span>: <span class="ident">String</span>,
-    <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-    <span class="ident">label_per_row</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">columns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Column</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">filter</span>: <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Table&lt;A, T, F&gt; {
+    id: String,
+    data: Vec&lt;T&gt;,
+    label_per_row: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>T) -&gt; String&gt;,
+    columns: Vec&lt;Column&lt;A, T&gt;&gt;,
+    filter: Filter&lt;A, T, F&gt;,
 
-    <span class="ident">sort_by</span>: <span class="ident">String</span>,
-    <span class="ident">descending</span>: <span class="ident">bool</span>,
-    <span class="ident">skip</span>: <span class="ident">usize</span>,
+    sort_by: String,
+    descending: bool,
+    skip: usize,
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Col</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">Static</span>,
-    <span class="ident">Sortable</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span>)<span class="op">&gt;</span>),
+<span class="kw">pub enum </span>Col&lt;T&gt; {
+    Static,
+    Sortable(Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>Vec&lt;<span class="kw-2">&amp;</span>T&gt;)&gt;),
 }
 
-<span class="kw">struct</span> <span class="ident">Column</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">render</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">A</span>, <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">GeomBatch</span><span class="op">&gt;</span>,
-    <span class="ident">col</span>: <span class="ident">Col</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>Column&lt;A, T&gt; {
+    name: String,
+    render: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>EventCtx, <span class="kw-2">&amp;</span>A, <span class="kw-2">&amp;</span>T) -&gt; GeomBatch&gt;,
+    col: Col&lt;T&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">F</span>,
-    <span class="kw">pub</span> <span class="ident">to_controls</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">A</span>, <span class="kw-2">&amp;</span><span class="ident">F</span>) -&gt; <span class="ident">Widget</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">from_controls</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">F</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">apply</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="kw-2">&amp;</span><span class="ident">T</span>, <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Filter&lt;A, T, F&gt; {
+    <span class="kw">pub </span>state: F,
+    <span class="kw">pub </span>to_controls: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;</span>A, <span class="kw-2">&amp;</span>F) -&gt; Widget&gt;,
+    <span class="kw">pub </span>from_controls: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>Panel) -&gt; F&gt;,
+    <span class="kw">pub </span>apply: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>F, <span class="kw-2">&amp;</span>T, <span class="kw-2">&amp;</span>A) -&gt; bool&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">id</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="ident">label_per_row</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">default_sort_by</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">filter</span>: <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-        <span class="ident">Table</span> {
-            <span class="ident">id</span>: <span class="ident">id</span>.<span class="ident">into</span>(),
-            <span class="ident">data</span>,
-            <span class="ident">label_per_row</span>,
-            <span class="ident">columns</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">filter</span>,
+<span class="kw">impl</span>&lt;A, T, F&gt; Table&lt;A, T, F&gt; {
+    <span class="kw">pub fn </span>new(
+        id: <span class="kw">impl </span>Into&lt;String&gt;,
+        data: Vec&lt;T&gt;,
+        label_per_row: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>T) -&gt; String&gt;,
+        default_sort_by: <span class="kw-2">&amp;</span>str,
+        filter: Filter&lt;A, T, F&gt;,
+    ) -&gt; Table&lt;A, T, F&gt; {
+        Table {
+            id: id.into(),
+            data,
+            label_per_row,
+            columns: Vec::new(),
+            filter,
 
-            <span class="ident">sort_by</span>: <span class="ident">default_sort_by</span>.<span class="ident">to_string</span>(),
-            <span class="ident">descending</span>: <span class="bool-val">true</span>,
-            <span class="ident">skip</span>: <span class="number">0</span>,
+            sort_by: default_sort_by.to_string(),
+            descending: <span class="bool-val">true</span>,
+            skip: <span class="number">0</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">column</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">render</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">A</span>, <span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">GeomBatch</span><span class="op">&gt;</span>,
-        <span class="ident">col</span>: <span class="ident">Col</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>column(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        name: <span class="kw-2">&amp;</span>str,
+        render: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>EventCtx, <span class="kw-2">&amp;</span>A, <span class="kw-2">&amp;</span>T) -&gt; GeomBatch&gt;,
+        col: Col&lt;T&gt;,
     ) {
-        <span class="self">self</span>.<span class="ident">columns</span>.<span class="ident">push</span>(<span class="ident">Column</span> {
-            <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
-            <span class="ident">render</span>,
-            <span class="ident">col</span>,
+        <span class="self">self</span>.columns.push(Column {
+            name: name.to_string(),
+            render,
+            col,
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">replace_render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>) {
-        <span class="kw">let</span> <span class="ident">new_widget</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>, <span class="ident">new_widget</span>);
+    <span class="kw">pub fn </span>replace_render(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>A, panel: <span class="kw-2">&amp;mut </span>Panel) {
+        <span class="kw">let </span>new_widget = <span class="self">self</span>.render(ctx, app);
+        panel.replace(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.id, new_widget);
     }
 
-    <span class="doccomment">/// Get all entries, filtered and sorted according to the current settings.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_filtered_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="doccomment">/// Get all entries, filtered and sorted according to the current settings.
+    </span><span class="kw">pub fn </span>get_filtered_data(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>A) -&gt; Vec&lt;<span class="kw-2">&amp;</span>T&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>data: Vec&lt;<span class="kw-2">&amp;</span>T&gt; = Vec::new();
 
-        <span class="comment">// Filter</span>
-        <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span> {
-            <span class="kw">if</span> (<span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">apply</span>)(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">state</span>, <span class="ident">row</span>, <span class="ident">app</span>) {
-                <span class="ident">data</span>.<span class="ident">push</span>(<span class="ident">row</span>);
+        <span class="comment">// Filter
+        </span><span class="kw">for </span>row <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.data {
+            <span class="kw">if </span>(<span class="self">self</span>.filter.apply)(<span class="kw-2">&amp;</span><span class="self">self</span>.filter.state, row, app) {
+                data.push(row);
             }
         }
 
-        <span class="comment">// Sort</span>
-        <span class="kw">for</span> <span class="ident">col</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">columns</span> {
-            <span class="kw">if</span> <span class="ident">col</span>.<span class="ident">name</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">sort_by</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Col::Sortable</span>(<span class="kw-2">ref</span> <span class="ident">sorter</span>) <span class="op">=</span> <span class="ident">col</span>.<span class="ident">col</span> {
-                    (<span class="ident">sorter</span>)(<span class="kw-2">&amp;mut</span> <span class="ident">data</span>);
+        <span class="comment">// Sort
+        </span><span class="kw">for </span>col <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.columns {
+            <span class="kw">if </span>col.name == <span class="self">self</span>.sort_by {
+                <span class="kw">if let </span>Col::Sortable(<span class="kw-2">ref </span>sorter) = col.col {
+                    (sorter)(<span class="kw-2">&amp;mut </span>data);
                     <span class="kw">break</span>;
                 }
-                <span class="comment">// TODO Error handling</span>
-            }
+                <span class="comment">// TODO Error handling
+            </span>}
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">descending</span> {
-            <span class="ident">data</span>.<span class="ident">reverse</span>();
+        <span class="kw">if </span><span class="self">self</span>.descending {
+            data.reverse();
         }
 
-        <span class="ident">data</span>
+        data
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_filtered_data</span>(<span class="ident">app</span>);
-        <span class="kw">let</span> <span class="ident">num_filtered</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">len</span>();
+    <span class="kw">pub fn </span>render(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>A) -&gt; Widget {
+        <span class="kw">let </span>data = <span class="self">self</span>.get_filtered_data(app);
+        <span class="kw">let </span>num_filtered = data.len();
 
-        <span class="comment">// Render the headers</span>
-        <span class="kw">let</span> <span class="ident">headers</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">columns</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">col</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">sort_by</span> <span class="op">==</span> <span class="ident">col</span>.<span class="ident">name</span> {
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">icon_text</span>(<span class="string">&quot;tmp&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">col</span>.<span class="ident">name</span>)
-                        .<span class="ident">image_bytes</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">descending</span> {
+        <span class="comment">// Render the headers
+        </span><span class="kw">let </span>headers = <span class="self">self
+            </span>.columns
+            .iter()
+            .map(|col| {
+                <span class="kw">if </span><span class="self">self</span>.sort_by == col.name {
+                    ctx.style()
+                        .btn_outline
+                        .icon_text(<span class="string">&quot;tmp&quot;</span>, <span class="kw-2">&amp;</span>col.name)
+                        .image_bytes(<span class="kw">if </span><span class="self">self</span>.descending {
                             <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/arrow_down.svg&quot;</span>)
-                        } <span class="kw">else</span> {
+                        } <span class="kw">else </span>{
                             <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/arrow_up.svg&quot;</span>)
                         })
-                        .<span class="ident">label_first</span>()
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">col</span>.<span class="ident">name</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Col::Sortable</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">col</span>.<span class="ident">col</span> {
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">col</span>.<span class="ident">name</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">col</span>.<span class="ident">name</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>()
+                        .label_first()
+                        .build_widget(ctx, <span class="kw-2">&amp;</span>col.name)
+                } <span class="kw">else if let </span>Col::Sortable(<span class="kw">_</span>) = col.col {
+                    ctx.style().btn_outline.text(<span class="kw-2">&amp;</span>col.name).build_def(ctx)
+                } <span class="kw">else </span>{
+                    Line(<span class="kw-2">&amp;</span>col.name).into_widget(ctx).centered_vert()
                 }
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="comment">// Render data</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">row</span> <span class="kw">in</span> <span class="ident">data</span>.<span class="ident">into_iter</span>().<span class="ident">skip</span>(<span class="self">self</span>.<span class="ident">skip</span>).<span class="ident">take</span>(<span class="ident">ROWS</span>) {
-            <span class="ident">rows</span>.<span class="ident">push</span>((
-                (<span class="self">self</span>.<span class="ident">label_per_row</span>)(<span class="ident">row</span>),
-                <span class="self">self</span>.<span class="ident">columns</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">col</span><span class="op">|</span> (<span class="ident">col</span>.<span class="ident">render</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">row</span>))
-                    .<span class="ident">collect</span>(),
+        <span class="comment">// Render data
+        </span><span class="kw">let </span><span class="kw-2">mut </span>rows = Vec::new();
+        <span class="kw">for </span>row <span class="kw">in </span>data.into_iter().skip(<span class="self">self</span>.skip).take(ROWS) {
+            rows.push((
+                (<span class="self">self</span>.label_per_row)(row),
+                <span class="self">self</span>.columns
+                    .iter()
+                    .map(|col| (col.render)(ctx, app, row))
+                    .collect(),
             ));
         }
 
-        <span class="comment">// Put together the UI</span>
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            (<span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">to_controls</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">state</span>),
-            <span class="ident">render_table</span>(<span class="ident">ctx</span>, <span class="ident">headers</span>, <span class="ident">rows</span>, <span class="number">0.88</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>),
-            <span class="ident">make_pagination</span>(<span class="ident">ctx</span>, <span class="ident">num_filtered</span>, <span class="self">self</span>.<span class="ident">skip</span>),
+        <span class="comment">// Put together the UI
+        </span>Widget::col(<span class="macro">vec!</span>[
+            (<span class="self">self</span>.filter.to_controls)(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.filter.state),
+            render_table(ctx, headers, rows, <span class="number">0.88 </span>* ctx.canvas.window_width),
+            make_pagination(ctx, num_filtered, <span class="self">self</span>.skip),
         ])
-        .<span class="ident">named</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">id</span>)
-        <span class="comment">// return in separate container in case caller want to apply an outer-name</span>
-        .<span class="ident">container</span>()
+        .named(<span class="kw-2">&amp;</span><span class="self">self</span>.id)
+        <span class="comment">// return in separate container in case caller want to apply an outer-name
+        </span>.container()
     }
 
-    <span class="comment">// Recalculate if true</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clicked</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="string">&quot;previous&quot;</span> {
-            <span class="self">self</span>.<span class="ident">skip</span> <span class="op">-</span><span class="op">=</span> <span class="ident">ROWS</span>;
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+    <span class="comment">// Recalculate if true
+    </span><span class="kw">pub fn </span>clicked(<span class="kw-2">&amp;mut </span><span class="self">self</span>, action: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="kw">if </span>action == <span class="string">&quot;previous&quot; </span>{
+            <span class="self">self</span>.skip -= ROWS;
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="string">&quot;next&quot;</span> {
-            <span class="self">self</span>.<span class="ident">skip</span> <span class="op">+</span><span class="op">=</span> <span class="ident">ROWS</span>;
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="kw">if </span>action == <span class="string">&quot;next&quot; </span>{
+            <span class="self">self</span>.skip += ROWS;
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="kw">for</span> <span class="ident">col</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">columns</span> {
-            <span class="kw">if</span> <span class="ident">col</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">action</span> {
-                <span class="self">self</span>.<span class="ident">skip</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">sort_by</span> <span class="op">==</span> <span class="ident">action</span> {
-                    <span class="self">self</span>.<span class="ident">descending</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">descending</span>;
-                } <span class="kw">else</span> {
-                    <span class="self">self</span>.<span class="ident">sort_by</span> <span class="op">=</span> <span class="ident">action</span>.<span class="ident">to_string</span>();
-                    <span class="self">self</span>.<span class="ident">descending</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">for </span>col <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.columns {
+            <span class="kw">if </span>col.name == action {
+                <span class="self">self</span>.skip = <span class="number">0</span>;
+                <span class="kw">if </span><span class="self">self</span>.sort_by == action {
+                    <span class="self">self</span>.descending = !<span class="self">self</span>.descending;
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.sort_by = action.to_string();
+                    <span class="self">self</span>.descending = <span class="bool-val">true</span>;
                 }
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
         }
-        <span class="bool-val">false</span>
-    }
+        <span class="bool-val">false
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">panel_changed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
-        <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">state</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">from_controls</span>)(<span class="ident">panel</span>);
-        <span class="self">self</span>.<span class="ident">skip</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">pub fn </span>panel_changed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, panel: <span class="kw-2">&amp;</span>Panel) {
+        <span class="self">self</span>.filter.state = (<span class="self">self</span>.filter.from_controls)(panel);
+        <span class="self">self</span>.skip = <span class="number">0</span>;
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, ()<span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Filter</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, ()<span class="op">&gt;</span> {
-        <span class="ident">Filter</span> {
-            <span class="ident">state</span>: (),
-            <span class="ident">to_controls</span>: <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Widget::nothing</span>()),
-            <span class="ident">from_controls</span>: <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> ()),
-            <span class="ident">apply</span>: <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>),
+<span class="kw">impl</span>&lt;A, T&gt; Filter&lt;A, T, ()&gt; {
+    <span class="kw">pub fn </span>empty() -&gt; Filter&lt;A, T, ()&gt; {
+        Filter {
+            state: (),
+            to_controls: Box::new(|<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| Widget::nothing()),
+            from_controls: Box::new(|<span class="kw">_</span>| ()),
+            apply: Box::new(|<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>| <span class="bool-val">true</span>),
         }
     }
 }
 
-<span class="comment">// Simpler wrappers than column(). The more generic case exists to allow for icons and non-text</span>
-<span class="comment">// things.</span>
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>: <span class="lifetime">&#39;static</span>, <span class="ident">F</span><span class="op">&gt;</span> <span class="ident">Table</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span>, <span class="ident">F</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">static_col</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">to_str</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">T</span>) -&gt; <span class="ident">String</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">column</span>(
-            <span class="ident">name</span>,
-            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span>, <span class="ident">x</span><span class="op">|</span> <span class="ident">Text::from</span>((<span class="ident">to_str</span>)(<span class="ident">x</span>)).<span class="ident">render</span>(<span class="ident">ctx</span>)),
-            <span class="ident">Col::Static</span>,
+<span class="comment">// Simpler wrappers than column(). The more generic case exists to allow for icons and non-text
+// things.
+</span><span class="kw">impl</span>&lt;A, T: <span class="lifetime">&#39;static</span>, F&gt; Table&lt;A, T, F&gt; {
+    <span class="kw">pub fn </span>static_col(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str, to_str: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>T) -&gt; String&gt;) {
+        <span class="self">self</span>.column(
+            name,
+            Box::new(<span class="kw">move </span>|ctx, <span class="kw">_</span>, x| Text::from((to_str)(x)).render(ctx)),
+            Col::Static,
         );
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_pagination</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">total</span>: <span class="ident">usize</span>, <span class="ident">skip</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">ctx</span>
-        .<span class="ident">style</span>()
-        .<span class="ident">btn_next</span>()
-        .<span class="ident">disabled</span>(<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">ROWS</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">total</span>)
-        .<span class="ident">hotkey</span>(<span class="ident">Key::RightArrow</span>);
-    <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">ctx</span>
-        .<span class="ident">style</span>()
-        .<span class="ident">btn_prev</span>()
-        .<span class="ident">disabled</span>(<span class="ident">skip</span> <span class="op">==</span> <span class="number">0</span>)
-        .<span class="ident">hotkey</span>(<span class="ident">Key::LeftArrow</span>);
+<span class="kw">fn </span>make_pagination(ctx: <span class="kw-2">&amp;mut </span>EventCtx, total: usize, skip: usize) -&gt; Widget {
+    <span class="kw">let </span>next = ctx
+        .style()
+        .btn_next()
+        .disabled(skip + <span class="number">1 </span>+ ROWS &gt;= total)
+        .hotkey(Key::RightArrow);
+    <span class="kw">let </span>prev = ctx
+        .style()
+        .btn_prev()
+        .disabled(skip == <span class="number">0</span>)
+        .hotkey(Key::LeftArrow);
 
-    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">prev</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous&quot;</span>),
+    Widget::row(<span class="macro">vec!</span>[
+        prev.build_widget(ctx, <span class="string">&quot;previous&quot;</span>),
         <span class="macro">format!</span>(
             <span class="string">&quot;{}-{} of {}&quot;</span>,
-            <span class="kw">if</span> <span class="ident">total</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                <span class="ident">prettyprint_usize</span>(<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span>)
-            } <span class="kw">else</span> {
-                <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>()
+            <span class="kw">if </span>total &gt; <span class="number">0 </span>{
+                prettyprint_usize(skip + <span class="number">1</span>)
+            } <span class="kw">else </span>{
+                <span class="string">&quot;0&quot;</span>.to_string()
             },
-            <span class="ident">prettyprint_usize</span>((<span class="ident">skip</span> <span class="op">+</span> <span class="number">1</span> <span class="op">+</span> <span class="ident">ROWS</span>).<span class="ident">min</span>(<span class="ident">total</span>)),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">total</span>)
+            prettyprint_usize((skip + <span class="number">1 </span>+ ROWS).min(total)),
+            prettyprint_usize(total)
         )
-        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-        .<span class="ident">centered_vert</span>(),
-        <span class="ident">next</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next&quot;</span>),
+        .text_widget(ctx)
+        .centered_vert(),
+        next.build_widget(ctx, <span class="string">&quot;next&quot;</span>),
     ])
 }
 
-<span class="doccomment">/// Render a table with the specified headers and rows. Each row will be a clickable button with a</span>
-<span class="doccomment">/// string label.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_table</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">headers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>,
-    <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="ident">total_width</span>: <span class="ident">f64</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> <span class="ident">total_width</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width_per_col</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">headers</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="ident">w</span>.<span class="ident">get_width_for_forcing</span>()).<span class="ident">collect</span>();
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">row</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">rows</span> {
-        <span class="kw">for</span> (<span class="ident">col</span>, <span class="ident">width</span>) <span class="kw">in</span> <span class="ident">row</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">width_per_col</span>.<span class="ident">iter_mut</span>()) {
-            <span class="kw-2">*</span><span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>.<span class="ident">max</span>(<span class="ident">col</span>.<span class="ident">get_dims</span>().<span class="ident">width</span>);
+<span class="doccomment">/// Render a table with the specified headers and rows. Each row will be a clickable button with a
+/// string label.
+</span><span class="kw">pub fn </span>render_table(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    headers: Vec&lt;Widget&gt;,
+    rows: Vec&lt;(String, Vec&lt;GeomBatch&gt;)&gt;,
+    total_width: f64,
+) -&gt; Widget {
+    <span class="kw">let </span>total_width = total_width;
+    <span class="kw">let </span><span class="kw-2">mut </span>width_per_col: Vec&lt;f64&gt; = headers.iter().map(|w| w.get_width_for_forcing()).collect();
+    <span class="kw">for </span>(<span class="kw">_</span>, row) <span class="kw">in </span><span class="kw-2">&amp;</span>rows {
+        <span class="kw">for </span>(col, width) <span class="kw">in </span>row.iter().zip(width_per_col.iter_mut()) {
+            <span class="kw-2">*</span>width = width.max(col.get_dims().width);
         }
     }
-    <span class="kw">let</span> <span class="ident">extra_margin</span> <span class="op">=</span> ((<span class="ident">total_width</span> <span class="op">-</span> <span class="ident">width_per_col</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>().<span class="ident">sum</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>())
-        <span class="op">/</span> (<span class="ident">width_per_col</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>)
-        .<span class="ident">max</span>(<span class="number">0.0</span>);
+    <span class="kw">let </span>extra_margin = ((total_width - width_per_col.clone().into_iter().sum::&lt;f64&gt;())
+        / (width_per_col.len() - <span class="number">1</span>) <span class="kw">as </span>f64)
+        .max(<span class="number">0.0</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::custom_row</span>(
-        <span class="ident">headers</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">w</span>)<span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">margin</span> <span class="op">=</span> <span class="ident">extra_margin</span> <span class="op">+</span> <span class="ident">width_per_col</span>[<span class="ident">idx</span>] <span class="op">-</span> <span class="ident">w</span>.<span class="ident">get_width_for_forcing</span>();
-                <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">width_per_col</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                    <span class="ident">w</span>.<span class="ident">margin_right</span>((<span class="ident">margin</span> <span class="op">-</span> <span class="ident">extra_margin</span>) <span class="kw">as</span> <span class="ident">usize</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">w</span>.<span class="ident">margin_right</span>(<span class="ident">margin</span> <span class="kw">as</span> <span class="ident">usize</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[Widget::custom_row(
+        headers
+            .into_iter()
+            .enumerate()
+            .map(|(idx, w)| {
+                <span class="kw">let </span>margin = extra_margin + width_per_col[idx] - w.get_width_for_forcing();
+                <span class="kw">if </span>idx == width_per_col.len() - <span class="number">1 </span>{
+                    w.margin_right((margin - extra_margin) <span class="kw">as </span>usize)
+                } <span class="kw">else </span>{
+                    w.margin_right(margin <span class="kw">as </span>usize)
                 }
             })
-            .<span class="ident">collect</span>(),
+            .collect(),
     )];
 
-    <span class="comment">// TODO Maybe can do this now simpler with to_geom</span>
-    <span class="kw">for</span> (<span class="ident">label</span>, <span class="ident">row</span>) <span class="kw">in</span> <span class="ident">rows</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="ident">batch</span>.<span class="ident">autocrop_dims</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x1</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">for</span> (<span class="ident">col</span>, <span class="ident">width</span>) <span class="kw">in</span> <span class="ident">row</span>.<span class="ident">into_iter</span>().<span class="ident">zip</span>(<span class="ident">width_per_col</span>.<span class="ident">iter</span>()) {
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">col</span>.<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="number">0.0</span>));
-            <span class="ident">x1</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">width</span> <span class="op">+</span> <span class="ident">extra_margin</span>;
+    <span class="comment">// TODO Maybe can do this now simpler with to_geom
+    </span><span class="kw">for </span>(label, row) <span class="kw">in </span>rows {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        batch.autocrop_dims = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>x1 = <span class="number">0.0</span>;
+        <span class="kw">for </span>(col, width) <span class="kw">in </span>row.into_iter().zip(width_per_col.iter()) {
+            batch.append(col.translate(x1, <span class="number">0.0</span>));
+            x1 += <span class="kw-2">*</span>width + extra_margin;
         }
 
-        <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">total_width</span>, <span class="ident">batch</span>.<span class="ident">get_dims</span>().<span class="ident">height</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="ident">hovered</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>), <span class="ident">rect</span>.<span class="ident">clone</span>());
-        <span class="ident">hovered</span>.<span class="ident">append</span>(<span class="ident">batch</span>.<span class="ident">clone</span>());
+        <span class="kw">let </span>rect = Polygon::rectangle(total_width, batch.get_dims().height);
+        <span class="kw">let </span><span class="kw-2">mut </span>hovered = GeomBatch::new();
+        hovered.push(Color::hex(<span class="string">&quot;#7C7C7C&quot;</span>), rect.clone());
+        hovered.append(batch.clone());
 
-        <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">btn</span>()
-                .<span class="ident">custom_batch</span>(<span class="ident">batch</span>, <span class="ident">ControlState::Default</span>)
-                .<span class="ident">custom_batch</span>(<span class="ident">hovered</span>, <span class="ident">ControlState::Hovered</span>)
-                .<span class="ident">no_tooltip</span>()
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">label</span>),
+        col.push(
+            ctx.style()
+                .btn_plain
+                .btn()
+                .custom_batch(batch, ControlState::Default)
+                .custom_batch(hovered, ControlState::Hovered)
+                .no_tooltip()
+                .build_widget(ctx, <span class="kw-2">&amp;</span>label),
         );
     }
 
-    <span class="ident">Widget::custom_col</span>(<span class="ident">col</span>)
+    Widget::custom_col(col)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

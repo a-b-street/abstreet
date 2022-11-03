@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_model/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_model/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1000,1007 +1000,1007 @@
 <span id="1000">1000</span>
 <span id="1001">1001</span>
 <span id="1002">1002</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A bunch of (mostly read-only) queries on a Map.
 
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
+</span><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap, HashSet, VecDeque};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">petgraph::graphmap</span>::{<span class="ident">DiGraphMap</span>, <span class="ident">UnGraphMap</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>petgraph::graphmap::{DiGraphMap, UnGraphMap};
 
-<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">serialized_size_bytes</span>, <span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
+<span class="kw">use </span>abstio::{CityName, MapName};
+<span class="kw">use </span>abstutil::{prettyprint_usize, serialized_size_bytes, MultiMap, Tags, Timer};
+<span class="kw">use </span>geom::{Bounds, Distance, Duration, GPSBounds, Polygon, Pt2D, Ring, Time};
+<span class="kw">use </span>raw_map::RawMap;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">Area</span>, <span class="ident">AreaID</span>, <span class="ident">AreaType</span>, <span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">CommonEndpoint</span>,
-    <span class="ident">CompressedMovementID</span>, <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>,
-    <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">MapEdits</span>,
-    <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">OffstreetParking</span>, <span class="ident">OriginalRoad</span>, <span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>,
-    <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">Pathfinder</span>, <span class="ident">PathfinderCaching</span>, <span class="ident">Position</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
-    <span class="ident">RoutingParams</span>, <span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStop</span>, <span class="ident">TransitStopID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
-    <span class="ident">TurnType</span>, <span class="ident">Zone</span>,
+<span class="kw">use crate</span>::{
+    osm, Area, AreaID, AreaType, Building, BuildingID, BuildingType, CommonEndpoint,
+    CompressedMovementID, ControlStopSign, ControlTrafficSignal, DirectedRoadID, Direction,
+    DrivingSide, Intersection, IntersectionID, Lane, LaneID, LaneType, Map, MapConfig, MapEdits,
+    Movement, MovementID, OffstreetParking, OriginalRoad, ParkingLot, ParkingLotID, Path,
+    PathConstraints, PathRequest, PathV2, Pathfinder, PathfinderCaching, Position, Road, RoadID,
+    RoutingParams, TransitRoute, TransitRouteID, TransitStop, TransitStopID, Turn, TurnID,
+    TurnType, Zone,
 };
 
-<span class="kw">impl</span> <span class="ident">Map</span> {
-    <span class="doccomment">/// Load a map from a local serialized Map or RawMap. Note this won&#39;t work on web. This should</span>
-    <span class="doccomment">/// only be used by non-UI tools.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_synchronously</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Map</span> {
-        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
-            <span class="kw">match</span> <span class="ident">abstio::maybe_read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">map</span>) =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">Map</span> <span class="op">=</span> <span class="ident">map</span>;
-                    <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>(<span class="ident">timer</span>);
-                    <span class="kw">return</span> <span class="ident">map</span>;
+<span class="kw">impl </span>Map {
+    <span class="doccomment">/// Load a map from a local serialized Map or RawMap. Note this won&#39;t work on web. This should
+    /// only be used by non-UI tools.
+    </span><span class="kw">pub fn </span>load_synchronously(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; Map {
+        <span class="kw">if </span>path.contains(<span class="string">&quot;/maps/&quot;</span>) {
+            <span class="kw">match </span>abstio::maybe_read_binary(path.clone(), timer) {
+                <span class="prelude-val">Ok</span>(map) =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>map: Map = map;
+                    map.map_loaded_directly(timer);
+                    <span class="kw">return </span>map;
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;\nError loading {}: {}\n&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>);
-                    <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">to_string</span>().<span class="ident">contains</span>(<span class="string">&quot;No such file&quot;</span>) {
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">error!</span>(<span class="string">&quot;\nError loading {}: {}\n&quot;</span>, path, err);
+                    <span class="kw">if </span>err.to_string().contains(<span class="string">&quot;No such file&quot;</span>) {
                         <span class="macro">error!</span>(
                             <span class="string">&quot;{} is missing. You may need to do: cargo run --bin updater&quot;</span>,
-                            <span class="ident">path</span>
+                            path
                         );
-                    } <span class="kw">else</span> {
+                    } <span class="kw">else </span>{
                         <span class="macro">error!</span>(
                             <span class="string">&quot;{} is out-of-date. You may need to update your build (git pull) or \
                              download new data (cargo run --bin updater). If this is a custom \
                              map, you need to import it again.&quot;</span>,
-                            <span class="ident">path</span>
+                            path
                         );
                     }
                     <span class="macro">error!</span>(
                         <span class="string">&quot;Check https://a-b-street.github.io/docs/tech/dev/index.html and file an issue \
-                         if you have trouble.&quot;</span>
-                    );
+                         if you have trouble.&quot;
+                    </span>);
 
-                    <span class="ident">std::process::exit</span>(<span class="number">1</span>);
+                    std::process::exit(<span class="number">1</span>);
                 }
             }
         }
 
-        <span class="kw">let</span> <span class="ident">raw</span>: <span class="ident">RawMap</span> <span class="op">=</span> <span class="ident">abstio::read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>);
-        <span class="ident">Map::create_from_raw</span>(<span class="ident">raw</span>, <span class="ident"><span class="kw">crate</span>::RawToMapOptions::default</span>(), <span class="ident">timer</span>)
+        <span class="kw">let </span>raw: RawMap = abstio::read_binary(path, timer);
+        Map::create_from_raw(raw, <span class="kw">crate</span>::RawToMapOptions::default(), timer)
     }
 
-    <span class="doccomment">/// After deserializing a map directly, call this after.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_loaded_directly</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::logic_bug</span>)]</span>
-        <span class="comment">// For debugging map file sizes</span>
+    <span class="doccomment">/// After deserializing a map directly, call this after.
+    </span><span class="kw">pub fn </span>map_loaded_directly(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="attribute">#![allow(clippy::logic_bug)]
+        </span><span class="comment">// For debugging map file sizes
 
-        <span class="self">self</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_edits</span>();
-        <span class="self">self</span>.<span class="ident">recalculate_road_to_buildings</span>();
-        <span class="self">self</span>.<span class="ident">recalculate_all_movements</span>(<span class="ident">timer</span>);
+        </span><span class="self">self</span>.edits = <span class="self">self</span>.new_edits();
+        <span class="self">self</span>.recalculate_road_to_buildings();
+        <span class="self">self</span>.recalculate_all_movements(timer);
 
-        <span class="comment">// Enable to work on shrinking map file sizes. Never run this on the web though --</span>
-        <span class="comment">// trying to serialize fast_paths in wasm melts the browser, because the usize&lt;-&gt;u32</span>
-        <span class="comment">// translation there isn&#39;t meant to run on wasm.</span>
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)) <span class="op">&amp;&amp;</span> <span class="bool-val">false</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">costs</span> <span class="op">=</span> <span class="macro">vec!</span>[
+        <span class="comment">// Enable to work on shrinking map file sizes. Never run this on the web though --
+        // trying to serialize fast_paths in wasm melts the browser, because the usize&lt;-&gt;u32
+        // translation there isn&#39;t meant to run on wasm.
+        </span><span class="kw">if </span><span class="macro">cfg!</span>(not(target_arch = <span class="string">&quot;wasm32&quot;</span>)) &amp;&amp; <span class="bool-val">false </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>costs = <span class="macro">vec!</span>[
                 (
                     <span class="string">&quot;roads&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>(),
-                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>),
+                    <span class="self">self</span>.roads.len(),
+                    serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.roads),
                 ),
                 (
                     <span class="string">&quot;intersections&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">len</span>(),
-                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>),
+                    <span class="self">self</span>.intersections.len(),
+                    serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.intersections),
                 ),
                 (
                     <span class="string">&quot;buildings&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">buildings</span>.<span class="ident">len</span>(),
-                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buildings</span>),
+                    <span class="self">self</span>.buildings.len(),
+                    serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.buildings),
                 ),
                 (
                     <span class="string">&quot;areas&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">areas</span>.<span class="ident">len</span>(),
-                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">areas</span>),
+                    <span class="self">self</span>.areas.len(),
+                    serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.areas),
                 ),
                 (
                     <span class="string">&quot;parking lots&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">parking_lots</span>.<span class="ident">len</span>(),
-                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking_lots</span>),
+                    <span class="self">self</span>.parking_lots.len(),
+                    serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.parking_lots),
                 ),
                 (
                     <span class="string">&quot;zones&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">zones</span>.<span class="ident">len</span>(),
-                    <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zones</span>),
+                    <span class="self">self</span>.zones.len(),
+                    serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.zones),
                 ),
-                (<span class="string">&quot;pathfinder&quot;</span>, <span class="number">1</span>, <span class="ident">serialized_size_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pathfinder</span>)),
+                (<span class="string">&quot;pathfinder&quot;</span>, <span class="number">1</span>, serialized_size_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>.pathfinder)),
             ];
-            <span class="ident">costs</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">bytes</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">bytes</span>);
-            <span class="ident">costs</span>.<span class="ident">reverse</span>();
+            costs.sort_by_key(|(<span class="kw">_</span>, <span class="kw">_</span>, bytes)| <span class="kw-2">*</span>bytes);
+            costs.reverse();
 
             <span class="macro">info!</span>(
                 <span class="string">&quot;Total map size: {} bytes&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">serialized_size_bytes</span>(<span class="self">self</span>))
+                prettyprint_usize(serialized_size_bytes(<span class="self">self</span>))
             );
-            <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">number</span>, <span class="ident">bytes</span>) <span class="kw">in</span> <span class="ident">costs</span> {
+            <span class="kw">for </span>(name, number, bytes) <span class="kw">in </span>costs {
                 <span class="macro">info!</span>(
                     <span class="string">&quot;- {} {}: {} bytes&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">number</span>),
-                    <span class="ident">name</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">bytes</span>)
+                    prettyprint_usize(number),
+                    name,
+                    prettyprint_usize(bytes)
                 );
             }
         }
     }
 
-    <span class="doccomment">/// Just for temporary std::mem::replace tricks.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blank</span>() -&gt; <span class="ident">Map</span> {
-        <span class="ident">Map</span> {
-            <span class="ident">roads</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">intersections</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">buildings</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">transit_stops</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">transit_routes</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">areas</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">parking_lots</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">zones</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">boundary_polygon</span>: <span class="ident">Ring::must_new</span>(<span class="macro">vec!</span>[
-                <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-                <span class="ident">Pt2D::new</span>(<span class="number">1.0</span>, <span class="number">0.0</span>),
-                <span class="ident">Pt2D::new</span>(<span class="number">1.0</span>, <span class="number">1.0</span>),
-                <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
+    <span class="doccomment">/// Just for temporary std::mem::replace tricks.
+    </span><span class="kw">pub fn </span>blank() -&gt; Map {
+        Map {
+            roads: Vec::new(),
+            intersections: Vec::new(),
+            buildings: Vec::new(),
+            transit_stops: BTreeMap::new(),
+            transit_routes: Vec::new(),
+            areas: Vec::new(),
+            parking_lots: Vec::new(),
+            zones: Vec::new(),
+            boundary_polygon: Ring::must_new(<span class="macro">vec!</span>[
+                Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+                Pt2D::new(<span class="number">1.0</span>, <span class="number">0.0</span>),
+                Pt2D::new(<span class="number">1.0</span>, <span class="number">1.0</span>),
+                Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
             ])
-            .<span class="ident">into_polygon</span>(),
-            <span class="ident">stop_signs</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">traffic_signals</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">bus_routes_on_roads</span>: <span class="ident">MultiMap::new</span>(),
-            <span class="ident">gps_bounds</span>: <span class="ident">GPSBounds::new</span>(),
-            <span class="ident">bounds</span>: <span class="ident">Bounds::new</span>(),
-            <span class="ident">config</span>: <span class="ident">MapConfig::default_for_side</span>(<span class="ident">DrivingSide::Right</span>),
-            <span class="ident">pathfinder</span>: <span class="ident">Pathfinder::empty</span>(),
-            <span class="ident">pathfinder_dirty</span>: <span class="bool-val">false</span>,
-            <span class="ident">routing_params</span>: <span class="ident">RoutingParams::default</span>(),
-            <span class="ident">name</span>: <span class="ident">MapName::blank</span>(),
-            <span class="ident">edits</span>: <span class="ident">MapEdits::new</span>(),
-            <span class="ident">edits_generation</span>: <span class="number">0</span>,
-            <span class="ident">road_to_buildings</span>: <span class="ident">MultiMap::new</span>(),
+            .into_polygon(),
+            stop_signs: BTreeMap::new(),
+            traffic_signals: BTreeMap::new(),
+            bus_routes_on_roads: MultiMap::new(),
+            gps_bounds: GPSBounds::new(),
+            bounds: Bounds::new(),
+            config: MapConfig::default_for_side(DrivingSide::Right),
+            pathfinder: Pathfinder::empty(),
+            pathfinder_dirty: <span class="bool-val">false</span>,
+            routing_params: RoutingParams::default(),
+            name: MapName::blank(),
+            edits: MapEdits::new(),
+            edits_generation: <span class="number">0</span>,
+            road_to_buildings: MultiMap::new(),
         }
     }
 
-    <span class="doccomment">/// A dummy map that won&#39;t crash UIs, but has almost nothing in it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">almost_blank</span>() -&gt; <span class="self">Self</span> {
-        <span class="kw">use</span> <span class="ident">geom::LonLat</span>;
-        <span class="kw">use</span> <span class="ident">osm2streets::ControlType</span>;
-        <span class="kw">use</span> <span class="ident">osm2streets::IntersectionComplexity</span>;
-        <span class="kw">use</span> <span class="ident">raw_map::RawBuilding</span>;
+    <span class="doccomment">/// A dummy map that won&#39;t crash UIs, but has almost nothing in it.
+    </span><span class="kw">pub fn </span>almost_blank() -&gt; <span class="self">Self </span>{
+        <span class="kw">use </span>geom::LonLat;
+        <span class="kw">use </span>osm2streets::ControlType;
+        <span class="kw">use </span>osm2streets::IntersectionComplexity;
+        <span class="kw">use </span>raw_map::RawBuilding;
 
-        <span class="comment">// Programatically creating a Map is very verbose. RawMap less so, but .osm could be even</span>
-        <span class="comment">// better... but then we&#39;d pull in dependencies for XML parsing everywhere.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">RawMap::blank</span>(<span class="ident">MapName::blank</span>());
+        <span class="comment">// Programatically creating a Map is very verbose. RawMap less so, but .osm could be even
+        // better... but then we&#39;d pull in dependencies for XML parsing everywhere.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>raw = RawMap::blank(MapName::blank());
 
-        <span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="number">100.0</span>, <span class="number">100.0</span>);
-        <span class="ident">raw</span>.<span class="ident">streets</span>
-            .<span class="ident">gps_bounds</span>
-            .<span class="ident">update</span>(<span class="ident">LonLat::new</span>(<span class="op">-</span><span class="number">122.453224</span>, <span class="number">47.723277</span>));
-        <span class="ident">raw</span>.<span class="ident">streets</span>
-            .<span class="ident">gps_bounds</span>
-            .<span class="ident">update</span>(<span class="ident">LonLat::new</span>(<span class="op">-</span><span class="number">122.240505</span>, <span class="number">47.495342</span>));
+        raw.streets.boundary_polygon = Polygon::rectangle(<span class="number">100.0</span>, <span class="number">100.0</span>);
+        raw.streets
+            .gps_bounds
+            .update(LonLat::new(-<span class="number">122.453224</span>, <span class="number">47.723277</span>));
+        raw.streets
+            .gps_bounds
+            .update(LonLat::new(-<span class="number">122.240505</span>, <span class="number">47.495342</span>));
 
-        <span class="kw">let</span> <span class="ident">i1</span> <span class="op">=</span> <span class="ident">osm::NodeID</span>(<span class="number">0</span>);
-        <span class="kw">let</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">osm::NodeID</span>(<span class="number">1</span>);
-        <span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(
-            <span class="ident">i1</span>,
-            <span class="ident">osm2streets::Intersection::new</span>(
-                <span class="ident">Pt2D::new</span>(<span class="number">30.0</span>, <span class="number">30.0</span>),
-                <span class="ident">IntersectionComplexity::MapEdge</span>,
-                <span class="ident">ControlType::Border</span>,
+        <span class="kw">let </span>i1 = osm::NodeID(<span class="number">0</span>);
+        <span class="kw">let </span>i2 = osm::NodeID(<span class="number">1</span>);
+        raw.streets.intersections.insert(
+            i1,
+            osm2streets::Intersection::new(
+                Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>),
+                IntersectionComplexity::MapEdge,
+                ControlType::Border,
             ),
         );
-        <span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(
-            <span class="ident">i2</span>,
-            <span class="ident">osm2streets::Intersection::new</span>(
-                <span class="ident">Pt2D::new</span>(<span class="number">70.0</span>, <span class="number">70.0</span>),
-                <span class="ident">IntersectionComplexity::MapEdge</span>,
-                <span class="ident">ControlType::Border</span>,
+        raw.streets.intersections.insert(
+            i2,
+            osm2streets::Intersection::new(
+                Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>),
+                IntersectionComplexity::MapEdge,
+                ControlType::Border,
             ),
         );
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
-        <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
-        <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
-        <span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">roads</span>.<span class="ident">insert</span>(
-            <span class="ident">OriginalRoad::new</span>(<span class="number">2</span>, (<span class="ident">i1</span>.<span class="number">0</span>, <span class="ident">i2</span>.<span class="number">0</span>)),
-            <span class="ident">osm2streets::Road::new</span>(
-                <span class="macro">vec!</span>[<span class="ident">Pt2D::new</span>(<span class="number">30.0</span>, <span class="number">30.0</span>), <span class="ident">Pt2D::new</span>(<span class="number">70.0</span>, <span class="number">70.0</span>)],
-                <span class="ident">tags</span>,
-                <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">streets</span>.<span class="ident">config</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>tags = Tags::empty();
+        tags.insert(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;residential&quot;</span>);
+        tags.insert(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;2&quot;</span>);
+        raw.streets.roads.insert(
+            OriginalRoad::new(<span class="number">2</span>, (i1.<span class="number">0</span>, i2.<span class="number">0</span>)),
+            osm2streets::Road::new(
+                <span class="macro">vec!</span>[Pt2D::new(<span class="number">30.0</span>, <span class="number">30.0</span>), Pt2D::new(<span class="number">70.0</span>, <span class="number">70.0</span>)],
+                tags,
+                <span class="kw-2">&amp;</span>raw.streets.config,
             )
-            .<span class="ident">unwrap</span>(),
+            .unwrap(),
         );
 
-        <span class="ident">raw</span>.<span class="ident">buildings</span>.<span class="ident">insert</span>(
-            <span class="ident">osm::OsmID::Way</span>(<span class="ident">osm::WayID</span>(<span class="number">3</span>)),
-            <span class="ident">RawBuilding</span> {
-                <span class="ident">polygon</span>: <span class="ident">Polygon::rectangle_centered</span>(
-                    <span class="ident">Pt2D::new</span>(<span class="number">50.0</span>, <span class="number">20.0</span>),
-                    <span class="ident">Distance::meters</span>(<span class="number">30.0</span>),
-                    <span class="ident">Distance::meters</span>(<span class="number">10.0</span>),
+        raw.buildings.insert(
+            osm::OsmID::Way(osm::WayID(<span class="number">3</span>)),
+            RawBuilding {
+                polygon: Polygon::rectangle_centered(
+                    Pt2D::new(<span class="number">50.0</span>, <span class="number">20.0</span>),
+                    Distance::meters(<span class="number">30.0</span>),
+                    Distance::meters(<span class="number">10.0</span>),
                 ),
-                <span class="ident">osm_tags</span>: <span class="ident">Tags::empty</span>(),
-                <span class="ident">public_garage_name</span>: <span class="prelude-val">None</span>,
-                <span class="ident">num_parking_spots</span>: <span class="number">0</span>,
-                <span class="ident">amenities</span>: <span class="ident">Vec::new</span>(),
+                osm_tags: Tags::empty(),
+                public_garage_name: <span class="prelude-val">None</span>,
+                num_parking_spots: <span class="number">0</span>,
+                amenities: Vec::new(),
             },
         );
 
-        <span class="ident"><span class="self">Self</span>::create_from_raw</span>(
-            <span class="ident">raw</span>,
-            <span class="ident"><span class="kw">crate</span>::RawToMapOptions::default</span>(),
-            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+        <span class="self">Self</span>::create_from_raw(
+            raw,
+            <span class="kw">crate</span>::RawToMapOptions::default(),
+            <span class="kw-2">&amp;mut </span>Timer::throwaway(),
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_roads</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Road</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>
+    <span class="kw">pub fn </span>all_roads(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Road&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.roads
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">iter</span>())
+    <span class="kw">pub fn </span>all_lanes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>Lane&gt; {
+        <span class="self">self</span>.roads.iter().flat_map(|r| r.lanes.iter())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Intersection</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>
+    <span class="kw">pub fn </span>all_intersections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Intersection&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.intersections
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_turns</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">turns</span>.<span class="ident">iter</span>())
+    <span class="kw">pub fn </span>all_turns(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>Turn&gt; {
+        <span class="self">self</span>.intersections.iter().flat_map(|i| i.turns.iter())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_buildings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Building</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buildings</span>
+    <span class="kw">pub fn </span>all_buildings(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Building&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.buildings
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_areas</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Area</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">areas</span>
+    <span class="kw">pub fn </span>all_areas(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Area&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.areas
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_parking_lots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingLot</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking_lots</span>
+    <span class="kw">pub fn </span>all_parking_lots(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;ParkingLot&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.parking_lots
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_zones</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">zones</span>
+    <span class="kw">pub fn </span>all_zones(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Zone&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.zones
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_r</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">RoadID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Road</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="number">0</span>)
+    <span class="kw">pub fn </span>maybe_get_r(<span class="kw-2">&amp;</span><span class="self">self</span>, id: RoadID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Road&gt; {
+        <span class="self">self</span>.roads.get(id.<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_l</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">maybe_get_r</span>(<span class="ident">id</span>.<span class="ident">road</span>)<span class="question-mark">?</span>.<span class="ident">lanes</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="ident">offset</span>)
+    <span class="kw">pub fn </span>maybe_get_l(<span class="kw-2">&amp;</span><span class="self">self</span>, id: LaneID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Lane&gt; {
+        <span class="self">self</span>.maybe_get_r(id.road)<span class="question-mark">?</span>.lanes.get(id.offset)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_i</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="number">0</span>)
+    <span class="kw">pub fn </span>maybe_get_i(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Intersection&gt; {
+        <span class="self">self</span>.intersections.get(id.<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_t</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TurnID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-        <span class="comment">// Looking up the intersection is fast. Linearly scanning through all of the turns to find</span>
-        <span class="comment">// this one actually turns out to be fast too; thanks cache locality.</span>
-        <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="ident">parent</span>.<span class="number">0</span>].<span class="ident">turns</span> {
-            <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">id</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">turn</span>);
+    <span class="kw">pub fn </span>maybe_get_t(<span class="kw-2">&amp;</span><span class="self">self</span>, id: TurnID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Turn&gt; {
+        <span class="comment">// Looking up the intersection is fast. Linearly scanning through all of the turns to find
+        // this one actually turns out to be fast too; thanks cache locality.
+        </span><span class="kw">for </span>turn <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.intersections[id.parent.<span class="number">0</span>].turns {
+            <span class="kw">if </span>turn.id == id {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(turn);
             }
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">pub fn </span>maybe_get_b(<span class="kw-2">&amp;</span><span class="self">self</span>, id: BuildingID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Building&gt; {
+        <span class="self">self</span>.buildings.get(id.<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_b</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Building</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">buildings</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="number">0</span>)
+    <span class="kw">pub fn </span>maybe_get_pl(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ParkingLotID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ParkingLot&gt; {
+        <span class="self">self</span>.parking_lots.get(id.<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_pl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkingLot</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">parking_lots</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="number">0</span>)
+    <span class="kw">pub fn </span>maybe_get_a(<span class="kw-2">&amp;</span><span class="self">self</span>, id: AreaID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Area&gt; {
+        <span class="self">self</span>.areas.get(id.<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_a</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">AreaID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Area</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">areas</span>.<span class="ident">get</span>(<span class="ident">id</span>.<span class="number">0</span>)
+    <span class="kw">pub fn </span>maybe_get_ts(<span class="kw-2">&amp;</span><span class="self">self</span>, id: TransitStopID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TransitStop&gt; {
+        <span class="self">self</span>.transit_stops.get(<span class="kw-2">&amp;</span>id)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_ts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TransitStopID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TransitStop</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">transit_stops</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
+    <span class="kw">pub fn </span>maybe_get_stop_sign(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ControlStopSign&gt; {
+        <span class="self">self</span>.stop_signs.get(<span class="kw-2">&amp;</span>id)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_stop_sign</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ControlStopSign</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">stop_signs</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
+    <span class="kw">pub fn </span>maybe_get_traffic_signal(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ControlTrafficSignal&gt; {
+        <span class="self">self</span>.traffic_signals.get(<span class="kw-2">&amp;</span>id)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_traffic_signal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">traffic_signals</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
+    <span class="kw">pub fn </span>maybe_get_tr(<span class="kw-2">&amp;</span><span class="self">self</span>, route: TransitRouteID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TransitRoute&gt; {
+        <span class="self">self</span>.transit_routes.get(route.<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_get_tr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">route</span>: <span class="ident">TransitRouteID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TransitRoute</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">transit_routes</span>.<span class="ident">get</span>(<span class="ident">route</span>.<span class="number">0</span>)
+    <span class="kw">pub fn </span>get_r(<span class="kw-2">&amp;</span><span class="self">self</span>, id: RoadID) -&gt; <span class="kw-2">&amp;</span>Road {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.roads[id.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_r</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">RoadID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Road</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="number">0</span>]
+    <span class="kw">pub fn </span>get_l(<span class="kw-2">&amp;</span><span class="self">self</span>, id: LaneID) -&gt; <span class="kw-2">&amp;</span>Lane {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.roads[id.road.<span class="number">0</span>].lanes[id.offset]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_l</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Lane</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="ident">road</span>.<span class="number">0</span>].<span class="ident">lanes</span>[<span class="ident">id</span>.<span class="ident">offset</span>]
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>mut_lane(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: LaneID) -&gt; <span class="kw-2">&amp;mut </span>Lane {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.roads[id.road.<span class="number">0</span>].lanes[id.offset]
     }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">mut_lane</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Lane</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="ident">road</span>.<span class="number">0</span>].<span class="ident">lanes</span>[<span class="ident">id</span>.<span class="ident">offset</span>]
+    <span class="doccomment">/// Public for importer. Do not abuse!
+    </span><span class="kw">pub fn </span>mut_road(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: RoadID) -&gt; <span class="kw-2">&amp;mut </span>Road {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.roads[id.<span class="number">0</span>]
     }
-    <span class="doccomment">/// Public for importer. Do not abuse!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mut_road</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">RoadID</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Road</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="ident">id</span>.<span class="number">0</span>]
-    }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">mut_turn</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TurnID</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Turn</span> {
-        <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="ident">parent</span>.<span class="number">0</span>].<span class="ident">turns</span> {
-            <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">id</span> {
-                <span class="kw">return</span> <span class="ident">turn</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>mut_turn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: TurnID) -&gt; <span class="kw-2">&amp;mut </span>Turn {
+        <span class="kw">for </span>turn <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.intersections[id.parent.<span class="number">0</span>].turns {
+            <span class="kw">if </span>turn.id == id {
+                <span class="kw">return </span>turn;
             }
         }
         <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t find {id}&quot;</span>);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_i</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Intersection</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span>[<span class="ident">id</span>.<span class="number">0</span>]
+    <span class="kw">pub fn </span>get_i(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; <span class="kw-2">&amp;</span>Intersection {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.intersections[id.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_t</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">TurnID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Turn</span> {
-        <span class="comment">// When pathfinding breaks, seeing this TurnID is useful.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">turn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">maybe_get_t</span>(<span class="ident">id</span>) {
-            <span class="ident">turn</span>
-        } <span class="kw">else</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t get_t({})&quot;</span>, <span class="ident">id</span>);
+    <span class="kw">pub fn </span>get_t(<span class="kw-2">&amp;</span><span class="self">self</span>, id: TurnID) -&gt; <span class="kw-2">&amp;</span>Turn {
+        <span class="comment">// When pathfinding breaks, seeing this TurnID is useful.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(turn) = <span class="self">self</span>.maybe_get_t(id) {
+            turn
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t get_t({})&quot;</span>, id);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_b</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Building</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buildings</span>[<span class="ident">id</span>.<span class="number">0</span>]
+    <span class="kw">pub fn </span>get_b(<span class="kw-2">&amp;</span><span class="self">self</span>, id: BuildingID) -&gt; <span class="kw-2">&amp;</span>Building {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.buildings[id.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_a</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">AreaID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Area</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">areas</span>[<span class="ident">id</span>.<span class="number">0</span>]
+    <span class="kw">pub fn </span>get_a(<span class="kw-2">&amp;</span><span class="self">self</span>, id: AreaID) -&gt; <span class="kw-2">&amp;</span>Area {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.areas[id.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_pl</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ParkingLot</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">parking_lots</span>[<span class="ident">id</span>.<span class="number">0</span>]
+    <span class="kw">pub fn </span>get_pl(<span class="kw-2">&amp;</span><span class="self">self</span>, id: ParkingLotID) -&gt; <span class="kw-2">&amp;</span>ParkingLot {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.parking_lots[id.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_stop_sign</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ControlStopSign</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stop_signs</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
+    <span class="kw">pub fn </span>get_stop_sign(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; <span class="kw-2">&amp;</span>ControlStopSign {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.stop_signs[<span class="kw-2">&amp;</span>id]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_traffic_signal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">traffic_signals</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
+    <span class="kw">pub fn </span>get_traffic_signal(<span class="kw-2">&amp;</span><span class="self">self</span>, id: IntersectionID) -&gt; <span class="kw-2">&amp;</span>ControlTrafficSignal {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.traffic_signals[<span class="kw-2">&amp;</span>id]
     }
 
-    <span class="comment">// All these helpers should take IDs and return objects.</span>
+    <span class="comment">// All these helpers should take IDs and return objects.
 
-    <span class="doccomment">/// The turns may belong to two different intersections!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turns_from_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-        <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>)
-            .<span class="ident">turns</span>
-            .<span class="ident">iter</span>()
-            <span class="comment">// Sidewalks are bidirectional, so include turns from the source intersection</span>
-            .<span class="ident">chain</span>(
-                <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>)
-                    .<span class="ident">turns</span>
-                    .<span class="ident">iter</span>()
-                    <span class="comment">// And then don&#39;t yield them if this isn&#39;t a sidewalk</span>
-                    .<span class="ident">take_while</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>()),
+    </span><span class="doccomment">/// The turns may belong to two different intersections!
+    </span><span class="kw">pub fn </span>get_turns_from_lane(<span class="kw-2">&amp;</span><span class="self">self</span>, l: LaneID) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Turn&gt; {
+        <span class="kw">let </span>lane = <span class="self">self</span>.get_l(l);
+        <span class="self">self</span>.get_i(lane.dst_i)
+            .turns
+            .iter()
+            <span class="comment">// Sidewalks are bidirectional, so include turns from the source intersection
+            </span>.chain(
+                <span class="self">self</span>.get_i(lane.src_i)
+                    .turns
+                    .iter()
+                    <span class="comment">// And then don&#39;t yield them if this isn&#39;t a sidewalk
+                    </span>.take_while(|<span class="kw">_</span>| lane.is_walkable()),
             )
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">l</span> <span class="op">|</span><span class="op">|</span> (<span class="ident">lane</span>.<span class="ident">is_walkable</span>() <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">==</span> <span class="ident">l</span>))
-            .<span class="ident">collect</span>()
+            .filter(|t| t.id.src == l || (lane.is_walkable() &amp;&amp; t.id.dst == l))
+            .collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turns_to_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
+    <span class="kw">pub fn </span>get_turns_to_lane(<span class="kw-2">&amp;</span><span class="self">self</span>, l: LaneID) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Turn&gt; {
+        <span class="kw">let </span>lane = <span class="self">self</span>.get_l(l);
 
-        <span class="comment">// Sidewalks/shoulders are bidirectional</span>
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>() {
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">get_turns_from_lane</span>(<span class="ident">l</span>);
+        <span class="comment">// Sidewalks/shoulders are bidirectional
+        </span><span class="kw">if </span>lane.is_walkable() {
+            <span class="kw">return </span><span class="self">self</span>.get_turns_from_lane(l);
         }
 
-        <span class="kw">let</span> <span class="ident">turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>)
-            .<span class="ident">turns</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">==</span> <span class="ident">l</span>)
-            .<span class="ident">collect</span>();
-        <span class="ident">turns</span>
+        <span class="kw">let </span>turns: Vec&lt;<span class="kw-2">&amp;</span>Turn&gt; = <span class="self">self
+            </span>.get_i(lane.src_i)
+            .turns
+            .iter()
+            .filter(|t| t.id.dst == l)
+            .collect();
+        turns
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turn_between</span>(
+    <span class="kw">pub fn </span>get_turn_between(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">from</span>: <span class="ident">LaneID</span>,
-        <span class="ident">to</span>: <span class="ident">LaneID</span>,
-        <span class="ident">parent</span>: <span class="ident">IntersectionID</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">parent</span>)
-            .<span class="ident">turns</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">from</span> <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">==</span> <span class="ident">to</span>)
+        from: LaneID,
+        to: LaneID,
+        parent: IntersectionID,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Turn&gt; {
+        <span class="self">self</span>.get_i(parent)
+            .turns
+            .iter()
+            .find(|t| t.id.src == from &amp;&amp; t.id.dst == to)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_next_turns_and_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="kw-2">&amp;</span><span class="ident">Lane</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_turns_from_lane</span>(<span class="ident">from</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
+    <span class="kw">pub fn </span>get_next_turns_and_lanes(<span class="kw-2">&amp;</span><span class="self">self</span>, from: LaneID) -&gt; Vec&lt;(<span class="kw-2">&amp;</span>Turn, <span class="kw-2">&amp;</span>Lane)&gt; {
+        <span class="self">self</span>.get_turns_from_lane(from)
+            .into_iter()
+            .map(|t| {
                 (
-                    <span class="ident">t</span>,
-                    <span class="self">self</span>.<span class="ident">get_l</span>(<span class="kw">if</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">from</span> { <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> } <span class="kw">else</span> { <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> }),
+                    t,
+                    <span class="self">self</span>.get_l(<span class="kw">if </span>t.id.src == from { t.id.dst } <span class="kw">else </span>{ t.id.src }),
                 )
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_next_turns_and_lanes_for</span>(
+    <span class="kw">pub fn </span>get_next_turns_and_lanes_for(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">from</span>: <span class="ident">LaneID</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="kw-2">&amp;</span><span class="ident">Lane</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_next_turns_and_lanes</span>(<span class="ident">from</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">l</span>)<span class="op">|</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>))
-            .<span class="ident">collect</span>()
+        from: LaneID,
+        constraints: PathConstraints,
+    ) -&gt; Vec&lt;(<span class="kw-2">&amp;</span>Turn, <span class="kw-2">&amp;</span>Lane)&gt; {
+        <span class="self">self</span>.get_next_turns_and_lanes(from)
+            .into_iter()
+            .filter(|(<span class="kw">_</span>, l)| constraints.can_use(l, <span class="self">self</span>))
+            .collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_turns_for</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">LaneID</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">get_next_turns_and_lanes_for</span>(<span class="ident">from</span>, <span class="ident">constraints</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">t</span>)
-            .<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>get_turns_for(<span class="kw-2">&amp;</span><span class="self">self</span>, from: LaneID, constraints: PathConstraints) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Turn&gt; {
+        <span class="self">self</span>.get_next_turns_and_lanes_for(from, constraints)
+            .into_iter()
+            .map(|(t, <span class="kw">_</span>)| t)
+            .collect()
     }
 
-    <span class="doccomment">/// Find all movements from one road to another that&#39;re usable by someone.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_movements_for</span>(
+    <span class="doccomment">/// Find all movements from one road to another that&#39;re usable by someone.
+    </span><span class="kw">pub fn </span>get_movements_for(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">from</span>: <span class="ident">DirectedRoadID</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">from</span>.<span class="ident">dst_i</span>(<span class="self">self</span>)).<span class="ident">turns</span> {
-            <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>);
-            <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">get_directed_parent</span>() <span class="op">==</span> <span class="ident">from</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">src</span>, <span class="self">self</span>)
-                <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>), <span class="self">self</span>)
+        from: DirectedRoadID,
+        constraints: PathConstraints,
+    ) -&gt; Vec&lt;MovementID&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>result = BTreeSet::new();
+        <span class="kw">for </span>t <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.get_i(from.dst_i(<span class="self">self</span>)).turns {
+            <span class="kw">let </span>src = <span class="self">self</span>.get_l(t.id.src);
+            <span class="kw">if </span>src.get_directed_parent() == from
+                &amp;&amp; constraints.can_use(src, <span class="self">self</span>)
+                &amp;&amp; constraints.can_use(<span class="self">self</span>.get_l(t.id.dst), <span class="self">self</span>)
             {
-                <span class="ident">result</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">to_movement</span>(<span class="self">self</span>));
+                result.insert(t.id.to_movement(<span class="self">self</span>));
             }
         }
-        <span class="comment">// TODO Sidewalks are bidirectional</span>
-        <span class="macro">assert!</span>(<span class="ident">constraints</span> <span class="op">!</span><span class="op">=</span> <span class="ident">PathConstraints::Pedestrian</span>);
-        <span class="ident">result</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
+        <span class="comment">// TODO Sidewalks are bidirectional
+        </span><span class="macro">assert!</span>(constraints != PathConstraints::Pedestrian);
+        result.into_iter().collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_next_roads</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">from</span>);
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="macro">vec!</span>[<span class="ident">r</span>.<span class="ident">src_i</span>, <span class="ident">r</span>.<span class="ident">dst_i</span>].<span class="ident">into_iter</span>() {
-            <span class="ident">roads</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">roads</span>.<span class="ident">clone</span>());
+    <span class="kw">pub fn </span>get_next_roads(<span class="kw-2">&amp;</span><span class="self">self</span>, from: RoadID) -&gt; BTreeSet&lt;RoadID&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>roads: BTreeSet&lt;RoadID&gt; = BTreeSet::new();
+        <span class="kw">let </span>r = <span class="self">self</span>.get_r(from);
+        <span class="kw">for </span>id <span class="kw">in </span><span class="macro">vec!</span>[r.src_i, r.dst_i].into_iter() {
+            roads.extend(<span class="self">self</span>.get_i(id).roads.clone());
         }
-        <span class="ident">roads</span>
+        roads
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Road</span> {
-        <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">id</span>.<span class="ident">road</span>)
+    <span class="kw">pub fn </span>get_parent(<span class="kw-2">&amp;</span><span class="self">self</span>, id: LaneID) -&gt; <span class="kw-2">&amp;</span>Road {
+        <span class="self">self</span>.get_r(id.road)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_gps_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gps_bounds</span>
+    <span class="kw">pub fn </span>get_gps_bounds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>GPSBounds {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.gps_bounds
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Bounds</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bounds</span>
+    <span class="kw">pub fn </span>get_bounds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Bounds {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.bounds
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_city_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">CityName</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>.<span class="ident">city</span>
+    <span class="kw">pub fn </span>get_city_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CityName {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.name.city
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">MapName</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>
+    <span class="kw">pub fn </span>get_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>MapName {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.name
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_transit_stops</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">TransitStop</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit_stops</span>
+    <span class="kw">pub fn </span>all_transit_stops(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BTreeMap&lt;TransitStopID, TransitStop&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.transit_stops
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_ts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stop</span>: <span class="ident">TransitStopID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TransitStop</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit_stops</span>[<span class="kw-2">&amp;</span><span class="ident">stop</span>]
+    <span class="kw">pub fn </span>get_ts(<span class="kw-2">&amp;</span><span class="self">self</span>, stop: TransitStopID) -&gt; <span class="kw-2">&amp;</span>TransitStop {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.transit_stops[<span class="kw-2">&amp;</span>stop]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_tr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">route</span>: <span class="ident">TransitRouteID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">TransitRoute</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit_routes</span>[<span class="ident">route</span>.<span class="number">0</span>]
+    <span class="kw">pub fn </span>get_tr(<span class="kw-2">&amp;</span><span class="self">self</span>, route: TransitRouteID) -&gt; <span class="kw-2">&amp;</span>TransitRoute {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.transit_routes[route.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_transit_routes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TransitRoute</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit_routes</span>
+    <span class="kw">pub fn </span>all_transit_routes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;TransitRoute&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.transit_routes
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_transit_route</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TransitRoute</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">transit_routes</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">long_name</span> <span class="op">==</span> <span class="ident">name</span>)
+    <span class="kw">pub fn </span>get_transit_route(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>TransitRoute&gt; {
+        <span class="self">self</span>.transit_routes.iter().find(|r| r.long_name == name)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_routes_serving_stop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">stop</span>: <span class="ident">TransitStopID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TransitRoute</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">routes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transit_routes</span> {
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">stop</span>) {
-                <span class="ident">routes</span>.<span class="ident">push</span>(<span class="ident">r</span>);
+    <span class="kw">pub fn </span>get_routes_serving_stop(<span class="kw-2">&amp;</span><span class="self">self</span>, stop: TransitStopID) -&gt; Vec&lt;<span class="kw-2">&amp;</span>TransitRoute&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>routes = Vec::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.transit_routes {
+            <span class="kw">if </span>r.stops.contains(<span class="kw-2">&amp;</span>stop) {
+                routes.push(r);
             }
         }
-        <span class="ident">routes</span>
+        routes
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">building_to_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Road</span> {
-        <span class="self">self</span>.<span class="ident">get_parent</span>(<span class="self">self</span>.<span class="ident">get_b</span>(<span class="ident">id</span>).<span class="ident">sidewalk</span>())
+    <span class="kw">pub fn </span>building_to_road(<span class="kw-2">&amp;</span><span class="self">self</span>, id: BuildingID) -&gt; <span class="kw-2">&amp;</span>Road {
+        <span class="self">self</span>.get_parent(<span class="self">self</span>.get_b(id).sidewalk())
     }
 
-    <span class="doccomment">/// This and all_outgoing_borders are expensive to constantly repeat</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_incoming_borders</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span> {
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_incoming_border</span>() {
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">i</span>);
+    <span class="doccomment">/// This and all_outgoing_borders are expensive to constantly repeat
+    </span><span class="kw">pub fn </span>all_incoming_borders(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Intersection&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>result: Vec&lt;<span class="kw-2">&amp;</span>Intersection&gt; = Vec::new();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.intersections {
+            <span class="kw">if </span>i.is_incoming_border() {
+                result.push(i);
             }
         }
-        <span class="ident">result</span>
+        result
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_outgoing_borders</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Intersection</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">intersections</span> {
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_outgoing_border</span>() {
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">i</span>);
+    <span class="kw">pub fn </span>all_outgoing_borders(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;</span>Intersection&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>result: Vec&lt;<span class="kw-2">&amp;</span>Intersection&gt; = Vec::new();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.intersections {
+            <span class="kw">if </span>i.is_outgoing_border() {
+                result.push(i);
             }
         }
-        <span class="ident">result</span>
+        result
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">edits_name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Untitled Proposal&quot;</span>));
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">is_empty</span>());
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
-        <span class="ident">abstio::write_binary</span>(<span class="self">self</span>.<span class="ident">name</span>.<span class="ident">path</span>(), <span class="self">self</span>);
+    <span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.edits.edits_name.starts_with(<span class="string">&quot;Untitled Proposal&quot;</span>));
+        <span class="macro">assert!</span>(<span class="self">self</span>.edits.commands.is_empty());
+        <span class="macro">assert!</span>(!<span class="self">self</span>.pathfinder_dirty);
+        abstio::write_binary(<span class="self">self</span>.name.path(), <span class="self">self</span>);
     }
 
-    <span class="doccomment">/// Cars trying to park near this building should head for the driving lane returned here, then</span>
-    <span class="doccomment">/// start their search. Some parking lanes are connected to driving lanes that&#39;re &quot;parking</span>
-    <span class="doccomment">/// blackholes&quot; -- if there are no free spots on that lane, then the roads force cars to a</span>
-    <span class="doccomment">/// border.</span>
-    <span class="comment">// TODO Making driving_connection do this.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_driving_lane_near_building</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">LaneID</span> {
-        <span class="kw">let</span> <span class="ident">sidewalk</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">get_parent</span>(<span class="ident">sidewalk</span>)
-            .<span class="ident">find_closest_lane</span>(<span class="ident">sidewalk</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">PathConstraints::Car</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="self">self</span>))
+    <span class="doccomment">/// Cars trying to park near this building should head for the driving lane returned here, then
+    /// start their search. Some parking lanes are connected to driving lanes that&#39;re &quot;parking
+    /// blackholes&quot; -- if there are no free spots on that lane, then the roads force cars to a
+    /// border.
+    </span><span class="comment">// TODO Making driving_connection do this.
+    </span><span class="kw">pub fn </span>find_driving_lane_near_building(<span class="kw-2">&amp;</span><span class="self">self</span>, b: BuildingID) -&gt; LaneID {
+        <span class="kw">let </span>sidewalk = <span class="self">self</span>.get_b(b).sidewalk();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(l) = <span class="self">self
+            </span>.get_parent(sidewalk)
+            .find_closest_lane(sidewalk, |l| PathConstraints::Car.can_use(l, <span class="self">self</span>))
         {
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">driving_blackhole</span> {
-                <span class="kw">return</span> <span class="ident">l</span>;
+            <span class="kw">if </span>!<span class="self">self</span>.get_l(l).driving_blackhole {
+                <span class="kw">return </span>l;
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads_queue</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>roads_queue: VecDeque&lt;RoadID&gt; = VecDeque::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>visited: HashSet&lt;RoadID&gt; = HashSet::new();
         {
-            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">building_to_road</span>(<span class="ident">b</span>).<span class="ident">id</span>;
-            <span class="ident">roads_queue</span>.<span class="ident">push_back</span>(<span class="ident">start</span>);
-            <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">start</span>);
+            <span class="kw">let </span>start = <span class="self">self</span>.building_to_road(b).id;
+            roads_queue.push_back(start);
+            visited.insert(start);
         }
 
-        <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="ident">roads_queue</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">loop </span>{
+            <span class="kw">if </span>roads_queue.is_empty() {
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;Giving up looking for a driving lane near {}, searched {} roads: {:?}&quot;</span>,
-                    <span class="ident">b</span>,
-                    <span class="ident">visited</span>.<span class="ident">len</span>(),
-                    <span class="ident">visited</span>
+                    b,
+                    visited.len(),
+                    visited
                 );
             }
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">roads_queue</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>());
+            <span class="kw">let </span>r = <span class="self">self</span>.get_r(roads_queue.pop_front().unwrap());
 
-            <span class="kw">for</span> (<span class="ident">l</span>, <span class="ident">lt</span>) <span class="kw">in</span> <span class="ident">r</span>
-                .<span class="ident">children_forwards</span>()
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">chain</span>(<span class="ident">r</span>.<span class="ident">children_backwards</span>().<span class="ident">into_iter</span>())
+            <span class="kw">for </span>(l, lt) <span class="kw">in </span>r
+                .children_forwards()
+                .into_iter()
+                .chain(r.children_backwards().into_iter())
             {
-                <span class="kw">if</span> <span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">driving_blackhole</span> {
-                    <span class="kw">return</span> <span class="ident">l</span>;
+                <span class="kw">if </span>lt == LaneType::Driving &amp;&amp; !<span class="self">self</span>.get_l(l).driving_blackhole {
+                    <span class="kw">return </span>l;
                 }
             }
 
-            <span class="kw">for</span> <span class="ident">next_r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">get_next_roads</span>(<span class="ident">r</span>.<span class="ident">id</span>).<span class="ident">into_iter</span>() {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">visited</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">next_r</span>) {
-                    <span class="ident">roads_queue</span>.<span class="ident">push_back</span>(<span class="ident">next_r</span>);
-                    <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">next_r</span>);
+            <span class="kw">for </span>next_r <span class="kw">in </span><span class="self">self</span>.get_next_roads(r.id).into_iter() {
+                <span class="kw">if </span>!visited.contains(<span class="kw-2">&amp;</span>next_r) {
+                    roads_queue.push_back(next_r);
+                    visited.insert(next_r);
                 }
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_boundary_polygon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Polygon</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">boundary_polygon</span>
+    <span class="kw">pub fn </span>get_boundary_polygon(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Polygon {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.boundary_polygon
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_pathfinder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Pathfinder</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pathfinder</span>
+    <span class="kw">pub fn </span>get_pathfinder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Pathfinder {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.pathfinder
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>)<span class="question-mark">?</span>.<span class="ident">into_v1</span>(<span class="self">self</span>)
+    <span class="kw">pub fn </span>pathfind(<span class="kw-2">&amp;</span><span class="self">self</span>, req: PathRequest) -&gt; <span class="prelude-ty">Result</span>&lt;Path&gt; {
+        <span class="self">self</span>.pathfind_v2(req)<span class="question-mark">?</span>.into_v1(<span class="self">self</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_with_params</span>(
+    <span class="kw">pub fn </span>pathfind_with_params(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
-        <span class="ident">cache_custom</span>: <span class="ident">PathfinderCaching</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">pathfind_v2_with_params</span>(<span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">cache_custom</span>)<span class="question-mark">?</span>
-            .<span class="ident">into_v1</span>(<span class="self">self</span>)
+        req: PathRequest,
+        params: <span class="kw-2">&amp;</span>RoutingParams,
+        cache_custom: PathfinderCaching,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Path&gt; {
+        <span class="self">self</span>.pathfind_v2_with_params(req, params, cache_custom)<span class="question-mark">?
+            </span>.into_v1(<span class="self">self</span>)
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_v2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
-        <span class="self">self</span>.<span class="ident">pathfinder</span>
-            .<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="self">self</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, <span class="ident">req</span>))
+    <span class="kw">pub fn </span>pathfind_v2(<span class="kw-2">&amp;</span><span class="self">self</span>, req: PathRequest) -&gt; <span class="prelude-ty">Result</span>&lt;PathV2&gt; {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.pathfinder_dirty);
+        <span class="self">self</span>.pathfinder
+            .pathfind(req.clone(), <span class="self">self</span>)
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, req))
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_v2_with_params</span>(
+    <span class="kw">pub fn </span>pathfind_v2_with_params(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
-        <span class="ident">cache_custom</span>: <span class="ident">PathfinderCaching</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
-        <span class="self">self</span>.<span class="ident">pathfinder</span>
-            .<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">params</span>, <span class="ident">cache_custom</span>, <span class="self">self</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, <span class="ident">req</span>))
+        req: PathRequest,
+        params: <span class="kw-2">&amp;</span>RoutingParams,
+        cache_custom: PathfinderCaching,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathV2&gt; {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.pathfinder_dirty);
+        <span class="self">self</span>.pathfinder
+            .pathfind_with_params(req.clone(), params, cache_custom, <span class="self">self</span>)
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t fulfill {}&quot;</span>, req))
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
+    <span class="kw">pub fn </span>should_use_transit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">start</span>: <span class="ident">Position</span>,
-        <span class="ident">end</span>: <span class="ident">Position</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TransitStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>, <span class="ident">TransitRouteID</span>)<span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
-        <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">should_use_transit</span>(<span class="self">self</span>, <span class="ident">start</span>, <span class="ident">end</span>)
+        start: Position,
+        end: Position,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(TransitStopID, <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;, TransitRouteID)&gt; {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.pathfinder_dirty);
+        <span class="self">self</span>.pathfinder.should_use_transit(<span class="self">self</span>, start, end)
     }
 
-    <span class="doccomment">/// Return the cost of a single path, and also a mapping from every directed road to the cost</span>
-    <span class="doccomment">/// of getting there from the same start. This can be used to understand why an alternative</span>
-    <span class="doccomment">/// route wasn&#39;t chosen.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(
+    <span class="doccomment">/// Return the cost of a single path, and also a mapping from every directed road to the cost
+    /// of getting there from the same start. This can be used to understand why an alternative
+    /// route wasn&#39;t chosen.
+    </span><span class="kw">pub fn </span>all_costs_from(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">pathfinder_dirty</span>);
-        <span class="self">self</span>.<span class="ident">pathfinder</span>.<span class="ident">all_costs_from</span>(<span class="ident">req</span>, <span class="self">self</span>)
+        req: PathRequest,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(Duration, HashMap&lt;DirectedRoadID, Duration&gt;)&gt; {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.pathfinder_dirty);
+        <span class="self">self</span>.pathfinder.all_costs_from(req, <span class="self">self</span>)
     }
 
-    <span class="doccomment">/// None for SharedSidewalkCorners and turns not belonging to traffic signals</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_movement_for_traffic_signal</span>(
+    <span class="doccomment">/// None for SharedSidewalkCorners and turns not belonging to traffic signals
+    </span><span class="kw">pub fn </span>get_movement_for_traffic_signal(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">t</span>: <span class="ident">TurnID</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">MovementID</span>, <span class="ident">CompressedMovementID</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::SharedSidewalkCorner</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        t: TurnID,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(MovementID, CompressedMovementID)&gt; {
+        <span class="kw">let </span>i = <span class="self">self</span>.get_i(t.parent);
+        <span class="kw">if </span>!i.is_traffic_signal() || <span class="self">self</span>.get_t(t).turn_type == TurnType::SharedSidewalkCorner {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="prelude-val">Some</span>(<span class="ident">i</span>.<span class="ident">turn_to_movement</span>(<span class="ident">t</span>))
+        <span class="prelude-val">Some</span>(i.turn_to_movement(t))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_r_by_osm_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">OriginalRoad</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">orig_id</span> <span class="op">==</span> <span class="ident">id</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+    <span class="kw">pub fn </span>find_r_by_osm_id(<span class="kw-2">&amp;</span><span class="self">self</span>, id: OriginalRoad) -&gt; <span class="prelude-ty">Result</span>&lt;RoadID&gt; {
+        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.all_roads() {
+            <span class="kw">if </span>r.orig_id == id {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(r.id);
             }
         }
-        <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, <span class="ident">id</span>)
+        <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, id)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_i_by_osm_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm::NodeID</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_intersections</span>() {
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">orig_id</span> <span class="op">==</span> <span class="ident">id</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">i</span>.<span class="ident">id</span>);
+    <span class="kw">pub fn </span>find_i_by_osm_id(<span class="kw-2">&amp;</span><span class="self">self</span>, id: osm::NodeID) -&gt; <span class="prelude-ty">Result</span>&lt;IntersectionID&gt; {
+        <span class="kw">for </span>i <span class="kw">in </span><span class="self">self</span>.all_intersections() {
+            <span class="kw">if </span>i.orig_id == id {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(i.id);
             }
         }
-        <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, <span class="ident">id</span>)
+        <span class="macro">bail!</span>(<span class="string">&quot;Can&#39;t find {}&quot;</span>, id)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_b_by_osm_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">osm::OsmID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_buildings</span>() {
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">orig_id</span> <span class="op">==</span> <span class="ident">id</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+    <span class="kw">pub fn </span>find_b_by_osm_id(<span class="kw-2">&amp;</span><span class="self">self</span>, id: osm::OsmID) -&gt; <span class="prelude-ty">Option</span>&lt;BuildingID&gt; {
+        <span class="kw">for </span>b <span class="kw">in </span><span class="self">self</span>.all_buildings() {
+            <span class="kw">if </span>b.orig_id == id {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(b.id);
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_tr_by_gtfs</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gtfs_id</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitRouteID</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">tr</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_transit_routes</span>() {
-            <span class="kw">if</span> <span class="ident">tr</span>.<span class="ident">gtfs_id</span> <span class="op">==</span> <span class="ident">gtfs_id</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">tr</span>.<span class="ident">id</span>);
+    <span class="kw">pub fn </span>find_tr_by_gtfs(<span class="kw-2">&amp;</span><span class="self">self</span>, gtfs_id: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;TransitRouteID&gt; {
+        <span class="kw">for </span>tr <span class="kw">in </span><span class="self">self</span>.all_transit_routes() {
+            <span class="kw">if </span>tr.gtfs_id == gtfs_id {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(tr.id);
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="comment">// TODO Sort of a temporary hack</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_override_offstreet_spots</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">spots_per_bldg</span>: <span class="ident">usize</span>) {
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buildings</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking::Private</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">num_spots</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">parking</span> {
-                <span class="kw-2">*</span><span class="ident">num_spots</span> <span class="op">=</span> <span class="ident">spots_per_bldg</span>;
+    <span class="comment">// TODO Sort of a temporary hack
+    </span><span class="kw">pub fn </span>hack_override_offstreet_spots(<span class="kw-2">&amp;mut </span><span class="self">self</span>, spots_per_bldg: usize) {
+        <span class="kw">for </span>b <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.buildings {
+            <span class="kw">if let </span>OffstreetParking::Private(<span class="kw-2">ref mut </span>num_spots, <span class="kw">_</span>) = b.parking {
+                <span class="kw-2">*</span>num_spots = spots_per_bldg;
             }
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_override_offstreet_spots_individ</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>, <span class="ident">spots</span>: <span class="ident">usize</span>) {
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">buildings</span>[<span class="ident">b</span>.<span class="number">0</span>];
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking::Private</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">num_spots</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">parking</span> {
-            <span class="kw-2">*</span><span class="ident">num_spots</span> <span class="op">=</span> <span class="ident">spots</span>;
+    <span class="kw">pub fn </span>hack_override_offstreet_spots_individ(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: BuildingID, spots: usize) {
+        <span class="kw">let </span>b = <span class="kw-2">&amp;mut </span><span class="self">self</span>.buildings[b.<span class="number">0</span>];
+        <span class="kw">if let </span>OffstreetParking::Private(<span class="kw-2">ref mut </span>num_spots, <span class="kw">_</span>) = b.parking {
+            <span class="kw-2">*</span>num_spots = spots;
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_override_bldg_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">b</span>: <span class="ident">BuildingID</span>, <span class="ident">bldg_type</span>: <span class="ident">BuildingType</span>) {
-        <span class="self">self</span>.<span class="ident">buildings</span>[<span class="ident">b</span>.<span class="number">0</span>].<span class="ident">bldg_type</span> <span class="op">=</span> <span class="ident">bldg_type</span>;
+    <span class="kw">pub fn </span>hack_override_bldg_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, b: BuildingID, bldg_type: BuildingType) {
+        <span class="self">self</span>.buildings[b.<span class="number">0</span>].bldg_type = bldg_type;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_override_orig_spawn_times</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">br</span>: <span class="ident">TransitRouteID</span>, <span class="ident">times</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">transit_routes</span>[<span class="ident">br</span>.<span class="number">0</span>].<span class="ident">orig_spawn_times</span> <span class="op">=</span> <span class="ident">times</span>.<span class="ident">clone</span>();
-        <span class="self">self</span>.<span class="ident">transit_routes</span>[<span class="ident">br</span>.<span class="number">0</span>].<span class="ident">spawn_times</span> <span class="op">=</span> <span class="ident">times</span>;
+    <span class="kw">pub fn </span>hack_override_orig_spawn_times(<span class="kw-2">&amp;mut </span><span class="self">self</span>, br: TransitRouteID, times: Vec&lt;Time&gt;) {
+        <span class="self">self</span>.transit_routes[br.<span class="number">0</span>].orig_spawn_times = times.clone();
+        <span class="self">self</span>.transit_routes[br.<span class="number">0</span>].spawn_times = times;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_add_area</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">area_type</span>: <span class="ident">AreaType</span>, <span class="ident">polygon</span>: <span class="ident">Polygon</span>, <span class="ident">osm_tags</span>: <span class="ident">Tags</span>) {
-        <span class="self">self</span>.<span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">Area</span> {
-            <span class="ident">id</span>: <span class="ident">AreaID</span>(<span class="self">self</span>.<span class="ident">areas</span>.<span class="ident">len</span>()),
-            <span class="ident">area_type</span>,
-            <span class="ident">polygon</span>,
-            <span class="ident">osm_tags</span>,
-            <span class="ident">osm_id</span>: <span class="prelude-val">None</span>,
+    <span class="kw">pub fn </span>hack_add_area(<span class="kw-2">&amp;mut </span><span class="self">self</span>, area_type: AreaType, polygon: Polygon, osm_tags: Tags) {
+        <span class="self">self</span>.areas.push(Area {
+            id: AreaID(<span class="self">self</span>.areas.len()),
+            area_type,
+            polygon,
+            osm_tags,
+            osm_id: <span class="prelude-val">None</span>,
         });
     }
 
-    <span class="doccomment">/// Normally after applying edits, you must call `recalculate_pathfinding_after_edits`.</span>
-    <span class="doccomment">/// Alternatively, you can keep the old pathfinder exactly as it is. Use with caution -- the</span>
-    <span class="doccomment">/// pathfinder and the map may be out-of-sync in arbitrary ways.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">keep_pathfinder_despite_edits</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">pathfinder_dirty</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="doccomment">/// Normally after applying edits, you must call `recalculate_pathfinding_after_edits`.
+    /// Alternatively, you can keep the old pathfinder exactly as it is. Use with caution -- the
+    /// pathfinder and the map may be out-of-sync in arbitrary ways.
+    </span><span class="kw">pub fn </span>keep_pathfinder_despite_edits(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.pathfinder_dirty = <span class="bool-val">false</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_languages</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">languages</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">osm_tags</span>.<span class="ident">inner</span>().<span class="ident">keys</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">key</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;name:&quot;</span>) {
-                    <span class="ident">languages</span>.<span class="ident">insert</span>(<span class="ident">x</span>.<span class="ident">to_string</span>());
+    <span class="kw">pub fn </span>get_languages(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BTreeSet&lt;String&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>languages = BTreeSet::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.all_roads() {
+            <span class="kw">for </span>key <span class="kw">in </span>r.osm_tags.inner().keys() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = key.strip_prefix(<span class="string">&quot;name:&quot;</span>) {
+                    languages.insert(x.to_string());
                 }
             }
         }
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_buildings</span>() {
-            <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                <span class="kw">for</span> <span class="ident">lang</span> <span class="kw">in</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">languages</span>() {
-                    <span class="ident">languages</span>.<span class="ident">insert</span>(<span class="ident">lang</span>.<span class="ident">to_string</span>());
+        <span class="kw">for </span>b <span class="kw">in </span><span class="self">self</span>.all_buildings() {
+            <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span>b.amenities {
+                <span class="kw">for </span>lang <span class="kw">in </span>a.names.languages() {
+                    languages.insert(lang.to_string());
                 }
             }
         }
-        <span class="ident">languages</span>
+        languages
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">MapConfig</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">config</span>
+    <span class="kw">pub fn </span>get_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>MapConfig {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.config
     }
 
-    <span class="doccomment">/// Simple search along undirected roads. Expresses the result as a sequence of roads and a</span>
-    <span class="doccomment">/// sequence of intersections.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_path_btwn</span>(
+    <span class="doccomment">/// Simple search along undirected roads. Expresses the result as a sequence of roads and a
+    /// sequence of intersections.
+    </span><span class="kw">pub fn </span>simple_path_btwn(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">i1</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">i2</span>: <span class="ident">IntersectionID</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span>: <span class="ident">UnGraphMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">UnGraphMap::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
-                <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">r</span>.<span class="ident">src_i</span>, <span class="ident">r</span>.<span class="ident">dst_i</span>, <span class="ident">r</span>.<span class="ident">id</span>);
+        i1: IntersectionID,
+        i2: IntersectionID,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(Vec&lt;RoadID&gt;, Vec&lt;IntersectionID&gt;)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>graph: UnGraphMap&lt;IntersectionID, RoadID&gt; = UnGraphMap::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.all_roads() {
+            <span class="kw">if </span>!r.is_light_rail() {
+                graph.add_edge(r.src_i, r.dst_i, r.id);
             }
         }
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">path</span>) <span class="op">=</span> <span class="ident">petgraph::algo::astar</span>(
-            <span class="kw-2">&amp;</span><span class="ident">graph</span>,
-            <span class="ident">i1</span>,
-            <span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">i2</span>,
-            <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">length</span>(),
-            <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Distance::ZERO</span>,
+        <span class="kw">let </span>(<span class="kw">_</span>, path) = petgraph::algo::astar(
+            <span class="kw-2">&amp;</span>graph,
+            i1,
+            |i| i == i2,
+            |(<span class="kw">_</span>, <span class="kw">_</span>, r)| <span class="self">self</span>.get_r(<span class="kw-2">*</span>r).length(),
+            |<span class="kw">_</span>| Distance::ZERO,
         )<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">path</span>
-            .<span class="ident">windows</span>(<span class="number">2</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">graph</span>.<span class="ident">edge_weight</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>())
-            .<span class="ident">collect</span>();
-        <span class="prelude-val">Some</span>((<span class="ident">roads</span>, <span class="ident">path</span>))
+        <span class="kw">let </span>roads: Vec&lt;RoadID&gt; = path
+            .windows(<span class="number">2</span>)
+            .map(|pair| <span class="kw-2">*</span>graph.edge_weight(pair[<span class="number">0</span>], pair[<span class="number">1</span>]).unwrap())
+            .collect();
+        <span class="prelude-val">Some</span>((roads, path))
     }
 
-    <span class="doccomment">/// Simple search along directed roads, weighted by distance. Expresses the result as a</span>
-    <span class="doccomment">/// sequence of roads and a sequence of intersections.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Unlike the main pathfinding methods, this starts and ends at intersections. The first and</span>
-    <span class="doccomment">/// last step can be on any road connected to the intersection.</span>
-    <span class="comment">// TODO Remove simple_path_btwn in favor of this one?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_path_btwn_v2</span>(
+    <span class="doccomment">/// Simple search along directed roads, weighted by distance. Expresses the result as a
+    /// sequence of roads and a sequence of intersections.
+    ///
+    /// Unlike the main pathfinding methods, this starts and ends at intersections. The first and
+    /// last step can be on any road connected to the intersection.
+    </span><span class="comment">// TODO Remove simple_path_btwn in favor of this one?
+    </span><span class="kw">pub fn </span>simple_path_btwn_v2(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">i1</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">i2</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span>: <span class="ident">DiGraphMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">DiGraphMap::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">back</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lanes</span> {
-                <span class="kw">if</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">lane</span>, <span class="self">self</span>) {
-                    <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
-                        <span class="ident">fwd</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">back</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        i1: IntersectionID,
+        i2: IntersectionID,
+        constraints: PathConstraints,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(Vec&lt;RoadID&gt;, Vec&lt;IntersectionID&gt;)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>graph: DiGraphMap&lt;IntersectionID, RoadID&gt; = DiGraphMap::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.all_roads() {
+            <span class="kw">let </span><span class="kw-2">mut </span>fwd = <span class="bool-val">false</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>back = <span class="bool-val">false</span>;
+            <span class="kw">for </span>lane <span class="kw">in </span><span class="kw-2">&amp;</span>r.lanes {
+                <span class="kw">if </span>constraints.can_use(lane, <span class="self">self</span>) {
+                    <span class="kw">if </span>lane.dir == Direction::Fwd {
+                        fwd = <span class="bool-val">true</span>;
+                    } <span class="kw">else </span>{
+                        back = <span class="bool-val">true</span>;
                     }
                 }
             }
-            <span class="kw">if</span> <span class="ident">fwd</span> {
-                <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">r</span>.<span class="ident">src_i</span>, <span class="ident">r</span>.<span class="ident">dst_i</span>, <span class="ident">r</span>.<span class="ident">id</span>);
+            <span class="kw">if </span>fwd {
+                graph.add_edge(r.src_i, r.dst_i, r.id);
             }
-            <span class="kw">if</span> <span class="ident">back</span> {
-                <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">r</span>.<span class="ident">dst_i</span>, <span class="ident">r</span>.<span class="ident">src_i</span>, <span class="ident">r</span>.<span class="ident">id</span>);
+            <span class="kw">if </span>back {
+                graph.add_edge(r.dst_i, r.src_i, r.id);
             }
         }
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">path</span>) <span class="op">=</span> <span class="ident">petgraph::algo::astar</span>(
-            <span class="kw-2">&amp;</span><span class="ident">graph</span>,
-            <span class="ident">i1</span>,
-            <span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="ident">i2</span>,
-            <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">r</span>)<span class="op">|</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">length</span>(),
-            <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Distance::ZERO</span>,
+        <span class="kw">let </span>(<span class="kw">_</span>, path) = petgraph::algo::astar(
+            <span class="kw-2">&amp;</span>graph,
+            i1,
+            |i| i == i2,
+            |(<span class="kw">_</span>, <span class="kw">_</span>, r)| <span class="self">self</span>.get_r(<span class="kw-2">*</span>r).length(),
+            |<span class="kw">_</span>| Distance::ZERO,
         )<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">path</span>
-            .<span class="ident">windows</span>(<span class="number">2</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">graph</span>.<span class="ident">edge_weight</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>())
-            .<span class="ident">collect</span>();
-        <span class="prelude-val">Some</span>((<span class="ident">roads</span>, <span class="ident">path</span>))
+        <span class="kw">let </span>roads: Vec&lt;RoadID&gt; = path
+            .windows(<span class="number">2</span>)
+            .map(|pair| <span class="kw-2">*</span>graph.edge_weight(pair[<span class="number">0</span>], pair[<span class="number">1</span>]).unwrap())
+            .collect();
+        <span class="prelude-val">Some</span>((roads, path))
     }
 
-    <span class="doccomment">/// Returns the routing params baked into the map.</span>
-    <span class="comment">// Depending how this works out, we might require everybody to explicitly plumb routing params,</span>
-    <span class="comment">// in which case it should be easy to look for all places calling this.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">routing_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">routing_params</span>
+    <span class="doccomment">/// Returns the routing params baked into the map.
+    </span><span class="comment">// Depending how this works out, we might require everybody to explicitly plumb routing params,
+    // in which case it should be easy to look for all places calling this.
+    </span><span class="kw">pub fn </span>routing_params(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>RoutingParams {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.routing_params
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">road_to_buildings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">road_to_buildings</span>.<span class="ident">get</span>(<span class="ident">r</span>)
+    <span class="kw">pub fn </span>road_to_buildings(<span class="kw-2">&amp;</span><span class="self">self</span>, r: RoadID) -&gt; <span class="kw-2">&amp;</span>BTreeSet&lt;BuildingID&gt; {
+        <span class="self">self</span>.road_to_buildings.get(r)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">recalculate_road_to_buildings</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapping</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_buildings</span>() {
-            <span class="ident">mapping</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>().<span class="ident">road</span>, <span class="ident">b</span>.<span class="ident">id</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>recalculate_road_to_buildings(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>mapping = MultiMap::new();
+        <span class="kw">for </span>b <span class="kw">in </span><span class="self">self</span>.all_buildings() {
+            mapping.insert(b.sidewalk_pos.lane().road, b.id);
         }
-        <span class="self">self</span>.<span class="ident">road_to_buildings</span> <span class="op">=</span> <span class="ident">mapping</span>;
+        <span class="self">self</span>.road_to_buildings = mapping;
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">recalculate_all_movements</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="kw">let</span> <span class="ident">movements</span> <span class="op">=</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>recalculate_all_movements(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="kw">let </span>movements = timer.parallelize(
             <span class="string">&quot;generate movements&quot;</span>,
-            <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">id</span>).<span class="ident">collect</span>(),
-            <span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">Movement::for_i</span>(<span class="ident">i</span>, <span class="self">self</span>),
+            <span class="self">self</span>.intersections.iter().map(|i| i.id).collect(),
+            |i| Movement::for_i(i, <span class="self">self</span>),
         );
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">movements</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">intersections</span>.<span class="ident">iter_mut</span>().<span class="ident">zip</span>(<span class="ident">movements</span>.<span class="ident">into_iter</span>()) {
-            <span class="ident">i</span>.<span class="ident">movements</span> <span class="op">=</span> <span class="ident">movements</span>;
+        <span class="kw">for </span>(i, movements) <span class="kw">in </span><span class="self">self</span>.intersections.iter_mut().zip(movements.into_iter()) {
+            i.movements = movements;
         }
     }
 
-    <span class="doccomment">/// Finds the road directly connecting two intersections.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_road_between</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i1</span>: <span class="ident">IntersectionID</span>, <span class="ident">i2</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">i1</span>).<span class="ident">roads</span> {
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">i2</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">id</span>);
+    <span class="doccomment">/// Finds the road directly connecting two intersections.
+    </span><span class="kw">pub fn </span>find_road_between(<span class="kw-2">&amp;</span><span class="self">self</span>, i1: IntersectionID, i2: IntersectionID) -&gt; <span class="prelude-ty">Option</span>&lt;RoadID&gt; {
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.get_i(i1).roads {
+            <span class="kw">let </span>road = <span class="self">self</span>.get_r(<span class="kw-2">*</span>r);
+            <span class="kw">if </span>road.src_i == i2 || road.dst_i == i2 {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(road.id);
             }
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="doccomment">/// Returns the highest elevation in the map
+    </span><span class="kw">pub fn </span>max_elevation(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Distance {
+        <span class="comment">// TODO Cache?
+        </span><span class="self">self</span>.all_intersections()
+            .iter()
+            .max_by_key(|i| i.elevation)
+            .unwrap()
+            .elevation
     }
 
-    <span class="doccomment">/// Returns the highest elevation in the map</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_elevation</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="comment">// TODO Cache?</span>
-        <span class="self">self</span>.<span class="ident">all_intersections</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="ident">elevation</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">elevation</span>
-    }
-
-    <span class="doccomment">/// Does a turn at a stop sign go from a smaller to a larger road?</span>
-    <span class="doccomment">/// (Note this doesn&#39;t look at unprotected movements in traffic signals, since we don&#39;t yet</span>
-    <span class="doccomment">/// have good heuristics for when those exist)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_unprotected_turn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">RoadID</span>, <span class="ident">to</span>: <span class="ident">RoadID</span>, <span class="ident">turn_type</span>: <span class="ident">TurnType</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">unprotected_turn_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
-            <span class="ident">TurnType::Left</span>
-        } <span class="kw">else</span> {
-            <span class="ident">TurnType::Right</span>
+    <span class="doccomment">/// Does a turn at a stop sign go from a smaller to a larger road?
+    /// (Note this doesn&#39;t look at unprotected movements in traffic signals, since we don&#39;t yet
+    /// have good heuristics for when those exist)
+    </span><span class="kw">pub fn </span>is_unprotected_turn(<span class="kw-2">&amp;</span><span class="self">self</span>, from: RoadID, to: RoadID, turn_type: TurnType) -&gt; bool {
+        <span class="kw">let </span>unprotected_turn_type = <span class="kw">if </span><span class="self">self</span>.get_config().driving_side == DrivingSide::Right {
+            TurnType::Left
+        } <span class="kw">else </span>{
+            TurnType::Right
         };
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">from</span>);
-        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">to</span>);
-        <span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">unprotected_turn_type</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">from</span>.<span class="ident">get_detailed_rank</span>() <span class="op">&lt;</span> <span class="ident">to</span>.<span class="ident">get_detailed_rank</span>()
-            <span class="op">&amp;&amp;</span> <span class="kw">match</span> <span class="ident">from</span>.<span class="ident">common_endpoint</span>(<span class="ident">to</span>) {
-                <span class="ident">CommonEndpoint::One</span>(<span class="ident">i</span>) =&gt; <span class="self">self</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_stop_sign</span>(),
-                <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+        <span class="kw">let </span>from = <span class="self">self</span>.get_r(from);
+        <span class="kw">let </span>to = <span class="self">self</span>.get_r(to);
+        turn_type == unprotected_turn_type
+            &amp;&amp; from.get_detailed_rank() &lt; to.get_detailed_rank()
+            &amp;&amp; <span class="kw">match </span>from.common_endpoint(to) {
+                CommonEndpoint::One(i) =&gt; <span class="self">self</span>.get_i(i).is_stop_sign(),
+                <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
             }
     }
 
-    <span class="doccomment">/// Modifies the map in-place, removing parts not essential for the bike network tool.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minify</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="comment">// We only need the CHs for driving and biking, to support mode shift.</span>
-        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_limited</span>(
+    <span class="doccomment">/// Modifies the map in-place, removing parts not essential for the bike network tool.
+    </span><span class="kw">pub fn </span>minify(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="comment">// We only need the CHs for driving and biking, to support mode shift.
+        </span><span class="self">self</span>.pathfinder = Pathfinder::new_limited(
             <span class="self">self</span>,
-            <span class="self">self</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
-            <span class="ident"><span class="kw">crate</span>::pathfind::CreateEngine::CH</span>,
-            <span class="macro">vec!</span>[<span class="ident">PathConstraints::Car</span>, <span class="ident">PathConstraints::Bike</span>],
-            <span class="ident">timer</span>,
+            <span class="self">self</span>.routing_params().clone(),
+            <span class="kw">crate</span>::pathfind::CreateEngine::CH,
+            <span class="macro">vec!</span>[PathConstraints::Car, PathConstraints::Bike],
+            timer,
         );
 
-        <span class="comment">// Remove all routes, since we remove that pathfinder</span>
-        <span class="self">self</span>.<span class="ident">transit_stops</span>.<span class="ident">clear</span>();
-        <span class="self">self</span>.<span class="ident">transit_routes</span>.<span class="ident">clear</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
-            <span class="ident">r</span>.<span class="ident">transit_stops</span>.<span class="ident">clear</span>();
+        <span class="comment">// Remove all routes, since we remove that pathfinder
+        </span><span class="self">self</span>.transit_stops.clear();
+        <span class="self">self</span>.transit_routes.clear();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.roads {
+            r.transit_stops.clear();
         }
     }
 
-    <span class="doccomment">/// Modifies the map in-place, removing buildings.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minify_buildings</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="self">self</span>.<span class="ident">buildings</span>.<span class="ident">clear</span>();
+    <span class="doccomment">/// Modifies the map in-place, removing buildings.
+    </span><span class="kw">pub fn </span>minify_buildings(<span class="kw-2">&amp;mut </span><span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="self">self</span>.buildings.clear();
 
-        <span class="comment">// We only need the CHs for driving.</span>
-        <span class="self">self</span>.<span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_limited</span>(
+        <span class="comment">// We only need the CHs for driving.
+        </span><span class="self">self</span>.pathfinder = Pathfinder::new_limited(
             <span class="self">self</span>,
-            <span class="self">self</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
-            <span class="ident"><span class="kw">crate</span>::pathfind::CreateEngine::CH</span>,
-            <span class="macro">vec!</span>[<span class="ident">PathConstraints::Car</span>],
-            <span class="ident">timer</span>,
+            <span class="self">self</span>.routing_params().clone(),
+            <span class="kw">crate</span>::pathfind::CreateEngine::CH,
+            <span class="macro">vec!</span>[PathConstraints::Car],
+            timer,
         );
 
-        <span class="comment">// Remove all routes, since we remove that pathfinder</span>
-        <span class="self">self</span>.<span class="ident">transit_stops</span>.<span class="ident">clear</span>();
-        <span class="self">self</span>.<span class="ident">transit_routes</span>.<span class="ident">clear</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
-            <span class="ident">r</span>.<span class="ident">transit_stops</span>.<span class="ident">clear</span>();
+        <span class="comment">// Remove all routes, since we remove that pathfinder
+        </span><span class="self">self</span>.transit_stops.clear();
+        <span class="self">self</span>.transit_routes.clear();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.roads {
+            r.transit_stops.clear();
         }
     }
 
-    <span class="doccomment">/// Export all road and intersection geometry to GeoJSON, transforming to WGS84</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">export_geometry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">geojson::GeoJson</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_gps_bounds</span>());
+    <span class="doccomment">/// Export all road and intersection geometry to GeoJSON, transforming to WGS84
+    </span><span class="kw">pub fn </span>export_geometry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; geojson::GeoJson {
+        <span class="kw">let </span><span class="kw-2">mut </span>pairs = Vec::new();
+        <span class="kw">let </span>gps_bounds = <span class="prelude-val">Some</span>(<span class="self">self</span>.get_gps_bounds());
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_intersections</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
-            <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;type&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;intersection&quot;</span>.<span class="ident">into</span>());
-            <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
-            <span class="ident">pairs</span>.<span class="ident">push</span>((<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>), <span class="ident">props</span>));
+        <span class="kw">for </span>i <span class="kw">in </span><span class="self">self</span>.all_intersections() {
+            <span class="kw">let </span><span class="kw-2">mut </span>props = serde_json::Map::new();
+            props.insert(<span class="string">&quot;type&quot;</span>.to_string(), <span class="string">&quot;intersection&quot;</span>.into());
+            props.insert(<span class="string">&quot;id&quot;</span>.to_string(), i.orig_id.to_string().into());
+            pairs.push((i.polygon.get_outer_ring().to_geojson(gps_bounds), props));
         }
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
-            <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;type&quot;</span>.<span class="ident">to_string</span>(), <span class="string">&quot;road&quot;</span>.<span class="ident">into</span>());
-            <span class="ident">props</span>.<span class="ident">insert</span>(<span class="string">&quot;id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="ident">to_string</span>().<span class="ident">into</span>());
-            <span class="ident">pairs</span>.<span class="ident">push</span>((
-                <span class="ident">r</span>.<span class="ident">center_pts</span>
-                    .<span class="ident">to_thick_ring</span>(<span class="ident">r</span>.<span class="ident">get_width</span>())
-                    .<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>),
-                <span class="ident">props</span>,
+        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.all_roads() {
+            <span class="kw">let </span><span class="kw-2">mut </span>props = serde_json::Map::new();
+            props.insert(<span class="string">&quot;type&quot;</span>.to_string(), <span class="string">&quot;road&quot;</span>.into());
+            props.insert(<span class="string">&quot;id&quot;</span>.to_string(), r.orig_id.osm_way_id.to_string().into());
+            pairs.push((
+                r.center_pts
+                    .to_thick_ring(r.get_width())
+                    .to_geojson(gps_bounds),
+                props,
             ));
         }
 
-        <span class="ident">geom::geometries_with_properties_to_geojson</span>(<span class="ident">pairs</span>)
+        geom::geometries_with_properties_to_geojson(pairs)
     }
 
-    <span class="doccomment">/// What&#39;re the names of bus routes along a road? Note this is best effort, not robust to edits</span>
-    <span class="doccomment">/// or transformations.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bus_routes_on_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">way</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>;
-        <span class="self">self</span>.<span class="ident">bus_routes_on_roads</span>.<span class="ident">get</span>(<span class="ident">way</span>)
+    <span class="doccomment">/// What&#39;re the names of bus routes along a road? Note this is best effort, not robust to edits
+    /// or transformations.
+    </span><span class="kw">pub fn </span>get_bus_routes_on_road(<span class="kw-2">&amp;</span><span class="self">self</span>, r: RoadID) -&gt; <span class="kw-2">&amp;</span>BTreeSet&lt;String&gt; {
+        <span class="kw">let </span>way = <span class="self">self</span>.get_r(r).orig_id.osm_way_id;
+        <span class="self">self</span>.bus_routes_on_roads.get(way)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/event.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>event.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/event.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>event.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -469,476 +469,476 @@
 <span id="469">469</span>
 <span id="470">470</span>
 <span id="471">471</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">instant::Instant</span>;
-<span class="kw">use</span> <span class="ident">winit::event</span>::{
-    <span class="ident">ElementState</span>, <span class="ident">KeyboardInput</span>, <span class="ident">MouseButton</span>, <span class="ident">MouseScrollDelta</span>, <span class="ident">VirtualKeyCode</span>, <span class="ident">WindowEvent</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>instant::Instant;
+<span class="kw">use </span>winit::event::{
+    ElementState, KeyboardInput, MouseButton, MouseScrollDelta, VirtualKeyCode, WindowEvent,
 };
 
-<span class="kw">use</span> <span class="ident">geom::Duration</span>;
+<span class="kw">use </span>geom::Duration;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">TextSpan</span>};
+<span class="kw">use crate</span>::{EventCtx, Line, ScreenDims, ScreenPt, TextSpan};
 
-<span class="comment">// Mouse-up events longer than this will be considered single clicks</span>
-<span class="comment">// Ideally the delay would be a little more tolerant - e.g. 500ms, but because we don&#39;t actually</span>
-<span class="comment">// have a way to indicate that a single click was handled (and thus *shouldn&#39;t* be counted as part of a double click)</span>
-<span class="comment">// it&#39;s too easy to have false positives.</span>
-<span class="kw">const</span> <span class="ident">MAX_DOUBLE_CLICK_DURATION</span>: <span class="ident">instant::Duration</span> <span class="op">=</span> <span class="ident">instant::Duration::from_millis</span>(<span class="number">300</span>);
+<span class="comment">// Mouse-up events longer than this will be considered single clicks
+// Ideally the delay would be a little more tolerant - e.g. 500ms, but because we don&#39;t actually
+// have a way to indicate that a single click was handled (and thus *shouldn&#39;t* be counted as part of a double click)
+// it&#39;s too easy to have false positives.
+</span><span class="kw">const </span>MAX_DOUBLE_CLICK_DURATION: instant::Duration = instant::Duration::from_millis(<span class="number">300</span>);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Event</span> {
-    <span class="comment">// Used to initialize the application and also to recalculate menu state when some other event</span>
-    <span class="comment">// is used.</span>
-    <span class="ident">NoOp</span>,
-    <span class="ident">LeftMouseButtonDown</span>,
-    <span class="doccomment">/// Note: When double clicking, there will be two `LeftMouseButtonUp` events in short</span>
-    <span class="doccomment">/// succession - first a `LeftMouseButtonUp { is_double_click: false }`, followed by</span>
-    <span class="doccomment">/// a `LeftMouseButtonUp { is_double_click: true }`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This was done for ease of implementation - it allows a target to ignore single clicks and</span>
-    <span class="doccomment">/// handle double clicks (or vice versa), but it precludes an obvious way to have a target</span>
-    <span class="doccomment">/// handle single clicks one way while handling double clicks a different way.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// e.g. a typical file browser highlights a file with a single click and opens the file with a</span>
-    <span class="doccomment">/// double click, the way we&#39;ve implemented double clicks here wouldn&#39;t work well for that</span>
-    <span class="doccomment">/// case.</span>
-    <span class="ident">LeftMouseButtonUp</span> {
-        <span class="ident">is_double_click</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Clone, Copy, PartialEq)]
+</span><span class="kw">pub enum </span>Event {
+    <span class="comment">// Used to initialize the application and also to recalculate menu state when some other event
+    // is used.
+    </span>NoOp,
+    LeftMouseButtonDown,
+    <span class="doccomment">/// Note: When double clicking, there will be two `LeftMouseButtonUp` events in short
+    /// succession - first a `LeftMouseButtonUp { is_double_click: false }`, followed by
+    /// a `LeftMouseButtonUp { is_double_click: true }`.
+    ///
+    /// This was done for ease of implementation - it allows a target to ignore single clicks and
+    /// handle double clicks (or vice versa), but it precludes an obvious way to have a target
+    /// handle single clicks one way while handling double clicks a different way.
+    ///
+    /// e.g. a typical file browser highlights a file with a single click and opens the file with a
+    /// double click, the way we&#39;ve implemented double clicks here wouldn&#39;t work well for that
+    /// case.
+    </span>LeftMouseButtonUp {
+        is_double_click: bool,
     },
-    <span class="ident">RightMouseButtonDown</span>,
-    <span class="ident">RightMouseButtonUp</span>,
-    <span class="comment">// TODO KeyDown and KeyUp might be nicer, but piston (and probably X.org) hands over repeated</span>
-    <span class="comment">// events while a key is held down.</span>
-    <span class="ident">KeyPress</span>(<span class="ident">Key</span>),
-    <span class="ident">KeyRelease</span>(<span class="ident">Key</span>),
-    <span class="comment">// Some real amount of time has passed since the last update</span>
-    <span class="ident">Update</span>(<span class="ident">Duration</span>),
-    <span class="ident">MouseMovedTo</span>(<span class="ident">ScreenPt</span>),
-    <span class="ident">WindowLostCursor</span>,
-    <span class="ident">WindowGainedCursor</span>,
-    <span class="ident">MouseWheelScroll</span>(<span class="ident">f64</span>, <span class="ident">f64</span>),
-    <span class="ident">WindowResized</span>(<span class="ident">ScreenDims</span>),
+    RightMouseButtonDown,
+    RightMouseButtonUp,
+    <span class="comment">// TODO KeyDown and KeyUp might be nicer, but piston (and probably X.org) hands over repeated
+    // events while a key is held down.
+    </span>KeyPress(Key),
+    KeyRelease(Key),
+    <span class="comment">// Some real amount of time has passed since the last update
+    </span>Update(Duration),
+    MouseMovedTo(ScreenPt),
+    WindowLostCursor,
+    WindowGainedCursor,
+    MouseWheelScroll(f64, f64),
+    WindowResized(ScreenDims),
 }
 
-<span class="kw">impl</span> <span class="ident">Event</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_winit_event</span>(
-        <span class="ident">ev</span>: <span class="ident">WindowEvent</span>,
-        <span class="ident">scale_factor</span>: <span class="ident">f64</span>,
-        <span class="ident">previous_click</span>: <span class="ident">Instant</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">ev</span> {
-            <span class="ident">WindowEvent::MouseInput</span> { <span class="ident">state</span>, <span class="ident">button</span>, .. } =&gt; <span class="kw">match</span> (<span class="ident">button</span>, <span class="ident">state</span>) {
-                (<span class="ident">MouseButton::Left</span>, <span class="ident">ElementState::Pressed</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Event::LeftMouseButtonDown</span>),
-                (<span class="ident">MouseButton::Left</span>, <span class="ident">ElementState::Released</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">is_double_click</span> <span class="op">=</span> <span class="ident">previous_click</span>.<span class="ident">elapsed</span>().<span class="ident">le</span>(<span class="kw-2">&amp;</span><span class="ident">MAX_DOUBLE_CLICK_DURATION</span>);
-                    <span class="prelude-val">Some</span>(<span class="ident">Event::LeftMouseButtonUp</span> { <span class="ident">is_double_click</span> })
+<span class="kw">impl </span>Event {
+    <span class="kw">pub fn </span>from_winit_event(
+        ev: WindowEvent,
+        scale_factor: f64,
+        previous_click: Instant,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Event&gt; {
+        <span class="kw">match </span>ev {
+            WindowEvent::MouseInput { state, button, .. } =&gt; <span class="kw">match </span>(button, state) {
+                (MouseButton::Left, ElementState::Pressed) =&gt; <span class="prelude-val">Some</span>(Event::LeftMouseButtonDown),
+                (MouseButton::Left, ElementState::Released) =&gt; {
+                    <span class="kw">let </span>is_double_click = previous_click.elapsed().le(<span class="kw-2">&amp;</span>MAX_DOUBLE_CLICK_DURATION);
+                    <span class="prelude-val">Some</span>(Event::LeftMouseButtonUp { is_double_click })
                 }
-                (<span class="ident">MouseButton::Right</span>, <span class="ident">ElementState::Pressed</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Event::RightMouseButtonDown</span>),
-                (<span class="ident">MouseButton::Right</span>, <span class="ident">ElementState::Released</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Event::RightMouseButtonUp</span>),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+                (MouseButton::Right, ElementState::Pressed) =&gt; <span class="prelude-val">Some</span>(Event::RightMouseButtonDown),
+                (MouseButton::Right, ElementState::Released) =&gt; <span class="prelude-val">Some</span>(Event::RightMouseButtonUp),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
             },
-            <span class="ident">WindowEvent::KeyboardInput</span> { <span class="ident">input</span>, .. } =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>) <span class="op">=</span> <span class="ident">Key::from_winit_key</span>(<span class="ident">input</span>) {
-                    <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">state</span> <span class="op">==</span> <span class="ident">ElementState::Pressed</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">Event::KeyPress</span>(<span class="ident">key</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">Event::KeyRelease</span>(<span class="ident">key</span>))
+            WindowEvent::KeyboardInput { input, .. } =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = Key::from_winit_key(input) {
+                    <span class="kw">if </span>input.state == ElementState::Pressed {
+                        <span class="prelude-val">Some</span>(Event::KeyPress(key))
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">Some</span>(Event::KeyRelease(key))
                     }
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
-            <span class="ident">WindowEvent::CursorMoved</span> { <span class="ident">position</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">Event::MouseMovedTo</span>(
-                <span class="ident">position</span>.<span class="ident">to_logical</span>(<span class="ident">scale_factor</span>).<span class="ident">into</span>(),
+            WindowEvent::CursorMoved { position, .. } =&gt; <span class="prelude-val">Some</span>(Event::MouseMovedTo(
+                position.to_logical(scale_factor).into(),
             )),
-            <span class="ident">WindowEvent::MouseWheel</span> { <span class="ident">delta</span>, .. } =&gt; <span class="kw">match</span> <span class="ident">delta</span> {
-                <span class="comment">// &quot;In the beginning&quot; a spinnable mouse wheel was the only input hardware for</span>
-                <span class="comment">// scrolling. Each &quot;increment&quot; of the mouse wheel indicated that the application</span>
-                <span class="comment">// should scroll one line of text.</span>
-                <span class="comment">//</span>
-                <span class="comment">// Since the advent of touchpads and tablets, much finer grained scrolling is used,</span>
-                <span class="comment">// and consequently some input systems started expressing scroll distances from such</span>
-                <span class="comment">// input devices in &quot;pixels&quot; rather than &quot;lines&quot;.</span>
-                <span class="comment">//</span>
-                <span class="comment">// However some backends (e.g. x11) will express all scrolling as `LineDelta` — on</span>
-                <span class="comment">// those systems, touchpad drags will simply be scaled to some presumed equivalent</span>
-                <span class="comment">// number of lines.</span>
-                <span class="comment">//</span>
-                <span class="comment">// Widgetry expresses all scrolling in terms of MouseWheelScroll, which uses</span>
-                <span class="comment">// &quot;Lines&quot;.</span>
-                <span class="comment">//</span>
-                <span class="comment">// Anymore &quot;a line&quot; usually doesn&#39;t correspond to &quot;a literal line of text&quot; in the</span>
-                <span class="comment">// application, and must usually just be considered an abstract unit of</span>
-                <span class="comment">// measurement, because of things like configurable scroll sensitivity, variable</span>
-                <span class="comment">// text size, and the aforementioned advent of touchpads.</span>
-                <span class="comment">//</span>
-                <span class="comment">// With &quot;Reverse&quot; scrolling, positive values indicate upward or rightward scrolling.</span>
-                <span class="comment">// With &quot;Natural&quot; scrolling, it&#39;s the opposite.</span>
-                <span class="ident">MouseScrollDelta::LineDelta</span>(<span class="ident">dx</span>, <span class="ident">dy</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">dx</span> <span class="op">==</span> <span class="number">0.0</span> <span class="op">&amp;&amp;</span> <span class="ident">dy</span> <span class="op">==</span> <span class="number">0.0</span> {
-                        <span class="prelude-val">None</span>
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">Event::MouseWheelScroll</span>(<span class="ident">f64::from</span>(<span class="ident">dx</span>), <span class="ident">f64::from</span>(<span class="ident">dy</span>)))
+            WindowEvent::MouseWheel { delta, .. } =&gt; <span class="kw">match </span>delta {
+                <span class="comment">// &quot;In the beginning&quot; a spinnable mouse wheel was the only input hardware for
+                // scrolling. Each &quot;increment&quot; of the mouse wheel indicated that the application
+                // should scroll one line of text.
+                //
+                // Since the advent of touchpads and tablets, much finer grained scrolling is used,
+                // and consequently some input systems started expressing scroll distances from such
+                // input devices in &quot;pixels&quot; rather than &quot;lines&quot;.
+                //
+                // However some backends (e.g. x11) will express all scrolling as `LineDelta` — on
+                // those systems, touchpad drags will simply be scaled to some presumed equivalent
+                // number of lines.
+                //
+                // Widgetry expresses all scrolling in terms of MouseWheelScroll, which uses
+                // &quot;Lines&quot;.
+                //
+                // Anymore &quot;a line&quot; usually doesn&#39;t correspond to &quot;a literal line of text&quot; in the
+                // application, and must usually just be considered an abstract unit of
+                // measurement, because of things like configurable scroll sensitivity, variable
+                // text size, and the aforementioned advent of touchpads.
+                //
+                // With &quot;Reverse&quot; scrolling, positive values indicate upward or rightward scrolling.
+                // With &quot;Natural&quot; scrolling, it&#39;s the opposite.
+                </span>MouseScrollDelta::LineDelta(dx, dy) =&gt; {
+                    <span class="kw">if </span>dx == <span class="number">0.0 </span>&amp;&amp; dy == <span class="number">0.0 </span>{
+                        <span class="prelude-val">None
+                    </span>} <span class="kw">else </span>{
+                        <span class="prelude-val">Some</span>(Event::MouseWheelScroll(f64::from(dx), f64::from(dy)))
                     }
                 }
-                <span class="ident">MouseScrollDelta::PixelDelta</span>(<span class="ident">pos</span>) =&gt; {
-                    <span class="comment">// Widgetry expresses all scroll activity in units of &quot;lines&quot;, so convert from</span>
-                    <span class="comment">// a PixelDelta to a LineDelta.</span>
+                MouseScrollDelta::PixelDelta(pos) =&gt; {
+                    <span class="comment">// Widgetry expresses all scroll activity in units of &quot;lines&quot;, so convert from
+                    // a PixelDelta to a LineDelta.
 
-                    <span class="comment">// This scale factor is just a guess - but feels about right.</span>
-                    <span class="kw">let</span> <span class="ident">scale_factor</span> <span class="op">=</span> <span class="number">0.01</span>;
+                    // This scale factor is just a guess - but feels about right.
+                    </span><span class="kw">let </span>scale_factor = <span class="number">0.01</span>;
 
-                    <span class="prelude-val">Some</span>(<span class="ident">Event::MouseWheelScroll</span>(
-                        <span class="ident">scale_factor</span> <span class="op">*</span> <span class="ident">pos</span>.<span class="ident">x</span>,
-                        <span class="ident">scale_factor</span> <span class="op">*</span> <span class="ident">pos</span>.<span class="ident">y</span>,
+                    <span class="prelude-val">Some</span>(Event::MouseWheelScroll(
+                        scale_factor * pos.x,
+                        scale_factor * pos.y,
                     ))
                 }
             },
-            <span class="ident">WindowEvent::Resized</span>(<span class="ident">size</span>) =&gt; {
-                <span class="prelude-val">Some</span>(<span class="ident">Event::WindowResized</span>(<span class="ident">size</span>.<span class="ident">to_logical</span>(<span class="ident">scale_factor</span>).<span class="ident">into</span>()))
+            WindowEvent::Resized(size) =&gt; {
+                <span class="prelude-val">Some</span>(Event::WindowResized(size.to_logical(scale_factor).into()))
             }
-            <span class="ident">WindowEvent::Focused</span>(<span class="ident">gained</span>) =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">gained</span> {
-                <span class="ident">Event::WindowGainedCursor</span>
-            } <span class="kw">else</span> {
-                <span class="ident">Event::WindowLostCursor</span>
+            WindowEvent::Focused(gained) =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>gained {
+                Event::WindowGainedCursor
+            } <span class="kw">else </span>{
+                Event::WindowLostCursor
             }),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Key</span> {
-    <span class="comment">// Case is unspecified.</span>
-    <span class="comment">// TODO Would be cool to represent A and UpperA, but then release semantics get weird... hold</span>
-    <span class="comment">// shift and A, release shift -- does that trigger a Release(UpperA) and a Press(A)?</span>
-    <span class="ident">A</span>,
-    <span class="ident">B</span>,
-    <span class="ident">C</span>,
-    <span class="ident">D</span>,
-    <span class="ident">E</span>,
-    <span class="ident">F</span>,
-    <span class="ident">G</span>,
-    <span class="ident">H</span>,
-    <span class="ident">I</span>,
-    <span class="ident">J</span>,
-    <span class="ident">K</span>,
-    <span class="ident">L</span>,
-    <span class="ident">M</span>,
-    <span class="ident">N</span>,
-    <span class="ident">O</span>,
-    <span class="ident">P</span>,
-    <span class="ident">Q</span>,
-    <span class="ident">R</span>,
-    <span class="ident">S</span>,
-    <span class="ident">T</span>,
-    <span class="ident">U</span>,
-    <span class="ident">V</span>,
-    <span class="ident">W</span>,
-    <span class="ident">X</span>,
-    <span class="ident">Y</span>,
-    <span class="ident">Z</span>,
-    <span class="comment">// Numbers (not the numpad)</span>
-    <span class="ident">Num1</span>,
-    <span class="ident">Num2</span>,
-    <span class="ident">Num3</span>,
-    <span class="ident">Num4</span>,
-    <span class="ident">Num5</span>,
-    <span class="ident">Num6</span>,
-    <span class="ident">Num7</span>,
-    <span class="ident">Num8</span>,
-    <span class="ident">Num9</span>,
-    <span class="ident">Num0</span>,
-    <span class="comment">// symbols</span>
-    <span class="comment">// TODO shift+number keys</span>
-    <span class="ident">LeftBracket</span>,
-    <span class="ident">RightBracket</span>,
-    <span class="ident">Space</span>,
-    <span class="ident">Slash</span>,
-    <span class="ident">Dot</span>,
-    <span class="ident">Comma</span>,
-    <span class="ident">Semicolon</span>,
-    <span class="ident">Colon</span>,
-    <span class="ident">Equals</span>,
-    <span class="ident">SingleQuote</span>,
-    <span class="ident">Minus</span>,
-    <span class="comment">// Stuff without a straightforward single-character display</span>
-    <span class="ident">Escape</span>,
-    <span class="ident">Enter</span>,
-    <span class="ident">Tab</span>,
-    <span class="ident">Backspace</span>,
-    <span class="ident">LeftShift</span>,
-    <span class="ident">LeftControl</span>,
-    <span class="ident">LeftAlt</span>,
-    <span class="ident">RightAlt</span>,
-    <span class="ident">LeftArrow</span>,
-    <span class="ident">RightArrow</span>,
-    <span class="ident">UpArrow</span>,
-    <span class="ident">DownArrow</span>,
-    <span class="ident">F1</span>,
-    <span class="ident">F2</span>,
-    <span class="ident">F3</span>,
-    <span class="ident">F4</span>,
-    <span class="ident">F5</span>,
-    <span class="ident">F6</span>,
-    <span class="ident">F7</span>,
-    <span class="ident">F8</span>,
-    <span class="ident">F9</span>,
-    <span class="ident">F10</span>,
-    <span class="ident">F11</span>,
-    <span class="ident">F12</span>,
+<span class="attribute">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+</span><span class="kw">pub enum </span>Key {
+    <span class="comment">// Case is unspecified.
+    // TODO Would be cool to represent A and UpperA, but then release semantics get weird... hold
+    // shift and A, release shift -- does that trigger a Release(UpperA) and a Press(A)?
+    </span>A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L,
+    M,
+    N,
+    O,
+    P,
+    Q,
+    R,
+    S,
+    T,
+    U,
+    V,
+    W,
+    X,
+    Y,
+    Z,
+    <span class="comment">// Numbers (not the numpad)
+    </span>Num1,
+    Num2,
+    Num3,
+    Num4,
+    Num5,
+    Num6,
+    Num7,
+    Num8,
+    Num9,
+    Num0,
+    <span class="comment">// symbols
+    // TODO shift+number keys
+    </span>LeftBracket,
+    RightBracket,
+    Space,
+    Slash,
+    Dot,
+    Comma,
+    Semicolon,
+    Colon,
+    Equals,
+    SingleQuote,
+    Minus,
+    <span class="comment">// Stuff without a straightforward single-character display
+    </span>Escape,
+    Enter,
+    Tab,
+    Backspace,
+    LeftShift,
+    LeftControl,
+    LeftAlt,
+    RightAlt,
+    LeftArrow,
+    RightArrow,
+    UpArrow,
+    DownArrow,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12,
 }
 
-<span class="kw">impl</span> <span class="ident">Key</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">NUM_KEYS</span>: [<span class="ident">Key</span>; <span class="number">9</span>] <span class="op">=</span> [
-        <span class="ident">Key::Num1</span>,
-        <span class="ident">Key::Num2</span>,
-        <span class="ident">Key::Num3</span>,
-        <span class="ident">Key::Num4</span>,
-        <span class="ident">Key::Num5</span>,
-        <span class="ident">Key::Num6</span>,
-        <span class="ident">Key::Num7</span>,
-        <span class="ident">Key::Num8</span>,
-        <span class="ident">Key::Num9</span>,
+<span class="kw">impl </span>Key {
+    <span class="kw">pub const </span>NUM_KEYS: [Key; <span class="number">9</span>] = [
+        Key::Num1,
+        Key::Num2,
+        Key::Num3,
+        Key::Num4,
+        Key::Num5,
+        Key::Num6,
+        Key::Num7,
+        Key::Num8,
+        Key::Num9,
     ];
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_char</span>(<span class="self">self</span>, <span class="ident">shift_pressed</span>: <span class="ident">bool</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">char</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Key::A</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;A&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;a&#39;</span> }),
-            <span class="ident">Key::B</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;B&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;b&#39;</span> }),
-            <span class="ident">Key::C</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;C&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;c&#39;</span> }),
-            <span class="ident">Key::D</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;D&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;d&#39;</span> }),
-            <span class="ident">Key::E</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;E&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;e&#39;</span> }),
-            <span class="ident">Key::F</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;F&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;f&#39;</span> }),
-            <span class="ident">Key::G</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;G&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;g&#39;</span> }),
-            <span class="ident">Key::H</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;H&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;h&#39;</span> }),
-            <span class="ident">Key::I</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;I&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;i&#39;</span> }),
-            <span class="ident">Key::J</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;J&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;j&#39;</span> }),
-            <span class="ident">Key::K</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;K&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;k&#39;</span> }),
-            <span class="ident">Key::L</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;L&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;l&#39;</span> }),
-            <span class="ident">Key::M</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;M&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;m&#39;</span> }),
-            <span class="ident">Key::N</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;N&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;n&#39;</span> }),
-            <span class="ident">Key::O</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;O&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;o&#39;</span> }),
-            <span class="ident">Key::P</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;P&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;p&#39;</span> }),
-            <span class="ident">Key::Q</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;Q&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;q&#39;</span> }),
-            <span class="ident">Key::R</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;R&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;r&#39;</span> }),
-            <span class="ident">Key::S</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;S&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;s&#39;</span> }),
-            <span class="ident">Key::T</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;T&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;t&#39;</span> }),
-            <span class="ident">Key::U</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;U&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;u&#39;</span> }),
-            <span class="ident">Key::V</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;V&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;v&#39;</span> }),
-            <span class="ident">Key::W</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;W&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;w&#39;</span> }),
-            <span class="ident">Key::X</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;X&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;x&#39;</span> }),
-            <span class="ident">Key::Y</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;Y&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;y&#39;</span> }),
-            <span class="ident">Key::Z</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;Z&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;z&#39;</span> }),
-            <span class="ident">Key::Num1</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;!&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;1&#39;</span> }),
-            <span class="ident">Key::Num2</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;@&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;2&#39;</span> }),
-            <span class="ident">Key::Num3</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;#&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;3&#39;</span> }),
-            <span class="ident">Key::Num4</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;$&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;4&#39;</span> }),
-            <span class="ident">Key::Num5</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;%&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;5&#39;</span> }),
-            <span class="ident">Key::Num6</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;^&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;6&#39;</span> }),
-            <span class="ident">Key::Num7</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;&amp;&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;7&#39;</span> }),
-            <span class="ident">Key::Num8</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;*&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;8&#39;</span> }),
-            <span class="ident">Key::Num9</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;(&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;9&#39;</span> }),
-            <span class="ident">Key::Num0</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;)&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;0&#39;</span> }),
-            <span class="ident">Key::LeftBracket</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;{&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;[&#39;</span> }),
-            <span class="ident">Key::RightBracket</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;}&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;]&#39;</span> }),
-            <span class="ident">Key::Space</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>),
-            <span class="ident">Key::Slash</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;?&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;/&#39;</span> }),
-            <span class="ident">Key::Dot</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;&gt;&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;.&#39;</span> }),
-            <span class="ident">Key::Comma</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;&lt;&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;,&#39;</span> }),
-            <span class="ident">Key::Semicolon</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;;&#39;</span>),
-            <span class="ident">Key::Colon</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>),
-            <span class="ident">Key::Equals</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;+&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;=&#39;</span> }),
-            <span class="ident">Key::SingleQuote</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;&quot;&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;\&#39;&#39;</span> }),
-            <span class="ident">Key::Minus</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">shift_pressed</span> { <span class="string">&#39;_&#39;</span> } <span class="kw">else</span> { <span class="string">&#39;-&#39;</span> }),
-            <span class="ident">Key::Escape</span>
-            <span class="op">|</span> <span class="ident">Key::Enter</span>
-            <span class="op">|</span> <span class="ident">Key::Tab</span>
-            <span class="op">|</span> <span class="ident">Key::Backspace</span>
-            <span class="op">|</span> <span class="ident">Key::LeftShift</span>
-            <span class="op">|</span> <span class="ident">Key::LeftControl</span>
-            <span class="op">|</span> <span class="ident">Key::LeftAlt</span>
-            <span class="op">|</span> <span class="ident">Key::RightAlt</span>
-            <span class="op">|</span> <span class="ident">Key::LeftArrow</span>
-            <span class="op">|</span> <span class="ident">Key::RightArrow</span>
-            <span class="op">|</span> <span class="ident">Key::UpArrow</span>
-            <span class="op">|</span> <span class="ident">Key::DownArrow</span>
-            <span class="op">|</span> <span class="ident">Key::F1</span>
-            <span class="op">|</span> <span class="ident">Key::F2</span>
-            <span class="op">|</span> <span class="ident">Key::F3</span>
-            <span class="op">|</span> <span class="ident">Key::F4</span>
-            <span class="op">|</span> <span class="ident">Key::F5</span>
-            <span class="op">|</span> <span class="ident">Key::F6</span>
-            <span class="op">|</span> <span class="ident">Key::F7</span>
-            <span class="op">|</span> <span class="ident">Key::F8</span>
-            <span class="op">|</span> <span class="ident">Key::F9</span>
-            <span class="op">|</span> <span class="ident">Key::F10</span>
-            <span class="op">|</span> <span class="ident">Key::F11</span>
-            <span class="op">|</span> <span class="ident">Key::F12</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">pub fn </span>to_char(<span class="self">self</span>, shift_pressed: bool) -&gt; <span class="prelude-ty">Option</span>&lt;char&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Key::A =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;A&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;a&#39; </span>}),
+            Key::B =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;B&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;b&#39; </span>}),
+            Key::C =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;C&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;c&#39; </span>}),
+            Key::D =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;D&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;d&#39; </span>}),
+            Key::E =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;E&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;e&#39; </span>}),
+            Key::F =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;F&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;f&#39; </span>}),
+            Key::G =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;G&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;g&#39; </span>}),
+            Key::H =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;H&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;h&#39; </span>}),
+            Key::I =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;I&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;i&#39; </span>}),
+            Key::J =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;J&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;j&#39; </span>}),
+            Key::K =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;K&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;k&#39; </span>}),
+            Key::L =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;L&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;l&#39; </span>}),
+            Key::M =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;M&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;m&#39; </span>}),
+            Key::N =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;N&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;n&#39; </span>}),
+            Key::O =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;O&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;o&#39; </span>}),
+            Key::P =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;P&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;p&#39; </span>}),
+            Key::Q =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;Q&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;q&#39; </span>}),
+            Key::R =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;R&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;r&#39; </span>}),
+            Key::S =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;S&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;s&#39; </span>}),
+            Key::T =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;T&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;t&#39; </span>}),
+            Key::U =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;U&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;u&#39; </span>}),
+            Key::V =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;V&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;v&#39; </span>}),
+            Key::W =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;W&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;w&#39; </span>}),
+            Key::X =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;X&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;x&#39; </span>}),
+            Key::Y =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;Y&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;y&#39; </span>}),
+            Key::Z =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;Z&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;z&#39; </span>}),
+            Key::Num1 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;!&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;1&#39; </span>}),
+            Key::Num2 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;@&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;2&#39; </span>}),
+            Key::Num3 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;#&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;3&#39; </span>}),
+            Key::Num4 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;$&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;4&#39; </span>}),
+            Key::Num5 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;%&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;5&#39; </span>}),
+            Key::Num6 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;^&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;6&#39; </span>}),
+            Key::Num7 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;&amp;&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;7&#39; </span>}),
+            Key::Num8 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;*&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;8&#39; </span>}),
+            Key::Num9 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;(&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;9&#39; </span>}),
+            Key::Num0 =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;)&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;0&#39; </span>}),
+            Key::LeftBracket =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;{&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;[&#39; </span>}),
+            Key::RightBracket =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;}&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;]&#39; </span>}),
+            Key::Space =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39; &#39;</span>),
+            Key::Slash =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;?&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;/&#39; </span>}),
+            Key::Dot =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;&gt;&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;.&#39; </span>}),
+            Key::Comma =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;&lt;&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;,&#39; </span>}),
+            Key::Semicolon =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;;&#39;</span>),
+            Key::Colon =&gt; <span class="prelude-val">Some</span>(<span class="string">&#39;:&#39;</span>),
+            Key::Equals =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;+&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;=&#39; </span>}),
+            Key::SingleQuote =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;&quot;&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;\&#39;&#39; </span>}),
+            Key::Minus =&gt; <span class="prelude-val">Some</span>(<span class="kw">if </span>shift_pressed { <span class="string">&#39;_&#39; </span>} <span class="kw">else </span>{ <span class="string">&#39;-&#39; </span>}),
+            Key::Escape
+            | Key::Enter
+            | Key::Tab
+            | Key::Backspace
+            | Key::LeftShift
+            | Key::LeftControl
+            | Key::LeftAlt
+            | Key::RightAlt
+            | Key::LeftArrow
+            | Key::RightArrow
+            | Key::UpArrow
+            | Key::DownArrow
+            | Key::F1
+            | Key::F2
+            | Key::F3
+            | Key::F4
+            | Key::F5
+            | Key::F6
+            | Key::F7
+            | Key::F8
+            | Key::F9
+            | Key::F10
+            | Key::F11
+            | Key::F12 =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Key::Escape</span> =&gt; <span class="string">&quot;Escape&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::Enter</span> =&gt; <span class="string">&quot;Enter&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::Tab</span> =&gt; <span class="string">&quot;Tab&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::Backspace</span> =&gt; <span class="string">&quot;Backspace&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::LeftShift</span> =&gt; <span class="string">&quot;Shift&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::LeftControl</span> =&gt; <span class="string">&quot;left Control&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::LeftAlt</span> =&gt; <span class="string">&quot;left Alt&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::RightAlt</span> =&gt; <span class="string">&quot;right Alt&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::LeftArrow</span> =&gt; <span class="string">&quot;← arrow&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::RightArrow</span> =&gt; <span class="string">&quot;→ arrow&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::UpArrow</span> =&gt; <span class="string">&quot;↑&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::DownArrow</span> =&gt; <span class="string">&quot;↓&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F1</span> =&gt; <span class="string">&quot;F1&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F2</span> =&gt; <span class="string">&quot;F2&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F3</span> =&gt; <span class="string">&quot;F3&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F4</span> =&gt; <span class="string">&quot;F4&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F5</span> =&gt; <span class="string">&quot;F5&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F6</span> =&gt; <span class="string">&quot;F6&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F7</span> =&gt; <span class="string">&quot;F7&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F8</span> =&gt; <span class="string">&quot;F8&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F9</span> =&gt; <span class="string">&quot;F9&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F10</span> =&gt; <span class="string">&quot;F10&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F11</span> =&gt; <span class="string">&quot;F11&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Key::F12</span> =&gt; <span class="string">&quot;F12&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="comment">// These have to_char, but override here</span>
-            <span class="ident">Key::Space</span> =&gt; <span class="string">&quot;Space&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="kw">_</span> =&gt; <span class="self">self</span>.<span class="ident">to_char</span>(<span class="bool-val">false</span>).<span class="ident">unwrap</span>().<span class="ident">to_string</span>(),
+    <span class="kw">pub fn </span>describe(<span class="self">self</span>) -&gt; String {
+        <span class="kw">match </span><span class="self">self </span>{
+            Key::Escape =&gt; <span class="string">&quot;Escape&quot;</span>.to_string(),
+            Key::Enter =&gt; <span class="string">&quot;Enter&quot;</span>.to_string(),
+            Key::Tab =&gt; <span class="string">&quot;Tab&quot;</span>.to_string(),
+            Key::Backspace =&gt; <span class="string">&quot;Backspace&quot;</span>.to_string(),
+            Key::LeftShift =&gt; <span class="string">&quot;Shift&quot;</span>.to_string(),
+            Key::LeftControl =&gt; <span class="string">&quot;left Control&quot;</span>.to_string(),
+            Key::LeftAlt =&gt; <span class="string">&quot;left Alt&quot;</span>.to_string(),
+            Key::RightAlt =&gt; <span class="string">&quot;right Alt&quot;</span>.to_string(),
+            Key::LeftArrow =&gt; <span class="string">&quot;← arrow&quot;</span>.to_string(),
+            Key::RightArrow =&gt; <span class="string">&quot;→ arrow&quot;</span>.to_string(),
+            Key::UpArrow =&gt; <span class="string">&quot;↑&quot;</span>.to_string(),
+            Key::DownArrow =&gt; <span class="string">&quot;↓&quot;</span>.to_string(),
+            Key::F1 =&gt; <span class="string">&quot;F1&quot;</span>.to_string(),
+            Key::F2 =&gt; <span class="string">&quot;F2&quot;</span>.to_string(),
+            Key::F3 =&gt; <span class="string">&quot;F3&quot;</span>.to_string(),
+            Key::F4 =&gt; <span class="string">&quot;F4&quot;</span>.to_string(),
+            Key::F5 =&gt; <span class="string">&quot;F5&quot;</span>.to_string(),
+            Key::F6 =&gt; <span class="string">&quot;F6&quot;</span>.to_string(),
+            Key::F7 =&gt; <span class="string">&quot;F7&quot;</span>.to_string(),
+            Key::F8 =&gt; <span class="string">&quot;F8&quot;</span>.to_string(),
+            Key::F9 =&gt; <span class="string">&quot;F9&quot;</span>.to_string(),
+            Key::F10 =&gt; <span class="string">&quot;F10&quot;</span>.to_string(),
+            Key::F11 =&gt; <span class="string">&quot;F11&quot;</span>.to_string(),
+            Key::F12 =&gt; <span class="string">&quot;F12&quot;</span>.to_string(),
+            <span class="comment">// These have to_char, but override here
+            </span>Key::Space =&gt; <span class="string">&quot;Space&quot;</span>.to_string(),
+            <span class="kw">_ </span>=&gt; <span class="self">self</span>.to_char(<span class="bool-val">false</span>).unwrap().to_string(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_winit_key</span>(<span class="ident">input</span>: <span class="ident">KeyboardInput</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">virtual_keycode</span><span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="ident">key</span> {
-            <span class="ident">VirtualKeyCode::A</span> =&gt; <span class="ident">Key::A</span>,
-            <span class="ident">VirtualKeyCode::B</span> =&gt; <span class="ident">Key::B</span>,
-            <span class="ident">VirtualKeyCode::C</span> =&gt; <span class="ident">Key::C</span>,
-            <span class="ident">VirtualKeyCode::D</span> =&gt; <span class="ident">Key::D</span>,
-            <span class="ident">VirtualKeyCode::E</span> =&gt; <span class="ident">Key::E</span>,
-            <span class="ident">VirtualKeyCode::F</span> =&gt; <span class="ident">Key::F</span>,
-            <span class="ident">VirtualKeyCode::G</span> =&gt; <span class="ident">Key::G</span>,
-            <span class="ident">VirtualKeyCode::H</span> =&gt; <span class="ident">Key::H</span>,
-            <span class="ident">VirtualKeyCode::I</span> =&gt; <span class="ident">Key::I</span>,
-            <span class="ident">VirtualKeyCode::J</span> =&gt; <span class="ident">Key::J</span>,
-            <span class="ident">VirtualKeyCode::K</span> =&gt; <span class="ident">Key::K</span>,
-            <span class="ident">VirtualKeyCode::L</span> =&gt; <span class="ident">Key::L</span>,
-            <span class="ident">VirtualKeyCode::M</span> =&gt; <span class="ident">Key::M</span>,
-            <span class="ident">VirtualKeyCode::N</span> =&gt; <span class="ident">Key::N</span>,
-            <span class="ident">VirtualKeyCode::O</span> =&gt; <span class="ident">Key::O</span>,
-            <span class="ident">VirtualKeyCode::P</span> =&gt; <span class="ident">Key::P</span>,
-            <span class="ident">VirtualKeyCode::Q</span> =&gt; <span class="ident">Key::Q</span>,
-            <span class="ident">VirtualKeyCode::R</span> =&gt; <span class="ident">Key::R</span>,
-            <span class="ident">VirtualKeyCode::S</span> =&gt; <span class="ident">Key::S</span>,
-            <span class="ident">VirtualKeyCode::T</span> =&gt; <span class="ident">Key::T</span>,
-            <span class="ident">VirtualKeyCode::U</span> =&gt; <span class="ident">Key::U</span>,
-            <span class="ident">VirtualKeyCode::V</span> =&gt; <span class="ident">Key::V</span>,
-            <span class="ident">VirtualKeyCode::W</span> =&gt; <span class="ident">Key::W</span>,
-            <span class="ident">VirtualKeyCode::X</span> =&gt; <span class="ident">Key::X</span>,
-            <span class="ident">VirtualKeyCode::Y</span> =&gt; <span class="ident">Key::Y</span>,
-            <span class="ident">VirtualKeyCode::Z</span> =&gt; <span class="ident">Key::Z</span>,
-            <span class="ident">VirtualKeyCode::Key1</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad1</span> =&gt; <span class="ident">Key::Num1</span>,
-            <span class="ident">VirtualKeyCode::Key2</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad2</span> =&gt; <span class="ident">Key::Num2</span>,
-            <span class="ident">VirtualKeyCode::Key3</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad3</span> =&gt; <span class="ident">Key::Num3</span>,
-            <span class="ident">VirtualKeyCode::Key4</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad4</span> =&gt; <span class="ident">Key::Num4</span>,
-            <span class="ident">VirtualKeyCode::Key5</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad5</span> =&gt; <span class="ident">Key::Num5</span>,
-            <span class="ident">VirtualKeyCode::Key6</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad6</span> =&gt; <span class="ident">Key::Num6</span>,
-            <span class="ident">VirtualKeyCode::Key7</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad7</span> =&gt; <span class="ident">Key::Num7</span>,
-            <span class="ident">VirtualKeyCode::Key8</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad8</span> =&gt; <span class="ident">Key::Num8</span>,
-            <span class="ident">VirtualKeyCode::Key9</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad9</span> =&gt; <span class="ident">Key::Num9</span>,
-            <span class="ident">VirtualKeyCode::Key0</span> <span class="op">|</span> <span class="ident">VirtualKeyCode::Numpad0</span> =&gt; <span class="ident">Key::Num0</span>,
-            <span class="ident">VirtualKeyCode::LBracket</span> =&gt; <span class="ident">Key::LeftBracket</span>,
-            <span class="ident">VirtualKeyCode::RBracket</span> =&gt; <span class="ident">Key::RightBracket</span>,
-            <span class="ident">VirtualKeyCode::Space</span> =&gt; <span class="ident">Key::Space</span>,
-            <span class="ident">VirtualKeyCode::Slash</span> =&gt; <span class="ident">Key::Slash</span>,
-            <span class="ident">VirtualKeyCode::Period</span> =&gt; <span class="ident">Key::Dot</span>,
-            <span class="ident">VirtualKeyCode::Comma</span> =&gt; <span class="ident">Key::Comma</span>,
-            <span class="ident">VirtualKeyCode::Semicolon</span> =&gt; <span class="ident">Key::Semicolon</span>,
-            <span class="ident">VirtualKeyCode::Colon</span> =&gt; <span class="ident">Key::Colon</span>,
-            <span class="ident">VirtualKeyCode::Equals</span> =&gt; <span class="ident">Key::Equals</span>,
-            <span class="ident">VirtualKeyCode::Apostrophe</span> =&gt; <span class="ident">Key::SingleQuote</span>,
-            <span class="ident">VirtualKeyCode::Minus</span> =&gt; <span class="ident">Key::Minus</span>,
-            <span class="ident">VirtualKeyCode::Escape</span> =&gt; <span class="ident">Key::Escape</span>,
-            <span class="ident">VirtualKeyCode::Return</span> =&gt; <span class="ident">Key::Enter</span>,
-            <span class="ident">VirtualKeyCode::Tab</span> =&gt; <span class="ident">Key::Tab</span>,
-            <span class="ident">VirtualKeyCode::Back</span> =&gt; <span class="ident">Key::Backspace</span>,
-            <span class="ident">VirtualKeyCode::LShift</span> =&gt; <span class="ident">Key::LeftShift</span>,
-            <span class="ident">VirtualKeyCode::LControl</span> =&gt; <span class="ident">Key::LeftControl</span>,
-            <span class="ident">VirtualKeyCode::LAlt</span> =&gt; <span class="ident">Key::LeftAlt</span>,
-            <span class="ident">VirtualKeyCode::RAlt</span> =&gt; <span class="ident">Key::RightAlt</span>,
-            <span class="ident">VirtualKeyCode::Left</span> =&gt; <span class="ident">Key::LeftArrow</span>,
-            <span class="ident">VirtualKeyCode::Right</span> =&gt; <span class="ident">Key::RightArrow</span>,
-            <span class="ident">VirtualKeyCode::Up</span> =&gt; <span class="ident">Key::UpArrow</span>,
-            <span class="ident">VirtualKeyCode::Down</span> =&gt; <span class="ident">Key::DownArrow</span>,
-            <span class="ident">VirtualKeyCode::F1</span> =&gt; <span class="ident">Key::F1</span>,
-            <span class="ident">VirtualKeyCode::F2</span> =&gt; <span class="ident">Key::F2</span>,
-            <span class="ident">VirtualKeyCode::F3</span> =&gt; <span class="ident">Key::F3</span>,
-            <span class="ident">VirtualKeyCode::F4</span> =&gt; <span class="ident">Key::F4</span>,
-            <span class="ident">VirtualKeyCode::F5</span> =&gt; <span class="ident">Key::F5</span>,
-            <span class="ident">VirtualKeyCode::F6</span> =&gt; <span class="ident">Key::F6</span>,
-            <span class="ident">VirtualKeyCode::F7</span> =&gt; <span class="ident">Key::F7</span>,
-            <span class="ident">VirtualKeyCode::F8</span> =&gt; <span class="ident">Key::F8</span>,
-            <span class="ident">VirtualKeyCode::F9</span> =&gt; <span class="ident">Key::F9</span>,
-            <span class="ident">VirtualKeyCode::F10</span> =&gt; <span class="ident">Key::F10</span>,
-            <span class="ident">VirtualKeyCode::F11</span> =&gt; <span class="ident">Key::F11</span>,
-            <span class="ident">VirtualKeyCode::F12</span> =&gt; <span class="ident">Key::F12</span>,
-            <span class="kw">_</span> =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;Unknown winit key {:?}&quot;</span>, <span class="ident">key</span>);
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">fn </span>from_winit_key(input: KeyboardInput) -&gt; <span class="prelude-ty">Option</span>&lt;Key&gt; {
+        <span class="kw">let </span>key = input.virtual_keycode<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(<span class="kw">match </span>key {
+            VirtualKeyCode::A =&gt; Key::A,
+            VirtualKeyCode::B =&gt; Key::B,
+            VirtualKeyCode::C =&gt; Key::C,
+            VirtualKeyCode::D =&gt; Key::D,
+            VirtualKeyCode::E =&gt; Key::E,
+            VirtualKeyCode::F =&gt; Key::F,
+            VirtualKeyCode::G =&gt; Key::G,
+            VirtualKeyCode::H =&gt; Key::H,
+            VirtualKeyCode::I =&gt; Key::I,
+            VirtualKeyCode::J =&gt; Key::J,
+            VirtualKeyCode::K =&gt; Key::K,
+            VirtualKeyCode::L =&gt; Key::L,
+            VirtualKeyCode::M =&gt; Key::M,
+            VirtualKeyCode::N =&gt; Key::N,
+            VirtualKeyCode::O =&gt; Key::O,
+            VirtualKeyCode::P =&gt; Key::P,
+            VirtualKeyCode::Q =&gt; Key::Q,
+            VirtualKeyCode::R =&gt; Key::R,
+            VirtualKeyCode::S =&gt; Key::S,
+            VirtualKeyCode::T =&gt; Key::T,
+            VirtualKeyCode::U =&gt; Key::U,
+            VirtualKeyCode::V =&gt; Key::V,
+            VirtualKeyCode::W =&gt; Key::W,
+            VirtualKeyCode::X =&gt; Key::X,
+            VirtualKeyCode::Y =&gt; Key::Y,
+            VirtualKeyCode::Z =&gt; Key::Z,
+            VirtualKeyCode::Key1 | VirtualKeyCode::Numpad1 =&gt; Key::Num1,
+            VirtualKeyCode::Key2 | VirtualKeyCode::Numpad2 =&gt; Key::Num2,
+            VirtualKeyCode::Key3 | VirtualKeyCode::Numpad3 =&gt; Key::Num3,
+            VirtualKeyCode::Key4 | VirtualKeyCode::Numpad4 =&gt; Key::Num4,
+            VirtualKeyCode::Key5 | VirtualKeyCode::Numpad5 =&gt; Key::Num5,
+            VirtualKeyCode::Key6 | VirtualKeyCode::Numpad6 =&gt; Key::Num6,
+            VirtualKeyCode::Key7 | VirtualKeyCode::Numpad7 =&gt; Key::Num7,
+            VirtualKeyCode::Key8 | VirtualKeyCode::Numpad8 =&gt; Key::Num8,
+            VirtualKeyCode::Key9 | VirtualKeyCode::Numpad9 =&gt; Key::Num9,
+            VirtualKeyCode::Key0 | VirtualKeyCode::Numpad0 =&gt; Key::Num0,
+            VirtualKeyCode::LBracket =&gt; Key::LeftBracket,
+            VirtualKeyCode::RBracket =&gt; Key::RightBracket,
+            VirtualKeyCode::Space =&gt; Key::Space,
+            VirtualKeyCode::Slash =&gt; Key::Slash,
+            VirtualKeyCode::Period =&gt; Key::Dot,
+            VirtualKeyCode::Comma =&gt; Key::Comma,
+            VirtualKeyCode::Semicolon =&gt; Key::Semicolon,
+            VirtualKeyCode::Colon =&gt; Key::Colon,
+            VirtualKeyCode::Equals =&gt; Key::Equals,
+            VirtualKeyCode::Apostrophe =&gt; Key::SingleQuote,
+            VirtualKeyCode::Minus =&gt; Key::Minus,
+            VirtualKeyCode::Escape =&gt; Key::Escape,
+            VirtualKeyCode::Return =&gt; Key::Enter,
+            VirtualKeyCode::Tab =&gt; Key::Tab,
+            VirtualKeyCode::Back =&gt; Key::Backspace,
+            VirtualKeyCode::LShift =&gt; Key::LeftShift,
+            VirtualKeyCode::LControl =&gt; Key::LeftControl,
+            VirtualKeyCode::LAlt =&gt; Key::LeftAlt,
+            VirtualKeyCode::RAlt =&gt; Key::RightAlt,
+            VirtualKeyCode::Left =&gt; Key::LeftArrow,
+            VirtualKeyCode::Right =&gt; Key::RightArrow,
+            VirtualKeyCode::Up =&gt; Key::UpArrow,
+            VirtualKeyCode::Down =&gt; Key::DownArrow,
+            VirtualKeyCode::F1 =&gt; Key::F1,
+            VirtualKeyCode::F2 =&gt; Key::F2,
+            VirtualKeyCode::F3 =&gt; Key::F3,
+            VirtualKeyCode::F4 =&gt; Key::F4,
+            VirtualKeyCode::F5 =&gt; Key::F5,
+            VirtualKeyCode::F6 =&gt; Key::F6,
+            VirtualKeyCode::F7 =&gt; Key::F7,
+            VirtualKeyCode::F8 =&gt; Key::F8,
+            VirtualKeyCode::F9 =&gt; Key::F9,
+            VirtualKeyCode::F10 =&gt; Key::F10,
+            VirtualKeyCode::F11 =&gt; Key::F11,
+            VirtualKeyCode::F12 =&gt; Key::F12,
+            <span class="kw">_ </span>=&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;Unknown winit key {:?}&quot;</span>, key);
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">txt</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>)
+    <span class="kw">pub fn </span>txt(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; TextSpan {
+        Line(<span class="self">self</span>.describe()).fg(ctx.style().text_hotkey_color)
     }
 }
 
-<span class="comment">// TODO This is not an ideal representation at all.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MultiKey</span> {
-    <span class="ident">Normal</span>(<span class="ident">Key</span>),
-    <span class="ident">LCtrl</span>(<span class="ident">Key</span>),
-    <span class="ident">Any</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>),
+<span class="comment">// TODO This is not an ideal representation at all.
+</span><span class="attribute">#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+</span><span class="kw">pub enum </span>MultiKey {
+    Normal(Key),
+    LCtrl(Key),
+    Any(Vec&lt;Key&gt;),
 }
 
-<span class="kw">impl</span> <span class="ident">MultiKey</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">MultiKey::Normal</span>(<span class="ident">key</span>) =&gt; <span class="ident">key</span>.<span class="ident">describe</span>(),
-            <span class="ident">MultiKey::LCtrl</span>(<span class="ident">key</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Ctrl+{}&quot;</span>, <span class="ident">key</span>.<span class="ident">describe</span>()),
-            <span class="ident">MultiKey::Any</span>(<span class="kw-2">ref</span> <span class="ident">keys</span>) =&gt; <span class="ident">keys</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">describe</span>())
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>),
+<span class="kw">impl </span>MultiKey {
+    <span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">match </span><span class="self">self </span>{
+            MultiKey::Normal(key) =&gt; key.describe(),
+            MultiKey::LCtrl(key) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Ctrl+{}&quot;</span>, key.describe()),
+            MultiKey::Any(<span class="kw-2">ref </span>keys) =&gt; keys
+                .iter()
+                .map(|k| k.describe())
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+                .join(<span class="string">&quot;, &quot;</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">txt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>)
+    <span class="kw">pub fn </span>txt(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; TextSpan {
+        Line(<span class="self">self</span>.describe()).fg(ctx.style().text_hotkey_color)
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lctrl</span>(<span class="ident">key</span>: <span class="ident">Key</span>) -&gt; <span class="ident">MultiKey</span> {
-    <span class="ident">MultiKey::LCtrl</span>(<span class="ident">key</span>)
+<span class="kw">pub fn </span>lctrl(key: Key) -&gt; MultiKey {
+    MultiKey::LCtrl(key)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkeys</span>(<span class="ident">keys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>) -&gt; <span class="ident">MultiKey</span> {
-    <span class="ident">MultiKey::Any</span>(<span class="ident">keys</span>)
+<span class="kw">pub fn </span>hotkeys(keys: Vec&lt;Key&gt;) -&gt; MultiKey {
+    MultiKey::Any(keys)
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="ident">Key</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">MultiKey::Normal</span>(<span class="ident">key</span>))
+<span class="kw">impl </span>std::convert::From&lt;Key&gt; <span class="kw">for </span><span class="prelude-ty">Option</span>&lt;MultiKey&gt; {
+    <span class="kw">fn </span>from(key: Key) -&gt; <span class="prelude-ty">Option</span>&lt;MultiKey&gt; {
+        <span class="prelude-val">Some</span>(MultiKey::Normal(key))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MultiKey</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">key</span>: <span class="ident">Key</span>) -&gt; <span class="ident">MultiKey</span> {
-        <span class="ident">MultiKey::Normal</span>(<span class="ident">key</span>)
+<span class="kw">impl </span>std::convert::From&lt;Key&gt; <span class="kw">for </span>MultiKey {
+    <span class="kw">fn </span>from(key: Key) -&gt; MultiKey {
+        MultiKey::Normal(key)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

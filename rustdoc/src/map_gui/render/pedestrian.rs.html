@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/pedestrian.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pedestrian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/pedestrian.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pedestrian.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -304,311 +304,311 @@
 <span id="304">304</span>
 <span id="305">305</span>
 <span id="306">306</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">DrivingSide</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">Intent</span>, <span class="ident">PedCrowdLocation</span>, <span class="ident">PedestrianID</span>, <span class="ident">Sim</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Prerender</span>, <span class="ident">Text</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{ArrowCap, Circle, Distance, PolyLine, Polygon, Pt2D, Tessellation};
+<span class="kw">use </span>map_model::{DrivingSide, Map};
+<span class="kw">use </span>sim::{DrawPedCrowdInput, DrawPedestrianInput, Intent, PedCrowdLocation, PedestrianID, Sim};
+<span class="kw">use </span>widgetry::{Color, Drawable, GeomBatch, GfxCtx, Line, Prerender, Text};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colors::ColorScheme</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render</span>::{<span class="ident">grey_out_unhighlighted_people</span>, <span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
+<span class="kw">use </span><span class="kw">crate</span>::colors::ColorScheme;
+<span class="kw">use </span><span class="kw">crate</span>::render::{grey_out_unhighlighted_people, DrawOptions, Renderable, OUTLINE_THICKNESS};
+<span class="kw">use crate</span>::{AppLike, ID};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawPedestrian</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">PedestrianID</span>,
-    <span class="ident">body_circle</span>: <span class="ident">Circle</span>,
-    <span class="ident">zorder</span>: <span class="ident">isize</span>,
+<span class="kw">pub struct </span>DrawPedestrian {
+    <span class="kw">pub </span>id: PedestrianID,
+    body_circle: Circle,
+    zorder: isize,
 
-    <span class="ident">draw_default</span>: <span class="ident">Drawable</span>,
+    draw_default: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">DrawPedestrian</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">input</span>: <span class="ident">DrawPedestrianInput</span>,
-        <span class="ident">step_count</span>: <span class="ident">usize</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
-        <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
-        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-    ) -&gt; <span class="ident">DrawPedestrian</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_default</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="ident">DrawPedestrian::geometry</span>(<span class="kw-2">&amp;mut</span> <span class="ident">draw_default</span>, <span class="ident">sim</span>, <span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>, <span class="ident">step_count</span>);
+<span class="kw">impl </span>DrawPedestrian {
+    <span class="kw">pub fn </span>new(
+        input: DrawPedestrianInput,
+        step_count: usize,
+        map: <span class="kw-2">&amp;</span>Map,
+        sim: <span class="kw-2">&amp;</span>Sim,
+        prerender: <span class="kw-2">&amp;</span>Prerender,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+    ) -&gt; DrawPedestrian {
+        <span class="kw">let </span><span class="kw-2">mut </span>draw_default = GeomBatch::new();
+        DrawPedestrian::geometry(<span class="kw-2">&amp;mut </span>draw_default, sim, cs, <span class="kw-2">&amp;</span>input, step_count);
 
-        <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">sim::pedestrian_body_radius</span>();
-        <span class="kw">let</span> <span class="ident">body_circle</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">input</span>.<span class="ident">pos</span>, <span class="ident">radius</span>);
+        <span class="kw">let </span>radius = sim::pedestrian_body_radius();
+        <span class="kw">let </span>body_circle = Circle::new(input.pos, radius);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">input</span>.<span class="ident">waiting_for_turn</span> {
-            <span class="comment">// A silly idea for peds... use hands to point at their turn?</span>
-            <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">pos</span>.<span class="ident">angle_to</span>(<span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">middle</span>());
-            <span class="ident">draw_default</span>.<span class="ident">push</span>(
-                <span class="ident">cs</span>.<span class="ident">turn_arrow</span>,
-                <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-                    <span class="ident">input</span>.<span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">radius</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">opposite</span>()),
-                    <span class="ident">input</span>.<span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">radius</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = input.waiting_for_turn {
+            <span class="comment">// A silly idea for peds... use hands to point at their turn?
+            </span><span class="kw">let </span>angle = input.pos.angle_to(map.get_t(t).geom.middle());
+            draw_default.push(
+                cs.turn_arrow,
+                PolyLine::must_new(<span class="macro">vec!</span>[
+                    input.pos.project_away(radius / <span class="number">2.0</span>, angle.opposite()),
+                    input.pos.project_away(radius / <span class="number">2.0</span>, angle),
                 ])
-                .<span class="ident">make_arrow</span>(<span class="ident">Distance::meters</span>(<span class="number">0.15</span>), <span class="ident">ArrowCap::Triangle</span>),
+                .make_arrow(Distance::meters(<span class="number">0.15</span>), ArrowCap::Triangle),
             );
         }
 
-        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">intent</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">Intent::SteepUphill</span>) {
-            <span class="kw">let</span> <span class="ident">bubble_z</span> <span class="op">=</span> <span class="op">-</span><span class="number">0.0001</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bubble_batch</span> <span class="op">=</span>
-                <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/thought_bubble.svg&quot;</span>)
-                    .<span class="ident">scale</span>(<span class="number">0.05</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">input</span>.<span class="ident">pos</span>)
-                    .<span class="ident">translate</span>(<span class="number">2.0</span>, <span class="op">-</span><span class="number">3.5</span>)
-                    .<span class="ident">set_z_offset</span>(<span class="ident">bubble_z</span>);
-            <span class="ident">bubble_batch</span>.<span class="ident">append</span>(
-                <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/tools/uphill.svg&quot;</span>)
-                    .<span class="ident">scale</span>(<span class="number">0.05</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">input</span>.<span class="ident">pos</span>)
-                    .<span class="ident">translate</span>(<span class="number">2.2</span>, <span class="op">-</span><span class="number">4.2</span>)
-                    .<span class="ident">set_z_offset</span>(<span class="ident">bubble_z</span>),
+        <span class="kw">if </span>input.intent == <span class="prelude-val">Some</span>(Intent::SteepUphill) {
+            <span class="kw">let </span>bubble_z = -<span class="number">0.0001</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>bubble_batch =
+                GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/thought_bubble.svg&quot;</span>)
+                    .scale(<span class="number">0.05</span>)
+                    .centered_on(input.pos)
+                    .translate(<span class="number">2.0</span>, -<span class="number">3.5</span>)
+                    .set_z_offset(bubble_z);
+            bubble_batch.append(
+                GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/tools/uphill.svg&quot;</span>)
+                    .scale(<span class="number">0.05</span>)
+                    .centered_on(input.pos)
+                    .translate(<span class="number">2.2</span>, -<span class="number">4.2</span>)
+                    .set_z_offset(bubble_z),
             );
 
-            <span class="ident">draw_default</span>.<span class="ident">append</span>(<span class="ident">bubble_batch</span>);
+            draw_default.append(bubble_batch);
         }
 
-        <span class="ident">DrawPedestrian</span> {
-            <span class="ident">id</span>: <span class="ident">input</span>.<span class="ident">id</span>,
-            <span class="ident">body_circle</span>,
-            <span class="ident">zorder</span>: <span class="ident">input</span>.<span class="ident">on</span>.<span class="ident">get_zorder</span>(<span class="ident">map</span>),
-            <span class="ident">draw_default</span>: <span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">draw_default</span>),
+        DrawPedestrian {
+            id: input.id,
+            body_circle,
+            zorder: input.on.get_zorder(map),
+            draw_default: prerender.upload(draw_default),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">geometry</span>(
-        <span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>,
-        <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
-        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-        <span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">DrawPedestrianInput</span>,
-        <span class="ident">step_count</span>: <span class="ident">usize</span>,
+    <span class="kw">pub fn </span>geometry(
+        batch: <span class="kw-2">&amp;mut </span>GeomBatch,
+        sim: <span class="kw-2">&amp;</span>Sim,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+        input: <span class="kw-2">&amp;</span>DrawPedestrianInput,
+        step_count: usize,
     ) {
-        <span class="comment">// TODO Slight issues with rendering small pedestrians:</span>
-        <span class="comment">// - route visualization is thick</span>
-        <span class="comment">// - there are little skips when making turns</span>
-        <span class="comment">// - front paths are too skinny</span>
-        <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">sim::pedestrian_body_radius</span>();
-        <span class="kw">let</span> <span class="ident">body_circle</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">input</span>.<span class="ident">pos</span>, <span class="ident">radius</span>);
+        <span class="comment">// TODO Slight issues with rendering small pedestrians:
+        // - route visualization is thick
+        // - there are little skips when making turns
+        // - front paths are too skinny
+        </span><span class="kw">let </span>radius = sim::pedestrian_body_radius();
+        <span class="kw">let </span>body_circle = Circle::new(input.pos, radius);
 
-        <span class="kw">let</span> <span class="ident">foot_radius</span> <span class="op">=</span> <span class="number">0.2</span> <span class="op">*</span> <span class="ident">radius</span>;
-        <span class="kw">let</span> <span class="ident">hand_radius</span> <span class="op">=</span> <span class="number">0.2</span> <span class="op">*</span> <span class="ident">radius</span>;
-        <span class="kw">let</span> <span class="ident">left_foot_angle</span> <span class="op">=</span> <span class="number">30.0</span>;
-        <span class="kw">let</span> <span class="ident">right_foot_angle</span> <span class="op">=</span> <span class="op">-</span><span class="number">30.0</span>;
-        <span class="kw">let</span> <span class="ident">left_hand_angle</span> <span class="op">=</span> <span class="number">70.0</span>;
-        <span class="kw">let</span> <span class="ident">right_hand_angle</span> <span class="op">=</span> <span class="op">-</span><span class="number">70.0</span>;
+        <span class="kw">let </span>foot_radius = <span class="number">0.2 </span>* radius;
+        <span class="kw">let </span>hand_radius = <span class="number">0.2 </span>* radius;
+        <span class="kw">let </span>left_foot_angle = <span class="number">30.0</span>;
+        <span class="kw">let </span>right_foot_angle = -<span class="number">30.0</span>;
+        <span class="kw">let </span>left_hand_angle = <span class="number">70.0</span>;
+        <span class="kw">let </span>right_hand_angle = -<span class="number">70.0</span>;
 
-        <span class="kw">let</span> <span class="ident">left_foot</span> <span class="op">=</span> <span class="ident">Circle::new</span>(
-            <span class="ident">input</span>
-                .<span class="ident">pos</span>
-                .<span class="ident">project_away</span>(<span class="ident">radius</span>, <span class="ident">input</span>.<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">left_foot_angle</span>)),
-            <span class="ident">foot_radius</span>,
+        <span class="kw">let </span>left_foot = Circle::new(
+            input
+                .pos
+                .project_away(radius, input.facing.rotate_degs(left_foot_angle)),
+            foot_radius,
         );
-        <span class="kw">let</span> <span class="ident">right_foot</span> <span class="op">=</span> <span class="ident">Circle::new</span>(
-            <span class="ident">input</span>
-                .<span class="ident">pos</span>
-                .<span class="ident">project_away</span>(<span class="ident">radius</span>, <span class="ident">input</span>.<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">right_foot_angle</span>)),
-            <span class="ident">foot_radius</span>,
+        <span class="kw">let </span>right_foot = Circle::new(
+            input
+                .pos
+                .project_away(radius, input.facing.rotate_degs(right_foot_angle)),
+            foot_radius,
         );
-        <span class="kw">let</span> <span class="ident">left_hand</span> <span class="op">=</span> <span class="ident">Circle::new</span>(
-            <span class="ident">input</span>
-                .<span class="ident">pos</span>
-                .<span class="ident">project_away</span>(<span class="ident">radius</span>, <span class="ident">input</span>.<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">left_hand_angle</span>)),
-            <span class="ident">hand_radius</span>,
+        <span class="kw">let </span>left_hand = Circle::new(
+            input
+                .pos
+                .project_away(radius, input.facing.rotate_degs(left_hand_angle)),
+            hand_radius,
         );
-        <span class="kw">let</span> <span class="ident">right_hand</span> <span class="op">=</span> <span class="ident">Circle::new</span>(
-            <span class="ident">input</span>
-                .<span class="ident">pos</span>
-                .<span class="ident">project_away</span>(<span class="ident">radius</span>, <span class="ident">input</span>.<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">right_hand_angle</span>)),
-            <span class="ident">hand_radius</span>,
+        <span class="kw">let </span>right_hand = Circle::new(
+            input
+                .pos
+                .project_away(radius, input.facing.rotate_degs(right_hand_angle)),
+            hand_radius,
         );
-        <span class="kw">let</span> <span class="ident">foot_color</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">ped_foot</span>;
-        <span class="kw">let</span> <span class="ident">hand_color</span> <span class="op">=</span> <span class="ident">cs</span>.<span class="ident">ped_head</span>;
-        <span class="comment">// Jitter based on ID so we don&#39;t all walk synchronized.</span>
-        <span class="kw">let</span> <span class="ident">jitter</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">id</span>.<span class="number">0</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="ident">step_count</span> <span class="op">%</span> <span class="number">6</span>;
-        <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">waiting_for_turn</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">input</span>.<span class="ident">waiting_for_bus</span> {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">foot_color</span>, <span class="ident">left_foot</span>.<span class="ident">to_polygon</span>());
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">foot_color</span>, <span class="ident">right_foot</span>.<span class="ident">to_polygon</span>());
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">hand_color</span>, <span class="ident">left_hand</span>.<span class="ident">to_polygon</span>());
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">hand_color</span>, <span class="ident">right_hand</span>.<span class="ident">to_polygon</span>());
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">jitter</span> <span class="op">==</span> (<span class="ident">remainder</span> <span class="op">&lt;</span> <span class="number">3</span>) {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">foot_color</span>, <span class="ident">left_foot</span>.<span class="ident">to_polygon</span>());
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">foot_color</span>,
-                <span class="ident">Circle::new</span>(
-                    <span class="ident">input</span>
-                        .<span class="ident">pos</span>
-                        .<span class="ident">project_away</span>(<span class="number">0.9</span> <span class="op">*</span> <span class="ident">radius</span>, <span class="ident">input</span>.<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">right_foot_angle</span>)),
-                    <span class="ident">foot_radius</span>,
+        <span class="kw">let </span>foot_color = cs.ped_foot;
+        <span class="kw">let </span>hand_color = cs.ped_head;
+        <span class="comment">// Jitter based on ID so we don&#39;t all walk synchronized.
+        </span><span class="kw">let </span>jitter = input.id.<span class="number">0 </span>% <span class="number">2 </span>== <span class="number">0</span>;
+        <span class="kw">let </span>remainder = step_count % <span class="number">6</span>;
+        <span class="kw">if </span>input.waiting_for_turn.is_some() || input.waiting_for_bus {
+            batch.push(foot_color, left_foot.to_polygon());
+            batch.push(foot_color, right_foot.to_polygon());
+            batch.push(hand_color, left_hand.to_polygon());
+            batch.push(hand_color, right_hand.to_polygon());
+        } <span class="kw">else if </span>jitter == (remainder &lt; <span class="number">3</span>) {
+            batch.push(foot_color, left_foot.to_polygon());
+            batch.push(
+                foot_color,
+                Circle::new(
+                    input
+                        .pos
+                        .project_away(<span class="number">0.9 </span>* radius, input.facing.rotate_degs(right_foot_angle)),
+                    foot_radius,
                 )
-                .<span class="ident">to_polygon</span>(),
+                .to_polygon(),
             );
 
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">hand_color</span>, <span class="ident">right_hand</span>.<span class="ident">to_polygon</span>());
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">hand_color</span>,
-                <span class="ident">Circle::new</span>(
-                    <span class="ident">input</span>
-                        .<span class="ident">pos</span>
-                        .<span class="ident">project_away</span>(<span class="number">0.9</span> <span class="op">*</span> <span class="ident">radius</span>, <span class="ident">input</span>.<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">left_hand_angle</span>)),
-                    <span class="ident">hand_radius</span>,
+            batch.push(hand_color, right_hand.to_polygon());
+            batch.push(
+                hand_color,
+                Circle::new(
+                    input
+                        .pos
+                        .project_away(<span class="number">0.9 </span>* radius, input.facing.rotate_degs(left_hand_angle)),
+                    hand_radius,
                 )
-                .<span class="ident">to_polygon</span>(),
+                .to_polygon(),
             );
-        } <span class="kw">else</span> {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">foot_color</span>, <span class="ident">right_foot</span>.<span class="ident">to_polygon</span>());
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">foot_color</span>,
-                <span class="ident">Circle::new</span>(
-                    <span class="ident">input</span>
-                        .<span class="ident">pos</span>
-                        .<span class="ident">project_away</span>(<span class="number">0.9</span> <span class="op">*</span> <span class="ident">radius</span>, <span class="ident">input</span>.<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">left_foot_angle</span>)),
-                    <span class="ident">foot_radius</span>,
+        } <span class="kw">else </span>{
+            batch.push(foot_color, right_foot.to_polygon());
+            batch.push(
+                foot_color,
+                Circle::new(
+                    input
+                        .pos
+                        .project_away(<span class="number">0.9 </span>* radius, input.facing.rotate_degs(left_foot_angle)),
+                    foot_radius,
                 )
-                .<span class="ident">to_polygon</span>(),
+                .to_polygon(),
             );
 
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">hand_color</span>, <span class="ident">left_hand</span>.<span class="ident">to_polygon</span>());
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">hand_color</span>,
-                <span class="ident">Circle::new</span>(
-                    <span class="ident">input</span>
-                        .<span class="ident">pos</span>
-                        .<span class="ident">project_away</span>(<span class="number">0.9</span> <span class="op">*</span> <span class="ident">radius</span>, <span class="ident">input</span>.<span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">right_hand_angle</span>)),
-                    <span class="ident">hand_radius</span>,
+            batch.push(hand_color, left_hand.to_polygon());
+            batch.push(
+                hand_color,
+                Circle::new(
+                    input
+                        .pos
+                        .project_away(<span class="number">0.9 </span>* radius, input.facing.rotate_degs(right_hand_angle)),
+                    hand_radius,
                 )
-                .<span class="ident">to_polygon</span>(),
+                .to_polygon(),
             );
         };
 
-        <span class="kw">let</span> <span class="ident">head_circle</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">input</span>.<span class="ident">pos</span>, <span class="number">0.5</span> <span class="op">*</span> <span class="ident">radius</span>);
-        <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="ident">grey_out_unhighlighted_people</span>(
-                <span class="kw">if</span> <span class="ident">input</span>.<span class="ident">preparing_bike</span> {
-                    <span class="ident">cs</span>.<span class="ident">ped_preparing_bike_body</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">cs</span>.<span class="ident">rotating_color_agents</span>(<span class="ident">input</span>.<span class="ident">id</span>.<span class="number">0</span>)
+        <span class="kw">let </span>head_circle = Circle::new(input.pos, <span class="number">0.5 </span>* radius);
+        batch.push(
+            grey_out_unhighlighted_people(
+                <span class="kw">if </span>input.preparing_bike {
+                    cs.ped_preparing_bike_body
+                } <span class="kw">else </span>{
+                    cs.rotating_color_agents(input.id.<span class="number">0</span>)
                 },
-                <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">input</span>.<span class="ident">person</span>),
-                <span class="ident">sim</span>,
+                <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(input.person),
+                sim,
             ),
-            <span class="ident">body_circle</span>.<span class="ident">to_polygon</span>(),
+            body_circle.to_polygon(),
         );
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">cs</span>.<span class="ident">ped_head</span>, <span class="ident">head_circle</span>.<span class="ident">to_polygon</span>());
+        batch.push(cs.ped_head, head_circle.to_polygon());
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Renderable</span> <span class="kw">for</span> <span class="ident">DrawPedestrian</span> {
-    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ID</span> {
-        <span class="ident">ID::Pedestrian</span>(<span class="self">self</span>.<span class="ident">id</span>)
+<span class="kw">impl </span>Renderable <span class="kw">for </span>DrawPedestrian {
+    <span class="kw">fn </span>get_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ID {
+        ID::Pedestrian(<span class="self">self</span>.id)
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">DrawOptions</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_default</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, <span class="kw">_</span>: <span class="kw-2">&amp;</span>DrawOptions) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_default);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Tessellation</span> {
-        <span class="ident">Tessellation::from</span>(
-            <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">body_circle</span>.<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">2.0</span>))
-                .<span class="ident">to_outline</span>(<span class="ident">OUTLINE_THICKNESS</span>)
-                .<span class="ident">unwrap</span>(),
+    <span class="kw">fn </span>get_outline(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Map) -&gt; Tessellation {
+        Tessellation::from(
+            Circle::new(<span class="self">self</span>.body_circle.center, Distance::meters(<span class="number">2.0</span>))
+                .to_outline(OUTLINE_THICKNESS)
+                .unwrap(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">body_circle</span>.<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">2.0</span>)).<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
+    <span class="kw">fn </span>contains_pt(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        Circle::new(<span class="self">self</span>.body_circle.center, Distance::meters(<span class="number">2.0</span>)).contains_pt(pt)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
-        <span class="self">self</span>.<span class="ident">zorder</span>
+    <span class="kw">fn </span>get_zorder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; isize {
+        <span class="self">self</span>.zorder
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawPedCrowd</span> {
-    <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PedestrianID</span><span class="op">&gt;</span>,
-    <span class="ident">blob</span>: <span class="ident">Polygon</span>,
-    <span class="ident">blob_pl</span>: <span class="ident">PolyLine</span>,
-    <span class="ident">zorder</span>: <span class="ident">isize</span>,
+<span class="kw">pub struct </span>DrawPedCrowd {
+    members: Vec&lt;PedestrianID&gt;,
+    blob: Polygon,
+    blob_pl: PolyLine,
+    zorder: isize,
 
-    <span class="ident">draw_default</span>: <span class="ident">Drawable</span>,
+    draw_default: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">DrawPedCrowd</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">input</span>: <span class="ident">DrawPedCrowdInput</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
-        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-    ) -&gt; <span class="ident">DrawPedCrowd</span> {
-        <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">sim::pedestrian_body_radius</span>();
+<span class="kw">impl </span>DrawPedCrowd {
+    <span class="kw">pub fn </span>new(
+        input: DrawPedCrowdInput,
+        map: <span class="kw-2">&amp;</span>Map,
+        prerender: <span class="kw-2">&amp;</span>Prerender,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+    ) -&gt; DrawPedCrowd {
+        <span class="kw">let </span>radius = sim::pedestrian_body_radius();
 
-        <span class="kw">let</span> <span class="ident">pl_shifted</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">location</span> {
-            <span class="ident">PedCrowdLocation::Sidewalk</span>(<span class="ident">on</span>, <span class="ident">contraflow</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pl_slice</span> <span class="op">=</span> <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>);
-                <span class="kw">if</span> <span class="ident">contraflow</span> <span class="op">==</span> (<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span>) {
-                    <span class="ident">pl_slice</span>.<span class="ident">shift_left</span>(<span class="ident">radius</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">pl_slice</span>.<span class="ident">shift_right</span>(<span class="ident">radius</span>)
+        <span class="kw">let </span>pl_shifted = <span class="kw">match </span>input.location {
+            PedCrowdLocation::Sidewalk(on, contraflow) =&gt; {
+                <span class="kw">let </span>pl_slice = on.get_polyline(map).exact_slice(input.low, input.high);
+                <span class="kw">if </span>contraflow == (map.get_config().driving_side == DrivingSide::Right) {
+                    pl_slice.shift_left(radius)
+                } <span class="kw">else </span>{
+                    pl_slice.shift_right(radius)
                 }
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>))
+                .unwrap_or_else(|<span class="kw">_</span>| on.get_polyline(map).exact_slice(input.low, input.high))
             }
-            <span class="ident">PedCrowdLocation::BldgDriveway</span>(<span class="ident">b</span>) =&gt; <span class="ident">map</span>
-                .<span class="ident">get_b</span>(<span class="ident">b</span>)
-                .<span class="ident">driveway_geom</span>
-                .<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>),
-            <span class="ident">PedCrowdLocation::LotDriveway</span>(<span class="ident">pl</span>) =&gt; <span class="ident">map</span>
-                .<span class="ident">get_pl</span>(<span class="ident">pl</span>)
-                .<span class="ident">sidewalk_line</span>
-                .<span class="ident">to_polyline</span>()
-                .<span class="ident">exact_slice</span>(<span class="ident">input</span>.<span class="ident">low</span>, <span class="ident">input</span>.<span class="ident">high</span>),
+            PedCrowdLocation::BldgDriveway(b) =&gt; map
+                .get_b(b)
+                .driveway_geom
+                .exact_slice(input.low, input.high),
+            PedCrowdLocation::LotDriveway(pl) =&gt; map
+                .get_pl(pl)
+                .sidewalk_line
+                .to_polyline()
+                .exact_slice(input.low, input.high),
         };
-        <span class="kw">let</span> <span class="ident">blob</span> <span class="op">=</span> <span class="ident">pl_shifted</span>.<span class="ident">make_polygons</span>(<span class="ident">radius</span> <span class="op">*</span> <span class="number">2.0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">cs</span>.<span class="ident">ped_crowd</span>, <span class="ident">blob</span>.<span class="ident">clone</span>());
-        <span class="ident">batch</span>.<span class="ident">append</span>(
-            <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">input</span>.<span class="ident">members</span>.<span class="ident">len</span>())).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>))
-                .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>)
-                .<span class="ident">scale</span>(<span class="number">0.02</span>)
-                .<span class="ident">centered_on</span>(<span class="ident">blob</span>.<span class="ident">center</span>()),
+        <span class="kw">let </span>blob = pl_shifted.make_polygons(radius * <span class="number">2.0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        batch.push(cs.ped_crowd, blob.clone());
+        batch.append(
+            Text::from(Line(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, input.members.len())).fg(Color::BLACK))
+                .render_autocropped(prerender)
+                .scale(<span class="number">0.02</span>)
+                .centered_on(blob.center()),
         );
 
-        <span class="ident">DrawPedCrowd</span> {
-            <span class="ident">members</span>: <span class="ident">input</span>.<span class="ident">members</span>,
-            <span class="ident">blob_pl</span>: <span class="ident">pl_shifted</span>,
-            <span class="ident">blob</span>,
-            <span class="ident">zorder</span>: <span class="kw">match</span> <span class="ident">input</span>.<span class="ident">location</span> {
-                <span class="ident">PedCrowdLocation::Sidewalk</span>(<span class="ident">on</span>, <span class="kw">_</span>) =&gt; <span class="ident">on</span>.<span class="ident">get_zorder</span>(<span class="ident">map</span>),
-                <span class="ident">PedCrowdLocation::BldgDriveway</span>(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
-                <span class="ident">PedCrowdLocation::LotDriveway</span>(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
+        DrawPedCrowd {
+            members: input.members,
+            blob_pl: pl_shifted,
+            blob,
+            zorder: <span class="kw">match </span>input.location {
+                PedCrowdLocation::Sidewalk(on, <span class="kw">_</span>) =&gt; on.get_zorder(map),
+                PedCrowdLocation::BldgDriveway(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
+                PedCrowdLocation::LotDriveway(<span class="kw">_</span>) =&gt; <span class="number">0</span>,
             },
-            <span class="ident">draw_default</span>: <span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
+            draw_default: prerender.upload(batch),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Renderable</span> <span class="kw">for</span> <span class="ident">DrawPedCrowd</span> {
-    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ID</span> {
-        <span class="comment">// Expensive! :(</span>
-        <span class="ident">ID::PedCrowd</span>(<span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>())
+<span class="kw">impl </span>Renderable <span class="kw">for </span>DrawPedCrowd {
+    <span class="kw">fn </span>get_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ID {
+        <span class="comment">// Expensive! :(
+        </span>ID::PedCrowd(<span class="self">self</span>.members.clone())
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">DrawOptions</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_default</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, <span class="kw">_</span>: <span class="kw-2">&amp;</span>DrawOptions) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_default);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Tessellation</span> {
-        <span class="self">self</span>.<span class="ident">blob_pl</span>
-            .<span class="ident">to_thick_boundary</span>(<span class="ident">sim::pedestrian_body_radius</span>() <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">OUTLINE_THICKNESS</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Tessellation::from</span>(<span class="self">self</span>.<span class="ident">blob</span>.<span class="ident">clone</span>()))
+    <span class="kw">fn </span>get_outline(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Map) -&gt; Tessellation {
+        <span class="self">self</span>.blob_pl
+            .to_thick_boundary(sim::pedestrian_body_radius() * <span class="number">2.0</span>, OUTLINE_THICKNESS)
+            .unwrap_or_else(|| Tessellation::from(<span class="self">self</span>.blob.clone()))
     }
 
-    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
-        <span class="self">self</span>.<span class="ident">zorder</span>
+    <span class="kw">fn </span>get_zorder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; isize {
+        <span class="self">self</span>.zorder
     }
 
-    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">blob</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
+    <span class="kw">fn </span>contains_pt(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="self">self</span>.blob.contains_pt(pt)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

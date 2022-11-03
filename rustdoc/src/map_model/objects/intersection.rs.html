@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/intersection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>intersection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/intersection.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>intersection.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -261,248 +261,248 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
+<span class="kw">use </span>abstutil::{deserialize_usize, serialize_usize};
+<span class="kw">use </span>geom::{Distance, Polygon};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">CompressedMovementID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionType</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>,
-    <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
+<span class="kw">use crate</span>::{
+    osm, CompressedMovementID, DirectedRoadID, IntersectionType, LaneID, Map, Movement, MovementID,
+    PathConstraints, Road, RoadID, RoadSideID, SideOfRoad, Turn, TurnID,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntersectionID</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">usize</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>IntersectionID(
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>usize,
 );
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">IntersectionID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Intersection #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>IntersectionID {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Intersection #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="doccomment">/// An intersection connects roads. Most have &gt;2 roads and are controlled by stop signs or traffic</span>
-<span class="doccomment">/// signals. Roads that lead to the boundary of the map end at border intersections, with only that</span>
-<span class="doccomment">/// one road attached.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Intersection</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
-    <span class="doccomment">/// This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.</span>
-    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
-    <span class="kw">pub</span> <span class="ident">turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">elevation</span>: <span class="ident">Distance</span>,
+<span class="doccomment">/// An intersection connects roads. Most have &gt;2 roads and are controlled by stop signs or traffic
+/// signals. Roads that lead to the boundary of the map end at border intersections, with only that
+/// one road attached.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug)]
+</span><span class="kw">pub struct </span>Intersection {
+    <span class="kw">pub </span>id: IntersectionID,
+    <span class="doccomment">/// This needs to be in clockwise orientation, or later rendering of sidewalk corners breaks.
+    </span><span class="kw">pub </span>polygon: Polygon,
+    <span class="kw">pub </span>turns: Vec&lt;Turn&gt;,
+    <span class="kw">pub </span>elevation: Distance,
 
-    <span class="kw">pub</span> <span class="ident">intersection_type</span>: <span class="ident">IntersectionType</span>,
-    <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="ident">osm::NodeID</span>,
+    <span class="kw">pub </span>intersection_type: IntersectionType,
+    <span class="kw">pub </span>orig_id: osm::NodeID,
 
-    <span class="doccomment">/// Note that a lane may belong to both incoming_lanes and outgoing_lanes.</span>
-    <span class="comment">// TODO narrow down when and why. is it just sidewalks in weird cases?</span>
-    <span class="comment">// TODO Change to BTreeSet, or otherwise emphasize to callers that the order of these isn&#39;t</span>
-    <span class="comment">// meaningful</span>
-    <span class="kw">pub</span> <span class="ident">incoming_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">outgoing_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Note that a lane may belong to both incoming_lanes and outgoing_lanes.
+    </span><span class="comment">// TODO narrow down when and why. is it just sidewalks in weird cases?
+    // TODO Change to BTreeSet, or otherwise emphasize to callers that the order of these isn&#39;t
+    // meaningful
+    </span><span class="kw">pub </span>incoming_lanes: Vec&lt;LaneID&gt;,
+    <span class="kw">pub </span>outgoing_lanes: Vec&lt;LaneID&gt;,
 
-    <span class="comment">// TODO Maybe DirectedRoadIDs</span>
-    <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+    <span class="comment">// TODO Maybe DirectedRoadIDs
+    </span><span class="kw">pub </span>roads: BTreeSet&lt;RoadID&gt;,
 
-    <span class="doccomment">/// Was a short road adjacent to this intersection merged?</span>
-    <span class="kw">pub</span> <span class="ident">merged</span>: <span class="ident">bool</span>,
-    <span class="comment">// These increase the map file size, so instead, just use `recalculate_all_movements` after</span>
-    <span class="comment">// deserializing.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">movements</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Was a short road adjacent to this intersection merged?
+    </span><span class="kw">pub </span>merged: bool,
+    <span class="comment">// These increase the map file size, so instead, just use `recalculate_all_movements` after
+    // deserializing.
+    </span><span class="attribute">#[serde(skip_serializing, skip_deserializing)]
+    </span><span class="kw">pub </span>movements: BTreeMap&lt;MovementID, Movement&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Intersection</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_border</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">intersection_type</span> <span class="op">==</span> <span class="ident">IntersectionType::Border</span>
+<span class="kw">impl </span>Intersection {
+    <span class="kw">pub fn </span>is_border(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.intersection_type == IntersectionType::Border
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_incoming_border</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">intersection_type</span> <span class="op">==</span> <span class="ident">IntersectionType::Border</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">is_empty</span>()
+    <span class="kw">pub fn </span>is_incoming_border(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.intersection_type == IntersectionType::Border &amp;&amp; !<span class="self">self</span>.outgoing_lanes.is_empty()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_outgoing_border</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">intersection_type</span> <span class="op">==</span> <span class="ident">IntersectionType::Border</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">incoming_lanes</span>.<span class="ident">is_empty</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_closed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">intersection_type</span> <span class="op">==</span> <span class="ident">IntersectionType::Construction</span>
+    <span class="kw">pub fn </span>is_outgoing_border(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.intersection_type == IntersectionType::Border &amp;&amp; !<span class="self">self</span>.incoming_lanes.is_empty()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_stop_sign</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">intersection_type</span> <span class="op">==</span> <span class="ident">IntersectionType::StopSign</span>
+    <span class="kw">pub fn </span>is_closed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.intersection_type == IntersectionType::Construction
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_traffic_signal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">intersection_type</span> <span class="op">==</span> <span class="ident">IntersectionType::TrafficSignal</span>
+    <span class="kw">pub fn </span>is_stop_sign(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.intersection_type == IntersectionType::StopSign
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_light_rail</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_light_rail</span>())
+    <span class="kw">pub fn </span>is_traffic_signal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.intersection_type == IntersectionType::TrafficSignal
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_private</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_private</span>())
+    <span class="kw">pub fn </span>is_light_rail(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="self">self</span>.roads.iter().all(|r| map.get_r(<span class="kw-2">*</span>r).is_light_rail())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_footway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_footway</span>())
+    <span class="kw">pub fn </span>is_private(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="self">self</span>.roads.iter().all(|r| map.get_r(<span class="kw-2">*</span>r).is_private())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_cycleway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_cycleway</span>())
+    <span class="kw">pub fn </span>is_footway(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="self">self</span>.roads.iter().all(|r| map.get_r(<span class="kw-2">*</span>r).is_footway())
     }
 
-    <span class="doccomment">/// Does this intersection only connect two road segments? Then usually, the intersection only</span>
-    <span class="doccomment">/// exists to mark the road name or lanes changing.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_degenerate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span>
+    <span class="kw">pub fn </span>is_cycleway(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="self">self</span>.roads.iter().all(|r| map.get_r(<span class="kw-2">*</span>r).is_cycleway())
     }
 
-    <span class="doccomment">/// Does this intersection connect to only a single driveable road segment?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// If a driveable road leads only to a cycle lane, then that&#39;s still a dead-end for driving</span>
-        <span class="self">self</span>.<span class="ident">roads</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">r</span>), <span class="ident">map</span>))
-            .<span class="ident">count</span>()
-            <span class="op">==</span> <span class="number">1</span>
+    <span class="doccomment">/// Does this intersection only connect two road segments? Then usually, the intersection only
+    /// exists to mark the road name or lanes changing.
+    </span><span class="kw">pub fn </span>is_degenerate(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.roads.len() == <span class="number">2
+    </span>}
+
+    <span class="doccomment">/// Does this intersection connect to only a single driveable road segment?
+    </span><span class="kw">pub fn </span>is_deadend_for_driving(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="comment">// If a driveable road leads only to a cycle lane, then that&#39;s still a dead-end for driving
+        </span><span class="self">self</span>.roads
+            .iter()
+            .filter(|r| PathConstraints::Car.can_use_road(map.get_r(<span class="kw-2">**</span>r), map))
+            .count()
+            == <span class="number">1
+    </span>}
+
+    <span class="doccomment">/// Ignoring mode of travel, is this intersection only connected to one road?
+    </span><span class="kw">pub fn </span>is_deadend_for_everyone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.roads.len() == <span class="number">1
+    </span>}
+
+    <span class="kw">pub fn </span>get_incoming_lanes(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, constraints: PathConstraints) -&gt; Vec&lt;LaneID&gt; {
+        <span class="self">self</span>.incoming_lanes
+            .iter()
+            .filter(<span class="kw">move </span>|l| constraints.can_use(map.get_l(<span class="kw-2">**</span>l), map))
+            .cloned()
+            .collect()
     }
 
-    <span class="doccomment">/// Ignoring mode of travel, is this intersection only connected to one road?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_deadend_for_everyone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>
+    <span class="doccomment">/// Strict for bikes. If there are bike lanes, not allowed to use other lanes.
+    </span><span class="kw">pub fn </span>get_outgoing_lanes(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, constraints: PathConstraints) -&gt; Vec&lt;LaneID&gt; {
+        constraints.filter_lanes(<span class="self">self</span>.outgoing_lanes.clone(), map)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_incoming_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">incoming_lanes</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>))
-            .<span class="ident">cloned</span>()
-            .<span class="ident">collect</span>()
+    <span class="doccomment">/// Higher numbers get drawn on top
+    </span><span class="kw">pub fn </span>get_zorder(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; isize {
+        <span class="comment">// TODO Not sure min makes sense -- what about a 1 and a 0? Prefer the nonzeros. If there&#39;s
+        // a -1 and a 1... need to see it to know what to do.
+        </span><span class="self">self</span>.roads
+            .iter()
+            .map(|r| map.get_r(<span class="kw-2">*</span>r).zorder)
+            .min()
+            .unwrap()
     }
 
-    <span class="doccomment">/// Strict for bikes. If there are bike lanes, not allowed to use other lanes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_outgoing_lanes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
-        <span class="ident">constraints</span>.<span class="ident">filter_lanes</span>(<span class="self">self</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">clone</span>(), <span class="ident">map</span>)
+    <span class="kw">pub fn </span>get_rank(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; osm::RoadRank {
+        <span class="self">self</span>.roads
+            .iter()
+            .map(|r| map.get_r(<span class="kw-2">*</span>r).get_rank())
+            .max()
+            .unwrap()
     }
 
-    <span class="doccomment">/// Higher numbers get drawn on top</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">isize</span> {
-        <span class="comment">// TODO Not sure min makes sense -- what about a 1 and a 0? Prefer the nonzeros. If there&#39;s</span>
-        <span class="comment">// a -1 and a 1... need to see it to know what to do.</span>
-        <span class="self">self</span>.<span class="ident">roads</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">zorder</span>)
-            .<span class="ident">min</span>()
-            .<span class="ident">unwrap</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_rank</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">osm::RoadRank</span> {
-        <span class="self">self</span>.<span class="ident">roads</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_rank</span>())
-            .<span class="ident">max</span>()
-            .<span class="ident">unwrap</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">polygon</span>.<span class="ident">center</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
-        <span class="ident">roads</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">id</span>);
-            <span class="kw">let</span> <span class="ident">endpt</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span> {
-                <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">first_pt</span>()
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span> {
-                <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">last_pt</span>()
-            } <span class="kw">else</span> {
+    <span class="kw">pub fn </span>get_roads_sorted_by_incoming_angle(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;RoadID&gt; {
+        <span class="kw">let </span>center = <span class="self">self</span>.polygon.center();
+        <span class="kw">let </span><span class="kw-2">mut </span>roads: Vec&lt;RoadID&gt; = <span class="self">self</span>.roads.iter().cloned().collect();
+        roads.sort_by_key(|id| {
+            <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>id);
+            <span class="kw">let </span>endpt = <span class="kw">if </span>r.src_i == <span class="self">self</span>.id {
+                r.center_pts.first_pt()
+            } <span class="kw">else if </span>r.dst_i == <span class="self">self</span>.id {
+                r.center_pts.last_pt()
+            } <span class="kw">else </span>{
                 <span class="macro">unreachable!</span>();
             };
-            <span class="ident">endpt</span>.<span class="ident">angle_to</span>(<span class="ident">center</span>).<span class="ident">normalized_degrees</span>() <span class="kw">as</span> <span class="ident">i64</span>
+            endpt.angle_to(center).normalized_degrees() <span class="kw">as </span>i64
         });
-        <span class="ident">roads</span>
+        roads
     }
 
-    <span class="comment">// TODO walking_turns_v2 and the intersection geometry algorithm also do something like this.</span>
-    <span class="comment">// Refactor?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_road_sides_sorted_by_incoming_angle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadSideID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sides</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>) {
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span> {
-                <span class="ident">sides</span>.<span class="ident">push</span>(<span class="ident">RoadSideID</span> {
-                    <span class="ident">road</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-                    <span class="ident">side</span>: <span class="ident">SideOfRoad::Right</span>,
+    <span class="comment">// TODO walking_turns_v2 and the intersection geometry algorithm also do something like this.
+    // Refactor?
+    </span><span class="kw">pub fn </span>get_road_sides_sorted_by_incoming_angle(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;RoadSideID&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>sides = Vec::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.get_roads_sorted_by_incoming_angle(map) {
+            <span class="kw">let </span>r = map.get_r(r);
+            <span class="kw">if </span>r.dst_i == <span class="self">self</span>.id {
+                sides.push(RoadSideID {
+                    road: r.id,
+                    side: SideOfRoad::Right,
                 });
-                <span class="ident">sides</span>.<span class="ident">push</span>(<span class="ident">RoadSideID</span> {
-                    <span class="ident">road</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-                    <span class="ident">side</span>: <span class="ident">SideOfRoad::Left</span>,
+                sides.push(RoadSideID {
+                    road: r.id,
+                    side: SideOfRoad::Left,
                 });
-            } <span class="kw">else</span> {
-                <span class="ident">sides</span>.<span class="ident">push</span>(<span class="ident">RoadSideID</span> {
-                    <span class="ident">road</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-                    <span class="ident">side</span>: <span class="ident">SideOfRoad::Left</span>,
+            } <span class="kw">else </span>{
+                sides.push(RoadSideID {
+                    road: r.id,
+                    side: SideOfRoad::Left,
                 });
-                <span class="ident">sides</span>.<span class="ident">push</span>(<span class="ident">RoadSideID</span> {
-                    <span class="ident">road</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-                    <span class="ident">side</span>: <span class="ident">SideOfRoad::Right</span>,
+                sides.push(RoadSideID {
+                    road: r.id,
+                    side: SideOfRoad::Right,
                 });
             }
         }
-        <span class="ident">sides</span>
+        sides
     }
 
-    <span class="doccomment">/// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads</span>
-    <span class="doccomment">/// outbound from the intersection, since no turns originate from those anyway. This allows</span>
-    <span class="doccomment">/// heuristics for a 3-way intersection to not care if one of the roads happens to be a dual</span>
-    <span class="doccomment">/// carriageway (split into two one-ways).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_sorted_incoming_roads</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">incoming_lanes</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">is_empty</span>() {
-                <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">r</span>);
+    <span class="doccomment">/// Return all incoming roads to an intersection, sorted by angle. This skips one-way roads
+    /// outbound from the intersection, since no turns originate from those anyway. This allows
+    /// heuristics for a 3-way intersection to not care if one of the roads happens to be a dual
+    /// carriageway (split into two one-ways).
+    </span><span class="kw">pub fn </span>get_sorted_incoming_roads(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;RoadID&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>roads = Vec::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.get_roads_sorted_by_incoming_angle(map) {
+            <span class="kw">if </span>!map.get_r(r).incoming_lanes(<span class="self">self</span>.id).is_empty() {
+                roads.push(r);
             }
         }
-        <span class="ident">roads</span>
+        roads
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">some_outgoing_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">outgoing_lanes</span>
-            .<span class="ident">get</span>(<span class="number">0</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">get_directed_parent</span>())
+    <span class="kw">pub fn </span>some_outgoing_road(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;DirectedRoadID&gt; {
+        <span class="self">self</span>.outgoing_lanes
+            .get(<span class="number">0</span>)
+            .map(|l| map.get_l(<span class="kw-2">*</span>l).get_directed_parent())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">some_incoming_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">incoming_lanes</span>
-            .<span class="ident">get</span>(<span class="number">0</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">get_directed_parent</span>())
+    <span class="kw">pub fn </span>some_incoming_road(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;DirectedRoadID&gt; {
+        <span class="self">self</span>.incoming_lanes
+            .get(<span class="number">0</span>)
+            .map(|l| map.get_l(<span class="kw-2">*</span>l).get_directed_parent())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">lang</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="ident">road_names</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">roads</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_name</span>(<span class="ident">lang</span>))
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">abstutil::plain_list_names</span>(<span class="ident">road_names</span>)
+    <span class="kw">pub fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>, lang: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt;, map: <span class="kw-2">&amp;</span>Map) -&gt; String {
+        <span class="kw">let </span>road_names = <span class="self">self
+            </span>.roads
+            .iter()
+            .map(|r| map.get_r(<span class="kw-2">*</span>r).get_name(lang))
+            .collect::&lt;BTreeSet&lt;<span class="kw">_</span>&gt;&gt;();
+        abstutil::plain_list_names(road_names)
     }
 
-    <span class="doccomment">/// Don&#39;t call for SharedSidewalkCorners</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">turn_to_movement</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">turn</span>: <span class="ident">TurnID</span>) -&gt; (<span class="ident">MovementID</span>, <span class="ident">CompressedMovementID</span>) {
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">movements</span>.<span class="ident">values</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>) {
-                <span class="kw">return</span> (
-                    <span class="ident">m</span>.<span class="ident">id</span>,
-                    <span class="ident">CompressedMovementID</span> {
-                        <span class="ident">i</span>: <span class="self">self</span>.<span class="ident">id</span>,
-                        <span class="ident">idx</span>: <span class="ident">u8::try_from</span>(<span class="ident">idx</span>).<span class="ident">unwrap</span>(),
+    <span class="doccomment">/// Don&#39;t call for SharedSidewalkCorners
+    </span><span class="kw">pub fn </span>turn_to_movement(<span class="kw-2">&amp;</span><span class="self">self</span>, turn: TurnID) -&gt; (MovementID, CompressedMovementID) {
+        <span class="kw">for </span>(idx, m) <span class="kw">in </span><span class="self">self</span>.movements.values().enumerate() {
+            <span class="kw">if </span>m.members.contains(<span class="kw-2">&amp;</span>turn) {
+                <span class="kw">return </span>(
+                    m.id,
+                    CompressedMovementID {
+                        i: <span class="self">self</span>.id,
+                        idx: u8::try_from(idx).unwrap(),
                     },
                 );
             }
@@ -510,19 +510,19 @@
 
         <span class="macro">panic!</span>(
             <span class="string">&quot;{} doesn&#39;t belong to any movements in {} or is a SharedSidewalkCorner maybe&quot;</span>,
-            <span class="ident">turn</span>, <span class="self">self</span>.<span class="ident">id</span>
+            turn, <span class="self">self</span>.id
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_road_between</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Road</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">other_endpt</span>(<span class="self">self</span>.<span class="ident">id</span>) <span class="op">==</span> <span class="ident">other</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">road</span>);
+    <span class="kw">pub fn </span>find_road_between&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, other: IntersectionID, map: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Road&gt; {
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.roads {
+            <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>r);
+            <span class="kw">if </span>road.other_endpt(<span class="self">self</span>.id) == other {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(road);
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

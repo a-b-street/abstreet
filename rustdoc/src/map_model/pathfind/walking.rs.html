@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/walking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/walking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -528,535 +528,535 @@
 <span id="528">528</span>
 <span id="529">529</span>
 <span id="530">530</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Pathfinding for pedestrians, as well as figuring out if somebody should use public transit.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Pathfinding for pedestrians, as well as figuring out if somebody should use public transit.
 
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</span><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">fast_paths::InputGraph</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>fast_paths::InputGraph;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
+<span class="kw">use </span>geom::{Distance, Duration};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::engine</span>::{<span class="ident">CreateEngine</span>, <span class="ident">PathfindEngine</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::vehicles::VehiclePathfinder</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::zone_cost</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{<span class="ident">round</span>, <span class="ident">unround</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">PathStepV2</span>,
-    <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>, <span class="ident">TurnType</span>,
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::engine::{CreateEngine, PathfindEngine};
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::node_map::{deserialize_nodemap, NodeMap};
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::vehicles::VehiclePathfinder;
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::zone_cost;
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::{round, unround};
+<span class="kw">use crate</span>::{
+    DirectedRoadID, IntersectionID, Map, PathConstraints, PathRequest, PathStep, PathStepV2,
+    PathV2, Position, TransitRoute, TransitRouteID, TransitStopID, TurnType,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SidewalkPathfinder</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_nodemap&quot;</span>)]</span>
-    <span class="ident">nodes</span>: <span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>,
-    <span class="ident">use_transit</span>: <span class="ident">bool</span>,
-    <span class="ident">engine</span>: <span class="ident">PathfindEngine</span>,
+<span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>SidewalkPathfinder {
+    <span class="attribute">#[serde(deserialize_with = <span class="string">&quot;deserialize_nodemap&quot;</span>)]
+    </span>nodes: NodeMap&lt;WalkingNode&gt;,
+    use_transit: bool,
+    engine: PathfindEngine,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WalkingNode</span> {
-    <span class="doccomment">/// false is src_i, true is dst_i</span>
-    <span class="ident">SidewalkEndpoint</span>(<span class="ident">DirectedRoadID</span>, <span class="ident">bool</span>),
-    <span class="comment">// TODO Lots of complexity below could be avoided by explicitly sticking TransitRouteID here too.</span>
-    <span class="comment">// Worth it?</span>
-    <span class="ident">RideTransit</span>(<span class="ident">TransitStopID</span>),
-    <span class="ident">LeaveMap</span>(<span class="ident">IntersectionID</span>),
+<span class="attribute">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug, Hash, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>WalkingNode {
+    <span class="doccomment">/// false is src_i, true is dst_i
+    </span>SidewalkEndpoint(DirectedRoadID, bool),
+    <span class="comment">// TODO Lots of complexity below could be avoided by explicitly sticking TransitRouteID here too.
+    // Worth it?
+    </span>RideTransit(TransitStopID),
+    LeaveMap(IntersectionID),
 }
 
-<span class="kw">impl</span> <span class="ident">WalkingNode</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">WalkingNode</span> {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>());
-        <span class="kw">let</span> <span class="ident">dst_i</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>();
-        <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">lane</span>.<span class="ident">get_directed_parent</span>(), <span class="ident">dst_i</span>)
+<span class="kw">impl </span>WalkingNode {
+    <span class="kw">pub fn </span>closest(pos: Position, map: <span class="kw-2">&amp;</span>Map) -&gt; WalkingNode {
+        <span class="kw">let </span>lane = map.get_l(pos.lane());
+        <span class="kw">let </span>dst_i = lane.length() - pos.dist_along() &lt;= pos.dist_along();
+        WalkingNode::SidewalkEndpoint(lane.get_directed_parent(), dst_i)
     }
 
-    <span class="kw">fn</span> <span class="ident">end_transit</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">WalkingNode</span> {
-        <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>());
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">src_i</span>).<span class="ident">is_outgoing_border</span>() <span class="op">&amp;&amp;</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
-            <span class="kw">return</span> <span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">l</span>.<span class="ident">src_i</span>);
+    <span class="kw">fn </span>end_transit(pos: Position, map: <span class="kw-2">&amp;</span>Map) -&gt; WalkingNode {
+        <span class="kw">let </span>l = map.get_l(pos.lane());
+        <span class="kw">if </span>map.get_i(l.src_i).is_outgoing_border() &amp;&amp; pos.dist_along() == Distance::ZERO {
+            <span class="kw">return </span>WalkingNode::LeaveMap(l.src_i);
         }
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>).<span class="ident">is_outgoing_border</span>() <span class="op">&amp;&amp;</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">l</span>.<span class="ident">length</span>() {
-            <span class="kw">return</span> <span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>);
+        <span class="kw">if </span>map.get_i(l.dst_i).is_outgoing_border() &amp;&amp; pos.dist_along() == l.length() {
+            <span class="kw">return </span>WalkingNode::LeaveMap(l.dst_i);
         }
-        <span class="ident">WalkingNode::closest</span>(<span class="ident">pos</span>, <span class="ident">map</span>)
+        WalkingNode::closest(pos, map)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SidewalkPathfinder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">SidewalkPathfinder</span> {
-        <span class="ident">SidewalkPathfinder</span> {
-            <span class="ident">nodes</span>: <span class="ident">NodeMap::new</span>(),
-            <span class="ident">use_transit</span>: <span class="bool-val">false</span>,
-            <span class="ident">engine</span>: <span class="ident">PathfindEngine::Empty</span>,
+<span class="kw">impl </span>SidewalkPathfinder {
+    <span class="kw">pub fn </span>empty() -&gt; SidewalkPathfinder {
+        SidewalkPathfinder {
+            nodes: NodeMap::new(),
+            use_transit: <span class="bool-val">false</span>,
+            engine: PathfindEngine::Empty,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">use_transit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>, <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>)<span class="op">&gt;</span>,
-        <span class="ident">engine</span>: <span class="kw-2">&amp;</span><span class="ident">CreateEngine</span>,
-    ) -&gt; <span class="ident">SidewalkPathfinder</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="ident">NodeMap::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="comment">// Regardless of whether the road has sidewalks/shoulders on one or both sides, add</span>
-            <span class="comment">// both. These could change later, and we want the node IDs to match up.</span>
-            <span class="kw">for</span> <span class="ident">dr</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">both_directions</span>() {
-                <span class="kw">for</span> <span class="ident">endpt</span> <span class="kw">in</span> [<span class="bool-val">true</span>, <span class="bool-val">false</span>] {
-                    <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="ident">endpt</span>));
+    <span class="kw">pub fn </span>new(
+        map: <span class="kw-2">&amp;</span>Map,
+        use_transit: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>VehiclePathfinder, <span class="kw-2">&amp;</span>VehiclePathfinder)&gt;,
+        engine: <span class="kw-2">&amp;</span>CreateEngine,
+    ) -&gt; SidewalkPathfinder {
+        <span class="kw">let </span><span class="kw-2">mut </span>nodes = NodeMap::new();
+        <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+            <span class="comment">// Regardless of whether the road has sidewalks/shoulders on one or both sides, add
+            // both. These could change later, and we want the node IDs to match up.
+            </span><span class="kw">for </span>dr <span class="kw">in </span>r.id.both_directions() {
+                <span class="kw">for </span>endpt <span class="kw">in </span>[<span class="bool-val">true</span>, <span class="bool-val">false</span>] {
+                    nodes.get_or_insert(WalkingNode::SidewalkEndpoint(dr, endpt));
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">use_transit</span>.<span class="ident">is_some</span>() {
-            <span class="comment">// Add a node for each stop.</span>
-            <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_stops</span>().<span class="ident">keys</span>() {
-                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="kw-2">*</span><span class="ident">ts</span>));
+        <span class="kw">if </span>use_transit.is_some() {
+            <span class="comment">// Add a node for each stop.
+            </span><span class="kw">for </span>ts <span class="kw">in </span>map.all_transit_stops().keys() {
+                nodes.get_or_insert(WalkingNode::RideTransit(<span class="kw-2">*</span>ts));
             }
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_outgoing_borders</span>() {
-                <span class="comment">// We could filter for those with sidewalks, but eh</span>
-                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">i</span>.<span class="ident">id</span>));
+            <span class="kw">for </span>i <span class="kw">in </span>map.all_outgoing_borders() {
+                <span class="comment">// We could filter for those with sidewalks, but eh
+                </span>nodes.get_or_insert(WalkingNode::LeaveMap(i.id));
             }
         }
 
-        <span class="kw">let</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">make_input_graph</span>(<span class="kw-2">&amp;</span><span class="ident">nodes</span>, <span class="ident">use_transit</span>, <span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">engine</span> <span class="op">=</span> <span class="ident">engine</span>.<span class="ident">create</span>(<span class="ident">input_graph</span>);
+        <span class="kw">let </span>input_graph = make_input_graph(<span class="kw-2">&amp;</span>nodes, use_transit, map);
+        <span class="kw">let </span>engine = engine.create(input_graph);
 
-        <span class="ident">SidewalkPathfinder</span> {
-            <span class="ident">nodes</span>,
-            <span class="ident">use_transit</span>: <span class="ident">use_transit</span>.<span class="ident">is_some</span>(),
-            <span class="ident">engine</span>,
+        SidewalkPathfinder {
+            nodes,
+            use_transit: use_transit.is_some(),
+            engine,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_edits</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">use_transit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>, <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub fn </span>apply_edits(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        map: <span class="kw-2">&amp;</span>Map,
+        use_transit: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>VehiclePathfinder, <span class="kw-2">&amp;</span>VehiclePathfinder)&gt;,
     ) {
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.engine, PathfindEngine::Empty) {
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">make_input_graph</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>, <span class="ident">use_transit</span>, <span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">engine</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">reuse_ordering</span>().<span class="ident">create</span>(<span class="ident">input_graph</span>);
-        <span class="self">self</span>.<span class="ident">engine</span> <span class="op">=</span> <span class="ident">engine</span>;
+        <span class="kw">let </span>input_graph = make_input_graph(<span class="kw-2">&amp;</span><span class="self">self</span>.nodes, use_transit, map);
+        <span class="kw">let </span>engine = <span class="self">self</span>.engine.reuse_ordering().create(input_graph);
+        <span class="self">self</span>.engine = engine;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>pathfind(<span class="kw-2">&amp;</span><span class="self">self</span>, req: PathRequest, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;PathV2&gt; {
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.engine, PathfindEngine::Empty) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">one_step_walking_path</span>(<span class="ident">req</span>, <span class="ident">map</span>));
+        <span class="kw">if </span>req.start.lane() == req.end.lane() {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(one_step_walking_path(req, map));
         }
-        <span class="kw">let</span> (<span class="ident">raw_weight</span>, <span class="ident">raw_nodes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">calculate_path</span>(
-            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::closest</span>(<span class="ident">req</span>.<span class="ident">start</span>, <span class="ident">map</span>)),
-            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::closest</span>(<span class="ident">req</span>.<span class="ident">end</span>, <span class="ident">map</span>)),
+        <span class="kw">let </span>(raw_weight, raw_nodes) = <span class="self">self</span>.engine.calculate_path(
+            <span class="self">self</span>.nodes.get(WalkingNode::closest(req.start, map)),
+            <span class="self">self</span>.nodes.get(WalkingNode::closest(req.end, map)),
         )<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">raw_nodes</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">translate_id</span>(<span class="ident">id</span>))
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">walking_path_to_steps</span>(<span class="ident">nodes</span>, <span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">unround</span>(<span class="ident">raw_weight</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">PathV2::new</span>(<span class="ident">steps</span>, <span class="ident">req</span>, <span class="ident">cost</span>, <span class="ident">Vec::new</span>()))
+        <span class="kw">let </span>nodes: Vec&lt;WalkingNode&gt; = raw_nodes
+            .into_iter()
+            .map(|id| <span class="self">self</span>.nodes.translate_id(id))
+            .collect();
+        <span class="kw">let </span>steps = walking_path_to_steps(nodes, map);
+        <span class="kw">let </span>cost = unround(raw_weight);
+        <span class="prelude-val">Some</span>(PathV2::new(steps, req, cost, Vec::new()))
     }
 
-    <span class="doccomment">/// Attempt the pathfinding and see if we should ride public transit. If so, says (stop1,</span>
-    <span class="doccomment">/// optional stop 2, route). If there&#39;s no stop 2, then ride transit off the border.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
+    <span class="doccomment">/// Attempt the pathfinding and see if we should ride public transit. If so, says (stop1,
+    /// optional stop 2, route). If there&#39;s no stop 2, then ride transit off the border.
+    </span><span class="kw">pub fn </span>should_use_transit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">start</span>: <span class="ident">Position</span>,
-        <span class="ident">end</span>: <span class="ident">Position</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TransitStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>, <span class="ident">TransitRouteID</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        map: <span class="kw-2">&amp;</span>Map,
+        start: Position,
+        end: Position,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(TransitStopID, <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;, TransitRouteID)&gt; {
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.engine, PathfindEngine::Empty) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">use_transit</span>);
+        <span class="macro">assert!</span>(<span class="self">self</span>.use_transit);
 
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">raw_nodes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">calculate_path</span>(
-            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::closest</span>(<span class="ident">start</span>, <span class="ident">map</span>)),
-            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::end_transit</span>(<span class="ident">end</span>, <span class="ident">map</span>)),
+        <span class="kw">let </span>(<span class="kw">_</span>, raw_nodes) = <span class="self">self</span>.engine.calculate_path(
+            <span class="self">self</span>.nodes.get(WalkingNode::closest(start, map)),
+            <span class="self">self</span>.nodes.get(WalkingNode::end_transit(end, map)),
         )<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">raw_nodes</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">translate_id</span>(<span class="ident">id</span>))
-            .<span class="ident">collect</span>();
+        <span class="kw">let </span>nodes: Vec&lt;WalkingNode&gt; = raw_nodes
+            .into_iter()
+            .map(|id| <span class="self">self</span>.nodes.translate_id(id))
+            .collect();
 
-        <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;should_use_transit from {} to {}?&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>);
-            <span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">nodes</span> {
-                <span class="macro">println!</span>(<span class="string">&quot;- {:?}&quot;</span>, <span class="ident">n</span>);
+        <span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="macro">println!</span>(<span class="string">&quot;should_use_transit from {} to {}?&quot;</span>, start, end);
+            <span class="kw">for </span>n <span class="kw">in </span><span class="kw-2">&amp;</span>nodes {
+                <span class="macro">println!</span>(<span class="string">&quot;- {:?}&quot;</span>, n);
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first_stop</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_stop</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">possible_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">TransitRoute</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">nodes</span> {
-            <span class="kw">match</span> <span class="ident">n</span> {
-                <span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop2</span>) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop1</span>) <span class="op">=</span> <span class="ident">first_stop</span> {
-                        <span class="comment">// Keep riding the same route?</span>
-                        <span class="comment">// We need to do this check, because some transfers might be instantaneous</span>
-                        <span class="comment">// at the same stop and involve no walking.</span>
-                        <span class="comment">// Also need to make sure the stops are in the proper order. We might have</span>
-                        <span class="comment">// a transfer, then try to hop on the first route again, but starting from</span>
-                        <span class="comment">// a different point.</span>
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filtered</span> <span class="op">=</span> <span class="ident">possible_routes</span>.<span class="ident">clone</span>();
-                        <span class="ident">filtered</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">idx1</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">s</span> <span class="op">==</span> <span class="ident">stop1</span>).<span class="ident">unwrap</span>();
-                            <span class="kw">let</span> <span class="ident">idx2</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">stop2</span>);
-                            <span class="ident">idx2</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx2</span><span class="op">|</span> <span class="ident">idx1</span> <span class="op">&lt;</span> <span class="ident">idx2</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>first_stop = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>last_stop = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>possible_routes: Vec&lt;<span class="kw-2">&amp;</span>TransitRoute&gt; = Vec::new();
+        <span class="kw">for </span>n <span class="kw">in </span><span class="kw-2">&amp;</span>nodes {
+            <span class="kw">match </span>n {
+                WalkingNode::RideTransit(stop2) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(stop1) = first_stop {
+                        <span class="comment">// Keep riding the same route?
+                        // We need to do this check, because some transfers might be instantaneous
+                        // at the same stop and involve no walking.
+                        // Also need to make sure the stops are in the proper order. We might have
+                        // a transfer, then try to hop on the first route again, but starting from
+                        // a different point.
+                        </span><span class="kw">let </span><span class="kw-2">mut </span>filtered = possible_routes.clone();
+                        filtered.retain(|r| {
+                            <span class="kw">let </span>idx1 = r.stops.iter().position(|s| <span class="kw-2">*</span>s == stop1).unwrap();
+                            <span class="kw">let </span>idx2 = r.stops.iter().position(|s| s == stop2);
+                            idx2.map(|idx2| idx1 &lt; idx2).unwrap_or(<span class="bool-val">false</span>)
                         });
-                        <span class="kw">if</span> <span class="ident">filtered</span>.<span class="ident">is_empty</span>() {
-                            <span class="comment">// Aha, a transfer!</span>
-                            <span class="kw">return</span> <span class="prelude-val">Some</span>((
-                                <span class="ident">first_stop</span>.<span class="ident">unwrap</span>(),
-                                <span class="comment">// TODO I thought this should be impossible, but huge_seattle hits</span>
-                                <span class="comment">// it. Workaround for now by just walking.</span>
-                                <span class="prelude-val">Some</span>(<span class="ident">last_stop</span><span class="question-mark">?</span>),
-                                <span class="ident">possible_routes</span>[<span class="number">0</span>].<span class="ident">id</span>,
+                        <span class="kw">if </span>filtered.is_empty() {
+                            <span class="comment">// Aha, a transfer!
+                            </span><span class="kw">return </span><span class="prelude-val">Some</span>((
+                                first_stop.unwrap(),
+                                <span class="comment">// TODO I thought this should be impossible, but huge_seattle hits
+                                // it. Workaround for now by just walking.
+                                </span><span class="prelude-val">Some</span>(last_stop<span class="question-mark">?</span>),
+                                possible_routes[<span class="number">0</span>].id,
                             ));
                         }
-                        <span class="ident">last_stop</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">stop2</span>);
-                        <span class="ident">possible_routes</span> <span class="op">=</span> <span class="ident">filtered</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">first_stop</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">stop2</span>);
-                        <span class="ident">possible_routes</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_routes_serving_stop</span>(<span class="kw-2">*</span><span class="ident">stop2</span>);
-                        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">possible_routes</span>.<span class="ident">is_empty</span>());
+                        last_stop = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>stop2);
+                        possible_routes = filtered;
+                    } <span class="kw">else </span>{
+                        first_stop = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>stop2);
+                        possible_routes = map.get_routes_serving_stop(<span class="kw-2">*</span>stop2);
+                        <span class="macro">assert!</span>(!possible_routes.is_empty());
                     }
                 }
-                <span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">i</span>) =&gt; {
-                    <span class="comment">// Make sure the route actually leaves via the correct border!</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="ident">possible_routes</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                        <span class="ident">r</span>.<span class="ident">end_border</span>
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span>)
-                            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+                WalkingNode::LeaveMap(i) =&gt; {
+                    <span class="comment">// Make sure the route actually leaves via the correct border!
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(r) = possible_routes.iter().find(|r| {
+                        r.end_border
+                            .map(|l| map.get_l(l).dst_i == <span class="kw-2">*</span>i)
+                            .unwrap_or(<span class="bool-val">false</span>)
                     }) {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">first_stop</span>.<span class="ident">unwrap</span>(), <span class="prelude-val">None</span>, <span class="ident">r</span>.<span class="ident">id</span>));
+                        <span class="kw">return </span><span class="prelude-val">Some</span>((first_stop.unwrap(), <span class="prelude-val">None</span>, r.id));
                     }
-                    <span class="comment">// We can get close to the border, but should hop off at some stop.</span>
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>((
-                        <span class="ident">first_stop</span>.<span class="ident">unwrap</span>(),
-                        <span class="prelude-val">Some</span>(<span class="ident">last_stop</span>.<span class="ident">expect</span>(<span class="string">&quot;impossible transit transfer&quot;</span>)),
-                        <span class="ident">possible_routes</span>[<span class="number">0</span>].<span class="ident">id</span>,
+                    <span class="comment">// We can get close to the border, but should hop off at some stop.
+                    </span><span class="kw">return </span><span class="prelude-val">Some</span>((
+                        first_stop.unwrap(),
+                        <span class="prelude-val">Some</span>(last_stop.expect(<span class="string">&quot;impossible transit transfer&quot;</span>)),
+                        possible_routes[<span class="number">0</span>].id,
                     ));
                 }
-                <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop1</span>) <span class="op">=</span> <span class="ident">first_stop</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>((
-                            <span class="ident">stop1</span>,
-                            <span class="prelude-val">Some</span>(<span class="ident">last_stop</span>.<span class="ident">expect</span>(<span class="string">&quot;impossible transit transfer&quot;</span>)),
-                            <span class="ident">possible_routes</span>[<span class="number">0</span>].<span class="ident">id</span>,
+                WalkingNode::SidewalkEndpoint(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(stop1) = first_stop {
+                        <span class="kw">return </span><span class="prelude-val">Some</span>((
+                            stop1,
+                            <span class="prelude-val">Some</span>(last_stop.expect(<span class="string">&quot;impossible transit transfer&quot;</span>)),
+                            possible_routes[<span class="number">0</span>].id,
                         ));
                     }
                 }
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
-            <span class="kw">return</span> <span class="ident">HashMap::new</span>();
+    <span class="kw">pub fn </span>all_costs_from(<span class="kw-2">&amp;</span><span class="self">self</span>, start: Position, map: <span class="kw-2">&amp;</span>Map) -&gt; HashMap&lt;DirectedRoadID, Duration&gt; {
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.engine, PathfindEngine::Empty) {
+            <span class="kw">return </span>HashMap::new();
         }
 
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::closest</span>(<span class="ident">start</span>, <span class="ident">map</span>));
-        <span class="kw">let</span> <span class="ident">raw_costs</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">is_dijkstra</span>() {
-            <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">all_costs_from</span>(<span class="ident">start</span>)
-        } <span class="kw">else</span> {
-            <span class="comment">// The CH engine doesn&#39;t support this!</span>
-            <span class="kw">let</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">make_input_graph</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>, <span class="prelude-val">None</span>, <span class="ident">map</span>);
-            <span class="ident">CreateEngine::Dijkstra</span>
-                .<span class="ident">create</span>(<span class="ident">input_graph</span>)
-                .<span class="ident">all_costs_from</span>(<span class="ident">start</span>)
+        <span class="kw">let </span>start = <span class="self">self</span>.nodes.get(WalkingNode::closest(start, map));
+        <span class="kw">let </span>raw_costs = <span class="kw">if </span><span class="self">self</span>.engine.is_dijkstra() {
+            <span class="self">self</span>.engine.all_costs_from(start)
+        } <span class="kw">else </span>{
+            <span class="comment">// The CH engine doesn&#39;t support this!
+            </span><span class="kw">let </span>input_graph = make_input_graph(<span class="kw-2">&amp;</span><span class="self">self</span>.nodes, <span class="prelude-val">None</span>, map);
+            CreateEngine::Dijkstra
+                .create(input_graph)
+                .all_costs_from(start)
         };
-        <span class="ident">raw_costs</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> {
-                <span class="comment">// If we want to be more precise here, maybe take the min or max here of both</span>
-                <span class="comment">// endpoints</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">translate_id</span>(<span class="ident">k</span>) {
-                    <span class="prelude-val">Some</span>((<span class="ident">dr</span>, <span class="ident">unround</span>(<span class="ident">v</span>)))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+        raw_costs
+            .into_iter()
+            .filter_map(|(k, v)| {
+                <span class="comment">// If we want to be more precise here, maybe take the min or max here of both
+                // endpoints
+                </span><span class="kw">if let </span>WalkingNode::SidewalkEndpoint(dr, <span class="kw">_</span>) = <span class="self">self</span>.nodes.translate_id(k) {
+                    <span class="prelude-val">Some</span>((dr, unround(v)))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_input_graph</span>(
-    <span class="ident">nodes</span>: <span class="kw-2">&amp;</span><span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>,
-    <span class="ident">use_transit</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>, <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>)<span class="op">&gt;</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-) -&gt; <span class="ident">InputGraph</span> {
-    <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::MAX_WALKING_SPEED</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">InputGraph::new</span>();
+<span class="kw">fn </span>make_input_graph(
+    nodes: <span class="kw-2">&amp;</span>NodeMap&lt;WalkingNode&gt;,
+    use_transit: <span class="prelude-ty">Option</span>&lt;(<span class="kw-2">&amp;</span>VehiclePathfinder, <span class="kw-2">&amp;</span>VehiclePathfinder)&gt;,
+    map: <span class="kw-2">&amp;</span>Map,
+) -&gt; InputGraph {
+    <span class="kw">let </span>max_speed = <span class="prelude-val">Some</span>(<span class="kw">crate</span>::MAX_WALKING_SPEED);
+    <span class="kw">let </span><span class="kw-2">mut </span>input_graph = InputGraph::new();
 
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-        <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>() {
-            <span class="comment">// Sidewalks can be crossed in two directions. When there&#39;s a steep incline, of course</span>
-            <span class="comment">// it flips.</span>
-            <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::SidewalkEndpoint</span>(
-                <span class="ident">l</span>.<span class="ident">get_directed_parent</span>(),
+    <span class="kw">for </span>l <span class="kw">in </span>map.all_lanes() {
+        <span class="kw">if </span>l.is_walkable() {
+            <span class="comment">// Sidewalks can be crossed in two directions. When there&#39;s a steep incline, of course
+            // it flips.
+            </span><span class="kw">let </span>n1 = nodes.get(WalkingNode::SidewalkEndpoint(
+                l.get_directed_parent(),
                 <span class="bool-val">false</span>,
             ));
-            <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">l</span>.<span class="ident">get_directed_parent</span>(), <span class="bool-val">true</span>));
+            <span class="kw">let </span>n2 = nodes.get(WalkingNode::SidewalkEndpoint(l.get_directed_parent(), <span class="bool-val">true</span>));
 
-            <span class="kw">for</span> (<span class="ident">step</span>, <span class="ident">pair</span>) <span class="kw">in</span> [
-                (<span class="ident">PathStep::Lane</span>(<span class="ident">l</span>.<span class="ident">id</span>), (<span class="ident">n1</span>, <span class="ident">n2</span>)),
-                (<span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>.<span class="ident">id</span>), (<span class="ident">n2</span>, <span class="ident">n1</span>)),
+            <span class="kw">for </span>(step, pair) <span class="kw">in </span>[
+                (PathStep::Lane(l.id), (n1, n2)),
+                (PathStep::ContraflowLane(l.id), (n2, n1)),
             ] {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost</span> <span class="op">=</span>
-                    <span class="ident">l</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">step</span>.<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>);
-                <span class="comment">// TODO Tune this penalty, along with many others.</span>
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_shoulder</span>() {
-                    <span class="ident">cost</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">cost</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>cost =
+                    l.length() / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+                <span class="comment">// TODO Tune this penalty, along with many others.
+                </span><span class="kw">if </span>l.is_shoulder() {
+                    cost = <span class="number">2.0 </span>* cost;
                 }
-                <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">pair</span>.<span class="number">0</span>, <span class="ident">pair</span>.<span class="number">1</span>, <span class="ident">round</span>(<span class="ident">cost</span>));
+                input_graph.add_edge(pair.<span class="number">0</span>, pair.<span class="number">1</span>, round(cost));
             }
         }
     }
 
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_turns</span>() {
-        <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">between_sidewalks</span>() {
-            <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>);
-            <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
-            <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::SidewalkEndpoint</span>(
-                <span class="ident">src</span>.<span class="ident">get_directed_parent</span>(),
-                <span class="ident">src</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>,
+    <span class="kw">for </span>t <span class="kw">in </span>map.all_turns() {
+        <span class="kw">if </span>t.between_sidewalks() {
+            <span class="kw">let </span>src = map.get_l(t.id.src);
+            <span class="kw">let </span>dst = map.get_l(t.id.dst);
+            <span class="kw">let </span>from = nodes.get(WalkingNode::SidewalkEndpoint(
+                src.get_directed_parent(),
+                src.dst_i == t.id.parent,
             ));
-            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::SidewalkEndpoint</span>(
-                <span class="ident">dst</span>.<span class="ident">get_directed_parent</span>(),
-                <span class="ident">dst</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span>,
+            <span class="kw">let </span>to = nodes.get(WalkingNode::SidewalkEndpoint(
+                dst.get_directed_parent(),
+                dst.dst_i == t.id.parent,
             ));
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
-                <span class="op">/</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>)
-                <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>), <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>cost = t.geom.length()
+                / PathStep::Turn(t.id).max_speed_along(max_speed, PathConstraints::Pedestrian, map)
+                + zone_cost(t.id.to_movement(map), PathConstraints::Pedestrian, map);
 
-            <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::UnmarkedCrossing</span> {
-                <span class="comment">// TODO Add to RoutingParams</span>
-                <span class="ident">cost</span> <span class="op">=</span> <span class="number">3.0</span> <span class="op">*</span> <span class="ident">cost</span>;
+            <span class="kw">if </span>t.turn_type == TurnType::UnmarkedCrossing {
+                <span class="comment">// TODO Add to RoutingParams
+                </span>cost = <span class="number">3.0 </span>* cost;
             }
 
-            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">from</span>, <span class="ident">to</span>, <span class="ident">round</span>(<span class="ident">cost</span>));
-            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">to</span>, <span class="ident">from</span>, <span class="ident">round</span>(<span class="ident">cost</span>));
+            input_graph.add_edge(from, to, round(cost));
+            input_graph.add_edge(to, from, round(cost));
         }
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">graphs</span>) <span class="op">=</span> <span class="ident">use_transit</span> {
-        <span class="ident">transit_input_graph</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input_graph</span>, <span class="ident">nodes</span>, <span class="ident">map</span>, <span class="ident">graphs</span>.<span class="number">0</span>, <span class="ident">graphs</span>.<span class="number">1</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(graphs) = use_transit {
+        transit_input_graph(<span class="kw-2">&amp;mut </span>input_graph, nodes, map, graphs.<span class="number">0</span>, graphs.<span class="number">1</span>);
     }
 
-    <span class="ident">nodes</span>.<span class="ident">guarantee_node_ordering</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input_graph</span>);
-    <span class="ident">input_graph</span>.<span class="ident">freeze</span>();
-    <span class="ident">input_graph</span>
+    nodes.guarantee_node_ordering(<span class="kw-2">&amp;mut </span>input_graph);
+    input_graph.freeze();
+    input_graph
 }
 
-<span class="kw">fn</span> <span class="ident">transit_input_graph</span>(
-    <span class="ident">input_graph</span>: <span class="kw-2">&amp;mut</span> <span class="ident">InputGraph</span>,
-    <span class="ident">nodes</span>: <span class="kw-2">&amp;</span><span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">bus_graph</span>: <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>,
-    <span class="ident">train_graph</span>: <span class="kw-2">&amp;</span><span class="ident">VehiclePathfinder</span>,
+<span class="kw">fn </span>transit_input_graph(
+    input_graph: <span class="kw-2">&amp;mut </span>InputGraph,
+    nodes: <span class="kw-2">&amp;</span>NodeMap&lt;WalkingNode&gt;,
+    map: <span class="kw-2">&amp;</span>Map,
+    bus_graph: <span class="kw-2">&amp;</span>VehiclePathfinder,
+    train_graph: <span class="kw-2">&amp;</span>VehiclePathfinder,
 ) {
-    <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::MAX_WALKING_SPEED</span>);
-    <span class="comment">// Connect stops with both sidewalk endpoints, using the appropriate distance.</span>
-    <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_stops</span>().<span class="ident">values</span>() {
-        <span class="kw">let</span> <span class="ident">ride_transit</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop</span>.<span class="ident">id</span>));
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">stop</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>());
-        <span class="kw">for</span> (<span class="ident">endpt</span>, <span class="ident">step</span>) <span class="kw">in</span> [
-            (<span class="bool-val">false</span>, <span class="ident">PathStep::Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>)),
-            (<span class="bool-val">true</span>, <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">lane</span>.<span class="ident">id</span>)),
+    <span class="kw">let </span>max_speed = <span class="prelude-val">Some</span>(<span class="kw">crate</span>::MAX_WALKING_SPEED);
+    <span class="comment">// Connect stops with both sidewalk endpoints, using the appropriate distance.
+    </span><span class="kw">for </span>stop <span class="kw">in </span>map.all_transit_stops().values() {
+        <span class="kw">let </span>ride_transit = nodes.get(WalkingNode::RideTransit(stop.id));
+        <span class="kw">let </span>lane = map.get_l(stop.sidewalk_pos.lane());
+        <span class="kw">for </span>(endpt, step) <span class="kw">in </span>[
+            (<span class="bool-val">false</span>, PathStep::Lane(lane.id)),
+            (<span class="bool-val">true</span>, PathStep::ContraflowLane(lane.id)),
         ] {
-            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">endpt</span> {
-                <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">stop</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>()
-            } <span class="kw">else</span> {
-                <span class="ident">stop</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>()
+            <span class="kw">let </span>dist = <span class="kw">if </span>endpt {
+                lane.length() - stop.sidewalk_pos.dist_along()
+            } <span class="kw">else </span>{
+                stop.sidewalk_pos.dist_along()
             };
-            <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">dist</span> <span class="op">/</span> <span class="ident">step</span>.<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>);
-            <span class="comment">// Add some extra penalty to using a stop. Otherwise a path might try to pass through</span>
-            <span class="comment">// it uselessly.</span>
-            <span class="kw">let</span> <span class="ident">penalty</span> <span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="number">10.0</span>);
-            <span class="kw">let</span> <span class="ident">sidewalk</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::SidewalkEndpoint</span>(
-                <span class="ident">lane</span>.<span class="ident">get_directed_parent</span>(),
-                <span class="ident">endpt</span>,
+            <span class="kw">let </span>cost = dist / step.max_speed_along(max_speed, PathConstraints::Pedestrian, map);
+            <span class="comment">// Add some extra penalty to using a stop. Otherwise a path might try to pass through
+            // it uselessly.
+            </span><span class="kw">let </span>penalty = Duration::seconds(<span class="number">10.0</span>);
+            <span class="kw">let </span>sidewalk = nodes.get(WalkingNode::SidewalkEndpoint(
+                lane.get_directed_parent(),
+                endpt,
             ));
-            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">sidewalk</span>, <span class="ident">ride_transit</span>, <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">penalty</span>));
-            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">ride_transit</span>, <span class="ident">sidewalk</span>, <span class="ident">round</span>(<span class="ident">cost</span> <span class="op">+</span> <span class="ident">penalty</span>));
+            input_graph.add_edge(sidewalk, ride_transit, round(cost + penalty));
+            input_graph.add_edge(ride_transit, sidewalk, round(cost + penalty));
         }
     }
 
-    <span class="comment">// Connect each adjacent stop along a route, with the cost based on how long it&#39;ll take a</span>
-    <span class="comment">// transit vehicle to drive between the stops. Optimistically assume no waiting time at a stop.</span>
-    <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_routes</span>() {
-        <span class="comment">// TODO Also plug in border starts</span>
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">let</span> (<span class="ident">stop1</span>, <span class="ident">stop2</span>) <span class="op">=</span> (<span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">pair</span>[<span class="number">0</span>]), <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">pair</span>[<span class="number">1</span>]));
-            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest::vehicle</span>(<span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">stop2</span>.<span class="ident">driving_pos</span>, <span class="ident">route</span>.<span class="ident">route_type</span>);
-            <span class="kw">let</span> <span class="ident">maybe_driving_cost</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
-                <span class="ident">PathConstraints::Bus</span> =&gt; <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
-                <span class="ident">PathConstraints::Train</span> =&gt; <span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="comment">// Connect each adjacent stop along a route, with the cost based on how long it&#39;ll take a
+    // transit vehicle to drive between the stops. Optimistically assume no waiting time at a stop.
+    </span><span class="kw">for </span>route <span class="kw">in </span>map.all_transit_routes() {
+        <span class="comment">// TODO Also plug in border starts
+        </span><span class="kw">for </span>pair <span class="kw">in </span>route.stops.windows(<span class="number">2</span>) {
+            <span class="kw">let </span>(stop1, stop2) = (map.get_ts(pair[<span class="number">0</span>]), map.get_ts(pair[<span class="number">1</span>]));
+            <span class="kw">let </span>req = PathRequest::vehicle(stop1.driving_pos, stop2.driving_pos, route.route_type);
+            <span class="kw">let </span>maybe_driving_cost = <span class="kw">match </span>route.route_type {
+                PathConstraints::Bus =&gt; bus_graph.pathfind(req, map).map(|p| p.get_cost()),
+                PathConstraints::Train =&gt; train_graph.pathfind(req, map).map(|p| p.get_cost()),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             };
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">driving_cost</span>) <span class="op">=</span> <span class="ident">maybe_driving_cost</span> {
-                <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop1</span>.<span class="ident">id</span>)),
-                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop2</span>.<span class="ident">id</span>)),
-                    <span class="ident">round</span>(<span class="ident">driving_cost</span>),
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(driving_cost) = maybe_driving_cost {
+                input_graph.add_edge(
+                    nodes.get(WalkingNode::RideTransit(stop1.id)),
+                    nodes.get(WalkingNode::RideTransit(stop2.id)),
+                    round(driving_cost),
                 );
-            } <span class="kw">else</span> {
+            } <span class="kw">else </span>{
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;No transit route from {} to {} now for {}! Prevent this edit&quot;</span>,
-                    <span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">stop2</span>.<span class="ident">driving_pos</span>, <span class="ident">route</span>.<span class="ident">long_name</span>,
+                    stop1.driving_pos, stop2.driving_pos, route.long_name,
                 );
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">route</span>.<span class="ident">end_border</span> {
-            <span class="kw">let</span> <span class="ident">stop1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
-            <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span>
-                <span class="ident">PathRequest::vehicle</span>(<span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">Position::end</span>(<span class="ident">l</span>, <span class="ident">map</span>), <span class="ident">route</span>.<span class="ident">route_type</span>);
-            <span class="kw">let</span> <span class="ident">maybe_driving_cost</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
-                <span class="ident">PathConstraints::Bus</span> =&gt; <span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
-                <span class="ident">PathConstraints::Train</span> =&gt; <span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_cost</span>()),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(l) = route.end_border {
+            <span class="kw">let </span>stop1 = map.get_ts(<span class="kw-2">*</span>route.stops.last().unwrap());
+            <span class="kw">let </span>req =
+                PathRequest::vehicle(stop1.driving_pos, Position::end(l, map), route.route_type);
+            <span class="kw">let </span>maybe_driving_cost = <span class="kw">match </span>route.route_type {
+                PathConstraints::Bus =&gt; bus_graph.pathfind(req, map).map(|p| p.get_cost()),
+                PathConstraints::Train =&gt; train_graph.pathfind(req, map).map(|p| p.get_cost()),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             };
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">driving_cost</span>) <span class="op">=</span> <span class="ident">maybe_driving_cost</span> {
-                <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span>);
-                <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::RideTransit</span>(<span class="ident">stop1</span>.<span class="ident">id</span>)),
-                    <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">WalkingNode::LeaveMap</span>(<span class="ident">border</span>.<span class="ident">id</span>)),
-                    <span class="ident">round</span>(<span class="ident">driving_cost</span>),
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(driving_cost) = maybe_driving_cost {
+                <span class="kw">let </span>border = map.get_i(map.get_l(l).dst_i);
+                input_graph.add_edge(
+                    nodes.get(WalkingNode::RideTransit(stop1.id)),
+                    nodes.get(WalkingNode::LeaveMap(border.id)),
+                    round(driving_cost),
                 );
-            } <span class="kw">else</span> {
+            } <span class="kw">else </span>{
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;No transit route from {} to end of {} now for {}! Prevent this edit&quot;</span>,
-                    <span class="ident">stop1</span>.<span class="ident">driving_pos</span>, <span class="ident">l</span>, <span class="ident">route</span>.<span class="ident">long_name</span>,
+                    stop1.driving_pos, l, route.long_name,
                 );
             }
         }
     }
 }
 
-<span class="comment">// TODO Fold into reconstruct_path?</span>
-<span class="kw">fn</span> <span class="ident">walking_path_to_steps</span>(<span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">WalkingNode</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStepV2</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="comment">// TODO Fold into reconstruct_path?
+</span><span class="kw">fn </span>walking_path_to_steps(path: Vec&lt;WalkingNode&gt;, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;PathStepV2&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>steps = Vec::new();
 
-    <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-        <span class="kw">let</span> (<span class="ident">r1</span>, <span class="ident">r1_endpt</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>] {
-            <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="ident">endpt</span>) =&gt; (<span class="ident">r</span>, <span class="ident">endpt</span>),
-            <span class="ident">WalkingNode::RideTransit</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">WalkingNode::LeaveMap</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">for </span>pair <span class="kw">in </span>path.windows(<span class="number">2</span>) {
+        <span class="kw">let </span>(r1, r1_endpt) = <span class="kw">match </span>pair[<span class="number">0</span>] {
+            WalkingNode::SidewalkEndpoint(r, endpt) =&gt; (r, endpt),
+            WalkingNode::RideTransit(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            WalkingNode::LeaveMap(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">1</span>] {
-            <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="kw">_</span>) =&gt; <span class="ident">r</span>,
-            <span class="ident">WalkingNode::RideTransit</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">WalkingNode::LeaveMap</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">let </span>r2 = <span class="kw">match </span>pair[<span class="number">1</span>] {
+            WalkingNode::SidewalkEndpoint(r, <span class="kw">_</span>) =&gt; r,
+            WalkingNode::RideTransit(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            WalkingNode::LeaveMap(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
 
-        <span class="kw">if</span> <span class="ident">r1</span> <span class="op">==</span> <span class="ident">r2</span> {
-            <span class="kw">if</span> <span class="ident">r1_endpt</span> {
-                <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Contraflow</span>(<span class="ident">r1</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Along</span>(<span class="ident">r1</span>));
+        <span class="kw">if </span>r1 == r2 {
+            <span class="kw">if </span>r1_endpt {
+                steps.push(PathStepV2::Contraflow(r1));
+            } <span class="kw">else </span>{
+                steps.push(PathStepV2::Along(r1));
             }
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r1_endpt</span> {
-                <span class="ident">r1</span>.<span class="ident">dst_i</span>(<span class="ident">map</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">r1</span>.<span class="ident">src_i</span>(<span class="ident">map</span>)
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>i = <span class="kw">if </span>r1_endpt {
+                r1.dst_i(map)
+            } <span class="kw">else </span>{
+                r1.src_i(map)
             };
-            <span class="comment">// Could assert the intersection matches (r2, r2_endpt).</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span>
-                <span class="ident">map</span>.<span class="ident">get_turn_between</span>(<span class="ident">r1</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>), <span class="ident">r2</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>), <span class="ident">i</span>)
+            <span class="comment">// Could assert the intersection matches (r2, r2_endpt).
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(t) =
+                map.get_turn_between(r1.must_get_sidewalk(map), r2.must_get_sidewalk(map), i)
             {
-                <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Movement</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>)));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span>
-                <span class="ident">map</span>.<span class="ident">get_turn_between</span>(<span class="ident">r2</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>), <span class="ident">r1</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>), <span class="ident">i</span>)
+                steps.push(PathStepV2::Movement(t.id.to_movement(map)));
+            } <span class="kw">else if let </span><span class="prelude-val">Some</span>(t) =
+                map.get_turn_between(r2.must_get_sidewalk(map), r1.must_get_sidewalk(map), i)
             {
-                <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>)));
-            } <span class="kw">else</span> {
+                steps.push(PathStepV2::ContraflowMovement(t.id.to_movement(map)));
+            } <span class="kw">else </span>{
                 <span class="macro">println!</span>(<span class="string">&quot;walking_path_to_steps has a weird path:&quot;</span>);
-                <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">path</span> {
-                    <span class="macro">println!</span>(<span class="string">&quot;- {:?}&quot;</span>, <span class="ident">s</span>);
+                <span class="kw">for </span>s <span class="kw">in </span><span class="kw-2">&amp;</span>path {
+                    <span class="macro">println!</span>(<span class="string">&quot;- {:?}&quot;</span>, s);
                 }
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;No turn from {} ({}) to {} ({}) at {}&quot;</span>,
-                    <span class="ident">r1</span>,
-                    <span class="ident">r1</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
-                    <span class="ident">r2</span>,
-                    <span class="ident">r2</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
-                    <span class="ident">i</span>
+                    r1,
+                    r1.must_get_sidewalk(map),
+                    r2,
+                    r2.must_get_sidewalk(map),
+                    i
                 );
             }
         }
     }
 
-    <span class="comment">// Don&#39;t start or end a path in a turn; sim layer breaks.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) <span class="op">|</span> <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">mvmnt</span>) <span class="op">=</span> <span class="ident">steps</span>[<span class="number">0</span>] {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">steps</span>[<span class="number">0</span>] {
-            <span class="ident">PathStepV2::Movement</span>(<span class="ident">m</span>) =&gt; <span class="ident">m</span>.<span class="ident">from</span>,
-            <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">m</span>) =&gt; <span class="ident">m</span>.<span class="ident">to</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="comment">// Don&#39;t start or end a path in a turn; sim layer breaks.
+    </span><span class="kw">if let </span>PathStepV2::Movement(mvmnt) | PathStepV2::ContraflowMovement(mvmnt) = steps[<span class="number">0</span>] {
+        <span class="kw">let </span>lane = <span class="kw">match </span>steps[<span class="number">0</span>] {
+            PathStepV2::Movement(m) =&gt; m.from,
+            PathStepV2::ContraflowMovement(m) =&gt; m.to,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">src_i</span>(<span class="ident">map</span>) <span class="op">==</span> <span class="ident">mvmnt</span>.<span class="ident">parent</span> {
-            <span class="ident">steps</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">lane</span>));
-        } <span class="kw">else</span> {
-            <span class="ident">steps</span>.<span class="ident">insert</span>(<span class="number">0</span>, <span class="ident">PathStepV2::Along</span>(<span class="ident">lane</span>));
+        <span class="kw">if </span>lane.src_i(map) == mvmnt.parent {
+            steps.insert(<span class="number">0</span>, PathStepV2::Contraflow(lane));
+        } <span class="kw">else </span>{
+            steps.insert(<span class="number">0</span>, PathStepV2::Along(lane));
         }
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) <span class="op">|</span> <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">mvmnt</span>) <span class="op">=</span>
-        <span class="ident">steps</span>.<span class="ident">last</span>().<span class="ident">cloned</span>().<span class="ident">unwrap</span>()
+    <span class="kw">if let </span>PathStepV2::Movement(mvmnt) | PathStepV2::ContraflowMovement(mvmnt) =
+        steps.last().cloned().unwrap()
     {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">steps</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() {
-            <span class="ident">PathStepV2::Movement</span>(<span class="ident">m</span>) =&gt; <span class="ident">m</span>.<span class="ident">to</span>,
-            <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">m</span>) =&gt; <span class="ident">m</span>.<span class="ident">from</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">let </span>lane = <span class="kw">match </span>steps.last().unwrap() {
+            PathStepV2::Movement(m) =&gt; m.to,
+            PathStepV2::ContraflowMovement(m) =&gt; m.from,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">src_i</span>(<span class="ident">map</span>) <span class="op">==</span> <span class="ident">mvmnt</span>.<span class="ident">parent</span> {
-            <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Along</span>(<span class="ident">lane</span>));
-        } <span class="kw">else</span> {
-            <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Contraflow</span>(<span class="ident">lane</span>));
+        <span class="kw">if </span>lane.src_i(map) == mvmnt.parent {
+            steps.push(PathStepV2::Along(lane));
+        } <span class="kw">else </span>{
+            steps.push(PathStepV2::Contraflow(lane));
         }
     }
 
-    <span class="ident">steps</span>
+    steps
 }
 
-<span class="comment">// TODO Do we even need this at all?</span>
-<span class="kw">fn</span> <span class="ident">one_step_walking_path</span>(<span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">PathV2</span> {
-    <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>();
-    <span class="comment">// Weird case, but it can happen for walking from a building path to a stop that&#39;re actually at</span>
-    <span class="comment">// the same spot.</span>
-    <span class="kw">let</span> (<span class="ident">step_v2</span>, <span class="ident">step_v1</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>() {
+<span class="comment">// TODO Do we even need this at all?
+</span><span class="kw">fn </span>one_step_walking_path(req: PathRequest, map: <span class="kw-2">&amp;</span>Map) -&gt; PathV2 {
+    <span class="kw">let </span>l = req.start.lane();
+    <span class="comment">// Weird case, but it can happen for walking from a building path to a stop that&#39;re actually at
+    // the same spot.
+    </span><span class="kw">let </span>(step_v2, step_v1) = <span class="kw">if </span>req.start.dist_along() &lt;= req.end.dist_along() {
         (
-            <span class="ident">PathStepV2::Along</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">get_directed_parent</span>()),
-            <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>),
+            PathStepV2::Along(map.get_l(l).get_directed_parent()),
+            PathStep::Lane(l),
         )
-    } <span class="kw">else</span> {
+    } <span class="kw">else </span>{
         (
-            <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">get_directed_parent</span>()),
-            <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>),
+            PathStepV2::Contraflow(map.get_l(l).get_directed_parent()),
+            PathStep::ContraflowLane(l),
         )
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cost</span> <span class="op">=</span> (<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>() <span class="op">-</span> <span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>()).<span class="ident">abs</span>()
-        <span class="op">/</span> <span class="ident">step_v1</span>.<span class="ident">max_speed_along</span>(
-            <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::MAX_WALKING_SPEED</span>),
-            <span class="ident">PathConstraints::Pedestrian</span>,
-            <span class="ident">map</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>cost = (req.start.dist_along() - req.end.dist_along()).abs()
+        / step_v1.max_speed_along(
+            <span class="prelude-val">Some</span>(<span class="kw">crate</span>::MAX_WALKING_SPEED),
+            PathConstraints::Pedestrian,
+            map,
         );
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">is_shoulder</span>() {
-        <span class="ident">cost</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">cost</span>;
+    <span class="kw">if </span>map.get_l(l).is_shoulder() {
+        cost = <span class="number">2.0 </span>* cost;
     }
-    <span class="ident">PathV2::new</span>(<span class="macro">vec!</span>[<span class="ident">step_v2</span>], <span class="ident">req</span>, <span class="ident">cost</span>, <span class="ident">Vec::new</span>())
+    PathV2::new(<span class="macro">vec!</span>[step_v2], req, cost, Vec::new())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

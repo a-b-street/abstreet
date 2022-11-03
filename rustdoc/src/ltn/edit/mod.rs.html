@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/edit/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/edit/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -454,461 +454,461 @@
 <span id="454">454</span>
 <span id="455">455</span>
 <span id="456">456</span>
-</pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freehand_filters</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">one_ways</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">shortcuts</span>;
+</pre><pre class="rust"><code><span class="kw">pub mod </span>filters;
+<span class="kw">pub mod </span>freehand_filters;
+<span class="kw">pub mod </span>one_ways;
+<span class="kw">pub mod </span>shortcuts;
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+<span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditRoad</span>, <span class="ident">IntersectionID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">Direction</span>, <span class="ident">LaneSpec</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">PolyLineLasso</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Texture</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>geom::{Distance, Polygon};
+<span class="kw">use </span>map_gui::tools::grey_out_map;
+<span class="kw">use </span>map_model::{EditRoad, IntersectionID, Road, RoadID};
+<span class="kw">use </span>osm2streets::{Direction, LaneSpec};
+<span class="kw">use </span>widgetry::mapspace::{ObjectID, World};
+<span class="kw">use </span>widgetry::tools::{PolyLineLasso, PopupMsg};
+<span class="kw">use </span>widgetry::{
+    Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    RewriteColor, State, Text, Texture, Widget,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">is_private</span>, <span class="ident">mut_edits</span>, <span class="ident">redraw_all_filters</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>,
-    <span class="ident">Transition</span>,
+<span class="kw">use crate</span>::{
+    is_private, mut_edits, redraw_all_filters, App, FilterType, Neighbourhood, RoadFilter,
+    Transition,
 };
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditMode</span> {
-    <span class="ident">Filters</span>,
-    <span class="ident">FreehandFilters</span>(<span class="ident">PolyLineLasso</span>),
-    <span class="ident">Oneways</span>,
-    <span class="comment">// Is a road clicked on right now?</span>
-    <span class="ident">Shortcuts</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">shortcuts::FocusedRoad</span><span class="op">&gt;</span>),
+<span class="kw">pub enum </span>EditMode {
+    Filters,
+    FreehandFilters(PolyLineLasso),
+    Oneways,
+    <span class="comment">// Is a road clicked on right now?
+    </span>Shortcuts(<span class="prelude-ty">Option</span>&lt;shortcuts::FocusedRoad&gt;),
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EditNeighbourhood</span> {
-    <span class="comment">// Only pub for drawing</span>
-    <span class="kw">pub</span> <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>EditNeighbourhood {
+    <span class="comment">// Only pub for drawing
+    </span><span class="kw">pub </span>world: World&lt;Obj&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Obj</span> {
-    <span class="ident">InteriorRoad</span>(<span class="ident">RoadID</span>),
-    <span class="ident">InteriorIntersection</span>(<span class="ident">IntersectionID</span>),
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+</span><span class="kw">pub enum </span>Obj {
+    InteriorRoad(RoadID),
+    InteriorIntersection(IntersectionID),
 }
-<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">Obj</span> {}
+<span class="kw">impl </span>ObjectID <span class="kw">for </span>Obj {}
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditOutcome</span> {
-    <span class="ident">Nothing</span>,
-    <span class="doccomment">/// Don&#39;t recreate the Neighbourhood</span>
-    <span class="ident">UpdatePanelAndWorld</span>,
-    <span class="doccomment">/// Use this with Transition::Recreate to recalculate the Neighbourhood, because it&#39;s actually</span>
-    <span class="doccomment">/// been edited</span>
-    <span class="ident">Transition</span>(<span class="ident">Transition</span>),
+<span class="kw">pub enum </span>EditOutcome {
+    Nothing,
+    <span class="doccomment">/// Don&#39;t recreate the Neighbourhood
+    </span>UpdatePanelAndWorld,
+    <span class="doccomment">/// Use this with Transition::Recreate to recalculate the Neighbourhood, because it&#39;s actually
+    /// been edited
+    </span>Transition(Transition),
 }
 
-<span class="kw">impl</span> <span class="ident">EditOutcome</span> {
-    <span class="kw">fn</span> <span class="ident">error</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">msg</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::Transition</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-            <span class="ident">ctx</span>,
+<span class="kw">impl </span>EditOutcome {
+    <span class="kw">fn </span>error(ctx: <span class="kw-2">&amp;mut </span>EventCtx, msg: <span class="kw-2">&amp;</span>str) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::Transition(Transition::Push(PopupMsg::new_state(
+            ctx,
             <span class="string">&quot;Error&quot;</span>,
-            <span class="macro">vec!</span>[<span class="ident">msg</span>],
+            <span class="macro">vec!</span>[msg],
         )))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">EditNeighbourhood</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">temporary</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
+<span class="kw">impl </span>EditNeighbourhood {
+    <span class="kw">pub fn </span>temporary() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            world: World::unbounded(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">world</span>: <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-                <span class="ident">EditMode::Filters</span> =&gt; <span class="ident">filters::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>),
-                <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) =&gt; <span class="ident">World::unbounded</span>(),
-                <span class="ident">EditMode::Oneways</span> =&gt; <span class="ident">one_ways::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>),
-                <span class="ident">EditMode::Shortcuts</span>(<span class="ident">focus</span>) =&gt; <span class="ident">shortcuts::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">focus</span>),
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            world: <span class="kw">match </span><span class="kw-2">&amp;</span>app.session.edit_mode {
+                EditMode::Filters =&gt; filters::make_world(ctx, app, neighbourhood),
+                EditMode::FreehandFilters(<span class="kw">_</span>) =&gt; World::unbounded(),
+                EditMode::Oneways =&gt; one_ways::make_world(ctx, app, neighbourhood),
+                EditMode::Shortcuts(focus) =&gt; shortcuts::make_world(ctx, app, neighbourhood, focus),
             },
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-    ) -&gt; <span class="ident">EditOutcome</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-            <span class="kw">return</span> <span class="ident">freehand_filters::event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>);
+    <span class="kw">pub fn </span>event(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood,
+    ) -&gt; EditOutcome {
+        <span class="kw">if let </span>EditMode::FreehandFilters(<span class="kw">_</span>) = app.session.edit_mode {
+            <span class="kw">return </span>freehand_filters::event(ctx, app, neighbourhood);
         }
 
-        <span class="kw">let</span> <span class="ident">outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">outcome</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-            <span class="ident">EditMode::Filters</span> =&gt; <span class="ident">filters::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>),
-            <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">EditMode::Oneways</span> =&gt; <span class="ident">one_ways::handle_world_outcome</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">outcome</span>),
-            <span class="ident">EditMode::Shortcuts</span>(<span class="kw">_</span>) =&gt; <span class="ident">shortcuts::handle_world_outcome</span>(<span class="ident">app</span>, <span class="ident">outcome</span>, <span class="ident">neighbourhood</span>),
+        <span class="kw">let </span>outcome = <span class="self">self</span>.world.event(ctx);
+        <span class="kw">let </span>outcome = <span class="kw">match </span>app.session.edit_mode {
+            EditMode::Filters =&gt; filters::handle_world_outcome(ctx, app, outcome),
+            EditMode::FreehandFilters(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            EditMode::Oneways =&gt; one_ways::handle_world_outcome(ctx, app, outcome),
+            EditMode::Shortcuts(<span class="kw">_</span>) =&gt; shortcuts::handle_world_outcome(app, outcome, neighbourhood),
         };
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">outcome</span>, <span class="ident">EditOutcome::Transition</span>(<span class="kw">_</span>)) {
-            <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">hack_unset_hovering</span>();
+        <span class="kw">if </span><span class="macro">matches!</span>(outcome, EditOutcome::Transition(<span class="kw">_</span>)) {
+            <span class="self">self</span>.world.hack_unset_hovering();
         }
-        <span class="ident">outcome</span>
+        outcome
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_panel_action</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">EditOutcome</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">neighbourhood</span>.<span class="ident">id</span>;
-        <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="string">&quot;Adjust boundary&quot;</span> =&gt; <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Replace</span>(
-                <span class="ident"><span class="kw">crate</span>::select_boundary::SelectBoundary::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>),
+    <span class="kw">pub fn </span>handle_panel_action(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        action: <span class="kw-2">&amp;</span>str,
+        neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; EditOutcome {
+        <span class="kw">let </span>id = neighbourhood.id;
+        <span class="kw">match </span>action {
+            <span class="string">&quot;Adjust boundary&quot; </span>=&gt; EditOutcome::Transition(Transition::Replace(
+                <span class="kw">crate</span>::select_boundary::SelectBoundary::new_state(ctx, app, id),
             )),
-            <span class="string">&quot;undo&quot;</span> =&gt; {
-                <span class="ident">one_ways::undo_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="comment">// TODO Ideally, preserve panel state (checkboxes and dropdowns)</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">maybe_focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-                    <span class="kw-2">*</span><span class="ident">maybe_focus</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            <span class="string">&quot;undo&quot; </span>=&gt; {
+                one_ways::undo_proposal(ctx, app);
+                <span class="comment">// TODO Ideally, preserve panel state (checkboxes and dropdowns)
+                </span><span class="kw">if let </span>EditMode::Shortcuts(<span class="kw-2">ref mut </span>maybe_focus) = app.session.edit_mode {
+                    <span class="kw-2">*</span>maybe_focus = <span class="prelude-val">None</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
+                <span class="kw">if let </span>EditMode::FreehandFilters(<span class="kw">_</span>) = app.session.edit_mode {
+                    app.session.edit_mode = EditMode::Filters;
                 }
-                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)
+                EditOutcome::Transition(Transition::Recreate)
             }
-            <span class="string">&quot;Modal filter - no entry&quot;</span> <span class="op">|</span> <span class="string">&quot;Modal filter -- walking/cycling only&quot;</span> <span class="op">|</span> <span class="string">&quot;Bus gate&quot;</span> =&gt; {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
-                <span class="ident">EditOutcome::UpdatePanelAndWorld</span>
+            <span class="string">&quot;Modal filter - no entry&quot; </span>| <span class="string">&quot;Modal filter -- walking/cycling only&quot; </span>| <span class="string">&quot;Bus gate&quot; </span>=&gt; {
+                app.session.edit_mode = EditMode::Filters;
+                EditOutcome::UpdatePanelAndWorld
             }
-            <span class="string">&quot;Change modal filter&quot;</span> =&gt; {
-                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Push</span>(<span class="ident">ChangeFilterType::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)))
+            <span class="string">&quot;Change modal filter&quot; </span>=&gt; {
+                EditOutcome::Transition(Transition::Push(ChangeFilterType::new_state(ctx, app)))
             }
-            <span class="string">&quot;Freehand filters&quot;</span> =&gt; {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="ident">PolyLineLasso::new</span>());
-                <span class="ident">EditOutcome::UpdatePanelAndWorld</span>
+            <span class="string">&quot;Freehand filters&quot; </span>=&gt; {
+                app.session.edit_mode = EditMode::FreehandFilters(PolyLineLasso::new());
+                EditOutcome::UpdatePanelAndWorld
             }
-            <span class="string">&quot;One-ways&quot;</span> =&gt; {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Oneways</span>;
-                <span class="ident">EditOutcome::UpdatePanelAndWorld</span>
+            <span class="string">&quot;One-ways&quot; </span>=&gt; {
+                app.session.edit_mode = EditMode::Oneways;
+                EditOutcome::UpdatePanelAndWorld
             }
-            <span class="string">&quot;Shortcuts&quot;</span> =&gt; {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Shortcuts</span>(<span class="prelude-val">None</span>);
-                <span class="ident">EditOutcome::UpdatePanelAndWorld</span>
+            <span class="string">&quot;Shortcuts&quot; </span>=&gt; {
+                app.session.edit_mode = EditMode::Shortcuts(<span class="prelude-val">None</span>);
+                EditOutcome::UpdatePanelAndWorld
             }
-            <span class="string">&quot;previous shortcut&quot;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">focus</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-                    <span class="ident">focus</span>.<span class="ident">current_idx</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="string">&quot;previous shortcut&quot; </span>=&gt; {
+                <span class="kw">if let </span>EditMode::Shortcuts(<span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>focus)) = app.session.edit_mode {
+                    focus.current_idx -= <span class="number">1</span>;
                 }
-                <span class="comment">// Logically we could do UpdatePanelAndWorld, but we need to be more efficient</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="ident">focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-                    <span class="kw">let</span> <span class="ident">panel_piece</span> <span class="op">=</span> <span class="ident">shortcuts::widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">focus</span>.<span class="ident">as_ref</span>());
-                    <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit mode contents&quot;</span>, <span class="ident">panel_piece</span>);
-                    <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">shortcuts::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">focus</span>);
+                <span class="comment">// Logically we could do UpdatePanelAndWorld, but we need to be more efficient
+                </span><span class="kw">if let </span>EditMode::Shortcuts(<span class="kw-2">ref </span>focus) = app.session.edit_mode {
+                    <span class="kw">let </span>panel_piece = shortcuts::widget(ctx, app, focus.as_ref());
+                    panel.replace(ctx, <span class="string">&quot;edit mode contents&quot;</span>, panel_piece);
+                    <span class="self">self</span>.world = shortcuts::make_world(ctx, app, neighbourhood, focus);
                 }
-                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Keep</span>)
+                EditOutcome::Transition(Transition::Keep)
             }
-            <span class="string">&quot;next shortcut&quot;</span> =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">focus</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-                    <span class="ident">focus</span>.<span class="ident">current_idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="string">&quot;next shortcut&quot; </span>=&gt; {
+                <span class="kw">if let </span>EditMode::Shortcuts(<span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>focus)) = app.session.edit_mode {
+                    focus.current_idx += <span class="number">1</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="ident">focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-                    <span class="kw">let</span> <span class="ident">panel_piece</span> <span class="op">=</span> <span class="ident">shortcuts::widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">focus</span>.<span class="ident">as_ref</span>());
-                    <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit mode contents&quot;</span>, <span class="ident">panel_piece</span>);
-                    <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">shortcuts::make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">focus</span>);
+                <span class="kw">if let </span>EditMode::Shortcuts(<span class="kw-2">ref </span>focus) = app.session.edit_mode {
+                    <span class="kw">let </span>panel_piece = shortcuts::widget(ctx, app, focus.as_ref());
+                    panel.replace(ctx, <span class="string">&quot;edit mode contents&quot;</span>, panel_piece);
+                    <span class="self">self</span>.world = shortcuts::make_world(ctx, app, neighbourhood, focus);
                 }
-                <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Keep</span>)
+                EditOutcome::Transition(Transition::Keep)
             }
-            <span class="kw">_</span> =&gt; <span class="ident">EditOutcome::Nothing</span>,
+            <span class="kw">_ </span>=&gt; EditOutcome::Nothing,
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">road_name</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>());
-    <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;???&quot;</span> {
-        <span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;unnamed road&quot;</span>.<span class="ident">to_string</span>();
+<span class="kw">fn </span>road_name(app: <span class="kw-2">&amp;</span>App, road: <span class="kw-2">&amp;</span>Road) -&gt; String {
+    <span class="kw">let </span><span class="kw-2">mut </span>name = road.get_name(app.opts.language.as_ref());
+    <span class="kw">if </span>name == <span class="string">&quot;???&quot; </span>{
+        name = <span class="string">&quot;unnamed road&quot;</span>.to_string();
     }
-    <span class="kw">if</span> <span class="ident">is_private</span>(<span class="ident">road</span>) {
+    <span class="kw">if </span>is_private(road) {
         <span class="macro">format!</span>(<span class="string">&quot;{name} (private)&quot;</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">name</span>
+    } <span class="kw">else </span>{
+        name
     }
 }
 
-<span class="kw">struct</span> <span class="ident">ResolveOneWayAndFilter</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>ResolveOneWayAndFilter {
+    panel: Panel,
+    roads: Vec&lt;RoadID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ResolveOneWayAndFilter</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Warning&quot;</span>).<span class="ident">small_heading</span>());
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;A modal filter cannot be placed on a one-way street.&quot;</span>);
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;You can make the street two-way first, then place a filter.&quot;</span>);
+<span class="kw">impl </span>ResolveOneWayAndFilter {
+    <span class="kw">fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, roads: Vec&lt;RoadID&gt;) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+        txt.add_line(Line(<span class="string">&quot;Warning&quot;</span>).small_heading());
+        txt.add_line(<span class="string">&quot;A modal filter cannot be placed on a one-way street.&quot;</span>);
+        txt.add_line(<span class="string">&quot;&quot;</span>);
+        txt.add_line(<span class="string">&quot;You can make the street two-way first, then place a filter.&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-                        <span class="string">&quot;Change to a two-way street and add a filter&quot;</span>.<span class="ident">to_string</span>()
-                    } <span class="kw">else</span> {
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            txt.into_widget(ctx),
+            Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="kw">if </span>roads.len() == <span class="number">1 </span>{
+                        <span class="string">&quot;Change to a two-way street and add a filter&quot;</span>.to_string()
+                    } <span class="kw">else </span>{
                         <span class="macro">format!</span>(
                             <span class="string">&quot;Change {} one-way streets to two-way and add filters&quot;</span>,
-                            <span class="ident">roads</span>.<span class="ident">len</span>()
+                            roads.len()
                         )
                     })
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    .build_def(ctx),
+                ctx.style().btn_outline.text(<span class="string">&quot;Cancel&quot;</span>).build_def(ctx),
             ]),
         ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .build(ctx);
 
-        <span class="ident">Box::new</span>(<span class="self">Self</span> { <span class="ident">panel</span>, <span class="ident">roads</span> })
+        Box::new(<span class="self">Self </span>{ panel, roads })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResolveOneWayAndFilter</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Cancel&quot;</span> {
-                <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>ResolveOneWayAndFilter {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">if </span>x == <span class="string">&quot;Cancel&quot; </span>{
+                <span class="kw">return </span>Transition::Pop;
             }
 
-            <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
-                <span class="ident">edits</span>
-                    .<span class="ident">commands</span>
-                    .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                        <span class="ident">LaneSpec::toggle_road_direction</span>(<span class="kw-2">&amp;mut</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>, <span class="ident">driving_side</span>);
-                        <span class="comment">// Maybe we just flipped a one-way forwards to a one-way backwards. So one more</span>
-                        <span class="comment">// time to make it two-way</span>
-                        <span class="kw">if</span> <span class="ident">LaneSpec::oneway_for_driving</span>(<span class="kw-2">&amp;</span><span class="ident">new</span>.<span class="ident">lanes_ltr</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">Direction::Back</span>) {
-                            <span class="ident">LaneSpec::toggle_road_direction</span>(<span class="kw-2">&amp;mut</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>, <span class="ident">driving_side</span>);
+            <span class="kw">let </span>driving_side = app.per_map.map.get_config().driving_side;
+            <span class="kw">let </span><span class="kw-2">mut </span>edits = app.per_map.map.get_edits().clone();
+            <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.roads {
+                edits
+                    .commands
+                    .push(app.per_map.map.edit_road_cmd(<span class="kw-2">*</span>r, |new| {
+                        LaneSpec::toggle_road_direction(<span class="kw-2">&amp;mut </span>new.lanes_ltr, driving_side);
+                        <span class="comment">// Maybe we just flipped a one-way forwards to a one-way backwards. So one more
+                        // time to make it two-way
+                        </span><span class="kw">if </span>LaneSpec::oneway_for_driving(<span class="kw-2">&amp;</span>new.lanes_ltr) == <span class="prelude-val">Some</span>(Direction::Back) {
+                            LaneSpec::toggle_road_direction(<span class="kw-2">&amp;mut </span>new.lanes_ltr, driving_side);
                         }
                     }));
             }
-            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
+            ctx.loading_screen(<span class="string">&quot;apply edits&quot;</span>, |<span class="kw">_</span>, timer| {
+                app.per_map.map.must_apply_edits(edits, timer);
             });
 
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">before_edit</span>();
+            app.per_map.proposals.before_edit();
 
-            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
-                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">r</span>;
-                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-                <span class="kw">let</span> <span class="ident">r_edit</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>);
-                <span class="kw">if</span> <span class="ident">r_edit</span> <span class="op">==</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">road</span>, <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_config</span>()) {
-                    <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">one_ways</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>);
-                } <span class="kw">else</span> {
-                    <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">one_ways</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">r_edit</span>);
+            <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.roads {
+                <span class="kw">let </span>r = <span class="kw-2">*</span>r;
+                <span class="kw">let </span>road = app.per_map.map.get_r(r);
+                <span class="kw">let </span>r_edit = app.per_map.map.get_r_edit(r);
+                <span class="kw">if </span>r_edit == EditRoad::get_orig_from_osm(road, app.per_map.map.get_config()) {
+                    <span class="macro">mut_edits!</span>(app).one_ways.remove(<span class="kw-2">&amp;</span>r);
+                } <span class="kw">else </span>{
+                    <span class="macro">mut_edits!</span>(app).one_ways.insert(r, r_edit);
                 }
 
-                <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">insert</span>(
-                    <span class="ident">r</span>,
-                    <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">road</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>),
+                <span class="macro">mut_edits!</span>(app).roads.insert(
+                    r,
+                    RoadFilter::new_by_user(road.length() / <span class="number">2.0</span>, app.session.filter_type),
                 );
             }
 
-            <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            redraw_all_filters(ctx, app);
 
-            <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Recreate</span>]);
+            <span class="kw">return </span>Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Recreate]);
         }
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::PreviousState</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">ResolveBusGate</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
+<span class="kw">struct </span>ResolveBusGate {
+    panel: Panel,
+    roads: Vec&lt;(RoadID, Distance)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ResolveBusGate</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO This&#39;ll mess up the panel, but we don&#39;t have easy access to the panel here</span>
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">show_bus_routes</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="prelude-val">None</span>);
+<span class="kw">impl </span>ResolveBusGate {
+    <span class="kw">fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        roads: Vec&lt;(RoadID, Distance)&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="comment">// TODO This&#39;ll mess up the panel, but we don&#39;t have easy access to the panel here
+        </span>app.session.layers.show_bus_routes(ctx, <span class="kw-2">&amp;</span>app.cs, <span class="prelude-val">None</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Warning&quot;</span>).<span class="ident">small_heading</span>());
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;The following bus routes cross this road. Adding a regular modal filter would block them.&quot;</span>);
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+        txt.add_line(Line(<span class="string">&quot;Warning&quot;</span>).small_heading());
+        txt.add_line(<span class="string">&quot;The following bus routes cross this road. Adding a regular modal filter would block them.&quot;</span>);
+        txt.add_line(<span class="string">&quot;&quot;</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">routes</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">roads</span> {
-            <span class="ident">routes</span>.<span class="ident">extend</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bus_routes_on_road</span>(<span class="kw-2">*</span><span class="ident">r</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>routes = BTreeSet::new();
+        <span class="kw">for </span>(r, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span>roads {
+            routes.extend(app.per_map.map.get_bus_routes_on_road(<span class="kw-2">*</span>r));
         }
-        <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="ident">routes</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;- {route}&quot;</span>));
+        <span class="kw">for </span>route <span class="kw">in </span>routes {
+            txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;- {route}&quot;</span>));
         }
 
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;You can use a bus gate instead.&quot;</span>);
+        txt.add_line(<span class="string">&quot;&quot;</span>);
+        txt.add_line(<span class="string">&quot;You can use a bus gate instead.&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="comment">// TODO Just have pictures?</span>
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Place bus gates&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            txt.into_widget(ctx),
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="comment">// TODO Just have pictures?
+                </span>ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="string">&quot;Place bus gates&quot;</span>)
+                    .build_def(ctx),
+                ctx.style().btn_outline.text(<span class="string">&quot;Cancel&quot;</span>).build_def(ctx),
             ]),
         ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .build(ctx);
 
-        <span class="ident">Box::new</span>(<span class="self">Self</span> { <span class="ident">panel</span>, <span class="ident">roads</span> })
+        Box::new(<span class="self">Self </span>{ panel, roads })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResolveBusGate</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Place bus gates&quot;</span> {
-                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">before_edit</span>();
-                <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">drain</span>(..) {
-                    <span class="macro">mut_edits!</span>(<span class="ident">app</span>)
-                        .<span class="ident">roads</span>
-                        .<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">dist</span>, <span class="ident">FilterType::BusGate</span>));
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>ResolveBusGate {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">if </span>x == <span class="string">&quot;Place bus gates&quot; </span>{
+                app.per_map.proposals.before_edit();
+                <span class="kw">for </span>(r, dist) <span class="kw">in </span><span class="self">self</span>.roads.drain(..) {
+                    <span class="macro">mut_edits!</span>(app)
+                        .roads
+                        .insert(r, RoadFilter::new_by_user(dist, FilterType::BusGate));
                 }
-                <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                redraw_all_filters(ctx, app);
             }
 
-            <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Recreate</span>]);
+            <span class="kw">return </span>Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Recreate]);
         }
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::PreviousState</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">ChangeFilterType</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">struct </span>ChangeFilterType {
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">ChangeFilterType</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">filter</span> <span class="op">=</span> <span class="op">|</span><span class="ident">ft</span>: <span class="ident">FilterType</span>, <span class="ident">hotkey</span>: <span class="ident">Key</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">|</span> {
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">icon_text</span>(<span class="ident">ft</span>.<span class="ident">svg_path</span>(), <span class="ident">name</span>)
-                .<span class="ident">image_color</span>(
-                    <span class="ident">RewriteColor::Change</span>(<span class="ident">ft</span>.<span class="ident">hide_color</span>(), <span class="ident">Color::CLEAR</span>),
-                    <span class="ident">ControlState::Default</span>,
+<span class="kw">impl </span>ChangeFilterType {
+    <span class="kw">fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>filter = |ft: FilterType, hotkey: Key, name: <span class="kw-2">&amp;</span>str| {
+            ctx.style()
+                .btn_solid_primary
+                .icon_text(ft.svg_path(), name)
+                .image_color(
+                    RewriteColor::Change(ft.hide_color(), Color::CLEAR),
+                    ControlState::Default,
                 )
-                .<span class="ident">image_color</span>(
-                    <span class="ident">RewriteColor::Change</span>(<span class="ident">ft</span>.<span class="ident">hide_color</span>(), <span class="ident">Color::CLEAR</span>),
-                    <span class="ident">ControlState::Disabled</span>,
+                .image_color(
+                    RewriteColor::Change(ft.hide_color(), Color::CLEAR),
+                    ControlState::Disabled,
                 )
-                .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> <span class="op">==</span> <span class="ident">ft</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">hotkey</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                .disabled(app.session.filter_type == ft)
+                .hotkey(hotkey)
+                .build_def(ctx)
         };
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Choose a modal filter to place on streets&quot;</span>)
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Choose a modal filter to place on streets&quot;</span>)
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">filter</span>(
-                        <span class="ident">FilterType::WalkCycleOnly</span>,
-                        <span class="ident">Key::Num1</span>,
+            Widget::row(<span class="macro">vec!</span>[
+                Widget::col(<span class="macro">vec!</span>[
+                    filter(
+                        FilterType::WalkCycleOnly,
+                        Key::Num1,
                         <span class="string">&quot;Walking/cycling only&quot;</span>,
                     ),
-                    <span class="ident">filter</span>(<span class="ident">FilterType::NoEntry</span>, <span class="ident">Key::Num2</span>, <span class="string">&quot;No entry&quot;</span>),
-                    <span class="ident">filter</span>(<span class="ident">FilterType::BusGate</span>, <span class="ident">Key::Num3</span>, <span class="string">&quot;Bus gate&quot;</span>),
+                    filter(FilterType::NoEntry, Key::Num2, <span class="string">&quot;No entry&quot;</span>),
+                    filter(FilterType::BusGate, Key::Num3, <span class="string">&quot;Bus gate&quot;</span>),
                 ]),
-                <span class="ident">Widget::vertical_separator</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[
-                        (<span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> {
-                            <span class="ident">FilterType::WalkCycleOnly</span> =&gt; <span class="ident">Texture</span>(<span class="number">1</span>),
-                            <span class="ident">FilterType::NoEntry</span> =&gt; <span class="ident">Texture</span>(<span class="number">2</span>),
-                            <span class="ident">FilterType::BusGate</span> =&gt; <span class="ident">Texture</span>(<span class="number">3</span>),
-                            <span class="comment">// The rectangle size must match the base image, otherwise it&#39;ll be</span>
-                            <span class="comment">// repeated (tiled) or cropped -- not scaled.</span>
-                        }, <span class="ident">Polygon::rectangle</span>(<span class="ident"><span class="kw">crate</span>::SPRITE_WIDTH</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="ident"><span class="kw">crate</span>::SPRITE_HEIGHT</span> <span class="kw">as</span> <span class="ident">f64</span>))
-                    ]).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="comment">// TODO Ambulances, etc</span>
-                    <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> {
-                        <span class="ident">FilterType::WalkCycleOnly</span> =&gt; <span class="string">&quot;A physical barrier that only allows people walking, cycling, and rolling to pass. Often planters or bollards. Larger vehicles cannot enter.&quot;</span>,
-                        <span class="ident">FilterType::NoEntry</span> =&gt; <span class="string">&quot;An alternative sign to indicate vehicles are not allowed to enter the street. Only people walking, cycling, and rolling may pass through.&quot;</span>,
-                        <span class="ident">FilterType::BusGate</span> =&gt; <span class="string">&quot;A bus gate sign and traffic cameras are installed to allow buses, pedestrians, and cyclists to pass. There is no physical barrier.&quot;</span>,
-                    })).<span class="ident">wrap_to_pixels</span>(<span class="ident">ctx</span>, <span class="ident"><span class="kw">crate</span>::SPRITE_WIDTH</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                Widget::vertical_separator(ctx),
+                Widget::col(<span class="macro">vec!</span>[
+                    GeomBatch::from(<span class="macro">vec!</span>[
+                        (<span class="kw">match </span>app.session.filter_type {
+                            FilterType::WalkCycleOnly =&gt; Texture(<span class="number">1</span>),
+                            FilterType::NoEntry =&gt; Texture(<span class="number">2</span>),
+                            FilterType::BusGate =&gt; Texture(<span class="number">3</span>),
+                            <span class="comment">// The rectangle size must match the base image, otherwise it&#39;ll be
+                            // repeated (tiled) or cropped -- not scaled.
+                        </span>}, Polygon::rectangle(<span class="kw">crate</span>::SPRITE_WIDTH <span class="kw">as </span>f64, <span class="kw">crate</span>::SPRITE_HEIGHT <span class="kw">as </span>f64))
+                    ]).into_widget(ctx),
+                    <span class="comment">// TODO Ambulances, etc
+                    </span>Text::from(Line(<span class="kw">match </span>app.session.filter_type {
+                        FilterType::WalkCycleOnly =&gt; <span class="string">&quot;A physical barrier that only allows people walking, cycling, and rolling to pass. Often planters or bollards. Larger vehicles cannot enter.&quot;</span>,
+                        FilterType::NoEntry =&gt; <span class="string">&quot;An alternative sign to indicate vehicles are not allowed to enter the street. Only people walking, cycling, and rolling may pass through.&quot;</span>,
+                        FilterType::BusGate =&gt; <span class="string">&quot;A bus gate sign and traffic cameras are installed to allow buses, pedestrians, and cyclists to pass. There is no physical barrier.&quot;</span>,
+                    })).wrap_to_pixels(ctx, <span class="kw">crate</span>::SPRITE_WIDTH <span class="kw">as </span>f64).into_widget(ctx),
                 ]),
             ]),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_primary</span>.<span class="ident">text</span>(<span class="string">&quot;OK&quot;</span>).<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>(),
+            ctx.style().btn_solid_primary.text(<span class="string">&quot;OK&quot;</span>).hotkey(Key::Enter).build_def(ctx).centered_horiz(),
         ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="ident">Box::new</span>(<span class="self">Self</span> { <span class="ident">panel</span> })
+        .build(ctx);
+        Box::new(<span class="self">Self </span>{ panel })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChangeFilterType</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">return</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;No entry&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> <span class="op">=</span> <span class="ident">FilterType::NoEntry</span>;
-                    <span class="ident">Transition::Replace</span>(<span class="ident"><span class="self">Self</span>::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>ChangeFilterType {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">return match </span>x.as_ref() {
+                <span class="string">&quot;No entry&quot; </span>=&gt; {
+                    app.session.filter_type = FilterType::NoEntry;
+                    Transition::Replace(<span class="self">Self</span>::new_state(ctx, app))
                 }
-                <span class="string">&quot;Walking/cycling only&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> <span class="op">=</span> <span class="ident">FilterType::WalkCycleOnly</span>;
-                    <span class="ident">Transition::Replace</span>(<span class="ident"><span class="self">Self</span>::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                <span class="string">&quot;Walking/cycling only&quot; </span>=&gt; {
+                    app.session.filter_type = FilterType::WalkCycleOnly;
+                    Transition::Replace(<span class="self">Self</span>::new_state(ctx, app))
                 }
-                <span class="string">&quot;Bus gate&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> <span class="op">=</span> <span class="ident">FilterType::BusGate</span>;
-                    <span class="ident">Transition::Replace</span>(<span class="ident"><span class="self">Self</span>::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                <span class="string">&quot;Bus gate&quot; </span>=&gt; {
+                    app.session.filter_type = FilterType::BusGate;
+                    Transition::Replace(<span class="self">Self</span>::new_state(ctx, app))
                 }
-                <span class="string">&quot;close&quot;</span> <span class="op">|</span> <span class="string">&quot;OK&quot;</span> =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Recreate</span>]),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="string">&quot;close&quot; </span>| <span class="string">&quot;OK&quot; </span>=&gt; Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Recreate]),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             };
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::PreviousState</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

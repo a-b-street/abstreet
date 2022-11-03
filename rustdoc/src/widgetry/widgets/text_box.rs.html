@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/text_box.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text_box.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/text_box.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text_box.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -172,179 +172,179 @@
 <span id="172">172</span>
 <span id="173">173</span>
 <span id="174">174</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Distance, Polygon};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+<span class="kw">use crate</span>::{
+    EdgeInsets, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, Style, Text, Widget, WidgetImpl, WidgetOutput,
 };
 
-<span class="comment">// TODO right now, only a single line</span>
-<span class="comment">// TODO max_chars isn&#39;t enforced; you can type as much as you want...</span>
+<span class="comment">// TODO right now, only a single line
+// TODO max_chars isn&#39;t enforced; you can type as much as you want...
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TextBox</span> {
-    <span class="ident">line</span>: <span class="ident">String</span>,
-    <span class="ident">label</span>: <span class="ident">String</span>,
-    <span class="ident">cursor_x</span>: <span class="ident">usize</span>,
-    <span class="ident">has_focus</span>: <span class="ident">bool</span>,
-    <span class="ident">autofocus</span>: <span class="ident">bool</span>,
-    <span class="ident">padding</span>: <span class="ident">EdgeInsets</span>,
+</span><span class="kw">pub struct </span>TextBox {
+    line: String,
+    label: String,
+    cursor_x: usize,
+    has_focus: bool,
+    autofocus: bool,
+    padding: EdgeInsets,
 
-    <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>,
-    <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
+    top_left: ScreenPt,
+    dims: ScreenDims,
 }
 
-<span class="kw">impl</span> <span class="ident">TextBox</span> {
-    <span class="comment">// TODO Really should have an options struct with defaults</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_widget</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="ident">I</span>, <span class="ident">prefilled</span>: <span class="ident">String</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">TextBox::widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>, <span class="ident">prefilled</span>, <span class="bool-val">true</span>, <span class="number">50</span>)
+<span class="kw">impl </span>TextBox {
+    <span class="comment">// TODO Really should have an options struct with defaults
+    </span><span class="kw">pub fn </span>default_widget&lt;I: Into&lt;String&gt;&gt;(ctx: <span class="kw-2">&amp;</span>EventCtx, label: I, prefilled: String) -&gt; Widget {
+        TextBox::widget(ctx, label, prefilled, <span class="bool-val">true</span>, <span class="number">50</span>)
     }
 
-    <span class="doccomment">/// `autofocus` means the text box always has focus; it&#39;ll consume all key events.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">widget</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="ident">I</span>,
-        <span class="ident">prefilled</span>: <span class="ident">String</span>,
-        <span class="ident">autofocus</span>: <span class="ident">bool</span>,
-        <span class="ident">max_chars</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">into</span>();
-        <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">TextBox::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">label</span>.<span class="ident">clone</span>(),
-            <span class="ident">max_chars</span>,
-            <span class="ident">prefilled</span>,
-            <span class="ident">autofocus</span>,
+    <span class="doccomment">/// `autofocus` means the text box always has focus; it&#39;ll consume all key events.
+    </span><span class="kw">pub fn </span>widget&lt;I: Into&lt;String&gt;&gt;(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        label: I,
+        prefilled: String,
+        autofocus: bool,
+        max_chars: usize,
+    ) -&gt; Widget {
+        <span class="kw">let </span>label = label.into();
+        Widget::new(Box::new(TextBox::new(
+            ctx,
+            label.clone(),
+            max_chars,
+            prefilled,
+            autofocus,
         )))
-        .<span class="ident">named</span>(<span class="ident">label</span>)
+        .named(label)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="ident">String</span>,
-        <span class="ident">max_chars</span>: <span class="ident">usize</span>,
-        <span class="ident">prefilled</span>: <span class="ident">String</span>,
-        <span class="ident">autofocus</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">TextBox</span> {
-        <span class="kw">let</span> <span class="ident">padding</span> <span class="op">=</span> <span class="ident">EdgeInsets</span> {
-            <span class="ident">top</span>: <span class="number">6.0</span>,
-            <span class="ident">left</span>: <span class="number">8.0</span>,
-            <span class="ident">bottom</span>: <span class="number">8.0</span>,
-            <span class="ident">right</span>: <span class="number">8.0</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        label: String,
+        max_chars: usize,
+        prefilled: String,
+        autofocus: bool,
+    ) -&gt; TextBox {
+        <span class="kw">let </span>padding = EdgeInsets {
+            top: <span class="number">6.0</span>,
+            left: <span class="number">8.0</span>,
+            bottom: <span class="number">8.0</span>,
+            right: <span class="number">8.0</span>,
         };
-        <span class="kw">let</span> <span class="ident">max_char_width</span> <span class="op">=</span> <span class="number">25.0</span>;
-        <span class="self">Self</span> {
-            <span class="ident">label</span>,
-            <span class="ident">cursor_x</span>: <span class="ident">prefilled</span>.<span class="ident">len</span>(),
-            <span class="ident">line</span>: <span class="ident">prefilled</span>,
-            <span class="ident">has_focus</span>: <span class="bool-val">false</span>,
-            <span class="ident">autofocus</span>,
-            <span class="ident">padding</span>,
-            <span class="ident">top_left</span>: <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="ident">dims</span>: <span class="ident">ScreenDims::new</span>(
-                (<span class="ident">max_chars</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">max_char_width</span> <span class="op">+</span> (<span class="ident">padding</span>.<span class="ident">left</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">right</span>) <span class="kw">as</span> <span class="ident">f64</span>,
-                <span class="ident">ctx</span>.<span class="ident">default_line_height</span>() <span class="op">+</span> (<span class="ident">padding</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">padding</span>.<span class="ident">bottom</span>) <span class="kw">as</span> <span class="ident">f64</span>,
+        <span class="kw">let </span>max_char_width = <span class="number">25.0</span>;
+        <span class="self">Self </span>{
+            label,
+            cursor_x: prefilled.len(),
+            line: prefilled,
+            has_focus: <span class="bool-val">false</span>,
+            autofocus,
+            padding,
+            top_left: ScreenPt::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            dims: ScreenDims::new(
+                (max_chars <span class="kw">as </span>f64) * max_char_width + (padding.left + padding.right) <span class="kw">as </span>f64,
+                ctx.default_line_height() + (padding.top + padding.bottom) <span class="kw">as </span>f64,
             ),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">calculate_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="ident">Style</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[<span class="number">0</span>..<span class="self">self</span>.<span class="ident">cursor_x</span>]);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">len</span>() {
-            <span class="comment">// TODO This &quot;cursor&quot; looks awful!</span>
-            <span class="ident">txt</span>.<span class="ident">append_all</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;|&quot;</span>).<span class="ident">fg</span>(<span class="ident">style</span>.<span class="ident">text_primary_color</span>),
-                <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[<span class="self">self</span>.<span class="ident">cursor_x</span>..<span class="op">=</span><span class="self">self</span>.<span class="ident">cursor_x</span>]),
-                <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">line</span>[<span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">+</span> <span class="number">1</span>..]),
+    <span class="kw">fn </span>calculate_text(<span class="kw-2">&amp;</span><span class="self">self</span>, style: <span class="kw-2">&amp;</span>Style) -&gt; Text {
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="kw-2">&amp;</span><span class="self">self</span>.line[<span class="number">0</span>..<span class="self">self</span>.cursor_x]);
+        <span class="kw">if </span><span class="self">self</span>.cursor_x &lt; <span class="self">self</span>.line.len() {
+            <span class="comment">// TODO This &quot;cursor&quot; looks awful!
+            </span>txt.append_all(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;|&quot;</span>).fg(style.text_primary_color),
+                Line(<span class="kw-2">&amp;</span><span class="self">self</span>.line[<span class="self">self</span>.cursor_x..=<span class="self">self</span>.cursor_x]),
+                Line(<span class="kw-2">&amp;</span><span class="self">self</span>.line[<span class="self">self</span>.cursor_x + <span class="number">1</span>..]),
             ]);
-        } <span class="kw">else</span> {
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;|&quot;</span>).<span class="ident">fg</span>(<span class="ident">style</span>.<span class="ident">text_primary_color</span>));
+        } <span class="kw">else </span>{
+            txt.append(Line(<span class="string">&quot;|&quot;</span>).fg(style.text_primary_color));
         }
-        <span class="ident">txt</span>
+        txt
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">clone</span>()
+    <span class="kw">pub fn </span>get_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="self">self</span>.line.clone()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">TextBox</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">dims</span>
+<span class="kw">impl </span>WidgetImpl <span class="kw">for </span>TextBox {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="self">self</span>.dims
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
-        <span class="self">self</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">top_left</span>;
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+        <span class="self">self</span>.top_left = top_left;
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">autofocus</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
-                <span class="self">self</span>.<span class="ident">has_focus</span> <span class="op">=</span> <span class="ident">ScreenRectangle::top_left</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">dims</span>).<span class="ident">contains</span>(<span class="ident">pt</span>);
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">has_focus</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, output: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="kw">if </span>!<span class="self">self</span>.autofocus &amp;&amp; ctx.redo_mouseover() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                <span class="self">self</span>.has_focus = ScreenRectangle::top_left(<span class="self">self</span>.top_left, <span class="self">self</span>.dims).contains(pt);
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.has_focus = <span class="bool-val">false</span>;
             }
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">autofocus</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">has_focus</span> {
+        <span class="kw">if </span>!<span class="self">self</span>.autofocus &amp;&amp; !<span class="self">self</span>.has_focus {
             <span class="kw">return</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">any_pressed</span>() {
-            <span class="kw">match</span> <span class="ident">key</span> {
-                <span class="ident">Key::LeftArrow</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                        <span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(key) = ctx.input.any_pressed() {
+            <span class="kw">match </span>key {
+                Key::LeftArrow =&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.cursor_x &gt; <span class="number">0 </span>{
+                        <span class="self">self</span>.cursor_x -= <span class="number">1</span>;
                     }
                 }
-                <span class="ident">Key::RightArrow</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">min</span>(<span class="self">self</span>.<span class="ident">line</span>.<span class="ident">len</span>());
+                Key::RightArrow =&gt; {
+                    <span class="self">self</span>.cursor_x = (<span class="self">self</span>.cursor_x + <span class="number">1</span>).min(<span class="self">self</span>.line.len());
                 }
-                <span class="ident">Key::Backspace</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                        <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
-                        <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">remove</span>(<span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">-</span> <span class="number">1</span>);
-                        <span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+                Key::Backspace =&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.cursor_x &gt; <span class="number">0 </span>{
+                        output.outcome = Outcome::Changed(<span class="self">self</span>.label.clone());
+                        <span class="self">self</span>.line.remove(<span class="self">self</span>.cursor_x - <span class="number">1</span>);
+                        <span class="self">self</span>.cursor_x -= <span class="number">1</span>;
                     }
                 }
-                <span class="kw">_</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">key</span>.<span class="ident">to_char</span>(<span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key::LeftShift</span>)) {
-                        <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
-                        <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">insert</span>(<span class="self">self</span>.<span class="ident">cursor_x</span>, <span class="ident">c</span>);
-                        <span class="self">self</span>.<span class="ident">cursor_x</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">unconsume_event</span>();
+                <span class="kw">_ </span>=&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = key.to_char(ctx.is_key_down(Key::LeftShift)) {
+                        output.outcome = Outcome::Changed(<span class="self">self</span>.label.clone());
+                        <span class="self">self</span>.line.insert(<span class="self">self</span>.cursor_x, c);
+                        <span class="self">self</span>.cursor_x += <span class="number">1</span>;
+                    } <span class="kw">else </span>{
+                        ctx.input.unconsume_event();
                     }
                 }
             };
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="comment">// TODO Cache</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">autofocus</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">has_focus</span> {
-                <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">field_bg</span>
-            } <span class="kw">else</span> {
-                <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">field_bg</span>.<span class="ident">dull</span>(<span class="number">0.5</span>)
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="comment">// TODO Cache
+        </span><span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::from(<span class="macro">vec!</span>[(
+            <span class="kw">if </span><span class="self">self</span>.autofocus || <span class="self">self</span>.has_focus {
+                g.style().field_bg
+            } <span class="kw">else </span>{
+                g.style().field_bg.dull(<span class="number">0.5</span>)
             },
-            <span class="ident">Polygon::rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">2.0</span>),
+            Polygon::rounded_rectangle(<span class="self">self</span>.dims.width, <span class="self">self</span>.dims.height, <span class="number">2.0</span>),
         )]);
 
-        <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>;
-        <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="ident">outline_style</span>.<span class="number">1</span>,
-            <span class="ident">Polygon::rounded_rectangle</span>(<span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>, <span class="number">2.0</span>)
-                .<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="ident">outline_style</span>.<span class="number">0</span>)),
+        <span class="kw">let </span>outline_style = g.style().btn_outline.outline;
+        batch.push(
+            outline_style.<span class="number">1</span>,
+            Polygon::rounded_rectangle(<span class="self">self</span>.dims.width, <span class="self">self</span>.dims.height, <span class="number">2.0</span>)
+                .to_outline(Distance::meters(outline_style.<span class="number">0</span>)),
         );
 
-        <span class="ident">batch</span>.<span class="ident">append</span>(
-            <span class="self">self</span>.<span class="ident">calculate_text</span>(<span class="ident">g</span>.<span class="ident">style</span>())
-                .<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
-                .<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">left</span>, <span class="self">self</span>.<span class="ident">padding</span>.<span class="ident">top</span>),
+        batch.append(
+            <span class="self">self</span>.calculate_text(g.style())
+                .render_autocropped(g)
+                .translate(<span class="self">self</span>.padding.left, <span class="self">self</span>.padding.top),
         );
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
-        <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="ident">draw</span>);
+        <span class="kw">let </span>draw = g.upload(batch);
+        g.redraw_at(<span class="self">self</span>.top_left, <span class="kw-2">&amp;</span>draw);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

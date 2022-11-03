@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/predict.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>predict.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/predict.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>predict.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -480,487 +480,487 @@
 <span id="480">480</span>
 <span id="481">481</span>
 <span id="482">482</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
-<span class="kw">use</span> <span class="ident">abstio::Manifest</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_bytes</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">UnitFmt</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">percentage_bar</span>, <span class="ident">ColorNetwork</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathRequest</span>, <span class="ident">PathStepV2</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">FileLoader</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use </span>abstio::Manifest;
+<span class="kw">use </span>abstutil::{prettyprint_bytes, prettyprint_usize, Counter, Timer};
+<span class="kw">use </span>geom::{Distance, Duration, UnitFmt};
+<span class="kw">use </span>map_gui::tools::{percentage_bar, ColorNetwork};
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::{PathRequest, PathStepV2, RoadID};
+<span class="kw">use </span>synthpop::{Scenario, TripEndpoint, TripMode};
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::tools::{open_browser, FileLoader};
+<span class="kw">use </span>widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Spinner, State, Text, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap</span>::{<span class="ident">Layers</span>, <span class="ident">Tab</span>, <span class="ident">TakeLayers</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::ungap::{Layers, Tab, TakeLayers};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShowGaps</span> {
-    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">layers</span>: <span class="ident">Layers</span>,
-    <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ShowGaps {
+    top_panel: Panel,
+    layers: Layers,
+    tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">TakeLayers</span> <span class="kw">for</span> <span class="ident">ShowGaps</span> {
-    <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) -&gt; <span class="ident">Layers</span> {
-        <span class="self">self</span>.<span class="ident">layers</span>
+<span class="kw">impl </span>TakeLayers <span class="kw">for </span>ShowGaps {
+    <span class="kw">fn </span>take_layers(<span class="self">self</span>) -&gt; Layers {
+        <span class="self">self</span>.layers
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ShowGaps</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">layers</span>: <span class="ident">Layers</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::new</span>(<span class="ident">ShowGaps</span> {
-            <span class="ident">top_panel</span>: <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">layers</span>,
-            <span class="ident">tooltip</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>ShowGaps {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, layers: Layers) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        Box::new(ShowGaps {
+            top_panel: make_top_panel(ctx, app),
+            layers,
+            tooltip: <span class="prelude-val">None</span>,
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShowGaps</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">mode_shift</span>.<span class="ident">value</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">l</span>.<span class="ident">road</span>),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>ShowGaps {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="self">self</span>.tooltip = <span class="prelude-val">None</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = app.session.mode_shift.value() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = <span class="kw">match </span>app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                    <span class="prelude-val">Some</span>(ID::Road(r)) =&gt; <span class="prelude-val">Some</span>(r),
+                    <span class="prelude-val">Some</span>(ID::Lane(l)) =&gt; <span class="prelude-val">Some</span>(l.road),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                 } {
-                    <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">gaps</span>.<span class="ident">count_per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>);
-                    <span class="kw">if</span> <span class="ident">count</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                        <span class="comment">// TODO Word more precisely... or less verbosely.</span>
-                        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+                    <span class="kw">let </span>count = data.gaps.count_per_road.get(r);
+                    <span class="kw">if </span>count &gt; <span class="number">0 </span>{
+                        <span class="comment">// TODO Word more precisely... or less verbosely.
+                        </span><span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(Text::from(Line(<span class="macro">format!</span>(
                             <span class="string">&quot;{} trips might cross this high-stress road&quot;</span>,
-                            <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>)
+                            prettyprint_usize(count)
                         ))));
                     }
                 }
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;read about how this prediction works&quot;</span> {
-                    <span class="ident">open_browser</span>(<span class="string">&quot;https://a-b-street.github.io/docs/software/ungap_the_map/tech_details.html#predict-impact&quot;</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Calculate&quot;</span> {
-                    <span class="kw">let</span> <span class="ident">change_key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
-                    <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="ident">scenario_name</span> <span class="op">=</span> <span class="ident">Scenario::default_scenario_for_map</span>(<span class="kw-2">&amp;</span><span class="ident">map_name</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Scenario</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">abstio::path_scenario</span>(<span class="kw-2">&amp;</span><span class="ident">map_name</span>, <span class="kw-2">&amp;</span><span class="ident">scenario_name</span>),
-                        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>, <span class="ident">maybe_scenario</span><span class="op">|</span> {
-                            <span class="comment">// TODO Handle corrupt files</span>
-                            <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">maybe_scenario</span>.<span class="ident">unwrap</span>();
-                            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">ModeShiftData::from_scenario</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">scenario</span>, <span class="ident">timer</span>);
-                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">mode_shift</span>.<span class="ident">set</span>((<span class="ident">map_name</span>, <span class="ident">change_key</span>), <span class="ident">data</span>);
+        <span class="kw">match </span><span class="self">self</span>.top_panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; {
+                <span class="kw">if </span>x == <span class="string">&quot;read about how this prediction works&quot; </span>{
+                    open_browser(<span class="string">&quot;https://a-b-street.github.io/docs/software/ungap_the_map/tech_details.html#predict-impact&quot;</span>);
+                    <span class="kw">return </span>Transition::Keep;
+                } <span class="kw">else if </span>x == <span class="string">&quot;Calculate&quot; </span>{
+                    <span class="kw">let </span>change_key = app.primary.map.get_edits_change_key();
+                    <span class="kw">let </span>map_name = app.primary.map.get_name().clone();
+                    <span class="kw">let </span>scenario_name = Scenario::default_scenario_for_map(<span class="kw-2">&amp;</span>map_name);
+                    <span class="kw">return </span>Transition::Push(FileLoader::&lt;App, Scenario&gt;::new_state(
+                        ctx,
+                        abstio::path_scenario(<span class="kw-2">&amp;</span>map_name, <span class="kw-2">&amp;</span>scenario_name),
+                        Box::new(<span class="kw">move </span>|ctx, app, timer, maybe_scenario| {
+                            <span class="comment">// TODO Handle corrupt files
+                            </span><span class="kw">let </span>scenario = maybe_scenario.unwrap();
+                            <span class="kw">let </span>data = ModeShiftData::from_scenario(ctx, app, scenario, timer);
+                            app.session.mode_shift.set((map_name, change_key), data);
 
-                            <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                <span class="ident">Transition::Pop</span>,
-                                <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                                    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">ShowGaps</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                                    <span class="macro">vec!</span>[<span class="ident">ShowGaps::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">state</span>.<span class="ident">take_layers</span>())]
+                            Transition::Multi(<span class="macro">vec!</span>[
+                                Transition::Pop,
+                                Transition::ConsumeState(Box::new(|state, ctx, app| {
+                                    <span class="kw">let </span>state = state.downcast::&lt;ShowGaps&gt;().ok().unwrap();
+                                    <span class="macro">vec!</span>[ShowGaps::new_state(ctx, app, state.take_layers())]
                                 })),
                             ])
                         }),
                     ));
                 }
 
-                <span class="kw">return</span> <span class="ident">Tab::PredictImpact</span>
-                    .<span class="ident">handle_action</span>::<span class="op">&lt;</span><span class="ident">ShowGaps</span><span class="op">&gt;</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">x</span>)
-                    .<span class="ident">unwrap</span>();
+                <span class="kw">return </span>Tab::PredictImpact
+                    .handle_action::&lt;ShowGaps&gt;(ctx, app, <span class="kw-2">&amp;</span>x)
+                    .unwrap();
             }
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">map_name</span>, <span class="kw-2">mut</span> <span class="ident">data</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">mode_shift</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="ident">data</span>.<span class="ident">filters</span> <span class="op">=</span> <span class="ident">Filters::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">top_panel</span>);
-                <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;update mode shift&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                    <span class="ident">data</span>.<span class="ident">recalculate_gaps</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>)
+            Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>(map_name, <span class="kw-2">mut </span>data) = app.session.mode_shift.take().unwrap();
+                data.filters = Filters::from_controls(<span class="kw-2">&amp;</span><span class="self">self</span>.top_panel);
+                ctx.loading_screen(<span class="string">&quot;update mode shift&quot;</span>, |ctx, timer| {
+                    data.recalculate_gaps(ctx, app, timer)
                 });
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">mode_shift</span>.<span class="ident">set</span>(<span class="ident">map_name</span>, <span class="ident">data</span>);
-                <span class="comment">// TODO This is heavy-handed for just updating the counters</span>
-                <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                app.session.mode_shift.set(map_name, data);
+                <span class="comment">// TODO This is heavy-handed for just updating the counters
+                </span><span class="self">self</span>.top_panel = make_top_panel(ctx, app);
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-            <span class="kw">return</span> <span class="ident">t</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = <span class="self">self</span>.layers.event(ctx, app) {
+            <span class="kw">return </span>t;
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.top_panel.draw(g);
+        <span class="self">self</span>.layers.draw(g, app);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">data</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">mode_shift</span>.<span class="ident">value</span>() {
-            <span class="ident">data</span>.<span class="ident">gaps</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(data) = app.session.mode_shift.value() {
+            data.gaps.draw.draw(g);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">txt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span> {
-            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>txt) = <span class="self">self</span>.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_top_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>();
-    <span class="kw">let</span> <span class="ident">change_key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
-    <span class="kw">let</span> <span class="ident">col</span>;
+<span class="kw">fn </span>make_top_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Panel {
+    <span class="kw">let </span>map_name = app.primary.map.get_name().clone();
+    <span class="kw">let </span>change_key = app.primary.map.get_edits_change_key();
+    <span class="kw">let </span>col;
 
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">mode_shift</span>.<span class="ident">key</span>().<span class="ident">as_ref</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>(<span class="ident">map_name</span>.<span class="ident">clone</span>(), <span class="ident">change_key</span>)) {
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">mode_shift</span>.<span class="ident">value</span>().<span class="ident">unwrap</span>();
+    <span class="kw">if </span>app.session.mode_shift.key().as_ref() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>(map_name.clone(), change_key)) {
+        <span class="kw">let </span>data = app.session.mode_shift.value().unwrap();
 
-        <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon_text</span>(
+        col = <span class="macro">vec!</span>[
+            ctx.style()
+                .btn_plain
+                .icon_text(
                     <span class="string">&quot;system/assets/tools/info.svg&quot;</span>,
                     <span class="string">&quot;How many drivers might switch to biking?&quot;</span>,
                 )
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;read about how this prediction works&quot;</span>),
-            <span class="ident">percentage_bar</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+                .build_widget(ctx, <span class="string">&quot;read about how this prediction works&quot;</span>),
+            percentage_bar(
+                ctx,
+                Text::from(Line(<span class="macro">format!</span>(
                     <span class="string">&quot;{} total driving trips in this area&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>())
+                    prettyprint_usize(data.all_candidate_trips.len())
                 ))),
                 <span class="number">0.0</span>,
             ),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Who might cycle if it was safer?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">data</span>.<span class="ident">filters</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>),
-                <span class="ident">percentage_bar</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+            Widget::col(<span class="macro">vec!</span>[
+                <span class="string">&quot;Who might cycle if it was safer?&quot;</span>.text_widget(ctx),
+                data.filters.to_controls(ctx),
+                percentage_bar(
+                    ctx,
+                    Text::from(Line(<span class="macro">format!</span>(
                         <span class="string">&quot;{} / {} trips, based on these thresholds&quot;</span>,
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>()),
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>())
+                        prettyprint_usize(data.filtered_trips.len()),
+                        prettyprint_usize(data.all_candidate_trips.len())
                     ))),
-                    <span class="ident">pct</span>(<span class="ident">data</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>(), <span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>()),
+                    pct(data.filtered_trips.len(), data.all_candidate_trips.len()),
                 ),
             ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;How many would switch based on your proposal?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">percentage_bar</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+            .section(ctx),
+            Widget::col(<span class="macro">vec!</span>[
+                <span class="string">&quot;How many would switch based on your proposal?&quot;</span>.text_widget(ctx),
+                percentage_bar(
+                    ctx,
+                    Text::from(Line(<span class="macro">format!</span>(
                         <span class="string">&quot;{} / {} trips would switch&quot;</span>,
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">results</span>.<span class="ident">num_trips</span>),
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>())
+                        prettyprint_usize(data.results.num_trips),
+                        prettyprint_usize(data.all_candidate_trips.len())
                     ))),
-                    <span class="ident">pct</span>(<span class="ident">data</span>.<span class="ident">results</span>.<span class="ident">num_trips</span>, <span class="ident">data</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">len</span>()),
+                    pct(data.results.num_trips, data.all_candidate_trips.len()),
                 ),
-                <span class="ident">data</span>.<span class="ident">results</span>.<span class="ident">describe</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                data.results.describe().into_widget(ctx),
             ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>),
+            .section(ctx),
         ];
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="ident">scenario_name</span> <span class="op">=</span> <span class="ident">Scenario::default_scenario_for_map</span>(<span class="kw-2">&amp;</span><span class="ident">map_name</span>);
-        <span class="kw">if</span> <span class="ident">scenario_name</span> <span class="op">==</span> <span class="string">&quot;home_to_work&quot;</span> {
-            <span class="ident">col</span> <span class="op">=</span>
-                <span class="macro">vec!</span>[<span class="string">&quot;This city doesn&#39;t have travel demand model data available&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>)];
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">Manifest::load</span>()
-                .<span class="ident">get_entry</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::path_scenario</span>(<span class="kw-2">&amp;</span><span class="ident">map_name</span>, <span class="kw-2">&amp;</span><span class="ident">scenario_name</span>))
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">entry</span><span class="op">|</span> <span class="ident">prettyprint_bytes</span>(<span class="ident">entry</span>.<span class="ident">compressed_size_bytes</span>))
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="string">&quot;???&quot;</span>.<span class="ident">to_string</span>());
-            <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Predicting impact of your proposal may take a moment.&quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;The application may freeze up during that time.&quot;</span>),
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;We need to load a {} file&quot;</span>, <span class="ident">size</span>)),
+    } <span class="kw">else </span>{
+        <span class="kw">let </span>scenario_name = Scenario::default_scenario_for_map(<span class="kw-2">&amp;</span>map_name);
+        <span class="kw">if </span>scenario_name == <span class="string">&quot;home_to_work&quot; </span>{
+            col =
+                <span class="macro">vec!</span>[<span class="string">&quot;This city doesn&#39;t have travel demand model data available&quot;</span>.text_widget(ctx)];
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>size = Manifest::load()
+                .get_entry(<span class="kw-2">&amp;</span>abstio::path_scenario(<span class="kw-2">&amp;</span>map_name, <span class="kw-2">&amp;</span>scenario_name))
+                .map(|entry| prettyprint_bytes(entry.compressed_size_bytes))
+                .unwrap_or_else(|| <span class="string">&quot;???&quot;</span>.to_string());
+            col = <span class="macro">vec!</span>[
+                Text::from_multiline(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Predicting impact of your proposal may take a moment.&quot;</span>),
+                    Line(<span class="string">&quot;The application may freeze up during that time.&quot;</span>),
+                    Line(<span class="macro">format!</span>(<span class="string">&quot;We need to load a {} file&quot;</span>, size)),
                 ])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Calculate&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                .into_widget(ctx),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="string">&quot;Calculate&quot;</span>)
+                    .build_def(ctx),
             ];
         }
     }
 
-    <span class="ident">Tab::PredictImpact</span>.<span class="ident">make_left_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Widget::col</span>(<span class="ident">col</span>))
+    Tab::PredictImpact.make_left_panel(ctx, app, Widget::col(col))
 }
 
-<span class="comment">// TODO For now, it&#39;s easier to just copy pieces from sandbox/dashboards/mode_shift.rs. I&#39;m not</span>
-<span class="comment">// sure how these two tools will interact yet, so not worth trying to refactor anything. One works</span>
-<span class="comment">// off Scenario files directly, the other off an instantiated Scenario.</span>
+<span class="comment">// TODO For now, it&#39;s easier to just copy pieces from sandbox/dashboards/mode_shift.rs. I&#39;m not
+// sure how these two tools will interact yet, so not worth trying to refactor anything. One works
+// off Scenario files directly, the other off an instantiated Scenario.
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ModeShiftData</span> {
-    <span class="comment">// Calculated from the unedited map, not yet filtered.</span>
-    <span class="ident">all_candidate_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CandidateTrip</span><span class="op">&gt;</span>,
-    <span class="ident">filters</span>: <span class="ident">Filters</span>,
-    <span class="comment">// From the unedited map, filtered</span>
-    <span class="ident">gaps</span>: <span class="ident">NetworkGaps</span>,
-    <span class="comment">// Indices into all_candidate_trips</span>
-    <span class="ident">filtered_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">results</span>: <span class="ident">Results</span>,
+</span><span class="kw">pub struct </span>ModeShiftData {
+    <span class="comment">// Calculated from the unedited map, not yet filtered.
+    </span>all_candidate_trips: Vec&lt;CandidateTrip&gt;,
+    filters: Filters,
+    <span class="comment">// From the unedited map, filtered
+    </span>gaps: NetworkGaps,
+    <span class="comment">// Indices into all_candidate_trips
+    </span>filtered_trips: Vec&lt;usize&gt;,
+    results: Results,
 }
 
-<span class="kw">struct</span> <span class="ident">CandidateTrip</span> {
-    <span class="ident">bike_req</span>: <span class="ident">PathRequest</span>,
-    <span class="ident">estimated_biking_time</span>: <span class="ident">Duration</span>,
-    <span class="ident">driving_distance</span>: <span class="ident">Distance</span>,
-    <span class="ident">total_elevation_gain</span>: <span class="ident">Distance</span>,
+<span class="kw">struct </span>CandidateTrip {
+    bike_req: PathRequest,
+    estimated_biking_time: Duration,
+    driving_distance: Distance,
+    total_elevation_gain: Distance,
 }
 
-<span class="kw">struct</span> <span class="ident">Filters</span> {
-    <span class="ident">max_biking_time</span>: <span class="ident">Duration</span>,
-    <span class="ident">max_elevation_gain</span>: <span class="ident">Distance</span>,
+<span class="kw">struct </span>Filters {
+    max_biking_time: Duration,
+    max_elevation_gain: Distance,
 }
 
-<span class="kw">struct</span> <span class="ident">NetworkGaps</span> {
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">count_per_road</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>NetworkGaps {
+    draw: ToggleZoomed,
+    count_per_road: Counter&lt;RoadID&gt;,
 }
 
-<span class="comment">// Of the filtered trips, which cross at least 1 edited road?</span>
-<span class="comment">// TODO Many ways of defining this... maybe the edits need to plug the gap on at least 50% of</span>
-<span class="comment">// stressful roads encountered by this trip?</span>
-<span class="kw">struct</span> <span class="ident">Results</span> {
-    <span class="ident">num_trips</span>: <span class="ident">usize</span>,
-    <span class="ident">total_driving_distance</span>: <span class="ident">Distance</span>,
-    <span class="ident">annual_co2_emissions_tons</span>: <span class="ident">f64</span>,
+<span class="comment">// Of the filtered trips, which cross at least 1 edited road?
+// TODO Many ways of defining this... maybe the edits need to plug the gap on at least 50% of
+// stressful roads encountered by this trip?
+</span><span class="kw">struct </span>Results {
+    num_trips: usize,
+    total_driving_distance: Distance,
+    annual_co2_emissions_tons: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">Filters</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">max_biking_time</span>: <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
-            <span class="ident">max_elevation_gain</span>: <span class="ident">Distance::feet</span>(<span class="number">100.0</span>),
+<span class="kw">impl </span>Filters {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            max_biking_time: Duration::minutes(<span class="number">30</span>),
+            max_elevation_gain: Distance::feet(<span class="number">100.0</span>),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">CandidateTrip</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">x</span>.<span class="ident">estimated_biking_time</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_biking_time</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">x</span>.<span class="ident">total_elevation_gain</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_elevation_gain</span>
+    <span class="kw">fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, x: <span class="kw-2">&amp;</span>CandidateTrip) -&gt; bool {
+        x.estimated_biking_time &lt;= <span class="self">self</span>.max_biking_time
+            &amp;&amp; x.total_elevation_gain &lt;= <span class="self">self</span>.max_elevation_gain
     }
 
-    <span class="kw">fn</span> <span class="ident">to_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Max biking time&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner::widget</span>(
-                    <span class="ident">ctx</span>,
+    <span class="kw">fn </span>to_controls(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
+        Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;Max biking time&quot;</span>.text_widget(ctx).centered_vert(),
+                Spinner::widget(
+                    ctx,
                     <span class="string">&quot;max_biking_time&quot;</span>,
-                    (<span class="ident">Duration::ZERO</span>, <span class="ident">Duration::hours</span>(<span class="number">12</span>)),
-                    <span class="self">self</span>.<span class="ident">max_biking_time</span>,
-                    <span class="ident">Duration::minutes</span>(<span class="number">1</span>),
+                    (Duration::ZERO, Duration::hours(<span class="number">12</span>)),
+                    <span class="self">self</span>.max_biking_time,
+                    Duration::minutes(<span class="number">1</span>),
                 ),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Max elevation gain&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner::widget_with_custom_rendering</span>(
-                    <span class="ident">ctx</span>,
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;Max elevation gain&quot;</span>.text_widget(ctx).centered_vert(),
+                Spinner::widget_with_custom_rendering(
+                    ctx,
                     <span class="string">&quot;max_elevation_gain&quot;</span>,
-                    (<span class="ident">Distance::ZERO</span>, <span class="ident">Distance::meters</span>(<span class="number">500.0</span>)),
-                    <span class="self">self</span>.<span class="ident">max_elevation_gain</span>,
-                    <span class="ident">Distance::meters</span>(<span class="number">1.0</span>),
-                    <span class="comment">// Even if the user&#39;s settings are set to feet, our step size is in meters, so</span>
-                    <span class="comment">// just render in meters.</span>
-                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt::metric</span>())),
+                    (Distance::ZERO, Distance::meters(<span class="number">500.0</span>)),
+                    <span class="self">self</span>.max_elevation_gain,
+                    Distance::meters(<span class="number">1.0</span>),
+                    <span class="comment">// Even if the user&#39;s settings are set to feet, our step size is in meters, so
+                    // just render in meters.
+                    </span>Box::new(|x| x.to_string(<span class="kw-2">&amp;</span>UnitFmt::metric())),
                 ),
             ]),
         ])
     }
 
-    <span class="kw">fn</span> <span class="ident">from_controls</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Filters</span> {
-        <span class="ident">Filters</span> {
-            <span class="ident">max_biking_time</span>: <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;max_biking_time&quot;</span>),
-            <span class="ident">max_elevation_gain</span>: <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;max_elevation_gain&quot;</span>),
+    <span class="kw">fn </span>from_controls(panel: <span class="kw-2">&amp;</span>Panel) -&gt; Filters {
+        Filters {
+            max_biking_time: panel.spinner(<span class="string">&quot;max_biking_time&quot;</span>),
+            max_elevation_gain: panel.spinner(<span class="string">&quot;max_elevation_gain&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Results</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">num_trips</span>: <span class="number">0</span>,
-            <span class="ident">total_driving_distance</span>: <span class="ident">Distance::ZERO</span>,
-            <span class="ident">annual_co2_emissions_tons</span>: <span class="number">0.0</span>,
+<span class="kw">impl </span>Results {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            num_trips: <span class="number">0</span>,
+            total_driving_distance: Distance::ZERO,
+            annual_co2_emissions_tons: <span class="number">0.0</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Text {
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+        txt.add_line(Line(<span class="macro">format!</span>(
             <span class="string">&quot;{} total vehicle miles traveled daily, now eliminated&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">total_driving_distance</span>.<span class="ident">to_miles</span>() <span class="kw">as</span> <span class="ident">usize</span>)
+            prettyprint_usize(<span class="self">self</span>.total_driving_distance.to_miles() <span class="kw">as </span>usize)
         )));
-        <span class="comment">// Round to 1 decimal place</span>
-        <span class="kw">let</span> <span class="ident">tons</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">annual_co2_emissions_tons</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>;
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+        <span class="comment">// Round to 1 decimal place
+        </span><span class="kw">let </span>tons = (<span class="self">self</span>.annual_co2_emissions_tons * <span class="number">10.0</span>).round() / <span class="number">10.0</span>;
+        txt.add_line(Line(<span class="macro">format!</span>(
             <span class="string">&quot;{} tons of CO2 emissions saved annually&quot;</span>,
-            <span class="ident">tons</span>
+            tons
         )));
-        <span class="ident">txt</span>
+        txt
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ModeShiftData</span> {
-    <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">all_candidate_trips</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">filters</span>: <span class="ident">Filters::default</span>(),
-            <span class="ident">gaps</span>: <span class="ident">NetworkGaps</span> {
-                <span class="ident">draw</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
-                <span class="ident">count_per_road</span>: <span class="ident">Counter::new</span>(),
+<span class="kw">impl </span>ModeShiftData {
+    <span class="kw">fn </span>empty(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            all_candidate_trips: Vec::new(),
+            filters: Filters::default(),
+            gaps: NetworkGaps {
+                draw: ToggleZoomed::empty(ctx),
+                count_per_road: Counter::new(),
             },
-            <span class="ident">filtered_trips</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">results</span>: <span class="ident">Results::default</span>(),
+            filtered_trips: Vec::new(),
+            results: Results::default(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_scenario</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">scenario</span>: <span class="ident">Scenario</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="ident">ModeShiftData</span> {
-        <span class="kw">let</span> <span class="ident">unedited_map</span> <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">secondary</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">map</span>)
-            .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">all_candidate_trips</span> <span class="op">=</span> <span class="ident">timer</span>
-            .<span class="ident">parallelize</span>(
+    <span class="kw">fn </span>from_scenario(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        scenario: Scenario,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; ModeShiftData {
+        <span class="kw">let </span>unedited_map = app
+            .secondary
+            .as_ref()
+            .map(|x| <span class="kw-2">&amp;</span>x.map)
+            .unwrap_or(<span class="kw-2">&amp;</span>app.primary.map);
+        <span class="kw">let </span>all_candidate_trips = timer
+            .parallelize(
                 <span class="string">&quot;analyze trips&quot;</span>,
-                <span class="ident">scenario</span>
-                    .<span class="ident">all_trips</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">trip</span><span class="op">|</span> {
-                        <span class="ident">trip</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">TripMode::Drive</span>
-                            <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">trip</span>.<span class="ident">origin</span>, <span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>))
-                            <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">trip</span>.<span class="ident">destination</span>, <span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>))
+                scenario
+                    .all_trips()
+                    .filter(|trip| {
+                        trip.mode == TripMode::Drive
+                            &amp;&amp; <span class="macro">matches!</span>(trip.origin, TripEndpoint::Building(<span class="kw">_</span>))
+                            &amp;&amp; <span class="macro">matches!</span>(trip.destination, TripEndpoint::Building(<span class="kw">_</span>))
                     })
-                    .<span class="ident">collect</span>(),
-                <span class="op">|</span><span class="ident">trip</span><span class="op">|</span> {
-                    <span class="comment">// TODO Does ? work</span>
-                    <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">driving_path</span>), <span class="prelude-val">Some</span>(<span class="ident">biking_path</span>)) <span class="op">=</span> (
-                        <span class="ident">TripEndpoint::path_req</span>(
-                            <span class="ident">trip</span>.<span class="ident">origin</span>,
-                            <span class="ident">trip</span>.<span class="ident">destination</span>,
-                            <span class="ident">TripMode::Drive</span>,
-                            <span class="ident">unedited_map</span>,
+                    .collect(),
+                |trip| {
+                    <span class="comment">// TODO Does ? work
+                    </span><span class="kw">if let </span>(<span class="prelude-val">Some</span>(driving_path), <span class="prelude-val">Some</span>(biking_path)) = (
+                        TripEndpoint::path_req(
+                            trip.origin,
+                            trip.destination,
+                            TripMode::Drive,
+                            unedited_map,
                         )
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">unedited_map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>()),
-                        <span class="ident">TripEndpoint::path_req</span>(
-                            <span class="ident">trip</span>.<span class="ident">origin</span>,
-                            <span class="ident">trip</span>.<span class="ident">destination</span>,
-                            <span class="ident">TripMode::Bike</span>,
-                            <span class="ident">unedited_map</span>,
+                        .and_then(|req| unedited_map.pathfind(req).ok()),
+                        TripEndpoint::path_req(
+                            trip.origin,
+                            trip.destination,
+                            TripMode::Bike,
+                            unedited_map,
                         )
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">unedited_map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>()),
+                        .and_then(|req| unedited_map.pathfind(req).ok()),
                     ) {
-                        <span class="kw">let</span> (<span class="ident">total_elevation_gain</span>, <span class="kw">_</span>) <span class="op">=</span>
-                            <span class="ident">biking_path</span>.<span class="ident">get_total_elevation_change</span>(<span class="ident">unedited_map</span>);
-                        <span class="prelude-val">Some</span>(<span class="ident">CandidateTrip</span> {
-                            <span class="ident">bike_req</span>: <span class="ident">biking_path</span>.<span class="ident">get_req</span>().<span class="ident">clone</span>(),
-                            <span class="ident">estimated_biking_time</span>: <span class="ident">biking_path</span>
-                                .<span class="ident">estimate_duration</span>(<span class="ident">unedited_map</span>, <span class="prelude-val">Some</span>(<span class="ident">map_model::MAX_BIKE_SPEED</span>)),
-                            <span class="ident">driving_distance</span>: <span class="ident">driving_path</span>.<span class="ident">total_length</span>(),
-                            <span class="ident">total_elevation_gain</span>,
+                        <span class="kw">let </span>(total_elevation_gain, <span class="kw">_</span>) =
+                            biking_path.get_total_elevation_change(unedited_map);
+                        <span class="prelude-val">Some</span>(CandidateTrip {
+                            bike_req: biking_path.get_req().clone(),
+                            estimated_biking_time: biking_path
+                                .estimate_duration(unedited_map, <span class="prelude-val">Some</span>(map_model::MAX_BIKE_SPEED)),
+                            driving_distance: driving_path.total_length(),
+                            total_elevation_gain,
                         })
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">None</span>
-                    }
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">None
+                    </span>}
                 },
             )
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flatten</span>()
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">ModeShiftData::empty</span>(<span class="ident">ctx</span>);
-        <span class="ident">data</span>.<span class="ident">all_candidate_trips</span> <span class="op">=</span> <span class="ident">all_candidate_trips</span>;
-        <span class="ident">data</span>.<span class="ident">recalculate_gaps</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
-        <span class="ident">data</span>
+            .into_iter()
+            .flatten()
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>data = ModeShiftData::empty(ctx);
+        data.all_candidate_trips = all_candidate_trips;
+        data.recalculate_gaps(ctx, app, timer);
+        data
     }
 
-    <span class="kw">fn</span> <span class="ident">recalculate_gaps</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="kw">let</span> <span class="ident">unedited_map</span> <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">secondary</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">map</span>)
-            .<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
+    <span class="kw">fn </span>recalculate_gaps(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="kw">let </span>unedited_map = app
+            .secondary
+            .as_ref()
+            .map(|x| <span class="kw-2">&amp;</span>x.map)
+            .unwrap_or(<span class="kw-2">&amp;</span>app.primary.map);
 
-        <span class="comment">// Find all high-stress roads, since we&#39;ll filter by them next</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high_stress</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">unedited_map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">for</span> <span class="ident">dr</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">both_directions</span>() {
-                <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">high_stress_for_bikes</span>(<span class="ident">unedited_map</span>, <span class="ident">dr</span>.<span class="ident">dir</span>) {
-                    <span class="ident">high_stress</span>.<span class="ident">insert</span>(<span class="ident">dr</span>);
+        <span class="comment">// Find all high-stress roads, since we&#39;ll filter by them next
+        </span><span class="kw">let </span><span class="kw-2">mut </span>high_stress = HashSet::new();
+        <span class="kw">for </span>r <span class="kw">in </span>unedited_map.all_roads() {
+            <span class="kw">for </span>dr <span class="kw">in </span>r.id.both_directions() {
+                <span class="kw">if </span>r.high_stress_for_bikes(unedited_map, dr.dir) {
+                    high_stress.insert(dr);
                 }
             }
         }
 
-        <span class="self">self</span>.<span class="ident">filtered_trips</span>.<span class="ident">clear</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filtered_requests</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">trip</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_candidate_trips</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filters</span>.<span class="ident">apply</span>(<span class="ident">trip</span>) {
-                <span class="self">self</span>.<span class="ident">filtered_trips</span>.<span class="ident">push</span>(<span class="ident">idx</span>);
-                <span class="ident">filtered_requests</span>.<span class="ident">push</span>((<span class="ident">idx</span>, <span class="ident">trip</span>.<span class="ident">bike_req</span>.<span class="ident">clone</span>()));
+        <span class="self">self</span>.filtered_trips.clear();
+        <span class="kw">let </span><span class="kw-2">mut </span>filtered_requests = Vec::new();
+        <span class="kw">for </span>(idx, trip) <span class="kw">in </span><span class="self">self</span>.all_candidate_trips.iter().enumerate() {
+            <span class="kw">if </span><span class="self">self</span>.filters.apply(trip) {
+                <span class="self">self</span>.filtered_trips.push(idx);
+                filtered_requests.push((idx, trip.bike_req.clone()));
             }
         }
 
-        <span class="self">self</span>.<span class="ident">results</span> <span class="op">=</span> <span class="ident">Results::default</span>();
+        <span class="self">self</span>.results = Results::default();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_per_road</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">path</span>) <span class="kw">in</span> <span class="ident">timer</span>
-            .<span class="ident">parallelize</span>(<span class="string">&quot;calculate routes&quot;</span>, <span class="ident">filtered_requests</span>, <span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">req</span>)<span class="op">|</span> {
-                <span class="ident">unedited_map</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">idx</span>, <span class="ident">path</span>))
+        <span class="kw">let </span><span class="kw-2">mut </span>count_per_road = Counter::new();
+        <span class="kw">for </span>(idx, path) <span class="kw">in </span>timer
+            .parallelize(<span class="string">&quot;calculate routes&quot;</span>, filtered_requests, |(idx, req)| {
+                unedited_map.pathfind_v2(req).map(|path| (idx, path))
             })
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flatten</span>()
+            .into_iter()
+            .flatten()
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">crosses_edited_road</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
-                <span class="comment">// No Contraflow steps for bike paths</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) <span class="op">=</span> <span class="ident">step</span> {
-                    <span class="kw">if</span> <span class="ident">high_stress</span>.<span class="ident">contains</span>(<span class="ident">dr</span>) {
-                        <span class="ident">count_per_road</span>.<span class="ident">inc</span>(<span class="ident">dr</span>.<span class="ident">road</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>crosses_edited_road = <span class="bool-val">false</span>;
+            <span class="kw">for </span>step <span class="kw">in </span>path.get_steps() {
+                <span class="comment">// No Contraflow steps for bike paths
+                </span><span class="kw">if let </span>PathStepV2::Along(dr) = step {
+                    <span class="kw">if </span>high_stress.contains(dr) {
+                        count_per_road.inc(dr.road);
 
-                        <span class="comment">// TODO Assumes the edits have made the road stop being high stress!</span>
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">crosses_edited_road</span>
-                            <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">changed_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">dr</span>.<span class="ident">road</span>)
+                        <span class="comment">// TODO Assumes the edits have made the road stop being high stress!
+                        </span><span class="kw">if </span>!crosses_edited_road
+                            &amp;&amp; app.primary.map.get_edits().changed_roads.contains(<span class="kw-2">&amp;</span>dr.road)
                         {
-                            <span class="ident">crosses_edited_road</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                            crosses_edited_road = <span class="bool-val">true</span>;
                         }
                     }
                 }
             }
-            <span class="kw">if</span> <span class="ident">crosses_edited_road</span> {
-                <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">num_trips</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">total_driving_distance</span> <span class="op">+</span><span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">all_candidate_trips</span>[<span class="ident">idx</span>].<span class="ident">driving_distance</span>;
+            <span class="kw">if </span>crosses_edited_road {
+                <span class="self">self</span>.results.num_trips += <span class="number">1</span>;
+                <span class="self">self</span>.results.total_driving_distance +=
+                    <span class="self">self</span>.all_candidate_trips[idx].driving_distance;
             }
         }
 
-        <span class="comment">// Assume this trip happens 5 times a week, 52 weeks a year.</span>
-        <span class="kw">let</span> <span class="ident">annual_mileage</span> <span class="op">=</span> <span class="number">5.0</span> <span class="op">*</span> <span class="number">52.0</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">total_driving_distance</span>.<span class="ident">to_miles</span>();
-        <span class="comment">// https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle#driving</span>
-        <span class="comment">// says 404 grams per mile.</span>
-        <span class="comment">// And convert grams to tons</span>
-        <span class="self">self</span>.<span class="ident">results</span>.<span class="ident">annual_co2_emissions_tons</span> <span class="op">=</span> <span class="number">404.0</span> <span class="op">*</span> <span class="ident">annual_mileage</span> <span class="op">/</span> <span class="number">907185.0</span>;
+        <span class="comment">// Assume this trip happens 5 times a week, 52 weeks a year.
+        </span><span class="kw">let </span>annual_mileage = <span class="number">5.0 </span>* <span class="number">52.0 </span>* <span class="self">self</span>.results.total_driving_distance.to_miles();
+        <span class="comment">// https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle#driving
+        // says 404 grams per mile.
+        // And convert grams to tons
+        </span><span class="self">self</span>.results.annual_co2_emissions_tons = <span class="number">404.0 </span>* annual_mileage / <span class="number">907185.0</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::no_fading</span>(<span class="ident">app</span>);
-        <span class="ident">colorer</span>.<span class="ident">ranked_roads</span>(<span class="ident">count_per_road</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>);
-        <span class="self">self</span>.<span class="ident">gaps</span> <span class="op">=</span> <span class="ident">NetworkGaps</span> {
-            <span class="ident">draw</span>: <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">count_per_road</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorNetwork::no_fading(app);
+        colorer.ranked_roads(count_per_road.clone(), <span class="kw-2">&amp;</span>app.cs.good_to_bad_red);
+        <span class="self">self</span>.gaps = NetworkGaps {
+            draw: colorer.build(ctx),
+            count_per_road,
         };
     }
 }
 
-<span class="kw">fn</span> <span class="ident">pct</span>(<span class="ident">value</span>: <span class="ident">usize</span>, <span class="ident">total</span>: <span class="ident">usize</span>) -&gt; <span class="ident">f64</span> {
-    <span class="kw">if</span> <span class="ident">total</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="number">1.0</span>
-    } <span class="kw">else</span> {
-        <span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">total</span> <span class="kw">as</span> <span class="ident">f64</span>
+<span class="kw">fn </span>pct(value: usize, total: usize) -&gt; f64 {
+    <span class="kw">if </span>total == <span class="number">0 </span>{
+        <span class="number">1.0
+    </span>} <span class="kw">else </span>{
+        value <span class="kw">as </span>f64 / total <span class="kw">as </span>f64
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

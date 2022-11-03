@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/traffic_signal.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>traffic_signal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/traffic_signal.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>traffic_signal.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -279,286 +279,286 @@
 <span id="279">279</span>
 <span id="280">280</span>
 <span id="281">281</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Movement</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>, <span class="ident">TurnPriority</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
+<span class="kw">use </span>geom::{Angle, ArrowCap, Circle, Distance, Duration, Line, PolyLine, Pt2D};
+<span class="kw">use </span>map_model::{
+    Intersection, IntersectionID, Movement, Stage, StageType, TurnPriority, SIDEWALK_THICKNESS,
 };
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Prerender</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
+<span class="kw">use </span>widgetry::{Color, GeomBatch, Line, Prerender, RewriteColor, Text};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::options::TrafficSignalStyle</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::intersection::make_crosswalk</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render::BIG_ARROW_THICKNESS</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">use </span><span class="kw">crate</span>::options::TrafficSignalStyle;
+<span class="kw">use </span><span class="kw">crate</span>::render::intersection::make_crosswalk;
+<span class="kw">use </span><span class="kw">crate</span>::render::BIG_ARROW_THICKNESS;
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_signal_stage</span>(
-    <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
-    <span class="ident">stage</span>: <span class="kw-2">&amp;</span><span class="ident">Stage</span>,
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
-    <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">time_left</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    <span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
-    <span class="ident">signal_style</span>: <span class="ident">TrafficSignalStyle</span>,
+<span class="kw">pub fn </span>draw_signal_stage(
+    prerender: <span class="kw-2">&amp;</span>Prerender,
+    stage: <span class="kw-2">&amp;</span>Stage,
+    idx: usize,
+    i: IntersectionID,
+    time_left: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+    batch: <span class="kw-2">&amp;mut </span>GeomBatch,
+    app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike,
+    signal_style: TrafficSignalStyle,
 ) {
-    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_i</span>(<span class="ident">i</span>);
+    <span class="kw">let </span>i = app.map().get_i(i);
 
-    <span class="kw">match</span> <span class="ident">signal_style</span> {
-        <span class="ident">TrafficSignalStyle::Brian</span> =&gt; {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dont_walk</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">crossed_roads</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">keys</span>() {
-                <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">crosswalk</span> {
-                    <span class="ident">dont_walk</span>.<span class="ident">insert</span>(<span class="ident">m</span>);
-                    <span class="comment">// TODO This is incorrect; some crosswalks hop over intermediate roads. How do</span>
-                    <span class="comment">// we detect or plumb that?</span>
-                    <span class="ident">crossed_roads</span>.<span class="ident">insert</span>((<span class="ident">m</span>.<span class="ident">from</span>.<span class="ident">road</span>, <span class="ident">m</span>.<span class="ident">parent</span>));
-                    <span class="ident">crossed_roads</span>.<span class="ident">insert</span>((<span class="ident">m</span>.<span class="ident">to</span>.<span class="ident">road</span>, <span class="ident">m</span>.<span class="ident">parent</span>));
+    <span class="kw">match </span>signal_style {
+        TrafficSignalStyle::Brian =&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>dont_walk = BTreeSet::new();
+            <span class="kw">let </span><span class="kw-2">mut </span>crossed_roads = BTreeSet::new();
+            <span class="kw">for </span>m <span class="kw">in </span>i.movements.keys() {
+                <span class="kw">if </span>m.crosswalk {
+                    dont_walk.insert(m);
+                    <span class="comment">// TODO This is incorrect; some crosswalks hop over intermediate roads. How do
+                    // we detect or plumb that?
+                    </span>crossed_roads.insert((m.from.road, m.parent));
+                    crossed_roads.insert((m.to.road, m.parent));
                 }
             }
 
-            <span class="kw">let</span> (<span class="ident">yellow_light</span>, <span class="ident">percent</span>) <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">time_left</span> {
-                <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>() <span class="op">&gt;</span> <span class="ident">Duration::ZERO</span> {
+            <span class="kw">let </span>(yellow_light, percent) = <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = time_left {
+                <span class="kw">if </span>stage.stage_type.simple_duration() &gt; Duration::ZERO {
                     (
-                        <span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="number">5.0</span>),
-                        (<span class="ident">t</span> <span class="op">/</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>()) <span class="kw">as</span> <span class="ident">f32</span>,
+                        t &lt;= Duration::seconds(<span class="number">5.0</span>),
+                        (t / stage.stage_type.simple_duration()) <span class="kw">as </span>f32,
                     )
-                } <span class="kw">else</span> {
+                } <span class="kw">else </span>{
                     (<span class="bool-val">true</span>, <span class="number">1.0</span>)
                 }
-            } <span class="kw">else</span> {
+            } <span class="kw">else </span>{
                 (<span class="bool-val">false</span>, <span class="number">1.0</span>)
             };
-            <span class="kw">let</span> <span class="ident">arrow_body_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">yellow_light</span> {
-                <span class="comment">// The warning color for fixed is yellow, for anything else its orange to clue the</span>
-                <span class="comment">// user into it possibly extending.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">stage_type</span> {
-                    <span class="ident">Color::YELLOW</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">Color::ORANGE</span>
+            <span class="kw">let </span>arrow_body_color = <span class="kw">if </span>yellow_light {
+                <span class="comment">// The warning color for fixed is yellow, for anything else its orange to clue the
+                // user into it possibly extending.
+                </span><span class="kw">if let </span>StageType::Fixed(<span class="kw">_</span>) = stage.stage_type {
+                    Color::YELLOW
+                } <span class="kw">else </span>{
+                    Color::ORANGE
                 }
-            } <span class="kw">else</span> {
-                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_protected_turn</span>.<span class="ident">alpha</span>(<span class="ident">percent</span>)
+            } <span class="kw">else </span>{
+                app.cs().signal_protected_turn.alpha(percent)
             };
 
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">yield_movements</span> {
-                <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span>);
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">geom</span>;
-                <span class="comment">// TODO Make dashed_arrow draw the last polygon without an awkward overlap. Then we</span>
-                <span class="comment">// can just make one call here and control the outline thickness just using</span>
-                <span class="comment">// to_outline.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(
-                    <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">-</span> <span class="ident">Distance::meters</span>(<span class="number">0.1</span>),
-                    <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">SIDEWALK_THICKNESS</span> <span class="op">+</span> <span class="ident">Distance::meters</span>(<span class="number">0.1</span>),
+            <span class="kw">for </span>m <span class="kw">in </span><span class="kw-2">&amp;</span>stage.yield_movements {
+                <span class="macro">assert!</span>(!m.crosswalk);
+                <span class="kw">let </span>pl = <span class="kw-2">&amp;</span>i.movements[m].geom;
+                <span class="comment">// TODO Make dashed_arrow draw the last polygon without an awkward overlap. Then we
+                // can just make one call here and control the outline thickness just using
+                // to_outline.
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(slice) = pl.maybe_exact_slice(
+                    SIDEWALK_THICKNESS - Distance::meters(<span class="number">0.1</span>),
+                    pl.length() - SIDEWALK_THICKNESS + Distance::meters(<span class="number">0.1</span>),
                 ) {
-                    <span class="ident">batch</span>.<span class="ident">extend</span>(
-                        <span class="ident">Color::BLACK</span>,
-                        <span class="ident">slice</span>.<span class="ident">dashed_arrow</span>(
-                            <span class="ident">BIG_ARROW_THICKNESS</span>,
-                            <span class="ident">Distance::meters</span>(<span class="number">1.2</span>),
-                            <span class="ident">Distance::meters</span>(<span class="number">0.3</span>),
-                            <span class="ident">ArrowCap::Triangle</span>,
+                    batch.extend(
+                        Color::BLACK,
+                        slice.dashed_arrow(
+                            BIG_ARROW_THICKNESS,
+                            Distance::meters(<span class="number">1.2</span>),
+                            Distance::meters(<span class="number">0.3</span>),
+                            ArrowCap::Triangle,
                         ),
                     );
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">slice</span>) <span class="op">=</span>
-                    <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">SIDEWALK_THICKNESS</span>, <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">SIDEWALK_THICKNESS</span>)
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(slice) =
+                    pl.maybe_exact_slice(SIDEWALK_THICKNESS, pl.length() - SIDEWALK_THICKNESS)
                 {
-                    <span class="ident">batch</span>.<span class="ident">extend</span>(
-                        <span class="ident">arrow_body_color</span>,
-                        <span class="ident">slice</span>.<span class="ident">dashed_arrow</span>(
-                            <span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>,
-                            <span class="ident">Distance::meters</span>(<span class="number">1.0</span>),
-                            <span class="ident">Distance::meters</span>(<span class="number">0.5</span>),
-                            <span class="ident">ArrowCap::Triangle</span>,
+                    batch.extend(
+                        arrow_body_color,
+                        slice.dashed_arrow(
+                            BIG_ARROW_THICKNESS / <span class="number">2.0</span>,
+                            Distance::meters(<span class="number">1.0</span>),
+                            Distance::meters(<span class="number">0.5</span>),
+                            ArrowCap::Triangle,
                         ),
                     );
                 }
             }
 
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">protected_movements</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span> {
-                    <span class="comment">// TODO Maybe less if shoulders meet</span>
-                    <span class="kw">let</span> <span class="ident">slice_start</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">crossed_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span>(<span class="ident">m</span>.<span class="ident">from</span>.<span class="ident">road</span>, <span class="ident">m</span>.<span class="ident">parent</span>)) {
-                        <span class="ident">SIDEWALK_THICKNESS</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">Distance::ZERO</span>
+            <span class="kw">for </span>m <span class="kw">in </span><span class="kw-2">&amp;</span>stage.protected_movements {
+                <span class="kw">if </span>!m.crosswalk {
+                    <span class="comment">// TODO Maybe less if shoulders meet
+                    </span><span class="kw">let </span>slice_start = <span class="kw">if </span>crossed_roads.contains(<span class="kw-2">&amp;</span>(m.from.road, m.parent)) {
+                        SIDEWALK_THICKNESS
+                    } <span class="kw">else </span>{
+                        Distance::ZERO
                     };
-                    <span class="kw">let</span> <span class="ident">slice_end</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">crossed_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span>(<span class="ident">m</span>.<span class="ident">to</span>.<span class="ident">road</span>, <span class="ident">m</span>.<span class="ident">parent</span>)) {
-                        <span class="ident">SIDEWALK_THICKNESS</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">Distance::ZERO</span>
+                    <span class="kw">let </span>slice_end = <span class="kw">if </span>crossed_roads.contains(<span class="kw-2">&amp;</span>(m.to.road, m.parent)) {
+                        SIDEWALK_THICKNESS
+                    } <span class="kw">else </span>{
+                        Distance::ZERO
                     };
 
-                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">geom</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">slice_start</span>, <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">slice_end</span>) {
-                        <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span>, <span class="ident">ArrowCap::Triangle</span>);
-                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">arrow_body_color</span>, <span class="ident">arrow</span>.<span class="ident">clone</span>());
-                        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.2</span>)));
+                    <span class="kw">let </span>pl = <span class="kw-2">&amp;</span>i.movements[m].geom;
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = pl.maybe_exact_slice(slice_start, pl.length() - slice_end) {
+                        <span class="kw">let </span>arrow = pl.make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle);
+                        batch.push(arrow_body_color, arrow.clone());
+                        batch.push(Color::BLACK, arrow.to_outline(Distance::meters(<span class="number">0.2</span>)));
                     }
-                } <span class="kw">else</span> {
-                    <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">walk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>], <span class="ident">prerender</span>)
-                            .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="ident">percent</span>)),
+                } <span class="kw">else </span>{
+                    batch.append(
+                        walk_icon(<span class="kw-2">&amp;</span>i.movements[m], prerender)
+                            .color(RewriteColor::ChangeAlpha(percent)),
                     );
-                    <span class="ident">dont_walk</span>.<span class="ident">remove</span>(<span class="ident">m</span>);
+                    dont_walk.remove(m);
                 }
             }
 
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">dont_walk</span> {
-                <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">dont_walk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>], <span class="ident">prerender</span>));
+            <span class="kw">for </span>m <span class="kw">in </span>dont_walk {
+                batch.append(dont_walk_icon(<span class="kw-2">&amp;</span>i.movements[m], prerender));
             }
 
-            <span class="ident">draw_stage_number</span>(<span class="ident">prerender</span>, <span class="ident">i</span>, <span class="ident">idx</span>, <span class="ident">batch</span>);
+            draw_stage_number(prerender, i, idx, batch);
         }
-        <span class="ident">TrafficSignalStyle::Yuwen</span> =&gt; {
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">yield_movements</span> {
-                <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">m</span>.<span class="ident">crosswalk</span>);
-                <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>]
-                    .<span class="ident">geom</span>
-                    .<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>);
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_permitted_turn</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_permitted_turn</span>,
-                    <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>),
+        TrafficSignalStyle::Yuwen =&gt; {
+            <span class="kw">for </span>m <span class="kw">in </span><span class="kw-2">&amp;</span>stage.yield_movements {
+                <span class="macro">assert!</span>(!m.crosswalk);
+                <span class="kw">let </span>arrow = i.movements[m]
+                    .geom
+                    .make_arrow(BIG_ARROW_THICKNESS * <span class="number">2.0</span>, ArrowCap::Triangle);
+                batch.push(app.cs().signal_permitted_turn.alpha(<span class="number">0.3</span>), arrow.clone());
+                batch.push(
+                    app.cs().signal_permitted_turn,
+                    arrow.to_outline(BIG_ARROW_THICKNESS / <span class="number">2.0</span>),
                 );
             }
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">protected_movements</span> {
-                <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">crosswalk</span> {
-                    <span class="comment">// TODO This only works on the side panel. On the full map, the crosswalks are</span>
-                    <span class="comment">// always drawn, so this awkwardly doubles some of them.</span>
-                    <span class="ident">make_crosswalk</span>(
-                        <span class="ident">batch</span>,
-                        <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_t</span>(<span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>].<span class="ident">members</span>[<span class="number">0</span>]),
-                        <span class="ident">app</span>.<span class="ident">map</span>(),
-                        <span class="ident">app</span>.<span class="ident">cs</span>(),
+            <span class="kw">for </span>m <span class="kw">in </span><span class="kw-2">&amp;</span>stage.protected_movements {
+                <span class="kw">if </span>m.crosswalk {
+                    <span class="comment">// TODO This only works on the side panel. On the full map, the crosswalks are
+                    // always drawn, so this awkwardly doubles some of them.
+                    </span>make_crosswalk(
+                        batch,
+                        app.map().get_t(i.movements[m].members[<span class="number">0</span>]),
+                        app.map(),
+                        app.cs(),
                     );
-                } <span class="kw">else</span> {
-                    <span class="ident">batch</span>.<span class="ident">push</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_protected_turn</span>,
-                        <span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">m</span>]
-                            .<span class="ident">geom</span>
-                            .<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>),
+                } <span class="kw">else </span>{
+                    batch.push(
+                        app.cs().signal_protected_turn,
+                        i.movements[m]
+                            .geom
+                            .make_arrow(BIG_ARROW_THICKNESS * <span class="number">2.0</span>, ArrowCap::Triangle),
                     );
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">time_left</span> {
-                <span class="ident">draw_time_left</span>(<span class="ident">app</span>, <span class="ident">prerender</span>, <span class="ident">stage</span>, <span class="ident">i</span>, <span class="ident">idx</span>, <span class="ident">t</span>, <span class="ident">batch</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = time_left {
+                draw_time_left(app, prerender, stage, i, idx, t, batch);
             }
         }
-        <span class="ident">TrafficSignalStyle::IndividualTurnArrows</span> =&gt; {
-            <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">turns</span> {
-                <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">between_sidewalks</span>() {
+        TrafficSignalStyle::IndividualTurnArrows =&gt; {
+            <span class="kw">for </span>turn <span class="kw">in </span><span class="kw-2">&amp;</span>i.turns {
+                <span class="kw">if </span>turn.between_sidewalks() {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">match</span> <span class="ident">stage</span>.<span class="ident">get_priority_of_turn</span>(<span class="ident">turn</span>.<span class="ident">id</span>, <span class="ident">i</span>) {
-                    <span class="ident">TurnPriority::Protected</span> =&gt; {
-                        <span class="ident">batch</span>.<span class="ident">push</span>(
-                            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_protected_turn</span>,
-                            <span class="ident">turn</span>.<span class="ident">geom</span>
-                                .<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>),
+                <span class="kw">match </span>stage.get_priority_of_turn(turn.id, i) {
+                    TurnPriority::Protected =&gt; {
+                        batch.push(
+                            app.cs().signal_protected_turn,
+                            turn.geom
+                                .make_arrow(BIG_ARROW_THICKNESS * <span class="number">2.0</span>, ArrowCap::Triangle),
                         );
                     }
-                    <span class="ident">TurnPriority::Yield</span> =&gt; {
-                        <span class="ident">batch</span>.<span class="ident">push</span>(
-                            <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_permitted_turn</span>,
-                            <span class="ident">turn</span>.<span class="ident">geom</span>
-                                .<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>)
-                                .<span class="ident">to_outline</span>(<span class="ident">BIG_ARROW_THICKNESS</span> <span class="op">/</span> <span class="number">2.0</span>),
+                    TurnPriority::Yield =&gt; {
+                        batch.push(
+                            app.cs().signal_permitted_turn,
+                            turn.geom
+                                .make_arrow(BIG_ARROW_THICKNESS * <span class="number">2.0</span>, ArrowCap::Triangle)
+                                .to_outline(BIG_ARROW_THICKNESS / <span class="number">2.0</span>),
                         );
                     }
-                    <span class="ident">TurnPriority::Banned</span> =&gt; {}
+                    TurnPriority::Banned =&gt; {}
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">time_left</span> {
-                <span class="ident">draw_time_left</span>(<span class="ident">app</span>, <span class="ident">prerender</span>, <span class="ident">stage</span>, <span class="ident">i</span>, <span class="ident">idx</span>, <span class="ident">t</span>, <span class="ident">batch</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = time_left {
+                draw_time_left(app, prerender, stage, i, idx, t, batch);
             }
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_stage_number</span>(
-    <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
-    <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
-    <span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>,
+<span class="kw">pub fn </span>draw_stage_number(
+    prerender: <span class="kw-2">&amp;</span>Prerender,
+    i: <span class="kw-2">&amp;</span>Intersection,
+    idx: usize,
+    batch: <span class="kw-2">&amp;mut </span>GeomBatch,
 ) {
-    <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">1.0</span>);
-    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">polylabel</span>();
-    <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">Color::hex</span>(<span class="string">&quot;#5B5B5B&quot;</span>),
-        <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
+    <span class="kw">let </span>radius = Distance::meters(<span class="number">1.0</span>);
+    <span class="kw">let </span>center = i.polygon.polylabel();
+    batch.push(
+        Color::hex(<span class="string">&quot;#5B5B5B&quot;</span>),
+        Circle::new(center, radius).to_polygon(),
     );
-    <span class="ident">batch</span>.<span class="ident">append</span>(
-        <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)).<span class="ident">fg</span>(<span class="ident">Color::WHITE</span>))
-            .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>)
-            .<span class="ident">scale</span>(<span class="number">0.075</span>)
-            .<span class="ident">centered_on</span>(<span class="ident">center</span>),
+    batch.append(
+        Text::from(Line(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, idx + <span class="number">1</span>)).fg(Color::WHITE))
+            .render_autocropped(prerender)
+            .scale(<span class="number">0.075</span>)
+            .centered_on(center),
     );
 }
 
-<span class="kw">fn</span> <span class="ident">draw_time_left</span>(
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
-    <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
-    <span class="ident">stage</span>: <span class="kw-2">&amp;</span><span class="ident">Stage</span>,
-    <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
-    <span class="ident">time_left</span>: <span class="ident">Duration</span>,
-    <span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>,
+<span class="kw">fn </span>draw_time_left(
+    app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike,
+    prerender: <span class="kw-2">&amp;</span>Prerender,
+    stage: <span class="kw-2">&amp;</span>Stage,
+    i: <span class="kw-2">&amp;</span>Intersection,
+    idx: usize,
+    time_left: Duration,
+    batch: <span class="kw-2">&amp;mut </span>GeomBatch,
 ) {
-    <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
-    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>();
-    <span class="kw">let</span> <span class="ident">duration</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>();
-    <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">duration</span> <span class="op">&gt;</span> <span class="ident">Duration::ZERO</span> {
-        <span class="ident">time_left</span> <span class="op">/</span> <span class="ident">duration</span>
-    } <span class="kw">else</span> {
-        <span class="number">1.0</span>
-    };
-    <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_box</span>,
-        <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="number">1.2</span> <span class="op">*</span> <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
+    <span class="kw">let </span>radius = Distance::meters(<span class="number">2.0</span>);
+    <span class="kw">let </span>center = i.polygon.center();
+    <span class="kw">let </span>duration = stage.stage_type.simple_duration();
+    <span class="kw">let </span>percent = <span class="kw">if </span>duration &gt; Duration::ZERO {
+        time_left / duration
+    } <span class="kw">else </span>{
+        <span class="number">1.0
+    </span>};
+    batch.push(
+        app.cs().signal_box,
+        Circle::new(center, <span class="number">1.2 </span>* radius).to_polygon(),
     );
-    <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_spinner</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>),
-        <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
+    batch.push(
+        app.cs().signal_spinner.alpha(<span class="number">0.3</span>),
+        Circle::new(center, radius).to_polygon(),
     );
-    <span class="ident">batch</span>.<span class="ident">push</span>(
-        <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">signal_spinner</span>,
-        <span class="ident">Circle::new</span>(<span class="ident">center</span>, <span class="ident">radius</span>).<span class="ident">to_partial_tessellation</span>(<span class="ident">percent</span>),
+    batch.push(
+        app.cs().signal_spinner,
+        Circle::new(center, radius).to_partial_tessellation(percent),
     );
-    <span class="ident">batch</span>.<span class="ident">append</span>(
-        <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>))
-            .<span class="ident">render_autocropped</span>(<span class="ident">prerender</span>)
-            .<span class="ident">scale</span>(<span class="number">0.1</span>)
-            .<span class="ident">centered_on</span>(<span class="ident">center</span>),
+    batch.append(
+        Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, idx + <span class="number">1</span>))
+            .render_autocropped(prerender)
+            .scale(<span class="number">0.1</span>)
+            .centered_on(center),
     );
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walk_icon</span>(<span class="ident">movement</span>: <span class="kw-2">&amp;</span><span class="ident">Movement</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>) -&gt; <span class="ident">GeomBatch</span> {
-    <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">crosswalk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">geom</span>);
-    <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/walk.svg&quot;</span>)
-        .<span class="ident">scale</span>(<span class="number">0.07</span>)
-        .<span class="ident">centered_on</span>(<span class="ident">center</span>)
-        .<span class="ident">rotate</span>(<span class="ident">angle</span>)
+<span class="kw">pub fn </span>walk_icon(movement: <span class="kw-2">&amp;</span>Movement, prerender: <span class="kw-2">&amp;</span>Prerender) -&gt; GeomBatch {
+    <span class="kw">let </span>(center, angle) = crosswalk_icon(<span class="kw-2">&amp;</span>movement.geom);
+    GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/walk.svg&quot;</span>)
+        .scale(<span class="number">0.07</span>)
+        .centered_on(center)
+        .rotate(angle)
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dont_walk_icon</span>(<span class="ident">movement</span>: <span class="kw-2">&amp;</span><span class="ident">Movement</span>, <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>) -&gt; <span class="ident">GeomBatch</span> {
-    <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">crosswalk_icon</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">geom</span>);
-    <span class="ident">GeomBatch::load_svg</span>(<span class="ident">prerender</span>, <span class="string">&quot;system/assets/map/dont_walk.svg&quot;</span>)
-        .<span class="ident">scale</span>(<span class="number">0.07</span>)
-        .<span class="ident">centered_on</span>(<span class="ident">center</span>)
-        .<span class="ident">rotate</span>(<span class="ident">angle</span>)
+<span class="kw">pub fn </span>dont_walk_icon(movement: <span class="kw-2">&amp;</span>Movement, prerender: <span class="kw-2">&amp;</span>Prerender) -&gt; GeomBatch {
+    <span class="kw">let </span>(center, angle) = crosswalk_icon(<span class="kw-2">&amp;</span>movement.geom);
+    GeomBatch::load_svg(prerender, <span class="string">&quot;system/assets/map/dont_walk.svg&quot;</span>)
+        .scale(<span class="number">0.07</span>)
+        .centered_on(center)
+        .rotate(angle)
 }
 
-<span class="comment">// TODO Kind of a hack to know that the second point is a better center.</span>
-<span class="comment">// Returns (center, angle)</span>
-<span class="kw">fn</span> <span class="ident">crosswalk_icon</span>(<span class="ident">geom</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>) -&gt; (<span class="ident">Pt2D</span>, <span class="ident">Angle</span>) {
-    <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="ident">geom</span>.<span class="ident">points</span>()[<span class="number">1</span>], <span class="ident">geom</span>.<span class="ident">points</span>()[<span class="number">2</span>]);
+<span class="comment">// TODO Kind of a hack to know that the second point is a better center.
+// Returns (center, angle)
+</span><span class="kw">fn </span>crosswalk_icon(geom: <span class="kw-2">&amp;</span>PolyLine) -&gt; (Pt2D, Angle) {
+    <span class="kw">let </span>l = Line::must_new(geom.points()[<span class="number">1</span>], geom.points()[<span class="number">2</span>]);
     (
-        <span class="ident">l</span>.<span class="ident">dist_along</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>))
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">pt1</span>()),
-        <span class="ident">l</span>.<span class="ident">angle</span>().<span class="ident">shortest_rotation_towards</span>(<span class="ident">Angle::degrees</span>(<span class="number">90.0</span>)),
+        l.dist_along(Distance::meters(<span class="number">1.0</span>))
+            .unwrap_or_else(|<span class="kw">_</span>| l.pt1()),
+        l.angle().shortest_rotation_towards(Angle::degrees(<span class="number">90.0</span>)),
     )
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

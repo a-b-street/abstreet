@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/events.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>events.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/events.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>events.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -103,110 +103,110 @@
 <span id="103">103</span>
 <span id="104">104</span>
 <span id="105">105</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom::Duration</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>,
-    <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+<span class="kw">use </span>geom::Duration;
+<span class="kw">use </span>map_model::{
+    BuildingID, IntersectionID, LaneID, Map, Path, PathRequest, TransitRouteID, TransitStopID,
+    Traversable, TurnID,
 };
-<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
+<span class="kw">use </span>synthpop::TripMode;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Problem</span>, <span class="ident">TripID</span>};
+<span class="kw">use crate</span>::{AgentID, CarID, ParkingSpot, PedestrianID, PersonID, Problem, TripID};
 
-<span class="doccomment">/// As a simulation runs, different systems emit Events. This cleanly separates the internal</span>
-<span class="doccomment">/// mechanics of the simulation from consumers that just want to know what&#39;s happening.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// An Event always occurs at a particular time, plumbed separately to consumers.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Many of these were created for a test framework that&#39;s been abandoned. They could be removed or</span>
-<span class="doccomment">/// have their API adjusted, but it&#39;s not urgent; publishing an event that&#39;s not used by Analytics</span>
-<span class="doccomment">/// has no performance impact.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Event</span> {
-    <span class="ident">CarReachedParkingSpot</span>(<span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>),
-    <span class="ident">CarLeftParkingSpot</span>(<span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>),
+<span class="doccomment">/// As a simulation runs, different systems emit Events. This cleanly separates the internal
+/// mechanics of the simulation from consumers that just want to know what&#39;s happening.
+///
+/// An Event always occurs at a particular time, plumbed separately to consumers.
+///
+/// Many of these were created for a test framework that&#39;s been abandoned. They could be removed or
+/// have their API adjusted, but it&#39;s not urgent; publishing an event that&#39;s not used by Analytics
+/// has no performance impact.
+</span><span class="attribute">#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>Event {
+    CarReachedParkingSpot(CarID, ParkingSpot),
+    CarLeftParkingSpot(CarID, ParkingSpot),
 
-    <span class="ident">BusArrivedAtStop</span>(<span class="ident">CarID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>),
-    <span class="ident">BusDepartedFromStop</span>(<span class="ident">CarID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>),
-    <span class="doccomment">/// How long waiting at the stop?</span>
-    <span class="ident">PassengerBoardsTransit</span>(<span class="ident">PersonID</span>, <span class="ident">CarID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>, <span class="ident">Duration</span>),
-    <span class="ident">PassengerAlightsTransit</span>(<span class="ident">PersonID</span>, <span class="ident">CarID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>),
+    BusArrivedAtStop(CarID, TransitRouteID, TransitStopID),
+    BusDepartedFromStop(CarID, TransitRouteID, TransitStopID),
+    <span class="doccomment">/// How long waiting at the stop?
+    </span>PassengerBoardsTransit(PersonID, CarID, TransitRouteID, TransitStopID, Duration),
+    PassengerAlightsTransit(PersonID, CarID, TransitRouteID, TransitStopID),
 
-    <span class="ident">PersonEntersBuilding</span>(<span class="ident">PersonID</span>, <span class="ident">BuildingID</span>),
-    <span class="ident">PersonLeavesBuilding</span>(<span class="ident">PersonID</span>, <span class="ident">BuildingID</span>),
-    <span class="doccomment">/// None if cancelled</span>
-    <span class="ident">PersonLeavesMap</span>(<span class="ident">PersonID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span>, <span class="ident">IntersectionID</span>),
-    <span class="ident">PersonEntersMap</span>(<span class="ident">PersonID</span>, <span class="ident">AgentID</span>, <span class="ident">IntersectionID</span>),
+    PersonEntersBuilding(PersonID, BuildingID),
+    PersonLeavesBuilding(PersonID, BuildingID),
+    <span class="doccomment">/// None if cancelled
+    </span>PersonLeavesMap(PersonID, <span class="prelude-ty">Option</span>&lt;AgentID&gt;, IntersectionID),
+    PersonEntersMap(PersonID, AgentID, IntersectionID),
 
-    <span class="ident">PedReachedParkingSpot</span>(<span class="ident">PedestrianID</span>, <span class="ident">ParkingSpot</span>),
+    PedReachedParkingSpot(PedestrianID, ParkingSpot),
 
-    <span class="ident">BikeStoppedAtSidewalk</span>(<span class="ident">CarID</span>, <span class="ident">LaneID</span>),
+    BikeStoppedAtSidewalk(CarID, LaneID),
 
-    <span class="ident">ProblemEncountered</span>(<span class="ident">TripID</span>, <span class="ident">Problem</span>),
+    ProblemEncountered(TripID, Problem),
 
-    <span class="doccomment">/// If the agent is a transit vehicle, then include a count of how many passengers are on</span>
-    <span class="doccomment">/// board.</span>
-    <span class="ident">AgentEntersTraversable</span>(<span class="ident">AgentID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span>, <span class="ident">Traversable</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn</span>
-    <span class="ident">IntersectionDelayMeasured</span>(<span class="ident">TripID</span>, <span class="ident">TurnID</span>, <span class="ident">AgentID</span>, <span class="ident">Duration</span>),
+    <span class="doccomment">/// If the agent is a transit vehicle, then include a count of how many passengers are on
+    /// board.
+    </span>AgentEntersTraversable(AgentID, <span class="prelude-ty">Option</span>&lt;TripID&gt;, Traversable, <span class="prelude-ty">Option</span>&lt;usize&gt;),
+    <span class="doccomment">/// TripID, TurnID (Where the delay was encountered), Time spent waiting at that turn
+    </span>IntersectionDelayMeasured(TripID, TurnID, AgentID, Duration),
 
-    <span class="ident">TripFinished</span> {
-        <span class="ident">trip</span>: <span class="ident">TripID</span>,
-        <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-        <span class="ident">total_time</span>: <span class="ident">Duration</span>,
-        <span class="ident">blocked_time</span>: <span class="ident">Duration</span>,
+    TripFinished {
+        trip: TripID,
+        mode: TripMode,
+        total_time: Duration,
+        blocked_time: Duration,
     },
-    <span class="ident">TripCancelled</span>(<span class="ident">TripID</span>, <span class="ident">TripMode</span>),
-    <span class="ident">TripPhaseStarting</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">TripPhaseType</span>),
+    TripCancelled(TripID, TripMode),
+    TripPhaseStarting(TripID, PersonID, <span class="prelude-ty">Option</span>&lt;PathRequest&gt;, TripPhaseType),
 
-    <span class="doccomment">/// Just use for parking replanning. Not happy about copying the full path in here, but the way</span>
-    <span class="doccomment">/// to plumb info into Analytics is Event.</span>
-    <span class="ident">PathAmended</span>(<span class="ident">Path</span>),
+    <span class="doccomment">/// Just use for parking replanning. Not happy about copying the full path in here, but the way
+    /// to plumb info into Analytics is Event.
+    </span>PathAmended(Path),
 
-    <span class="ident">Alert</span>(<span class="ident">AlertLocation</span>, <span class="ident">String</span>),
+    Alert(AlertLocation, String),
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AlertLocation</span> {
-    <span class="ident">Nil</span>,
-    <span class="ident">Intersection</span>(<span class="ident">IntersectionID</span>),
-    <span class="ident">Person</span>(<span class="ident">PersonID</span>),
-    <span class="ident">Building</span>(<span class="ident">BuildingID</span>),
+<span class="attribute">#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>AlertLocation {
+    Nil,
+    Intersection(IntersectionID),
+    Person(PersonID),
+    Building(BuildingID),
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripPhaseType</span> {
-    <span class="ident">Driving</span>,
-    <span class="ident">Walking</span>,
-    <span class="ident">Biking</span>,
-    <span class="ident">Parking</span>,
-    <span class="ident">WaitingForBus</span>(<span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>),
-    <span class="doccomment">/// What stop did they board at?</span>
-    <span class="ident">RidingBus</span>(<span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>, <span class="ident">CarID</span>),
-    <span class="ident">Cancelled</span>,
-    <span class="ident">Finished</span>,
-    <span class="ident">DelayedStart</span>,
+<span class="attribute">#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>TripPhaseType {
+    Driving,
+    Walking,
+    Biking,
+    Parking,
+    WaitingForBus(TransitRouteID, TransitStopID),
+    <span class="doccomment">/// What stop did they board at?
+    </span>RidingBus(TransitRouteID, TransitStopID, CarID),
+    Cancelled,
+    Finished,
+    DelayedStart,
 }
 
-<span class="kw">impl</span> <span class="ident">TripPhaseType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripPhaseType::Driving</span> =&gt; <span class="string">&quot;Driving&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripPhaseType::Walking</span> =&gt; <span class="string">&quot;Walking&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripPhaseType::Biking</span> =&gt; <span class="string">&quot;Biking&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripPhaseType::Parking</span> =&gt; <span class="string">&quot;Parking&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripPhaseType::WaitingForBus</span>(<span class="ident">r</span>, <span class="kw">_</span>) =&gt; {
-                <span class="macro">format!</span>(<span class="string">&quot;Waiting for transit route {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_tr</span>(<span class="ident">r</span>).<span class="ident">long_name</span>)
+<span class="kw">impl </span>TripPhaseType {
+    <span class="kw">pub fn </span>describe(<span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; String {
+        <span class="kw">match </span><span class="self">self </span>{
+            TripPhaseType::Driving =&gt; <span class="string">&quot;Driving&quot;</span>.to_string(),
+            TripPhaseType::Walking =&gt; <span class="string">&quot;Walking&quot;</span>.to_string(),
+            TripPhaseType::Biking =&gt; <span class="string">&quot;Biking&quot;</span>.to_string(),
+            TripPhaseType::Parking =&gt; <span class="string">&quot;Parking&quot;</span>.to_string(),
+            TripPhaseType::WaitingForBus(r, <span class="kw">_</span>) =&gt; {
+                <span class="macro">format!</span>(<span class="string">&quot;Waiting for transit route {}&quot;</span>, map.get_tr(r).long_name)
             }
-            <span class="ident">TripPhaseType::RidingBus</span>(<span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="macro">format!</span>(<span class="string">&quot;Riding route {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_tr</span>(<span class="ident">r</span>).<span class="ident">long_name</span>)
+            TripPhaseType::RidingBus(r, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                <span class="macro">format!</span>(<span class="string">&quot;Riding route {}&quot;</span>, map.get_tr(r).long_name)
             }
-            <span class="ident">TripPhaseType::Cancelled</span> =&gt; <span class="string">&quot;Trip was cancelled due to some bug&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripPhaseType::Finished</span> =&gt; <span class="string">&quot;Trip finished&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripPhaseType::DelayedStart</span> =&gt; <span class="string">&quot;Delayed by a previous trip taking too long&quot;</span>.<span class="ident">to_string</span>(),
+            TripPhaseType::Cancelled =&gt; <span class="string">&quot;Trip was cancelled due to some bug&quot;</span>.to_string(),
+            TripPhaseType::Finished =&gt; <span class="string">&quot;Trip finished&quot;</span>.to_string(),
+            TripPhaseType::DelayedStart =&gt; <span class="string">&quot;Delayed by a previous trip taking too long&quot;</span>.to_string(),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

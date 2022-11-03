@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/lasso.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lasso.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/lasso.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lasso.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -107,114 +107,114 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Distance, PolyLine, Polygon, Pt2D, Ring};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>};
+<span class="kw">use crate</span>::{Color, EventCtx, GfxCtx};
 
-<span class="comment">// TODO This is horrifically slow / memory inefficient. Reference implementation somewhere?</span>
+<span class="comment">// TODO This is horrifically slow / memory inefficient. Reference implementation somewhere?
 
-<span class="doccomment">/// Draw freehand polygons</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Lasso</span> {
-    <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>,
-    <span class="ident">polygon</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>,
+</span><span class="doccomment">/// Draw freehand polygons
+</span><span class="kw">pub struct </span>Lasso {
+    points: Vec&lt;Pt2D&gt;,
+    polygon: <span class="prelude-ty">Option</span>&lt;Polygon&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Lasso</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">points</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">polygon</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>Lasso {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            points: Vec::new(),
+            polygon: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// When this returns a polygon, the interaction is finished</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                    <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
+    <span class="doccomment">/// When this returns a polygon, the interaction is finished
+    </span><span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;Polygon&gt; {
+        <span class="kw">if </span><span class="self">self</span>.points.is_empty() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+                <span class="kw">if </span>ctx.input.left_mouse_button_pressed() {
+                    <span class="self">self</span>.points.push(pt);
                 }
             }
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">polygon</span>.<span class="ident">take</span>();
+        <span class="kw">if </span>ctx.input.left_mouse_button_released() {
+            <span class="kw">return </span><span class="self">self</span>.polygon.take();
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">last</span>().<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">dist_to</span>(<span class="ident">pt</span>) <span class="op">&gt;</span> <span class="ident">Distance::meters</span>(<span class="number">0.1</span>) {
-                    <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+                <span class="kw">if </span><span class="self">self</span>.points.last().as_ref().unwrap().dist_to(pt) &gt; Distance::meters(<span class="number">0.1</span>) {
+                    <span class="self">self</span>.points.push(pt);
 
-                    <span class="comment">// TODO It&#39;s better if the user doesn&#39;t close the polygon themselves. When they</span>
-                    <span class="comment">// try to, usually the result is the smaller polygon chunk</span>
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">copy</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>();
-                    <span class="ident">copy</span>.<span class="ident">push</span>(<span class="ident">copy</span>[<span class="number">0</span>]);
-                    <span class="self">self</span>.<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">copy</span>)
-                        .<span class="ident">ok</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ring</span><span class="op">|</span> <span class="ident">ring</span>.<span class="ident">into_polygon</span>().<span class="ident">simplify</span>(<span class="number">1.0</span>));
+                    <span class="comment">// TODO It&#39;s better if the user doesn&#39;t close the polygon themselves. When they
+                    // try to, usually the result is the smaller polygon chunk
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>copy = <span class="self">self</span>.points.clone();
+                    copy.push(copy[<span class="number">0</span>]);
+                    <span class="self">self</span>.polygon = Ring::new(copy)
+                        .ok()
+                        .map(|ring| ring.into_polygon().simplify(<span class="number">1.0</span>));
                 }
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="self">self</span>.<span class="ident">points</span>.<span class="ident">clone</span>()) {
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-                <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>) <span class="op">/</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>),
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = PolyLine::new(<span class="self">self</span>.points.clone()) {
+            g.draw_polygon(
+                Color::RED.alpha(<span class="number">0.8</span>),
+                pl.make_polygons(Distance::meters(<span class="number">5.0</span>) / g.canvas.cam_zoom),
             );
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">polygon</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">polygon</span> {
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>polygon) = <span class="self">self</span>.polygon {
+            g.draw_polygon(Color::RED.alpha(<span class="number">0.5</span>), polygon.clone());
         }
     }
 }
 
-<span class="doccomment">/// Draw freehand PolyLine</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PolyLineLasso</span> {
-    <span class="ident">pl</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Draw freehand PolyLine
+</span><span class="kw">pub struct </span>PolyLineLasso {
+    pl: <span class="prelude-ty">Option</span>&lt;PolyLine&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PolyLineLasso</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">pl</span>: <span class="prelude-val">None</span> }
+<span class="kw">impl </span>PolyLineLasso {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ pl: <span class="prelude-val">None </span>}
     }
 
-    <span class="doccomment">/// When this returns a polyline, the interaction is finished</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">is_none</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                    <span class="self">self</span>.<span class="ident">pl</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">pt</span>, <span class="ident">pt</span>.<span class="ident">offset</span>(<span class="number">0.1</span>, <span class="number">0.1</span>)]));
+    <span class="doccomment">/// When this returns a polyline, the interaction is finished
+    </span><span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;PolyLine&gt; {
+        <span class="kw">if </span><span class="self">self</span>.pl.is_none() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+                <span class="kw">if </span>ctx.input.left_mouse_button_pressed() {
+                    <span class="self">self</span>.pl = <span class="prelude-val">Some</span>(PolyLine::must_new(<span class="macro">vec!</span>[pt, pt.offset(<span class="number">0.1</span>, <span class="number">0.1</span>)]));
                 }
             }
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">take</span>();
+        <span class="kw">if </span>ctx.input.left_mouse_button_released() {
+            <span class="kw">return </span><span class="self">self</span>.pl.take();
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pl</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="self">self</span>.<span class="ident">pl</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>.<span class="ident">optionally_push</span>(<span class="ident">pt</span>));
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+                <span class="kw">let </span>pl = <span class="self">self</span>.pl.take().unwrap();
+                <span class="self">self</span>.pl = <span class="prelude-val">Some</span>(pl.optionally_push(pt));
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">pl</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">pl</span> {
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-                <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>) <span class="op">/</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>),
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>pl) = <span class="self">self</span>.pl {
+            g.draw_polygon(
+                Color::RED.alpha(<span class="number">0.8</span>),
+                pl.make_polygons(Distance::meters(<span class="number">5.0</span>) / g.canvas.cam_zoom),
             );
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

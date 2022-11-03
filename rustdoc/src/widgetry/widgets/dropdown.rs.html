@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/dropdown.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dropdown.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/dropdown.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>dropdown.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -206,213 +206,213 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{CornerRadii, Distance, Polygon, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Button</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+<span class="kw">use crate</span>::{
+    Button, Choice, Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
+    Menu, Outcome, ScreenDims, ScreenPt, ScreenRectangle, WidgetImpl, WidgetOutput,
 };
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> {
-    <span class="ident">current_idx</span>: <span class="ident">usize</span>,
-    <span class="ident">btn</span>: <span class="ident">Button</span>,
-    <span class="comment">// TODO Why not T?</span>
-    <span class="ident">menu</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Menu</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">label</span>: <span class="ident">String</span>,
-    <span class="ident">is_persisten_split</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>Dropdown&lt;T: Clone&gt; {
+    current_idx: usize,
+    btn: Button,
+    <span class="comment">// TODO Why not T?
+    </span>menu: <span class="prelude-ty">Option</span>&lt;Menu&lt;usize&gt;&gt;,
+    label: String,
+    is_persisten_split: bool,
 
-    <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    choices: Vec&lt;Choice&lt;T&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">std::fmt::Debug</span><span class="op">&gt;</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">default_value</span>: <span class="ident">T</span>,
-        <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="comment">// TODO Ideally builder style</span>
-        <span class="ident">is_persisten_split</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">current_idx</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">data</span> <span class="op">==</span> <span class="ident">default_value</span>) {
-            <span class="ident">idx</span>
-        } <span class="kw">else</span> {
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ PartialEq + Clone + std::fmt::Debug&gt; Dropdown&lt;T&gt; {
+    <span class="kw">pub fn </span>new(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        label: <span class="kw-2">&amp;</span>str,
+        default_value: T,
+        choices: Vec&lt;Choice&lt;T&gt;&gt;,
+        <span class="comment">// TODO Ideally builder style
+        </span>is_persisten_split: bool,
+    ) -&gt; Dropdown&lt;T&gt; {
+        <span class="kw">let </span>current_idx = <span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = choices.iter().position(|c| c.data == default_value) {
+            idx
+        } <span class="kw">else </span>{
             <span class="macro">panic!</span>(
                 <span class="string">&quot;Dropdown {} has default_value {:?}, but none of the choices match that&quot;</span>,
-                <span class="ident">label</span>, <span class="ident">default_value</span>
+                label, default_value
             );
         };
 
-        <span class="ident">Dropdown</span> {
-            <span class="ident">current_idx</span>,
-            <span class="ident">btn</span>: <span class="ident">make_btn</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">choices</span>[<span class="ident">current_idx</span>].<span class="ident">label</span>, <span class="ident">label</span>, <span class="ident">is_persisten_split</span>),
-            <span class="ident">menu</span>: <span class="prelude-val">None</span>,
-            <span class="ident">label</span>: <span class="ident">label</span>.<span class="ident">to_string</span>(),
-            <span class="ident">is_persisten_split</span>,
-            <span class="ident">choices</span>,
+        Dropdown {
+            current_idx,
+            btn: make_btn(ctx, <span class="kw-2">&amp;</span>choices[current_idx].label, label, is_persisten_split),
+            menu: <span class="prelude-val">None</span>,
+            label: label.to_string(),
+            is_persisten_split,
+            choices,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">T</span> {
-        <span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">data</span>.<span class="ident">clone</span>()
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ PartialEq + Clone&gt; Dropdown&lt;T&gt; {
+    <span class="kw">pub fn </span>current_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; T {
+        <span class="self">self</span>.choices[<span class="self">self</span>.current_idx].data.clone()
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">current_value_label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">label</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>current_value_label(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>str {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.choices[<span class="self">self</span>.current_idx].label
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">open_menu</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">menu</span> <span class="op">=</span> <span class="ident">Menu::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="self">self</span>.<span class="ident">choices</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">enumerate</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">c</span>)<span class="op">|</span> <span class="ident">c</span>.<span class="ident">with_value</span>(<span class="ident">idx</span>))
-                .<span class="ident">collect</span>(),
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Clone&gt; Dropdown&lt;T&gt; {
+    <span class="kw">fn </span>open_menu(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
+        <span class="kw">let </span><span class="kw-2">mut </span>menu = Menu::new(
+            ctx,
+            <span class="self">self</span>.choices
+                .iter()
+                .enumerate()
+                .map(|(idx, c)| c.with_value(idx))
+                .collect(),
         );
-        <span class="ident">menu</span>.<span class="ident">set_current</span>(<span class="self">self</span>.<span class="ident">current_idx</span>);
-        <span class="kw">let</span> <span class="ident">y1_below</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="number">15.0</span>;
+        menu.set_current(<span class="self">self</span>.current_idx);
+        <span class="kw">let </span>y1_below = <span class="self">self</span>.btn.top_left.y + <span class="self">self</span>.btn.dims.height + <span class="number">15.0</span>;
 
-        <span class="ident">menu</span>.<span class="ident">set_pos</span>(<span class="ident">ScreenPt::new</span>(
-            <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">top_left</span>.<span class="ident">x</span>,
-            <span class="comment">// top_left_for_corner doesn&#39;t quite work</span>
-            <span class="kw">if</span> <span class="ident">y1_below</span> <span class="op">+</span> <span class="ident">menu</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">&lt;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> {
-                <span class="ident">y1_below</span>
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> <span class="number">15.0</span> <span class="op">-</span> <span class="ident">menu</span>.<span class="ident">get_dims</span>().<span class="ident">height</span>
+        menu.set_pos(ScreenPt::new(
+            <span class="self">self</span>.btn.top_left.x,
+            <span class="comment">// top_left_for_corner doesn&#39;t quite work
+            </span><span class="kw">if </span>y1_below + menu.get_dims().height &lt; ctx.canvas.window_height {
+                y1_below
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.btn.top_left.y - <span class="number">15.0 </span>- menu.get_dims().height
             },
         ));
-        <span class="self">self</span>.<span class="ident">menu</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">menu</span>);
+        <span class="self">self</span>.menu = <span class="prelude-val">Some</span>(menu);
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">get_dims</span>()
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Clone&gt; WidgetImpl <span class="kw">for </span>Dropdown&lt;T&gt; {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="self">self</span>.btn.get_dims()
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">set_pos</span>(<span class="ident">top_left</span>);
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+        <span class="self">self</span>.btn.set_pos(top_left);
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">m</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">menu</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp_ouput</span> <span class="op">=</span> <span class="ident">WidgetOutput::new</span>();
-            <span class="ident">m</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">tmp_ouput</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">tmp_ouput</span>.<span class="ident">outcome</span> {
-                <span class="self">self</span>.<span class="ident">current_idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">take_current_choice</span>();
-                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
-                <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">top_left</span>;
-                <span class="self">self</span>.<span class="ident">btn</span> <span class="op">=</span> <span class="ident">make_btn</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span>[<span class="self">self</span>.<span class="ident">current_idx</span>].<span class="ident">label</span>,
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">label</span>,
-                    <span class="self">self</span>.<span class="ident">is_persisten_split</span>,
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, output: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>m) = <span class="self">self</span>.menu {
+            <span class="kw">let </span><span class="kw-2">mut </span>tmp_ouput = WidgetOutput::new();
+            m.event(ctx, <span class="kw-2">&amp;mut </span>tmp_ouput);
+            <span class="kw">if let </span>Outcome::Clicked(<span class="kw">_</span>) = tmp_ouput.outcome {
+                <span class="self">self</span>.current_idx = <span class="self">self</span>.menu.take().unwrap().take_current_choice();
+                output.outcome = Outcome::Changed(<span class="self">self</span>.label.clone());
+                <span class="kw">let </span>top_left = <span class="self">self</span>.btn.top_left;
+                <span class="self">self</span>.btn = make_btn(
+                    ctx,
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.choices[<span class="self">self</span>.current_idx].label,
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.label,
+                    <span class="self">self</span>.is_persisten_split,
                 );
-                <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">set_pos</span>(<span class="ident">top_left</span>);
-                <span class="ident">output</span>.<span class="ident">redo_layout</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">ScreenRectangle::top_left</span>(<span class="ident">m</span>.<span class="ident">top_left</span>, <span class="ident">m</span>.<span class="ident">get_dims</span>()).<span class="ident">contains</span>(<span class="ident">pt</span>) {
-                        <span class="self">self</span>.<span class="ident">menu</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="self">self</span>.btn.set_pos(top_left);
+                output.redo_layout = <span class="bool-val">true</span>;
+            } <span class="kw">else if </span>ctx.normal_left_click() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_screen_space() {
+                    <span class="kw">if </span>!ScreenRectangle::top_left(m.top_left, m.get_dims()).contains(pt) {
+                        <span class="self">self</span>.menu = <span class="prelude-val">None</span>;
                     }
-                } <span class="kw">else</span> {
-                    <span class="self">self</span>.<span class="ident">menu</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.menu = <span class="prelude-val">None</span>;
                 }
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">is_some</span>() {
-                    <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">unconsume_event</span>();
+                <span class="kw">if </span><span class="self">self</span>.menu.is_some() {
+                    ctx.input.unconsume_event();
                 }
             }
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">output</span>.<span class="ident">outcome</span> {
-                <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Nothing</span>;
-                <span class="self">self</span>.<span class="ident">open_menu</span>(<span class="ident">ctx</span>);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.btn.event(ctx, output);
+            <span class="kw">if let </span>Outcome::Clicked(<span class="kw">_</span>) = output.outcome {
+                output.outcome = Outcome::Nothing;
+                <span class="self">self</span>.open_menu(ctx);
             }
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">is_some</span>() {
-            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Focused</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
+        <span class="kw">if </span><span class="self">self</span>.menu.is_some() {
+            output.outcome = Outcome::Focused(<span class="self">self</span>.label.clone());
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">m</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">menu</span> {
-            <span class="comment">// We need a background too! Add some padding and an outline.</span>
-            <span class="comment">// TODO Little embedded Panel could make more sense?</span>
-            <span class="kw">let</span> <span class="ident">pad</span> <span class="op">=</span> <span class="number">5.0</span>;
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">get_dims</span>().<span class="ident">width</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>;
-            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">get_dims</span>().<span class="ident">height</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>;
-            <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">Polygon::rounded_rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>, <span class="number">5.0</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="self">self</span>.btn.draw(g);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>m) = <span class="self">self</span>.menu {
+            <span class="comment">// We need a background too! Add some padding and an outline.
+            // TODO Little embedded Panel could make more sense?
+            </span><span class="kw">let </span>pad = <span class="number">5.0</span>;
+            <span class="kw">let </span>width = m.get_dims().width + <span class="number">2.0 </span>* pad;
+            <span class="kw">let </span>height = m.get_dims().height + <span class="number">2.0 </span>* pad;
+            <span class="kw">let </span>rect = Polygon::rounded_rectangle(width, height, <span class="number">5.0</span>);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">field_bg</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">g</span>.<span class="ident">style</span>().<span class="ident">dropdown_border</span>,
-                <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
+            <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+            batch.push(g.style().field_bg, rect.clone());
+            batch.push(
+                g.style().dropdown_border,
+                rect.to_outline(Distance::meters(<span class="number">1.0</span>)),
             );
-            <span class="kw">let</span> <span class="ident">draw_bg</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
-            <span class="ident">g</span>.<span class="ident">fork</span>(
-                <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-                <span class="ident">ScreenPt::new</span>(<span class="ident">m</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">pad</span>, <span class="ident">m</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">pad</span>),
+            <span class="kw">let </span>draw_bg = g.upload(batch);
+            g.fork(
+                Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+                ScreenPt::new(m.top_left.x - pad, m.top_left.y - pad),
                 <span class="number">1.0</span>,
-                <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::drawing::MENU_Z</span>),
+                <span class="prelude-val">Some</span>(<span class="kw">crate</span>::drawing::MENU_Z),
             );
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_bg</span>);
-            <span class="ident">g</span>.<span class="ident">unfork</span>();
+            g.redraw(<span class="kw-2">&amp;</span>draw_bg);
+            g.unfork();
 
-            <span class="ident">m</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+            m.draw(g);
 
-            <span class="comment">// Dropdown menus often leak out of their Panel</span>
-            <span class="ident">g</span>.<span class="ident">canvas</span>
-                .<span class="ident">mark_covered_area</span>(<span class="ident">ScreenRectangle::top_left</span>(<span class="ident">m</span>.<span class="ident">top_left</span>, <span class="ident">m</span>.<span class="ident">get_dims</span>()));
+            <span class="comment">// Dropdown menus often leak out of their Panel
+            </span>g.canvas
+                .mark_covered_area(ScreenRectangle::top_left(m.top_left, m.get_dims()));
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">can_restore</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
-    <span class="kw">fn</span> <span class="ident">restore</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">prev</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">WidgetImpl</span>) {
-        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="ident">prev</span>.<span class="ident">menu</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">open_menu</span>(<span class="ident">ctx</span>);
-            <span class="comment">// TODO Preserve menu hovered item. Only matters if we&#39;ve moved the cursor off the</span>
-            <span class="comment">// menu.</span>
-        }
+    <span class="kw">fn </span>can_restore(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="bool-val">true
+    </span>}
+    <span class="kw">fn </span>restore(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, prev: <span class="kw-2">&amp;</span><span class="kw">dyn </span>WidgetImpl) {
+        <span class="kw">let </span>prev = prev.downcast_ref::&lt;Dropdown&lt;T&gt;&gt;().unwrap();
+        <span class="kw">if </span>prev.menu.is_some() {
+            <span class="self">self</span>.open_menu(ctx);
+            <span class="comment">// TODO Preserve menu hovered item. Only matters if we&#39;ve moved the cursor off the
+            // menu.
+        </span>}
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">tooltip</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">is_persisten_split</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Button</span> {
-    <span class="comment">// If we want to make Dropdown configurable, pass in or expose its button builder?</span>
-    <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_persisten_split</span> {
-        <span class="comment">// Quick hacks to make PersistentSplit&#39;s dropdown look a little better.</span>
-        <span class="comment">// It&#39;s not ideal, but we only use one persistent split in the whole app</span>
-        <span class="comment">// and it&#39;s front and center - we&#39;ll notice if something breaks.</span>
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid</span>
-            .<span class="ident">dropdown</span>()
-            .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
-                <span class="ident">top</span>: <span class="number">15.0</span>,
-                <span class="ident">bottom</span>: <span class="number">15.0</span>,
-                <span class="ident">left</span>: <span class="number">8.0</span>,
-                <span class="ident">right</span>: <span class="number">8.0</span>,
+<span class="kw">fn </span>make_btn(ctx: <span class="kw-2">&amp;</span>EventCtx, label: <span class="kw-2">&amp;</span>str, tooltip: <span class="kw-2">&amp;</span>str, is_persisten_split: bool) -&gt; Button {
+    <span class="comment">// If we want to make Dropdown configurable, pass in or expose its button builder?
+    </span><span class="kw">let </span>builder = <span class="kw">if </span>is_persisten_split {
+        <span class="comment">// Quick hacks to make PersistentSplit&#39;s dropdown look a little better.
+        // It&#39;s not ideal, but we only use one persistent split in the whole app
+        // and it&#39;s front and center - we&#39;ll notice if something breaks.
+        </span>ctx.style()
+            .btn_solid
+            .dropdown()
+            .padding(EdgeInsets {
+                top: <span class="number">15.0</span>,
+                bottom: <span class="number">15.0</span>,
+                left: <span class="number">8.0</span>,
+                right: <span class="number">8.0</span>,
             })
-            .<span class="ident">corner_rounding</span>(<span class="ident">CornerRounding::CornerRadii</span>(<span class="ident">CornerRadii</span> {
-                <span class="ident">top_left</span>: <span class="number">0.0</span>,
-                <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
-                <span class="ident">bottom_right</span>: <span class="number">2.0</span>,
-                <span class="ident">top_right</span>: <span class="number">2.0</span>,
+            .corner_rounding(CornerRounding::CornerRadii(CornerRadii {
+                top_left: <span class="number">0.0</span>,
+                bottom_left: <span class="number">0.0</span>,
+                bottom_right: <span class="number">2.0</span>,
+                top_right: <span class="number">2.0</span>,
             }))
-            <span class="comment">// override any outline element within persistent split</span>
-            .<span class="ident">outline</span>((<span class="number">0.0</span>, <span class="ident">Color::CLEAR</span>), <span class="ident">ControlState::Default</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">dropdown</span>().<span class="ident">label_text</span>(<span class="ident">label</span>)
+            <span class="comment">// override any outline element within persistent split
+            </span>.outline((<span class="number">0.0</span>, Color::CLEAR), ControlState::Default)
+    } <span class="kw">else </span>{
+        ctx.style().btn_outline.dropdown().label_text(label)
     };
 
-    <span class="ident">builder</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">tooltip</span>)
+    builder.build(ctx, tooltip)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

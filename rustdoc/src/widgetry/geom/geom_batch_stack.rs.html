@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/geom/geom_batch_stack.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>geom_batch_stack.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/geom/geom_batch_stack.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>geom_batch_stack.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -136,143 +136,143 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::GeomBatch</span>;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::GeomBatch;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Axis</span> {
-    <span class="ident">Horizontal</span>,
-    <span class="ident">Vertical</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">pub enum </span>Axis {
+    Horizontal,
+    Vertical,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Alignment</span> {
-    <span class="ident">Center</span>,
-    <span class="ident">Top</span>,
-    <span class="ident">Left</span>,
-    <span class="comment">// TODO: Bottom, Right</span>
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">pub enum </span>Alignment {
+    Center,
+    Top,
+    Left,
+    <span class="comment">// TODO: Bottom, Right
+</span>}
+
+<span class="doccomment">/// Similar to [`Widget::row`]/[`Widget::column`], but for [`GeomBatch`]s instead of [`Widget`]s,
+/// and follows a builder pattern
+///
+/// You can add items incrementally, change `spacing` and `axis`, and call `batch` at the end to
+/// apply these rules to produce an aggeregate `GeomBatch`.
+</span><span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>GeomBatchStack {
+    batches: Vec&lt;GeomBatch&gt;,
+    axis: Axis,
+    alignment: Alignment,
+    spacing: f64,
 }
 
-<span class="doccomment">/// Similar to [`Widget::row`]/[`Widget::column`], but for [`GeomBatch`]s instead of [`Widget`]s,</span>
-<span class="doccomment">/// and follows a builder pattern</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// You can add items incrementally, change `spacing` and `axis`, and call `batch` at the end to</span>
-<span class="doccomment">/// apply these rules to produce an aggeregate `GeomBatch`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GeomBatchStack</span> {
-    <span class="ident">batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>,
-    <span class="ident">axis</span>: <span class="ident">Axis</span>,
-    <span class="ident">alignment</span>: <span class="ident">Alignment</span>,
-    <span class="ident">spacing</span>: <span class="ident">f64</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">GeomBatchStack</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">GeomBatchStack</span> {
-            <span class="ident">batches</span>: <span class="macro">vec!</span>[],
-            <span class="ident">axis</span>: <span class="ident">Axis::Horizontal</span>,
-            <span class="ident">alignment</span>: <span class="ident">Alignment::Center</span>,
-            <span class="ident">spacing</span>: <span class="number">0.0</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>GeomBatchStack {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        GeomBatchStack {
+            batches: <span class="macro">vec!</span>[],
+            axis: Axis::Horizontal,
+            alignment: Alignment::Center,
+            spacing: <span class="number">0.0</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">GeomBatchStack</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">horizontal</span>(<span class="ident">batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from_axis</span>(<span class="ident">batches</span>, <span class="ident">Axis::Horizontal</span>)
+<span class="kw">impl </span>GeomBatchStack {
+    <span class="kw">pub fn </span>horizontal(batches: Vec&lt;GeomBatch&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::from_axis(batches, Axis::Horizontal)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vertical</span>(<span class="ident">batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::from_axis</span>(<span class="ident">batches</span>, <span class="ident">Axis::Vertical</span>)
+    <span class="kw">pub fn </span>vertical(batches: Vec&lt;GeomBatch&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::from_axis(batches, Axis::Vertical)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_axis</span>(<span class="ident">batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>, <span class="ident">axis</span>: <span class="ident">Axis</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">GeomBatchStack</span> {
-            <span class="ident">batches</span>,
-            <span class="ident">axis</span>,
-            ..<span class="ident">Default::default</span>()
+    <span class="kw">pub fn </span>from_axis(batches: Vec&lt;GeomBatch&gt;, axis: Axis) -&gt; <span class="self">Self </span>{
+        GeomBatchStack {
+            batches,
+            axis,
+            ..Default::default()
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">batches</span>.<span class="ident">get</span>(<span class="ident">index</span>)
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>GeomBatch&gt; {
+        <span class="self">self</span>.batches.get(index)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">batches</span>.<span class="ident">get_mut</span>(<span class="ident">index</span>)
+    <span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, index: usize) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>GeomBatch&gt; {
+        <span class="self">self</span>.batches.get_mut(index)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">geom_batch</span>: <span class="ident">GeomBatch</span>) {
-        <span class="self">self</span>.<span class="ident">batches</span>.<span class="ident">push</span>(<span class="ident">geom_batch</span>);
+    <span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, geom_batch: GeomBatch) {
+        <span class="self">self</span>.batches.push(geom_batch);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">geom_batches</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">batches</span>.<span class="ident">append</span>(<span class="ident">geom_batches</span>);
+    <span class="kw">pub fn </span>append(<span class="kw-2">&amp;mut </span><span class="self">self</span>, geom_batches: <span class="kw-2">&amp;mut </span>Vec&lt;GeomBatch&gt;) {
+        <span class="self">self</span>.batches.append(geom_batches);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_axis</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">Axis</span>) {
-        <span class="self">self</span>.<span class="ident">axis</span> <span class="op">=</span> <span class="ident">new_value</span>;
+    <span class="kw">pub fn </span>set_axis(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_value: Axis) {
+        <span class="self">self</span>.axis = new_value;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_alignment</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">new_value</span>: <span class="ident">Alignment</span>) {
-        <span class="self">self</span>.<span class="ident">alignment</span> <span class="op">=</span> <span class="ident">new_value</span>;
+    <span class="kw">pub fn </span>set_alignment(<span class="kw-2">&amp;mut </span><span class="self">self</span>, new_value: Alignment) {
+        <span class="self">self</span>.alignment = new_value;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_spacing</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">spacing</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">spacing</span> <span class="op">=</span> <span class="ident">spacing</span>.<span class="ident">into</span>();
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>set_spacing(<span class="kw-2">&amp;mut </span><span class="self">self</span>, spacing: <span class="kw">impl </span>Into&lt;f64&gt;) -&gt; <span class="kw-2">&amp;mut </span><span class="self">Self </span>{
+        <span class="self">self</span>.spacing = spacing.into();
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">batches</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">GeomBatch::new</span>();
+    <span class="kw">pub fn </span>batch(<span class="self">self</span>) -&gt; GeomBatch {
+        <span class="kw">if </span><span class="self">self</span>.batches.is_empty() {
+            <span class="kw">return </span>GeomBatch::new();
         }
 
-        <span class="kw">let</span> <span class="ident">max_bound_for_axis</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">batches</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="ident">GeomBatch::get_bounds</span>)
-            .<span class="ident">max_by</span>(<span class="op">|</span><span class="ident">b1</span>, <span class="ident">b2</span><span class="op">|</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">axis</span> {
-                <span class="ident">Axis::Vertical</span> =&gt; <span class="ident">b1</span>.<span class="ident">width</span>().<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b2</span>.<span class="ident">width</span>()).<span class="ident">unwrap</span>(),
-                <span class="ident">Axis::Horizontal</span> =&gt; <span class="ident">b1</span>.<span class="ident">height</span>().<span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="ident">b2</span>.<span class="ident">height</span>()).<span class="ident">unwrap</span>(),
+        <span class="kw">let </span>max_bound_for_axis = <span class="self">self
+            </span>.batches
+            .iter()
+            .map(GeomBatch::get_bounds)
+            .max_by(|b1, b2| <span class="kw">match </span><span class="self">self</span>.axis {
+                Axis::Vertical =&gt; b1.width().partial_cmp(<span class="kw-2">&amp;</span>b2.width()).unwrap(),
+                Axis::Horizontal =&gt; b1.height().partial_cmp(<span class="kw-2">&amp;</span>b2.height()).unwrap(),
             })
-            .<span class="ident">unwrap</span>();
+            .unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack_offset</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">batches</span> {
-            <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_bounds</span>();
-            <span class="kw">let</span> <span class="ident">alignment_inset</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">alignment</span>, <span class="self">self</span>.<span class="ident">axis</span>) {
-                (<span class="ident">Alignment::Center</span>, <span class="ident">Axis::Vertical</span>) =&gt; {
-                    (<span class="ident">max_bound_for_axis</span>.<span class="ident">width</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">width</span>()) <span class="op">/</span> <span class="number">2.0</span>
-                }
-                (<span class="ident">Alignment::Center</span>, <span class="ident">Axis::Horizontal</span>) =&gt; {
-                    (<span class="ident">max_bound_for_axis</span>.<span class="ident">height</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">height</span>()) <span class="op">/</span> <span class="number">2.0</span>
-                }
-                (<span class="ident">Alignment::Top</span>, <span class="ident">Axis::Vertical</span>) =&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>stack_batch = GeomBatch::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>stack_offset = <span class="number">0.0</span>;
+        <span class="kw">for </span><span class="kw-2">mut </span>batch <span class="kw">in </span><span class="self">self</span>.batches {
+            <span class="kw">let </span>bounds = batch.get_bounds();
+            <span class="kw">let </span>alignment_inset = <span class="kw">match </span>(<span class="self">self</span>.alignment, <span class="self">self</span>.axis) {
+                (Alignment::Center, Axis::Vertical) =&gt; {
+                    (max_bound_for_axis.width() - bounds.width()) / <span class="number">2.0
+                </span>}
+                (Alignment::Center, Axis::Horizontal) =&gt; {
+                    (max_bound_for_axis.height() - bounds.height()) / <span class="number">2.0
+                </span>}
+                (Alignment::Top, Axis::Vertical) =&gt; {
                     <span class="macro">panic!</span>(<span class="string">&quot;cannot top-align items in a vertical stack&quot;</span>)
                 }
-                (<span class="ident">Alignment::Top</span>, <span class="ident">Axis::Horizontal</span>) =&gt; <span class="number">0.0</span>,
-                (<span class="ident">Alignment::Left</span>, <span class="ident">Axis::Horizontal</span>) =&gt; {
+                (Alignment::Top, Axis::Horizontal) =&gt; <span class="number">0.0</span>,
+                (Alignment::Left, Axis::Horizontal) =&gt; {
                     <span class="macro">panic!</span>(<span class="string">&quot;cannot left-align items in a horizontal stack&quot;</span>)
                 }
-                (<span class="ident">Alignment::Left</span>, <span class="ident">Axis::Vertical</span>) =&gt; <span class="number">0.0</span>,
+                (Alignment::Left, Axis::Vertical) =&gt; <span class="number">0.0</span>,
             };
 
-            <span class="kw">let</span> (<span class="ident">dx</span>, <span class="ident">dy</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">axis</span> {
-                <span class="ident">Axis::Vertical</span> =&gt; (<span class="ident">alignment_inset</span>, <span class="ident">stack_offset</span>),
-                <span class="ident">Axis::Horizontal</span> =&gt; (<span class="ident">stack_offset</span>, <span class="ident">alignment_inset</span>),
+            <span class="kw">let </span>(dx, dy) = <span class="kw">match </span><span class="self">self</span>.axis {
+                Axis::Vertical =&gt; (alignment_inset, stack_offset),
+                Axis::Horizontal =&gt; (stack_offset, alignment_inset),
             };
-            <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">translate</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
-            <span class="ident">stack_batch</span>.<span class="ident">append</span>(<span class="ident">batch</span>);
+            batch = batch.translate(dx, dy);
+            stack_batch.append(batch);
 
-            <span class="ident">stack_offset</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">spacing</span>;
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">axis</span> {
-                <span class="ident">Axis::Vertical</span> =&gt; <span class="ident">stack_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">height</span>(),
-                <span class="ident">Axis::Horizontal</span> =&gt; <span class="ident">stack_offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">width</span>(),
+            stack_offset += <span class="self">self</span>.spacing;
+            <span class="kw">match </span><span class="self">self</span>.axis {
+                Axis::Vertical =&gt; stack_offset += bounds.height(),
+                Axis::Horizontal =&gt; stack_offset += bounds.width(),
             }
         }
-        <span class="ident">stack_batch</span>
+        stack_batch
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/soundcast/trips.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trips.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../importer/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/soundcast/trips.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trips.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../importer/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -296,303 +296,303 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom::PolyLine</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{
-    <span class="ident">IndividTrip</span>, <span class="ident">MapBorder</span>, <span class="ident">MapBorders</span>, <span class="ident">OrigPersonID</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>,
+<span class="kw">use </span>abstutil::{prettyprint_usize, MultiMap, Timer};
+<span class="kw">use </span>geom::PolyLine;
+<span class="kw">use </span>map_model::{osm, BuildingID, Map, Path, PathConstraints, PathRequest, PathStep};
+<span class="kw">use </span>synthpop::{
+    IndividTrip, MapBorder, MapBorders, OrigPersonID, PersonSpec, Scenario, TripEndpoint, TripMode,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::soundcast::popdat</span>::{<span class="ident">Endpoint</span>, <span class="ident">OrigTrip</span>, <span class="ident">PopDat</span>};
+<span class="kw">use </span><span class="kw">crate</span>::soundcast::popdat::{Endpoint, OrigTrip, PopDat};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Trip</span> {
-    <span class="ident">from</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">to</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">orig</span>: <span class="ident">OrigTrip</span>,
+<span class="attribute">#[derive(Clone, Debug)]
+</span><span class="kw">struct </span>Trip {
+    from: TripEndpoint,
+    to: TripEndpoint,
+    orig: OrigTrip,
 }
 
-<span class="doccomment">/// Transform the Seattle-wide `Endpoints` into specific `TripEndpoints` for this map. When the</span>
-<span class="doccomment">/// endpoint happens to be a building on the map, this is straightforward. Otherwise, the endpoint</span>
-<span class="doccomment">/// will snap to a border intersection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// When `only_passthrough_trips` is true, only trips beginning and ending off-map are returned.</span>
-<span class="doccomment">/// When it&#39;s false, all other trips are returned.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::too_many_arguments</span>)]</span>
-<span class="kw">fn</span> <span class="ident">endpoints</span>(
-    <span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
-    <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">osm_id_to_bldg</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    (<span class="ident">in_borders</span>, <span class="ident">out_borders</span>): (<span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapBorder</span><span class="op">&gt;</span>, <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapBorder</span><span class="op">&gt;</span>),
-    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="ident">only_passthrough_trips</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="ident">TripEndpoint</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">from_bldg</span> <span class="op">=</span> <span class="ident">from</span>
-        .<span class="ident">osm_building</span>
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">TripEndpoint::Building</span>(<span class="kw-2">*</span><span class="ident">b</span>));
-    <span class="kw">let</span> <span class="ident">to_bldg</span> <span class="op">=</span> <span class="ident">to</span>
-        .<span class="ident">osm_building</span>
-        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">TripEndpoint::Building</span>(<span class="kw-2">*</span><span class="ident">b</span>));
+<span class="doccomment">/// Transform the Seattle-wide `Endpoints` into specific `TripEndpoints` for this map. When the
+/// endpoint happens to be a building on the map, this is straightforward. Otherwise, the endpoint
+/// will snap to a border intersection.
+///
+/// When `only_passthrough_trips` is true, only trips beginning and ending off-map are returned.
+/// When it&#39;s false, all other trips are returned.
+</span><span class="attribute">#[allow(clippy::too_many_arguments)]
+</span><span class="kw">fn </span>endpoints(
+    from: <span class="kw-2">&amp;</span>Endpoint,
+    to: <span class="kw-2">&amp;</span>Endpoint,
+    map: <span class="kw-2">&amp;</span>Map,
+    osm_id_to_bldg: <span class="kw-2">&amp;</span>HashMap&lt;osm::OsmID, BuildingID&gt;,
+    (in_borders, out_borders): (<span class="kw-2">&amp;</span>Vec&lt;MapBorder&gt;, <span class="kw-2">&amp;</span>Vec&lt;MapBorder&gt;),
+    constraints: PathConstraints,
+    maybe_huge_map: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>Map, HashMap&lt;osm::OsmID, BuildingID&gt;)&gt;,
+    only_passthrough_trips: bool,
+) -&gt; <span class="prelude-ty">Option</span>&lt;(TripEndpoint, TripEndpoint)&gt; {
+    <span class="kw">let </span>from_bldg = from
+        .osm_building
+        .and_then(|id| osm_id_to_bldg.get(<span class="kw-2">&amp;</span>id))
+        .map(|b| TripEndpoint::Building(<span class="kw-2">*</span>b));
+    <span class="kw">let </span>to_bldg = to
+        .osm_building
+        .and_then(|id| osm_id_to_bldg.get(<span class="kw-2">&amp;</span>id))
+        .map(|b| TripEndpoint::Building(<span class="kw-2">*</span>b));
 
-    <span class="kw">if</span> <span class="ident">only_passthrough_trips</span> {
-        <span class="kw">if</span> <span class="ident">from_bldg</span>.<span class="ident">is_some</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">to_bldg</span>.<span class="ident">is_some</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">if </span>only_passthrough_trips {
+        <span class="kw">if </span>from_bldg.is_some() || to_bldg.is_some() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-    } <span class="kw">else</span> {
-        <span class="comment">// Easy case: totally within the map</span>
-        <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">b1</span>), <span class="prelude-val">Some</span>(<span class="ident">b2</span>)) <span class="op">=</span> (<span class="ident">from_bldg</span>, <span class="ident">to_bldg</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">b1</span>, <span class="ident">b2</span>));
+    } <span class="kw">else </span>{
+        <span class="comment">// Easy case: totally within the map
+        </span><span class="kw">if let </span>(<span class="prelude-val">Some</span>(b1), <span class="prelude-val">Some</span>(b2)) = (from_bldg, to_bldg) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>((b1, b2));
         }
     }
 
-    <span class="comment">// If it&#39;s a pass-through trip, check if the straight line between the endpoints even crosses</span>
-    <span class="comment">// the map boundary. If not, the trip probably doesn&#39;t even involve this map at all. There are</span>
-    <span class="comment">// false positives and negatives with this approach; we could be more accurate by pathfinding</span>
-    <span class="comment">// on the huge_map, but that would be incredibly slow.</span>
-    <span class="kw">if</span> <span class="ident">from_bldg</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">to_bldg</span>.<span class="ident">is_none</span>() {
-        <span class="comment">// TODO Don&#39;t enable pass-through trips yet in general. The time to generate the scenario, the</span>
-        <span class="comment">// resulting scenario file, and the simulation runtime (and gridlockiness) all skyrocket.</span>
-        <span class="comment">// Need to harden more things before enabling.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">only_passthrough_trips</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="comment">// If it&#39;s a pass-through trip, check if the straight line between the endpoints even crosses
+    // the map boundary. If not, the trip probably doesn&#39;t even involve this map at all. There are
+    // false positives and negatives with this approach; we could be more accurate by pathfinding
+    // on the huge_map, but that would be incredibly slow.
+    </span><span class="kw">if </span>from_bldg.is_none() &amp;&amp; to_bldg.is_none() {
+        <span class="comment">// TODO Don&#39;t enable pass-through trips yet in general. The time to generate the scenario, the
+        // resulting scenario file, and the simulation runtime (and gridlockiness) all skyrocket.
+        // Need to harden more things before enabling.
+        </span><span class="kw">if </span>!only_passthrough_trips {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">PolyLine::new</span>(<span class="macro">vec!</span>[
-            <span class="ident">from</span>.<span class="ident">pos</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
-            <span class="ident">to</span>.<span class="ident">pos</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = PolyLine::new(<span class="macro">vec!</span>[
+            from.pos.to_pt(map.get_gps_bounds()),
+            to.pos.to_pt(map.get_gps_bounds()),
         ]) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">intersects_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>) {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">if </span>!map.get_boundary_polygon().intersects_polyline(<span class="kw-2">&amp;</span>pl) {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
         }
     }
 
-    <span class="comment">// TODO When the trip begins or ends at a border, it&#39;d be nice to fix depart_at, trip_time, and</span>
-    <span class="comment">// trip_dist. Assume constant speed through the trip. But when I last tried this, the distance</span>
-    <span class="comment">// was way off. :\</span>
+    <span class="comment">// TODO When the trip begins or ends at a border, it&#39;d be nice to fix depart_at, trip_time, and
+    // trip_dist. Assume constant speed through the trip. But when I last tried this, the distance
+    // was way off. :\
 
-    <span class="kw">let</span> <span class="ident">snapper</span> <span class="op">=</span> <span class="ident">BorderSnapper::new</span>(<span class="ident">from</span>, <span class="ident">to</span>, <span class="ident">constraints</span>, <span class="ident">maybe_huge_map</span>)
-        .<span class="ident">unwrap_or</span>(<span class="ident">BorderSnapper</span> { <span class="ident">path</span>: <span class="prelude-val">None</span> });
+    </span><span class="kw">let </span>snapper = BorderSnapper::new(from, to, constraints, maybe_huge_map)
+        .unwrap_or(BorderSnapper { path: <span class="prelude-val">None </span>});
 
-    <span class="kw">let</span> <span class="ident">from_endpt</span> <span class="op">=</span> <span class="ident">from_bldg</span>
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">snapper</span>.<span class="ident">snap_border</span>(<span class="ident">in_borders</span>, <span class="bool-val">true</span>, <span class="ident">map</span>, <span class="ident">maybe_huge_map</span>))
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="comment">// Fallback to finding the nearest border with straight-line distance</span>
-            <span class="ident">in_borders</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">border</span>.<span class="ident">gps_pos</span>.<span class="ident">fast_dist</span>(<span class="ident">from</span>.<span class="ident">pos</span>))
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">TripEndpoint::Border</span>(<span class="ident">border</span>.<span class="ident">i</span>))
+    <span class="kw">let </span>from_endpt = from_bldg
+        .or_else(|| snapper.snap_border(in_borders, <span class="bool-val">true</span>, map, maybe_huge_map))
+        .or_else(|| {
+            <span class="comment">// Fallback to finding the nearest border with straight-line distance
+            </span>in_borders
+                .iter()
+                .min_by_key(|border| border.gps_pos.fast_dist(from.pos))
+                .map(|border| TripEndpoint::Border(border.i))
         })<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">to_endpt</span> <span class="op">=</span> <span class="ident">to_bldg</span>
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">snapper</span>.<span class="ident">snap_border</span>(<span class="ident">out_borders</span>, <span class="bool-val">false</span>, <span class="ident">map</span>, <span class="ident">maybe_huge_map</span>))
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="comment">// Fallback to finding the nearest border with straight-line distance</span>
-            <span class="ident">out_borders</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">border</span>.<span class="ident">gps_pos</span>.<span class="ident">fast_dist</span>(<span class="ident">from</span>.<span class="ident">pos</span>))
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">TripEndpoint::Border</span>(<span class="ident">border</span>.<span class="ident">i</span>))
+    <span class="kw">let </span>to_endpt = to_bldg
+        .or_else(|| snapper.snap_border(out_borders, <span class="bool-val">false</span>, map, maybe_huge_map))
+        .or_else(|| {
+            <span class="comment">// Fallback to finding the nearest border with straight-line distance
+            </span>out_borders
+                .iter()
+                .min_by_key(|border| border.gps_pos.fast_dist(from.pos))
+                .map(|border| TripEndpoint::Border(border.i))
         })<span class="question-mark">?</span>;
 
-    <span class="kw">if</span> <span class="ident">from_endpt</span> <span class="op">==</span> <span class="ident">to_endpt</span> {
-        <span class="comment">//warn!(&quot;loop on {:?}. {:?} to {:?}&quot;, from_endpt, from, to);</span>
-    }
+    <span class="kw">if </span>from_endpt == to_endpt {
+        <span class="comment">//warn!(&quot;loop on {:?}. {:?} to {:?}&quot;, from_endpt, from, to);
+    </span>}
 
-    <span class="prelude-val">Some</span>((<span class="ident">from_endpt</span>, <span class="ident">to_endpt</span>))
+    <span class="prelude-val">Some</span>((from_endpt, to_endpt))
 }
 
-<span class="comment">// Use the large map to find the real path somebody might take, then try to match that to a border</span>
-<span class="comment">// in the smaller map.</span>
-<span class="kw">struct</span> <span class="ident">BorderSnapper</span> {
-    <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
+<span class="comment">// Use the large map to find the real path somebody might take, then try to match that to a border
+// in the smaller map.
+</span><span class="kw">struct </span>BorderSnapper {
+    path: <span class="prelude-ty">Option</span>&lt;Path&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">BorderSnapper</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">from</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
-        <span class="ident">to</span>: <span class="kw-2">&amp;</span><span class="ident">Endpoint</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-        <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BorderSnapper</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">huge_map</span>, <span class="ident">huge_osm_id_to_bldg</span>) <span class="op">=</span> <span class="ident">maybe_huge_map</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">b1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">from</span>
-            .<span class="ident">osm_building</span>
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">huge_osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">b2</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">to</span>
-            .<span class="ident">osm_building</span>
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">huge_osm_id_to_bldg</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">PathRequest::between_buildings</span>(<span class="ident">huge_map</span>, <span class="ident">b1</span>, <span class="ident">b2</span>, <span class="ident">constraints</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">BorderSnapper</span> {
-            <span class="ident">path</span>: <span class="ident">huge_map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>(),
+<span class="kw">impl </span>BorderSnapper {
+    <span class="kw">fn </span>new(
+        from: <span class="kw-2">&amp;</span>Endpoint,
+        to: <span class="kw-2">&amp;</span>Endpoint,
+        constraints: PathConstraints,
+        maybe_huge_map: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>Map, HashMap&lt;osm::OsmID, BuildingID&gt;)&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;BorderSnapper&gt; {
+        <span class="kw">let </span>(huge_map, huge_osm_id_to_bldg) = maybe_huge_map<span class="question-mark">?</span>;
+        <span class="kw">let </span>b1 = <span class="kw-2">*</span>from
+            .osm_building
+            .and_then(|id| huge_osm_id_to_bldg.get(<span class="kw-2">&amp;</span>id))<span class="question-mark">?</span>;
+        <span class="kw">let </span>b2 = <span class="kw-2">*</span>to
+            .osm_building
+            .and_then(|id| huge_osm_id_to_bldg.get(<span class="kw-2">&amp;</span>id))<span class="question-mark">?</span>;
+        <span class="kw">let </span>req = PathRequest::between_buildings(huge_map, b1, b2, constraints)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(BorderSnapper {
+            path: huge_map.pathfind(req).ok(),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">snap_border</span>(
+    <span class="kw">fn </span>snap_border(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">usable_borders</span>: <span class="kw-2">&amp;</span>[<span class="ident">MapBorder</span>],
-        <span class="ident">incoming</span>: <span class="ident">bool</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">maybe_huge_map</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">huge_map</span> <span class="op">=</span> <span class="ident">maybe_huge_map</span><span class="question-mark">?</span>.<span class="number">0</span>;
-        <span class="comment">// Do any of the usable borders match the path?</span>
-        <span class="comment">// TODO Calculate this once</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_id_to_border</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> <span class="ident">border</span> <span class="kw">in</span> <span class="ident">usable_borders</span> {
-            <span class="ident">node_id_to_border</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">border</span>.<span class="ident">i</span>).<span class="ident">orig_id</span>, <span class="ident">border</span>.<span class="ident">i</span>);
+        usable_borders: <span class="kw-2">&amp;</span>[MapBorder],
+        incoming: bool,
+        map: <span class="kw-2">&amp;</span>Map,
+        maybe_huge_map: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>(<span class="kw-2">&amp;</span>Map, HashMap&lt;osm::OsmID, BuildingID&gt;)&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;TripEndpoint&gt; {
+        <span class="kw">let </span>huge_map = maybe_huge_map<span class="question-mark">?</span>.<span class="number">0</span>;
+        <span class="comment">// Do any of the usable borders match the path?
+        // TODO Calculate this once
+        </span><span class="kw">let </span><span class="kw-2">mut </span>node_id_to_border = HashMap::new();
+        <span class="kw">for </span>border <span class="kw">in </span>usable_borders {
+            node_id_to_border.insert(map.get_i(border.i).orig_id, border.i);
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter1</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter2</span>;
-        <span class="kw">let</span> <span class="ident">steps</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">PathStep</span><span class="op">&gt;</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">incoming</span> {
-            <span class="ident">iter1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">get_steps</span>().<span class="ident">iter</span>();
-            <span class="kw-2">&amp;mut</span> <span class="ident">iter1</span>
-        } <span class="kw">else</span> {
-            <span class="ident">iter2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">as_ref</span>()<span class="question-mark">?</span>.<span class="ident">get_steps</span>().<span class="ident">iter</span>().<span class="ident">rev</span>();
-            <span class="kw-2">&amp;mut</span> <span class="ident">iter2</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>iter1;
+        <span class="kw">let </span><span class="kw-2">mut </span>iter2;
+        <span class="kw">let </span>steps: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>PathStep&gt; = <span class="kw">if </span>incoming {
+            iter1 = <span class="self">self</span>.path.as_ref()<span class="question-mark">?</span>.get_steps().iter();
+            <span class="kw-2">&amp;mut </span>iter1
+        } <span class="kw">else </span>{
+            iter2 = <span class="self">self</span>.path.as_ref()<span class="question-mark">?</span>.get_steps().iter().rev();
+            <span class="kw-2">&amp;mut </span>iter2
         };
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">steps</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">node_id_to_border</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">huge_map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">orig_id</span>) {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint::Border</span>(<span class="kw-2">*</span><span class="ident">i</span>));
+        <span class="kw">for </span>step <span class="kw">in </span>steps {
+            <span class="kw">if let </span>PathStep::Turn(t) | PathStep::ContraflowTurn(t) = step {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = node_id_to_border.get(<span class="kw-2">&amp;</span>huge_map.get_i(t.parent).orig_id) {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(TripEndpoint::Border(<span class="kw-2">*</span>i));
                 }
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="kw">fn</span> <span class="ident">clip_trips</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">popdat</span>: <span class="kw-2">&amp;</span><span class="ident">PopDat</span>,
-    <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">only_passthrough_trips</span>: <span class="ident">bool</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">maybe_huge_map</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">map</span> <span class="op">==</span> <span class="string">&quot;huge_seattle&quot;</span> {
-        <span class="prelude-val">None</span>
-    } <span class="kw">else</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">huge_osm_id_to_bldg</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">huge_map</span>.<span class="ident">all_buildings</span>() {
-            <span class="ident">huge_osm_id_to_bldg</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">orig_id</span>, <span class="ident">b</span>.<span class="ident">id</span>);
+<span class="kw">fn </span>clip_trips(
+    map: <span class="kw-2">&amp;</span>Map,
+    popdat: <span class="kw-2">&amp;</span>PopDat,
+    huge_map: <span class="kw-2">&amp;</span>Map,
+    only_passthrough_trips: bool,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; Vec&lt;Trip&gt; {
+    <span class="kw">let </span>maybe_huge_map = <span class="kw">if </span>map.get_name().map == <span class="string">&quot;huge_seattle&quot; </span>{
+        <span class="prelude-val">None
+    </span>} <span class="kw">else </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>huge_osm_id_to_bldg = HashMap::new();
+        <span class="kw">for </span>b <span class="kw">in </span>huge_map.all_buildings() {
+            huge_osm_id_to_bldg.insert(b.orig_id, b.id);
         }
-        <span class="prelude-val">Some</span>((<span class="ident">huge_map</span>, <span class="ident">huge_osm_id_to_bldg</span>))
+        <span class="prelude-val">Some</span>((huge_map, huge_osm_id_to_bldg))
     };
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_id_to_bldg</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="ident">osm_id_to_bldg</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">orig_id</span>, <span class="ident">b</span>.<span class="ident">id</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>osm_id_to_bldg = HashMap::new();
+    <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+        osm_id_to_bldg.insert(b.orig_id, b.id);
     }
-    <span class="kw">let</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">MapBorders::new</span>(<span class="ident">map</span>);
+    <span class="kw">let </span>borders = MapBorders::new(map);
 
-    <span class="kw">let</span> <span class="ident">total_trips</span> <span class="op">=</span> <span class="ident">popdat</span>.<span class="ident">trips</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="ident">maybe_results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">timer</span>.<span class="ident">parallelize</span>(<span class="string">&quot;clip trips&quot;</span>, <span class="ident">popdat</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">collect</span>(), <span class="op">|</span><span class="ident">orig</span><span class="op">|</span> {
-            <span class="kw">let</span> (<span class="ident">from</span>, <span class="ident">to</span>) <span class="op">=</span> <span class="ident">endpoints</span>(
-                <span class="kw-2">&amp;</span><span class="ident">orig</span>.<span class="ident">from</span>,
-                <span class="kw-2">&amp;</span><span class="ident">orig</span>.<span class="ident">to</span>,
-                <span class="ident">map</span>,
-                <span class="kw-2">&amp;</span><span class="ident">osm_id_to_bldg</span>,
-                <span class="ident">borders</span>.<span class="ident">for_mode</span>(<span class="ident">orig</span>.<span class="ident">mode</span>),
-                <span class="kw">match</span> <span class="ident">orig</span>.<span class="ident">mode</span> {
-                    <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> =&gt; <span class="ident">PathConstraints::Pedestrian</span>,
-                    <span class="ident">TripMode::Drive</span> =&gt; <span class="ident">PathConstraints::Car</span>,
-                    <span class="ident">TripMode::Bike</span> =&gt; <span class="ident">PathConstraints::Bike</span>,
+    <span class="kw">let </span>total_trips = popdat.trips.len();
+    <span class="kw">let </span>maybe_results: Vec&lt;<span class="prelude-ty">Option</span>&lt;Trip&gt;&gt; =
+        timer.parallelize(<span class="string">&quot;clip trips&quot;</span>, popdat.trips.iter().collect(), |orig| {
+            <span class="kw">let </span>(from, to) = endpoints(
+                <span class="kw-2">&amp;</span>orig.from,
+                <span class="kw-2">&amp;</span>orig.to,
+                map,
+                <span class="kw-2">&amp;</span>osm_id_to_bldg,
+                borders.for_mode(orig.mode),
+                <span class="kw">match </span>orig.mode {
+                    TripMode::Walk | TripMode::Transit =&gt; PathConstraints::Pedestrian,
+                    TripMode::Drive =&gt; PathConstraints::Car,
+                    TripMode::Bike =&gt; PathConstraints::Bike,
                 },
-                <span class="ident">maybe_huge_map</span>.<span class="ident">as_ref</span>(),
-                <span class="ident">only_passthrough_trips</span>,
+                maybe_huge_map.as_ref(),
+                only_passthrough_trips,
             )<span class="question-mark">?</span>;
-            <span class="prelude-val">Some</span>(<span class="ident">Trip</span> {
-                <span class="ident">from</span>,
-                <span class="ident">to</span>,
-                <span class="ident">orig</span>: <span class="ident">orig</span>.<span class="ident">clone</span>(),
+            <span class="prelude-val">Some</span>(Trip {
+                from,
+                to,
+                orig: orig.clone(),
             })
         });
-    <span class="kw">let</span> <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Trip</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">maybe_results</span>.<span class="ident">into_iter</span>().<span class="ident">flatten</span>().<span class="ident">collect</span>();
+    <span class="kw">let </span>trips: Vec&lt;Trip&gt; = maybe_results.into_iter().flatten().collect();
 
     <span class="macro">info!</span>(
         <span class="string">&quot;{} trips clipped down to just {}&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">total_trips</span>),
-        <span class="ident">prettyprint_usize</span>(<span class="ident">trips</span>.<span class="ident">len</span>())
+        prettyprint_usize(total_trips),
+        prettyprint_usize(trips.len())
     );
 
-    <span class="ident">trips</span>
+    trips
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_scenario</span>(
-    <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">popdat</span>: <span class="kw-2">&amp;</span><span class="ident">PopDat</span>,
-    <span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">Scenario</span> {
-    <span class="kw">let</span> <span class="ident">only_passthrough_trips</span> <span class="op">=</span> <span class="ident">scenario_name</span> <span class="op">==</span> <span class="string">&quot;passthrough&quot;</span>;
+<span class="kw">pub fn </span>make_scenario(
+    scenario_name: <span class="kw-2">&amp;</span>str,
+    map: <span class="kw-2">&amp;</span>Map,
+    popdat: <span class="kw-2">&amp;</span>PopDat,
+    huge_map: <span class="kw-2">&amp;</span>Map,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; Scenario {
+    <span class="kw">let </span>only_passthrough_trips = scenario_name == <span class="string">&quot;passthrough&quot;</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">individ_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="comment">// person -&gt; (trip seq, index into individ_trips)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_per_person</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span>, ((<span class="ident">usize</span>, <span class="ident">bool</span>, <span class="ident">usize</span>), <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">MultiMap::new</span>();
-    <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">clip_trips</span>(<span class="ident">map</span>, <span class="ident">popdat</span>, <span class="ident">huge_map</span>, <span class="ident">only_passthrough_trips</span>, <span class="ident">timer</span>) {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">individ_trips</span>.<span class="ident">len</span>();
-        <span class="ident">individ_trips</span>.<span class="ident">push</span>(<span class="prelude-val">Some</span>(<span class="ident">IndividTrip::new</span>(
-            <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">depart_at</span>,
-            <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">purpose</span>,
-            <span class="ident">trip</span>.<span class="ident">from</span>,
-            <span class="ident">trip</span>.<span class="ident">to</span>,
-            <span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">mode</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>individ_trips: Vec&lt;<span class="prelude-ty">Option</span>&lt;IndividTrip&gt;&gt; = Vec::new();
+    <span class="comment">// person -&gt; (trip seq, index into individ_trips)
+    </span><span class="kw">let </span><span class="kw-2">mut </span>trips_per_person: MultiMap&lt;OrigPersonID, ((usize, bool, usize), usize)&gt; =
+        MultiMap::new();
+    <span class="kw">for </span>trip <span class="kw">in </span>clip_trips(map, popdat, huge_map, only_passthrough_trips, timer) {
+        <span class="kw">let </span>idx = individ_trips.len();
+        individ_trips.push(<span class="prelude-val">Some</span>(IndividTrip::new(
+            trip.orig.depart_at,
+            trip.orig.purpose,
+            trip.from,
+            trip.to,
+            trip.orig.mode,
         )));
-        <span class="ident">trips_per_person</span>.<span class="ident">insert</span>(<span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">person</span>, (<span class="ident">trip</span>.<span class="ident">orig</span>.<span class="ident">seq</span>, <span class="ident">idx</span>));
+        trips_per_person.insert(trip.orig.person, (trip.orig.seq, idx));
     }
     <span class="macro">info!</span>(
         <span class="string">&quot;{} clipped trips, over {} people&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">individ_trips</span>.<span class="ident">len</span>()),
-        <span class="ident">prettyprint_usize</span>(<span class="ident">trips_per_person</span>.<span class="ident">len</span>())
+        prettyprint_usize(individ_trips.len()),
+        prettyprint_usize(trips_per_person.len())
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> (<span class="ident">orig_id</span>, <span class="ident">seq_trips</span>) <span class="kw">in</span> <span class="ident">trips_per_person</span>.<span class="ident">consume</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">idx</span>) <span class="kw">in</span> <span class="ident">seq_trips</span> {
-            <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">individ_trips</span>[<span class="ident">idx</span>].<span class="ident">take</span>().<span class="ident">unwrap</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>people = Vec::new();
+    <span class="kw">for </span>(orig_id, seq_trips) <span class="kw">in </span>trips_per_person.consume() {
+        <span class="kw">let </span><span class="kw-2">mut </span>trips = Vec::new();
+        <span class="kw">for </span>(<span class="kw">_</span>, idx) <span class="kw">in </span>seq_trips {
+            trips.push(individ_trips[idx].take().unwrap());
         }
-        <span class="comment">// Actually, the sequence in the Soundcast dataset crosses midnight. Don&#39;t do that; sort by</span>
-        <span class="comment">// departure time starting with midnight.</span>
-        <span class="ident">trips</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">depart</span>);
-        <span class="comment">// Sanity check that endpoints match up</span>
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">trips</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">let</span> <span class="ident">destination</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span>;
-            <span class="kw">let</span> <span class="ident">origin</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span>;
-            <span class="kw">if</span> <span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">origin</span> {
+        <span class="comment">// Actually, the sequence in the Soundcast dataset crosses midnight. Don&#39;t do that; sort by
+        // departure time starting with midnight.
+        </span>trips.sort_by_key(|t| t.depart);
+        <span class="comment">// Sanity check that endpoints match up
+        </span><span class="kw">for </span>pair <span class="kw">in </span>trips.windows(<span class="number">2</span>) {
+            <span class="kw">let </span>destination = <span class="kw-2">&amp;</span>pair[<span class="number">0</span>].destination;
+            <span class="kw">let </span>origin = <span class="kw-2">&amp;</span>pair[<span class="number">1</span>].origin;
+            <span class="kw">if </span>destination != origin {
                 <span class="macro">warn!</span>(
                     <span class="string">&quot;Skipping {:?}, with adjacent trips that warp from {:?} to {:?}&quot;</span>,
-                    <span class="ident">orig_id</span>, <span class="ident">destination</span>, <span class="ident">origin</span>
+                    orig_id, destination, origin
                 );
                 <span class="kw">continue</span>;
             }
         }
 
-        <span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
-            <span class="ident">orig_id</span>: <span class="prelude-val">Some</span>(<span class="ident">orig_id</span>),
-            <span class="ident">trips</span>,
+        people.push(PersonSpec {
+            orig_id: <span class="prelude-val">Some</span>(orig_id),
+            trips,
         });
     }
-    <span class="kw">for</span> <span class="ident">maybe_t</span> <span class="kw">in</span> <span class="ident">individ_trips</span> {
-        <span class="kw">if</span> <span class="ident">maybe_t</span>.<span class="ident">is_some</span>() {
+    <span class="kw">for </span>maybe_t <span class="kw">in </span>individ_trips {
+        <span class="kw">if </span>maybe_t.is_some() {
             <span class="macro">panic!</span>(<span class="string">&quot;Some IndividTrip wasn&#39;t associated with a Person?!&quot;</span>);
         }
     }
 
-    <span class="ident">Scenario</span> {
-        <span class="ident">scenario_name</span>: <span class="ident">scenario_name</span>.<span class="ident">to_string</span>(),
-        <span class="ident">map_name</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-        <span class="ident">people</span>,
-        <span class="ident">only_seed_buses</span>: <span class="prelude-val">None</span>,
+    Scenario {
+        scenario_name: scenario_name.to_string(),
+        map_name: map.get_name().clone(),
+        people,
+        only_seed_buses: <span class="prelude-val">None</span>,
     }
-    .<span class="ident">remove_weird_schedules</span>(<span class="bool-val">true</span>)
+    .remove_weird_schedules(<span class="bool-val">true</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

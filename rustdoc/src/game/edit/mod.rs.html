@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1001,134 +1001,134 @@
 <span id="1001">1001</span>
 <span id="1002">1002</span>
 <span id="1003">1003</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>maplit::btreeset;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom::Speed</span>;
-<span class="kw">use</span> <span class="ident">map_gui::options::OptionsPanel</span>;
-<span class="kw">use</span> <span class="ident">map_gui::render::DrawMap</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::Speed;
+<span class="kw">use </span>map_gui::options::OptionsPanel;
+<span class="kw">use </span>map_gui::render::DrawMap;
+<span class="kw">use </span>map_gui::tools::grey_out_map;
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::{EditCmd, IntersectionID, LaneID, MapEdits};
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::tools::{ChooseSomething, ColorLegend, PopupMsg};
+<span class="kw">use </span>widgetry::{
+    lctrl, Choice, Color, ControlState, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line,
+    Menu, Outcome, Panel, State, Text, TextBox, TextExt, VerticalAlignment, Widget,
 };
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::roads::RoadEditor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::routes::RouteEditor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::stop_signs::StopSignEditor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::traffic_signals::TrafficSignalEditor</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::validate</span>::{<span class="ident">check_blackholes</span>, <span class="ident">check_sidewalk_connectivity</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>, <span class="ident">Warping</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug::DebugMode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>, <span class="ident">TimeWarpScreen</span>};
+<span class="kw">pub use </span><span class="self">self</span>::roads::RoadEditor;
+<span class="kw">pub use </span><span class="self">self</span>::routes::RouteEditor;
+<span class="kw">pub use </span><span class="self">self</span>::stop_signs::StopSignEditor;
+<span class="kw">pub use </span><span class="self">self</span>::traffic_signals::TrafficSignalEditor;
+<span class="kw">pub use </span><span class="self">self</span>::validate::{check_blackholes, check_sidewalk_connectivity};
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::{tool_panel, CommonState, Warping};
+<span class="kw">use </span><span class="kw">crate</span>::debug::DebugMode;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
-<span class="kw">mod</span> <span class="ident">crosswalks</span>;
-<span class="kw">mod</span> <span class="ident">multiple_roads</span>;
-<span class="kw">mod</span> <span class="ident">roads</span>;
-<span class="kw">mod</span> <span class="ident">routes</span>;
-<span class="kw">mod</span> <span class="ident">stop_signs</span>;
-<span class="kw">mod</span> <span class="ident">traffic_signals</span>;
-<span class="kw">mod</span> <span class="ident">validate</span>;
-<span class="kw">mod</span> <span class="ident">zones</span>;
+<span class="kw">mod </span>crosswalks;
+<span class="kw">mod </span>multiple_roads;
+<span class="kw">mod </span>roads;
+<span class="kw">mod </span>routes;
+<span class="kw">mod </span>stop_signs;
+<span class="kw">mod </span>traffic_signals;
+<span class="kw">mod </span>validate;
+<span class="kw">mod </span>zones;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EditMode</span> {
-    <span class="ident">tool_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">top_center</span>: <span class="ident">Panel</span>,
-    <span class="ident">changelist</span>: <span class="ident">Panel</span>,
-    <span class="ident">orig_edits</span>: <span class="ident">MapEdits</span>,
-    <span class="ident">orig_dirty</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>EditMode {
+    tool_panel: Panel,
+    top_center: Panel,
+    changelist: Panel,
+    orig_edits: MapEdits,
+    orig_dirty: bool,
 
-    <span class="comment">// Retained state from the SandboxMode that spawned us</span>
-    <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
+    <span class="comment">// Retained state from the SandboxMode that spawned us
+    </span>mode: GameplayMode,
 
-    <span class="ident">map_edit_key</span>: <span class="ident">usize</span>,
+    map_edit_key: usize,
 
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
+    draw: ToggleZoomed,
 }
 
-<span class="kw">impl</span> <span class="ident">EditMode</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">orig_dirty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span>;
-        <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">is_none</span>());
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>());
-        <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::layer::map::Static::edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">Box::new</span>(<span class="ident">EditMode</span> {
-            <span class="ident">tool_panel</span>: <span class="ident">tool_panel</span>(<span class="ident">ctx</span>),
-            <span class="ident">top_center</span>: <span class="ident">make_topcenter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">changelist</span>: <span class="ident">make_changelist</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">orig_edits</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>(),
-            <span class="ident">orig_dirty</span>,
-            <span class="ident">mode</span>,
-            <span class="ident">map_edit_key</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>(),
-            <span class="ident">draw</span>: <span class="ident">layer</span>.<span class="ident">draw</span>,
+<span class="kw">impl </span>EditMode {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, mode: GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>orig_dirty = app.primary.dirty_from_edits;
+        <span class="macro">assert!</span>(app.primary.suspended_sim.is_none());
+        app.primary.suspended_sim = <span class="prelude-val">Some</span>(app.primary.clear_sim());
+        <span class="kw">let </span>layer = <span class="kw">crate</span>::layer::map::Static::edits(ctx, app);
+        Box::new(EditMode {
+            tool_panel: tool_panel(ctx),
+            top_center: make_topcenter(ctx, app),
+            changelist: make_changelist(ctx, app),
+            orig_edits: app.primary.map.get_edits().clone(),
+            orig_dirty,
+            mode,
+            map_edit_key: app.primary.map.get_edits_change_key(),
+            draw: layer.draw,
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">quit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">let</span> <span class="ident">old_sim</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+    <span class="kw">fn </span>quit(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">let </span>old_sim = app.primary.suspended_sim.take().unwrap();
 
-        <span class="comment">// If nothing changed, short-circuit</span>
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>() <span class="op">==</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">orig_edits</span> {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">old_sim</span>;
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">orig_dirty</span>;
-            <span class="comment">// Could happen if we load some edits, then load whatever we entered edit mode with.</span>
-            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
+        <span class="comment">// If nothing changed, short-circuit
+        </span><span class="kw">if </span>app.primary.map.get_edits() == <span class="kw-2">&amp;</span><span class="self">self</span>.orig_edits {
+            app.primary.sim = old_sim;
+            app.primary.dirty_from_edits = <span class="self">self</span>.orig_dirty;
+            <span class="comment">// Could happen if we load some edits, then load whatever we entered edit mode with.
+            </span>ctx.loading_screen(<span class="string">&quot;apply edits&quot;</span>, |<span class="kw">_</span>, timer| {
+                app.primary.map.recalculate_pathfinding_after_edits(timer);
             });
-            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+            <span class="kw">return </span>Transition::Pop;
         }
 
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply edits&quot;</span>, <span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
-            <span class="kw">if</span> <span class="ident">GameplayMode::FixTrafficSignals</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">mode</span> {
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">old_sim</span>;
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="ident">app</span>.<span class="ident">primary</span>
-                    .<span class="ident">sim</span>
-                    .<span class="ident">handle_live_edited_traffic_signals</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
-                <span class="ident">Transition::Pop</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">live_map_edits</span> {
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">old_sim</span>;
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="ident">app</span>.<span class="ident">primary</span>
-                    .<span class="ident">sim</span>
-                    .<span class="ident">handle_live_edited_traffic_signals</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
-                <span class="kw">let</span> (<span class="ident">trips</span>, <span class="ident">parked_cars</span>) <span class="op">=</span>
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">timer</span>);
-                <span class="kw">if</span> <span class="ident">trips</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">parked_cars</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="ident">Transition::Pop</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
-                        <span class="ident">ctx</span>,
+        ctx.loading_screen(<span class="string">&quot;apply edits&quot;</span>, <span class="kw">move </span>|ctx, timer| {
+            app.primary.map.recalculate_pathfinding_after_edits(timer);
+            <span class="kw">if </span>GameplayMode::FixTrafficSignals == <span class="self">self</span>.mode {
+                app.primary.sim = old_sim;
+                app.primary.dirty_from_edits = <span class="bool-val">true</span>;
+                app.primary
+                    .sim
+                    .handle_live_edited_traffic_signals(<span class="kw-2">&amp;</span>app.primary.map);
+                Transition::Pop
+            } <span class="kw">else if </span>app.primary.current_flags.live_map_edits {
+                app.primary.sim = old_sim;
+                app.primary.dirty_from_edits = <span class="bool-val">true</span>;
+                app.primary
+                    .sim
+                    .handle_live_edited_traffic_signals(<span class="kw-2">&amp;</span>app.primary.map);
+                <span class="kw">let </span>(trips, parked_cars) =
+                    app.primary.sim.handle_live_edits(<span class="kw-2">&amp;</span>app.primary.map, timer);
+                <span class="kw">if </span>trips == <span class="number">0 </span>&amp;&amp; parked_cars == <span class="number">0 </span>{
+                    Transition::Pop
+                } <span class="kw">else </span>{
+                    Transition::Replace(PopupMsg::new_state(
+                        ctx,
                         <span class="string">&quot;Map changes complete&quot;</span>,
                         <span class="macro">vec!</span>[
                             <span class="macro">format!</span>(
                                 <span class="string">&quot;Your edits interrupted {} trips and displaced {} parked cars&quot;</span>,
-                                <span class="ident">prettyprint_usize</span>(<span class="ident">trips</span>),
-                                <span class="ident">prettyprint_usize</span>(<span class="ident">parked_cars</span>)
+                                prettyprint_usize(trips),
+                                prettyprint_usize(parked_cars)
                             ),
                             <span class="string">&quot;Simulation results won&#39;t be finalized unless you restart from \
-                             midnight with your changes&quot;</span>
-                                .<span class="ident">to_string</span>(),
+                             midnight with your changes&quot;
+                                </span>.to_string(),
                         ],
                     ))
                 }
-            } <span class="kw">else</span> {
-                <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Pop</span>,
-                    <span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::async_new</span>(
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
-                        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="macro">vec!</span>[<span class="ident">Transition::Push</span>(<span class="ident">TimeWarpScreen::new_state</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">app</span>,
-                                <span class="ident">old_sim</span>.<span class="ident">time</span>(),
+            } <span class="kw">else </span>{
+                Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Pop,
+                    Transition::Replace(SandboxMode::async_new(
+                        app,
+                        <span class="self">self</span>.mode.clone(),
+                        Box::new(<span class="kw">move </span>|ctx, app| {
+                            <span class="macro">vec!</span>[Transition::Push(TimeWarpScreen::new_state(
+                                ctx,
+                                app,
+                                old_sim.time(),
                                 <span class="prelude-val">None</span>,
                             ))]
                         }),
@@ -1139,544 +1139,544 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EditMode</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>EditMode {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
         {
-            <span class="comment">// We would normally use Cached, but so many values depend on one key, so this is more</span>
-            <span class="comment">// clear.</span>
-            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key</span> {
-                <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">key</span>;
-                <span class="self">self</span>.<span class="ident">changelist</span> <span class="op">=</span> <span class="ident">make_changelist</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::layer::map::Static::edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">layer</span>.<span class="ident">draw</span>;
+            <span class="comment">// We would normally use Cached, but so many values depend on one key, so this is more
+            // clear.
+            </span><span class="kw">let </span>key = app.primary.map.get_edits_change_key();
+            <span class="kw">if </span><span class="self">self</span>.map_edit_key != key {
+                <span class="self">self</span>.map_edit_key = key;
+                <span class="self">self</span>.changelist = make_changelist(ctx, app);
+                <span class="kw">let </span>layer = <span class="kw">crate</span>::layer::map::Static::edits(ctx, app);
+                <span class="self">self</span>.draw = layer.draw;
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">CommonState::debug_actions</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-            <span class="kw">return</span> <span class="ident">t</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = CommonState::debug_actions(ctx, app) {
+            <span class="kw">return </span>t;
         }
 
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="comment">// Restrict what can be selected.</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>);
-            <span class="kw">if</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) =&gt; <span class="op">!</span><span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">can_edit_roads</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">can_edit_lane</span>(<span class="ident">app</span>, <span class="ident">l</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; {
-                    <span class="op">!</span><span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">can_edit_stop_signs</span>()
-                        <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">i</span>).<span class="ident">is_some</span>()
+        ctx.canvas_movement();
+        <span class="comment">// Restrict what can be selected.
+        </span><span class="kw">if </span>ctx.redo_mouseover() {
+            app.primary.current_selection = app.mouseover_unzoomed_roads_and_intersections(ctx);
+            <span class="kw">if match </span>app.primary.current_selection {
+                <span class="prelude-val">Some</span>(ID::Lane(l)) =&gt; !<span class="self">self</span>.mode.can_edit_roads() || !can_edit_lane(app, l),
+                <span class="prelude-val">Some</span>(ID::Intersection(i)) =&gt; {
+                    !<span class="self">self</span>.mode.can_edit_stop_signs()
+                        &amp;&amp; app.primary.map.maybe_get_stop_sign(i).is_some()
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="kw">_</span>)) =&gt; <span class="bool-val">false</span>,
-                <span class="kw">_</span> =&gt; <span class="bool-val">true</span>,
+                <span class="prelude-val">Some</span>(ID::Road(<span class="kw">_</span>)) =&gt; <span class="bool-val">false</span>,
+                <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
             } {
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                app.primary.current_selection = <span class="prelude-val">None</span>;
             }
         }
 
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key::D</span>)) {
-            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">DebugMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+        <span class="kw">if </span>app.opts.dev &amp;&amp; ctx.input.pressed(lctrl(Key::D)) {
+            <span class="kw">return </span>Transition::Push(DebugMode::new_state(ctx, app));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;finish editing&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">quit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_center.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;finish editing&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="self">self</span>.quit(ctx, app);
                 }
-                <span class="string">&quot;Fix sidewalk direction errors&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">new_fixes</span> <span class="op">=</span> <span class="ident">validate::fix_sidewalk_direction</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
-                    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">new_fixes</span>.<span class="ident">is_empty</span>() {
+                <span class="string">&quot;Fix sidewalk direction errors&quot; </span>=&gt; {
+                    <span class="kw">let </span>new_fixes = validate::fix_sidewalk_direction(<span class="kw-2">&amp;</span>app.primary.map);
+                    <span class="kw">let </span>msg = <span class="kw">if </span>new_fixes.is_empty() {
                         <span class="macro">format!</span>(<span class="string">&quot;No sidewalk direction errors found&quot;</span>)
-                    } <span class="kw">else</span> {
-                        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">new_fixes</span>.<span class="ident">len</span>();
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">extend</span>(<span class="ident">new_fixes</span>);
-                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                    } <span class="kw">else </span>{
+                        <span class="kw">let </span>count = new_fixes.len();
+                        <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                        edits.commands.extend(new_fixes);
+                        apply_map_edits(ctx, app, edits);
                         <span class="macro">format!</span>(<span class="string">&quot;Fixed {count} sidewalk directions&quot;</span>)
                     };
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                        <span class="ident">ctx</span>,
+                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
+                        ctx,
                         <span class="string">&quot;Fix sidewalk directions&quot;</span>,
-                        <span class="macro">vec!</span>[<span class="ident">msg</span>],
+                        <span class="macro">vec!</span>[msg],
                     ));
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">changelist</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;manage proposals&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>();
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">ChooseSomething::new_state</span>(
-                        <span class="ident">ctx</span>,
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.changelist.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;manage proposals&quot; </span>=&gt; {
+                    <span class="kw">let </span>mode = <span class="self">self</span>.mode.clone();
+                    <span class="kw">return </span>Transition::Push(ChooseSomething::new_state(
+                        ctx,
                         <span class="string">&quot;Manage proposals&quot;</span>,
                         <span class="macro">vec!</span>[
-                            <span class="ident">Choice::string</span>(<span class="string">&quot;rename current proposal&quot;</span>),
-                            <span class="ident">Choice::string</span>(<span class="string">&quot;open a saved proposal&quot;</span>).<span class="ident">multikey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>)),
-                            <span class="ident">Choice::string</span>(<span class="string">&quot;create a blank proposal&quot;</span>),
-                            <span class="ident">Choice::string</span>(<span class="string">&quot;save this proposal as...&quot;</span>),
-                            <span class="comment">// TODO Disable if empty edits</span>
-                            <span class="ident">Choice::string</span>(<span class="string">&quot;share proposal&quot;</span>),
-                            <span class="ident">Choice::string</span>(<span class="string">&quot;delete this proposal and remove all edits&quot;</span>)
-                                .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_destructive_color</span>),
+                            Choice::string(<span class="string">&quot;rename current proposal&quot;</span>),
+                            Choice::string(<span class="string">&quot;open a saved proposal&quot;</span>).multikey(lctrl(Key::L)),
+                            Choice::string(<span class="string">&quot;create a blank proposal&quot;</span>),
+                            Choice::string(<span class="string">&quot;save this proposal as...&quot;</span>),
+                            <span class="comment">// TODO Disable if empty edits
+                            </span>Choice::string(<span class="string">&quot;share proposal&quot;</span>),
+                            Choice::string(<span class="string">&quot;delete this proposal and remove all edits&quot;</span>)
+                                .fg(ctx.style().text_destructive_color),
                         ],
-                        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">choice</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">choice</span>.<span class="ident">as_ref</span>() {
-                            <span class="string">&quot;rename current proposal&quot;</span> =&gt; {
-                                <span class="kw">let</span> <span class="ident">old_name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>.<span class="ident">clone</span>();
-                                <span class="ident">Transition::Replace</span>(<span class="ident">SaveEdits::new_state</span>(
-                                    <span class="ident">ctx</span>,
-                                    <span class="ident">app</span>,
-                                    <span class="macro">format!</span>(<span class="string">&quot;Rename \&quot;{}\&quot;&quot;</span>, <span class="ident">old_name</span>),
+                        Box::new(<span class="kw">move </span>|choice, ctx, app| <span class="kw">match </span>choice.as_ref() {
+                            <span class="string">&quot;rename current proposal&quot; </span>=&gt; {
+                                <span class="kw">let </span>old_name = app.primary.map.get_edits().edits_name.clone();
+                                Transition::Replace(SaveEdits::new_state(
+                                    ctx,
+                                    app,
+                                    <span class="macro">format!</span>(<span class="string">&quot;Rename \&quot;{}\&quot;&quot;</span>, old_name),
                                     <span class="bool-val">false</span>,
-                                    <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
-                                    <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="ident">app</span><span class="op">|</span> {
-                                        <span class="ident">abstio::delete_file</span>(<span class="ident">abstio::path_edits</span>(
-                                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
-                                            <span class="kw-2">&amp;</span><span class="ident">old_name</span>,
+                                    <span class="prelude-val">Some</span>(Transition::Pop),
+                                    Box::new(<span class="kw">move </span>|<span class="kw">_</span>, app| {
+                                        abstio::delete_file(abstio::path_edits(
+                                            app.primary.map.get_name(),
+                                            <span class="kw-2">&amp;</span>old_name,
                                         ));
                                     }),
                                 ))
                             }
-                            <span class="string">&quot;open a saved proposal&quot;</span> =&gt; {
-                                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
-                                    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                        <span class="ident">Transition::Replace</span>(<span class="ident">LoadEdits::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>)),
-                                        <span class="ident">Transition::Push</span>(<span class="ident">SaveEdits::new_state</span>(
-                                            <span class="ident">ctx</span>,
-                                            <span class="ident">app</span>,
+                            <span class="string">&quot;open a saved proposal&quot; </span>=&gt; {
+                                <span class="kw">if </span>app.primary.map.unsaved_edits() {
+                                    Transition::Multi(<span class="macro">vec!</span>[
+                                        Transition::Replace(LoadEdits::new_state(ctx, app, mode)),
+                                        Transition::Push(SaveEdits::new_state(
+                                            ctx,
+                                            app,
                                             <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
                                             <span class="bool-val">true</span>,
-                                            <span class="prelude-val">Some</span>(<span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                                <span class="ident">Transition::Pop</span>,
-                                                <span class="ident">Transition::Pop</span>,
+                                            <span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
+                                                Transition::Pop,
+                                                Transition::Pop,
                                             ])),
-                                            <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
+                                            Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
                                         )),
                                     ])
-                                } <span class="kw">else</span> {
-                                    <span class="ident">Transition::Replace</span>(<span class="ident">LoadEdits::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">mode</span>))
+                                } <span class="kw">else </span>{
+                                    Transition::Replace(LoadEdits::new_state(ctx, app, mode))
                                 }
                             }
-                            <span class="string">&quot;create a blank proposal&quot;</span> =&gt; {
-                                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
-                                    <span class="ident">Transition::Replace</span>(<span class="ident">SaveEdits::new_state</span>(
-                                        <span class="ident">ctx</span>,
-                                        <span class="ident">app</span>,
+                            <span class="string">&quot;create a blank proposal&quot; </span>=&gt; {
+                                <span class="kw">if </span>app.primary.map.unsaved_edits() {
+                                    Transition::Replace(SaveEdits::new_state(
+                                        ctx,
+                                        app,
                                         <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
                                         <span class="bool-val">true</span>,
-                                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
-                                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                                            <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
+                                        <span class="prelude-val">Some</span>(Transition::Pop),
+                                        Box::new(|ctx, app| {
+                                            apply_map_edits(ctx, app, app.primary.map.new_edits());
                                         }),
                                     ))
-                                } <span class="kw">else</span> {
-                                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
-                                    <span class="ident">Transition::Pop</span>
+                                } <span class="kw">else </span>{
+                                    apply_map_edits(ctx, app, app.primary.map.new_edits());
+                                    Transition::Pop
                                 }
                             }
-                            <span class="string">&quot;save this proposal as...&quot;</span> =&gt; {
-                                <span class="ident">Transition::Replace</span>(<span class="ident">SaveEdits::new_state</span>(
-                                    <span class="ident">ctx</span>,
-                                    <span class="ident">app</span>,
+                            <span class="string">&quot;save this proposal as...&quot; </span>=&gt; {
+                                Transition::Replace(SaveEdits::new_state(
+                                    ctx,
+                                    app,
                                     <span class="macro">format!</span>(
                                         <span class="string">&quot;Save \&quot;{}\&quot; as&quot;</span>,
-                                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>
+                                        app.primary.map.get_edits().edits_name
                                     ),
                                     <span class="bool-val">false</span>,
-                                    <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
-                                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
+                                    <span class="prelude-val">Some</span>(Transition::Pop),
+                                    Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
                                 ))
                             }
-                            <span class="string">&quot;share proposal&quot;</span> =&gt; {
-                                <span class="comment">// TODO This&#39;ll always set or share a URL with the map, losing any</span>
-                                <span class="comment">// info about the current scenario.</span>
-                                <span class="comment">// https://github.com/a-b-street/abstreet/issues/766</span>
-                                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::common::share::ShareProposal::new_state</span>(
-                                    <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;--dev&quot;</span>,
+                            <span class="string">&quot;share proposal&quot; </span>=&gt; {
+                                <span class="comment">// TODO This&#39;ll always set or share a URL with the map, losing any
+                                // info about the current scenario.
+                                // https://github.com/a-b-street/abstreet/issues/766
+                                </span>Transition::Replace(<span class="kw">crate</span>::common::share::ShareProposal::new_state(
+                                    ctx, app, <span class="string">&quot;--dev&quot;</span>,
                                 ))
                             }
-                            <span class="string">&quot;delete this proposal and remove all edits&quot;</span> =&gt; {
-                                <span class="ident">abstio::delete_file</span>(<span class="ident">abstio::path_edits</span>(
-                                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
-                                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>,
+                            <span class="string">&quot;delete this proposal and remove all edits&quot; </span>=&gt; {
+                                abstio::delete_file(abstio::path_edits(
+                                    app.primary.map.get_name(),
+                                    <span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name,
                                 ));
-                                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
-                                <span class="ident">Transition::Pop</span>
+                                apply_map_edits(ctx, app, app.primary.map.new_edits());
+                                Transition::Pop
                             }
-                            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                         }),
                     ));
                 }
-                <span class="string">&quot;load proposal&quot;</span> =&gt; {}
-                <span class="string">&quot;undo&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="ident">cmd_to_id</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>());
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">maybe_id</span> {
-                        <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>(),
+                <span class="string">&quot;load proposal&quot; </span>=&gt; {}
+                <span class="string">&quot;undo&quot; </span>=&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    <span class="kw">let </span>maybe_id = cmd_to_id(<span class="kw-2">&amp;</span>edits.commands.pop().unwrap());
+                    apply_map_edits(ctx, app, edits);
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = maybe_id {
+                        <span class="kw">return </span>Transition::Push(Warping::new_state(
+                            ctx,
+                            app.primary.canonical_point(id.clone()).unwrap(),
                             <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
-                            <span class="prelude-val">Some</span>(<span class="ident">id</span>),
-                            <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                            <span class="prelude-val">Some</span>(id),
+                            <span class="kw-2">&amp;mut </span>app.primary,
                         ));
                     }
                 }
-                <span class="ident">x</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>[<span class="string">&quot;change #&quot;</span>.<span class="ident">len</span>()..].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">cmd_to_id</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>[<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>]) {
-                        <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>(),
+                x =&gt; {
+                    <span class="kw">let </span>idx = x[<span class="string">&quot;change #&quot;</span>.len()..].parse::&lt;usize&gt;().unwrap();
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = cmd_to_id(<span class="kw-2">&amp;</span>app.primary.map.get_edits().commands[idx - <span class="number">1</span>]) {
+                        <span class="kw">return </span>Transition::Push(Warping::new_state(
+                            ctx,
+                            app.primary.canonical_point(id.clone()).unwrap(),
                             <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
-                            <span class="prelude-val">Some</span>(<span class="ident">id</span>),
-                            <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                            <span class="prelude-val">Some</span>(id),
+                            <span class="kw-2">&amp;mut </span>app.primary,
                         ));
                     }
                 }
             }
         }
 
-        <span class="comment">// So useful that the hotkey should work even before opening the menu</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>)) {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
-                <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Push</span>(<span class="ident">LoadEdits::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>())),
-                    <span class="ident">Transition::Push</span>(<span class="ident">SaveEdits::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
+        <span class="comment">// So useful that the hotkey should work even before opening the menu
+        </span><span class="kw">if </span>ctx.input.pressed(lctrl(Key::L)) {
+            <span class="kw">if </span>app.primary.map.unsaved_edits() {
+                <span class="kw">return </span>Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Push(LoadEdits::new_state(ctx, app, <span class="self">self</span>.mode.clone())),
+                    Transition::Push(SaveEdits::new_state(
+                        ctx,
+                        app,
                         <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
                         <span class="bool-val">true</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Pop</span>])),
-                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
+                        <span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop])),
+                        Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
                     )),
                 ]);
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">LoadEdits::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>()));
+            } <span class="kw">else </span>{
+                <span class="kw">return </span>Transition::Push(LoadEdits::new_state(ctx, app, <span class="self">self</span>.mode.clone()));
             }
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>() {
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit this&quot;</span>) {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>(),
+        <span class="kw">if </span>ctx.canvas.is_unzoomed() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = app.primary.current_selection.clone() {
+                <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">&quot;edit this&quot;</span>) {
+                    <span class="kw">return </span>Transition::Push(Warping::new_state(
+                        ctx,
+                        app.primary.canonical_point(id).unwrap(),
                         <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
                         <span class="prelude-val">None</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                        <span class="kw-2">&amp;mut </span>app.primary,
                     ));
                 }
             }
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">id</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">maybe_edit_intersection</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>) {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">state</span>);
+        } <span class="kw">else </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Intersection(id)) = app.primary.current_selection {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = maybe_edit_intersection(ctx, app, id, <span class="kw-2">&amp;</span><span class="self">self</span>.mode) {
+                    <span class="kw">return </span>Transition::Push(state);
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit lane&quot;</span>) {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">RoadEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>));
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Lane(l)) = app.primary.current_selection {
+                <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">&quot;edit lane&quot;</span>) {
+                    <span class="kw">return </span>Transition::Push(RoadEditor::new_state(ctx, app, l));
                 }
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">tool_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;back&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">quit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="string">&quot;settings&quot;</span> =&gt; <span class="ident">Transition::Push</span>(<span class="ident">OptionsPanel::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">match </span><span class="self">self</span>.tool_panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;back&quot; </span>=&gt; <span class="self">self</span>.quit(ctx, app),
+                <span class="string">&quot;settings&quot; </span>=&gt; Transition::Push(OptionsPanel::new_state(ctx, app)),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="kw">_</span> =&gt; <span class="ident">Transition::Keep</span>,
+            <span class="kw">_ </span>=&gt; Transition::Keep,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">tool_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">top_center</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">changelist</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.tool_panel.draw(g);
+        <span class="self">self</span>.top_center.draw(g);
+        <span class="self">self</span>.changelist.draw(g);
+        <span class="self">self</span>.draw.draw(g);
+        CommonState::draw_osd(g, app);
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SaveEdits</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">current_name</span>: <span class="ident">String</span>,
-    <span class="ident">cancel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>,
-    <span class="ident">on_success</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">App</span>)<span class="op">&gt;</span>,
-    <span class="ident">reset</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>SaveEdits {
+    panel: Panel,
+    current_name: String,
+    cancel: <span class="prelude-ty">Option</span>&lt;Transition&gt;,
+    on_success: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>App)&gt;,
+    reset: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">SaveEdits</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">title</span>: <span class="ident">I</span>,
-        <span class="ident">discard</span>: <span class="ident">bool</span>,
-        <span class="ident">cancel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>,
-        <span class="ident">on_success</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">App</span>)<span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">initial_name</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
-            <span class="ident">String::new</span>()
-        } <span class="kw">else</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;copy of {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>)
+<span class="kw">impl </span>SaveEdits {
+    <span class="kw">pub fn </span>new_state&lt;I: Into&lt;String&gt;&gt;(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        title: I,
+        discard: bool,
+        cancel: <span class="prelude-ty">Option</span>&lt;Transition&gt;,
+        on_success: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>App)&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>initial_name = <span class="kw">if </span>app.primary.map.unsaved_edits() {
+            String::new()
+        } <span class="kw">else </span>{
+            <span class="macro">format!</span>(<span class="string">&quot;copy of {}&quot;</span>, app.primary.map.get_edits().edits_name)
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">save</span> <span class="op">=</span> <span class="ident">SaveEdits</span> {
-            <span class="ident">current_name</span>: <span class="ident">initial_name</span>.<span class="ident">clone</span>(),
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Name:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                    <span class="ident">TextBox::default_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;filename&quot;</span>, <span class="ident">initial_name</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>save = SaveEdits {
+            current_name: initial_name.clone(),
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Line(title).small_heading().into_widget(ctx),
+                Widget::row(<span class="macro">vec!</span>[
+                    <span class="string">&quot;Name:&quot;</span>.text_widget(ctx).centered_vert(),
+                    TextBox::default_widget(ctx, <span class="string">&quot;filename&quot;</span>, initial_name),
                 ]),
-                <span class="comment">// TODO Want this to always consistently be one line high, but it isn&#39;t for a blank</span>
-                <span class="comment">// line</span>
-                <span class="ident">Widget::placeholder</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="kw">if</span> <span class="ident">discard</span> {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_solid_destructive</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;Discard proposal&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Widget::nothing</span>()
+                <span class="comment">// TODO Want this to always consistently be one line high, but it isn&#39;t for a blank
+                // line
+                </span>Widget::placeholder(ctx, <span class="string">&quot;warning&quot;</span>),
+                Widget::row(<span class="macro">vec!</span>[
+                    <span class="kw">if </span>discard {
+                        ctx.style()
+                            .btn_solid_destructive
+                            .text(<span class="string">&quot;Discard proposal&quot;</span>)
+                            .build_def(ctx)
+                    } <span class="kw">else </span>{
+                        Widget::nothing()
                     },
-                    <span class="kw">if</span> <span class="ident">cancel</span>.<span class="ident">is_some</span>() {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                            .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Widget::nothing</span>()
+                    <span class="kw">if </span>cancel.is_some() {
+                        ctx.style()
+                            .btn_outline
+                            .text(<span class="string">&quot;Cancel&quot;</span>)
+                            .hotkey(Key::Escape)
+                            .build_def(ctx)
+                    } <span class="kw">else </span>{
+                        Widget::nothing()
                     },
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Save&quot;</span>)
-                        .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    ctx.style()
+                        .btn_solid_primary
+                        .text(<span class="string">&quot;Save&quot;</span>)
+                        .disabled(<span class="bool-val">true</span>)
+                        .build_def(ctx),
                 ])
-                .<span class="ident">align_right</span>(),
+                .align_right(),
             ]))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">cancel</span>,
-            <span class="ident">on_success</span>,
-            <span class="ident">reset</span>: <span class="ident">discard</span>,
+            .build(ctx),
+            cancel,
+            on_success,
+            reset: discard,
         };
-        <span class="ident">save</span>.<span class="ident">recalc_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">Box::new</span>(<span class="ident">save</span>)
+        save.recalc_btn(ctx, app);
+        Box::new(save)
     }
 
-    <span class="kw">fn</span> <span class="ident">recalc_btn</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_name</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
-                <span class="ident">ctx</span>,
+    <span class="kw">fn </span>recalc_btn(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if </span><span class="self">self</span>.current_name.is_empty() {
+            <span class="self">self</span>.panel.replace(
+                ctx,
                 <span class="string">&quot;Save&quot;</span>,
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Save&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="string">&quot;Save&quot;</span>)
+                    .disabled(<span class="bool-val">true</span>)
+                    .build_def(ctx),
             );
-            <span class="self">self</span>.<span class="ident">panel</span>
-                .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_edits</span>(
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(),
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_name</span>,
+            <span class="self">self</span>.panel
+                .replace(ctx, <span class="string">&quot;warning&quot;</span>, Text::new().into_widget(ctx));
+        } <span class="kw">else if </span>abstio::file_exists(abstio::path_edits(
+            app.primary.map.get_name(),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.current_name,
         )) {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
-                <span class="ident">ctx</span>,
+            <span class="self">self</span>.panel.replace(
+                ctx,
                 <span class="string">&quot;Save&quot;</span>,
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Save&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="string">&quot;Save&quot;</span>)
+                    .disabled(<span class="bool-val">true</span>)
+                    .build_def(ctx),
             );
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
-                <span class="ident">ctx</span>,
+            <span class="self">self</span>.panel.replace(
+                ctx,
                 <span class="string">&quot;warning&quot;</span>,
-                <span class="ident">Line</span>(<span class="string">&quot;A proposal with this name already exists&quot;</span>)
-                    .<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>))
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                Line(<span class="string">&quot;A proposal with this name already exists&quot;</span>)
+                    .fg(Color::hex(<span class="string">&quot;#FF5E5E&quot;</span>))
+                    .into_widget(ctx),
             );
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(
-                <span class="ident">ctx</span>,
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.panel.replace(
+                ctx,
                 <span class="string">&quot;Save&quot;</span>,
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Save&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="string">&quot;Save&quot;</span>)
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             );
-            <span class="self">self</span>.<span class="ident">panel</span>
-                .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+            <span class="self">self</span>.panel
+                .replace(ctx, <span class="string">&quot;warning&quot;</span>, Text::new().into_widget(ctx));
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SaveEdits</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Save&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_name</span>.<span class="ident">clone</span>();
-                    <span class="ident">app</span>.<span class="ident">primary</span>
-                        .<span class="ident">map</span>
-                        .<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">save_edits</span>();
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">reset</span> {
-                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>SaveEdits {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;Save&quot; </span>=&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    edits.edits_name = <span class="self">self</span>.current_name.clone();
+                    app.primary
+                        .map
+                        .must_apply_edits(edits, <span class="kw-2">&amp;mut </span>Timer::throwaway());
+                    app.primary.map.save_edits();
+                    <span class="kw">if </span><span class="self">self</span>.reset {
+                        apply_map_edits(ctx, app, app.primary.map.new_edits());
                     }
-                    (<span class="self">self</span>.<span class="ident">on_success</span>)(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                    (<span class="self">self</span>.on_success)(ctx, app);
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Discard proposal&quot;</span> =&gt; {
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                <span class="string">&quot;Discard proposal&quot; </span>=&gt; {
+                    apply_map_edits(ctx, app, app.primary.map.new_edits());
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Cancel&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">cancel</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+                <span class="string">&quot;Cancel&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="self">self</span>.cancel.take().unwrap();
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;filename&quot;</span>);
-        <span class="kw">if</span> <span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_name</span> {
-            <span class="self">self</span>.<span class="ident">current_name</span> <span class="op">=</span> <span class="ident">name</span>;
-            <span class="self">self</span>.<span class="ident">recalc_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let </span>name = <span class="self">self</span>.panel.text_box(<span class="string">&quot;filename&quot;</span>);
+        <span class="kw">if </span>name != <span class="self">self</span>.current_name {
+            <span class="self">self</span>.current_name = name;
+            <span class="self">self</span>.recalc_btn(ctx, app);
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LoadEdits</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
+<span class="kw">pub struct </span>LoadEdits {
+    panel: Panel,
+    mode: GameplayMode,
 }
 
-<span class="kw">impl</span> <span class="ident">LoadEdits</span> {
-    <span class="doccomment">/// Mode is just used for `allows`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">current_edits_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>;
+<span class="kw">impl </span>LoadEdits {
+    <span class="doccomment">/// Mode is just used for `allows`.
+    </span><span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, mode: GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>current_edits_name = <span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">your_proposals</span> <span class="op">=</span>
-            <span class="ident">abstio::list_all_objects</span>(<span class="ident">abstio::path_all_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>()))
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="ident">Choice::new</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), ()).<span class="ident">active</span>(<span class="kw-2">&amp;</span><span class="ident">name</span> <span class="op">!</span><span class="op">=</span> <span class="ident">current_edits_name</span>))
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="comment">// These&#39;re sorted alphabetically, but the &quot;Untitled Proposal&quot;s wind up before lowercase</span>
-        <span class="comment">// names!</span>
-        <span class="ident">your_proposals</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> (<span class="ident">x</span>.<span class="ident">label</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Untitled Proposal&quot;</span>), <span class="ident">x</span>.<span class="ident">label</span>.<span class="ident">clone</span>()));
+        <span class="kw">let </span><span class="kw-2">mut </span>your_proposals =
+            abstio::list_all_objects(abstio::path_all_edits(app.primary.map.get_name()))
+                .into_iter()
+                .map(|name| Choice::new(name.clone(), ()).active(<span class="kw-2">&amp;</span>name != current_edits_name))
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="comment">// These&#39;re sorted alphabetically, but the &quot;Untitled Proposal&quot;s wind up before lowercase
+        // names!
+        </span>your_proposals.sort_by_key(|x| (x.label.starts_with(<span class="string">&quot;Untitled Proposal&quot;</span>), x.label.clone()));
 
-        <span class="kw">let</span> <span class="ident">your_edits</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Your proposals&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Menu::widget</span>(<span class="ident">ctx</span>, <span class="ident">your_proposals</span>),
+        <span class="kw">let </span>your_edits = <span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Your proposals&quot;</span>).small_heading().into_widget(ctx),
+            Menu::widget(ctx, your_proposals),
         ];
-        <span class="comment">// widgetry can&#39;t toggle keyboard focus between two menus, so just use buttons for the less</span>
-        <span class="comment">// common use case.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">proposals</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Line</span>(<span class="string">&quot;Community proposals&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>)];
-        <span class="comment">// Up-front filter out proposals that definitely don&#39;t fit the current map</span>
-        <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">abstio::list_all_objects</span>(<span class="ident">abstio::path</span>(<span class="string">&quot;system/proposals&quot;</span>)) {
-            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">abstio::path</span>(<span class="macro">format!</span>(<span class="string">&quot;system/proposals/{}.json&quot;</span>, <span class="ident">name</span>));
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) <span class="op">=</span>
-                <span class="ident">MapEdits::load_from_file</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
+        <span class="comment">// widgetry can&#39;t toggle keyboard focus between two menus, so just use buttons for the less
+        // common use case.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>proposals = <span class="macro">vec!</span>[Line(<span class="string">&quot;Community proposals&quot;</span>).small_heading().into_widget(ctx)];
+        <span class="comment">// Up-front filter out proposals that definitely don&#39;t fit the current map
+        </span><span class="kw">for </span>name <span class="kw">in </span>abstio::list_all_objects(abstio::path(<span class="string">&quot;system/proposals&quot;</span>)) {
+            <span class="kw">let </span>path = abstio::path(<span class="macro">format!</span>(<span class="string">&quot;system/proposals/{}.json&quot;</span>, name));
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(edits) =
+                MapEdits::load_from_file(<span class="kw-2">&amp;</span>app.primary.map, path.clone(), <span class="kw-2">&amp;mut </span>Timer::throwaway())
             {
-                <span class="ident">proposals</span>.<span class="ident">push</span>(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="ident">edits</span>.<span class="ident">get_title</span>())
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>),
+                proposals.push(
+                    ctx.style()
+                        .btn_outline
+                        .text(edits.get_title())
+                        .build_widget(ctx, <span class="kw-2">&amp;</span>path),
                 );
             }
         }
 
-        <span class="ident">Box::new</span>(<span class="ident">LoadEdits</span> {
-            <span class="ident">mode</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Load proposal&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        Box::new(LoadEdits {
+            mode,
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Widget::row(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Load proposal&quot;</span>).small_heading().into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Start over with blank proposal&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[<span class="ident">Widget::col</span>(<span class="ident">your_edits</span>), <span class="ident">Widget::col</span>(<span class="ident">proposals</span>)]).<span class="ident">evenly_spaced</span>(),
+                ctx.style()
+                    .btn_outline
+                    .text(<span class="string">&quot;Start over with blank proposal&quot;</span>)
+                    .build_def(ctx),
+                Widget::row(<span class="macro">vec!</span>[Widget::col(your_edits), Widget::col(proposals)]).evenly_spaced(),
             ]))
-            .<span class="ident">exact_size_percent</span>(<span class="number">50</span>, <span class="number">50</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
+            .exact_size_percent(<span class="number">50</span>, <span class="number">50</span>)
+            .build(ctx),
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LoadEdits</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                    <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-                    <span class="string">&quot;Start over with blank proposal&quot;</span> =&gt; {
-                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">new_edits</span>());
-                        <span class="ident">Transition::Pop</span>
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>LoadEdits {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; {
+                <span class="kw">match </span>x.as_ref() {
+                    <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+                    <span class="string">&quot;Start over with blank proposal&quot; </span>=&gt; {
+                        apply_map_edits(ctx, app, app.primary.map.new_edits());
+                        Transition::Pop
                     }
-                    <span class="ident">path</span> =&gt; {
-                        <span class="comment">// TODO Kind of a hack. If it ends with .json, it&#39;s already a path.</span>
-                        <span class="comment">// Otherwise it&#39;s a result from the menu.</span>
-                        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.json&quot;</span>) {
-                            <span class="ident">path</span>.<span class="ident">to_string</span>()
-                        } <span class="kw">else</span> {
-                            <span class="ident">abstio::path_edits</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">path</span>)
+                    path =&gt; {
+                        <span class="comment">// TODO Kind of a hack. If it ends with .json, it&#39;s already a path.
+                        // Otherwise it&#39;s a result from the menu.
+                        </span><span class="kw">let </span>path = <span class="kw">if </span>path.ends_with(<span class="string">&quot;.json&quot;</span>) {
+                            path.to_string()
+                        } <span class="kw">else </span>{
+                            abstio::path_edits(app.primary.map.get_name(), path)
                         };
 
-                        <span class="kw">match</span> <span class="ident">MapEdits::load_from_file</span>(
-                            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                            <span class="ident">path</span>.<span class="ident">clone</span>(),
-                            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+                        <span class="kw">match </span>MapEdits::load_from_file(
+                            <span class="kw-2">&amp;</span>app.primary.map,
+                            path.clone(),
+                            <span class="kw-2">&amp;mut </span>Timer::throwaway(),
                         )
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">edits</span><span class="op">|</span> {
-                            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">allows</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>) {
-                                <span class="prelude-val">Ok</span>(<span class="ident">edits</span>)
-                            } <span class="kw">else</span> {
+                        .and_then(|edits| {
+                            <span class="kw">if </span><span class="self">self</span>.mode.allows(<span class="kw-2">&amp;</span>edits) {
+                                <span class="prelude-val">Ok</span>(edits)
+                            } <span class="kw">else </span>{
                                 <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(
                                     <span class="string">&quot;The current gameplay mode restricts edits. This proposal has \
-                                     a banned command.&quot;</span>
-                                ))
+                                     a banned command.&quot;
+                                </span>))
                             }
                         }) {
-                            <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) =&gt; {
-                                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                                <span class="ident">app</span>.<span class="ident">primary</span>
-                                    .<span class="ident">sim</span>
-                                    .<span class="ident">handle_live_edited_traffic_signals</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
-                                <span class="ident">Transition::Pop</span>
+                            <span class="prelude-val">Ok</span>(edits) =&gt; {
+                                apply_map_edits(ctx, app, edits);
+                                app.primary
+                                    .sim
+                                    .handle_live_edited_traffic_signals(<span class="kw-2">&amp;</span>app.primary.map);
+                                Transition::Pop
                             }
-                            <span class="comment">// TODO Hack. Have to replace ourselves, because the Menu might be</span>
-                            <span class="comment">// invalidated now that something was chosen.</span>
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                                <span class="macro">println!</span>(<span class="string">&quot;Can&#39;t load {}: {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>);
-                                <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                    <span class="ident">Transition::Replace</span>(<span class="ident">LoadEdits::new_state</span>(
-                                        <span class="ident">ctx</span>,
-                                        <span class="ident">app</span>,
-                                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+                            <span class="comment">// TODO Hack. Have to replace ourselves, because the Menu might be
+                            // invalidated now that something was chosen.
+                            </span><span class="prelude-val">Err</span>(err) =&gt; {
+                                <span class="macro">println!</span>(<span class="string">&quot;Can&#39;t load {}: {}&quot;</span>, path, err);
+                                Transition::Multi(<span class="macro">vec!</span>[
+                                    Transition::Replace(LoadEdits::new_state(
+                                        ctx,
+                                        app,
+                                        <span class="self">self</span>.mode.clone(),
                                     )),
-                                    <span class="comment">// TODO Menu draws at a weird Z-order to deal with tooltips, so</span>
-                                    <span class="comment">// now the menu underneath</span>
-                                    <span class="comment">// bleeds through</span>
-                                    <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                                        <span class="ident">ctx</span>,
+                                    <span class="comment">// TODO Menu draws at a weird Z-order to deal with tooltips, so
+                                    // now the menu underneath
+                                    // bleeds through
+                                    </span>Transition::Push(PopupMsg::new_state(
+                                        ctx,
                                         <span class="string">&quot;Error&quot;</span>,
-                                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Can&#39;t load {}&quot;</span>, <span class="ident">path</span>), <span class="ident">err</span>.<span class="ident">to_string</span>()],
+                                        <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Can&#39;t load {}&quot;</span>, path), err.to_string()],
                                     )),
                                 ])
                             }
@@ -1684,325 +1684,325 @@
                     }
                 }
             }
-            <span class="kw">_</span> =&gt; <span class="ident">Transition::Keep</span>,
+            <span class="kw">_ </span>=&gt; Transition::Keep,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_topcenter</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Editing map&quot;</span>)
-            .<span class="ident">small_heading</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_horiz</span>(),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">text</span>(<span class="macro">format!</span>(
+<span class="kw">fn </span>make_topcenter(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Panel {
+    Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+        Line(<span class="string">&quot;Editing map&quot;</span>)
+            .small_heading()
+            .into_widget(ctx)
+            .centered_horiz(),
+        ctx.style()
+            .btn_solid_primary
+            .text(<span class="macro">format!</span>(
                 <span class="string">&quot;Finish &amp; resume from {}&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">primary</span>
-                    .<span class="ident">suspended_sim</span>
-                    .<span class="ident">as_ref</span>()
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">time</span>()
-                    .<span class="ident">ampm_tostring</span>()
+                app.primary
+                    .suspended_sim
+                    .as_ref()
+                    .unwrap()
+                    .time()
+                    .ampm_tostring()
             ))
-            .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;finish editing&quot;</span>),
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Fix sidewalk direction errors&quot;</span>)
-                .<span class="ident">tooltip</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Sidewalk directions must match the side of the road in a certain way.&quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;It&#39;s easy to get this wrong; this tool will automatically fix things.&quot;</span>),
+            .hotkey(Key::Escape)
+            .build_widget(ctx, <span class="string">&quot;finish editing&quot;</span>),
+        <span class="kw">if </span>app.opts.dev {
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Fix sidewalk direction errors&quot;</span>)
+                .tooltip(Text::from_multiline(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Sidewalk directions must match the side of the road in a certain way.&quot;</span>),
+                    Line(<span class="string">&quot;It&#39;s easy to get this wrong; this tool will automatically fix things.&quot;</span>),
                 ]))
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">Widget::nothing</span>()
+                .build_def(ctx)
+        } <span class="kw">else </span>{
+            Widget::nothing()
         },
     ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">edits</span>: <span class="ident">MapEdits</span>) {
-    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;apply map edits&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">store_unedited_map_in_secondary</span> <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">unedited_map</span>.<span class="ident">is_none</span>() {
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;save unedited map&quot;</span>);
-            <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>());
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">unedited_map</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">clone</span>());
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;save unedited map&quot;</span>);
+<span class="kw">pub fn </span>apply_map_edits(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, edits: MapEdits) {
+    ctx.loading_screen(<span class="string">&quot;apply map edits&quot;</span>, |ctx, timer| {
+        <span class="kw">if </span>!app.store_unedited_map_in_secondary &amp;&amp; app.primary.unedited_map.is_none() {
+            timer.start(<span class="string">&quot;save unedited map&quot;</span>);
+            <span class="macro">assert!</span>(app.primary.map.get_edits().commands.is_empty());
+            app.primary.unedited_map = <span class="prelude-val">Some</span>(app.primary.map.clone());
+            timer.stop(<span class="string">&quot;save unedited map&quot;</span>);
         }
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">store_unedited_map_in_secondary</span> <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">secondary</span>.<span class="ident">is_none</span>() {
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;save unedited map for toggling&quot;</span>);
-            <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">is_empty</span>());
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_map</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::app::PerMap::map_loaded</span>(
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">clone</span>(),
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">clone</span>(),
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">clone</span>(),
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>,
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
-                <span class="ident">ctx</span>,
-                <span class="ident">timer</span>,
+        <span class="kw">if </span>app.store_unedited_map_in_secondary &amp;&amp; app.secondary.is_none() {
+            timer.start(<span class="string">&quot;save unedited map for toggling&quot;</span>);
+            <span class="macro">assert!</span>(app.primary.map.get_edits().commands.is_empty());
+            <span class="kw">let </span><span class="kw-2">mut </span>per_map = <span class="kw">crate</span>::app::PerMap::map_loaded(
+                app.primary.map.clone(),
+                app.primary.sim.clone(),
+                app.primary.current_flags.clone(),
+                <span class="kw-2">&amp;</span>app.opts,
+                <span class="kw-2">&amp;</span>app.cs,
+                ctx,
+                timer,
             );
-            <span class="comment">// is_secondary indicates the unedited map</span>
-            <span class="ident">per_map</span>.<span class="ident">is_secondary</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">app</span>.<span class="ident">secondary</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">per_map</span>);
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;save unedited map for toggling&quot;</span>);
+            <span class="comment">// is_secondary indicates the unedited map
+            </span>per_map.is_secondary = <span class="bool-val">true</span>;
+            app.secondary = <span class="prelude-val">Some</span>(per_map);
+            timer.stop(<span class="string">&quot;save unedited map for toggling&quot;</span>);
         }
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;edit map&quot;</span>);
-        <span class="kw">let</span> <span class="ident">effects</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;edit map&quot;</span>);
+        timer.start(<span class="string">&quot;edit map&quot;</span>);
+        <span class="kw">let </span>effects = app.primary.map.must_apply_edits(edits, timer);
+        timer.stop(<span class="string">&quot;edit map&quot;</span>);
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">effects</span>.<span class="ident">changed_roads</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">effects</span>.<span class="ident">changed_intersections</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">app</span>.<span class="ident">primary</span>
-                .<span class="ident">draw_map</span>
-                .<span class="ident">draw_all_unzoomed_roads_and_intersections</span> <span class="op">=</span> <span class="ident">DrawMap::regenerate_unzoomed_layer</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>,
-                <span class="ident">timer</span>,
+        <span class="kw">if </span>!effects.changed_roads.is_empty() || !effects.changed_intersections.is_empty() {
+            app.primary
+                .draw_map
+                .draw_all_unzoomed_roads_and_intersections = DrawMap::regenerate_unzoomed_layer(
+                ctx,
+                <span class="kw-2">&amp;</span>app.primary.map,
+                <span class="kw-2">&amp;</span>app.cs,
+                <span class="kw-2">&amp;</span>app.opts,
+                timer,
             );
         }
 
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">effects</span>.<span class="ident">changed_roads</span> {
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">recreate_road</span>(<span class="ident">road</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
+        <span class="kw">for </span>r <span class="kw">in </span>effects.changed_roads {
+            <span class="kw">let </span>road = app.primary.map.get_r(r);
+            app.primary.draw_map.recreate_road(road, <span class="kw-2">&amp;</span>app.primary.map);
         }
 
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">effects</span>.<span class="ident">changed_intersections</span> {
-            <span class="ident">app</span>.<span class="ident">primary</span>
-                .<span class="ident">draw_map</span>
-                .<span class="ident">recreate_intersection</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
+        <span class="kw">for </span>i <span class="kw">in </span>effects.changed_intersections {
+            app.primary
+                .draw_map
+                .recreate_intersection(i, <span class="kw-2">&amp;</span>app.primary.map);
         }
 
-        <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">effects</span>.<span class="ident">changed_parking_lots</span> {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">clear_rendering</span>();
+        <span class="kw">for </span>pl <span class="kw">in </span>effects.changed_parking_lots {
+            app.primary.draw_map.get_pl(pl).clear_rendering();
         }
 
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span>.<span class="ident">as_ref</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">name</span>()) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="string">&quot;map edits&quot;</span>) {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident"><span class="kw">crate</span>::layer::map::Static::edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+        <span class="kw">if </span>app.primary.layer.as_ref().and_then(|l| l.name()) == <span class="prelude-val">Some</span>(<span class="string">&quot;map edits&quot;</span>) {
+            app.primary.layer = <span class="prelude-val">Some</span>(Box::new(<span class="kw">crate</span>::layer::map::Static::edits(ctx, app)));
         }
-        <span class="comment">// Other parts of the UI poll map.get_edits_change_key() to recalculate things based on</span>
-        <span class="comment">// edits.</span>
+        <span class="comment">// Other parts of the UI poll map.get_edits_change_key() to recalculate things based on
+        // edits.
 
-        <span class="comment">// Autosave</span>
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">save_edits</span>();
+        // Autosave
+        </span>app.primary.map.save_edits();
     });
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_edit_lane</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-    <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_light_rail</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">is_footway</span>() {
-        <span class="kw">return</span> <span class="bool-val">false</span>;
+<span class="kw">pub fn </span>can_edit_lane(app: <span class="kw-2">&amp;</span>App, l: LaneID) -&gt; bool {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>lane = map.get_l(l);
+    <span class="kw">if </span>lane.is_light_rail() || lane.is_footway() {
+        <span class="kw">return </span><span class="bool-val">false</span>;
     }
-    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
-    <span class="comment">// Some bus-only roads are marked as service roads; allow editing those.</span>
-    <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_service</span>() <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="op">!</span><span class="ident">l</span>.<span class="ident">is_bus</span>()) {
-        <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">let </span>r = map.get_parent(l);
+    <span class="comment">// Some bus-only roads are marked as service roads; allow editing those.
+    </span><span class="kw">if </span>r.is_service() &amp;&amp; r.lanes.iter().all(|l| !l.is_bus()) {
+        <span class="kw">return </span><span class="bool-val">false</span>;
     }
 
-    <span class="bool-val">true</span>
-}
+    <span class="bool-val">true
+</span>}
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">speed_limit_choices</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">preset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="comment">// Don&#39;t need anything higher than 70mph. Though now I kind of miss 3am drives on TX-71...</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">speeds</span> <span class="op">=</span> (<span class="number">10</span>..<span class="op">=</span><span class="number">70</span>)
-        .<span class="ident">step_by</span>(<span class="number">5</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">mph</span><span class="op">|</span> <span class="ident">Speed::miles_per_hour</span>(<span class="ident">mph</span> <span class="kw">as</span> <span class="ident">f64</span>))
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">preset</span>) <span class="op">=</span> <span class="ident">preset</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">speeds</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">preset</span>) {
-            <span class="ident">speeds</span>.<span class="ident">push</span>(<span class="ident">preset</span>);
-            <span class="ident">speeds</span>.<span class="ident">sort</span>();
+<span class="kw">pub fn </span>speed_limit_choices(app: <span class="kw-2">&amp;</span>App, preset: <span class="prelude-ty">Option</span>&lt;Speed&gt;) -&gt; Vec&lt;Choice&lt;Speed&gt;&gt; {
+    <span class="comment">// Don&#39;t need anything higher than 70mph. Though now I kind of miss 3am drives on TX-71...
+    </span><span class="kw">let </span><span class="kw-2">mut </span>speeds = (<span class="number">10</span>..=<span class="number">70</span>)
+        .step_by(<span class="number">5</span>)
+        .map(|mph| Speed::miles_per_hour(mph <span class="kw">as </span>f64))
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(preset) = preset {
+        <span class="kw">if </span>!speeds.contains(<span class="kw-2">&amp;</span>preset) {
+            speeds.push(preset);
+            speeds.sort();
         }
     }
-    <span class="ident">speeds</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Choice::new</span>(<span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>), <span class="ident">x</span>))
-        .<span class="ident">collect</span>()
+    speeds
+        .into_iter()
+        .map(|x| Choice::new(x.to_string(<span class="kw-2">&amp;</span>app.opts.units), x))
+        .collect()
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_edit_intersection</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-    <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_stop_sign</span>(<span class="ident">id</span>).<span class="ident">is_some</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">mode</span>.<span class="ident">can_edit_stop_signs</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit stop signs&quot;</span>)
+<span class="kw">pub fn </span>maybe_edit_intersection(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;mut </span>App,
+    id: IntersectionID,
+    mode: <span class="kw-2">&amp;</span>GameplayMode,
+) -&gt; <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt;&gt; {
+    <span class="kw">if </span>app.primary.map.maybe_get_stop_sign(id).is_some()
+        &amp;&amp; mode.can_edit_stop_signs()
+        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;edit stop signs&quot;</span>)
     {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">StopSignEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">mode</span>.<span class="ident">clone</span>()));
+        <span class="kw">return </span><span class="prelude-val">Some</span>(StopSignEditor::new_state(ctx, app, id, mode.clone()));
     }
 
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">maybe_get_traffic_signal</span>(<span class="ident">id</span>).<span class="ident">is_some</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;edit traffic signal&quot;</span>)
+    <span class="kw">if </span>app.primary.map.maybe_get_traffic_signal(id).is_some()
+        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;edit traffic signal&quot;</span>)
     {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">TrafficSignalEditor::new_state</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="macro">btreeset!</span> {<span class="ident">id</span>},
-            <span class="ident">mode</span>.<span class="ident">clone</span>(),
+        <span class="kw">return </span><span class="prelude-val">Some</span>(TrafficSignalEditor::new_state(
+            ctx,
+            app,
+            <span class="macro">btreeset! </span>{id},
+            mode.clone(),
         ));
     }
 
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>).<span class="ident">is_closed</span>()
-        <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;re-open closed intersection&quot;</span>)
+    <span class="kw">if </span>app.primary.map.get_i(id).is_closed()
+        &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;re-open closed intersection&quot;</span>)
     {
-        <span class="comment">// This resets to the original state; it doesn&#39;t undo the closure to the last</span>
-        <span class="comment">// state. Seems reasonable to me.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeIntersection</span> {
-            <span class="ident">i</span>: <span class="ident">id</span>,
-            <span class="ident">old</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="ident">id</span>),
-            <span class="ident">new</span>: <span class="ident">edits</span>.<span class="ident">original_intersections</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">clone</span>(),
+        <span class="comment">// This resets to the original state; it doesn&#39;t undo the closure to the last
+        // state. Seems reasonable to me.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+        edits.commands.push(EditCmd::ChangeIntersection {
+            i: id,
+            old: app.primary.map.get_i_edit(id),
+            new: edits.original_intersections[<span class="kw-2">&amp;</span>id].clone(),
         });
-        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+        apply_map_edits(ctx, app, edits);
     }
 
-    <span class="prelude-val">None</span>
-}
+    <span class="prelude-val">None
+</span>}
 
-<span class="kw">fn</span> <span class="ident">make_changelist</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="comment">// TODO Support redo. Bit harder here to reset the redo_stack when the edits</span>
-    <span class="comment">// change, because nested other places modify it too.</span>
-    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">popup</span>(<span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">edits_name</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::P</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;manage proposals&quot;</span>),
-            <span class="string">&quot;autosaved&quot;</span>
-                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">container</span>()
-                .<span class="ident">padding</span>(<span class="number">10</span>)
-                .<span class="ident">bg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#5D9630&quot;</span>)),
+<span class="kw">fn </span>make_changelist(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Panel {
+    <span class="comment">// TODO Support redo. Bit harder here to reset the redo_stack when the edits
+    // change, because nested other places modify it too.
+    </span><span class="kw">let </span>edits = app.primary.map.get_edits();
+    <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[
+        Widget::row(<span class="macro">vec!</span>[
+            ctx.style()
+                .btn_outline
+                .popup(<span class="kw-2">&amp;</span>edits.edits_name)
+                .hotkey(lctrl(Key::P))
+                .build_widget(ctx, <span class="string">&quot;manage proposals&quot;</span>),
+            <span class="string">&quot;autosaved&quot;
+                </span>.text_widget(ctx)
+                .container()
+                .padding(<span class="number">10</span>)
+                .bg(Color::hex(<span class="string">&quot;#5D9630&quot;</span>)),
         ]),
-        <span class="ident">ColorLegend::row</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">edits_layer</span>,
+        ColorLegend::row(
+            ctx,
+            app.cs.edits_layer,
             <span class="macro">format!</span>(
                 <span class="string">&quot;{} roads, {} intersections changed&quot;</span>,
-                <span class="ident">edits</span>.<span class="ident">changed_roads</span>.<span class="ident">len</span>(),
-                <span class="ident">edits</span>.<span class="ident">original_intersections</span>.<span class="ident">len</span>()
+                edits.changed_roads.len(),
+                edits.original_intersections.len()
             ),
         ),
     ];
 
-    <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">5</span> {
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{} more...&quot;</span>, <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">5</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+    <span class="kw">if </span>edits.commands.len() &gt; <span class="number">5 </span>{
+        col.push(<span class="macro">format!</span>(<span class="string">&quot;{} more...&quot;</span>, edits.commands.len() - <span class="number">5</span>).text_widget(ctx));
     }
-    <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>().<span class="ident">max</span>(<span class="number">5</span>) <span class="op">-</span> <span class="number">5</span>..<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() {
-        <span class="kw">let</span> (<span class="ident">summary</span>, <span class="ident">details</span>) <span class="op">=</span> <span class="ident">edits</span>.<span class="ident">commands</span>[<span class="ident">idx</span>].<span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">summary</span>));
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">details</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">line</span>).<span class="ident">secondary</span>());
+    <span class="kw">for </span>idx <span class="kw">in </span>edits.commands.len().max(<span class="number">5</span>) - <span class="number">5</span>..edits.commands.len() {
+        <span class="kw">let </span>(summary, details) = edits.commands[idx].describe(<span class="kw-2">&amp;</span>app.primary.map);
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, idx + <span class="number">1</span>, summary));
+        <span class="kw">for </span>line <span class="kw">in </span>details {
+            txt.add_line(Line(line).secondary());
         }
-        <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">btn</span>()
-            .<span class="ident">label_styled_text</span>(<span class="ident">txt</span>, <span class="ident">ControlState::Default</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;change #{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>));
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">btn</span>,
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_close</span>()
-                        .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
+        <span class="kw">let </span>btn = ctx
+            .style()
+            .btn_plain
+            .btn()
+            .label_styled_text(txt, ControlState::Default)
+            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;change #{}&quot;</span>, idx + <span class="number">1</span>));
+        <span class="kw">if </span>idx == edits.commands.len() - <span class="number">1 </span>{
+            col.push(
+                Widget::row(<span class="macro">vec!</span>[
+                    btn,
+                    ctx.style()
+                        .btn_close()
+                        .hotkey(lctrl(Key::Z))
+                        .build_widget(ctx, <span class="string">&quot;undo&quot;</span>),
                 ])
-                .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>),
+                .padding(<span class="number">16</span>)
+                .outline(ctx.style().btn_outline.outline),
             );
-        } <span class="kw">else</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">btn</span>);
+        } <span class="kw">else </span>{
+            col.push(btn);
         }
     }
 
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Center</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    Panel::new_builder(Widget::col(col))
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Center)
+        .build(ctx)
 }
 
-<span class="comment">// TODO Ideally a Tab.</span>
-<span class="kw">fn</span> <span class="ident">cmd_to_id</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">EditCmd</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">cmd</span> {
-        <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="kw-2">*</span><span class="ident">r</span>)),
-        <span class="ident">EditCmd::ChangeIntersection</span> { <span class="ident">i</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>)),
-        <span class="ident">EditCmd::ChangeCrosswalks</span> { <span class="ident">i</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>)),
-        <span class="ident">EditCmd::ChangeRouteSchedule</span> { .. } =&gt; <span class="prelude-val">None</span>,
+<span class="comment">// TODO Ideally a Tab.
+</span><span class="kw">fn </span>cmd_to_id(cmd: <span class="kw-2">&amp;</span>EditCmd) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+    <span class="kw">match </span>cmd {
+        EditCmd::ChangeRoad { r, .. } =&gt; <span class="prelude-val">Some</span>(ID::Road(<span class="kw-2">*</span>r)),
+        EditCmd::ChangeIntersection { i, .. } =&gt; <span class="prelude-val">Some</span>(ID::Intersection(<span class="kw-2">*</span>i)),
+        EditCmd::ChangeCrosswalks { i, .. } =&gt; <span class="prelude-val">Some</span>(ID::Intersection(<span class="kw-2">*</span>i)),
+        EditCmd::ChangeRouteSchedule { .. } =&gt; <span class="prelude-val">None</span>,
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ConfirmDiscard</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">discard</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">App</span>)<span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ConfirmDiscard {
+    panel: Panel,
+    discard: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>App)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ConfirmDiscard</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">discard</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">App</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::new</span>(<span class="ident">ConfirmDiscard</span> {
-            <span class="ident">discard</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
-                        .<span class="ident">untinted</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">container</span>()
-                        .<span class="ident">padding_top</span>(<span class="number">6</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;Alert&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+<span class="kw">impl </span>ConfirmDiscard {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, discard: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>App)&gt;) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        Box::new(ConfirmDiscard {
+            discard,
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Widget::row(<span class="macro">vec!</span>[
+                    Image::from_path(<span class="string">&quot;system/assets/tools/alert.svg&quot;</span>)
+                        .untinted()
+                        .into_widget(ctx)
+                        .container()
+                        .padding_top(<span class="number">6</span>),
+                    Line(<span class="string">&quot;Alert&quot;</span>).small_heading().into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="string">&quot;Are you sure you want to discard changes you made?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_destructive</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Yes, discard&quot;</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;Are you sure you want to discard changes you made?&quot;</span>.text_widget(ctx),
+                Widget::row(<span class="macro">vec!</span>[
+                    ctx.style()
+                        .btn_outline
+                        .text(<span class="string">&quot;Cancel&quot;</span>)
+                        .hotkey(Key::Escape)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_destructive
+                        .text(<span class="string">&quot;Yes, discard&quot;</span>)
+                        .build_def(ctx),
                 ])
-                .<span class="ident">align_right</span>(),
+                .align_right(),
             ]))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
+            .build(ctx),
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ConfirmDiscard</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> <span class="op">|</span> <span class="string">&quot;Cancel&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-                <span class="string">&quot;Yes, discard&quot;</span> =&gt; {
-                    (<span class="self">self</span>.<span class="ident">discard</span>)(<span class="ident">app</span>);
-                    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Pop</span>])
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>ConfirmDiscard {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>| <span class="string">&quot;Cancel&quot; </span>=&gt; Transition::Pop,
+                <span class="string">&quot;Yes, discard&quot; </span>=&gt; {
+                    (<span class="self">self</span>.discard)(app);
+                    Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop])
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="kw">_</span> =&gt; <span class="ident">Transition::Keep</span>,
+            <span class="kw">_ </span>=&gt; Transition::Keep,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

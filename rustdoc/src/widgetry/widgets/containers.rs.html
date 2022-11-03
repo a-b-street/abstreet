@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/containers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>containers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/containers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>containers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -71,78 +71,78 @@
 <span id="71">71</span>
 <span id="72">72</span>
 <span id="73">73</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>};
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{EventCtx, GfxCtx, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Nothing</span> {}
+<span class="kw">pub struct </span>Nothing {}
 
-<span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Nothing</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
+<span class="kw">impl </span>WidgetImpl <span class="kw">for </span>Nothing {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
         <span class="macro">unreachable!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_top_left</span>: <span class="ident">ScreenPt</span>) {
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _top_left: ScreenPt) {
         <span class="macro">unreachable!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>WidgetOutput) {
         <span class="macro">unreachable!</span>()
     }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, _g: <span class="kw-2">&amp;mut </span>GfxCtx) {
         <span class="macro">unreachable!</span>()
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Container</span> {
-    <span class="comment">// false means column</span>
-    <span class="kw">pub</span> <span class="ident">is_row</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Container {
+    <span class="comment">// false means column
+    </span><span class="kw">pub </span>is_row: bool,
+    <span class="kw">pub </span>members: Vec&lt;Widget&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Container</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">is_row</span>: <span class="ident">bool</span>, <span class="kw-2">mut</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) -&gt; <span class="ident">Container</span> {
-        <span class="ident">members</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="op">!</span><span class="ident">w</span>.<span class="ident">widget</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">Nothing</span><span class="op">&gt;</span>());
-        <span class="ident">Container</span> { <span class="ident">is_row</span>, <span class="ident">members</span> }
+<span class="kw">impl </span>Container {
+    <span class="kw">pub fn </span>new(is_row: bool, <span class="kw-2">mut </span>members: Vec&lt;Widget&gt;) -&gt; Container {
+        members.retain(|w| !w.widget.is::&lt;Nothing&gt;());
+        Container { is_row, members }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Container</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="comment">// TODO This impl isn&#39;t correct, but it works for the one use case of</span>
-        <span class="comment">// get_width_for_forcing.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span> {
-            <span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>.<span class="ident">max</span>(<span class="ident">x</span>.<span class="ident">get_width_for_forcing</span>());
+<span class="kw">impl </span>WidgetImpl <span class="kw">for </span>Container {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="comment">// TODO This impl isn&#39;t correct, but it works for the one use case of
+        // get_width_for_forcing.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>width: f64 = <span class="number">0.0</span>;
+        <span class="kw">for </span>x <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.members {
+            width = width.max(x.get_width_for_forcing());
         }
-        <span class="ident">ScreenDims::new</span>(<span class="ident">width</span>, <span class="number">0.0</span>)
+        ScreenDims::new(width, <span class="number">0.0</span>)
     }
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_top_left</span>: <span class="ident">ScreenPt</span>) {
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _top_left: ScreenPt) {
         <span class="macro">unreachable!</span>()
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="kw">for</span> <span class="ident">w</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">members</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">focus_owned_by</span>.<span class="ident">as_ref</span>() {
-                <span class="comment">// Container is the only place that needs to actually enforce focus. If a Panel</span>
-                <span class="comment">// consists of only one top-level widget, then there&#39;s nothing else to conflict</span>
-                <span class="comment">// with focus. And in the common case, we have a tree of Containers, with</span>
-                <span class="comment">// non-Container leaves.</span>
-                <span class="kw">if</span> <span class="ident">w</span>.<span class="ident">id</span>.<span class="ident">as_ref</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">w</span>.<span class="ident">widget</span>.<span class="ident">is</span>::<span class="op">&lt;</span><span class="ident">Container</span><span class="op">&gt;</span>() {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, output: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="kw">for </span>w <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.members {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = ctx.focus_owned_by.as_ref() {
+                <span class="comment">// Container is the only place that needs to actually enforce focus. If a Panel
+                // consists of only one top-level widget, then there&#39;s nothing else to conflict
+                // with focus. And in the common case, we have a tree of Containers, with
+                // non-Container leaves.
+                </span><span class="kw">if </span>w.id.as_ref() != <span class="prelude-val">Some</span>(id) &amp;&amp; !w.widget.is::&lt;Container&gt;() {
                     <span class="kw">continue</span>;
                 }
             }
-            <span class="ident">w</span>.<span class="ident">widget</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
-            <span class="comment">// If the widget produced an outcome, short-circuit.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">output</span>.<span class="ident">outcome</span>, <span class="ident">Outcome::Nothing</span>) {
+            w.widget.event(ctx, output);
+            <span class="comment">// If the widget produced an outcome, short-circuit.
+            </span><span class="kw">if </span>!<span class="macro">matches!</span>(output.outcome, Outcome::Nothing) {
                 <span class="kw">return</span>;
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">for</span> <span class="ident">w</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span> {
-            <span class="ident">w</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="kw">for </span>w <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.members {
+            w.draw(g);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

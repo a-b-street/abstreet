@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_model/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_model/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -125,132 +125,132 @@
 <span id="125">125</span>
 <span id="126">126</span>
 <span id="127">127</span>
-</pre><pre class="rust"><code><span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens</span>
-<span class="doccomment">//! in `convert_osm` and here.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Helpful terminology:</span>
-<span class="doccomment">//! - ch = contraction hierarchy, for speeding up pathfinding</span>
-<span class="doccomment">//! - degenerate intersection = only has 2 roads connected, so why is it an intersection at all?</span>
-<span class="doccomment">//! - lc = lane-change (which is modelled very strangely: &lt;https://a-b-street.github.io/docs/tech/trafficsim/discrete_event.html#lane-changing&gt;)</span>
-<span class="doccomment">//! - ltr = left-to-right, the order of lanes for a road</span>
-<span class="doccomment">//! - osm = OpenStreetMap</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Map objects are usually abbreviated in method names:</span>
-<span class="doccomment">//! - a = area</span>
-<span class="doccomment">//! - b = building</span>
-<span class="doccomment">//! - tr = transit route</span>
-<span class="doccomment">//! - ts = transit stop</span>
-<span class="doccomment">//! - i = intersection</span>
-<span class="doccomment">//! - l = lane</span>
-<span class="doccomment">//! - pl = parking lot</span>
-<span class="doccomment">//! - r = road</span>
-<span class="doccomment">//! - ss = stop sign</span>
-<span class="doccomment">//! - t = turn</span>
-<span class="doccomment">//! - ts = traffic signal</span>
+</pre><pre class="rust"><code><span class="doccomment">//! `map_model` describes the world where simulations occur. Importing a map from OSM partly happens
+//! in `convert_osm` and here.
+//!
+//! Helpful terminology:
+//! - ch = contraction hierarchy, for speeding up pathfinding
+//! - degenerate intersection = only has 2 roads connected, so why is it an intersection at all?
+//! - lc = lane-change (which is modelled very strangely: &lt;https://a-b-street.github.io/docs/tech/trafficsim/discrete_event.html#lane-changing&gt;)
+//! - ltr = left-to-right, the order of lanes for a road
+//! - osm = OpenStreetMap
+//!
+//! Map objects are usually abbreviated in method names:
+//! - a = area
+//! - b = building
+//! - tr = transit route
+//! - ts = transit stop
+//! - i = intersection
+//! - l = lane
+//! - pl = parking lot
+//! - r = road
+//! - ss = stop sign
+//! - t = turn
+//! - ts = traffic signal
 
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::new_without_default</span>)]</span>
+</span><span class="attribute">#![allow(clippy::new_without_default)]
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+#[macro_use]
+</span><span class="kw">extern crate </span>anyhow;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+<span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{
-    <span class="ident">deserialize_btreemap</span>, <span class="ident">deserialize_multimap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>,
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>abstutil::{
+    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>};
-<span class="comment">// Re-export a bunch of things for convenience</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">osm2streets::ControlType</span> <span class="kw">as</span> <span class="ident">IntersectionType</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">osm2streets</span>::{
-    <span class="ident">osm</span>, <span class="ident">BufferType</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">MapConfig</span>, <span class="ident">NamePerLanguage</span>,
-    <span class="ident">OriginalRoad</span>, <span class="ident">RestrictionType</span>, <span class="ident">NORMAL_LANE_THICKNESS</span>, <span class="ident">SIDEWALK_THICKNESS</span>,
+<span class="kw">use </span>geom::{Bounds, GPSBounds, Polygon};
+<span class="comment">// Re-export a bunch of things for convenience
+</span><span class="kw">pub use </span>osm2streets::ControlType <span class="kw">as </span>IntersectionType;
+<span class="kw">pub use </span>osm2streets::{
+    osm, BufferType, Direction, DrivingSide, LaneSpec, LaneType, MapConfig, NamePerLanguage,
+    OriginalRoad, RestrictionType, NORMAL_LANE_THICKNESS, SIDEWALK_THICKNESS,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">Amenity</span>, <span class="ident">AmenityType</span>, <span class="ident">AreaType</span>};
+<span class="kw">pub use </span>raw_map::{Amenity, AmenityType, AreaType};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::city::City</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edits</span>::{
-    <span class="ident">EditCmd</span>, <span class="ident">EditEffects</span>, <span class="ident">EditIntersection</span>, <span class="ident">EditRoad</span>, <span class="ident">MapEdits</span>, <span class="ident">PermanentMapEdits</span>,
+<span class="kw">pub use </span><span class="kw">crate</span>::city::City;
+<span class="kw">pub use </span><span class="kw">crate</span>::edits::{
+    EditCmd, EditEffects, EditIntersection, EditRoad, MapEdits, PermanentMapEdits,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make::RawToMapOptions</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::area</span>::{<span class="ident">Area</span>, <span class="ident">AreaID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::block</span>::{<span class="ident">Block</span>, <span class="ident">Perimeter</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::building</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">OffstreetParking</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::intersection</span>::{<span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::lane</span>::{<span class="ident">CommonEndpoint</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">PARKING_LOT_SPOT_LENGTH</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::movement</span>::{<span class="ident">CompressedMovementID</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::parking_lot</span>::{<span class="ident">ParkingLot</span>, <span class="ident">ParkingLotID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::road</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::stop_signs</span>::{<span class="ident">ControlStopSign</span>, <span class="ident">RoadWithStopSign</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::traffic_signals</span>::{<span class="ident">ControlTrafficSignal</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::transit</span>::{<span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStop</span>, <span class="ident">TransitStopID</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::turn</span>::{<span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::objects::zone</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">Zone</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurn</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{
-    <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">Pathfinder</span>, <span class="ident">PathfinderCache</span>,
-    <span class="ident">PathfinderCaching</span>, <span class="ident">RoutingParams</span>,
+<span class="kw">pub use </span><span class="kw">crate</span>::make::RawToMapOptions;
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::area::{Area, AreaID};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::block::{Block, Perimeter};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::building::{Building, BuildingID, BuildingType, OffstreetParking};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::intersection::{Intersection, IntersectionID};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::lane::{CommonEndpoint, Lane, LaneID, PARKING_LOT_SPOT_LENGTH};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::movement::{CompressedMovementID, Movement, MovementID};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::parking_lot::{ParkingLot, ParkingLotID};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::road::{DirectedRoadID, Road, RoadID, RoadSideID, SideOfRoad};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::stop_signs::{ControlStopSign, RoadWithStopSign};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::traffic_signals::{ControlTrafficSignal, Stage, StageType};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::transit::{TransitRoute, TransitRouteID, TransitStop, TransitStopID};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::turn::{Turn, TurnID, TurnPriority, TurnType};
+<span class="kw">pub use </span><span class="kw">crate</span>::objects::zone::{AccessRestrictions, Zone};
+<span class="kw">pub use </span><span class="kw">crate</span>::pathfind::uber_turns::{IntersectionCluster, UberTurn};
+<span class="kw">pub use </span><span class="kw">crate</span>::pathfind::{
+    Path, PathConstraints, PathRequest, PathStep, PathStepV2, PathV2, Pathfinder, PathfinderCache,
+    PathfinderCaching, RoutingParams,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::traversable</span>::{<span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">MAX_BIKE_SPEED</span>, <span class="ident">MAX_WALKING_SPEED</span>};
+<span class="kw">pub use </span><span class="kw">crate</span>::traversable::{Position, Traversable, MAX_BIKE_SPEED, MAX_WALKING_SPEED};
 
-<span class="kw">mod</span> <span class="ident">city</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">connectivity</span>;
-<span class="kw">mod</span> <span class="ident">edits</span>;
-<span class="kw">mod</span> <span class="ident">make</span>;
-<span class="kw">mod</span> <span class="ident">map</span>;
-<span class="kw">mod</span> <span class="ident">objects</span>;
-<span class="kw">mod</span> <span class="ident">pathfind</span>;
-<span class="kw">mod</span> <span class="ident">traversable</span>;
+<span class="kw">mod </span>city;
+<span class="kw">pub mod </span>connectivity;
+<span class="kw">mod </span>edits;
+<span class="kw">mod </span>make;
+<span class="kw">mod </span>map;
+<span class="kw">mod </span>objects;
+<span class="kw">mod </span>pathfind;
+<span class="kw">mod </span>traversable;
 
-<span class="comment">// The map used by the simulation and UI. This struct is declared here so that the rest of the</span>
-<span class="comment">// crate can reach into private fields.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Map</span> {
-    <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Road</span><span class="op">&gt;</span>,
-    <span class="ident">intersections</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Intersection</span><span class="op">&gt;</span>,
-    <span class="ident">buildings</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Building</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
-    )]</span>
-    <span class="ident">transit_stops</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">TransitStop</span><span class="op">&gt;</span>,
-    <span class="ident">transit_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TransitRoute</span><span class="op">&gt;</span>,
-    <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Area</span><span class="op">&gt;</span>,
-    <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkingLot</span><span class="op">&gt;</span>,
-    <span class="ident">boundary_polygon</span>: <span class="ident">Polygon</span>,
+<span class="comment">// The map used by the simulation and UI. This struct is declared here so that the rest of the
+// crate can reach into private fields.
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Map {
+    roads: Vec&lt;Road&gt;,
+    intersections: Vec&lt;Intersection&gt;,
+    buildings: Vec&lt;Building&gt;,
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+    </span>)]
+    </span>transit_stops: BTreeMap&lt;TransitStopID, TransitStop&gt;,
+    transit_routes: Vec&lt;TransitRoute&gt;,
+    areas: Vec&lt;Area&gt;,
+    parking_lots: Vec&lt;ParkingLot&gt;,
+    boundary_polygon: Polygon,
 
-    <span class="comment">// Note that border nodes belong in neither!</span>
-    <span class="ident">stop_signs</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">ControlStopSign</span><span class="op">&gt;</span>,
-    <span class="ident">traffic_signals</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span>,
+    <span class="comment">// Note that border nodes belong in neither!
+    </span>stop_signs: BTreeMap&lt;IntersectionID, ControlStopSign&gt;,
+    traffic_signals: BTreeMap&lt;IntersectionID, ControlTrafficSignal&gt;,
 
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_multimap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_multimap&quot;</span>
-    )]</span>
-    <span class="ident">bus_routes_on_roads</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">osm::WayID</span>, <span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_multimap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_multimap&quot;
+    </span>)]
+    </span>bus_routes_on_roads: MultiMap&lt;osm::WayID, String&gt;,
 
-    <span class="ident">gps_bounds</span>: <span class="ident">GPSBounds</span>,
-    <span class="ident">bounds</span>: <span class="ident">Bounds</span>,
-    <span class="ident">config</span>: <span class="ident">MapConfig</span>,
+    gps_bounds: GPSBounds,
+    bounds: Bounds,
+    config: MapConfig,
 
-    <span class="ident">pathfinder</span>: <span class="ident">Pathfinder</span>,
-    <span class="ident">pathfinder_dirty</span>: <span class="ident">bool</span>,
-    <span class="ident">routing_params</span>: <span class="ident">RoutingParams</span>,
-    <span class="comment">// Not the source of truth, just cached.</span>
-    <span class="ident">zones</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span>,
+    pathfinder: Pathfinder,
+    pathfinder_dirty: bool,
+    routing_params: RoutingParams,
+    <span class="comment">// Not the source of truth, just cached.
+    </span>zones: Vec&lt;Zone&gt;,
 
-    <span class="ident">name</span>: <span class="ident">MapName</span>,
+    name: MapName,
 
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-    <span class="ident">edits</span>: <span class="ident">MapEdits</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-    <span class="ident">edits_generation</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-    <span class="ident">road_to_buildings</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
+    <span class="attribute">#[serde(skip_serializing, skip_deserializing)]
+    </span>edits: MapEdits,
+    <span class="attribute">#[serde(skip_serializing, skip_deserializing)]
+    </span>edits_generation: usize,
+    <span class="attribute">#[serde(skip_serializing, skip_deserializing)]
+    </span>road_to_buildings: MultiMap&lt;RoadID, BuildingID&gt;,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/problems_diff.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>problems_diff.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/problems_diff.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>problems_diff.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -246,253 +246,253 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
-<span class="kw">use</span> <span class="ident">geom::Time</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Problem</span>, <span class="ident">ProblemType</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::DivergingScale</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
+<span class="kw">use </span>geom::Time;
+<span class="kw">use </span>map_gui::tools::ColorNetwork;
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::{IntersectionID, RoadID, Traversable};
+<span class="kw">use </span>sim::{Problem, ProblemType};
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::tools::DivergingScale;
+<span class="kw">use </span>widgetry::{Color, EventCtx, GfxCtx, Outcome, Panel, Text, Toggle, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer</span>::{<span class="ident">header</span>, <span class="ident">problems</span>, <span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>, <span class="ident">PANEL_PLACEMENT</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::layer::{header, problems, Layer, LayerOutcome, PANEL_PLACEMENT};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RelativeProblemMap</span> {
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">opts</span>: <span class="ident">Options</span>,
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>RelativeProblemMap {
+    time: Time,
+    opts: Options,
+    draw: ToggleZoomed,
+    panel: Panel,
 
-    <span class="ident">before_road</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-    <span class="ident">before_intersection</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">after_road</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-    <span class="ident">after_intersection</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
+    before_road: Counter&lt;RoadID&gt;,
+    before_intersection: Counter&lt;IntersectionID&gt;,
+    after_road: Counter&lt;RoadID&gt;,
+    after_intersection: Counter&lt;IntersectionID&gt;,
+    tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">RelativeProblemMap</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Layer <span class="kw">for </span>RelativeProblemMap {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="string">&quot;problem map&quot;</span>)
     }
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc_tooltip</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
-            <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
-            <span class="ident">recalc_tooltip</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>recalc_tooltip = <span class="bool-val">false</span>;
+        <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
+            <span class="kw">let </span><span class="kw-2">mut </span>new = <span class="self">Self</span>::new(ctx, app, <span class="self">self</span>.opts.clone());
+            new.panel.restore(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.panel);
+            <span class="kw-2">*</span><span class="self">self </span>= new;
+            recalc_tooltip = <span class="bool-val">true</span>;
         }
 
-        <span class="comment">// TODO Reinventing CompareCounts...</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">recalc_tooltip</span> {
-            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">before</span>, <span class="ident">after</span>)) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>)
+        <span class="comment">// TODO Reinventing CompareCounts...
+        </span><span class="kw">if </span>ctx.redo_mouseover() || recalc_tooltip {
+            <span class="self">self</span>.tooltip = <span class="prelude-val">None</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((before, after)) = <span class="kw">match </span>app.mouseover_unzoomed_roads_and_intersections(ctx)
             {
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) =&gt; <span class="prelude-val">Some</span>((<span class="self">self</span>.<span class="ident">before_road</span>.<span class="ident">get</span>(<span class="ident">r</span>), <span class="self">self</span>.<span class="ident">after_road</span>.<span class="ident">get</span>(<span class="ident">r</span>))),
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; <span class="prelude-val">Some</span>((
-                    <span class="self">self</span>.<span class="ident">before_intersection</span>.<span class="ident">get</span>(<span class="ident">i</span>),
-                    <span class="self">self</span>.<span class="ident">after_intersection</span>.<span class="ident">get</span>(<span class="ident">i</span>),
+                <span class="prelude-val">Some</span>(ID::Road(r)) =&gt; <span class="prelude-val">Some</span>((<span class="self">self</span>.before_road.get(r), <span class="self">self</span>.after_road.get(r))),
+                <span class="prelude-val">Some</span>(ID::Intersection(i)) =&gt; <span class="prelude-val">Some</span>((
+                    <span class="self">self</span>.before_intersection.get(i),
+                    <span class="self">self</span>.after_intersection.get(i),
                 )),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
             } {
-                <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
+                <span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(Text::from(<span class="macro">format!</span>(
                     <span class="string">&quot;{} before, {} after{}&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">before</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">after</span>),
-                    <span class="kw">if</span> <span class="ident">before</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="macro">format!</span>(<span class="string">&quot; ({:.1}x)&quot;</span>, (<span class="ident">after</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">before</span> <span class="kw">as</span> <span class="ident">f64</span>))
-                    } <span class="kw">else</span> {
-                        <span class="ident">String::new</span>()
+                    prettyprint_usize(before),
+                    prettyprint_usize(after),
+                    <span class="kw">if </span>before != <span class="number">0 </span>{
+                        <span class="macro">format!</span>(<span class="string">&quot; ({:.1}x)&quot;</span>, (after <span class="kw">as </span>f64) / (before <span class="kw">as </span>f64))
+                    } <span class="kw">else </span>{
+                        String::new()
                     },
                 )));
             }
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.tooltip = <span class="prelude-val">None</span>;
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Close</span>);
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Compare before proposal&quot;</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">problems::Options::new</span>(<span class="ident">app</span>);
-                    <span class="ident">opts</span>.<span class="ident">types</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>();
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Replace</span>(<span class="ident">Box::new</span>(<span class="ident">problems::ProblemMap::new</span>(
-                        <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">opts</span>,
+            Outcome::Changed(x) =&gt; {
+                <span class="kw">if </span>x == <span class="string">&quot;Compare before proposal&quot; </span>{
+                    <span class="kw">let </span><span class="kw-2">mut </span>opts = problems::Options::new(app);
+                    opts.types = <span class="self">self</span>.opts.clone();
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Replace(Box::new(problems::ProblemMap::new(
+                        ctx, app, opts,
                     ))));
                 }
 
-                <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="ident">ProblemTypes::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">opts</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_opts</span> {
-                    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_opts</span>);
+                <span class="kw">let </span>new_opts = ProblemTypes::from_controls(<span class="kw-2">&amp;</span><span class="self">self</span>.panel);
+                <span class="kw">if </span><span class="self">self</span>.opts != new_opts {
+                    <span class="kw-2">*</span><span class="self">self </span>= <span class="self">Self</span>::new(ctx, app, new_opts);
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
-        <span class="prelude-val">None</span>
-    }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">txt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span> {
-            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
+        <span class="prelude-val">None
+    </span>}
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.draw.draw(g);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>txt) = <span class="self">self</span>.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
         }
     }
-    <span class="kw">fn</span> <span class="ident">draw_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>);
+    <span class="kw">fn </span>draw_minimap(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw.unzoomed);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">RelativeProblemMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="ident">Options</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>();
-        <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">prebaked</span>();
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>();
+<span class="kw">impl </span>RelativeProblemMap {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, opts: Options) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>after = app.primary.sim.get_analytics();
+        <span class="kw">let </span>before = app.prebaked();
+        <span class="kw">let </span>now = app.primary.sim.time();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after_road</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before_road</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after_intersection</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before_intersection</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>after_road = Counter::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>before_road = Counter::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>after_intersection = Counter::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>before_intersection = Counter::new();
 
-        <span class="kw">let</span> <span class="ident">update_count</span> <span class="op">=</span>
-            <span class="op">|</span><span class="ident">problem</span>: <span class="kw-2">&amp;</span><span class="ident">Problem</span>,
-             <span class="ident">roads</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-             <span class="ident">intersections</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span><span class="op">|</span> {
-                <span class="kw">match</span> <span class="ident">problem</span> {
-                    <span class="ident">Problem::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="ident">i</span>) =&gt; {
-                        <span class="ident">intersections</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">i</span>);
+        <span class="kw">let </span>update_count =
+            |problem: <span class="kw-2">&amp;</span>Problem,
+             roads: <span class="kw-2">&amp;mut </span>Counter&lt;RoadID&gt;,
+             intersections: <span class="kw-2">&amp;mut </span>Counter&lt;IntersectionID&gt;| {
+                <span class="kw">match </span>problem {
+                    Problem::IntersectionDelay(i, <span class="kw">_</span>) | Problem::ComplexIntersectionCrossing(i) =&gt; {
+                        intersections.inc(<span class="kw-2">*</span>i);
                     }
-                    <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) <span class="op">|</span> <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="ident">on</span>) =&gt; {
-                        <span class="kw">match</span> <span class="ident">on</span> {
-                            <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) =&gt; {
-                                <span class="ident">roads</span>.<span class="ident">inc</span>(<span class="ident">l</span>.<span class="ident">road</span>);
+                    Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) =&gt; {
+                        <span class="kw">match </span>on {
+                            Traversable::Lane(l) =&gt; {
+                                roads.inc(l.road);
                             }
-                            <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) =&gt; {
-                                <span class="ident">intersections</span>.<span class="ident">inc</span>(<span class="ident">t</span>.<span class="ident">parent</span>);
+                            Traversable::Turn(t) =&gt; {
+                                intersections.inc(t.parent);
                             }
                         }
                     }
-                    <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="ident">t</span>) =&gt; {
-                        <span class="ident">intersections</span>.<span class="ident">inc</span>(<span class="ident">t</span>.<span class="ident">parent</span>);
+                    Problem::ArterialIntersectionCrossing(t) =&gt; {
+                        intersections.inc(t.parent);
                     }
                 }
             };
 
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problems</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">before</span>.<span class="ident">problems_per_trip</span> {
-            <span class="kw">for</span> (<span class="ident">time</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-                <span class="comment">// Per trip, problems are counted in order, so stop after now.</span>
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">time</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+        <span class="kw">for </span>(<span class="kw">_</span>, problems) <span class="kw">in </span><span class="kw-2">&amp;</span>before.problems_per_trip {
+            <span class="kw">for </span>(time, problem) <span class="kw">in </span>problems {
+                <span class="comment">// Per trip, problems are counted in order, so stop after now.
+                </span><span class="kw">if </span><span class="kw-2">*</span>time &gt; now {
                     <span class="kw">break</span>;
                 }
-                <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show</span>(<span class="ident">problem</span>) {
-                    <span class="ident">update_count</span>(<span class="ident">problem</span>, <span class="kw-2">&amp;mut</span> <span class="ident">before_road</span>, <span class="kw-2">&amp;mut</span> <span class="ident">before_intersection</span>);
+                <span class="kw">if </span>opts.show(problem) {
+                    update_count(problem, <span class="kw-2">&amp;mut </span>before_road, <span class="kw-2">&amp;mut </span>before_intersection);
                 }
             }
         }
 
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problems</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">after</span>.<span class="ident">problems_per_trip</span> {
-            <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-                <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show</span>(<span class="ident">problem</span>) {
-                    <span class="ident">update_count</span>(<span class="ident">problem</span>, <span class="kw-2">&amp;mut</span> <span class="ident">after_road</span>, <span class="kw-2">&amp;mut</span> <span class="ident">after_intersection</span>);
+        <span class="kw">for </span>(<span class="kw">_</span>, problems) <span class="kw">in </span><span class="kw-2">&amp;</span>after.problems_per_trip {
+            <span class="kw">for </span>(<span class="kw">_</span>, problem) <span class="kw">in </span>problems {
+                <span class="kw">if </span>opts.show(problem) {
+                    update_count(problem, <span class="kw-2">&amp;mut </span>after_road, <span class="kw-2">&amp;mut </span>after_intersection);
                 }
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::new</span>(<span class="ident">app</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorNetwork::new(app);
 
-        <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">DivergingScale::new</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#5D9630&quot;</span>), <span class="ident">Color::WHITE</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#A32015&quot;</span>))
-            .<span class="ident">range</span>(<span class="number">0.0</span>, <span class="number">2.0</span>)
-            .<span class="ident">ignore</span>(<span class="number">0.7</span>, <span class="number">1.3</span>);
+        <span class="kw">let </span>scale = DivergingScale::new(Color::hex(<span class="string">&quot;#5D9630&quot;</span>), Color::WHITE, Color::hex(<span class="string">&quot;#A32015&quot;</span>))
+            .range(<span class="number">0.0</span>, <span class="number">2.0</span>)
+            .ignore(<span class="number">0.7</span>, <span class="number">1.3</span>);
 
-        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">before</span>, <span class="ident">after</span>) <span class="kw">in</span> <span class="ident">before_road</span>.<span class="ident">clone</span>().<span class="ident">compare</span>(<span class="ident">after_road</span>.<span class="ident">clone</span>()) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">scale</span>.<span class="ident">eval</span>((<span class="ident">after</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">before</span> <span class="kw">as</span> <span class="ident">f64</span>)) {
-                <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="ident">r</span>, <span class="ident">c</span>);
+        <span class="kw">for </span>(r, before, after) <span class="kw">in </span>before_road.clone().compare(after_road.clone()) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = scale.eval((after <span class="kw">as </span>f64) / (before <span class="kw">as </span>f64)) {
+                colorer.add_r(r, c);
             }
         }
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">before</span>, <span class="ident">after</span>) <span class="kw">in</span> <span class="ident">before_intersection</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">compare</span>(<span class="ident">after_intersection</span>.<span class="ident">clone</span>())
+        <span class="kw">for </span>(i, before, after) <span class="kw">in </span>before_intersection
+            .clone()
+            .compare(after_intersection.clone())
         {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">scale</span>.<span class="ident">eval</span>((<span class="ident">after</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">before</span> <span class="kw">as</span> <span class="ident">f64</span>)) {
-                <span class="ident">colorer</span>.<span class="ident">add_i</span>(<span class="ident">i</span>, <span class="ident">c</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = scale.eval((after <span class="kw">as </span>f64) / (before <span class="kw">as </span>f64)) {
+                colorer.add_i(i, c);
             }
         }
 
-        <span class="kw">let</span> <span class="ident">legend</span> <span class="op">=</span> <span class="ident">scale</span>.<span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="macro">vec!</span>[<span class="string">&quot;less problems&quot;</span>, <span class="string">&quot;same&quot;</span>, <span class="string">&quot;more&quot;</span>]);
-        <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">legend</span>);
-        <span class="self">Self</span> {
-            <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">opts</span>,
-            <span class="ident">draw</span>: <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">panel</span>: <span class="ident">controls</span>,
-            <span class="ident">tooltip</span>: <span class="prelude-val">None</span>,
-            <span class="ident">before_road</span>,
-            <span class="ident">before_intersection</span>,
-            <span class="ident">after_road</span>,
-            <span class="ident">after_intersection</span>,
+        <span class="kw">let </span>legend = scale.make_legend(ctx, <span class="macro">vec!</span>[<span class="string">&quot;less problems&quot;</span>, <span class="string">&quot;same&quot;</span>, <span class="string">&quot;more&quot;</span>]);
+        <span class="kw">let </span>controls = make_controls(ctx, <span class="kw-2">&amp;</span>opts, legend);
+        <span class="self">Self </span>{
+            time: app.primary.sim.time(),
+            opts,
+            draw: colorer.build(ctx),
+            panel: controls,
+            tooltip: <span class="prelude-val">None</span>,
+            before_road,
+            before_intersection,
+            after_road,
+            after_intersection,
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>, <span class="ident">legend</span>: <span class="ident">Widget</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Change in Problems encountered&quot;</span>),
-        <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
-        <span class="ident">opts</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>),
-        <span class="ident">legend</span>,
+<span class="kw">fn </span>make_controls(ctx: <span class="kw-2">&amp;mut </span>EventCtx, opts: <span class="kw-2">&amp;</span>Options, legend: Widget) -&gt; Panel {
+    Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+        header(ctx, <span class="string">&quot;Change in Problems encountered&quot;</span>),
+        Toggle::switch(ctx, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
+        opts.to_controls(ctx),
+        legend,
     ]))
-    .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    .aligned_pair(PANEL_PLACEMENT)
+    .build(ctx)
 }
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Options</span> <span class="op">=</span> <span class="ident">ProblemTypes</span>;
+<span class="kw">pub type </span>Options = ProblemTypes;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProblemTypes</span> {
-    <span class="ident">disabled_types</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">ProblemType</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, PartialEq)]
+</span><span class="kw">pub struct </span>ProblemTypes {
+    disabled_types: HashSet&lt;ProblemType&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ProblemTypes</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">disabled_types</span>: <span class="ident">HashSet::new</span>(),
+<span class="kw">impl </span>ProblemTypes {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            disabled_types: HashSet::new(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">problem</span>: <span class="kw-2">&amp;</span><span class="ident">Problem</span>) -&gt; <span class="ident">bool</span> {
-        <span class="op">!</span><span class="self">self</span>.<span class="ident">disabled_types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">ProblemType::from</span>(<span class="ident">problem</span>))
+    <span class="kw">pub fn </span>show(<span class="kw-2">&amp;</span><span class="self">self</span>, problem: <span class="kw-2">&amp;</span>Problem) -&gt; bool {
+        !<span class="self">self</span>.disabled_types.contains(<span class="kw-2">&amp;</span>ProblemType::from(problem))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">ProblemType::all</span>() {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Toggle::checkbox</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;show {}&quot;</span>, <span class="ident">pt</span>.<span class="ident">name</span>()),
+    <span class="kw">pub fn </span>to_controls(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
+        <span class="kw">for </span>pt <span class="kw">in </span>ProblemType::all() {
+            col.push(Toggle::checkbox(
+                ctx,
+                <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;show {}&quot;</span>, pt.name()),
                 <span class="prelude-val">None</span>,
-                <span class="op">!</span><span class="self">self</span>.<span class="ident">disabled_types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>),
+                !<span class="self">self</span>.disabled_types.contains(<span class="kw-2">&amp;</span>pt),
             ));
         }
-        <span class="ident">Widget::col</span>(<span class="ident">col</span>)
+        Widget::col(col)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_controls</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">types</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">ProblemType::all</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;show {}&quot;</span>, <span class="ident">pt</span>.<span class="ident">name</span>())) {
-                <span class="ident">types</span>.<span class="ident">disabled_types</span>.<span class="ident">insert</span>(<span class="ident">pt</span>);
+    <span class="kw">pub fn </span>from_controls(panel: <span class="kw-2">&amp;</span>Panel) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>types = <span class="self">Self</span>::new();
+        <span class="kw">for </span>pt <span class="kw">in </span>ProblemType::all() {
+            <span class="kw">if </span>!panel.is_checked(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;show {}&quot;</span>, pt.name())) {
+                types.disabled_types.insert(pt);
             }
         }
-        <span class="ident">types</span>
+        types
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/turns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/turns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -422,429 +422,429 @@
 <span id="422">422</span>
 <span id="423">423</span>
 <span id="424">424</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashMap, HashSet};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">lyon::geom</span>::{<span class="ident">CubicBezierSegment</span>, <span class="ident">Point</span>, <span class="ident">QuadraticBezierSegment</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>lyon::geom::{CubicBezierSegment, Point, QuadraticBezierSegment};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>geom::{Angle, PolyLine, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Intersection</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>};
+<span class="kw">use crate</span>::{Intersection, Lane, LaneID, LaneType, Map, RoadID, Turn, TurnID, TurnType};
 
-<span class="doccomment">/// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_all_turns</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="ident">raw_turns</span>.<span class="ident">extend</span>(<span class="ident">make_vehicle_turns</span>(<span class="ident">i</span>, <span class="ident">map</span>));
-    <span class="ident">raw_turns</span>.<span class="ident">extend</span>(<span class="ident"><span class="kw">crate</span>::make::walking_turns::filter_turns</span>(
-        <span class="ident"><span class="kw">crate</span>::make::walking_turns::make_walking_turns</span>(<span class="ident">map</span>, <span class="ident">i</span>),
-        <span class="ident">map</span>,
-        <span class="ident">i</span>,
+<span class="doccomment">/// Generate all driving and walking turns at an intersection, accounting for OSM turn restrictions.
+</span><span class="kw">pub fn </span>make_all_turns(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; Vec&lt;Turn&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>raw_turns: Vec&lt;Turn&gt; = Vec::new();
+    raw_turns.extend(make_vehicle_turns(i, map));
+    raw_turns.extend(<span class="kw">crate</span>::make::walking_turns::filter_turns(
+        <span class="kw">crate</span>::make::walking_turns::make_walking_turns(map, i),
+        map,
+        i,
     ));
-    <span class="kw">let</span> <span class="ident">unique_turns</span> <span class="op">=</span> <span class="ident">ensure_unique</span>(<span class="ident">raw_turns</span>);
-    <span class="comment">// Never allow turns that go against road-level turn restrictions; that upstream OSM data is</span>
-    <span class="comment">// usually not extremely broken.</span>
-    <span class="kw">let</span> <span class="ident">all_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">unique_turns</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">permitted_by_road</span>(<span class="ident">i</span>, <span class="ident">map</span>))
-        .<span class="ident">collect</span>();
+    <span class="kw">let </span>unique_turns = ensure_unique(raw_turns);
+    <span class="comment">// Never allow turns that go against road-level turn restrictions; that upstream OSM data is
+    // usually not extremely broken.
+    </span><span class="kw">let </span>all_turns: Vec&lt;Turn&gt; = unique_turns
+        .into_iter()
+        .filter(|t| t.permitted_by_road(i, map))
+        .collect();
 
-    <span class="comment">// Try to use turn lane tags...</span>
-    <span class="kw">let</span> <span class="ident">filtered_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">all_turns</span>
-        .<span class="ident">clone</span>()
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">permitted_by_lane</span>(<span class="ident">map</span>))
-        .<span class="ident">collect</span>();
-    <span class="comment">// And remove merging left or right turns. If we wanted to remove the &quot;lane-changing at</span>
-    <span class="comment">// intersections&quot; behavior, we could do this for TurnType::Straight too.</span>
-    <span class="kw">let</span> <span class="ident">filtered_turns</span> <span class="op">=</span> <span class="ident">remove_merging_turns</span>(<span class="ident">map</span>, <span class="ident">filtered_turns</span>, <span class="ident">TurnType::Right</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filtered_turns</span> <span class="op">=</span> <span class="ident">remove_merging_turns</span>(<span class="ident">map</span>, <span class="ident">filtered_turns</span>, <span class="ident">TurnType::Left</span>);
-    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">merged</span> {
-        <span class="ident">filtered_turns</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">turn</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::UTurn</span> {
-                <span class="kw">let</span> <span class="ident">src_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
-                <span class="comment">// U-turns at divided highways are sometimes legal (and a common movement --</span>
-                <span class="comment">// https://www.openstreetmap.org/way/361443212), so let OSM turn:lanes override.</span>
-                <span class="kw">if</span> <span class="ident">src_lane</span>
-                    .<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">src_lane</span>.<span class="ident">id</span>.<span class="ident">road</span>), <span class="bool-val">false</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">set</span><span class="op">|</span> <span class="op">!</span><span class="ident">set</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType::UTurn</span>))
-                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
+    <span class="comment">// Try to use turn lane tags...
+    </span><span class="kw">let </span>filtered_turns: Vec&lt;Turn&gt; = all_turns
+        .clone()
+        .into_iter()
+        .filter(|t| t.permitted_by_lane(map))
+        .collect();
+    <span class="comment">// And remove merging left or right turns. If we wanted to remove the &quot;lane-changing at
+    // intersections&quot; behavior, we could do this for TurnType::Straight too.
+    </span><span class="kw">let </span>filtered_turns = remove_merging_turns(map, filtered_turns, TurnType::Right);
+    <span class="kw">let </span><span class="kw-2">mut </span>filtered_turns = remove_merging_turns(map, filtered_turns, TurnType::Left);
+    <span class="kw">if </span>i.merged {
+        filtered_turns.retain(|turn| {
+            <span class="kw">if </span>turn.turn_type == TurnType::UTurn {
+                <span class="kw">let </span>src_lane = map.get_l(turn.id.src);
+                <span class="comment">// U-turns at divided highways are sometimes legal (and a common movement --
+                // https://www.openstreetmap.org/way/361443212), so let OSM turn:lanes override.
+                </span><span class="kw">if </span>src_lane
+                    .get_lane_level_turn_restrictions(map.get_r(src_lane.id.road), <span class="bool-val">false</span>)
+                    .map(|set| !set.contains(<span class="kw-2">&amp;</span>TurnType::UTurn))
+                    .unwrap_or(<span class="bool-val">true</span>)
                 {
-                    <span class="macro">warn!</span>(<span class="string">&quot;Removing u-turn from merged intersection: {}&quot;</span>, <span class="ident">turn</span>.<span class="ident">id</span>);
-                    <span class="bool-val">false</span>
-                } <span class="kw">else</span> {
-                    <span class="bool-val">true</span>
-                }
-            } <span class="kw">else</span> {
-                <span class="bool-val">true</span>
-            }
+                    <span class="macro">warn!</span>(<span class="string">&quot;Removing u-turn from merged intersection: {}&quot;</span>, turn.id);
+                    <span class="bool-val">false
+                </span>} <span class="kw">else </span>{
+                    <span class="bool-val">true
+                </span>}
+            } <span class="kw">else </span>{
+                <span class="bool-val">true
+            </span>}
         });
     }
 
-    <span class="comment">// But then see how all of that filtering affects lane connectivity.</span>
-    <span class="kw">match</span> <span class="ident">verify_vehicle_connectivity</span>(<span class="kw-2">&amp;</span><span class="ident">filtered_turns</span>, <span class="ident">i</span>, <span class="ident">map</span>) {
-        <span class="prelude-val">Ok</span>(()) =&gt; <span class="ident">filtered_turns</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-            <span class="macro">warn!</span>(<span class="string">&quot;Not filtering turns. {}&quot;</span>, <span class="ident">err</span>);
-            <span class="ident">all_turns</span>
+    <span class="comment">// But then see how all of that filtering affects lane connectivity.
+    </span><span class="kw">match </span>verify_vehicle_connectivity(<span class="kw-2">&amp;</span>filtered_turns, i, map) {
+        <span class="prelude-val">Ok</span>(()) =&gt; filtered_turns,
+        <span class="prelude-val">Err</span>(err) =&gt; {
+            <span class="macro">warn!</span>(<span class="string">&quot;Not filtering turns. {}&quot;</span>, err);
+            all_turns
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">ensure_unique</span>(<span class="ident">turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">keep</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">turns</span>.<span class="ident">into_iter</span>() {
-        <span class="kw">if</span> <span class="ident">ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">id</span>) {
-            <span class="comment">// TODO This was once an assertion, but disabled for</span>
-            <span class="comment">// https://github.com/a-b-street/abstreet/issues/84. A crosswalk gets created twice</span>
-            <span class="comment">// and deduplicated here. Not sure why it was double-created in the first place.</span>
-            <span class="macro">warn!</span>(<span class="string">&quot;Duplicate turns {}!&quot;</span>, <span class="ident">t</span>.<span class="ident">id</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">ids</span>.<span class="ident">insert</span>(<span class="ident">t</span>.<span class="ident">id</span>);
-            <span class="ident">keep</span>.<span class="ident">push</span>(<span class="ident">t</span>);
+<span class="kw">fn </span>ensure_unique(turns: Vec&lt;Turn&gt;) -&gt; Vec&lt;Turn&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>ids = HashSet::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>keep: Vec&lt;Turn&gt; = Vec::new();
+    <span class="kw">for </span>t <span class="kw">in </span>turns.into_iter() {
+        <span class="kw">if </span>ids.contains(<span class="kw-2">&amp;</span>t.id) {
+            <span class="comment">// TODO This was once an assertion, but disabled for
+            // https://github.com/a-b-street/abstreet/issues/84. A crosswalk gets created twice
+            // and deduplicated here. Not sure why it was double-created in the first place.
+            </span><span class="macro">warn!</span>(<span class="string">&quot;Duplicate turns {}!&quot;</span>, t.id);
+        } <span class="kw">else </span>{
+            ids.insert(t.id);
+            keep.push(t);
         }
     }
-    <span class="ident">keep</span>
+    keep
 }
 
-<span class="doccomment">/// Ideally, we want every incoming lane to lead to at least one lane of the same type, and every</span>
-<span class="doccomment">/// outgoing lane to be reachable by at least one lane of the same type. But if it&#39;s a bus or bike</span>
-<span class="doccomment">/// lane, settle for being connected to anything -- even just a driving lane. There&#39;s naturally</span>
-<span class="doccomment">/// places where these dedicated lanes start and end.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Why is this definition strict for driving lanes connected to other driving lanes?  See</span>
-<span class="doccomment">/// https://www.openstreetmap.org/node/491979474 for a motivating example. When a dedicated bike</span>
-<span class="doccomment">/// path crosses a road with turn restrictions marked on a segment before the intersection, the</span>
-<span class="doccomment">/// turn restrictions _probably_ indicate the vehicle movements allowed further on, and _don&#39;t_</span>
-<span class="doccomment">/// describe the turns between the road and the trail.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verify_vehicle_connectivity</span>(<span class="ident">turns</span>: <span class="kw-2">&amp;</span>[<span class="ident">Turn</span>], <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">incoming_missing</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">incoming_lanes</span> {
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
-            <span class="ident">incoming_missing</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">l</span>);
+<span class="doccomment">/// Ideally, we want every incoming lane to lead to at least one lane of the same type, and every
+/// outgoing lane to be reachable by at least one lane of the same type. But if it&#39;s a bus or bike
+/// lane, settle for being connected to anything -- even just a driving lane. There&#39;s naturally
+/// places where these dedicated lanes start and end.
+///
+/// Why is this definition strict for driving lanes connected to other driving lanes?  See
+/// https://www.openstreetmap.org/node/491979474 for a motivating example. When a dedicated bike
+/// path crosses a road with turn restrictions marked on a segment before the intersection, the
+/// turn restrictions _probably_ indicate the vehicle movements allowed further on, and _don&#39;t_
+/// describe the turns between the road and the trail.
+</span><span class="kw">pub fn </span>verify_vehicle_connectivity(turns: <span class="kw-2">&amp;</span>[Turn], i: <span class="kw-2">&amp;</span>Intersection, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>incoming_missing: HashSet&lt;LaneID&gt; = HashSet::new();
+    <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span>i.incoming_lanes {
+        <span class="kw">if </span>map.get_l(<span class="kw-2">*</span>l).lane_type.is_for_moving_vehicles() {
+            incoming_missing.insert(<span class="kw-2">*</span>l);
         }
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outgoing_missing</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">outgoing_lanes</span> {
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
-            <span class="ident">outgoing_missing</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">l</span>);
-        }
-    }
-
-    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">turns</span> {
-        <span class="kw">let</span> <span class="ident">src_lt</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">lane_type</span>;
-        <span class="kw">let</span> <span class="ident">dst_lt</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">lane_type</span>;
-
-        <span class="kw">if</span> <span class="ident">src_lt</span> <span class="op">==</span> <span class="ident">dst_lt</span> {
-            <span class="ident">incoming_missing</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
-            <span class="ident">outgoing_missing</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
-        }
-
-        <span class="kw">if</span> <span class="ident">src_lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span> <span class="op">|</span><span class="op">|</span> <span class="ident">src_lt</span> <span class="op">==</span> <span class="ident">LaneType::Bus</span> {
-            <span class="ident">incoming_missing</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
-        }
-        <span class="kw">if</span> <span class="ident">dst_lt</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span> <span class="op">|</span><span class="op">|</span> <span class="ident">dst_lt</span> <span class="op">==</span> <span class="ident">LaneType::Bus</span> {
-            <span class="ident">outgoing_missing</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>outgoing_missing: HashSet&lt;LaneID&gt; = HashSet::new();
+    <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span>i.outgoing_lanes {
+        <span class="kw">if </span>map.get_l(<span class="kw-2">*</span>l).lane_type.is_for_moving_vehicles() {
+            outgoing_missing.insert(<span class="kw-2">*</span>l);
         }
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">incoming_missing</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">outgoing_missing</span>.<span class="ident">is_empty</span>() {
+    <span class="kw">for </span>turn <span class="kw">in </span>turns {
+        <span class="kw">let </span>src_lt = map.get_l(turn.id.src).lane_type;
+        <span class="kw">let </span>dst_lt = map.get_l(turn.id.dst).lane_type;
+
+        <span class="kw">if </span>src_lt == dst_lt {
+            incoming_missing.remove(<span class="kw-2">&amp;</span>turn.id.src);
+            outgoing_missing.remove(<span class="kw-2">&amp;</span>turn.id.dst);
+        }
+
+        <span class="kw">if </span>src_lt == LaneType::Biking || src_lt == LaneType::Bus {
+            incoming_missing.remove(<span class="kw-2">&amp;</span>turn.id.src);
+        }
+        <span class="kw">if </span>dst_lt == LaneType::Biking || dst_lt == LaneType::Bus {
+            outgoing_missing.remove(<span class="kw-2">&amp;</span>turn.id.dst);
+        }
+    }
+
+    <span class="kw">if </span>!incoming_missing.is_empty() || !outgoing_missing.is_empty() {
         <span class="macro">bail!</span>(
             <span class="string">&quot;Turns for {} orphan some lanes. Incoming: {:?}, outgoing: {:?}&quot;</span>,
-            <span class="ident">i</span>.<span class="ident">id</span>,
-            <span class="ident">incoming_missing</span>,
-            <span class="ident">outgoing_missing</span>
+            i.id,
+            incoming_missing,
+            outgoing_missing
         );
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">make_vehicle_turns</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turns</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">fn </span>make_vehicle_turns(i: <span class="kw-2">&amp;</span>Intersection, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;Turn&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>turns = Vec::new();
 
-    <span class="kw">let</span> <span class="ident">expected_turn_types</span> <span class="op">=</span> <span class="ident">expected_turn_types_for_four_way</span>(<span class="ident">i</span>, <span class="ident">map</span>);
+    <span class="kw">let </span>expected_turn_types = expected_turn_types_for_four_way(i, map);
 
-    <span class="comment">// Just generate every possible combination of turns between incoming and outgoing lanes.</span>
-    <span class="kw">let</span> <span class="ident">is_deadend</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">is_deadend_for_driving</span>(<span class="ident">map</span>);
-    <span class="kw">for</span> <span class="ident">src</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">incoming_lanes</span> {
-        <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">src</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">src</span>.<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
+    <span class="comment">// Just generate every possible combination of turns between incoming and outgoing lanes.
+    </span><span class="kw">let </span>is_deadend = i.is_deadend_for_driving(map);
+    <span class="kw">for </span>src <span class="kw">in </span><span class="kw-2">&amp;</span>i.incoming_lanes {
+        <span class="kw">let </span>src = map.get_l(<span class="kw-2">*</span>src);
+        <span class="kw">if </span>!src.lane_type.is_for_moving_vehicles() {
             <span class="kw">continue</span>;
         }
-        <span class="kw">for</span> <span class="ident">dst</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">outgoing_lanes</span> {
-            <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">dst</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">dst</span>.<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
+        <span class="kw">for </span>dst <span class="kw">in </span><span class="kw-2">&amp;</span>i.outgoing_lanes {
+            <span class="kw">let </span>dst = map.get_l(<span class="kw-2">*</span>dst);
+            <span class="kw">if </span>!dst.lane_type.is_for_moving_vehicles() {
                 <span class="kw">continue</span>;
             }
-            <span class="comment">// Only allow U-turns at deadends</span>
-            <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">id</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">dst</span>.<span class="ident">id</span>.<span class="ident">road</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_deadend</span> {
+            <span class="comment">// Only allow U-turns at deadends
+            </span><span class="kw">if </span>src.id.road == dst.id.road &amp;&amp; !is_deadend {
                 <span class="kw">continue</span>;
             }
-            <span class="comment">// Can&#39;t go between light rail and normal roads</span>
-            <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">is_light_rail</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">dst</span>.<span class="ident">is_light_rail</span>() {
+            <span class="comment">// Can&#39;t go between light rail and normal roads
+            </span><span class="kw">if </span>src.is_light_rail() != dst.is_light_rail() {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">last_pt</span>() <span class="op">==</span> <span class="ident">dst</span>.<span class="ident">first_pt</span>() {
+            <span class="kw">if </span>src.last_pt() == dst.first_pt() {
                 <span class="macro">warn!</span>(
                     <span class="string">&quot;No turn from {} to {}; the endpoints are the same&quot;</span>,
-                    <span class="ident">src</span>.<span class="ident">id</span>, <span class="ident">dst</span>.<span class="ident">id</span>
+                    src.id, dst.id
                 );
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">from_angle</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">last_line</span>().<span class="ident">angle</span>();
-            <span class="kw">let</span> <span class="ident">to_angle</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">turn_type_from_angles</span>(<span class="ident">from_angle</span>, <span class="ident">to_angle</span>);
-            <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::UTurn</span> {
-                <span class="comment">// Lots of false positives when classifying these just based on angles. So also</span>
-                <span class="comment">// require the road names to match.</span>
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">src</span>.<span class="ident">id</span>).<span class="ident">get_name</span>(<span class="prelude-val">None</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">dst</span>.<span class="ident">id</span>).<span class="ident">get_name</span>(<span class="prelude-val">None</span>) {
-                    <span class="comment">// Distinguish really sharp lefts/rights based on clockwiseness</span>
-                    <span class="kw">if</span> <span class="ident">from_angle</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">to_angle</span>) <span class="op">&lt;</span> <span class="number">0.0</span> {
-                        <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::Right</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::Left</span>;
+            <span class="kw">let </span>from_angle = src.last_line().angle();
+            <span class="kw">let </span>to_angle = dst.first_line().angle();
+            <span class="kw">let </span><span class="kw-2">mut </span>turn_type = turn_type_from_angles(from_angle, to_angle);
+            <span class="kw">if </span>turn_type == TurnType::UTurn {
+                <span class="comment">// Lots of false positives when classifying these just based on angles. So also
+                // require the road names to match.
+                </span><span class="kw">if </span>map.get_parent(src.id).get_name(<span class="prelude-val">None</span>) != map.get_parent(dst.id).get_name(<span class="prelude-val">None</span>) {
+                    <span class="comment">// Distinguish really sharp lefts/rights based on clockwiseness
+                    </span><span class="kw">if </span>from_angle.simple_shortest_rotation_towards(to_angle) &lt; <span class="number">0.0 </span>{
+                        turn_type = TurnType::Right;
+                    } <span class="kw">else </span>{
+                        turn_type = TurnType::Left;
                     }
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">expected_type</span>) <span class="op">=</span> <span class="ident">expected_turn_types</span>
-                .<span class="ident">as_ref</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">src</span>.<span class="ident">id</span>.<span class="ident">road</span>, <span class="ident">dst</span>.<span class="ident">id</span>.<span class="ident">road</span>)))
+            } <span class="kw">else if let </span><span class="prelude-val">Some</span>(expected_type) = expected_turn_types
+                .as_ref()
+                .and_then(|e| e.get(<span class="kw-2">&amp;</span>(src.id.road, dst.id.road)))
             {
-                <span class="comment">// At some 4-way intersections, roads meet at strange angles, throwing off</span>
-                <span class="comment">// turn_type_from_angles. Correct it based on relative ordering.</span>
-                <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">expected_type</span> {
+                <span class="comment">// At some 4-way intersections, roads meet at strange angles, throwing off
+                // turn_type_from_angles. Correct it based on relative ordering.
+                </span><span class="kw">if </span>turn_type != <span class="kw-2">*</span>expected_type {
                     <span class="macro">warn!</span>(
                         <span class="string">&quot;Turn from {} to {} looks like {:?} by angle, but is {:?} by ordering&quot;</span>,
-                        <span class="ident">src</span>.<span class="ident">id</span>.<span class="ident">road</span>, <span class="ident">dst</span>.<span class="ident">id</span>.<span class="ident">road</span>, <span class="ident">turn_type</span>, <span class="ident">expected_type</span>
+                        src.id.road, dst.id.road, turn_type, expected_type
                     );
-                    <span class="ident">turn_type</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">expected_type</span>;
+                    turn_type = <span class="kw-2">*</span>expected_type;
                 }
             }
 
-            <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="ident">curvey_turn</span>(<span class="ident">src</span>, <span class="ident">dst</span>, <span class="ident">i</span>)
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">src</span>.<span class="ident">last_pt</span>(), <span class="ident">dst</span>.<span class="ident">first_pt</span>()]));
+            <span class="kw">let </span>geom = curvey_turn(src, dst, i)
+                .unwrap_or_else(|<span class="kw">_</span>| PolyLine::must_new(<span class="macro">vec!</span>[src.last_pt(), dst.first_pt()]));
 
-            <span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">Turn</span> {
-                <span class="ident">id</span>: <span class="ident">TurnID</span> {
-                    <span class="ident">parent</span>: <span class="ident">i</span>.<span class="ident">id</span>,
-                    <span class="ident">src</span>: <span class="ident">src</span>.<span class="ident">id</span>,
-                    <span class="ident">dst</span>: <span class="ident">dst</span>.<span class="ident">id</span>,
+            turns.push(Turn {
+                id: TurnID {
+                    parent: i.id,
+                    src: src.id,
+                    dst: dst.id,
                 },
-                <span class="ident">turn_type</span>,
-                <span class="ident">geom</span>,
+                turn_type,
+                geom,
             });
         }
     }
 
-    <span class="ident">turns</span>
+    turns
 }
 
-<span class="kw">fn</span> <span class="ident">curvey_turn</span>(<span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">dst</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">to_pt</span>(<span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
-        <span class="ident">Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+<span class="kw">fn </span>curvey_turn(src: <span class="kw-2">&amp;</span>Lane, dst: <span class="kw-2">&amp;</span>Lane, i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Result</span>&lt;PolyLine&gt; {
+    <span class="kw">fn </span>to_pt(pt: Pt2D) -&gt; Point&lt;f64&gt; {
+        Point::new(pt.x(), pt.y())
     }
 
-    <span class="kw">fn</span> <span class="ident">from_pt</span>(<span class="ident">pt</span>: <span class="ident">Point</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span>)
+    <span class="kw">fn </span>from_pt(pt: Point&lt;f64&gt;) -&gt; Pt2D {
+        Pt2D::new(pt.x, pt.y)
     }
 
-    <span class="comment">// The control points are straight out/in from the source/destination lanes, so</span>
-    <span class="comment">// that the car exits and enters at the same angle as the road.</span>
-    <span class="kw">let</span> <span class="ident">src_line</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">last_line</span>();
-    <span class="kw">let</span> <span class="ident">dst_line</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">first_line</span>();
+    <span class="comment">// The control points are straight out/in from the source/destination lanes, so
+    // that the car exits and enters at the same angle as the road.
+    </span><span class="kw">let </span>src_line = src.last_line();
+    <span class="kw">let </span>dst_line = dst.first_line();
 
-    <span class="kw">let</span> <span class="ident">src_pt</span> <span class="op">=</span> <span class="ident">src</span>.<span class="ident">last_pt</span>();
-    <span class="kw">let</span> <span class="ident">dst_pt</span> <span class="op">=</span> <span class="ident">dst</span>.<span class="ident">first_pt</span>();
+    <span class="kw">let </span>src_pt = src.last_pt();
+    <span class="kw">let </span>dst_pt = dst.first_pt();
 
-    <span class="kw">let</span> <span class="ident">src_angle</span> <span class="op">=</span> <span class="ident">src_line</span>.<span class="ident">angle</span>();
-    <span class="kw">let</span> <span class="ident">dst_angle</span> <span class="op">=</span> <span class="ident">dst_line</span>.<span class="ident">angle</span>();
+    <span class="kw">let </span>src_angle = src_line.angle();
+    <span class="kw">let </span>dst_angle = dst_line.angle();
 
-    <span class="kw">let</span> <span class="ident">intersection</span> <span class="op">=</span> <span class="ident">src_line</span>
-        .<span class="ident">infinite</span>()
-        .<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">dst_line</span>.<span class="ident">infinite</span>())
-        .<span class="ident">unwrap_or</span>(<span class="ident">src_pt</span>);
+    <span class="kw">let </span>intersection = src_line
+        .infinite()
+        .intersection(<span class="kw-2">&amp;</span>dst_line.infinite())
+        .unwrap_or(src_pt);
 
-    <span class="kw">let</span> <span class="ident">curve</span> <span class="op">=</span>
-        <span class="comment">// U-turns and straight turns</span>
-        <span class="kw">if</span> <span class="ident">src_angle</span>.<span class="ident">approx_parallel</span>(<span class="ident">dst_angle</span>, <span class="number">5.0</span>)
-        <span class="comment">// Zero length intersections (this results in PolyLine::new returning none)</span>
-        <span class="op">|</span><span class="op">|</span> <span class="ident">src_pt</span>.<span class="ident">approx_eq</span>(<span class="ident">intersection</span>, <span class="ident">geom::EPSILON_DIST</span>)
-        <span class="op">|</span><span class="op">|</span> <span class="ident">dst_pt</span>.<span class="ident">approx_eq</span>(<span class="ident">intersection</span>, <span class="ident">geom::EPSILON_DIST</span>)
-        <span class="comment">// Weirdly shaped intersections where the lane lines intersect outside the intersection</span>
-        <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">intersection</span>)
+    <span class="kw">let </span>curve =
+        <span class="comment">// U-turns and straight turns
+        </span><span class="kw">if </span>src_angle.approx_parallel(dst_angle, <span class="number">5.0</span>)
+        <span class="comment">// Zero length intersections (this results in PolyLine::new returning none)
+        </span>|| src_pt.approx_eq(intersection, geom::EPSILON_DIST)
+        || dst_pt.approx_eq(intersection, geom::EPSILON_DIST)
+        <span class="comment">// Weirdly shaped intersections where the lane lines intersect outside the intersection
+        </span>|| !i.polygon.contains_pt(intersection)
     {
-        <span class="comment">// All get a curve scaled to the distance between the points</span>
-        <span class="ident">CubicBezierSegment</span> {
-            <span class="ident">from</span>: <span class="ident">to_pt</span>(<span class="ident">src_pt</span>),
-            <span class="ident">ctrl1</span>: <span class="ident">to_pt</span>(<span class="ident">src_pt</span>.<span class="ident">project_away</span>(<span class="ident">src_pt</span>.<span class="ident">dist_to</span>(<span class="ident">dst_pt</span>) <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">src_angle</span>)),
-            <span class="ident">ctrl2</span>: <span class="ident">to_pt</span>(<span class="ident">dst_pt</span>.<span class="ident">project_away</span>(<span class="ident">src_pt</span>.<span class="ident">dist_to</span>(<span class="ident">dst_pt</span>) <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">dst_angle</span>.<span class="ident">opposite</span>())),
-            <span class="ident">to</span>: <span class="ident">to_pt</span>(<span class="ident">dst_pt</span>),
+        <span class="comment">// All get a curve scaled to the distance between the points
+        </span>CubicBezierSegment {
+            from: to_pt(src_pt),
+            ctrl1: to_pt(src_pt.project_away(src_pt.dist_to(dst_pt) / <span class="number">2.0</span>, src_angle)),
+            ctrl2: to_pt(dst_pt.project_away(src_pt.dist_to(dst_pt) / <span class="number">2.0</span>, dst_angle.opposite())),
+            to: to_pt(dst_pt),
         }
-    } <span class="kw">else</span> {
-        <span class="comment">// Regular intersections get a quadratic bezier curve</span>
-        <span class="ident">QuadraticBezierSegment</span> {
-            <span class="ident">from</span>: <span class="ident">to_pt</span>(<span class="ident">src_pt</span>),
-            <span class="ident">ctrl</span>: <span class="ident">to_pt</span>(<span class="ident">intersection</span>),
-            <span class="ident">to</span>: <span class="ident">to_pt</span>(<span class="ident">dst_pt</span>),
-        }.<span class="ident">to_cubic</span>()
+    } <span class="kw">else </span>{
+        <span class="comment">// Regular intersections get a quadratic bezier curve
+        </span>QuadraticBezierSegment {
+            from: to_pt(src_pt),
+            ctrl: to_pt(intersection),
+            to: to_pt(dst_pt),
+        }.to_cubic()
     };
 
-    <span class="kw">let</span> <span class="ident">pieces</span> <span class="op">=</span> <span class="number">5</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curve</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="op">=</span><span class="ident">pieces</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">from_pt</span>(<span class="ident">curve</span>.<span class="ident">sample</span>(<span class="number">1.0</span> <span class="op">/</span> <span class="ident">f64::from</span>(<span class="ident">pieces</span>) <span class="op">*</span> <span class="ident">f64::from</span>(<span class="ident">i</span>))))
-        .<span class="ident">collect</span>();
-    <span class="ident">curve</span>.<span class="ident">dedup</span>();
-    <span class="ident">PolyLine::new</span>(<span class="ident">curve</span>)
+    <span class="kw">let </span>pieces = <span class="number">5</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>curve: Vec&lt;Pt2D&gt; = (<span class="number">0</span>..=pieces)
+        .map(|i| from_pt(curve.sample(<span class="number">1.0 </span>/ f64::from(pieces) * f64::from(i))))
+        .collect();
+    curve.dedup();
+    PolyLine::new(curve)
 }
 
-<span class="kw">fn</span> <span class="ident">remove_merging_turns</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>, <span class="ident">turn_type</span>: <span class="ident">TurnType</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turns</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">fn </span>remove_merging_turns(map: <span class="kw-2">&amp;</span>Map, input: Vec&lt;Turn&gt;, turn_type: TurnType) -&gt; Vec&lt;Turn&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>turns = Vec::new();
 
-    <span class="comment">// Group turns of the specified type by (from, to) road</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>), <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">input</span> {
-        <span class="comment">// Only do this for driving lanes</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">is_driving</span>() <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">is_driving</span>() {
-            <span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
+    <span class="comment">// Group turns of the specified type by (from, to) road
+    </span><span class="kw">let </span><span class="kw-2">mut </span>pairs: BTreeMap&lt;(RoadID, RoadID), Vec&lt;Turn&gt;&gt; = BTreeMap::new();
+    <span class="kw">for </span>t <span class="kw">in </span>input {
+        <span class="comment">// Only do this for driving lanes
+        </span><span class="kw">if </span>!map.get_l(t.id.src).is_driving() || !map.get_l(t.id.dst).is_driving() {
+            turns.push(t);
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">turn_type</span> {
-            <span class="ident">pairs</span>
-                .<span class="ident">entry</span>((<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>.<span class="ident">road</span>, <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>.<span class="ident">road</span>))
-                .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                .<span class="ident">push</span>(<span class="ident">t</span>);
-        } <span class="kw">else</span> {
-            <span class="comment">// Other turn types always pass through</span>
-            <span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
+        <span class="kw">if </span>t.turn_type == turn_type {
+            pairs
+                .entry((t.id.src.road, t.id.dst.road))
+                .or_insert_with(Vec::new)
+                .push(t);
+        } <span class="kw">else </span>{
+            <span class="comment">// Other turn types always pass through
+            </span>turns.push(t);
         }
     }
 
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">group</span>) <span class="kw">in</span> <span class="ident">pairs</span> {
-        <span class="kw">if</span> <span class="ident">group</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-            <span class="ident">turns</span>.<span class="ident">extend</span>(<span class="ident">group</span>);
+    <span class="kw">for </span>(<span class="kw">_</span>, group) <span class="kw">in </span>pairs {
+        <span class="kw">if </span>group.len() == <span class="number">1 </span>{
+            turns.extend(group);
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">num_src_lanes</span> <span class="op">=</span> <span class="ident">group</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="ident">num_dst_lanes</span> <span class="op">=</span> <span class="ident">group</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>().<span class="ident">len</span>();
+        <span class="kw">let </span>num_src_lanes = group.iter().map(|t| t.id.src).collect::&lt;HashSet&lt;<span class="kw">_</span>&gt;&gt;().len();
+        <span class="kw">let </span>num_dst_lanes = group.iter().map(|t| t.id.dst).collect::&lt;HashSet&lt;<span class="kw">_</span>&gt;&gt;().len();
 
-        <span class="comment">// Allow all turns from one to many</span>
-        <span class="kw">if</span> <span class="ident">num_src_lanes</span> <span class="op">==</span> <span class="number">1</span> {
-            <span class="ident">turns</span>.<span class="ident">extend</span>(<span class="ident">group</span>);
+        <span class="comment">// Allow all turns from one to many
+        </span><span class="kw">if </span>num_src_lanes == <span class="number">1 </span>{
+            turns.extend(group);
             <span class="kw">continue</span>;
         }
 
-        <span class="comment">// If the number of source and destination lanes is the same, match them up in order,</span>
-        <span class="comment">// without any crossing.</span>
-        <span class="kw">if</span> <span class="ident">num_src_lanes</span> <span class="op">==</span> <span class="ident">num_dst_lanes</span> {
-            <span class="comment">// But we want to match things up -- leftmost turn lane leads to leftmost destination.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">src_lanes_in_order</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">group</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">collect</span>();
-            <span class="ident">src_lanes_in_order</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">dir_and_offset</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="number">1</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dst_lanes_in_order</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">group</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">collect</span>();
-            <span class="ident">dst_lanes_in_order</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">dir_and_offset</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="number">1</span>);
+        <span class="comment">// If the number of source and destination lanes is the same, match them up in order,
+        // without any crossing.
+        </span><span class="kw">if </span>num_src_lanes == num_dst_lanes {
+            <span class="comment">// But we want to match things up -- leftmost turn lane leads to leftmost destination.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>src_lanes_in_order: Vec&lt;LaneID&gt; = group.iter().map(|t| t.id.src).collect();
+            src_lanes_in_order.sort_by_key(|l| map.get_parent(<span class="kw-2">*</span>l).dir_and_offset(<span class="kw-2">*</span>l).<span class="number">1</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>dst_lanes_in_order: Vec&lt;LaneID&gt; = group.iter().map(|t| t.id.dst).collect();
+            dst_lanes_in_order.sort_by_key(|l| map.get_parent(<span class="kw-2">*</span>l).dir_and_offset(<span class="kw-2">*</span>l).<span class="number">1</span>);
 
-            <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">group</span> {
-                <span class="kw">let</span> <span class="ident">src_order</span> <span class="op">=</span> <span class="ident">src_lanes_in_order</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">l</span>)
-                    .<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">dst_order</span> <span class="op">=</span> <span class="ident">dst_lanes_in_order</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">l</span>)
-                    .<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="ident">src_order</span> <span class="op">==</span> <span class="ident">dst_order</span> {
-                    <span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
+            <span class="kw">for </span>t <span class="kw">in </span>group {
+                <span class="kw">let </span>src_order = src_lanes_in_order
+                    .iter()
+                    .position(|l| t.id.src == <span class="kw-2">*</span>l)
+                    .unwrap();
+                <span class="kw">let </span>dst_order = dst_lanes_in_order
+                    .iter()
+                    .position(|l| t.id.dst == <span class="kw-2">*</span>l)
+                    .unwrap();
+                <span class="kw">if </span>src_order == dst_order {
+                    turns.push(t);
                 }
             }
             <span class="kw">continue</span>;
         }
 
-        <span class="comment">// If src &lt; dst and src isn&#39;t 1, then one source lane gets to access multiple destination</span>
-        <span class="comment">// lanes. For now, just give up figuring this out, and allow all combinations.</span>
-        <span class="comment">//</span>
-        <span class="comment">// TODO https://wiki.openstreetmap.org/wiki/Relation:connectivity may have hints about a</span>
-        <span class="comment">// better algorithm.</span>
-        <span class="kw">if</span> <span class="ident">num_src_lanes</span> <span class="op">&lt;</span> <span class="ident">num_dst_lanes</span> {
-            <span class="ident">turns</span>.<span class="ident">extend</span>(<span class="ident">group</span>);
+        <span class="comment">// If src &lt; dst and src isn&#39;t 1, then one source lane gets to access multiple destination
+        // lanes. For now, just give up figuring this out, and allow all combinations.
+        //
+        // TODO https://wiki.openstreetmap.org/wiki/Relation:connectivity may have hints about a
+        // better algorithm.
+        </span><span class="kw">if </span>num_src_lanes &lt; num_dst_lanes {
+            turns.extend(group);
             <span class="kw">continue</span>;
         }
 
-        <span class="comment">// If we get here, then multiple source lanes are forced to merge into one destination</span>
-        <span class="comment">// lane.</span>
-        <span class="comment">//</span>
-        <span class="comment">// Just kind of give up on these cases for now, and fall-back to only allowing the leftmost</span>
-        <span class="comment">// or rightmost source lane to make these turns.</span>
-        <span class="comment">//</span>
-        <span class="comment">// That left or rightmost lane can turn into all lanes on the destination road. Tempting to</span>
-        <span class="comment">// remove this, but it may remove some valid U-turn movements (like on Mercer).</span>
-        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">group</span>[<span class="number">0</span>].<span class="ident">id</span>.<span class="ident">src</span>);
-        <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::Right</span> {
-            <span class="ident">group</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">dir_and_offset</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="number">1</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">id</span>
-                .<span class="ident">src</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::Left</span> {
-            <span class="ident">group</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">dir_and_offset</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="number">1</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">id</span>
-                .<span class="ident">src</span>
-        } <span class="kw">else</span> {
+        <span class="comment">// If we get here, then multiple source lanes are forced to merge into one destination
+        // lane.
+        //
+        // Just kind of give up on these cases for now, and fall-back to only allowing the leftmost
+        // or rightmost source lane to make these turns.
+        //
+        // That left or rightmost lane can turn into all lanes on the destination road. Tempting to
+        // remove this, but it may remove some valid U-turn movements (like on Mercer).
+        </span><span class="kw">let </span>road = map.get_parent(group[<span class="number">0</span>].id.src);
+        <span class="kw">let </span>src = <span class="kw">if </span>turn_type == TurnType::Right {
+            group
+                .iter()
+                .max_by_key(|t| road.dir_and_offset(t.id.src).<span class="number">1</span>)
+                .unwrap()
+                .id
+                .src
+        } <span class="kw">else if </span>turn_type == TurnType::Left {
+            group
+                .iter()
+                .min_by_key(|t| road.dir_and_offset(t.id.src).<span class="number">1</span>)
+                .unwrap()
+                .id
+                .src
+        } <span class="kw">else </span>{
             <span class="macro">unreachable!</span>()
         };
-        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">group</span> {
-            <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">src</span> {
-                <span class="ident">turns</span>.<span class="ident">push</span>(<span class="ident">t</span>);
+        <span class="kw">for </span>t <span class="kw">in </span>group {
+            <span class="kw">if </span>t.id.src == src {
+                turns.push(t);
             }
         }
     }
-    <span class="ident">turns</span>
+    turns
 }
 
-<span class="kw">fn</span> <span class="ident">turn_type_from_angles</span>(<span class="ident">from</span>: <span class="ident">Angle</span>, <span class="ident">to</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">TurnType</span> {
-    <span class="kw">let</span> <span class="ident">diff</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">to</span>);
-    <span class="comment">// This is a pretty arbitrary parameter, but a difference of 30 degrees seems reasonable for</span>
-    <span class="comment">// some observed cases.</span>
-    <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">30.0</span> {
-        <span class="ident">TurnType::Straight</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">diff</span>.<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">135.0</span> {
-        <span class="ident">TurnType::UTurn</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">diff</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-        <span class="comment">// Clockwise rotation</span>
-        <span class="ident">TurnType::Right</span>
-    } <span class="kw">else</span> {
-        <span class="comment">// Counter-clockwise rotation</span>
-        <span class="ident">TurnType::Left</span>
+<span class="kw">fn </span>turn_type_from_angles(from: Angle, to: Angle) -&gt; TurnType {
+    <span class="kw">let </span>diff = from.simple_shortest_rotation_towards(to);
+    <span class="comment">// This is a pretty arbitrary parameter, but a difference of 30 degrees seems reasonable for
+    // some observed cases.
+    </span><span class="kw">if </span>diff.abs() &lt; <span class="number">30.0 </span>{
+        TurnType::Straight
+    } <span class="kw">else if </span>diff.abs() &gt; <span class="number">135.0 </span>{
+        TurnType::UTurn
+    } <span class="kw">else if </span>diff &lt; <span class="number">0.0 </span>{
+        <span class="comment">// Clockwise rotation
+        </span>TurnType::Right
+    } <span class="kw">else </span>{
+        <span class="comment">// Counter-clockwise rotation
+        </span>TurnType::Left
     }
 }
 
-<span class="kw">fn</span> <span class="ident">expected_turn_types_for_four_way</span>(
-    <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>), <span class="ident">TurnType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
-    <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>expected_turn_types_for_four_way(
+    i: <span class="kw-2">&amp;</span>Intersection,
+    map: <span class="kw-2">&amp;</span>Map,
+) -&gt; <span class="prelude-ty">Option</span>&lt;HashMap&lt;(RoadID, RoadID), TurnType&gt;&gt; {
+    <span class="kw">let </span>roads = i.get_sorted_incoming_roads(map);
+    <span class="kw">if </span>roads.len() != <span class="number">4 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// Just based on relative ordering around the intersection, turns (from road, to road, should</span>
-    <span class="comment">// have this type)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">expected_turn_types</span>: <span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>), <span class="ident">TurnType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">offset</span>, <span class="ident">turn_type</span>) <span class="kw">in</span> [
-        (<span class="number">1</span>, <span class="ident">TurnType::Left</span>),
-        (<span class="number">2</span>, <span class="ident">TurnType::Straight</span>),
-        (<span class="number">3</span>, <span class="ident">TurnType::Right</span>),
+    <span class="comment">// Just based on relative ordering around the intersection, turns (from road, to road, should
+    // have this type)
+    </span><span class="kw">let </span><span class="kw-2">mut </span>expected_turn_types: HashMap&lt;(RoadID, RoadID), TurnType&gt; = HashMap::new();
+    <span class="kw">for </span>(offset, turn_type) <span class="kw">in </span>[
+        (<span class="number">1</span>, TurnType::Left),
+        (<span class="number">2</span>, TurnType::Straight),
+        (<span class="number">3</span>, TurnType::Right),
     ] {
-        <span class="kw">for</span> <span class="ident">from_idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">roads</span>.<span class="ident">len</span>() {
-            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">abstutil::wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>, (<span class="ident">from_idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="ident">offset</span>);
-            <span class="ident">expected_turn_types</span>.<span class="ident">insert</span>((<span class="ident">roads</span>[<span class="ident">from_idx</span>], <span class="ident">to</span>), <span class="ident">turn_type</span>);
+        <span class="kw">for </span>from_idx <span class="kw">in </span><span class="number">0</span>..roads.len() {
+            <span class="kw">let </span>to = <span class="kw-2">*</span>abstutil::wraparound_get(<span class="kw-2">&amp;</span>roads, (from_idx <span class="kw">as </span>isize) + offset);
+            expected_turn_types.insert((roads[from_idx], to), turn_type);
         }
     }
-    <span class="prelude-val">Some</span>(<span class="ident">expected_turn_types</span>)
+    <span class="prelude-val">Some</span>(expected_turn_types)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

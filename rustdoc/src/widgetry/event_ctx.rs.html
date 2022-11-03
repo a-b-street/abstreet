@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/event_ctx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>event_ctx.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/event_ctx.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>event_ctx.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -331,338 +331,338 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
 
-<span class="kw">use</span> <span class="ident">instant::Instant</span>;
+<span class="kw">use </span>instant::Instant;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">elapsed_seconds</span>, <span class="ident">Timer</span>, <span class="ident">TimerSink</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Percent</span>, <span class="ident">Polygon</span>};
+<span class="kw">use </span>abstutil::{elapsed_seconds, Timer, TimerSink};
+<span class="kw">use </span>geom::{Percent, Polygon};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">svg</span>, <span class="ident">Canvas</span>, <span class="ident">CanvasSettings</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">Event</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>,
-    <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Text</span>, <span class="ident">UserInput</span>, <span class="ident">VerticalAlignment</span>,
-    <span class="ident">Widget</span>,
+<span class="kw">use crate</span>::{
+    svg, Canvas, CanvasSettings, Color, Drawable, Event, GeomBatch, GfxCtx, HorizontalAlignment,
+    Key, Line, Panel, PanelDims, Prerender, ScreenDims, Style, Text, UserInput, VerticalAlignment,
+    Widget,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">UpdateType</span> {
-    <span class="ident">InputOnly</span>,
-    <span class="ident">Game</span>,
-    <span class="ident">Pan</span>,
-    <span class="ident">ScreenCaptureEverything</span> {
-        <span class="ident">dir</span>: <span class="ident">String</span>,
-        <span class="ident">zoom</span>: <span class="ident">f64</span>,
-        <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
+<span class="attribute">#[derive(Clone, PartialEq, Debug)]
+</span><span class="kw">pub enum </span>UpdateType {
+    InputOnly,
+    Game,
+    Pan,
+    ScreenCaptureEverything {
+        dir: String,
+        zoom: f64,
+        dims: ScreenDims,
     },
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">EventCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">fake_mouseover</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">input</span>: <span class="ident">UserInput</span>,
-    <span class="comment">// TODO These two probably shouldn&#39;t be public</span>
-    <span class="kw">pub</span> <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Canvas</span>,
-    <span class="kw">pub</span> <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Prerender</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">Style</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">updates_requested</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UpdateType</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">canvas_movement_called</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>EventCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) fake_mouseover: bool,
+    <span class="kw">pub </span>input: UserInput,
+    <span class="comment">// TODO These two probably shouldn&#39;t be public
+    </span><span class="kw">pub </span>canvas: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Canvas,
+    <span class="kw">pub </span>prerender: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Prerender,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) style: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>Style,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) updates_requested: Vec&lt;UpdateType&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) canvas_movement_called: bool,
 
-    <span class="doccomment">/// This widget (in some panel) exclusively owns focus. Don&#39;t modify.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">focus_owned_by</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// While handling an event, this widget (in some panel) this widget declared that it owns</span>
-    <span class="doccomment">/// focus. This will become `focus_owned_by` during the next event.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">next_focus_owned_by</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// This widget (in some panel) exclusively owns focus. Don&#39;t modify.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) focus_owned_by: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// While handling an event, this widget (in some panel) this widget declared that it owns
+    /// focus. This will become `focus_owned_by` during the next event.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) next_focus_owned_by: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">EventCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_screen</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">O</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">raw_timer_name</span>: <span class="ident">S</span>,
-        <span class="ident">f</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">O</span> {
-        <span class="kw">let</span> <span class="ident">timer_name</span> <span class="op">=</span> <span class="ident">raw_timer_name</span>.<span class="ident">into</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new_with_sink</span>(
-            <span class="kw-2">&amp;</span><span class="ident">timer_name</span>,
-            <span class="ident">Box::new</span>(<span class="ident">LoadingScreen::new</span>(
-                <span class="self">self</span>.<span class="ident">prerender</span>,
-                <span class="self">self</span>.<span class="ident">style</span>.<span class="ident">clone</span>(),
-                <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">get_window_dims</span>(),
-                <span class="ident">timer_name</span>.<span class="ident">clone</span>(),
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; EventCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub fn </span>loading_screen&lt;O, S: Into&lt;String&gt;, F: FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>Timer) -&gt; O&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        raw_timer_name: S,
+        f: F,
+    ) -&gt; O {
+        <span class="kw">let </span>timer_name = raw_timer_name.into();
+        <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new_with_sink(
+            <span class="kw-2">&amp;</span>timer_name,
+            Box::new(LoadingScreen::new(
+                <span class="self">self</span>.prerender,
+                <span class="self">self</span>.style.clone(),
+                <span class="self">self</span>.canvas.get_window_dims(),
+                timer_name.clone(),
             )),
         );
-        <span class="ident">f</span>(<span class="self">self</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>)
+        f(<span class="self">self</span>, <span class="kw-2">&amp;mut </span>timer)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request_update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">update_type</span>: <span class="ident">UpdateType</span>) {
-        <span class="self">self</span>.<span class="ident">updates_requested</span>.<span class="ident">push</span>(<span class="ident">update_type</span>);
+    <span class="kw">pub fn </span>request_update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, update_type: UpdateType) {
+        <span class="self">self</span>.updates_requested.push(update_type);
     }
 
-    <span class="doccomment">/// Allow panning and zooming on the canvas. Exactly which controls are active (click-and-drag,</span>
-    <span class="doccomment">/// auto-pan at the edge of the screen, using arrow keys, etc) depend on options set. Returns</span>
-    <span class="doccomment">/// true if the canvas moved at all.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">canvas_movement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">canvas_movement_called</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
-        <span class="self">self</span>.<span class="ident">updates_requested</span>
-            .<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">handle_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">input</span>));
-        <span class="ident">prev</span> <span class="op">!</span><span class="op">=</span> (<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>)
+    <span class="doccomment">/// Allow panning and zooming on the canvas. Exactly which controls are active (click-and-drag,
+    /// auto-pan at the edge of the screen, using arrow keys, etc) depend on options set. Returns
+    /// true if the canvas moved at all.
+    </span><span class="kw">pub fn </span>canvas_movement(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.canvas_movement_called = <span class="bool-val">true</span>;
+        <span class="kw">let </span>prev = (<span class="self">self</span>.canvas.cam_x, <span class="self">self</span>.canvas.cam_y, <span class="self">self</span>.canvas.cam_zoom);
+        <span class="self">self</span>.updates_requested
+            .extend(<span class="self">self</span>.canvas.handle_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>.input));
+        prev != (<span class="self">self</span>.canvas.cam_x, <span class="self">self</span>.canvas.cam_y, <span class="self">self</span>.canvas.cam_zoom)
     }
 
-    <span class="comment">// Use to immediately plumb through an (empty) event to something</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">no_op_event</span><span class="op">&lt;</span><span class="ident">O</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">O</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">fake_mouseover</span>: <span class="ident">bool</span>,
-        <span class="kw-2">mut</span> <span class="ident">cb</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">O</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp</span> <span class="op">=</span> <span class="ident">EventCtx</span> {
-            <span class="ident">fake_mouseover</span>,
-            <span class="ident">input</span>: <span class="ident">UserInput::new</span>(<span class="ident">Event::NoOp</span>, <span class="self">self</span>.<span class="ident">canvas</span>),
-            <span class="ident">canvas</span>: <span class="self">self</span>.<span class="ident">canvas</span>,
-            <span class="ident">prerender</span>: <span class="self">self</span>.<span class="ident">prerender</span>,
-            <span class="ident">style</span>: <span class="self">self</span>.<span class="ident">style</span>,
-            <span class="ident">updates_requested</span>: <span class="macro">vec!</span>[],
-            <span class="ident">canvas_movement_called</span>: <span class="bool-val">false</span>,
-            <span class="ident">focus_owned_by</span>: <span class="prelude-val">None</span>,
-            <span class="ident">next_focus_owned_by</span>: <span class="prelude-val">None</span>,
+    <span class="comment">// Use to immediately plumb through an (empty) event to something
+    </span><span class="kw">pub fn </span>no_op_event&lt;O, F: FnMut(<span class="kw-2">&amp;mut </span>EventCtx) -&gt; O&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        fake_mouseover: bool,
+        <span class="kw-2">mut </span>cb: F,
+    ) -&gt; O {
+        <span class="kw">let </span><span class="kw-2">mut </span>tmp = EventCtx {
+            fake_mouseover,
+            input: UserInput::new(Event::NoOp, <span class="self">self</span>.canvas),
+            canvas: <span class="self">self</span>.canvas,
+            prerender: <span class="self">self</span>.prerender,
+            style: <span class="self">self</span>.style,
+            updates_requested: <span class="macro">vec!</span>[],
+            canvas_movement_called: <span class="bool-val">false</span>,
+            focus_owned_by: <span class="prelude-val">None</span>,
+            next_focus_owned_by: <span class="prelude-val">None</span>,
         };
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">cb</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tmp</span>);
-        <span class="self">self</span>.<span class="ident">updates_requested</span>.<span class="ident">extend</span>(<span class="ident">tmp</span>.<span class="ident">updates_requested</span>);
-        <span class="ident">result</span>
+        <span class="kw">let </span>result = cb(<span class="kw-2">&amp;mut </span>tmp);
+        <span class="self">self</span>.updates_requested.extend(tmp.updates_requested);
+        result
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redo_mouseover</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">fake_mouseover</span>
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">window_lost_cursor</span>()
-            <span class="op">|</span><span class="op">|</span> (<span class="op">!</span><span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">is_dragging</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">get_moved_mouse</span>().<span class="ident">is_some</span>())
-            <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
-                .<span class="ident">input</span>
-                .<span class="ident">get_mouse_scroll</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">dy</span>)<span class="op">|</span> <span class="ident">dy</span> <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span>)
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+    <span class="kw">pub fn </span>redo_mouseover(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.fake_mouseover
+            || <span class="self">self</span>.input.window_lost_cursor()
+            || (!<span class="self">self</span>.canvas.is_dragging() &amp;&amp; <span class="self">self</span>.input.get_moved_mouse().is_some())
+            || <span class="self">self
+                </span>.input
+                .get_mouse_scroll()
+                .map(|(<span class="kw">_</span>, dy)| dy != <span class="number">0.0</span>)
+                .unwrap_or(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normal_left_click</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">has_been_consumed</span>() {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">pub fn </span>normal_left_click(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if </span><span class="self">self</span>.input.has_been_consumed() {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">is_dragging</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-            <span class="self">self</span>.<span class="ident">input</span>.<span class="ident">consume_event</span>();
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="kw">if </span>!<span class="self">self</span>.canvas.is_dragging() &amp;&amp; <span class="self">self</span>.input.left_mouse_button_released() {
+            <span class="self">self</span>.input.consume_event();
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="bool-val">false</span>
+        <span class="bool-val">false
+    </span>}
+
+    <span class="kw">pub fn </span>is_key_down(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Key) -&gt; bool {
+        <span class="self">self</span>.canvas.keys_held.contains(<span class="kw-2">&amp;</span>key)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_key_down</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">keys_held</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
+    <span class="comment">// Delegation to assets
+    </span><span class="kw">pub fn </span>default_line_height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="kw-2">*</span><span class="self">self</span>.prerender.assets.default_line_height.borrow()
     }
 
-    <span class="comment">// Delegation to assets</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">default_line_height</span>.<span class="ident">borrow</span>()
+    <span class="comment">// TODO I can&#39;t decide which way the API should go.
+    </span><span class="kw">pub fn </span>upload(<span class="kw-2">&amp;</span><span class="self">self</span>, batch: GeomBatch) -&gt; Drawable {
+        <span class="self">self</span>.prerender.upload(batch)
     }
 
-    <span class="comment">// TODO I can&#39;t decide which way the API should go.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>cursor_clickable(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.prerender
+            .inner
+            .set_cursor_icon(winit::window::CursorIcon::Hand);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cursor_clickable</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">prerender</span>
-            .<span class="ident">inner</span>
-            .<span class="ident">set_cursor_icon</span>(<span class="ident">winit::window::CursorIcon::Hand</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>cursor_grabbable(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.prerender
+            .inner
+            .set_cursor_icon(winit::window::CursorIcon::Grab);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cursor_grabbable</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">prerender</span>
-            .<span class="ident">inner</span>
-            .<span class="ident">set_cursor_icon</span>(<span class="ident">winit::window::CursorIcon::Grab</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>cursor_grabbing(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.prerender
+            .inner
+            .set_cursor_icon(winit::window::CursorIcon::Grabbing);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">cursor_grabbing</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">prerender</span>
-            .<span class="ident">inner</span>
-            .<span class="ident">set_cursor_icon</span>(<span class="ident">winit::window::CursorIcon::Grabbing</span>);
+    <span class="kw">pub fn </span>style(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Style {
+        <span class="self">self</span>.style
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Style</span> {
-        <span class="self">self</span>.<span class="ident">style</span>
+    <span class="kw">pub fn </span>set_style(<span class="kw-2">&amp;mut </span><span class="self">self</span>, style: Style) {
+        <span class="kw-2">*</span><span class="self">self</span>.prerender.assets.style.borrow_mut() = style.clone();
+        <span class="self">self</span>.prerender.assets.clear_text_cache();
+        <span class="kw-2">*</span><span class="self">self</span>.style = style;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_style</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">style</span>: <span class="ident">Style</span>) {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">style</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="ident">style</span>.<span class="ident">clone</span>();
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">clear_text_cache</span>();
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">style</span> <span class="op">=</span> <span class="ident">style</span>;
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_loading_screen</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) -&gt; <span class="ident">Panel</span> {
-        <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#F4DA22&quot;</span>);
-        <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="macro">crate::include_labeled_bytes!</span>(<span class="string">&quot;../icons/loading.svg&quot;</span>);
-        <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-                <span class="ident">svg::load_svg_bytes</span>(<span class="self">self</span>.<span class="ident">prerender</span>, <span class="ident">label</span>, <span class="ident">bytes</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="number">0</span>
-                    .<span class="ident">scale</span>(<span class="number">5.0</span>)
-                    .<span class="ident">into_widget</span>(<span class="self">self</span>)
-                    .<span class="ident">container</span>()
-                    .<span class="ident">bg</span>(<span class="ident">Color::BLACK</span>)
-                    .<span class="ident">padding</span>(<span class="number">15</span>)
-                    .<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">border</span>))
-                    .<span class="ident">centered_horiz</span>()
-                    .<span class="ident">margin_below</span>(<span class="number">5</span>),
-                <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::grey</span>(<span class="number">0.5</span>), <span class="ident">Polygon::rectangle</span>(<span class="number">10.0</span>, <span class="number">30.0</span>))])
-                    .<span class="ident">into_widget</span>(<span class="self">self</span>)
-                    .<span class="ident">centered_horiz</span>(),
-                <span class="self">self</span>.<span class="ident">style</span>
-                    .<span class="ident">loading_tips</span>
-                    .<span class="ident">clone</span>()
-                    .<span class="ident">default_fg</span>(<span class="ident">Color::WHITE</span>)
-                    .<span class="ident">wrap_to_pct</span>(<span class="self">self</span>, <span class="number">25</span>)
-                    .<span class="ident">into_widget</span>(<span class="self">self</span>)
-                    .<span class="ident">container</span>()
-                    .<span class="ident">bg</span>(<span class="ident">Color::BLACK</span>)
-                    .<span class="ident">padding</span>(<span class="number">15</span>)
-                    .<span class="ident">outline</span>((<span class="number">5.0</span>, <span class="ident">Color::YELLOW</span>))
-                    .<span class="ident">force_width_window_pct</span>(<span class="self">self</span>, <span class="ident">Percent::int</span>(<span class="number">30</span>))
-                    .<span class="ident">margin_below</span>(<span class="number">5</span>),
-                <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::grey</span>(<span class="number">0.5</span>), <span class="ident">Polygon::rectangle</span>(<span class="number">10.0</span>, <span class="number">100.0</span>))])
-                    .<span class="ident">into_widget</span>(<span class="self">self</span>)
-                    .<span class="ident">centered_horiz</span>(),
+    <span class="kw">pub fn </span>make_loading_screen(<span class="kw-2">&amp;mut </span><span class="self">self</span>, txt: Text) -&gt; Panel {
+        <span class="kw">let </span>border = Color::hex(<span class="string">&quot;#F4DA22&quot;</span>);
+        <span class="kw">let </span>(label, bytes) = <span class="macro">crate::include_labeled_bytes!</span>(<span class="string">&quot;../icons/loading.svg&quot;</span>);
+        Panel::new_builder(Widget::row(<span class="macro">vec!</span>[
+            Widget::custom_col(<span class="macro">vec!</span>[
+                svg::load_svg_bytes(<span class="self">self</span>.prerender, label, bytes)
+                    .unwrap()
+                    .<span class="number">0
+                    </span>.scale(<span class="number">5.0</span>)
+                    .into_widget(<span class="self">self</span>)
+                    .container()
+                    .bg(Color::BLACK)
+                    .padding(<span class="number">15</span>)
+                    .outline((<span class="number">5.0</span>, border))
+                    .centered_horiz()
+                    .margin_below(<span class="number">5</span>),
+                GeomBatch::from(<span class="macro">vec!</span>[(Color::grey(<span class="number">0.5</span>), Polygon::rectangle(<span class="number">10.0</span>, <span class="number">30.0</span>))])
+                    .into_widget(<span class="self">self</span>)
+                    .centered_horiz(),
+                <span class="self">self</span>.style
+                    .loading_tips
+                    .clone()
+                    .default_fg(Color::WHITE)
+                    .wrap_to_pct(<span class="self">self</span>, <span class="number">25</span>)
+                    .into_widget(<span class="self">self</span>)
+                    .container()
+                    .bg(Color::BLACK)
+                    .padding(<span class="number">15</span>)
+                    .outline((<span class="number">5.0</span>, Color::YELLOW))
+                    .force_width_window_pct(<span class="self">self</span>, Percent::int(<span class="number">30</span>))
+                    .margin_below(<span class="number">5</span>),
+                GeomBatch::from(<span class="macro">vec!</span>[(Color::grey(<span class="number">0.5</span>), Polygon::rectangle(<span class="number">10.0</span>, <span class="number">100.0</span>))])
+                    .into_widget(<span class="self">self</span>)
+                    .centered_horiz(),
             ])
-            .<span class="ident">centered_vert</span>(),
-            <span class="ident">txt</span>.<span class="ident">change_fg</span>(<span class="ident">Color::WHITE</span>)
-                .<span class="ident">inner_render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>, <span class="ident">svg::LOW_QUALITY</span>)
-                .<span class="ident">into_widget</span>(<span class="self">self</span>)
-                .<span class="ident">container</span>()
-                .<span class="ident">fill_width</span>()
-                .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">bg</span>(<span class="ident">Color::grey</span>(<span class="number">0.3</span>)),
+            .centered_vert(),
+            txt.change_fg(Color::WHITE)
+                .inner_render(<span class="kw-2">&amp;</span><span class="self">self</span>.prerender.assets, svg::LOW_QUALITY)
+                .into_widget(<span class="self">self</span>)
+                .container()
+                .fill_width()
+                .padding(<span class="number">16</span>)
+                .bg(Color::grey(<span class="number">0.3</span>)),
         ]))
-        .<span class="ident">dims_width</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">0.8</span>))
-        .<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">0.8</span>))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Center</span>)
-        .<span class="ident">build_custom</span>(<span class="self">self</span>)
+        .dims_width(PanelDims::ExactPercent(<span class="number">0.8</span>))
+        .dims_height(PanelDims::ExactPercent(<span class="number">0.8</span>))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Center)
+        .build_custom(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Checks if an extra font has previously been loaded with `load_font`. Returns false for</span>
-    <span class="doccomment">/// built-in system fonts.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_font_loaded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">is_font_loaded</span>(<span class="ident">filename</span>)
+    <span class="doccomment">/// Checks if an extra font has previously been loaded with `load_font`. Returns false for
+    /// built-in system fonts.
+    </span><span class="kw">pub fn </span>is_font_loaded(<span class="kw-2">&amp;</span><span class="self">self</span>, filename: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="self">self</span>.prerender.assets.is_font_loaded(filename)
     }
 
-    <span class="doccomment">/// Loads an extra font, used only for automatic fallback of missing glyphs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_font</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">load_font</span>(<span class="ident">filename</span>, <span class="ident">bytes</span>)
+    <span class="doccomment">/// Loads an extra font, used only for automatic fallback of missing glyphs.
+    </span><span class="kw">pub fn </span>load_font(<span class="kw-2">&amp;mut </span><span class="self">self</span>, filename: <span class="kw-2">&amp;</span>str, bytes: Vec&lt;u8&gt;) {
+        <span class="self">self</span>.prerender.assets.load_font(filename, bytes)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hide_cursor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">inner</span>.<span class="ident">set_cursor_visible</span>(<span class="bool-val">false</span>);
+    <span class="kw">pub fn </span>hide_cursor(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.prerender.inner.set_cursor_visible(<span class="bool-val">false</span>);
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_cursor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">inner</span>.<span class="ident">set_cursor_visible</span>(<span class="bool-val">true</span>);
-    }
-
-    <span class="doccomment">/// The app will need to recreate its panels for this to take effect</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_scale_factor</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">scale_factor</span>.<span class="ident">set</span>(<span class="ident">scale_factor</span>);
-        <span class="kw">let</span> <span class="ident">new_size</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">window_size</span>();
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">window_resized</span>(<span class="ident">new_size</span>);
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">=</span> <span class="ident">new_size</span>.<span class="ident">width</span>;
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="op">=</span> <span class="ident">new_size</span>.<span class="ident">height</span>;
+    <span class="kw">pub fn </span>show_cursor(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.prerender.inner.set_cursor_visible(<span class="bool-val">true</span>);
     }
 
-    <span class="doccomment">/// Only one texture can be loaded at a time; this overwrites anything previously set</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_texture</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">sprite_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-        <span class="ident">sprite_dims</span>: (<span class="ident">u32</span>, <span class="ident">u32</span>),
-        <span class="ident">texture_scale</span>: (<span class="ident">f32</span>, <span class="ident">f32</span>),
+    <span class="doccomment">/// The app will need to recreate its panels for this to take effect
+    </span><span class="kw">pub fn </span>set_scale_factor(<span class="kw-2">&amp;mut </span><span class="self">self</span>, scale_factor: f64) {
+        <span class="self">self</span>.prerender.scale_factor.set(scale_factor);
+        <span class="kw">let </span>new_size = <span class="self">self</span>.prerender.window_size();
+        <span class="self">self</span>.prerender.window_resized(new_size);
+        <span class="self">self</span>.canvas.window_width = new_size.width;
+        <span class="self">self</span>.canvas.window_height = new_size.height;
+    }
+
+    <span class="doccomment">/// Only one texture can be loaded at a time; this overwrites anything previously set
+    </span><span class="kw">pub fn </span>set_texture(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        sprite_bytes: Vec&lt;u8&gt;,
+        sprite_dims: (u32, u32),
+        texture_scale: (f32, f32),
     ) {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">inner</span>.<span class="ident">upload_texture</span>(
-            <span class="ident"><span class="kw">crate</span>::backend_glow::SpriteTexture::new</span>(<span class="ident">sprite_bytes</span>, <span class="ident">sprite_dims</span>.<span class="number">0</span>, <span class="ident">sprite_dims</span>.<span class="number">1</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;failed to format texture sprite sheet&quot;</span>),
-            <span class="ident">texture_scale</span>,
+        <span class="self">self</span>.prerender.inner.upload_texture(
+            <span class="kw">crate</span>::backend_glow::SpriteTexture::new(sprite_bytes, sprite_dims.<span class="number">0</span>, sprite_dims.<span class="number">1</span>)
+                .expect(<span class="string">&quot;failed to format texture sprite sheet&quot;</span>),
+            texture_scale,
         );
     }
 }
 
-<span class="kw">struct</span> <span class="ident">LoadingScreen</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">canvas</span>: <span class="ident">Canvas</span>,
-    <span class="ident">style</span>: <span class="ident">Style</span>,
-    <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Prerender</span>,
-    <span class="ident">lines</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">max_capacity</span>: <span class="ident">usize</span>,
-    <span class="ident">last_drawn</span>: <span class="ident">Instant</span>,
-    <span class="ident">title</span>: <span class="ident">String</span>,
+<span class="kw">struct </span>LoadingScreen&lt;<span class="lifetime">&#39;a</span>&gt; {
+    canvas: Canvas,
+    style: Style,
+    prerender: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Prerender,
+    lines: VecDeque&lt;String&gt;,
+    max_capacity: usize,
+    last_drawn: Instant,
+    title: String,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">LoadingScreen</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Prerender</span>,
-        <span class="ident">style</span>: <span class="ident">Style</span>,
-        <span class="ident">initial_size</span>: <span class="ident">ScreenDims</span>,
-        <span class="ident">title</span>: <span class="ident">String</span>,
-    ) -&gt; <span class="ident">LoadingScreen</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">canvas</span> <span class="op">=</span> <span class="ident">Canvas::new</span>(<span class="ident">initial_size</span>, <span class="ident">CanvasSettings::new</span>());
-        <span class="kw">let</span> <span class="ident">max_capacity</span> <span class="op">=</span>
-            (<span class="number">0.8</span> <span class="op">*</span> <span class="ident">initial_size</span>.<span class="ident">height</span> <span class="op">/</span> <span class="kw-2">*</span><span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">default_line_height</span>.<span class="ident">borrow</span>()) <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="ident">LoadingScreen</span> {
-            <span class="ident">prerender</span>,
-            <span class="ident">lines</span>: <span class="ident">VecDeque::new</span>(),
-            <span class="ident">max_capacity</span>,
-            <span class="comment">// If the loading callback takes less than 0.5s, we don&#39;t redraw at all.</span>
-            <span class="ident">last_drawn</span>: <span class="ident">Instant::now</span>(),
-            <span class="ident">title</span>,
-            <span class="ident">canvas</span>,
-            <span class="ident">style</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; LoadingScreen&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">fn </span>new(
+        prerender: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Prerender,
+        style: Style,
+        initial_size: ScreenDims,
+        title: String,
+    ) -&gt; LoadingScreen&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">let </span>canvas = Canvas::new(initial_size, CanvasSettings::new());
+        <span class="kw">let </span>max_capacity =
+            (<span class="number">0.8 </span>* initial_size.height / <span class="kw-2">*</span>prerender.assets.default_line_height.borrow()) <span class="kw">as </span>usize;
+        LoadingScreen {
+            prerender,
+            lines: VecDeque::new(),
+            max_capacity,
+            <span class="comment">// If the loading callback takes less than 0.5s, we don&#39;t redraw at all.
+            </span>last_drawn: Instant::now(),
+            title,
+            canvas,
+            style,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">redraw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// TODO Ideally we wouldn&#39;t have to do this, but text rendering is still slow. :)</span>
-        <span class="kw">if</span> <span class="ident">elapsed_seconds</span>(<span class="self">self</span>.<span class="ident">last_drawn</span>) <span class="op">&lt;</span> <span class="number">0.5</span> {
+    <span class="kw">fn </span>redraw(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// TODO Ideally we wouldn&#39;t have to do this, but text rendering is still slow. :)
+        </span><span class="kw">if </span>elapsed_seconds(<span class="self">self</span>.last_drawn) &lt; <span class="number">0.5 </span>{
             <span class="kw">return</span>;
         }
-        <span class="self">self</span>.<span class="ident">last_drawn</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span> <span class="op">=</span> <span class="ident">EventCtx</span> {
-            <span class="ident">fake_mouseover</span>: <span class="bool-val">true</span>,
-            <span class="ident">input</span>: <span class="ident">UserInput::new</span>(<span class="ident">Event::NoOp</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">canvas</span>),
-            <span class="ident">canvas</span>: <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">canvas</span>,
-            <span class="ident">prerender</span>: <span class="self">self</span>.<span class="ident">prerender</span>,
-            <span class="ident">style</span>: <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">style</span>,
-            <span class="ident">updates_requested</span>: <span class="macro">vec!</span>[],
-            <span class="ident">canvas_movement_called</span>: <span class="bool-val">false</span>,
-            <span class="ident">focus_owned_by</span>: <span class="prelude-val">None</span>,
-            <span class="ident">next_focus_owned_by</span>: <span class="prelude-val">None</span>,
+        <span class="self">self</span>.last_drawn = Instant::now();
+        <span class="kw">let </span><span class="kw-2">mut </span>ctx = EventCtx {
+            fake_mouseover: <span class="bool-val">true</span>,
+            input: UserInput::new(Event::NoOp, <span class="kw-2">&amp;</span><span class="self">self</span>.canvas),
+            canvas: <span class="kw-2">&amp;mut </span><span class="self">self</span>.canvas,
+            prerender: <span class="self">self</span>.prerender,
+            style: <span class="kw-2">&amp;mut </span><span class="self">self</span>.style,
+            updates_requested: <span class="macro">vec!</span>[],
+            canvas_movement_called: <span class="bool-val">false</span>,
+            focus_owned_by: <span class="prelude-val">None</span>,
+            next_focus_owned_by: <span class="prelude-val">None</span>,
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">title</span>).<span class="ident">small_heading</span>());
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lines</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(Line(<span class="kw-2">&amp;</span><span class="self">self</span>.title).small_heading());
+        <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.lines {
+            txt.add_line(l);
         }
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">txt</span>);
+        <span class="kw">let </span>panel = ctx.make_loading_screen(txt);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">g</span> <span class="op">=</span> <span class="ident">GfxCtx::new</span>(<span class="self">self</span>.<span class="ident">prerender</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">canvas</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">style</span>, <span class="bool-val">false</span>);
-        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
-        <span class="ident">panel</span>.<span class="ident">draw</span>(<span class="kw-2">&amp;mut</span> <span class="ident">g</span>);
-        <span class="ident">g</span>.<span class="ident">prerender</span>.<span class="ident">inner</span>.<span class="ident">draw_finished</span>(<span class="ident">g</span>.<span class="ident">inner</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>g = GfxCtx::new(<span class="self">self</span>.prerender, <span class="kw-2">&amp;</span><span class="self">self</span>.canvas, <span class="kw-2">&amp;</span><span class="self">self</span>.style, <span class="bool-val">false</span>);
+        g.clear(Color::BLACK);
+        panel.draw(<span class="kw-2">&amp;mut </span>g);
+        g.prerender.inner.draw_finished(g.inner);
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TimerSink</span> <span class="kw">for</span> <span class="ident">LoadingScreen</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="comment">// TODO Do word wrap. Assume the window is fixed during loading, if it makes things easier.</span>
-    <span class="kw">fn</span> <span class="ident">println</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">max_capacity</span> {
-            <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_front</span>();
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; TimerSink <span class="kw">for </span>LoadingScreen&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="comment">// TODO Do word wrap. Assume the window is fixed during loading, if it makes things easier.
+    </span><span class="kw">fn </span>println(<span class="kw-2">&amp;mut </span><span class="self">self</span>, line: String) {
+        <span class="kw">if </span><span class="self">self</span>.lines.len() == <span class="self">self</span>.max_capacity {
+            <span class="self">self</span>.lines.pop_front();
         }
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">line</span>);
-        <span class="self">self</span>.<span class="ident">redraw</span>();
+        <span class="self">self</span>.lines.push_back(line);
+        <span class="self">self</span>.redraw();
     }
 
-    <span class="kw">fn</span> <span class="ident">reprintln</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">String</span>) {
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_back</span>();
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">line</span>);
-        <span class="self">self</span>.<span class="ident">redraw</span>();
+    <span class="kw">fn </span>reprintln(<span class="kw-2">&amp;mut </span><span class="self">self</span>, line: String) {
+        <span class="self">self</span>.lines.pop_back();
+        <span class="self">self</span>.lines.push_back(line);
+        <span class="self">self</span>.redraw();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

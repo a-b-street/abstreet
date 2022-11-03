@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/import_census.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>import_census.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../popdat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/import_census.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>import_census.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../popdat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -89,96 +89,96 @@
 <span id="89">89</span>
 <span id="90">90</span>
 <span id="91">91</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">BoundingRect</span>, <span class="ident">Intersects</span>, <span class="ident">MapCoordsInPlace</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>geo::{BoundingRect, Intersects, MapCoordsInPlace};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>};
+<span class="kw">use </span>geom::{GPSBounds, Polygon};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::CensusArea</span>;
+<span class="kw">use </span><span class="kw">crate</span>::CensusArea;
 
-<span class="kw">impl</span> <span class="ident">CensusArea</span> {
-    <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">fetch_all_for_map</span>(
-        <span class="ident">map_area</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>,
-        <span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CensusArea</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">use</span> <span class="ident">flatgeobuf::HttpFgbReader</span>;
-        <span class="kw">use</span> <span class="ident">geozero::geo_types::GeoWriter</span>;
+<span class="kw">impl </span>CensusArea {
+    <span class="kw">pub async fn </span>fetch_all_for_map(
+        map_area: <span class="kw-2">&amp;</span>Polygon,
+        bounds: <span class="kw-2">&amp;</span>GPSBounds,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;CensusArea&gt;&gt; {
+        <span class="kw">use </span>flatgeobuf::HttpFgbReader;
+        <span class="kw">use </span>geozero::geo_types::GeoWriter;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo_map_area</span>: <span class="ident">geo::Polygon</span> <span class="op">=</span> <span class="ident">map_area</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
-        <span class="ident">geo_map_area</span>.<span class="ident">map_coords_in_place</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">projected</span> <span class="op">=</span> <span class="ident">geom::Pt2D::new</span>(<span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>).<span class="ident">to_gps</span>(<span class="ident">bounds</span>);
-            (<span class="ident">projected</span>.<span class="ident">x</span>(), <span class="ident">projected</span>.<span class="ident">y</span>()).<span class="ident">into</span>()
+        <span class="kw">let </span><span class="kw-2">mut </span>geo_map_area: geo::Polygon = map_area.clone().into();
+        geo_map_area.map_coords_in_place(|c| {
+            <span class="kw">let </span>projected = geom::Pt2D::new(c.x, c.y).to_gps(bounds);
+            (projected.x(), projected.y()).into()
         });
 
-        <span class="kw">let</span> <span class="ident">bounding_rect</span> <span class="op">=</span> <span class="ident">geo_map_area</span>
-            .<span class="ident">bounding_rect</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;missing bound rect&quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>bounding_rect = geo_map_area
+            .bounding_rect()
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;missing bound rect&quot;</span>))<span class="question-mark">?</span>;
 
-        <span class="comment">// See the import handbook for how to prepare this file.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fgb</span> <span class="op">=</span> <span class="ident">HttpFgbReader::open</span>(<span class="string">&quot;https://abstreet.s3.amazonaws.com/population_areas.fgb&quot;</span>)
-            .<span class="kw">await</span><span class="question-mark">?</span>
-            .<span class="ident">select_bbox</span>(
-                <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">x</span>,
-                <span class="ident">bounding_rect</span>.<span class="ident">min</span>().<span class="ident">y</span>,
-                <span class="ident">bounding_rect</span>.<span class="ident">max</span>().<span class="ident">x</span>,
-                <span class="ident">bounding_rect</span>.<span class="ident">max</span>().<span class="ident">y</span>,
+        <span class="comment">// See the import handbook for how to prepare this file.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>fgb = HttpFgbReader::open(<span class="string">&quot;https://abstreet.s3.amazonaws.com/population_areas.fgb&quot;</span>)
+            .<span class="kw">await</span><span class="question-mark">?
+            </span>.select_bbox(
+                bounding_rect.min().x,
+                bounding_rect.min().y,
+                bounding_rect.max().x,
+                bounding_rect.max().y,
             )
             .<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">feature</span>) <span class="op">=</span> <span class="ident">fgb</span>.<span class="ident">next</span>().<span class="kw">await</span><span class="question-mark">?</span> {
-            <span class="kw">use</span> <span class="ident">flatgeobuf::FeatureProperties</span>;
-            <span class="comment">// PERF TODO: how to parse into usize directly? And avoid parsing entire props dict?</span>
-            <span class="kw">let</span> <span class="ident">props</span> <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">properties</span>()<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">props</span>.<span class="ident">contains_key</span>(<span class="string">&quot;population&quot;</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>results = <span class="macro">vec!</span>[];
+        <span class="kw">while let </span><span class="prelude-val">Some</span>(feature) = fgb.next().<span class="kw">await</span><span class="question-mark">? </span>{
+            <span class="kw">use </span>flatgeobuf::FeatureProperties;
+            <span class="comment">// PERF TODO: how to parse into usize directly? And avoid parsing entire props dict?
+            </span><span class="kw">let </span>props = feature.properties()<span class="question-mark">?</span>;
+            <span class="kw">if </span>!props.contains_key(<span class="string">&quot;population&quot;</span>) {
                 <span class="macro">warn!</span>(<span class="string">&quot;skipping feature with missing population&quot;</span>);
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">population</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">props</span>[<span class="string">&quot;population&quot;</span>].<span class="ident">parse</span>()<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">geometry</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">feature</span>.<span class="ident">geometry</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">g</span>) =&gt; <span class="ident">g</span>,
-                <span class="prelude-val">None</span> =&gt; {
+            <span class="kw">let </span>population: usize = props[<span class="string">&quot;population&quot;</span>].parse()<span class="question-mark">?</span>;
+            <span class="kw">let </span>geometry = <span class="kw">match </span>feature.geometry() {
+                <span class="prelude-val">Some</span>(g) =&gt; g,
+                <span class="prelude-val">None </span>=&gt; {
                     <span class="macro">warn!</span>(<span class="string">&quot;skipping feature with missing geometry&quot;</span>);
                     <span class="kw">continue</span>;
                 }
             };
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">geo</span> <span class="op">=</span> <span class="ident">GeoWriter::new</span>();
-            <span class="ident">geometry</span>.<span class="ident">process</span>(<span class="kw-2">&amp;mut</span> <span class="ident">geo</span>, <span class="ident">flatgeobuf::GeometryType::MultiPolygon</span>)<span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">geo::Geometry::MultiPolygon</span>(<span class="ident">multi_poly</span>)) <span class="op">=</span> <span class="ident">geo</span>.<span class="ident">take_geometry</span>() {
-                <span class="kw">let</span> <span class="ident">geo_polygon</span> <span class="op">=</span> <span class="ident">multi_poly</span>
-                    .<span class="number">0</span>
-                    .<span class="ident">first</span>()
-                    .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;multipolygon was unexpectedly empty&quot;</span>))<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="ident">multi_poly</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
+            <span class="kw">let </span><span class="kw-2">mut </span>geo = GeoWriter::new();
+            geometry.process(<span class="kw-2">&amp;mut </span>geo, flatgeobuf::GeometryType::MultiPolygon)<span class="question-mark">?</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(geo::Geometry::MultiPolygon(multi_poly)) = geo.take_geometry() {
+                <span class="kw">let </span>geo_polygon = multi_poly
+                    .<span class="number">0
+                    </span>.first()
+                    .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;multipolygon was unexpectedly empty&quot;</span>))<span class="question-mark">?</span>;
+                <span class="kw">if </span>multi_poly.<span class="number">0</span>.len() &gt; <span class="number">1 </span>{
                     <span class="macro">warn!</span>(
                         <span class="string">&quot;dropping {} extra polygons from census area: {:?}&quot;</span>,
-                        <span class="ident">multi_poly</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>,
-                        <span class="ident">props</span>
+                        multi_poly.<span class="number">0</span>.len() - <span class="number">1</span>,
+                        props
                     );
                 }
 
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">geo_polygon</span>.<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">geo_map_area</span>) {
+                <span class="kw">if </span>!geo_polygon.intersects(<span class="kw-2">&amp;</span>geo_map_area) {
                     <span class="macro">debug!</span>(
                         <span class="string">&quot;skipping polygon outside of map area. polygon: {:?}, map_area: {:?}&quot;</span>,
-                        <span class="ident">geo_polygon</span>, <span class="ident">geo_map_area</span>
+                        geo_polygon, geo_map_area
                     );
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">geo_polygon</span>.<span class="ident">clone</span>();
-                <span class="ident">polygon</span>.<span class="ident">map_coords_in_place</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">geom::LonLat::new</span>(<span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>).<span class="ident">to_pt</span>(<span class="ident">bounds</span>).<span class="ident">into</span>());
-                <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">CensusArea</span> {
-                    <span class="ident">polygon</span>,
-                    <span class="ident">population</span>,
+                <span class="kw">let </span><span class="kw-2">mut </span>polygon = geo_polygon.clone();
+                polygon.map_coords_in_place(|c| geom::LonLat::new(c.x, c.y).to_pt(bounds).into());
+                results.push(CensusArea {
+                    polygon,
+                    population,
                 });
-            } <span class="kw">else</span> {
+            } <span class="kw">else </span>{
                 <span class="macro">warn!</span>(<span class="string">&quot;skipping unexpected geometry&quot;</span>);
                 <span class="kw">continue</span>;
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">results</span>)
+        <span class="prelude-val">Ok</span>(results)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/line_plot.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>line_plot.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/line_plot.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>line_plot.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -299,283 +299,283 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">UnitFmt</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Angle, Bounds, Circle, Distance, FindClosest, PolyLine, Pt2D, UnitFmt};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::widgets::plots</span>::{<span class="ident">make_legend</span>, <span class="ident">thick_lineseries</span>, <span class="ident">Axis</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+<span class="kw">use </span><span class="kw">crate</span>::widgets::plots::{make_legend, thick_lineseries, Axis, PlotOptions, Series};
+<span class="kw">use crate</span>::{
+    Color, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenPt,
+    ScreenRectangle, Text, TextExt, Widget, WidgetImpl, WidgetOutput,
 };
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">Y</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
+<span class="kw">pub struct </span>LinePlot&lt;X: Axis&lt;X&gt;, Y: Axis&lt;Y&gt;&gt; {
+    draw: Drawable,
 
-    <span class="comment">// The geometry here is in screen-space.</span>
-    <span class="ident">max_x</span>: <span class="ident">X</span>,
-    <span class="ident">max_y</span>: <span class="ident">Y</span>,
-    <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    <span class="comment">// The geometry here is in screen-space.
+    </span>max_x: X,
+    max_y: Y,
+    closest: FindClosest&lt;String&gt;,
 
-    <span class="ident">hovering</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Hovering</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    hovering: <span class="prelude-ty">Option</span>&lt;Hovering&lt;X, Y&gt;&gt;,
 
-    <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>,
-    <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
-    <span class="ident">unit_fmt</span>: <span class="ident">UnitFmt</span>,
+    top_left: ScreenPt,
+    dims: ScreenDims,
+    unit_fmt: UnitFmt,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">Y</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// `label` is used to name the actual LinePlot widget. The result of this call can&#39;t be</span>
-    <span class="doccomment">/// usefully `named`, since the plot is wrapped in some containers for formatting.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_widget</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="kw-2">mut</span> <span class="ident">series</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Series</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-        <span class="ident">opts</span>: <span class="ident">PlotOptions</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span>,
-        <span class="ident">unit_fmt</span>: <span class="ident">UnitFmt</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">legend</span> <span class="op">=</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">series</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>);
-        <span class="ident">series</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">disabled</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>.<span class="ident">label</span>));
+<span class="kw">impl</span>&lt;X: Axis&lt;X&gt;, Y: Axis&lt;Y&gt;&gt; LinePlot&lt;X, Y&gt; {
+    <span class="doccomment">/// `label` is used to name the actual LinePlot widget. The result of this call can&#39;t be
+    /// usefully `named`, since the plot is wrapped in some containers for formatting.
+    </span><span class="kw">pub fn </span>new_widget(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        label: <span class="kw-2">&amp;</span>str,
+        <span class="kw-2">mut </span>series: Vec&lt;Series&lt;X, Y&gt;&gt;,
+        opts: PlotOptions&lt;X, Y&gt;,
+        unit_fmt: UnitFmt,
+    ) -&gt; Widget {
+        <span class="kw">let </span>legend = make_legend(ctx, <span class="kw-2">&amp;</span>series, <span class="kw-2">&amp;</span>opts);
+        series.retain(|s| !opts.disabled.contains(<span class="kw-2">&amp;</span>s.label));
 
-        <span class="comment">// Assume min_x is X::zero() and min_y is Y::zero()</span>
-        <span class="kw">let</span> <span class="ident">max_x</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">max_x</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">series</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span>).<span class="ident">max</span>().<span class="ident">unwrap_or_else</span>(<span class="ident">X::zero</span>))
-                .<span class="ident">max</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="ident">X::zero</span>)
+        <span class="comment">// Assume min_x is X::zero() and min_y is Y::zero()
+        </span><span class="kw">let </span>max_x = opts.max_x.unwrap_or_else(|| {
+            series
+                .iter()
+                .map(|s| s.pts.iter().map(|(x, <span class="kw">_</span>)| <span class="kw-2">*</span>x).max().unwrap_or_else(X::zero))
+                .max()
+                .unwrap_or_else(X::zero)
         });
-        <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">max_y</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-            <span class="ident">series</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> {
-                    <span class="ident">s</span>.<span class="ident">pts</span>
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">value</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">value</span>)
-                        .<span class="ident">max</span>()
-                        .<span class="ident">unwrap_or_else</span>(<span class="ident">Y::zero</span>)
+        <span class="kw">let </span>max_y = opts.max_y.unwrap_or_else(|| {
+            series
+                .iter()
+                .map(|s| {
+                    s.pts
+                        .iter()
+                        .map(|(<span class="kw">_</span>, value)| <span class="kw-2">*</span>value)
+                        .max()
+                        .unwrap_or_else(Y::zero)
                 })
-                .<span class="ident">max</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="ident">Y::zero</span>)
+                .max()
+                .unwrap_or_else(Y::zero)
         });
 
-        <span class="comment">// TODO: somehow stretch to fill their container.</span>
-        <span class="kw">let</span> <span class="ident">default_dims</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">0.23</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>;
-            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="number">0.2</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>;
-            <span class="ident">ScreenDims</span> { <span class="ident">width</span>, <span class="ident">height</span> }
+        <span class="comment">// TODO: somehow stretch to fill their container.
+        </span><span class="kw">let </span>default_dims = {
+            <span class="kw">let </span>width = <span class="number">0.23 </span>* ctx.canvas.window_width;
+            <span class="kw">let </span>height = <span class="number">0.2 </span>* ctx.canvas.window_height;
+            ScreenDims { width, height }
         };
 
-        <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">dims</span>.<span class="ident">unwrap_or</span>(<span class="ident">default_dims</span>);
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">width</span>;
-        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">height</span>;
+        <span class="kw">let </span>dims = opts.dims.unwrap_or(default_dims);
+        <span class="kw">let </span>width = dims.width;
+        <span class="kw">let </span>height = dims.height;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="comment">// Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of</span>
-        <span class="comment">// the range.</span>
-        <span class="comment">// TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid</span>
-        <span class="comment">// lines.</span>
-        {
-            <span class="kw">let</span> <span class="ident">order_of_mag</span> <span class="op">=</span> <span class="number">10.0_f64</span>.<span class="ident">powf</span>(<span class="ident">max_y</span>.<span class="ident">to_f64</span>().<span class="ident">log10</span>().<span class="ident">ceil</span>());
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10</span> {
-                <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">max_y</span>.<span class="ident">from_f64</span>(<span class="ident">order_of_mag</span> <span class="op">/</span> <span class="number">10.0</span> <span class="op">*</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>));
-                <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">to_percent</span>(<span class="ident">max_y</span>);
-                <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="comment">// Grid lines for the Y scale. Draw up to 10 lines max to cover the order of magnitude of
+        // the range.
+        // TODO This caps correctly, but if the max is 105, then suddenly we just have 2 grid
+        // lines.
+        </span>{
+            <span class="kw">let </span>order_of_mag = <span class="number">10.0_f64</span>.powf(max_y.to_f64().log10().ceil());
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
+                <span class="kw">let </span>y = max_y.from_f64(order_of_mag / <span class="number">10.0 </span>* (i <span class="kw">as </span>f64));
+                <span class="kw">let </span>pct = y.to_percent(max_y);
+                <span class="kw">if </span>pct &gt; <span class="number">1.0 </span>{
                     <span class="kw">break</span>;
                 }
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">Color::hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>),
-                    <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">pct</span>) <span class="op">*</span> <span class="ident">height</span>),
-                        <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">pct</span>) <span class="op">*</span> <span class="ident">height</span>),
+                batch.push(
+                    Color::hex(<span class="string">&quot;#7C7C7C&quot;</span>),
+                    PolyLine::must_new(<span class="macro">vec!</span>[
+                        Pt2D::new(<span class="number">0.0</span>, (<span class="number">1.0 </span>- pct) * height),
+                        Pt2D::new(width, (<span class="number">1.0 </span>- pct) * height),
                     ])
-                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
+                    .make_polygons(Distance::meters(<span class="number">1.0</span>)),
                 );
             }
         }
-        <span class="comment">// X axis grid</span>
-        <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">X::zero</span>() {
-            <span class="kw">let</span> <span class="ident">order_of_mag</span> <span class="op">=</span> <span class="number">10.0_f64</span>.<span class="ident">powf</span>(<span class="ident">max_x</span>.<span class="ident">to_f64</span>().<span class="ident">log10</span>().<span class="ident">ceil</span>());
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">10</span> {
-                <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">max_x</span>.<span class="ident">from_f64</span>(<span class="ident">order_of_mag</span> <span class="op">/</span> <span class="number">10.0</span> <span class="op">*</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>));
-                <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">to_percent</span>(<span class="ident">max_x</span>);
-                <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
+        <span class="comment">// X axis grid
+        </span><span class="kw">if </span>max_x != X::zero() {
+            <span class="kw">let </span>order_of_mag = <span class="number">10.0_f64</span>.powf(max_x.to_f64().log10().ceil());
+            <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
+                <span class="kw">let </span>x = max_x.from_f64(order_of_mag / <span class="number">10.0 </span>* (i <span class="kw">as </span>f64));
+                <span class="kw">let </span>pct = x.to_percent(max_x);
+                <span class="kw">if </span>pct &gt; <span class="number">1.0 </span>{
                     <span class="kw">break</span>;
                 }
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">Color::hex</span>(<span class="string">&quot;#7C7C7C&quot;</span>),
-                    <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Pt2D::new</span>(<span class="ident">pct</span> <span class="op">*</span> <span class="ident">width</span>, <span class="number">0.0</span>),
-                        <span class="ident">Pt2D::new</span>(<span class="ident">pct</span> <span class="op">*</span> <span class="ident">width</span>, <span class="ident">height</span>),
+                batch.push(
+                    Color::hex(<span class="string">&quot;#7C7C7C&quot;</span>),
+                    PolyLine::must_new(<span class="macro">vec!</span>[
+                        Pt2D::new(pct * width, <span class="number">0.0</span>),
+                        Pt2D::new(pct * width, height),
                     ])
-                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
+                    .make_polygons(Distance::meters(<span class="number">1.0</span>)),
                 );
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">Bounds::from</span>(<span class="kw-2">&amp;</span>[
-            <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="ident">height</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>closest = FindClosest::new(<span class="kw-2">&amp;</span>Bounds::from(<span class="kw-2">&amp;</span>[
+            Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            Pt2D::new(width, height),
         ]));
-        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">series</span> {
-            <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">==</span> <span class="ident">X::zero</span>() {
+        <span class="kw">for </span>s <span class="kw">in </span>series {
+            <span class="kw">if </span>max_x == X::zero() {
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">y</span>) <span class="kw">in</span> <span class="ident">s</span>.<span class="ident">pts</span> {
-                <span class="kw">let</span> <span class="ident">percent_x</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">to_percent</span>(<span class="ident">max_x</span>);
-                <span class="kw">let</span> <span class="ident">percent_y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">to_percent</span>(<span class="ident">max_y</span>);
-                <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">Pt2D::new</span>(
-                    <span class="ident">percent_x</span> <span class="op">*</span> <span class="ident">width</span>,
-                    <span class="comment">// Y inversion! :D</span>
-                    (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">percent_y</span>) <span class="op">*</span> <span class="ident">height</span>,
+            <span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+            <span class="kw">for </span>(t, y) <span class="kw">in </span>s.pts {
+                <span class="kw">let </span>percent_x = t.to_percent(max_x);
+                <span class="kw">let </span>percent_y = y.to_percent(max_y);
+                pts.push(Pt2D::new(
+                    percent_x * width,
+                    <span class="comment">// Y inversion! :D
+                    </span>(<span class="number">1.0 </span>- percent_y) * height,
                 ));
             }
-            <span class="comment">// Downsample to avoid creating polygons with a huge number of points. 1m is untuned,</span>
-            <span class="comment">// and here &quot;meters&quot; is really pixels.</span>
-            <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Pt2D::approx_dedupe</span>(<span class="ident">pts</span>, <span class="ident">Distance::meters</span>(<span class="number">1.0</span>));
-            <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
-                <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">s</span>.<span class="ident">label</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">pts</span>);
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">s</span>.<span class="ident">color</span>, <span class="ident">thick_lineseries</span>(<span class="ident">pts</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>)));
+            <span class="comment">// Downsample to avoid creating polygons with a huge number of points. 1m is untuned,
+            // and here &quot;meters&quot; is really pixels.
+            </span>pts = Pt2D::approx_dedupe(pts, Distance::meters(<span class="number">1.0</span>));
+            <span class="kw">if </span>pts.len() &gt;= <span class="number">2 </span>{
+                closest.add(s.label.clone(), <span class="kw-2">&amp;</span>pts);
+                batch.push(s.color, thick_lineseries(pts, Distance::meters(<span class="number">5.0</span>)));
             }
         }
 
-        <span class="kw">let</span> <span class="ident">num_x_labels</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_x_labels</span> {
-            <span class="kw">let</span> <span class="ident">percent_x</span> <span class="op">=</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">num_x_labels</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-            <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">max_x</span>.<span class="ident">from_percent</span>(<span class="ident">percent_x</span>);
-            <span class="comment">// TODO Need ticks now to actually see where this goes</span>
-            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">x</span>.<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="ident">unit_fmt</span>))
-                .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                .<span class="ident">rotate</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">15.0</span>))
-                .<span class="ident">autocrop</span>();
-            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+        <span class="kw">let </span>num_x_labels = <span class="number">3</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>row = Vec::new();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_x_labels {
+            <span class="kw">let </span>percent_x = (i <span class="kw">as </span>f64) / ((num_x_labels - <span class="number">1</span>) <span class="kw">as </span>f64);
+            <span class="kw">let </span>x = max_x.from_percent(percent_x);
+            <span class="comment">// TODO Need ticks now to actually see where this goes
+            </span><span class="kw">let </span>batch = Text::from(x.prettyprint(<span class="kw-2">&amp;</span>unit_fmt))
+                .render(ctx)
+                .rotate(Angle::degrees(-<span class="number">15.0</span>))
+                .autocrop();
+            row.push(batch.into_widget(ctx));
         }
-        <span class="kw">let</span> <span class="ident">x_axis</span> <span class="op">=</span> <span class="ident">Widget::custom_row</span>(<span class="ident">row</span>)
-            .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
-                <span class="ident">top</span>: <span class="number">10.0</span>,
-                <span class="ident">left</span>: <span class="number">60.0</span>,
-                <span class="ident">right</span>: <span class="number">10.0</span>,
-                <span class="ident">bottom</span>: <span class="number">10.0</span>,
+        <span class="kw">let </span>x_axis = Widget::custom_row(row)
+            .padding(EdgeInsets {
+                top: <span class="number">10.0</span>,
+                left: <span class="number">60.0</span>,
+                right: <span class="number">10.0</span>,
+                bottom: <span class="number">10.0</span>,
             })
-            .<span class="ident">evenly_spaced</span>();
+            .evenly_spaced();
 
-        <span class="kw">let</span> <span class="ident">num_y_labels</span> <span class="op">=</span> <span class="number">3</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_y_labels</span> {
-            <span class="kw">let</span> <span class="ident">percent_y</span> <span class="op">=</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">num_y_labels</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-            <span class="ident">col</span>.<span class="ident">push</span>(
-                <span class="ident">max_y</span>
-                    .<span class="ident">from_percent</span>(<span class="ident">percent_y</span>)
-                    .<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="ident">unit_fmt</span>)
-                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>num_y_labels = <span class="number">3</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..num_y_labels {
+            <span class="kw">let </span>percent_y = (i <span class="kw">as </span>f64) / ((num_y_labels - <span class="number">1</span>) <span class="kw">as </span>f64);
+            col.push(
+                max_y
+                    .from_percent(percent_y)
+                    .prettyprint(<span class="kw-2">&amp;</span>unit_fmt)
+                    .text_widget(ctx),
             );
         }
-        <span class="ident">col</span>.<span class="ident">reverse</span>();
-        <span class="kw">let</span> <span class="ident">y_axis</span> <span class="op">=</span> <span class="ident">Widget::custom_col</span>(<span class="ident">col</span>).<span class="ident">padding</span>(<span class="number">10</span>).<span class="ident">evenly_spaced</span>();
+        col.reverse();
+        <span class="kw">let </span>y_axis = Widget::custom_col(col).padding(<span class="number">10</span>).evenly_spaced();
 
-        <span class="kw">let</span> <span class="ident">plot</span> <span class="op">=</span> <span class="ident">LinePlot</span> {
-            <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
-            <span class="ident">closest</span>,
-            <span class="ident">max_x</span>,
-            <span class="ident">max_y</span>,
-            <span class="ident">hovering</span>: <span class="prelude-val">None</span>,
+        <span class="kw">let </span>plot = LinePlot {
+            draw: ctx.upload(batch),
+            closest,
+            max_x,
+            max_y,
+            hovering: <span class="prelude-val">None</span>,
 
-            <span class="ident">top_left</span>: <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-            <span class="ident">dims</span>: <span class="ident">ScreenDims::new</span>(<span class="ident">width</span>, <span class="ident">height</span>),
-            <span class="ident">unit_fmt</span>,
+            top_left: ScreenPt::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+            dims: ScreenDims::new(width, height),
+            unit_fmt,
         };
 
-        <span class="comment">// Don&#39;t let the x-axis fill the parent container</span>
-        <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-            <span class="ident">legend</span>.<span class="ident">margin_below</span>(<span class="number">10</span>),
-            <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[<span class="ident">y_axis</span>, <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">plot</span>)).<span class="ident">named</span>(<span class="ident">label</span>)]),
-            <span class="ident">x_axis</span>,
+        <span class="comment">// Don&#39;t let the x-axis fill the parent container
+        </span>Widget::custom_col(<span class="macro">vec!</span>[
+            legend.margin_below(<span class="number">10</span>),
+            Widget::custom_row(<span class="macro">vec!</span>[y_axis, Widget::new(Box::new(plot)).named(label)]),
+            x_axis,
         ])
-        .<span class="ident">container</span>()
+        .container()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hovering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">X</span>, <span class="ident">Y</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">h</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-            <span class="ident">h</span>.<span class="ident">hits</span>.<span class="ident">clone</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">Vec::new</span>()
+    <span class="kw">pub fn </span>get_hovering(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(X, Y)&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>h) = <span class="self">self</span>.hovering {
+            h.hits.clone()
+        } <span class="kw">else </span>{
+            Vec::new()
         }
     }
 
-    <span class="doccomment">/// Programmatically show a tooltip at the given x/y.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Useful (e.g.) when points on the line plot corresponds to a point on the map - as the user</span>
-    <span class="doccomment">/// hovers on the map you can highlight the corresponding details on the plot.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_hovering</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">x</span>: <span class="ident">X</span>, <span class="ident">y</span>: <span class="ident">Y</span>) {
-        <span class="comment">// mimic the tooltip style</span>
-        <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident"><span class="kw">crate</span>::Line</span>(<span class="macro">format!</span>(
+    <span class="doccomment">/// Programmatically show a tooltip at the given x/y.
+    ///
+    /// Useful (e.g.) when points on the line plot corresponds to a point on the map - as the user
+    /// hovers on the map you can highlight the corresponding details on the plot.
+    </span><span class="kw">pub fn </span>set_hovering(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, label: <span class="kw-2">&amp;</span>str, x: X, y: Y) {
+        <span class="comment">// mimic the tooltip style
+        </span><span class="kw">let </span>txt = Text::from(<span class="kw">crate</span>::Line(<span class="macro">format!</span>(
             <span class="string">&quot;{}: at {}, {}&quot;</span>,
-            <span class="ident">label</span>,
-            <span class="ident">x</span>.<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unit_fmt</span>),
-            <span class="ident">y</span>.<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unit_fmt</span>)
+            label,
+            x.prettyprint(<span class="kw-2">&amp;</span><span class="self">self</span>.unit_fmt),
+            y.prettyprint(<span class="kw-2">&amp;</span><span class="self">self</span>.unit_fmt)
         )))
-        .<span class="ident">bg</span>(<span class="ident">Color::BLACK</span>)
-        .<span class="ident">change_fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_tooltip_color</span>);
+        .bg(Color::BLACK)
+        .change_fg(ctx.style().text_tooltip_color);
 
-        <span class="comment">// Find this point in screen-space</span>
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(
-            <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">x</span>.<span class="ident">to_percent</span>(<span class="self">self</span>.<span class="ident">max_x</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>,
-            <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">y</span>.<span class="ident">to_percent</span>(<span class="self">self</span>.<span class="ident">max_y</span>)) <span class="op">*</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>,
+        <span class="comment">// Find this point in screen-space
+        </span><span class="kw">let </span>pt = Pt2D::new(
+            <span class="self">self</span>.top_left.x + x.to_percent(<span class="self">self</span>.max_x) * <span class="self">self</span>.dims.width,
+            <span class="self">self</span>.top_left.y + (<span class="number">1.0 </span>- y.to_percent(<span class="self">self</span>.max_y)) * <span class="self">self</span>.dims.height,
         );
 
-        <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Hovering</span> {
-            <span class="ident">hits</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">tooltip</span>: <span class="ident">Text::new</span>(),
-            <span class="ident">draw_cursor</span>: <span class="ident">txt</span>.<span class="ident">render</span>(<span class="ident">ctx</span>).<span class="ident">centered_on</span>(<span class="ident">pt</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>),
+        <span class="self">self</span>.hovering = <span class="prelude-val">Some</span>(Hovering {
+            hits: Vec::new(),
+            tooltip: Text::new(),
+            draw_cursor: txt.render(ctx).centered_on(pt).upload(ctx),
         });
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">Y</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">LinePlot</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">dims</span>
+<span class="kw">impl</span>&lt;X: Axis&lt;X&gt;, Y: Axis&lt;Y&gt;&gt; WidgetImpl <span class="kw">for </span>LinePlot&lt;X, Y&gt; {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="self">self</span>.dims
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
-        <span class="self">self</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">top_left</span>;
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+        <span class="self">self</span>.top_left = top_left;
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>() {
-                <span class="kw">if</span> <span class="ident">ScreenRectangle::top_left</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="self">self</span>.<span class="ident">dims</span>).<span class="ident">contains</span>(<span class="ident">cursor</span>) {
-                    <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">15.0</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hits</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                    <span class="kw">for</span> (<span class="ident">label</span>, <span class="ident">pt</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">closest</span>.<span class="ident">all_close_pts</span>(
-                        <span class="ident">Pt2D::new</span>(<span class="ident">cursor</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">x</span>, <span class="ident">cursor</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">top_left</span>.<span class="ident">y</span>),
-                        <span class="ident">radius</span>,
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="self">self</span>.hovering = <span class="prelude-val">None</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(cursor) = ctx.canvas.get_cursor_in_screen_space() {
+                <span class="kw">if </span>ScreenRectangle::top_left(<span class="self">self</span>.top_left, <span class="self">self</span>.dims).contains(cursor) {
+                    <span class="kw">let </span>radius = Distance::meters(<span class="number">15.0</span>);
+                    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+                    <span class="kw">let </span><span class="kw-2">mut </span>hits = Vec::new();
+                    <span class="kw">for </span>(label, pt, <span class="kw">_</span>) <span class="kw">in </span><span class="self">self</span>.closest.all_close_pts(
+                        Pt2D::new(cursor.x - <span class="self">self</span>.top_left.x, cursor.y - <span class="self">self</span>.top_left.y),
+                        radius,
                     ) {
-                        <span class="comment">// TODO If some/all of the matches have the same x, write it once?</span>
-                        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_x</span>.<span class="ident">from_percent</span>(<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">width</span>);
-                        <span class="kw">let</span> <span class="ident">y_percent</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> (<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">dims</span>.<span class="ident">height</span>);
-                        <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_y</span>.<span class="ident">from_percent</span>(<span class="ident">y_percent</span>);
+                        <span class="comment">// TODO If some/all of the matches have the same x, write it once?
+                        </span><span class="kw">let </span>x = <span class="self">self</span>.max_x.from_percent(pt.x() / <span class="self">self</span>.dims.width);
+                        <span class="kw">let </span>y_percent = <span class="number">1.0 </span>- (pt.y() / <span class="self">self</span>.dims.height);
+                        <span class="kw">let </span>y = <span class="self">self</span>.max_y.from_percent(y_percent);
 
-                        <span class="comment">// TODO Draw this info in the ColorLegend</span>
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+                        <span class="comment">// TODO Draw this info in the ColorLegend
+                        </span>txt.add_line(<span class="macro">format!</span>(
                             <span class="string">&quot;{}: at {}, {}&quot;</span>,
-                            <span class="ident">label</span>,
-                            <span class="ident">x</span>.<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unit_fmt</span>),
-                            <span class="ident">y</span>.<span class="ident">prettyprint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unit_fmt</span>)
+                            label,
+                            x.prettyprint(<span class="kw-2">&amp;</span><span class="self">self</span>.unit_fmt),
+                            y.prettyprint(<span class="kw-2">&amp;</span><span class="self">self</span>.unit_fmt)
                         ));
-                        <span class="ident">hits</span>.<span class="ident">push</span>((<span class="ident">x</span>, <span class="ident">y</span>));
+                        hits.push((x, y));
                     }
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">hits</span>.<span class="ident">is_empty</span>() {
-                        <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Hovering</span> {
-                            <span class="ident">hits</span>,
-                            <span class="ident">tooltip</span>: <span class="ident">txt</span>,
-                            <span class="ident">draw_cursor</span>: <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-                                <span class="ident">Color::RED</span>,
-                                <span class="ident">Circle::new</span>(<span class="ident">cursor</span>.<span class="ident">to_pt</span>(), <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
+                    <span class="kw">if </span>!hits.is_empty() {
+                        <span class="self">self</span>.hovering = <span class="prelude-val">Some</span>(Hovering {
+                            hits,
+                            tooltip: txt,
+                            draw_cursor: GeomBatch::from(<span class="macro">vec!</span>[(
+                                Color::RED,
+                                Circle::new(cursor.to_pt(), radius).to_polygon(),
                             )])
-                            .<span class="ident">upload</span>(<span class="ident">ctx</span>),
+                            .upload(ctx),
                         });
                     }
                 }
@@ -583,22 +583,22 @@
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw_at(<span class="self">self</span>.top_left, <span class="kw-2">&amp;</span><span class="self">self</span>.draw);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">hovering</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-            <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">hovering</span>.<span class="ident">draw_cursor</span>);
-            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">hovering</span>.<span class="ident">tooltip</span>.<span class="ident">clone</span>());
-            <span class="ident">g</span>.<span class="ident">unfork</span>();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>hovering) = <span class="self">self</span>.hovering {
+            g.fork_screenspace();
+            g.redraw(<span class="kw-2">&amp;</span>hovering.draw_cursor);
+            g.draw_mouse_tooltip(hovering.tooltip.clone());
+            g.unfork();
         }
     }
 }
 
-<span class="kw">struct</span> <span class="ident">Hovering</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">Y</span>: <span class="ident">Axis</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">hits</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">X</span>, <span class="ident">Y</span>)<span class="op">&gt;</span>,
-    <span class="ident">tooltip</span>: <span class="ident">Text</span>,
-    <span class="ident">draw_cursor</span>: <span class="ident">Drawable</span>,
+<span class="kw">struct </span>Hovering&lt;X: Axis&lt;X&gt;, Y: Axis&lt;Y&gt;&gt; {
+    hits: Vec&lt;(X, Y)&gt;,
+    tooltip: Text,
+    draw_cursor: Drawable,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

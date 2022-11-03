@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/partition.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>partition.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/partition.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>partition.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -447,454 +447,454 @@
 <span id="447">447</span>
 <span id="448">448</span>
 <span id="449">449</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom::Polygon</span>;
-<span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">Map</span>, <span class="ident">Perimeter</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>};
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::Polygon;
+<span class="kw">use </span>map_model::osm::RoadRank;
+<span class="kw">use </span>map_model::{Block, Map, Perimeter, RoadID, RoadSideID};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
+<span class="kw">use </span><span class="kw">crate</span>::App;
 
-<span class="doccomment">/// An opaque ID, won&#39;t be contiguous as we adjust boundaries</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NeighbourhoodID</span>(<span class="kw">pub</span> <span class="ident">usize</span>);
+<span class="doccomment">/// An opaque ID, won&#39;t be contiguous as we adjust boundaries
+</span><span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>NeighbourhoodID(<span class="kw">pub </span>usize);
 
-<span class="doccomment">/// Identifies a single / unmerged block, which never changes</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BlockID</span>(<span class="ident">usize</span>);
+<span class="doccomment">/// Identifies a single / unmerged block, which never changes
+</span><span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>BlockID(usize);
 
-<span class="comment">// Some states want this</span>
-<span class="kw">impl</span> <span class="ident">widgetry::mapspace::ObjectID</span> <span class="kw">for</span> <span class="ident">NeighbourhoodID</span> {}
-<span class="kw">impl</span> <span class="ident">widgetry::mapspace::ObjectID</span> <span class="kw">for</span> <span class="ident">BlockID</span> {}
+<span class="comment">// Some states want this
+</span><span class="kw">impl </span>widgetry::mapspace::ObjectID <span class="kw">for </span>NeighbourhoodID {}
+<span class="kw">impl </span>widgetry::mapspace::ObjectID <span class="kw">for </span>BlockID {}
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Partitioning</span> {
-    <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">MapName</span>,
-    <span class="ident">neighbourhoods</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span>, <span class="ident">NeighbourhoodInfo</span><span class="op">&gt;</span>,
-    <span class="comment">// The single / unmerged blocks never change</span>
-    <span class="ident">single_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Partitioning {
+    <span class="kw">pub </span>map: MapName,
+    neighbourhoods: BTreeMap&lt;NeighbourhoodID, NeighbourhoodInfo&gt;,
+    <span class="comment">// The single / unmerged blocks never change
+    </span>single_blocks: Vec&lt;Block&gt;,
 
-    <span class="ident">neighbourhood_id_counter</span>: <span class="ident">usize</span>,
+    neighbourhood_id_counter: usize,
 
-    <span class="comment">// Invariant: This is a surjection, every block belongs to exactly one neighbourhood</span>
-    <span class="ident">block_to_neighbourhood</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">BlockID</span>, <span class="ident">NeighbourhoodID</span><span class="op">&gt;</span>,
+    <span class="comment">// Invariant: This is a surjection, every block belongs to exactly one neighbourhood
+    </span>block_to_neighbourhood: BTreeMap&lt;BlockID, NeighbourhoodID&gt;,
 
-    <span class="ident">use_expensive_blockfinding</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">broken</span>: <span class="ident">bool</span>,
+    use_expensive_blockfinding: bool,
+    <span class="kw">pub </span>broken: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NeighbourhoodInfo</span> {
-    <span class="kw">pub</span> <span class="ident">block</span>: <span class="ident">Block</span>,
-    <span class="doccomment">/// Draw a special cone of light when focused on this neighbourhood. It doesn&#39;t change which</span>
-    <span class="doccomment">/// roads can be edited.</span>
-    <span class="kw">pub</span> <span class="ident">override_drawing_boundary</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>NeighbourhoodInfo {
+    <span class="kw">pub </span>block: Block,
+    <span class="doccomment">/// Draw a special cone of light when focused on this neighbourhood. It doesn&#39;t change which
+    /// roads can be edited.
+    </span><span class="kw">pub </span>override_drawing_boundary: <span class="prelude-ty">Option</span>&lt;Polygon&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">NeighbourhoodInfo</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">block</span>: <span class="ident">Block</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">block</span>,
-            <span class="ident">override_drawing_boundary</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>NeighbourhoodInfo {
+    <span class="kw">fn </span>new(block: Block) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            block,
+            override_drawing_boundary: <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Partitioning</span> {
-    <span class="doccomment">/// Only valid before the LTN tool has been activated this session</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Partitioning</span> {
-        <span class="ident">Partitioning</span> {
-            <span class="ident">map</span>: <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;temp&quot;</span>, <span class="string">&quot;orary&quot;</span>),
-            <span class="ident">neighbourhoods</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">single_blocks</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl </span>Partitioning {
+    <span class="doccomment">/// Only valid before the LTN tool has been activated this session
+    </span><span class="kw">pub fn </span>empty() -&gt; Partitioning {
+        Partitioning {
+            map: MapName::new(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;temp&quot;</span>, <span class="string">&quot;orary&quot;</span>),
+            neighbourhoods: BTreeMap::new(),
+            single_blocks: Vec::new(),
 
-            <span class="ident">neighbourhood_id_counter</span>: <span class="number">0</span>,
+            neighbourhood_id_counter: <span class="number">0</span>,
 
-            <span class="ident">block_to_neighbourhood</span>: <span class="ident">BTreeMap::new</span>(),
+            block_to_neighbourhood: BTreeMap::new(),
 
-            <span class="ident">use_expensive_blockfinding</span>: <span class="bool-val">false</span>,
-            <span class="ident">broken</span>: <span class="bool-val">false</span>,
+            use_expensive_blockfinding: <span class="bool-val">false</span>,
+            broken: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">neighbourhoods</span>.<span class="ident">is_empty</span>()
+    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.neighbourhoods.is_empty()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_using_heuristics</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Partitioning</span> {
-        <span class="comment">// Try the easy thing first, but then give up</span>
-        <span class="lifetime">&#39;METHOD</span>: <span class="kw">for</span> <span class="ident">use_expensive_blockfinding</span> <span class="kw">in</span> [<span class="bool-val">false</span>, <span class="bool-val">true</span>] {
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;find single blocks&quot;</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_block_perims</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">pub fn </span>seed_using_heuristics(map: <span class="kw-2">&amp;</span>Map, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; Partitioning {
+        <span class="comment">// Try the easy thing first, but then give up
+        </span><span class="lifetime">&#39;METHOD</span>: <span class="kw">for </span>use_expensive_blockfinding <span class="kw">in </span>[<span class="bool-val">false</span>, <span class="bool-val">true</span>] {
+            timer.start(<span class="string">&quot;find single blocks&quot;</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>single_blocks = Vec::new();
+            <span class="kw">let </span><span class="kw-2">mut </span>single_block_perims = Vec::new();
 
-            <span class="comment">// Merge holes upfront. Otherwise, it&#39;s usually impossible to expand a boundary with a</span>
-            <span class="comment">// block containing a hole. Plus, there&#39;s no known scenario when somebody would want to</span>
-            <span class="comment">// make a neighbourhood boundary involve a hole.</span>
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">Perimeter::merge_holes</span>(<span class="ident">map</span>, <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="ident">map</span>));
-            <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">perim</span> <span class="kw">in</span> <span class="ident">input</span> {
-                <span class="comment">// TODO Some perimeters don&#39;t blockify after collapsing dead-ends. So do this</span>
-                <span class="comment">// upfront, and separately work on any blocks that don&#39;t show up.</span>
-                <span class="comment">// https://github.com/a-b-street/abstreet/issues/841</span>
-                <span class="ident">perim</span>.<span class="ident">collapse_deadends</span>();
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="ident">perim</span>.<span class="ident">to_block</span>(<span class="ident">map</span>) {
-                    <span class="ident">single_block_perims</span>.<span class="ident">push</span>(<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">clone</span>());
-                    <span class="ident">single_blocks</span>.<span class="ident">push</span>(<span class="ident">block</span>);
+            <span class="comment">// Merge holes upfront. Otherwise, it&#39;s usually impossible to expand a boundary with a
+            // block containing a hole. Plus, there&#39;s no known scenario when somebody would want to
+            // make a neighbourhood boundary involve a hole.
+            </span><span class="kw">let </span>input = Perimeter::merge_holes(map, Perimeter::find_all_single_blocks(map));
+            <span class="kw">for </span><span class="kw-2">mut </span>perim <span class="kw">in </span>input {
+                <span class="comment">// TODO Some perimeters don&#39;t blockify after collapsing dead-ends. So do this
+                // upfront, and separately work on any blocks that don&#39;t show up.
+                // https://github.com/a-b-street/abstreet/issues/841
+                </span>perim.collapse_deadends();
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(block) = perim.to_block(map) {
+                    single_block_perims.push(block.perimeter.clone());
+                    single_blocks.push(block);
                 }
             }
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;find single blocks&quot;</span>);
+            timer.stop(<span class="string">&quot;find single blocks&quot;</span>);
 
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;partition&quot;</span>);
-            <span class="kw">let</span> <span class="ident">partitions</span> <span class="op">=</span> <span class="ident">Perimeter::partition_by_predicate</span>(<span class="ident">single_block_perims</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                <span class="comment">// &quot;Interior&quot; roads of a neighbourhood aren&#39;t classified as arterial</span>
-                <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_rank</span>() <span class="op">==</span> <span class="ident">RoadRank::Local</span>
+            timer.start(<span class="string">&quot;partition&quot;</span>);
+            <span class="kw">let </span>partitions = Perimeter::partition_by_predicate(single_block_perims, |r| {
+                <span class="comment">// &quot;Interior&quot; roads of a neighbourhood aren&#39;t classified as arterial
+                </span>map.get_r(r).get_rank() == RoadRank::Local
             });
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">merged</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">perimeters</span> <span class="kw">in</span> <span class="ident">partitions</span> {
-                <span class="comment">// If we got more than one result back, merging partially failed. Oh well?</span>
-                <span class="kw">let</span> <span class="ident">stepwise_debug</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="ident">merged</span>.<span class="ident">extend</span>(<span class="ident">Perimeter::merge_all</span>(
-                    <span class="ident">map</span>,
-                    <span class="ident">perimeters</span>,
-                    <span class="ident">stepwise_debug</span>,
-                    <span class="ident">use_expensive_blockfinding</span>,
+            <span class="kw">let </span><span class="kw-2">mut </span>merged = Vec::new();
+            <span class="kw">for </span>perimeters <span class="kw">in </span>partitions {
+                <span class="comment">// If we got more than one result back, merging partially failed. Oh well?
+                </span><span class="kw">let </span>stepwise_debug = <span class="bool-val">false</span>;
+                merged.extend(Perimeter::merge_all(
+                    map,
+                    perimeters,
+                    stepwise_debug,
+                    use_expensive_blockfinding,
                 ));
             }
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;partition&quot;</span>);
+            timer.stop(<span class="string">&quot;partition&quot;</span>);
 
-            <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;blockify&quot;</span>, <span class="ident">merged</span>.<span class="ident">len</span>());
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">merged</span> {
-                <span class="ident">timer</span>.<span class="ident">next</span>();
-                <span class="kw">match</span> <span class="ident">perimeter</span>.<span class="ident">to_block</span>(<span class="ident">map</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">block</span>) =&gt; {
-                        <span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">block</span>);
+            timer.start_iter(<span class="string">&quot;blockify&quot;</span>, merged.len());
+            <span class="kw">let </span><span class="kw-2">mut </span>blocks = Vec::new();
+            <span class="kw">for </span>perimeter <span class="kw">in </span>merged {
+                timer.next();
+                <span class="kw">match </span>perimeter.to_block(map) {
+                    <span class="prelude-val">Ok</span>(block) =&gt; {
+                        blocks.push(block);
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                        <span class="macro">warn!</span>(<span class="string">&quot;Failed to make a block from a merged perimeter: {}&quot;</span>, <span class="ident">err</span>);
+                    <span class="prelude-val">Err</span>(err) =&gt; {
+                        <span class="macro">warn!</span>(<span class="string">&quot;Failed to make a block from a merged perimeter: {}&quot;</span>, err);
                     }
                 }
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">neighbourhoods</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-            <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">blocks</span> {
-                <span class="ident">neighbourhoods</span>.<span class="ident">insert</span>(
-                    <span class="ident">NeighbourhoodID</span>(<span class="ident">neighbourhoods</span>.<span class="ident">len</span>()),
-                    <span class="ident">NeighbourhoodInfo::new</span>(<span class="ident">block</span>),
+            <span class="kw">let </span><span class="kw-2">mut </span>neighbourhoods = BTreeMap::new();
+            <span class="kw">for </span>block <span class="kw">in </span>blocks {
+                neighbourhoods.insert(
+                    NeighbourhoodID(neighbourhoods.len()),
+                    NeighbourhoodInfo::new(block),
                 );
             }
-            <span class="kw">let</span> <span class="ident">neighbourhood_id_counter</span> <span class="op">=</span> <span class="ident">neighbourhoods</span>.<span class="ident">len</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Partitioning</span> {
-                <span class="ident">map</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                <span class="ident">neighbourhoods</span>,
-                <span class="ident">single_blocks</span>,
+            <span class="kw">let </span>neighbourhood_id_counter = neighbourhoods.len();
+            <span class="kw">let </span><span class="kw-2">mut </span>p = Partitioning {
+                map: map.get_name().clone(),
+                neighbourhoods,
+                single_blocks,
 
-                <span class="ident">neighbourhood_id_counter</span>,
-                <span class="ident">block_to_neighbourhood</span>: <span class="ident">BTreeMap::new</span>(),
-                <span class="ident">use_expensive_blockfinding</span>,
-                <span class="ident">broken</span>: <span class="bool-val">false</span>,
+                neighbourhood_id_counter,
+                block_to_neighbourhood: BTreeMap::new(),
+                use_expensive_blockfinding,
+                broken: <span class="bool-val">false</span>,
             };
 
-            <span class="comment">// TODO We could probably build this up as we go</span>
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">p</span>.<span class="ident">all_block_ids</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">neighbourhood</span>) <span class="op">=</span> <span class="ident">p</span>.<span class="ident">neighbourhood_containing</span>(<span class="ident">id</span>) {
-                    <span class="ident">p</span>.<span class="ident">block_to_neighbourhood</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">neighbourhood</span>);
-                } <span class="kw">else</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">use_expensive_blockfinding</span> {
-                        <span class="comment">// Try the expensive check, then</span>
-                        <span class="macro">error!</span>(
+            <span class="comment">// TODO We could probably build this up as we go
+            </span><span class="kw">for </span>id <span class="kw">in </span>p.all_block_ids() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(neighbourhood) = p.neighbourhood_containing(id) {
+                    p.block_to_neighbourhood.insert(id, neighbourhood);
+                } <span class="kw">else </span>{
+                    <span class="kw">if </span>!use_expensive_blockfinding {
+                        <span class="comment">// Try the expensive check, then
+                        </span><span class="macro">error!</span>(
                             <span class="string">&quot;Block doesn&#39;t belong to any neighbourhood? Retrying with expensive checks {:?}&quot;</span>,
-                            <span class="ident">p</span>.<span class="ident">get_block</span>(<span class="ident">id</span>).<span class="ident">perimeter</span>
+                            p.get_block(id).perimeter
                         );
-                        <span class="kw">continue</span> <span class="lifetime">&#39;METHOD</span>;
+                        <span class="kw">continue </span><span class="lifetime">&#39;METHOD</span>;
                     }
-                    <span class="comment">// This will break everything downstream, so bail out immediately</span>
-                    <span class="macro">error!</span>(
+                    <span class="comment">// This will break everything downstream, so bail out immediately
+                    </span><span class="macro">error!</span>(
                         <span class="string">&quot;Block still doesn&#39;t belong to any neighbourhood, even with expensive checks. Continuing without boundary adjustment. {:?}&quot;</span>,
-                        <span class="ident">p</span>.<span class="ident">get_block</span>(<span class="ident">id</span>).<span class="ident">perimeter</span>
+                        p.get_block(id).perimeter
                     );
-                    <span class="ident">p</span>.<span class="ident">broken</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    p.broken = <span class="bool-val">true</span>;
                 }
             }
 
-            <span class="kw">return</span> <span class="ident">p</span>;
+            <span class="kw">return </span>p;
         }
         <span class="macro">unreachable!</span>()
     }
 
-    <span class="comment">// TODO Explain return value</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transfer_block</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">id</span>: <span class="ident">BlockID</span>,
-        <span class="ident">old_owner</span>: <span class="ident">NeighbourhoodID</span>,
-        <span class="ident">new_owner</span>: <span class="ident">NeighbourhoodID</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">assert_ne!</span>(<span class="ident">old_owner</span>, <span class="ident">new_owner</span>);
+    <span class="comment">// TODO Explain return value
+    </span><span class="kw">pub fn </span>transfer_block(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        map: <span class="kw-2">&amp;</span>Map,
+        id: BlockID,
+        old_owner: NeighbourhoodID,
+        new_owner: NeighbourhoodID,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;NeighbourhoodID&gt;&gt; {
+        <span class="macro">assert_ne!</span>(old_owner, new_owner);
 
-        <span class="comment">// Is the newly expanded neighbourhood a valid perimeter?</span>
-        <span class="kw">let</span> <span class="ident">new_owner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">block_to_neighbourhood</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">block</span>, <span class="ident">neighbourhood</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">neighbourhood</span> <span class="op">==</span> <span class="ident">new_owner</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">block</span> <span class="op">==</span> <span class="ident">id</span> {
-                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">block</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+        <span class="comment">// Is the newly expanded neighbourhood a valid perimeter?
+        </span><span class="kw">let </span>new_owner_blocks: Vec&lt;BlockID&gt; = <span class="self">self
+            </span>.block_to_neighbourhood
+            .iter()
+            .filter_map(|(block, neighbourhood)| {
+                <span class="kw">if </span><span class="kw-2">*</span>neighbourhood == new_owner || <span class="kw-2">*</span>block == id {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span>block)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             })
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_neighbourhood_blocks</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_merged_blocks</span>(<span class="ident">map</span>, <span class="ident">new_owner_blocks</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">new_neighbourhood_blocks</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-            <span class="comment">// This happens when a hole would be created by adding this block. There are probably</span>
-            <span class="comment">// some smaller blocks nearby to add first.</span>
-            <span class="macro">bail!</span>(<span class="string">&quot;Couldn&#39;t add block -- you may need to add an intermediate block first to avoid a hole, or there&#39;s a bug you can&#39;t workaround yet&quot;</span>);
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>new_neighbourhood_blocks = <span class="self">self</span>.make_merged_blocks(map, new_owner_blocks)<span class="question-mark">?</span>;
+        <span class="kw">if </span>new_neighbourhood_blocks.len() != <span class="number">1 </span>{
+            <span class="comment">// This happens when a hole would be created by adding this block. There are probably
+            // some smaller blocks nearby to add first.
+            </span><span class="macro">bail!</span>(<span class="string">&quot;Couldn&#39;t add block -- you may need to add an intermediate block first to avoid a hole, or there&#39;s a bug you can&#39;t workaround yet&quot;</span>);
         }
-        <span class="kw">let</span> <span class="ident">new_neighbourhood_block</span> <span class="op">=</span> <span class="ident">new_neighbourhood_blocks</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span>new_neighbourhood_block = new_neighbourhood_blocks.pop().unwrap();
 
-        <span class="comment">// Is the old neighbourhood, minus this block, still valid?</span>
-        <span class="comment">// TODO refactor Neighbourhood to BlockIDs?</span>
-        <span class="kw">let</span> <span class="ident">old_owner_blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">block_to_neighbourhood</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">block</span>, <span class="ident">neighbourhood</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">neighbourhood</span> <span class="op">==</span> <span class="ident">old_owner</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">block</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span> {
-                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">block</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+        <span class="comment">// Is the old neighbourhood, minus this block, still valid?
+        // TODO refactor Neighbourhood to BlockIDs?
+        </span><span class="kw">let </span>old_owner_blocks: Vec&lt;BlockID&gt; = <span class="self">self
+            </span>.block_to_neighbourhood
+            .iter()
+            .filter_map(|(block, neighbourhood)| {
+                <span class="kw">if </span><span class="kw-2">*</span>neighbourhood == old_owner &amp;&amp; <span class="kw-2">*</span>block != id {
+                    <span class="prelude-val">Some</span>(<span class="kw-2">*</span>block)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             })
-            .<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">old_owner_blocks</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// We&#39;re deleting the old neighbourhood!</span>
-            <span class="self">self</span>.<span class="ident">neighbourhoods</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">new_owner</span>).<span class="ident">unwrap</span>().<span class="ident">block</span> <span class="op">=</span> <span class="ident">new_neighbourhood_block</span>;
-            <span class="self">self</span>.<span class="ident">neighbourhoods</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">old_owner</span>).<span class="ident">unwrap</span>();
-            <span class="self">self</span>.<span class="ident">block_to_neighbourhood</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">new_owner</span>);
-            <span class="comment">// Tell the caller to recreate this SelectBoundary state, switching to the neighbourhood</span>
-            <span class="comment">// we just donated to, since the old is now gone</span>
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">new_owner</span>));
+            .collect();
+        <span class="kw">if </span>old_owner_blocks.is_empty() {
+            <span class="comment">// We&#39;re deleting the old neighbourhood!
+            </span><span class="self">self</span>.neighbourhoods.get_mut(<span class="kw-2">&amp;</span>new_owner).unwrap().block = new_neighbourhood_block;
+            <span class="self">self</span>.neighbourhoods.remove(<span class="kw-2">&amp;</span>old_owner).unwrap();
+            <span class="self">self</span>.block_to_neighbourhood.insert(id, new_owner);
+            <span class="comment">// Tell the caller to recreate this SelectBoundary state, switching to the neighbourhood
+            // we just donated to, since the old is now gone
+            </span><span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(new_owner));
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">old_neighbourhood_blocks</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">make_merged_blocks</span>(<span class="ident">map</span>, <span class="ident">old_owner_blocks</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
-        <span class="comment">// We might be splitting the old neighbourhood into multiple pieces! Pick the largest piece</span>
-        <span class="comment">// as the old_owner (so the UI for trimming a neighbourhood is less jarring), and create new</span>
-        <span class="comment">// neighbourhoods for the others.</span>
-        <span class="ident">old_neighbourhood_blocks</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">block</span><span class="op">|</span> <span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">interior</span>.<span class="ident">len</span>());
-        <span class="self">self</span>.<span class="ident">neighbourhoods</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">old_owner</span>).<span class="ident">unwrap</span>().<span class="ident">block</span> <span class="op">=</span>
-            <span class="ident">old_neighbourhood_blocks</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">new_splits</span> <span class="op">=</span> <span class="op">!</span><span class="ident">old_neighbourhood_blocks</span>.<span class="ident">is_empty</span>();
-        <span class="kw">for</span> <span class="ident">split_piece</span> <span class="kw">in</span> <span class="ident">old_neighbourhood_blocks</span> {
-            <span class="kw">let</span> <span class="ident">new_neighbourhood</span> <span class="op">=</span> <span class="ident">NeighbourhoodID</span>(<span class="self">self</span>.<span class="ident">neighbourhood_id_counter</span>);
-            <span class="self">self</span>.<span class="ident">neighbourhood_id_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="self">self</span>.<span class="ident">neighbourhoods</span>
-                .<span class="ident">insert</span>(<span class="ident">new_neighbourhood</span>, <span class="ident">NeighbourhoodInfo::new</span>(<span class="ident">split_piece</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>old_neighbourhood_blocks =
+            <span class="self">self</span>.make_merged_blocks(map, old_owner_blocks.clone())<span class="question-mark">?</span>;
+        <span class="comment">// We might be splitting the old neighbourhood into multiple pieces! Pick the largest piece
+        // as the old_owner (so the UI for trimming a neighbourhood is less jarring), and create new
+        // neighbourhoods for the others.
+        </span>old_neighbourhood_blocks.sort_by_key(|block| block.perimeter.interior.len());
+        <span class="self">self</span>.neighbourhoods.get_mut(<span class="kw-2">&amp;</span>old_owner).unwrap().block =
+            old_neighbourhood_blocks.pop().unwrap();
+        <span class="kw">let </span>new_splits = !old_neighbourhood_blocks.is_empty();
+        <span class="kw">for </span>split_piece <span class="kw">in </span>old_neighbourhood_blocks {
+            <span class="kw">let </span>new_neighbourhood = NeighbourhoodID(<span class="self">self</span>.neighbourhood_id_counter);
+            <span class="self">self</span>.neighbourhood_id_counter += <span class="number">1</span>;
+            <span class="self">self</span>.neighbourhoods
+                .insert(new_neighbourhood, NeighbourhoodInfo::new(split_piece));
         }
-        <span class="kw">if</span> <span class="ident">new_splits</span> {
-            <span class="comment">// We need to update the owner of all single blocks in these new pieces</span>
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">old_owner_blocks</span> {
-                <span class="self">self</span>.<span class="ident">block_to_neighbourhood</span>
-                    .<span class="ident">insert</span>(<span class="ident">id</span>, <span class="self">self</span>.<span class="ident">neighbourhood_containing</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>());
+        <span class="kw">if </span>new_splits {
+            <span class="comment">// We need to update the owner of all single blocks in these new pieces
+            </span><span class="kw">for </span>id <span class="kw">in </span>old_owner_blocks {
+                <span class="self">self</span>.block_to_neighbourhood
+                    .insert(id, <span class="self">self</span>.neighbourhood_containing(id).unwrap());
             }
         }
 
-        <span class="self">self</span>.<span class="ident">neighbourhoods</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">new_owner</span>).<span class="ident">unwrap</span>().<span class="ident">block</span> <span class="op">=</span> <span class="ident">new_neighbourhood_block</span>;
-        <span class="self">self</span>.<span class="ident">block_to_neighbourhood</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">new_owner</span>);
+        <span class="self">self</span>.neighbourhoods.get_mut(<span class="kw-2">&amp;</span>new_owner).unwrap().block = new_neighbourhood_block;
+        <span class="self">self</span>.block_to_neighbourhood.insert(id, new_owner);
         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
     }
 
-    <span class="doccomment">/// Needs to find an existing neighbourhood to take the block, or make a new one</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_block_from_neighbourhood</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">id</span>: <span class="ident">BlockID</span>,
-        <span class="ident">old_owner</span>: <span class="ident">NeighbourhoodID</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// Find all RoadSideIDs in the block matching the current neighbourhood perimeter. Look for</span>
-        <span class="comment">// the first one that borders another neighbourhood, and transfer the block there.</span>
-        <span class="comment">// TODO This can get unintuitive -- if we remove a block bordering two other</span>
-        <span class="comment">// neighbourhoods, which one should we donate to?</span>
-        <span class="kw">let</span> <span class="ident">current_perim_set</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadSideID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">neighbourhoods</span>[<span class="kw-2">&amp;</span><span class="ident">old_owner</span>]
-            .<span class="ident">block</span>
-            .<span class="ident">perimeter</span>
-            .<span class="ident">roads</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">cloned</span>()
-            .<span class="ident">collect</span>();
-        <span class="kw">for</span> <span class="ident">road_side</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_block</span>(<span class="ident">id</span>).<span class="ident">perimeter</span>.<span class="ident">roads</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">current_perim_set</span>.<span class="ident">contains</span>(<span class="ident">road_side</span>) {
+    <span class="doccomment">/// Needs to find an existing neighbourhood to take the block, or make a new one
+    </span><span class="kw">pub fn </span>remove_block_from_neighbourhood(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        map: <span class="kw-2">&amp;</span>Map,
+        id: BlockID,
+        old_owner: NeighbourhoodID,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;NeighbourhoodID&gt;&gt; {
+        <span class="comment">// Find all RoadSideIDs in the block matching the current neighbourhood perimeter. Look for
+        // the first one that borders another neighbourhood, and transfer the block there.
+        // TODO This can get unintuitive -- if we remove a block bordering two other
+        // neighbourhoods, which one should we donate to?
+        </span><span class="kw">let </span>current_perim_set: BTreeSet&lt;RoadSideID&gt; = <span class="self">self</span>.neighbourhoods[<span class="kw-2">&amp;</span>old_owner]
+            .block
+            .perimeter
+            .roads
+            .iter()
+            .cloned()
+            .collect();
+        <span class="kw">for </span>road_side <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.get_block(id).perimeter.roads {
+            <span class="kw">if </span>!current_perim_set.contains(road_side) {
                 <span class="kw">continue</span>;
             }
-            <span class="comment">// Is there another neighbourhood that has the other side of this road on its perimeter?</span>
-            <span class="comment">// TODO We could map road -&gt; BlockID then use block_to_neighbourhood</span>
-            <span class="kw">let</span> <span class="ident">other_side</span> <span class="op">=</span> <span class="ident">road_side</span>.<span class="ident">other_side</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">new_owner</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">neighbourhoods</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">info</span>)<span class="op">|</span> <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">other_side</span>))
+            <span class="comment">// Is there another neighbourhood that has the other side of this road on its perimeter?
+            // TODO We could map road -&gt; BlockID then use block_to_neighbourhood
+            </span><span class="kw">let </span>other_side = road_side.other_side();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((new_owner, <span class="kw">_</span>)) = <span class="self">self
+                </span>.neighbourhoods
+                .iter()
+                .find(|(<span class="kw">_</span>, info)| info.block.perimeter.roads.contains(<span class="kw-2">&amp;</span>other_side))
             {
-                <span class="kw">let</span> <span class="ident">new_owner</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">new_owner</span>;
-                <span class="kw">return</span> <span class="self">self</span>.<span class="ident">transfer_block</span>(<span class="ident">map</span>, <span class="ident">id</span>, <span class="ident">old_owner</span>, <span class="ident">new_owner</span>);
+                <span class="kw">let </span>new_owner = <span class="kw-2">*</span>new_owner;
+                <span class="kw">return </span><span class="self">self</span>.transfer_block(map, id, old_owner, new_owner);
             }
         }
 
-        <span class="comment">// We didn&#39;t find any match, so we&#39;re jettisoning a block near the edge of the map (or a</span>
-        <span class="comment">// buggy area missing blocks). Create a new neighbourhood with just this block.</span>
-        <span class="kw">let</span> <span class="ident">new_owner</span> <span class="op">=</span> <span class="ident">NeighbourhoodID</span>(<span class="self">self</span>.<span class="ident">neighbourhood_id_counter</span>);
-        <span class="self">self</span>.<span class="ident">neighbourhood_id_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="self">self</span>.<span class="ident">neighbourhoods</span>.<span class="ident">insert</span>(
-            <span class="ident">new_owner</span>,
-            <span class="ident">NeighbourhoodInfo::new</span>(<span class="self">self</span>.<span class="ident">get_block</span>(<span class="ident">id</span>).<span class="ident">clone</span>()),
+        <span class="comment">// We didn&#39;t find any match, so we&#39;re jettisoning a block near the edge of the map (or a
+        // buggy area missing blocks). Create a new neighbourhood with just this block.
+        </span><span class="kw">let </span>new_owner = NeighbourhoodID(<span class="self">self</span>.neighbourhood_id_counter);
+        <span class="self">self</span>.neighbourhood_id_counter += <span class="number">1</span>;
+        <span class="self">self</span>.neighbourhoods.insert(
+            new_owner,
+            NeighbourhoodInfo::new(<span class="self">self</span>.get_block(id).clone()),
         );
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">transfer_block</span>(<span class="ident">map</span>, <span class="ident">id</span>, <span class="ident">old_owner</span>, <span class="ident">new_owner</span>);
-        <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">is_err</span>() {
-            <span class="comment">// Revert the change above!</span>
-            <span class="self">self</span>.<span class="ident">neighbourhoods</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">new_owner</span>).<span class="ident">unwrap</span>();
+        <span class="kw">let </span>result = <span class="self">self</span>.transfer_block(map, id, old_owner, new_owner);
+        <span class="kw">if </span>result.is_err() {
+            <span class="comment">// Revert the change above!
+            </span><span class="self">self</span>.neighbourhoods.remove(<span class="kw-2">&amp;</span>new_owner).unwrap();
         }
-        <span class="ident">result</span>
+        result
     }
 }
 
-<span class="comment">// Read-only</span>
-<span class="kw">impl</span> <span class="ident">Partitioning</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">neighbourhood_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Block</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhoods</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">block</span>
+<span class="comment">// Read-only
+</span><span class="kw">impl </span>Partitioning {
+    <span class="kw">pub fn </span>neighbourhood_block(<span class="kw-2">&amp;</span><span class="self">self</span>, id: NeighbourhoodID) -&gt; <span class="kw-2">&amp;</span>Block {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.neighbourhoods[<span class="kw-2">&amp;</span>id].block
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">neighbourhood_area_km2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">String</span> {
-        <span class="comment">// Convert from m^2 to km^2</span>
-        <span class="kw">let</span> <span class="ident">area</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">neighbourhood_block</span>(<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">area</span>() <span class="op">/</span> <span class="number">1_000_000.0</span>;
-        <span class="macro">format!</span>(<span class="string">&quot;~{:.1} km²&quot;</span>, <span class="ident">area</span>)
+    <span class="kw">pub fn </span>neighbourhood_area_km2(<span class="kw-2">&amp;</span><span class="self">self</span>, id: NeighbourhoodID) -&gt; String {
+        <span class="comment">// Convert from m^2 to km^2
+        </span><span class="kw">let </span>area = <span class="self">self</span>.neighbourhood_block(id).polygon.area() / <span class="number">1_000_000.0</span>;
+        <span class="macro">format!</span>(<span class="string">&quot;~{:.1} km²&quot;</span>, area)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">neighbourhood_boundary_polygon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhoods</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">polygon</span>) <span class="op">=</span> <span class="ident">info</span>.<span class="ident">override_drawing_boundary</span>.<span class="ident">clone</span>() {
-            <span class="kw">return</span> <span class="ident">polygon</span>;
+    <span class="kw">pub fn </span>neighbourhood_boundary_polygon(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App, id: NeighbourhoodID) -&gt; Polygon {
+        <span class="kw">let </span>info = <span class="kw-2">&amp;</span><span class="self">self</span>.neighbourhoods[<span class="kw-2">&amp;</span>id];
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(polygon) = info.override_drawing_boundary.clone() {
+            <span class="kw">return </span>polygon;
         }
-        <span class="comment">// The neighbourhood&#39;s perimeter hugs the &quot;interior&quot; of the neighbourhood. If we just use the</span>
-        <span class="comment">// other side of the perimeter road, the highlighted area nicely shows the boundary road</span>
-        <span class="comment">// too. (But sometimes this breaks, of course)</span>
-        <span class="kw">match</span> <span class="ident">info</span>
-            .<span class="ident">block</span>
-            .<span class="ident">perimeter</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">flip_side_of_road</span>()
-            .<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>)
+        <span class="comment">// The neighbourhood&#39;s perimeter hugs the &quot;interior&quot; of the neighbourhood. If we just use the
+        // other side of the perimeter road, the highlighted area nicely shows the boundary road
+        // too. (But sometimes this breaks, of course)
+        </span><span class="kw">match </span>info
+            .block
+            .perimeter
+            .clone()
+            .flip_side_of_road()
+            .to_block(<span class="kw-2">&amp;</span>app.per_map.map)
         {
-            <span class="prelude-val">Ok</span>(<span class="ident">block</span>) =&gt; <span class="ident">block</span>.<span class="ident">polygon</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>(),
+            <span class="prelude-val">Ok</span>(block) =&gt; block.polygon,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; info.block.polygon.clone(),
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">override_neighbourhood_boundary_polygon</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>,
-        <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
+    <span class="kw">pub fn </span>override_neighbourhood_boundary_polygon(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        id: NeighbourhoodID,
+        polygon: Polygon,
     ) {
-        <span class="self">self</span>.<span class="ident">neighbourhoods</span>
-            .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">override_drawing_boundary</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">polygon</span>);
+        <span class="self">self</span>.neighbourhoods
+            .get_mut(<span class="kw-2">&amp;</span>id)
+            .unwrap()
+            .override_drawing_boundary = <span class="prelude-val">Some</span>(polygon);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_neighbourhoods</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span>, <span class="ident">NeighbourhoodInfo</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhoods</span>
+    <span class="kw">pub fn </span>all_neighbourhoods(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BTreeMap&lt;NeighbourhoodID, NeighbourhoodInfo&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.neighbourhoods
     }
 
-    <span class="comment">// Just used for initial creation</span>
-    <span class="kw">fn</span> <span class="ident">neighbourhood_containing</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">find_block</span>: <span class="ident">BlockID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NeighbourhoodID</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO We could probably build this mapping up when we do Perimeter::merge_all</span>
-        <span class="kw">let</span> <span class="ident">find_block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_block</span>(<span class="ident">find_block</span>);
-        <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">info</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhoods</span> {
-            <span class="kw">if</span> <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">find_block</span>.<span class="ident">perimeter</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+    <span class="comment">// Just used for initial creation
+    </span><span class="kw">fn </span>neighbourhood_containing(<span class="kw-2">&amp;</span><span class="self">self</span>, find_block: BlockID) -&gt; <span class="prelude-ty">Option</span>&lt;NeighbourhoodID&gt; {
+        <span class="comment">// TODO We could probably build this mapping up when we do Perimeter::merge_all
+        </span><span class="kw">let </span>find_block = <span class="self">self</span>.get_block(find_block);
+        <span class="kw">for </span>(id, info) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.neighbourhoods {
+            <span class="kw">if </span>info.block.perimeter.contains(<span class="kw-2">&amp;</span>find_block.perimeter) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw-2">*</span>id);
             }
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">pub fn </span>all_single_blocks(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;(BlockID, <span class="kw-2">&amp;</span>Block)&gt; {
+        <span class="self">self</span>.single_blocks
+            .iter()
+            .enumerate()
+            .map(|(idx, block)| (BlockID(idx), block))
+            .collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_single_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">BlockID</span>, <span class="kw-2">&amp;</span><span class="ident">Block</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">single_blocks</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">block</span>)<span class="op">|</span> (<span class="ident">BlockID</span>(<span class="ident">idx</span>), <span class="ident">block</span>))
-            .<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>all_block_ids(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;BlockID&gt; {
+        (<span class="number">0</span>..<span class="self">self</span>.single_blocks.len()).map(BlockID).collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_block_ids</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> {
-        (<span class="number">0</span>..<span class="self">self</span>.<span class="ident">single_blocks</span>.<span class="ident">len</span>()).<span class="ident">map</span>(<span class="ident">BlockID</span>).<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>get_block(<span class="kw-2">&amp;</span><span class="self">self</span>, id: BlockID) -&gt; <span class="kw-2">&amp;</span>Block {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.single_blocks[id.<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Block</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">single_blocks</span>[<span class="ident">id</span>.<span class="number">0</span>]
+    <span class="kw">pub fn </span>block_to_neighbourhood(<span class="kw-2">&amp;</span><span class="self">self</span>, id: BlockID) -&gt; NeighbourhoodID {
+        <span class="self">self</span>.block_to_neighbourhood[<span class="kw-2">&amp;</span>id]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">block_to_neighbourhood</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">BlockID</span>) -&gt; <span class="ident">NeighbourhoodID</span> {
-        <span class="self">self</span>.<span class="ident">block_to_neighbourhood</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_blocks_in_neighbourhood</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">block</span>, <span class="ident">n</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">block_to_neighbourhood</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">n</span> <span class="op">==</span> <span class="ident">id</span> {
-                <span class="ident">result</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">block</span>);
+    <span class="kw">pub fn </span>all_blocks_in_neighbourhood(<span class="kw-2">&amp;</span><span class="self">self</span>, id: NeighbourhoodID) -&gt; Vec&lt;BlockID&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
+        <span class="kw">for </span>(block, n) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.block_to_neighbourhood {
+            <span class="kw">if </span><span class="kw-2">*</span>n == id {
+                result.push(<span class="kw-2">*</span>block);
             }
         }
-        <span class="ident">result</span>
+        result
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">some_block_in_neighbourhood</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">BlockID</span> {
-        <span class="kw">for</span> (<span class="ident">block</span>, <span class="ident">neighbourhood</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">block_to_neighbourhood</span> {
-            <span class="kw">if</span> <span class="ident">id</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">neighbourhood</span> {
-                <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">block</span>;
+    <span class="kw">pub fn </span>some_block_in_neighbourhood(<span class="kw-2">&amp;</span><span class="self">self</span>, id: NeighbourhoodID) -&gt; BlockID {
+        <span class="kw">for </span>(block, neighbourhood) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.block_to_neighbourhood {
+            <span class="kw">if </span>id == <span class="kw-2">*</span>neighbourhood {
+                <span class="kw">return </span><span class="kw-2">*</span>block;
             }
         }
-        <span class="macro">unreachable!</span>(<span class="string">&quot;{:?} has no blocks&quot;</span>, <span class="ident">id</span>);
+        <span class="macro">unreachable!</span>(<span class="string">&quot;{:?} has no blocks&quot;</span>, id);
     }
 
-    <span class="doccomment">/// Blocks on the &quot;frontier&quot; are adjacent to the perimeter, either just inside or outside.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_frontier</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">perim</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>) -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">perim_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">perim</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">road</span>).<span class="ident">collect</span>();
+    <span class="doccomment">/// Blocks on the &quot;frontier&quot; are adjacent to the perimeter, either just inside or outside.
+    </span><span class="kw">pub fn </span>calculate_frontier(<span class="kw-2">&amp;</span><span class="self">self</span>, perim: <span class="kw-2">&amp;</span>Perimeter) -&gt; BTreeSet&lt;BlockID&gt; {
+        <span class="kw">let </span>perim_roads: BTreeSet&lt;RoadID&gt; = perim.roads.iter().map(|id| id.road).collect();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">frontier</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> (<span class="ident">block_id</span>, <span class="ident">block</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">all_single_blocks</span>() {
-            <span class="kw">for</span> <span class="ident">road_side_id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">roads</span> {
-                <span class="comment">// If the perimeter has this RoadSideID on the same side, we&#39;re just inside. If it has</span>
-                <span class="comment">// the other side, just on the outside. Either way, on the frontier.</span>
-                <span class="kw">if</span> <span class="ident">perim_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">road_side_id</span>.<span class="ident">road</span>) {
-                    <span class="ident">frontier</span>.<span class="ident">insert</span>(<span class="ident">block_id</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>frontier = BTreeSet::new();
+        <span class="kw">for </span>(block_id, block) <span class="kw">in </span><span class="self">self</span>.all_single_blocks() {
+            <span class="kw">for </span>road_side_id <span class="kw">in </span><span class="kw-2">&amp;</span>block.perimeter.roads {
+                <span class="comment">// If the perimeter has this RoadSideID on the same side, we&#39;re just inside. If it has
+                // the other side, just on the outside. Either way, on the frontier.
+                </span><span class="kw">if </span>perim_roads.contains(<span class="kw-2">&amp;</span>road_side_id.road) {
+                    frontier.insert(block_id);
                     <span class="kw">break</span>;
                 }
             }
         }
-        <span class="ident">frontier</span>
+        frontier
     }
 
-    <span class="comment">// Possibly returns multiple merged blocks. The input is never &quot;lost&quot; -- if any perimeter fails</span>
-    <span class="comment">// to become a block, fail the whole operation.</span>
-    <span class="kw">fn</span> <span class="ident">make_merged_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">input</span> {
-            <span class="ident">perimeters</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">get_block</span>(<span class="ident">id</span>).<span class="ident">perimeter</span>.<span class="ident">clone</span>());
+    <span class="comment">// Possibly returns multiple merged blocks. The input is never &quot;lost&quot; -- if any perimeter fails
+    // to become a block, fail the whole operation.
+    </span><span class="kw">fn </span>make_merged_blocks(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, input: Vec&lt;BlockID&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Block&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>perimeters = Vec::new();
+        <span class="kw">for </span>id <span class="kw">in </span>input {
+            perimeters.push(<span class="self">self</span>.get_block(id).perimeter.clone());
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="ident">stepwise_debug</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">for</span> <span class="ident">perim</span> <span class="kw">in</span> <span class="ident">Perimeter::merge_all</span>(
-            <span class="ident">map</span>,
-            <span class="ident">perimeters</span>,
-            <span class="ident">stepwise_debug</span>,
-            <span class="self">self</span>.<span class="ident">use_expensive_blockfinding</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>blocks = Vec::new();
+        <span class="kw">let </span>stepwise_debug = <span class="bool-val">false</span>;
+        <span class="kw">for </span>perim <span class="kw">in </span>Perimeter::merge_all(
+            map,
+            perimeters,
+            stepwise_debug,
+            <span class="self">self</span>.use_expensive_blockfinding,
         ) {
-            <span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">perim</span>.<span class="ident">to_block</span>(<span class="ident">map</span>)<span class="question-mark">?</span>);
+            blocks.push(perim.to_block(map)<span class="question-mark">?</span>);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">blocks</span>)
+        <span class="prelude-val">Ok</span>(blocks)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

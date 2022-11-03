@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/design_ltn.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>design_ltn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/design_ltn.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>design_ltn.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -573,369 +573,369 @@
 <span id="573">573</span>
 <span id="574">574</span>
 <span id="575">575</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::DrawSimpleRoadLabels</span>;
-<span class="kw">use</span> <span class="ident">osm2streets::Direction</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">World</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D};
+<span class="kw">use </span>map_gui::tools::DrawSimpleRoadLabels;
+<span class="kw">use </span>osm2streets::Direction;
+<span class="kw">use </span>widgetry::mapspace::{DummyID, World};
+<span class="kw">use </span>widgetry::tools::{ChooseSomething, PopupMsg};
+<span class="kw">use </span>widgetry::{
+    lctrl, Choice, Color, ControlState, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, Key,
+    Line, Outcome, Panel, RewriteColor, State, Text, TextExt, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components</span>::{<span class="ident">AppwidePanel</span>, <span class="ident">BottomPanel</span>, <span class="ident">Mode</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::draw_cells::RenderCells</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">EditMode</span>, <span class="ident">EditNeighbourhood</span>, <span class="ident">EditOutcome</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::filters::auto::Heuristic</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">is_private</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">NeighbourhoodID</span>, <span class="ident">Transition</span>};
+<span class="kw">use </span><span class="kw">crate</span>::components::{AppwidePanel, BottomPanel, Mode};
+<span class="kw">use </span><span class="kw">crate</span>::draw_cells::RenderCells;
+<span class="kw">use </span><span class="kw">crate</span>::edit::{EditMode, EditNeighbourhood, EditOutcome};
+<span class="kw">use </span><span class="kw">crate</span>::filters::auto::Heuristic;
+<span class="kw">use crate</span>::{colors, is_private, App, FilterType, Neighbourhood, NeighbourhoodID, Transition};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DesignLTN</span> {
-    <span class="ident">appwide_panel</span>: <span class="ident">AppwidePanel</span>,
-    <span class="ident">bottom_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">neighbourhood</span>: <span class="ident">Neighbourhood</span>,
-    <span class="ident">draw_top_layer</span>: <span class="ident">Drawable</span>,
-    <span class="ident">draw_under_roads_layer</span>: <span class="ident">Drawable</span>,
-    <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable</span>,
-    <span class="ident">labels</span>: <span class="ident">DrawSimpleRoadLabels</span>,
-    <span class="ident">highlight_cell</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span>,
-    <span class="ident">edit</span>: <span class="ident">EditNeighbourhood</span>,
-    <span class="comment">// Expensive to calculate</span>
-    <span class="ident">preserve_state</span>: <span class="ident"><span class="kw">crate</span>::save::PreserveState</span>,
+<span class="kw">pub struct </span>DesignLTN {
+    appwide_panel: AppwidePanel,
+    bottom_panel: Panel,
+    neighbourhood: Neighbourhood,
+    draw_top_layer: Drawable,
+    draw_under_roads_layer: Drawable,
+    fade_irrelevant: Drawable,
+    labels: DrawSimpleRoadLabels,
+    highlight_cell: World&lt;DummyID&gt;,
+    edit: EditNeighbourhood,
+    <span class="comment">// Expensive to calculate
+    </span>preserve_state: <span class="kw">crate</span>::save::PreserveState,
 
-    <span class="ident">show_error</span>: <span class="ident">Drawable</span>,
+    show_error: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">DesignLTN</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">current_neighbourhood</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);
+<span class="kw">impl </span>DesignLTN {
+    <span class="kw">pub fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        id: NeighbourhoodID,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        app.per_map.current_neighbourhood = <span class="prelude-val">Some</span>(id);
 
-        <span class="kw">let</span> <span class="ident">neighbourhood</span> <span class="op">=</span> <span class="ident">Neighbourhood::new</span>(<span class="ident">app</span>, <span class="ident">id</span>);
+        <span class="kw">let </span>neighbourhood = Neighbourhood::new(app, id);
 
-        <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
-            <span class="ident">app</span>.<span class="ident">per_map</span>
-                .<span class="ident">map</span>
-                .<span class="ident">get_boundary_polygon</span>()
-                .<span class="ident">get_outer_ring</span>()
-                .<span class="ident">clone</span>(),
-            <span class="macro">vec!</span>[<span class="ident">app</span>
-                .<span class="ident">partitioning</span>()
-                .<span class="ident">neighbourhood_boundary_polygon</span>(<span class="ident">app</span>, <span class="ident">id</span>)
-                .<span class="ident">into_outer_ring</span>()],
+        <span class="kw">let </span>fade_area = Polygon::with_holes(
+            app.per_map
+                .map
+                .get_boundary_polygon()
+                .get_outer_ring()
+                .clone(),
+            <span class="macro">vec!</span>[app
+                .partitioning()
+                .neighbourhood_boundary_polygon(app, id)
+                .into_outer_ring()],
         );
-        <span class="kw">let</span> <span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)]).<span class="ident">upload</span>(<span class="ident">ctx</span>);
+        <span class="kw">let </span>fade_irrelevant = GeomBatch::from(<span class="macro">vec!</span>[(app.cs.fade_map_dark, fade_area)]).upload(ctx);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label_roads</span> <span class="op">=</span> <span class="ident">neighbourhood</span>.<span class="ident">perimeter</span>.<span class="ident">clone</span>();
-        <span class="ident">label_roads</span>.<span class="ident">extend</span>(<span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">labels</span> <span class="op">=</span> <span class="ident">DrawSimpleRoadLabels::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">colors::ROAD_LABEL</span>,
-            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">label_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">id</span>)),
+        <span class="kw">let </span><span class="kw-2">mut </span>label_roads = neighbourhood.perimeter.clone();
+        label_roads.extend(neighbourhood.orig_perimeter.interior.clone());
+        <span class="kw">let </span>labels = DrawSimpleRoadLabels::new(
+            ctx,
+            app,
+            colors::ROAD_LABEL,
+            Box::new(<span class="kw">move </span>|r| label_roads.contains(<span class="kw-2">&amp;</span>r.id)),
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">appwide_panel</span>: <span class="ident">AppwidePanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::ModifyNeighbourhood</span>),
-            <span class="ident">bottom_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">neighbourhood</span>,
-            <span class="ident">draw_top_layer</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">draw_under_roads_layer</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">fade_irrelevant</span>,
-            <span class="ident">labels</span>,
-            <span class="ident">highlight_cell</span>: <span class="ident">World::unbounded</span>(),
-            <span class="ident">edit</span>: <span class="ident">EditNeighbourhood::temporary</span>(),
-            <span class="ident">preserve_state</span>: <span class="ident"><span class="kw">crate</span>::save::PreserveState::DesignLTN</span>(
-                <span class="ident">app</span>.<span class="ident">partitioning</span>().<span class="ident">all_blocks_in_neighbourhood</span>(<span class="ident">id</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">Self </span>{
+            appwide_panel: AppwidePanel::new(ctx, app, Mode::ModifyNeighbourhood),
+            bottom_panel: Panel::empty(ctx),
+            neighbourhood,
+            draw_top_layer: Drawable::empty(ctx),
+            draw_under_roads_layer: Drawable::empty(ctx),
+            fade_irrelevant,
+            labels,
+            highlight_cell: World::unbounded(),
+            edit: EditNeighbourhood::temporary(),
+            preserve_state: <span class="kw">crate</span>::save::PreserveState::DesignLTN(
+                app.partitioning().all_blocks_in_neighbourhood(id),
             ),
 
-            <span class="ident">show_error</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
+            show_error: Drawable::empty(ctx),
         };
-        <span class="ident">state</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">Box::new</span>(<span class="ident">state</span>)
+        state.update(ctx, app);
+        Box::new(state)
     }
 
-    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> (<span class="ident">edit</span>, <span class="ident">draw_top_layer</span>, <span class="ident">draw_under_roads_layer</span>, <span class="ident">render_cells</span>, <span class="ident">highlight_cell</span>) <span class="op">=</span>
-            <span class="ident">setup_editing</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">labels</span>);
-        <span class="self">self</span>.<span class="ident">edit</span> <span class="op">=</span> <span class="ident">edit</span>;
-        <span class="self">self</span>.<span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">draw_top_layer</span>;
-        <span class="self">self</span>.<span class="ident">draw_under_roads_layer</span> <span class="op">=</span> <span class="ident">draw_under_roads_layer</span>;
-        <span class="self">self</span>.<span class="ident">highlight_cell</span> <span class="op">=</span> <span class="ident">highlight_cell</span>;
+    <span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span>(edit, draw_top_layer, draw_under_roads_layer, render_cells, highlight_cell) =
+            setup_editing(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.neighbourhood, <span class="kw-2">&amp;</span><span class="self">self</span>.labels);
+        <span class="self">self</span>.edit = edit;
+        <span class="self">self</span>.draw_top_layer = draw_top_layer;
+        <span class="self">self</span>.draw_under_roads_layer = draw_under_roads_layer;
+        <span class="self">self</span>.highlight_cell = highlight_cell;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">show_error</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">disconnected_cells</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">is_disconnected</span>() {
-                <span class="ident">disconnected_cells</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">show_error</span>.<span class="ident">extend</span>(
-                    <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                    <span class="ident">render_cells</span>.<span class="ident">polygons_per_cell</span>[<span class="ident">idx</span>].<span class="ident">clone</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>show_error = GeomBatch::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>disconnected_cells = <span class="number">0</span>;
+        <span class="kw">for </span>(idx, cell) <span class="kw">in </span><span class="self">self</span>.neighbourhood.cells.iter().enumerate() {
+            <span class="kw">if </span>cell.is_disconnected() {
+                disconnected_cells += <span class="number">1</span>;
+                show_error.extend(
+                    Color::RED.alpha(<span class="number">0.8</span>),
+                    render_cells.polygons_per_cell[idx].clone(),
                 );
             }
         }
-        <span class="kw">let</span> <span class="ident">warning</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">disconnected_cells</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">Widget::nothing</span>()
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">disconnected_cells</span> <span class="op">==</span> <span class="number">1</span> {
-                <span class="string">&quot;1 cell isn&#39;t reachable&quot;</span>.<span class="ident">to_string</span>()
-            } <span class="kw">else</span> {
+        <span class="kw">let </span>warning = <span class="kw">if </span>disconnected_cells == <span class="number">0 </span>{
+            Widget::nothing()
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>msg = <span class="kw">if </span>disconnected_cells == <span class="number">1 </span>{
+                <span class="string">&quot;1 cell isn&#39;t reachable&quot;</span>.to_string()
+            } <span class="kw">else </span>{
                 <span class="macro">format!</span>(<span class="string">&quot;{disconnected_cells} cells aren&#39;t reachable&quot;</span>)
             };
 
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>, <span class="ident">msg</span>)
-                .<span class="ident">label_color</span>(<span class="ident">Color::RED</span>, <span class="ident">ControlState::Default</span>)
-                .<span class="ident">no_tooltip</span>()
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>)
+            ctx.style()
+                .btn_plain
+                .icon_text(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>, msg)
+                .label_color(Color::RED, ControlState::Default)
+                .no_tooltip()
+                .build_widget(ctx, <span class="string">&quot;warning&quot;</span>)
         };
-        <span class="self">self</span>.<span class="ident">show_error</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">show_error</span>);
+        <span class="self">self</span>.show_error = ctx.upload(show_error);
 
-        <span class="self">self</span>.<span class="ident">bottom_panel</span> <span class="op">=</span> <span class="ident">make_bottom_panel</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">appwide_panel</span>,
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
+        <span class="self">self</span>.bottom_panel = make_bottom_panel(
+            ctx,
+            app,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel,
+            Widget::col(<span class="macro">vec!</span>[
                 <span class="macro">format!</span>(
                     <span class="string">&quot;Area: {}&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">partitioning</span>()
-                        .<span class="ident">neighbourhood_area_km2</span>(<span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>)
+                    app.partitioning()
+                        .neighbourhood_area_km2(<span class="self">self</span>.neighbourhood.id)
                 )
-                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">warning</span>,
+                .text_widget(ctx),
+                warning,
             ])
-            .<span class="ident">centered_vert</span>(),
+            .centered_vert(),
         );
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">DesignLTN</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">appwide_panel</span>
-            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">preserve_state</span>, <span class="ident">help</span>)
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>DesignLTN {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = <span class="self">self
+            </span>.appwide_panel
+            .event(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.preserve_state, help)
         {
-            <span class="kw">return</span> <span class="ident">t</span>;
+            <span class="kw">return </span>t;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">event</span>(
-            <span class="ident">ctx</span>,
-            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
-            <span class="ident">Mode::ModifyNeighbourhood</span>,
-            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bottom_panel</span>),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = app.session.layers.event(
+            ctx,
+            <span class="kw-2">&amp;</span>app.cs,
+            Mode::ModifyNeighbourhood,
+            <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.bottom_panel),
         ) {
-            <span class="kw">return</span> <span class="ident">t</span>;
+            <span class="kw">return </span>t;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Advanced&quot;</span> {
-                <span class="kw">return</span> <span class="ident">launch_advanced</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;warning&quot;</span> {
-                <span class="comment">// Not really clickable</span>
-                <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.bottom_panel.event(ctx) {
+            <span class="kw">if </span>x == <span class="string">&quot;Advanced&quot; </span>{
+                <span class="kw">return </span>launch_advanced(ctx, <span class="self">self</span>.neighbourhood.id);
+            } <span class="kw">else if </span>x == <span class="string">&quot;warning&quot; </span>{
+                <span class="comment">// Not really clickable
+                </span><span class="kw">return </span>Transition::Keep;
             }
 
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">edit</span>.<span class="ident">handle_panel_action</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="ident">x</span>.<span class="ident">as_ref</span>(),
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>,
-                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>,
+            <span class="kw">match </span><span class="self">self</span>.edit.handle_panel_action(
+                ctx,
+                app,
+                x.as_ref(),
+                <span class="kw-2">&amp;</span><span class="self">self</span>.neighbourhood,
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>.bottom_panel,
             ) {
-                <span class="ident">EditOutcome::Nothing</span> =&gt; <span class="macro">unreachable!</span>(),
-                <span class="ident">EditOutcome::UpdatePanelAndWorld</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+                EditOutcome::Nothing =&gt; <span class="macro">unreachable!</span>(),
+                EditOutcome::UpdatePanelAndWorld =&gt; {
+                    <span class="self">self</span>.update(ctx, app);
+                    <span class="kw">return </span>Transition::Keep;
                 }
-                <span class="ident">EditOutcome::Transition</span>(<span class="ident">t</span>) =&gt; {
-                    <span class="kw">return</span> <span class="ident">t</span>;
+                EditOutcome::Transition(t) =&gt; {
+                    <span class="kw">return </span>t;
                 }
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">edit</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">neighbourhood</span>) {
-            <span class="ident">EditOutcome::Nothing</span> =&gt; {}
-            <span class="ident">EditOutcome::UpdatePanelAndWorld</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">match </span><span class="self">self</span>.edit.event(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.neighbourhood) {
+            EditOutcome::Nothing =&gt; {}
+            EditOutcome::UpdatePanelAndWorld =&gt; {
+                <span class="self">self</span>.update(ctx, app);
             }
-            <span class="ident">EditOutcome::Transition</span>(<span class="ident">t</span>) =&gt; {
-                <span class="kw">return</span> <span class="ident">t</span>;
+            EditOutcome::Transition(t) =&gt; {
+                <span class="kw">return </span>t;
             }
         }
 
-        <span class="self">self</span>.<span class="ident">highlight_cell</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.highlight_cell.event(ctx);
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::Custom</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">app</span>.<span class="ident">draw_with_layering</span>(<span class="ident">g</span>, <span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_under_roads_layer</span>));
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fade_irrelevant</span>);
-        <span class="self">self</span>.<span class="ident">draw_top_layer</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">highlight_cell</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">edit</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        app.draw_with_layering(g, |g| g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_under_roads_layer));
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.fade_irrelevant);
+        <span class="self">self</span>.draw_top_layer.draw(g);
+        <span class="self">self</span>.highlight_cell.draw(g);
+        <span class="self">self</span>.edit.world.draw(g);
 
-        <span class="self">self</span>.<span class="ident">appwide_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_poi_icons</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.appwide_panel.draw(g);
+        <span class="self">self</span>.bottom_panel.draw(g);
+        app.session.layers.draw(g, app);
+        <span class="self">self</span>.labels.draw(g);
+        app.per_map.draw_all_filters.draw(g);
+        app.per_map.draw_poi_icons.draw(g);
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bottom_panel</span>.<span class="ident">currently_hovering</span>() <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;warning&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">show_error</span>);
+        <span class="kw">if </span><span class="self">self</span>.bottom_panel.currently_hovering() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="string">&quot;warning&quot;</span>.to_string()) {
+            g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.show_error);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="kw-2">ref</span> <span class="ident">lasso</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-            <span class="ident">lasso</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="kw">if let </span>EditMode::FreehandFilters(<span class="kw-2">ref </span>lasso) = app.session.edit_mode {
+            lasso.draw(g);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">recreate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>)
+    <span class="kw">fn </span>recreate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="self">Self</span>::new_state(ctx, app, <span class="self">self</span>.neighbourhood.id)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">setup_editing</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-    <span class="ident">labels</span>: <span class="kw-2">&amp;</span><span class="ident">DrawSimpleRoadLabels</span>,
+<span class="kw">fn </span>setup_editing(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood,
+    labels: <span class="kw-2">&amp;</span>DrawSimpleRoadLabels,
 ) -&gt; (
-    <span class="ident">EditNeighbourhood</span>,
-    <span class="ident">Drawable</span>,
-    <span class="ident">Drawable</span>,
-    <span class="ident">RenderCells</span>,
-    <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span>,
+    EditNeighbourhood,
+    Drawable,
+    Drawable,
+    RenderCells,
+    World&lt;DummyID&gt;,
 ) {
-    <span class="kw">let</span> <span class="ident">edit</span> <span class="op">=</span> <span class="ident">EditNeighbourhood::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>);
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
+    <span class="kw">let </span>edit = EditNeighbourhood::new(ctx, app, neighbourhood);
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
 
-    <span class="comment">// Draw some stuff under roads and other stuff on top</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_top_layer</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-    <span class="comment">// Use a separate world to highlight cells when hovering on them. This is separate from</span>
-    <span class="comment">// edit.world so that we draw it even while hovering on roads/intersections in a cell</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">highlight_cell</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+    <span class="comment">// Draw some stuff under roads and other stuff on top
+    </span><span class="kw">let </span><span class="kw-2">mut </span>draw_top_layer = GeomBatch::new();
+    <span class="comment">// Use a separate world to highlight cells when hovering on them. This is separate from
+    // edit.world so that we draw it even while hovering on roads/intersections in a cell
+    </span><span class="kw">let </span><span class="kw-2">mut </span>highlight_cell = World::bounded(app.per_map.map.get_bounds());
 
-    <span class="kw">let</span> <span class="ident">render_cells</span> <span class="op">=</span> <span class="ident">RenderCells::new</span>(<span class="ident">map</span>, <span class="ident">neighbourhood</span>);
+    <span class="kw">let </span>render_cells = RenderCells::new(map, neighbourhood);
 
-    <span class="kw">let</span> <span class="ident">draw_under_roads_layer</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">draw_colored_areas</span>();
-    <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(<span class="ident">render_cells</span>.<span class="ident">draw_island_outlines</span>());
+    <span class="kw">let </span>draw_under_roads_layer = render_cells.draw_colored_areas();
+    draw_top_layer.append(render_cells.draw_island_outlines());
 
-    <span class="comment">// Highlight border arrows when hovered</span>
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">polygons</span>) <span class="kw">in</span> <span class="ident">render_cells</span>.<span class="ident">polygons_per_cell</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="comment">// Edge case happening near https://www.openstreetmap.org/way/106879596</span>
-        <span class="kw">if</span> <span class="ident">polygons</span>.<span class="ident">is_empty</span>() {
+    <span class="comment">// Highlight border arrows when hovered
+    </span><span class="kw">for </span>(idx, polygons) <span class="kw">in </span>render_cells.polygons_per_cell.iter().enumerate() {
+        <span class="comment">// Edge case happening near https://www.openstreetmap.org/way/106879596
+        </span><span class="kw">if </span>polygons.is_empty() {
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">colors</span>[<span class="ident">idx</span>].<span class="ident">alpha</span>(<span class="number">1.0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">arrow</span> <span class="kw">in</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>[<span class="ident">idx</span>].<span class="ident">border_arrows</span>(<span class="ident">app</span>) {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">arrow</span>);
+        <span class="kw">let </span>color = render_cells.colors[idx].alpha(<span class="number">1.0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>arrow <span class="kw">in </span>neighbourhood.cells[idx].border_arrows(app) {
+            batch.push(color, arrow);
         }
 
-        <span class="ident">highlight_cell</span>
-            .<span class="ident">add_unnamed</span>()
-            .<span class="ident">hitboxes</span>(<span class="ident">polygons</span>.<span class="ident">clone</span>())
-            <span class="comment">// Don&#39;t draw cells by default</span>
-            .<span class="ident">drawn_in_master_batch</span>()
-            .<span class="ident">draw_hovered</span>(<span class="ident">batch</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        highlight_cell
+            .add_unnamed()
+            .hitboxes(polygons.clone())
+            <span class="comment">// Don&#39;t draw cells by default
+            </span>.drawn_in_master_batch()
+            .draw_hovered(batch)
+            .build(ctx);
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span>, <span class="ident">EditMode::Shortcuts</span>(<span class="kw">_</span>)) {
-        <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(<span class="ident">neighbourhood</span>.<span class="ident">shortcuts</span>.<span class="ident">draw_heatmap</span>(<span class="ident">app</span>));
+    <span class="kw">if </span>!<span class="macro">matches!</span>(app.session.edit_mode, EditMode::Shortcuts(<span class="kw">_</span>)) {
+        draw_top_layer.append(neighbourhood.shortcuts.draw_heatmap(app));
     }
 
-    <span class="comment">// Draw the borders of each cell</span>
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">cell</span>) <span class="kw">in</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">render_cells</span>.<span class="ident">colors</span>[<span class="ident">idx</span>].<span class="ident">alpha</span>(<span class="number">1.0</span>);
-        <span class="kw">for</span> <span class="ident">arrow</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">border_arrows</span>(<span class="ident">app</span>) {
-            <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">arrow</span>.<span class="ident">clone</span>());
-            <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>)));
+    <span class="comment">// Draw the borders of each cell
+    </span><span class="kw">for </span>(idx, cell) <span class="kw">in </span>neighbourhood.cells.iter().enumerate() {
+        <span class="kw">let </span>color = render_cells.colors[idx].alpha(<span class="number">1.0</span>);
+        <span class="kw">for </span>arrow <span class="kw">in </span>cell.border_arrows(app) {
+            draw_top_layer.push(color, arrow.clone());
+            draw_top_layer.push(Color::BLACK, arrow.to_outline(Distance::meters(<span class="number">1.0</span>)));
         }
     }
 
-    <span class="comment">// Draw one-way arrows and mark private roads</span>
-    <span class="kw">let</span> <span class="ident">private_road</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/map/private_road.svg&quot;</span>);
+    <span class="comment">// Draw one-way arrows and mark private roads
+    </span><span class="kw">let </span>private_road = GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/map/private_road.svg&quot;</span>);
 
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">neighbourhood</span>
-        .<span class="ident">orig_perimeter</span>
-        .<span class="ident">interior</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">chain</span>(<span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>))
+    <span class="kw">for </span>r <span class="kw">in </span>neighbourhood
+        .orig_perimeter
+        .interior
+        .iter()
+        .chain(neighbourhood.orig_perimeter.roads.iter().map(|id| <span class="kw-2">&amp;</span>id.road))
     {
-        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dir</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>() {
-            <span class="comment">// Manually tuned to make arrows fit within roads of any width. We could be more</span>
-            <span class="comment">// specific and calculate based on the road&#39;s outline, a buffer, etc, but we&#39;d still</span>
-            <span class="comment">// have to do some math to account for the triangular arrow cap. This value looks</span>
-            <span class="comment">// reasonable.</span>
-            <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="number">0.2</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
-            <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="number">5.0</span> <span class="op">*</span> <span class="ident">thickness</span>;
+        <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>r);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(dir) = road.oneway_for_driving() {
+            <span class="comment">// Manually tuned to make arrows fit within roads of any width. We could be more
+            // specific and calculate based on the road&#39;s outline, a buffer, etc, but we&#39;d still
+            // have to do some math to account for the triangular arrow cap. This value looks
+            // reasonable.
+            </span><span class="kw">let </span>thickness = <span class="number">0.2 </span>* road.get_width();
+            <span class="kw">let </span>arrow_len = <span class="number">5.0 </span>* thickness;
 
-            <span class="kw">let</span> <span class="ident">slices</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">start</span>, <span class="ident">end</span>)) <span class="op">=</span> <span class="ident">labels</span>.<span class="ident">label_covers_road</span>.<span class="ident">get</span>(<span class="ident">r</span>) {
+            <span class="kw">let </span>slices = <span class="kw">if let </span><span class="prelude-val">Some</span>((start, end)) = labels.label_covers_road.get(r) {
                 <span class="macro">vec!</span>[
-                    <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">exact_slice</span>(<span class="ident">Distance::ZERO</span>, <span class="kw-2">*</span><span class="ident">start</span>),
-                    <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">exact_slice</span>(<span class="kw-2">*</span><span class="ident">end</span>, <span class="ident">road</span>.<span class="ident">length</span>()),
+                    road.center_pts.exact_slice(Distance::ZERO, <span class="kw-2">*</span>start),
+                    road.center_pts.exact_slice(<span class="kw-2">*</span>end, road.length()),
                 ]
-            } <span class="kw">else</span> {
-                <span class="macro">vec!</span>[<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>()]
+            } <span class="kw">else </span>{
+                <span class="macro">vec!</span>[road.center_pts.clone()]
             };
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_arrow</span> <span class="op">=</span> <span class="op">|</span><span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="ident">angle</span>: <span class="ident">Angle</span><span class="op">|</span> {
-                <span class="comment">// If the user has made the one-way point opposite to how the road is originally</span>
-                <span class="comment">// oriented, reverse the arrows</span>
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-                    <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>.<span class="ident">opposite</span>()),
-                    <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">angle</span>),
+            <span class="kw">let </span><span class="kw-2">mut </span>draw_arrow = |pt: Pt2D, angle: Angle| {
+                <span class="comment">// If the user has made the one-way point opposite to how the road is originally
+                // oriented, reverse the arrows
+                </span><span class="kw">let </span>pl = PolyLine::must_new(<span class="macro">vec!</span>[
+                    pt.project_away(arrow_len / <span class="number">2.0</span>, angle.opposite()),
+                    pt.project_away(arrow_len / <span class="number">2.0</span>, angle),
                 ])
-                .<span class="ident">maybe_reverse</span>(<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Back</span>);
+                .maybe_reverse(dir == Direction::Back);
 
-                <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(
-                    <span class="ident">colors::ROAD_LABEL</span>,
-                    <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap::Triangle</span>)
-                        .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">4.0</span>),
+                draw_top_layer.push(
+                    colors::ROAD_LABEL,
+                    pl.make_arrow(thickness, ArrowCap::Triangle)
+                        .to_outline(thickness / <span class="number">4.0</span>),
                 );
             };
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">for</span> <span class="ident">slice</span> <span class="kw">in</span> <span class="ident">slices</span> {
-                <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">slice</span>.<span class="ident">step_along</span>(<span class="number">3.0</span> <span class="op">*</span> <span class="ident">arrow_len</span>, <span class="ident">arrow_len</span>) {
-                    <span class="ident">any</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">draw_arrow</span>(<span class="ident">pt</span>, <span class="ident">angle</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>any = <span class="bool-val">false</span>;
+            <span class="kw">for </span>slice <span class="kw">in </span>slices {
+                <span class="kw">for </span>(pt, angle) <span class="kw">in </span>slice.step_along(<span class="number">3.0 </span>* arrow_len, arrow_len) {
+                    any = <span class="bool-val">true</span>;
+                    draw_arrow(pt, angle);
                 }
             }
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">any</span> {
-                <span class="comment">// If the label won and we haven&#39;t drawn anything, draw arrows right at the start</span>
-                <span class="comment">// and end. Otherwise the user has no idea what&#39;s happening</span>
-                <span class="kw">for</span> <span class="ident">dist</span> <span class="kw">in</span> [<span class="ident">Distance::ZERO</span>, <span class="ident">road</span>.<span class="ident">length</span>()] {
-                    <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist</span>);
-                    <span class="ident">draw_arrow</span>(<span class="ident">pt</span>, <span class="ident">angle</span>);
+            <span class="kw">if </span>!any {
+                <span class="comment">// If the label won and we haven&#39;t drawn anything, draw arrows right at the start
+                // and end. Otherwise the user has no idea what&#39;s happening
+                </span><span class="kw">for </span>dist <span class="kw">in </span>[Distance::ZERO, road.length()] {
+                    <span class="kw">let </span>(pt, angle) = road.center_pts.must_dist_along(dist);
+                    draw_arrow(pt, angle);
                 }
             }
         }
 
-        <span class="comment">// Mimic the UK-style &quot;no entry&quot; / dead-end symbol at both ends of every private road</span>
-        <span class="comment">// segment</span>
-        <span class="kw">if</span> <span class="ident">is_private</span>(<span class="ident">road</span>) {
-            <span class="comment">// The outline is 1m on each side</span>
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>() <span class="op">-</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
-            <span class="kw">for</span> (<span class="ident">dist</span>, <span class="ident">rotate</span>) <span class="kw">in</span> [(<span class="ident">width</span>, <span class="number">90.0</span>), (<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">width</span>, <span class="op">-</span><span class="number">90.0</span>)] {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">dist_along</span>(<span class="ident">dist</span>) {
-                    <span class="ident">draw_top_layer</span>.<span class="ident">append</span>(
-                        <span class="ident">private_road</span>
-                            .<span class="ident">clone</span>()
-                            .<span class="ident">scale_to_fit_width</span>(<span class="ident">width</span>.<span class="ident">inner_meters</span>())
-                            .<span class="ident">centered_on</span>(<span class="ident">pt</span>)
-                            .<span class="ident">rotate_around_batch_center</span>(<span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="ident">rotate</span>)),
+        <span class="comment">// Mimic the UK-style &quot;no entry&quot; / dead-end symbol at both ends of every private road
+        // segment
+        </span><span class="kw">if </span>is_private(road) {
+            <span class="comment">// The outline is 1m on each side
+            </span><span class="kw">let </span>width = road.get_width() - Distance::meters(<span class="number">2.0</span>);
+            <span class="kw">for </span>(dist, rotate) <span class="kw">in </span>[(width, <span class="number">90.0</span>), (road.center_pts.length() - width, -<span class="number">90.0</span>)] {
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>((pt, angle)) = road.center_pts.dist_along(dist) {
+                    draw_top_layer.append(
+                        private_road
+                            .clone()
+                            .scale_to_fit_width(width.inner_meters())
+                            .centered_on(pt)
+                            .rotate_around_batch_center(angle.rotate_degs(rotate)),
                     );
                 }
             }
@@ -943,47 +943,47 @@
     }
 
     (
-        <span class="ident">edit</span>,
-        <span class="ident">draw_top_layer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_under_roads_layer</span>),
-        <span class="ident">render_cells</span>,
-        <span class="ident">highlight_cell</span>,
+        edit,
+        draw_top_layer.build(ctx),
+        ctx.upload(draw_under_roads_layer),
+        render_cells,
+        highlight_cell,
     )
 }
 
-<span class="kw">fn</span> <span class="ident">launch_advanced</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">id</span>: <span class="ident">NeighbourhoodID</span>) -&gt; <span class="ident">Transition</span> {
-    <span class="ident">Transition::Push</span>(<span class="ident">ChooseSomething::new_state</span>(
-        <span class="ident">ctx</span>,
+<span class="kw">fn </span>launch_advanced(ctx: <span class="kw-2">&amp;mut </span>EventCtx, id: NeighbourhoodID) -&gt; Transition {
+    Transition::Push(ChooseSomething::new_state(
+        ctx,
         <span class="string">&quot;Advanced features&quot;</span>,
-        <span class="ident">Choice::strings</span>(<span class="macro">vec!</span>[
+        Choice::strings(<span class="macro">vec!</span>[
             <span class="string">&quot;Customize boundary (for drawing only)&quot;</span>,
             <span class="string">&quot;Automatically place modal filters&quot;</span>,
         ]),
-        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">choice</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">choice</span> <span class="op">==</span> <span class="string">&quot;Customize boundary (for drawing only)&quot;</span> {
-                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::customize_boundary::CustomizeBoundary::new_state</span>(
-                    <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>,
+        Box::new(<span class="kw">move </span>|choice, ctx, app| {
+            <span class="kw">if </span>choice == <span class="string">&quot;Customize boundary (for drawing only)&quot; </span>{
+                Transition::Replace(<span class="kw">crate</span>::customize_boundary::CustomizeBoundary::new_state(
+                    ctx, app, id,
                 ))
-            } <span class="kw">else</span> {
-                <span class="ident">Transition::Replace</span>(<span class="ident">ChooseSomething::new_state</span>(
-                    <span class="ident">ctx</span>,
+            } <span class="kw">else </span>{
+                Transition::Replace(ChooseSomething::new_state(
+                    ctx,
                     <span class="string">&quot;Add one filter automatically, using different heuristics&quot;</span>,
-                    <span class="ident">Heuristic::choices</span>(),
-                    <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">heuristic</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(
+                    Heuristic::choices(),
+                    Box::new(<span class="kw">move </span>|heuristic, ctx, app| {
+                        <span class="kw">match </span>ctx.loading_screen(
                             <span class="string">&quot;automatically filter a neighbourhood&quot;</span>,
-                            <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                                <span class="kw">let</span> <span class="ident">neighbourhood</span> <span class="op">=</span> <span class="ident">Neighbourhood::new</span>(<span class="ident">app</span>, <span class="ident">id</span>);
-                                <span class="ident">heuristic</span>.<span class="ident">apply</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>, <span class="ident">timer</span>)
+                            |ctx, timer| {
+                                <span class="kw">let </span>neighbourhood = Neighbourhood::new(app, id);
+                                heuristic.apply(ctx, app, <span class="kw-2">&amp;</span>neighbourhood, timer)
                             },
                         ) {
                             <span class="prelude-val">Ok</span>(()) =&gt; {
-                                <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Recreate</span>])
+                                Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Recreate])
                             }
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
-                                <span class="ident">ctx</span>,
+                            <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
+                                ctx,
                                 <span class="string">&quot;Error&quot;</span>,
-                                <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
+                                <span class="macro">vec!</span>[err.to_string()],
                             )),
                         }
                     }),
@@ -993,7 +993,7 @@
     ))
 }
 
-<span class="kw">fn</span> <span class="ident">help</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
     <span class="macro">vec!</span>[
         <span class="string">&quot;The colored cells show where it&#39;s possible to drive without leaving the neighbourhood.&quot;</span>,
         <span class="string">&quot;&quot;</span>,
@@ -1004,149 +1004,149 @@
     ]
 }
 
-<span class="kw">fn</span> <span class="ident">make_bottom_panel</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">appwide_panel</span>: <span class="kw-2">&amp;</span><span class="ident">AppwidePanel</span>,
-    <span class="ident">per_tab_contents</span>: <span class="ident">Widget</span>,
-) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">edit_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::Shortcuts</span>(<span class="kw-2">ref</span> <span class="ident">focus</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-            <span class="ident"><span class="kw">crate</span>::edit::shortcuts::widget</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">focus</span>.<span class="ident">as_ref</span>())
-        } <span class="kw">else</span> {
-            <span class="ident">Widget::nothing</span>()
+<span class="kw">fn </span>make_bottom_panel(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    appwide_panel: <span class="kw-2">&amp;</span>AppwidePanel,
+    per_tab_contents: Widget,
+) -&gt; Panel {
+    <span class="kw">let </span>row = Widget::row(<span class="macro">vec!</span>[
+        edit_mode(ctx, app),
+        <span class="kw">if let </span>EditMode::Shortcuts(<span class="kw-2">ref </span>focus) = app.session.edit_mode {
+            <span class="kw">crate</span>::edit::shortcuts::widget(ctx, app, focus.as_ref())
+        } <span class="kw">else </span>{
+            Widget::nothing()
         }
-        .<span class="ident">named</span>(<span class="string">&quot;edit mode contents&quot;</span>),
-        <span class="ident">Widget::vertical_separator</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="comment">// TODO Only count new filters, not existing</span>
-                <span class="macro">format!</span>(
+        .named(<span class="string">&quot;edit mode contents&quot;</span>),
+        Widget::vertical_separator(ctx),
+        Widget::row(<span class="macro">vec!</span>[
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .disabled(app.edits().previous_version.is_none())
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, <span class="string">&quot;undo&quot;</span>),
+            Widget::col(<span class="macro">vec!</span>[
+                <span class="comment">// TODO Only count new filters, not existing
+                </span><span class="macro">format!</span>(
                     <span class="string">&quot;{} filters&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">intersections</span>.<span class="ident">len</span>()
+                    app.edits().roads.len() + app.edits().intersections.len()
                 )
-                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="macro">format!</span>(<span class="string">&quot;{} road directions changed&quot;</span>, <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">one_ways</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                .text_widget(ctx),
+                <span class="macro">format!</span>(<span class="string">&quot;{} road directions changed&quot;</span>, app.edits().one_ways.len()).text_widget(ctx),
             ]),
         ]),
-        <span class="ident">Widget::vertical_separator</span>(<span class="ident">ctx</span>),
-        <span class="ident">per_tab_contents</span>,
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation</span>.<span class="ident">is_none</span>() {
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::vertical_separator</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Adjust boundary&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Advanced&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        Widget::vertical_separator(ctx),
+        per_tab_contents,
+        <span class="kw">if </span>app.per_map.consultation.is_none() {
+            Widget::row(<span class="macro">vec!</span>[
+                Widget::vertical_separator(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text(<span class="string">&quot;Adjust boundary&quot;</span>)
+                    .hotkey(Key::B)
+                    .build_def(ctx),
+                ctx.style().btn_outline.text(<span class="string">&quot;Advanced&quot;</span>).build_def(ctx),
             ])
-            .<span class="ident">centered_vert</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">Widget::nothing</span>()
+            .centered_vert()
+        } <span class="kw">else </span>{
+            Widget::nothing()
         },
     ])
-    .<span class="ident">evenly_spaced</span>();
+    .evenly_spaced();
 
-    <span class="ident">BottomPanel::new</span>(<span class="ident">ctx</span>, <span class="ident">appwide_panel</span>, <span class="ident">row</span>)
+    BottomPanel::new(ctx, appwide_panel, row)
 }
 
-<span class="kw">fn</span> <span class="ident">edit_mode</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">edit_mode</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span>;
-    <span class="kw">let</span> <span class="ident">hide_color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>.<span class="ident">hide_color</span>();
-    <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> {
-        <span class="ident">FilterType::WalkCycleOnly</span> =&gt; <span class="string">&quot;Modal filter -- walking/cycling only&quot;</span>,
-        <span class="ident">FilterType::NoEntry</span> =&gt; <span class="string">&quot;Modal filter - no entry&quot;</span>,
-        <span class="ident">FilterType::BusGate</span> =&gt; <span class="string">&quot;Bus gate&quot;</span>,
+<span class="kw">fn </span>edit_mode(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+    <span class="kw">let </span>edit_mode = <span class="kw-2">&amp;</span>app.session.edit_mode;
+    <span class="kw">let </span>hide_color = app.session.filter_type.hide_color();
+    <span class="kw">let </span>name = <span class="kw">match </span>app.session.filter_type {
+        FilterType::WalkCycleOnly =&gt; <span class="string">&quot;Modal filter -- walking/cycling only&quot;</span>,
+        FilterType::NoEntry =&gt; <span class="string">&quot;Modal filter - no entry&quot;</span>,
+        FilterType::BusGate =&gt; <span class="string">&quot;Bus gate&quot;</span>,
     };
 
-    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">icon</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>.<span class="ident">svg_path</span>())
-                .<span class="ident">image_color</span>(
-                    <span class="ident">RewriteColor::Change</span>(<span class="ident">hide_color</span>, <span class="ident">Color::CLEAR</span>),
-                    <span class="ident">ControlState::Default</span>,
+    Widget::row(<span class="macro">vec!</span>[
+        Widget::custom_row(<span class="macro">vec!</span>[
+            ctx.style()
+                .btn_solid_primary
+                .icon(app.session.filter_type.svg_path())
+                .image_color(
+                    RewriteColor::Change(hide_color, Color::CLEAR),
+                    ControlState::Default,
                 )
-                .<span class="ident">image_color</span>(
-                    <span class="ident">RewriteColor::Change</span>(<span class="ident">hide_color</span>, <span class="ident">Color::CLEAR</span>),
-                    <span class="ident">ControlState::Disabled</span>,
+                .image_color(
+                    RewriteColor::Change(hide_color, Color::CLEAR),
+                    ControlState::Disabled,
                 )
-                .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Filters</span>))
-                .<span class="ident">tooltip_and_disabled</span>({
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">Key::F1</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
-                    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; - &quot;</span>));
-                    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="ident">name</span>));
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
-                    <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(
+                .disabled(<span class="macro">matches!</span>(edit_mode, EditMode::Filters))
+                .tooltip_and_disabled({
+                    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+                    txt.add_line(Line(Key::F1.describe()).fg(ctx.style().text_hotkey_color));
+                    txt.append(Line(<span class="string">&quot; - &quot;</span>));
+                    txt.append(Line(name));
+                    txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
+                    txt.append(Line(
                         <span class="string">&quot; a road or intersection to add or remove a modal filter&quot;</span>,
                     ));
-                    <span class="ident">txt</span>
+                    txt
                 })
-                .<span class="ident">hotkey</span>(<span class="ident">Key::F1</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">name</span>)
-                .<span class="ident">centered_vert</span>(),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">dropdown</span>()
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Change modal filter&quot;</span>)
-                .<span class="ident">centered_vert</span>(),
+                .hotkey(Key::F1)
+                .build_widget(ctx, name)
+                .centered_vert(),
+            ctx.style()
+                .btn_plain
+                .dropdown()
+                .build_widget(ctx, <span class="string">&quot;Change modal filter&quot;</span>)
+                .centered_vert(),
         ]),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
-            .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::FreehandFilters</span>(<span class="kw">_</span>)))
-            .<span class="ident">hotkey</span>(<span class="ident">Key::F2</span>)
-            .<span class="ident">tooltip_and_disabled</span>({
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">Key::F2</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; - Freehand filters&quot;</span>));
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Click and drag&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; across the roads you want to filter&quot;</span>));
-                <span class="ident">txt</span>
+        ctx.style()
+            .btn_solid_primary
+            .icon(<span class="string">&quot;system/assets/tools/select.svg&quot;</span>)
+            .disabled(<span class="macro">matches!</span>(edit_mode, EditMode::FreehandFilters(<span class="kw">_</span>)))
+            .hotkey(Key::F2)
+            .tooltip_and_disabled({
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+                txt.add_line(Line(Key::F2.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">&quot; - Freehand filters&quot;</span>));
+                txt.add_line(Line(<span class="string">&quot;Click and drag&quot;</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">&quot; across the roads you want to filter&quot;</span>));
+                txt
             })
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Freehand filters&quot;</span>)
-            .<span class="ident">centered_vert</span>(),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/one_ways.svg&quot;</span>)
-            .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Oneways</span>))
-            .<span class="ident">hotkey</span>(<span class="ident">Key::F3</span>)
-            .<span class="ident">tooltip_and_disabled</span>({
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">Key::F3</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; - One-ways&quot;</span>));
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; a road to change its direction&quot;</span>));
-                <span class="ident">txt</span>
+            .build_widget(ctx, <span class="string">&quot;Freehand filters&quot;</span>)
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon(<span class="string">&quot;system/assets/tools/one_ways.svg&quot;</span>)
+            .disabled(<span class="macro">matches!</span>(edit_mode, EditMode::Oneways))
+            .hotkey(Key::F3)
+            .tooltip_and_disabled({
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+                txt.add_line(Line(Key::F3.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">&quot; - One-ways&quot;</span>));
+                txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">&quot; a road to change its direction&quot;</span>));
+                txt
             })
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;One-ways&quot;</span>)
-            .<span class="ident">centered_vert</span>(),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_primary</span>
-            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/shortcut.svg&quot;</span>)
-            .<span class="ident">disabled</span>(<span class="macro">matches!</span>(<span class="ident">edit_mode</span>, <span class="ident">EditMode::Shortcuts</span>(<span class="kw">_</span>)))
-            .<span class="ident">hotkey</span>(<span class="ident">Key::F4</span>)
-            .<span class="ident">tooltip_and_disabled</span>({
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">Key::F4</span>.<span class="ident">describe</span>()).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; - Shortcuts&quot;</span>));
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Click&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>));
-                <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot; a road to view shortcuts through it&quot;</span>));
-                <span class="ident">txt</span>
+            .build_widget(ctx, <span class="string">&quot;One-ways&quot;</span>)
+            .centered_vert(),
+        ctx.style()
+            .btn_solid_primary
+            .icon(<span class="string">&quot;system/assets/tools/shortcut.svg&quot;</span>)
+            .disabled(<span class="macro">matches!</span>(edit_mode, EditMode::Shortcuts(<span class="kw">_</span>)))
+            .hotkey(Key::F4)
+            .tooltip_and_disabled({
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+                txt.add_line(Line(Key::F4.describe()).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">&quot; - Shortcuts&quot;</span>));
+                txt.add_line(Line(<span class="string">&quot;Click&quot;</span>).fg(ctx.style().text_hotkey_color));
+                txt.append(Line(<span class="string">&quot; a road to view shortcuts through it&quot;</span>));
+                txt
             })
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Shortcuts&quot;</span>)
-            .<span class="ident">centered_vert</span>(),
+            .build_widget(ctx, <span class="string">&quot;Shortcuts&quot;</span>)
+            .centered_vert(),
     ])
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

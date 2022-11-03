@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/color.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>color.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/color.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>color.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -251,258 +251,258 @@
 <span id="251">251</span>
 <span id="252">252</span>
 <span id="253">253</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Line</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>geom::{Line, Pt2D};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Color</span> {
-    <span class="kw">pub</span> <span class="ident">r</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">g</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">b</span>: <span class="ident">f32</span>,
-    <span class="kw">pub</span> <span class="ident">a</span>: <span class="ident">f32</span>,
+<span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Color {
+    <span class="kw">pub </span>r: f32,
+    <span class="kw">pub </span>g: f32,
+    <span class="kw">pub </span>b: f32,
+    <span class="kw">pub </span>a: f32,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Color</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Color {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;Color(r={}, g={}, b={}, a={})&quot;</span>,
-            <span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">a</span>
+            <span class="self">self</span>.r, <span class="self">self</span>.g, <span class="self">self</span>.b, <span class="self">self</span>.a
         )
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Fill</span> {
-    <span class="ident">Color</span>(<span class="ident">Color</span>),
-    <span class="ident">LinearGradient</span>(<span class="ident">LinearGradient</span>),
+<span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub enum </span>Fill {
+    Color(Color),
+    LinearGradient(LinearGradient),
 
-    <span class="doccomment">/// Once uploaded, textures are addressed by their id, starting from 1, from left to right, top</span>
-    <span class="doccomment">/// to bottom, like so:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">///   ┌─┬─┬─┐</span>
-    <span class="doccomment">///   │1│2│3│</span>
-    <span class="doccomment">///   ├─┼─┼─┤</span>
-    <span class="doccomment">///   │4│5│6│</span>
-    <span class="doccomment">///   ├─┼─┼─┤</span>
-    <span class="doccomment">///   │7│8│9│</span>
-    <span class="doccomment">///   └─┴─┴─┘</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Texture(0) is reserved for a pure white (no-op) texture.</span>
-    <span class="ident">Texture</span>(<span class="ident">Texture</span>),
+    <span class="doccomment">/// Once uploaded, textures are addressed by their id, starting from 1, from left to right, top
+    /// to bottom, like so:
+    ///
+    ///   ┌─┬─┬─┐
+    ///   │1│2│3│
+    ///   ├─┼─┼─┤
+    ///   │4│5│6│
+    ///   ├─┼─┼─┤
+    ///   │7│8│9│
+    ///   └─┴─┴─┘
+    ///
+    /// Texture(0) is reserved for a pure white (no-op) texture.
+    </span>Texture(Texture),
 
-    <span class="doccomment">/// The `color` parameter is multiplied by any color baked into the texture, so typically this</span>
-    <span class="doccomment">/// only makes sense for grayscale textures.</span>
-    <span class="ident">ColoredTexture</span>(<span class="ident">Color</span>, <span class="ident">Texture</span>),
+    <span class="doccomment">/// The `color` parameter is multiplied by any color baked into the texture, so typically this
+    /// only makes sense for grayscale textures.
+    </span>ColoredTexture(Color, Texture),
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Texture</span>(<span class="kw">pub</span> <span class="ident">u32</span>);
+<span class="attribute">#[derive(Debug, Copy, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>Texture(<span class="kw">pub </span>u32);
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-<span class="kw">impl</span> <span class="ident">Texture</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">NOOP</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">0</span>);
-    <span class="comment">// Note all of these are based on the default built-in spritesheet</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GRASS</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">1</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">STILL_WATER</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">2</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RUNNING_WATER</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">3</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CONCRETE</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">4</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SAND</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">5</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DIRT</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">6</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SNOW</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">7</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">TREE</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">15</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PINE_TREE</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">16</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CACTUS</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">17</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SHRUB</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">18</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CROSS_HATCH</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">19</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SNOW_PERSON</span>: <span class="ident">Texture</span> <span class="op">=</span> <span class="ident">Texture</span>(<span class="number">29</span>);
+<span class="attribute">#[allow(dead_code)]
+</span><span class="kw">impl </span>Texture {
+    <span class="kw">pub const </span>NOOP: Texture = Texture(<span class="number">0</span>);
+    <span class="comment">// Note all of these are based on the default built-in spritesheet
+    </span><span class="kw">pub const </span>GRASS: Texture = Texture(<span class="number">1</span>);
+    <span class="kw">pub const </span>STILL_WATER: Texture = Texture(<span class="number">2</span>);
+    <span class="kw">pub const </span>RUNNING_WATER: Texture = Texture(<span class="number">3</span>);
+    <span class="kw">pub const </span>CONCRETE: Texture = Texture(<span class="number">4</span>);
+    <span class="kw">pub const </span>SAND: Texture = Texture(<span class="number">5</span>);
+    <span class="kw">pub const </span>DIRT: Texture = Texture(<span class="number">6</span>);
+    <span class="kw">pub const </span>SNOW: Texture = Texture(<span class="number">7</span>);
+    <span class="kw">pub const </span>TREE: Texture = Texture(<span class="number">15</span>);
+    <span class="kw">pub const </span>PINE_TREE: Texture = Texture(<span class="number">16</span>);
+    <span class="kw">pub const </span>CACTUS: Texture = Texture(<span class="number">17</span>);
+    <span class="kw">pub const </span>SHRUB: Texture = Texture(<span class="number">18</span>);
+    <span class="kw">pub const </span>CROSS_HATCH: Texture = Texture(<span class="number">19</span>);
+    <span class="kw">pub const </span>SNOW_PERSON: Texture = Texture(<span class="number">29</span>);
 }
 
-<span class="kw">impl</span> <span class="ident">Color</span> {
-    <span class="comment">// TODO Won&#39;t this confuse the shader?</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CLEAR</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgba_f</span>(<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BLACK</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">WHITE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RED</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GREEN</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">BLUE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">CYAN</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">YELLOW</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PURPLE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">0.5</span>, <span class="number">0.0</span>, <span class="number">0.5</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PINK</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">1.0</span>, <span class="number">0.41</span>, <span class="number">0.71</span>);
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ORANGE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">1.0</span>, <span class="number">0.55</span>, <span class="number">0.0</span>);
+<span class="kw">impl </span>Color {
+    <span class="comment">// TODO Won&#39;t this confuse the shader?
+    </span><span class="kw">pub const </span>CLEAR: Color = Color::rgba_f(<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>);
+    <span class="kw">pub const </span>BLACK: Color = Color::rgb_f(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>);
+    <span class="kw">pub const </span>WHITE: Color = Color::rgb_f(<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);
+    <span class="kw">pub const </span>RED: Color = Color::rgb_f(<span class="number">1.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>);
+    <span class="kw">pub const </span>GREEN: Color = Color::rgb_f(<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>);
+    <span class="kw">pub const </span>BLUE: Color = Color::rgb_f(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>);
+    <span class="kw">pub const </span>CYAN: Color = Color::rgb_f(<span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);
+    <span class="kw">pub const </span>YELLOW: Color = Color::rgb_f(<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>);
+    <span class="kw">pub const </span>PURPLE: Color = Color::rgb_f(<span class="number">0.5</span>, <span class="number">0.0</span>, <span class="number">0.5</span>);
+    <span class="kw">pub const </span>PINK: Color = Color::rgb_f(<span class="number">1.0</span>, <span class="number">0.41</span>, <span class="number">0.71</span>);
+    <span class="kw">pub const </span>ORANGE: Color = Color::rgb_f(<span class="number">1.0</span>, <span class="number">0.55</span>, <span class="number">0.0</span>);
 
-    <span class="comment">// TODO should assert stuff about the inputs</span>
+    <span class="comment">// TODO should assert stuff about the inputs
 
-    <span class="comment">// TODO Once f32 can be used in const fn, make these const fn too and clean up call sites</span>
-    <span class="comment">// dividing by 255.0. https://github.com/rust-lang/rust/issues/57241</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rgb</span>(<span class="ident">r</span>: <span class="ident">usize</span>, <span class="ident">g</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color::rgba</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="number">1.0</span>)
+    // TODO Once f32 can be used in const fn, make these const fn too and clean up call sites
+    // dividing by 255.0. https://github.com/rust-lang/rust/issues/57241
+    </span><span class="kw">pub fn </span>rgb(r: usize, g: usize, b: usize) -&gt; Color {
+        Color::rgba(r, g, b, <span class="number">1.0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">rgb_f</span>(<span class="ident">r</span>: <span class="ident">f32</span>, <span class="ident">g</span>: <span class="ident">f32</span>, <span class="ident">b</span>: <span class="ident">f32</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>: <span class="number">1.0</span> }
+    <span class="kw">pub const fn </span>rgb_f(r: f32, g: f32, b: f32) -&gt; Color {
+        Color { r, g, b, a: <span class="number">1.0 </span>}
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rgba</span>(<span class="ident">r</span>: <span class="ident">usize</span>, <span class="ident">g</span>: <span class="ident">usize</span>, <span class="ident">b</span>: <span class="ident">usize</span>, <span class="ident">a</span>: <span class="ident">f32</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color</span> {
-            <span class="ident">r</span>: (<span class="ident">r</span> <span class="kw">as</span> <span class="ident">f32</span>) <span class="op">/</span> <span class="number">255.0</span>,
-            <span class="ident">g</span>: (<span class="ident">g</span> <span class="kw">as</span> <span class="ident">f32</span>) <span class="op">/</span> <span class="number">255.0</span>,
-            <span class="ident">b</span>: (<span class="ident">b</span> <span class="kw">as</span> <span class="ident">f32</span>) <span class="op">/</span> <span class="number">255.0</span>,
-            <span class="ident">a</span>,
+    <span class="kw">pub fn </span>rgba(r: usize, g: usize, b: usize, a: f32) -&gt; Color {
+        Color {
+            r: (r <span class="kw">as </span>f32) / <span class="number">255.0</span>,
+            g: (g <span class="kw">as </span>f32) / <span class="number">255.0</span>,
+            b: (b <span class="kw">as </span>f32) / <span class="number">255.0</span>,
+            a,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">rgba_f</span>(<span class="ident">r</span>: <span class="ident">f32</span>, <span class="ident">g</span>: <span class="ident">f32</span>, <span class="ident">b</span>: <span class="ident">f32</span>, <span class="ident">a</span>: <span class="ident">f32</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color</span> { <span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span> }
+    <span class="kw">pub const fn </span>rgba_f(r: f32, g: f32, b: f32, a: f32) -&gt; Color {
+        Color { r, g, b, a }
     }
 
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">grey</span>(<span class="ident">f</span>: <span class="ident">f32</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color::rgb_f</span>(<span class="ident">f</span>, <span class="ident">f</span>, <span class="ident">f</span>)
+    <span class="kw">pub const fn </span>grey(f: f32) -&gt; Color {
+        Color::rgb_f(f, f, f)
     }
 
-    <span class="doccomment">/// Note this is incorrect for `Color::CLEAR`. Can&#39;t fix in a const fn.</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">alpha</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">a</span>: <span class="ident">f32</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color::rgba_f</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>, <span class="ident">a</span>)
+    <span class="doccomment">/// Note this is incorrect for `Color::CLEAR`. Can&#39;t fix in a const fn.
+    </span><span class="kw">pub const fn </span>alpha(<span class="kw-2">&amp;</span><span class="self">self</span>, a: f32) -&gt; Color {
+        Color::rgba_f(<span class="self">self</span>.r, <span class="self">self</span>.g, <span class="self">self</span>.b, a)
     }
 
-    <span class="doccomment">/// Multiply the color&#39;s current alpha by the `factor`, returning a new color.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multiply_alpha</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">factor</span>: <span class="ident">f32</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color::rgba_f</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="self">self</span>.<span class="ident">g</span>, <span class="self">self</span>.<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">a</span> <span class="op">*</span> <span class="ident">factor</span>)
+    <span class="doccomment">/// Multiply the color&#39;s current alpha by the `factor`, returning a new color.
+    </span><span class="kw">pub fn </span>multiply_alpha(<span class="kw-2">&amp;</span><span class="self">self</span>, factor: f32) -&gt; Color {
+        Color::rgba_f(<span class="self">self</span>.r, <span class="self">self</span>.g, <span class="self">self</span>.b, <span class="self">self</span>.a * factor)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hex</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Color</span> {
-        <span class="comment">// Skip the leading &#39;#&#39;</span>
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">usize::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>[<span class="number">1</span>..<span class="number">3</span>], <span class="number">16</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="ident">usize::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>[<span class="number">3</span>..<span class="number">5</span>], <span class="number">16</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">usize::from_str_radix</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>[<span class="number">5</span>..<span class="number">7</span>], <span class="number">16</span>).<span class="ident">unwrap</span>();
-        <span class="ident">Color::rgb</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>)
+    <span class="kw">pub fn </span>hex(raw: <span class="kw-2">&amp;</span>str) -&gt; Color {
+        <span class="comment">// Skip the leading &#39;#&#39;
+        </span><span class="kw">let </span>r = usize::from_str_radix(<span class="kw-2">&amp;</span>raw[<span class="number">1</span>..<span class="number">3</span>], <span class="number">16</span>).unwrap();
+        <span class="kw">let </span>g = usize::from_str_radix(<span class="kw-2">&amp;</span>raw[<span class="number">3</span>..<span class="number">5</span>], <span class="number">16</span>).unwrap();
+        <span class="kw">let </span>b = usize::from_str_radix(<span class="kw-2">&amp;</span>raw[<span class="number">5</span>..<span class="number">7</span>], <span class="number">16</span>).unwrap();
+        Color::rgb(r, g, b)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_hex</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+    <span class="kw">pub fn </span>as_hex(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="macro">format!</span>(
             <span class="string">&quot;#{:02X}{:02X}{:02X}&quot;</span>,
-            (<span class="self">self</span>.<span class="ident">r</span> <span class="op">*</span> <span class="number">255.0</span>) <span class="kw">as</span> <span class="ident">usize</span>,
-            (<span class="self">self</span>.<span class="ident">g</span> <span class="op">*</span> <span class="number">255.0</span>) <span class="kw">as</span> <span class="ident">usize</span>,
-            (<span class="self">self</span>.<span class="ident">b</span> <span class="op">*</span> <span class="number">255.0</span>) <span class="kw">as</span> <span class="ident">usize</span>
+            (<span class="self">self</span>.r * <span class="number">255.0</span>) <span class="kw">as </span>usize,
+            (<span class="self">self</span>.g * <span class="number">255.0</span>) <span class="kw">as </span>usize,
+            (<span class="self">self</span>.b * <span class="number">255.0</span>) <span class="kw">as </span>usize
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lerp</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Color</span>, <span class="ident">pct</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color::rgba_f</span>(
-            <span class="ident">lerp</span>(<span class="ident">pct</span>, (<span class="self">self</span>.<span class="ident">r</span>, <span class="ident">other</span>.<span class="ident">r</span>)),
-            <span class="ident">lerp</span>(<span class="ident">pct</span>, (<span class="self">self</span>.<span class="ident">g</span>, <span class="ident">other</span>.<span class="ident">g</span>)),
-            <span class="ident">lerp</span>(<span class="ident">pct</span>, (<span class="self">self</span>.<span class="ident">b</span>, <span class="ident">other</span>.<span class="ident">b</span>)),
-            <span class="ident">lerp</span>(<span class="ident">pct</span>, (<span class="self">self</span>.<span class="ident">a</span>, <span class="ident">other</span>.<span class="ident">a</span>)),
+    <span class="kw">pub fn </span>lerp(<span class="self">self</span>, other: Color, pct: f64) -&gt; Color {
+        Color::rgba_f(
+            lerp(pct, (<span class="self">self</span>.r, other.r)),
+            lerp(pct, (<span class="self">self</span>.g, other.g)),
+            lerp(pct, (<span class="self">self</span>.b, other.b)),
+            lerp(pct, (<span class="self">self</span>.a, other.a)),
         )
     }
 
-    <span class="comment">// Mix the color with black</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shade</span>(<span class="self">self</span>, <span class="ident">black_ratio</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">lerp</span>(<span class="ident">Color::BLACK</span>, <span class="ident">black_ratio</span>)
+    <span class="comment">// Mix the color with black
+    </span><span class="kw">pub fn </span>shade(<span class="self">self</span>, black_ratio: f64) -&gt; Color {
+        <span class="self">self</span>.lerp(Color::BLACK, black_ratio)
     }
 
-    <span class="comment">// Mix the color with white</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tint</span>(<span class="self">self</span>, <span class="ident">white_ratio</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">lerp</span>(<span class="ident">Color::WHITE</span>, <span class="ident">white_ratio</span>)
+    <span class="comment">// Mix the color with white
+    </span><span class="kw">pub fn </span>tint(<span class="self">self</span>, white_ratio: f64) -&gt; Color {
+        <span class="self">self</span>.lerp(Color::WHITE, white_ratio)
     }
 
-    <span class="comment">// A theme agnostic way to get a more/less intense color without affecting alpha.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dull</span>(<span class="self">self</span>, <span class="ident">ratio</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">lerp</span>(<span class="ident">Color::grey</span>(<span class="number">0.5</span>), <span class="ident">ratio</span>)
+    <span class="comment">// A theme agnostic way to get a more/less intense color without affecting alpha.
+    </span><span class="kw">pub fn </span>dull(<span class="self">self</span>, ratio: f64) -&gt; Color {
+        <span class="self">self</span>.lerp(Color::grey(<span class="number">0.5</span>), ratio)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invert</span>(<span class="self">self</span>) -&gt; <span class="ident">Color</span> {
-        <span class="ident">Color::rgba_f</span>(<span class="number">1.0</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">r</span>, <span class="number">1.0</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">g</span>, <span class="number">1.0</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">b</span>, <span class="self">self</span>.<span class="ident">a</span>)
+    <span class="kw">pub fn </span>invert(<span class="self">self</span>) -&gt; Color {
+        Color::rgba_f(<span class="number">1.0 </span>- <span class="self">self</span>.r, <span class="number">1.0 </span>- <span class="self">self</span>.g, <span class="number">1.0 </span>- <span class="self">self</span>.b, <span class="self">self</span>.a)
     }
 }
 
-<span class="comment">// https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference I&#39;ve</span>
-<span class="comment">// found, even though it&#39;s technically for CSS, not SVG. Ah, and</span>
-<span class="comment">// https://www.w3.org/TR/SVG11/pservers.html</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LinearGradient</span> {
-    <span class="kw">pub</span> <span class="ident">line</span>: <span class="ident">Line</span>,
-    <span class="kw">pub</span> <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>,
+<span class="comment">// https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient is the best reference I&#39;ve
+// found, even though it&#39;s technically for CSS, not SVG. Ah, and
+// https://www.w3.org/TR/SVG11/pservers.html
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>LinearGradient {
+    <span class="kw">pub </span>line: Line,
+    <span class="kw">pub </span>stops: Vec&lt;(f64, Color)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">LinearGradient</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_fill</span>(<span class="ident">lg</span>: <span class="kw-2">&amp;</span><span class="ident">usvg::LinearGradient</span>) -&gt; <span class="ident">Fill</span> {
-        <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">lg</span>.<span class="ident">x1</span>, <span class="ident">lg</span>.<span class="ident">y1</span>), <span class="ident">Pt2D::new</span>(<span class="ident">lg</span>.<span class="ident">x2</span>, <span class="ident">lg</span>.<span class="ident">y2</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stops</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">lg</span>.<span class="ident">stops</span> {
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Color::rgba</span>(
-                <span class="ident">stop</span>.<span class="ident">color</span>.<span class="ident">red</span> <span class="kw">as</span> <span class="ident">usize</span>,
-                <span class="ident">stop</span>.<span class="ident">color</span>.<span class="ident">green</span> <span class="kw">as</span> <span class="ident">usize</span>,
-                <span class="ident">stop</span>.<span class="ident">color</span>.<span class="ident">blue</span> <span class="kw">as</span> <span class="ident">usize</span>,
-                <span class="ident">stop</span>.<span class="ident">opacity</span>.<span class="ident">value</span>() <span class="kw">as</span> <span class="ident">f32</span>,
+<span class="kw">impl </span>LinearGradient {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_fill(lg: <span class="kw-2">&amp;</span>usvg::LinearGradient) -&gt; Fill {
+        <span class="kw">let </span>line = Line::must_new(Pt2D::new(lg.x1, lg.y1), Pt2D::new(lg.x2, lg.y2));
+        <span class="kw">let </span><span class="kw-2">mut </span>stops = Vec::new();
+        <span class="kw">for </span>stop <span class="kw">in </span><span class="kw-2">&amp;</span>lg.stops {
+            <span class="kw">let </span>color = Color::rgba(
+                stop.color.red <span class="kw">as </span>usize,
+                stop.color.green <span class="kw">as </span>usize,
+                stop.color.blue <span class="kw">as </span>usize,
+                stop.opacity.value() <span class="kw">as </span>f32,
             );
-            <span class="ident">stops</span>.<span class="ident">push</span>((<span class="ident">stop</span>.<span class="ident">offset</span>.<span class="ident">value</span>(), <span class="ident">color</span>));
+            stops.push((stop.offset.value(), color));
         }
-        <span class="ident">Fill::LinearGradient</span>(<span class="ident">LinearGradient</span> { <span class="ident">line</span>, <span class="ident">stops</span> })
+        Fill::LinearGradient(LinearGradient { line, stops })
     }
 
-    <span class="kw">fn</span> <span class="ident">interp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">Color</span> {
-        <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">line</span>
-            .<span class="ident">percent_along_of_point</span>(<span class="self">self</span>.<span class="ident">line</span>.<span class="ident">to_polyline</span>().<span class="ident">project_pt</span>(<span class="ident">pt</span>))
-            .<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">stops</span>[<span class="number">0</span>].<span class="number">0</span> {
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">stops</span>[<span class="number">0</span>].<span class="number">1</span>;
+    <span class="kw">fn </span>interp(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D) -&gt; Color {
+        <span class="kw">let </span>pct = <span class="self">self
+            </span>.line
+            .percent_along_of_point(<span class="self">self</span>.line.to_polyline().project_pt(pt))
+            .unwrap();
+        <span class="kw">if </span>pct &lt; <span class="self">self</span>.stops[<span class="number">0</span>].<span class="number">0 </span>{
+            <span class="kw">return </span><span class="self">self</span>.stops[<span class="number">0</span>].<span class="number">1</span>;
         }
-        <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span> {
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">1</span>;
+        <span class="kw">if </span>pct &gt; <span class="self">self</span>.stops.last().unwrap().<span class="number">0 </span>{
+            <span class="kw">return </span><span class="self">self</span>.stops.last().unwrap().<span class="number">1</span>;
         }
-        <span class="comment">// In between two</span>
-        <span class="kw">for</span> ((<span class="ident">pct1</span>, <span class="ident">c1</span>), (<span class="ident">pct2</span>, <span class="ident">c2</span>)) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="self">self</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>)) {
-            <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">pct1</span> <span class="op">&amp;&amp;</span> <span class="ident">pct</span> <span class="op">&lt;</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">pct2</span> {
-                <span class="kw">return</span> <span class="ident">c1</span>.<span class="ident">lerp</span>(<span class="kw-2">*</span><span class="ident">c2</span>, <span class="ident">to_pct</span>(<span class="ident">pct</span>, (<span class="kw-2">*</span><span class="ident">pct1</span>, <span class="kw-2">*</span><span class="ident">pct2</span>)));
+        <span class="comment">// In between two
+        </span><span class="kw">for </span>((pct1, c1), (pct2, c2)) <span class="kw">in </span><span class="self">self</span>.stops.iter().zip(<span class="self">self</span>.stops.iter().skip(<span class="number">1</span>)) {
+            <span class="kw">if </span>pct &gt;= <span class="kw-2">*</span>pct1 &amp;&amp; pct &lt;= <span class="kw-2">*</span>pct2 {
+                <span class="kw">return </span>c1.lerp(<span class="kw-2">*</span>c2, to_pct(pct, (<span class="kw-2">*</span>pct1, <span class="kw-2">*</span>pct2)));
             }
         }
         <span class="macro">unreachable!</span>()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">to_pct</span>(<span class="ident">value</span>: <span class="ident">f64</span>, (<span class="ident">low</span>, <span class="ident">high</span>): (<span class="ident">f64</span>, <span class="ident">f64</span>)) -&gt; <span class="ident">f64</span> {
-    <span class="macro">assert!</span>(<span class="ident">low</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">high</span>);
-    <span class="macro">assert!</span>(<span class="ident">value</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">low</span>);
-    <span class="macro">assert!</span>(<span class="ident">value</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">high</span>);
-    (<span class="ident">value</span> <span class="op">-</span> <span class="ident">low</span>) <span class="op">/</span> (<span class="ident">high</span> <span class="op">-</span> <span class="ident">low</span>)
+<span class="kw">fn </span>to_pct(value: f64, (low, high): (f64, f64)) -&gt; f64 {
+    <span class="macro">assert!</span>(low &lt;= high);
+    <span class="macro">assert!</span>(value &gt;= low);
+    <span class="macro">assert!</span>(value &lt;= high);
+    (value - low) / (high - low)
 }
 
-<span class="kw">fn</span> <span class="ident">lerp</span>(<span class="ident">pct</span>: <span class="ident">f64</span>, (<span class="ident">x1</span>, <span class="ident">x2</span>): (<span class="ident">f32</span>, <span class="ident">f32</span>)) -&gt; <span class="ident">f32</span> {
-    <span class="ident">x1</span> <span class="op">+</span> (<span class="ident">pct</span> <span class="kw">as</span> <span class="ident">f32</span>) <span class="op">*</span> (<span class="ident">x2</span> <span class="op">-</span> <span class="ident">x1</span>)
+<span class="kw">fn </span>lerp(pct: f64, (x1, x2): (f32, f32)) -&gt; f32 {
+    x1 + (pct <span class="kw">as </span>f32) * (x2 - x1)
 }
 
-<span class="kw">impl</span> <span class="ident">Fill</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">shader_style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; [<span class="ident">f32</span>; <span class="number">5</span>] {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Fill::Color</span>(<span class="ident">c</span>) =&gt; [<span class="ident">c</span>.<span class="ident">r</span>, <span class="ident">c</span>.<span class="ident">g</span>, <span class="ident">c</span>.<span class="ident">b</span>, <span class="ident">c</span>.<span class="ident">a</span>, <span class="number">0.0</span>],
-            <span class="ident">Fill::LinearGradient</span>(<span class="kw-2">ref</span> <span class="ident">lg</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">lg</span>.<span class="ident">interp</span>(<span class="ident">pt</span>);
-                [<span class="ident">c</span>.<span class="ident">r</span>, <span class="ident">c</span>.<span class="ident">g</span>, <span class="ident">c</span>.<span class="ident">b</span>, <span class="ident">c</span>.<span class="ident">a</span>, <span class="number">0.0</span>]
+<span class="kw">impl </span>Fill {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>shader_style(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D) -&gt; [f32; <span class="number">5</span>] {
+        <span class="kw">match </span><span class="self">self </span>{
+            Fill::Color(c) =&gt; [c.r, c.g, c.b, c.a, <span class="number">0.0</span>],
+            Fill::LinearGradient(<span class="kw-2">ref </span>lg) =&gt; {
+                <span class="kw">let </span>c = lg.interp(pt);
+                [c.r, c.g, c.b, c.a, <span class="number">0.0</span>]
             }
-            <span class="ident">Fill::Texture</span>(<span class="ident">texture</span>) =&gt; [<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>, <span class="ident">texture</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f32</span>],
-            <span class="ident">Fill::ColoredTexture</span>(<span class="ident">color</span>, <span class="ident">texture</span>) =&gt; {
-                [<span class="ident">color</span>.<span class="ident">r</span>, <span class="ident">color</span>.<span class="ident">g</span>, <span class="ident">color</span>.<span class="ident">b</span>, <span class="ident">color</span>.<span class="ident">a</span>, <span class="ident">texture</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">f32</span>]
+            Fill::Texture(texture) =&gt; [<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>, texture.<span class="number">0 </span><span class="kw">as </span>f32],
+            Fill::ColoredTexture(color, texture) =&gt; {
+                [color.r, color.g, color.b, color.a, texture.<span class="number">0 </span><span class="kw">as </span>f32]
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Fill</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="ident">Fill</span> {
-        <span class="ident">Fill::Color</span>(<span class="ident">color</span>)
+<span class="kw">impl </span>std::convert::From&lt;Color&gt; <span class="kw">for </span>Fill {
+    <span class="kw">fn </span>from(color: Color) -&gt; Fill {
+        Fill::Color(color)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">Texture</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Fill</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">texture</span>: <span class="ident">Texture</span>) -&gt; <span class="ident">Fill</span> {
-        <span class="ident">Fill::Texture</span>(<span class="ident">texture</span>)
+<span class="kw">impl </span>std::convert::From&lt;Texture&gt; <span class="kw">for </span>Fill {
+    <span class="kw">fn </span>from(texture: Texture) -&gt; Fill {
+        Fill::Texture(texture)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

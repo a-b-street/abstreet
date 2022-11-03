@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/make/activity_model.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>activity_model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../synthpop/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/make/activity_model.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>activity_model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../synthpop/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -319,326 +319,326 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
-</pre><pre class="rust"><code><span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.</span>
-<span class="doccomment">//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go</span>
-<span class="doccomment">//! somewhere at some time. This is an extremely simple activity model that just uses data inferred</span>
-<span class="doccomment">//! from OSM.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! An activity model creates &quot;people&quot; that follow a set schedule of activities through the day.
+//! Each activity (like shopping, working, sleeping) lasts some time, and requires the person to go
+//! somewhere at some time. This is an extremely simple activity model that just uses data inferred
+//! from OSM.
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand::Rng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+</span><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>rand::seq::SliceRandom;
+<span class="kw">use </span>rand::Rng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::{Distance, Duration, Time};
+<span class="kw">use </span>map_model::{BuildingID, BuildingType, Map, PathConstraints, PathRequest};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use crate</span>::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make</span>::{<span class="ident">fork_rng</span>, <span class="ident">ScenarioGenerator</span>};
+<span class="kw">use </span><span class="kw">crate</span>::make::{fork_rng, ScenarioGenerator};
 
-<span class="kw">impl</span> <span class="ident">ScenarioGenerator</span> {
-    <span class="doccomment">/// Designed in https://github.com/a-b-street/abstreet/issues/154</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">proletariat_robot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Scenario</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">residents</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">workers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">impl </span>ScenarioGenerator {
+    <span class="doccomment">/// Designed in https://github.com/a-b-street/abstreet/issues/154
+    </span><span class="kw">pub fn </span>proletariat_robot(map: <span class="kw-2">&amp;</span>Map, rng: <span class="kw-2">&amp;mut </span>XorShiftRng, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; Scenario {
+        <span class="kw">let </span><span class="kw-2">mut </span>residents: Vec&lt;BuildingID&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>workers: Vec&lt;BuildingID&gt; = Vec::new();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_bldg_residential</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_bldg_commercial</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">bldg_type</span> {
-                <span class="ident">BuildingType::Residential</span> { <span class="ident">num_residents</span>, .. } =&gt; {
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_residents</span> {
-                        <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>num_bldg_residential = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>num_bldg_commercial = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>num_bldg_mixed_residential_commercial = <span class="number">0</span>;
+        <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+            <span class="kw">match </span>b.bldg_type {
+                BuildingType::Residential { num_residents, .. } =&gt; {
+                    <span class="kw">for _ in </span><span class="number">0</span>..num_residents {
+                        residents.push(b.id);
                     }
-                    <span class="ident">num_bldg_residential</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    num_bldg_residential += <span class="number">1</span>;
                 }
-                <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="ident">resident_cap</span>, <span class="ident">worker_cap</span>) =&gt; {
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">resident_cap</span> {
-                        <span class="ident">residents</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                BuildingType::ResidentialCommercial(resident_cap, worker_cap) =&gt; {
+                    <span class="kw">for _ in </span><span class="number">0</span>..resident_cap {
+                        residents.push(b.id);
                     }
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">worker_cap</span> {
-                        <span class="ident">workers</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                    <span class="kw">for _ in </span><span class="number">0</span>..worker_cap {
+                        workers.push(b.id);
                     }
-                    <span class="ident">num_bldg_mixed_residential_commercial</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    num_bldg_mixed_residential_commercial += <span class="number">1</span>;
                 }
-                <span class="ident">BuildingType::Commercial</span>(<span class="ident">worker_cap</span>) =&gt; {
-                    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">worker_cap</span> {
-                        <span class="ident">workers</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>);
+                BuildingType::Commercial(worker_cap) =&gt; {
+                    <span class="kw">for _ in </span><span class="number">0</span>..worker_cap {
+                        workers.push(b.id);
                     }
-                    <span class="ident">num_bldg_commercial</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    num_bldg_commercial += <span class="number">1</span>;
                 }
-                <span class="ident">BuildingType::Empty</span> =&gt; {}
+                BuildingType::Empty =&gt; {}
             }
         }
 
-        <span class="ident">residents</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
-        <span class="ident">workers</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
+        residents.shuffle(rng);
+        workers.shuffle(rng);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="string">&quot;random people going to and from work&quot;</span>);
-        <span class="comment">// Include all buses/trains</span>
-        <span class="ident">s</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(map, <span class="string">&quot;random people going to and from work&quot;</span>);
+        <span class="comment">// Include all buses/trains
+        </span>s.only_seed_buses = <span class="prelude-val">None</span>;
 
-        <span class="kw">let</span> <span class="ident">residents_cap</span> <span class="op">=</span> <span class="ident">residents</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="ident">workers_cap</span> <span class="op">=</span> <span class="ident">workers</span>.<span class="ident">len</span>();
+        <span class="kw">let </span>residents_cap = residents.len();
+        <span class="kw">let </span>workers_cap = workers.len();
 
-        <span class="comment">// this saturation figure is an arbitrary guess - we assume that the number of trips will</span>
-        <span class="comment">// scale as some factor of the people living and/or working on the map. A number of more</span>
-        <span class="comment">// than 1.0 will primarily affect the number of &quot;pass through&quot; trips - people who neither</span>
-        <span class="comment">// work nor live in the neighborhood.</span>
-        <span class="kw">let</span> <span class="ident">trip_saturation</span> <span class="op">=</span> <span class="number">1.2</span>;
-        <span class="kw">let</span> <span class="ident">num_trips</span> <span class="op">=</span> (<span class="ident">trip_saturation</span> <span class="op">*</span> (<span class="ident">residents_cap</span> <span class="op">+</span> <span class="ident">workers_cap</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="comment">// this saturation figure is an arbitrary guess - we assume that the number of trips will
+        // scale as some factor of the people living and/or working on the map. A number of more
+        // than 1.0 will primarily affect the number of &quot;pass through&quot; trips - people who neither
+        // work nor live in the neighborhood.
+        </span><span class="kw">let </span>trip_saturation = <span class="number">1.2</span>;
+        <span class="kw">let </span>num_trips = (trip_saturation * (residents_cap + workers_cap) <span class="kw">as </span>f64) <span class="kw">as </span>usize;
 
-        <span class="comment">// bound probabilities to ensure we&#39;re getting some diversity of agents</span>
-        <span class="kw">let</span> <span class="ident">lower_bound_prob</span> <span class="op">=</span> <span class="number">0.05</span>;
-        <span class="kw">let</span> <span class="ident">upper_bound_prob</span> <span class="op">=</span> <span class="number">0.90</span>;
-        <span class="kw">let</span> <span class="ident">prob_local_resident</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">workers_cap</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">lower_bound_prob</span>
-        } <span class="kw">else</span> {
-            <span class="ident">f64::min</span>(
-                <span class="ident">upper_bound_prob</span>,
-                <span class="ident">f64::max</span>(<span class="ident">lower_bound_prob</span>, <span class="ident">residents_cap</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">num_trips</span> <span class="kw">as</span> <span class="ident">f64</span>),
+        <span class="comment">// bound probabilities to ensure we&#39;re getting some diversity of agents
+        </span><span class="kw">let </span>lower_bound_prob = <span class="number">0.05</span>;
+        <span class="kw">let </span>upper_bound_prob = <span class="number">0.90</span>;
+        <span class="kw">let </span>prob_local_resident = <span class="kw">if </span>workers_cap == <span class="number">0 </span>{
+            lower_bound_prob
+        } <span class="kw">else </span>{
+            f64::min(
+                upper_bound_prob,
+                f64::max(lower_bound_prob, residents_cap <span class="kw">as </span>f64 / num_trips <span class="kw">as </span>f64),
             )
         };
-        <span class="kw">let</span> <span class="ident">prob_local_worker</span> <span class="op">=</span> <span class="ident">f64::min</span>(
-            <span class="ident">upper_bound_prob</span>,
-            <span class="ident">f64::max</span>(<span class="ident">lower_bound_prob</span>, <span class="ident">workers_cap</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">num_trips</span> <span class="kw">as</span> <span class="ident">f64</span>),
+        <span class="kw">let </span>prob_local_worker = f64::min(
+            upper_bound_prob,
+            f64::max(lower_bound_prob, workers_cap <span class="kw">as </span>f64 / num_trips <span class="kw">as </span>f64),
         );
 
         <span class="macro">debug!</span>(
             <span class="string">&quot;BUILDINGS - workplaces: {}, residences: {}, mixed: {}&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_commercial</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_residential</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_bldg_mixed_residential_commercial</span>)
+            prettyprint_usize(num_bldg_commercial),
+            prettyprint_usize(num_bldg_residential),
+            prettyprint_usize(num_bldg_mixed_residential_commercial)
         );
         <span class="macro">debug!</span>(
             <span class="string">&quot;CAPACITY - workers_cap: {}, residents_cap: {}, prob_local_worker: {:.1}%, \
              prob_local_resident: {:.1}%&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">workers_cap</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">residents_cap</span>),
-            <span class="ident">prob_local_worker</span> <span class="op">*</span> <span class="number">100.</span>,
-            <span class="ident">prob_local_resident</span> <span class="op">*</span> <span class="number">100.</span>
-        );
+            prettyprint_usize(workers_cap),
+            prettyprint_usize(residents_cap),
+            prob_local_worker * <span class="number">100.</span>,
+            prob_local_resident * <span class="number">100.
+        </span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_trips_local</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_trips_commuting_in</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_trips_commuting_out</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_trips_passthru</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;create people&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>num_trips_local = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>num_trips_commuting_in = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>num_trips_commuting_out = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>num_trips_passthru = <span class="number">0</span>;
+        timer.start(<span class="string">&quot;create people&quot;</span>);
 
-        <span class="comment">// Only consider two-way intersections, so the agent can return the same way</span>
-        <span class="comment">// they came.</span>
-        <span class="comment">// TODO: instead, if it&#39;s not a two-way border, we should find an intersection</span>
-        <span class="comment">// an incoming border &quot;near&quot; the outgoing border, to allow a broader set of</span>
-        <span class="comment">// realistic options.</span>
-        <span class="comment">// TODO: prefer larger thoroughfares to better reflect reality.</span>
-        <span class="kw">let</span> <span class="ident">commuter_borders</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map</span>
-            .<span class="ident">all_outgoing_borders</span>()
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">is_incoming_border</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">TripEndpoint::Border</span>(<span class="ident">b</span>.<span class="ident">id</span>))
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">person_params</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">num_trips</span>)
-            .<span class="ident">filter_map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">is_local_resident</span>, <span class="ident">is_local_worker</span>) <span class="op">=</span> (
-                    <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="ident">prob_local_resident</span>),
-                    <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="ident">prob_local_worker</span>),
+        <span class="comment">// Only consider two-way intersections, so the agent can return the same way
+        // they came.
+        // TODO: instead, if it&#39;s not a two-way border, we should find an intersection
+        // an incoming border &quot;near&quot; the outgoing border, to allow a broader set of
+        // realistic options.
+        // TODO: prefer larger thoroughfares to better reflect reality.
+        </span><span class="kw">let </span>commuter_borders: Vec&lt;TripEndpoint&gt; = map
+            .all_outgoing_borders()
+            .into_iter()
+            .filter(|b| b.is_incoming_border())
+            .map(|b| TripEndpoint::Border(b.id))
+            .collect();
+        <span class="kw">let </span>person_params = (<span class="number">0</span>..num_trips)
+            .filter_map(|<span class="kw">_</span>| {
+                <span class="kw">let </span>(is_local_resident, is_local_worker) = (
+                    rng.gen_bool(prob_local_resident),
+                    rng.gen_bool(prob_local_worker),
                 );
-                <span class="kw">let</span> <span class="ident">home</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_local_resident</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">residence</span>) <span class="op">=</span> <span class="ident">residents</span>.<span class="ident">pop</span>() {
-                        <span class="ident">TripEndpoint::Building</span>(<span class="ident">residence</span>)
-                    } <span class="kw">else</span> {
-                        <span class="kw-2">*</span><span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>)<span class="question-mark">?</span>
+                <span class="kw">let </span>home = <span class="kw">if </span>is_local_resident {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(residence) = residents.pop() {
+                        TripEndpoint::Building(residence)
+                    } <span class="kw">else </span>{
+                        <span class="kw-2">*</span>commuter_borders.choose(rng)<span class="question-mark">?
+                    </span>}
+                } <span class="kw">else </span>{
+                    <span class="kw-2">*</span>commuter_borders.choose(rng)<span class="question-mark">?
+                </span>};
+
+                <span class="kw">let </span>work = <span class="kw">if </span>is_local_worker {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(workplace) = workers.pop() {
+                        TripEndpoint::Building(workplace)
+                    } <span class="kw">else </span>{
+                        <span class="kw-2">*</span>commuter_borders.choose(rng)<span class="question-mark">?
+                    </span>}
+                } <span class="kw">else </span>{
+                    <span class="kw-2">*</span>commuter_borders.choose(rng)<span class="question-mark">?
+                </span>};
+
+                <span class="kw">match </span>(<span class="kw-2">&amp;</span>home, <span class="kw-2">&amp;</span>work) {
+                    (TripEndpoint::Building(<span class="kw">_</span>), TripEndpoint::Building(<span class="kw">_</span>)) =&gt; {
+                        num_trips_local += <span class="number">1</span>;
                     }
-                } <span class="kw">else</span> {
-                    <span class="kw-2">*</span><span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>)<span class="question-mark">?</span>
+                    (TripEndpoint::Building(<span class="kw">_</span>), TripEndpoint::Border(<span class="kw">_</span>)) =&gt; {
+                        num_trips_commuting_out += <span class="number">1</span>;
+                    }
+                    (TripEndpoint::Border(<span class="kw">_</span>), TripEndpoint::Building(<span class="kw">_</span>)) =&gt; {
+                        num_trips_commuting_in += <span class="number">1</span>;
+                    }
+                    (TripEndpoint::Border(<span class="kw">_</span>), TripEndpoint::Border(<span class="kw">_</span>)) =&gt; {
+                        num_trips_passthru += <span class="number">1</span>;
+                    }
+                    (TripEndpoint::SuddenlyAppear(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+                    (<span class="kw">_</span>, TripEndpoint::SuddenlyAppear(<span class="kw">_</span>)) =&gt; <span class="macro">unreachable!</span>(),
                 };
 
-                <span class="kw">let</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_local_worker</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">workplace</span>) <span class="op">=</span> <span class="ident">workers</span>.<span class="ident">pop</span>() {
-                        <span class="ident">TripEndpoint::Building</span>(<span class="ident">workplace</span>)
-                    } <span class="kw">else</span> {
-                        <span class="kw-2">*</span><span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>)<span class="question-mark">?</span>
-                    }
-                } <span class="kw">else</span> {
-                    <span class="kw-2">*</span><span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>)<span class="question-mark">?</span>
-                };
-
-                <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">work</span>) {
-                    (<span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>)) =&gt; {
-                        <span class="ident">num_trips_local</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    }
-                    (<span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>)) =&gt; {
-                        <span class="ident">num_trips_commuting_out</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    }
-                    (<span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>)) =&gt; {
-                        <span class="ident">num_trips_commuting_in</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    }
-                    (<span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>)) =&gt; {
-                        <span class="ident">num_trips_passthru</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    }
-                    (<span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>), <span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-                    (<span class="kw">_</span>, <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>)) =&gt; <span class="macro">unreachable!</span>(),
-                };
-
-                <span class="prelude-val">Some</span>((<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">fork_rng</span>(<span class="ident">rng</span>)))
+                <span class="prelude-val">Some</span>((home, work, fork_rng(rng)))
             })
-            .<span class="ident">collect</span>();
+            .collect();
 
-        <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">extend</span>(
-            <span class="ident">timer</span>
-                .<span class="ident">parallelize</span>(
+        s.people.extend(
+            timer
+                .parallelize(
                     <span class="string">&quot;create people: making PersonSpec from endpoints&quot;</span>,
-                    <span class="ident">person_params</span>,
-                    <span class="op">|</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> <span class="kw">match</span> <span class="ident">create_prole</span>(<span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">person</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">person</span>),
-                        <span class="prelude-val">Err</span>(<span class="ident">e</span>) =&gt; {
-                            <span class="macro">trace!</span>(<span class="string">&quot;Unable to create person. error: {}&quot;</span>, <span class="ident">e</span>);
-                            <span class="prelude-val">None</span>
-                        }
+                    person_params,
+                    |(home, work, <span class="kw-2">mut </span>rng)| <span class="kw">match </span>create_prole(home, work, map, <span class="kw-2">&amp;mut </span>rng) {
+                        <span class="prelude-val">Ok</span>(person) =&gt; <span class="prelude-val">Some</span>(person),
+                        <span class="prelude-val">Err</span>(e) =&gt; {
+                            <span class="macro">trace!</span>(<span class="string">&quot;Unable to create person. error: {}&quot;</span>, e);
+                            <span class="prelude-val">None
+                        </span>}
                     },
                 )
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">flatten</span>(),
+                .into_iter()
+                .flatten(),
         );
 
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;create people&quot;</span>);
+        timer.stop(<span class="string">&quot;create people&quot;</span>);
 
         <span class="macro">info!</span>(
             <span class="string">&quot;TRIPS - total: {}, local: {}, commuting_in: {}, commuting_out: {}, passthru: {}, \
              errored: {}, leftover_resident_capacity: {}, leftover_worker_capacity: {}&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_local</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_commuting_in</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_commuting_out</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips_passthru</span>),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">num_trips</span> <span class="op">-</span> <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">residents</span>.<span class="ident">len</span>()),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">workers</span>.<span class="ident">len</span>()),
+            prettyprint_usize(num_trips),
+            prettyprint_usize(num_trips_local),
+            prettyprint_usize(num_trips_commuting_in),
+            prettyprint_usize(num_trips_commuting_out),
+            prettyprint_usize(num_trips_passthru),
+            prettyprint_usize(num_trips - s.people.len()),
+            prettyprint_usize(residents.len()),
+            prettyprint_usize(workers.len()),
         );
-        <span class="ident">s</span>
+        s
     }
 }
 
-<span class="kw">fn</span> <span class="ident">create_prole</span>(
-    <span class="ident">home</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">work</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">home</span> <span class="op">==</span> <span class="ident">work</span> {
-        <span class="comment">// TODO: handle edge-case of working and living in the same building...  maybe more likely</span>
-        <span class="comment">// to go for a walk later in the day or something</span>
-        <span class="macro">bail!</span>(<span class="string">&quot;TODO: handle working and living in the same building&quot;</span>);
+<span class="kw">fn </span>create_prole(
+    home: TripEndpoint,
+    work: TripEndpoint,
+    map: <span class="kw-2">&amp;</span>Map,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+) -&gt; <span class="prelude-ty">Result</span>&lt;PersonSpec&gt; {
+    <span class="kw">if </span>home == work {
+        <span class="comment">// TODO: handle edge-case of working and living in the same building...  maybe more likely
+        // to go for a walk later in the day or something
+        </span><span class="macro">bail!</span>(<span class="string">&quot;TODO: handle working and living in the same building&quot;</span>);
     }
 
-    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">match</span> (<span class="kw-2">&amp;</span><span class="ident">home</span>, <span class="kw-2">&amp;</span><span class="ident">work</span>) {
-        <span class="comment">// commuting entirely within map</span>
-        (<span class="ident">TripEndpoint::Building</span>(<span class="ident">home_bldg</span>), <span class="ident">TripEndpoint::Building</span>(<span class="ident">work_bldg</span>)) =&gt; {
-            <span class="comment">// Decide mode based on walking distance. If the buildings aren&#39;t connected,</span>
-            <span class="comment">// probably a bug in importing; just skip this person.</span>
-            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">PathRequest::between_buildings</span>(
-                <span class="ident">map</span>,
-                <span class="kw-2">*</span><span class="ident">home_bldg</span>,
-                <span class="kw-2">*</span><span class="ident">work_bldg</span>,
-                <span class="ident">PathConstraints::Pedestrian</span>,
+    <span class="kw">let </span>mode = <span class="kw">match </span>(<span class="kw-2">&amp;</span>home, <span class="kw-2">&amp;</span>work) {
+        <span class="comment">// commuting entirely within map
+        </span>(TripEndpoint::Building(home_bldg), TripEndpoint::Building(work_bldg)) =&gt; {
+            <span class="comment">// Decide mode based on walking distance. If the buildings aren&#39;t connected,
+            // probably a bug in importing; just skip this person.
+            </span><span class="kw">let </span>dist = <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = PathRequest::between_buildings(
+                map,
+                <span class="kw-2">*</span>home_bldg,
+                <span class="kw-2">*</span>work_bldg,
+                PathConstraints::Pedestrian,
             )
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
+            .and_then(|req| map.pathfind(req).ok())
             {
-                <span class="ident">path</span>.<span class="ident">total_length</span>()
-            } <span class="kw">else</span> {
+                path.total_length()
+            } <span class="kw">else </span>{
                 <span class="macro">bail!</span>(<span class="string">&quot;no path found&quot;</span>);
             };
 
-            <span class="comment">// TODO If home or work is in an access-restricted zone (like a living street),</span>
-            <span class="comment">// then probably don&#39;t drive there. Actually, it depends on the specific tagging;</span>
-            <span class="comment">// access=no in the US usually means a gated community.</span>
-            <span class="ident">select_trip_mode</span>(<span class="ident">dist</span>, <span class="ident">rng</span>)
+            <span class="comment">// TODO If home or work is in an access-restricted zone (like a living street),
+            // then probably don&#39;t drive there. Actually, it depends on the specific tagging;
+            // access=no in the US usually means a gated community.
+            </span>select_trip_mode(dist, rng)
         }
-        <span class="comment">// if you exit or leave the map, we assume driving</span>
-        <span class="kw">_</span> =&gt; <span class="ident">TripMode::Drive</span>,
+        <span class="comment">// if you exit or leave the map, we assume driving
+        </span><span class="kw">_ </span>=&gt; TripMode::Drive,
     };
 
-    <span class="comment">// TODO This will cause a single morning and afternoon rush. Outside of these times,</span>
-    <span class="comment">// it&#39;ll be really quiet. Probably want a normal distribution centered around these</span>
-    <span class="comment">// peak times, but with a long tail.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">depart_am</span> <span class="op">=</span> <span class="ident">rand_time</span>(
-        <span class="ident">rng</span>,
-        <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">7</span>),
-        <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">10</span>),
+    <span class="comment">// TODO This will cause a single morning and afternoon rush. Outside of these times,
+    // it&#39;ll be really quiet. Probably want a normal distribution centered around these
+    // peak times, but with a long tail.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>depart_am = rand_time(
+        rng,
+        Time::START_OF_DAY + Duration::hours(<span class="number">7</span>),
+        Time::START_OF_DAY + Duration::hours(<span class="number">10</span>),
     );
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">depart_pm</span> <span class="op">=</span> <span class="ident">rand_time</span>(
-        <span class="ident">rng</span>,
-        <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">17</span>),
-        <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">19</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>depart_pm = rand_time(
+        rng,
+        Time::START_OF_DAY + Duration::hours(<span class="number">17</span>),
+        Time::START_OF_DAY + Duration::hours(<span class="number">19</span>),
     );
 
-    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.1</span>) {
-        <span class="comment">// hacky hack to get some background traffic</span>
-        <span class="ident">depart_am</span> <span class="op">=</span> <span class="ident">rand_time</span>(
-            <span class="ident">rng</span>,
-            <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">0</span>),
-            <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">12</span>),
+    <span class="kw">if </span>rng.gen_bool(<span class="number">0.1</span>) {
+        <span class="comment">// hacky hack to get some background traffic
+        </span>depart_am = rand_time(
+            rng,
+            Time::START_OF_DAY + Duration::hours(<span class="number">0</span>),
+            Time::START_OF_DAY + Duration::hours(<span class="number">12</span>),
         );
-        <span class="ident">depart_pm</span> <span class="op">=</span> <span class="ident">rand_time</span>(
-            <span class="ident">rng</span>,
-            <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">12</span>),
-            <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">24</span>),
+        depart_pm = rand_time(
+            rng,
+            Time::START_OF_DAY + Duration::hours(<span class="number">12</span>),
+            Time::START_OF_DAY + Duration::hours(<span class="number">24</span>),
         );
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">PersonSpec</span> {
-        <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-        <span class="ident">trips</span>: <span class="macro">vec!</span>[
-            <span class="ident">IndividTrip::new</span>(<span class="ident">depart_am</span>, <span class="ident">TripPurpose::Work</span>, <span class="ident">home</span>, <span class="ident">work</span>, <span class="ident">mode</span>),
-            <span class="ident">IndividTrip::new</span>(<span class="ident">depart_pm</span>, <span class="ident">TripPurpose::Home</span>, <span class="ident">work</span>, <span class="ident">home</span>, <span class="ident">mode</span>),
+    <span class="prelude-val">Ok</span>(PersonSpec {
+        orig_id: <span class="prelude-val">None</span>,
+        trips: <span class="macro">vec!</span>[
+            IndividTrip::new(depart_am, TripPurpose::Work, home, work, mode),
+            IndividTrip::new(depart_pm, TripPurpose::Home, work, home, mode),
         ],
     })
 }
 
-<span class="kw">fn</span> <span class="ident">select_trip_mode</span>(<span class="ident">distance</span>: <span class="ident">Distance</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">TripMode</span> {
-    <span class="comment">// TODO Make this probabilistic</span>
-    <span class="comment">// for example probability of walking currently has massive differences</span>
-    <span class="comment">// at thresholds, it would be nicer to change this gradually</span>
-    <span class="comment">// TODO - do not select based on distance but select one that is fastest/best in the</span>
-    <span class="comment">// given situation excellent bus connection / plenty of parking /</span>
-    <span class="comment">// cycleways / suitable rail connection all strongly influence</span>
-    <span class="comment">// selected mode of transport, distance is not the sole influence</span>
-    <span class="comment">// in some cities there may case where driving is only possible method</span>
-    <span class="comment">// to get somewhere, even at a short distance</span>
+<span class="kw">fn </span>select_trip_mode(distance: Distance, rng: <span class="kw-2">&amp;mut </span>XorShiftRng) -&gt; TripMode {
+    <span class="comment">// TODO Make this probabilistic
+    // for example probability of walking currently has massive differences
+    // at thresholds, it would be nicer to change this gradually
+    // TODO - do not select based on distance but select one that is fastest/best in the
+    // given situation excellent bus connection / plenty of parking /
+    // cycleways / suitable rail connection all strongly influence
+    // selected mode of transport, distance is not the sole influence
+    // in some cities there may case where driving is only possible method
+    // to get somewhere, even at a short distance
 
-    <span class="comment">// Always walk for really short trips</span>
-    <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span> <span class="ident">Distance::miles</span>(<span class="number">0.5</span>) {
-        <span class="kw">return</span> <span class="ident">TripMode::Walk</span>;
+    // Always walk for really short trips
+    </span><span class="kw">if </span>distance &lt; Distance::miles(<span class="number">0.5</span>) {
+        <span class="kw">return </span>TripMode::Walk;
     }
 
-    <span class="comment">// Sometimes bike or walk for moderate trips</span>
-    <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span> <span class="ident">Distance::miles</span>(<span class="number">3.0</span>) {
-        <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.15</span>) {
-            <span class="kw">return</span> <span class="ident">TripMode::Bike</span>;
+    <span class="comment">// Sometimes bike or walk for moderate trips
+    </span><span class="kw">if </span>distance &lt; Distance::miles(<span class="number">3.0</span>) {
+        <span class="kw">if </span>rng.gen_bool(<span class="number">0.15</span>) {
+            <span class="kw">return </span>TripMode::Bike;
         }
-        <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.05</span>) {
-            <span class="kw">return</span> <span class="ident">TripMode::Walk</span>;
+        <span class="kw">if </span>rng.gen_bool(<span class="number">0.05</span>) {
+            <span class="kw">return </span>TripMode::Walk;
         }
     }
 
-    <span class="comment">// For longer trips, maybe bike for dedicated cyclists</span>
-    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.005</span>) {
-        <span class="kw">return</span> <span class="ident">TripMode::Bike</span>;
+    <span class="comment">// For longer trips, maybe bike for dedicated cyclists
+    </span><span class="kw">if </span>rng.gen_bool(<span class="number">0.005</span>) {
+        <span class="kw">return </span>TripMode::Bike;
     }
-    <span class="comment">// Try transit if available, or fallback to walking</span>
-    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.3</span>) {
-        <span class="kw">return</span> <span class="ident">TripMode::Transit</span>;
+    <span class="comment">// Try transit if available, or fallback to walking
+    </span><span class="kw">if </span>rng.gen_bool(<span class="number">0.3</span>) {
+        <span class="kw">return </span>TripMode::Transit;
     }
 
-    <span class="comment">// Most of the time, just drive</span>
-    <span class="ident">TripMode::Drive</span>
+    <span class="comment">// Most of the time, just drive
+    </span>TripMode::Drive
 }
 
-<span class="kw">fn</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Time</span>, <span class="ident">high</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Time</span> {
-    <span class="macro">assert!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
-    <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>()..<span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
+<span class="kw">fn </span>rand_time(rng: <span class="kw-2">&amp;mut </span>XorShiftRng, low: Time, high: Time) -&gt; Time {
+    <span class="macro">assert!</span>(high &gt; low);
+    Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds()..high.inner_seconds()))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

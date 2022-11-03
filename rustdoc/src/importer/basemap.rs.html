@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/basemap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>basemap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/basemap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>basemap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -34,41 +34,41 @@
 <span id="34">34</span>
 <span id="35">35</span>
 <span id="36">36</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditCmd</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>map_model::{EditCmd, Map, MapEdits};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">override_sidewalk_widths</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Map</span>, <span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">MapEdits::load_from_file</span>(<span class="ident">map</span>, <span class="ident">path</span>, <span class="ident">timer</span>)<span class="question-mark">?</span>;
+<span class="kw">pub fn </span>override_sidewalk_widths(map: <span class="kw-2">&amp;mut </span>Map, path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>edits = MapEdits::load_from_file(map, path, timer)<span class="question-mark">?</span>;
 
-    <span class="kw">for</span> <span class="ident">cmd</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">edits</span>.<span class="ident">commands</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">new</span>, .. } <span class="op">=</span> <span class="ident">cmd</span> {
-            <span class="comment">// When the UI resets a road to its default state, it parses lane specs from OSM tags.</span>
-            <span class="comment">// Insert OSM tags and pretend that we have upstream data.</span>
-            <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="number">0</span>];
-            <span class="kw">if</span> <span class="ident">left</span>.<span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
-                <span class="ident">map</span>.<span class="ident">mut_road</span>(<span class="kw-2">*</span><span class="ident">r</span>)
-                    .<span class="ident">osm_tags</span>
-                    .<span class="ident">insert</span>(<span class="string">&quot;sidewalk:left:width&quot;</span>, <span class="ident">left</span>.<span class="ident">width</span>.<span class="ident">inner_meters</span>().<span class="ident">to_string</span>());
+    <span class="kw">for </span>cmd <span class="kw">in </span><span class="kw-2">&amp;</span>edits.commands {
+        <span class="kw">if let </span>EditCmd::ChangeRoad { r, new, .. } = cmd {
+            <span class="comment">// When the UI resets a road to its default state, it parses lane specs from OSM tags.
+            // Insert OSM tags and pretend that we have upstream data.
+            </span><span class="kw">let </span>left = <span class="kw-2">&amp;</span>new.lanes_ltr[<span class="number">0</span>];
+            <span class="kw">if </span>left.lt.is_walkable() {
+                map.mut_road(<span class="kw-2">*</span>r)
+                    .osm_tags
+                    .insert(<span class="string">&quot;sidewalk:left:width&quot;</span>, left.width.inner_meters().to_string());
             }
 
-            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">right</span>.<span class="ident">lt</span>.<span class="ident">is_walkable</span>() {
-                <span class="ident">map</span>.<span class="ident">mut_road</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">osm_tags</span>.<span class="ident">insert</span>(
+            <span class="kw">let </span>right = new.lanes_ltr.last().unwrap();
+            <span class="kw">if </span>right.lt.is_walkable() {
+                map.mut_road(<span class="kw-2">*</span>r).osm_tags.insert(
                     <span class="string">&quot;sidewalk:right:width&quot;</span>,
-                    <span class="ident">right</span>.<span class="ident">width</span>.<span class="ident">inner_meters</span>().<span class="ident">to_string</span>(),
+                    right.width.inner_meters().to_string(),
                 );
             }
         }
     }
 
-    <span class="comment">// Also just apply the edits, so that lanes stored in the map are updated</span>
-    <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
-    <span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
-    <span class="ident">map</span>.<span class="ident">clear_edits_before_save</span>();
+    <span class="comment">// Also just apply the edits, so that lanes stored in the map are updated
+    </span>map.must_apply_edits(edits, timer);
+    map.recalculate_pathfinding_after_edits(timer);
+    map.clear_edits_before_save();
 
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

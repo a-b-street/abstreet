@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/navigate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>navigate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/navigate.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>navigate.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -317,324 +317,324 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
-<span class="kw">use</span> <span class="ident">map_model::RoadID</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Autocomplete</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>,
-    <span class="ident">Text</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>map_model::RoadID;
+<span class="kw">use </span>widgetry::{
+    Autocomplete, Color, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel, State,
+    Text, Transition, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools::grey_out_map</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
+<span class="kw">use </span><span class="kw">crate</span>::tools::grey_out_map;
+<span class="kw">use crate</span>::{AppLike, ID};
 
-<span class="comment">// TODO Canonicalize names, handling abbreviations like east/e and street/st</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Navigator</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
+<span class="comment">// TODO Canonicalize names, handling abbreviations like east/e and street/st
+</span><span class="kw">pub struct </span>Navigator {
+    panel: Panel,
+    target_zoom: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">Navigator</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::new_state_with_target_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>)
+<span class="kw">impl </span>Navigator {
+    <span class="kw">pub fn </span>new_state&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt;(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>A) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
+        <span class="self">Self</span>::new_state_with_target_zoom(ctx, app, ctx.canvas.settings.min_zoom_for_detail)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state_with_target_zoom</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
-        <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::new</span>(<span class="ident">Navigator</span> {
-            <span class="ident">target_zoom</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Enter a street name&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+    <span class="kw">pub fn </span>new_state_with_target_zoom&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt;(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>A,
+        target_zoom: f64,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
+        Box::new(Navigator {
+            target_zoom,
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Widget::row(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Enter a street name&quot;</span>).small_heading().into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="ident">Autocomplete::new_widget</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>.<span class="ident">map</span>()
-                        .<span class="ident">all_roads</span>()
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> (<span class="ident">r</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>()), <span class="ident">r</span>.<span class="ident">id</span>))
-                        .<span class="ident">collect</span>(),
+                Autocomplete::new_widget(
+                    ctx,
+                    app.map()
+                        .all_roads()
+                        .iter()
+                        .map(|r| (r.get_name(app.opts().language.as_ref()), r.id))
+                        .collect(),
                     <span class="number">10</span>,
                 )
-                .<span class="ident">named</span>(<span class="string">&quot;street&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Search by business name or address&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Tab</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                .named(<span class="string">&quot;street&quot;</span>),
+                ctx.style()
+                    .btn_outline
+                    .text(<span class="string">&quot;Search by business name or address&quot;</span>)
+                    .hotkey(Key::Tab)
+                    .build_def(ctx),
             ]))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
+            .build(ctx),
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Navigator</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt; State&lt;A&gt; <span class="kw">for </span>Navigator {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Search by business name or address&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">SearchBuildings::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">target_zoom</span>,
+                <span class="string">&quot;Search by business name or address&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Replace(SearchBuildings::new_state(
+                        ctx,
+                        app,
+                        <span class="self">self</span>.target_zoom,
                     ));
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">roads</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">autocomplete_done</span>(<span class="string">&quot;street&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(roads) = <span class="self">self</span>.panel.autocomplete_done(<span class="string">&quot;street&quot;</span>) {
+            <span class="kw">if </span>roads.is_empty() {
+                <span class="kw">return </span>Transition::Pop;
             }
-            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">CrossStreet::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">roads</span>, <span class="self">self</span>.<span class="ident">target_zoom</span>));
+            <span class="kw">return </span>Transition::Replace(CrossStreet::new_state(ctx, app, roads, <span class="self">self</span>.target_zoom));
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
-            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">if </span><span class="self">self</span>.panel.clicked_outside(ctx) {
+            <span class="kw">return </span>Transition::Pop;
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>A) {
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">CrossStreet</span> {
-    <span class="ident">first</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
-    <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
+<span class="kw">struct </span>CrossStreet {
+    first: Vec&lt;RoadID&gt;,
+    panel: Panel,
+    draw: Drawable,
+    target_zoom: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">CrossStreet</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
-        <span class="ident">first</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-        <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cross_streets</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">first</span> {
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">road</span>.<span class="ident">get_thick_polygon</span>());
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">road</span>.<span class="ident">src_i</span>, <span class="ident">road</span>.<span class="ident">dst_i</span>] {
-                <span class="kw">for</span> <span class="ident">cross</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span> {
-                    <span class="ident">cross_streets</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">cross</span>);
+<span class="kw">impl </span>CrossStreet {
+    <span class="kw">fn </span>new_state&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt;(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>A,
+        first: Vec&lt;RoadID&gt;,
+        target_zoom: f64,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
+        <span class="kw">let </span>map = app.map();
+        <span class="kw">let </span><span class="kw-2">mut </span>cross_streets = HashSet::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>first {
+            <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>r);
+            batch.push(Color::RED, road.get_thick_polygon());
+            <span class="kw">for </span>i <span class="kw">in </span>[road.src_i, road.dst_i] {
+                <span class="kw">for </span>cross <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_i(i).roads {
+                    cross_streets.insert(<span class="kw-2">*</span>cross);
                 }
             }
         }
-        <span class="comment">// Roads share intersections, so of course there&#39;ll be overlap here.</span>
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">first</span> {
-            <span class="ident">cross_streets</span>.<span class="ident">remove</span>(<span class="ident">r</span>);
+        <span class="comment">// Roads share intersections, so of course there&#39;ll be overlap here.
+        </span><span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>first {
+            cross_streets.remove(r);
         }
 
-        <span class="ident">Box::new</span>(<span class="ident">CrossStreet</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+        Box::new(CrossStreet {
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Widget::row(<span class="macro">vec!</span>[
                     {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;What cross street?&quot;</span>).<span class="ident">small_heading</span>());
-                        <span class="comment">// TODO This isn&#39;t so clear...</span>
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+                        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(Line(<span class="string">&quot;What cross street?&quot;</span>).small_heading());
+                        <span class="comment">// TODO This isn&#39;t so clear...
+                        </span>txt.add_line(<span class="macro">format!</span>(
                             <span class="string">&quot;(Or just quit to go to {})&quot;</span>,
-                            <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">first</span>[<span class="number">0</span>]).<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>()),
+                            map.get_r(first[<span class="number">0</span>]).get_name(app.opts().language.as_ref()),
                         ));
-                        <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+                        txt.into_widget(ctx)
                     },
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="ident">Autocomplete::new_widget</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">cross_streets</span>
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> (<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>()), <span class="ident">r</span>))
-                        .<span class="ident">collect</span>(),
+                Autocomplete::new_widget(
+                    ctx,
+                    cross_streets
+                        .into_iter()
+                        .map(|r| (map.get_r(r).get_name(app.opts().language.as_ref()), r))
+                        .collect(),
                     <span class="number">10</span>,
                 )
-                .<span class="ident">named</span>(<span class="string">&quot;street&quot;</span>),
+                .named(<span class="string">&quot;street&quot;</span>),
             ]))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">first</span>,
-            <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
-            <span class="ident">target_zoom</span>,
+            .build(ctx),
+            first,
+            draw: ctx.upload(batch),
+            target_zoom,
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CrossStreet</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt; State&lt;A&gt; <span class="kw">for </span>CrossStreet {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
+        <span class="kw">let </span>map = app.map();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="comment">// Just warp to somewhere on the first road</span>
-                    <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">first</span>[<span class="number">0</span>]).<span class="ident">center_pts</span>.<span class="ident">middle</span>();
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">pt</span>,
-                        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">target_zoom</span>),
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="comment">// Just warp to somewhere on the first road
+                    </span><span class="kw">let </span>pt = map.get_r(<span class="self">self</span>.first[<span class="number">0</span>]).center_pts.middle();
+                    <span class="kw">return </span>Transition::Replace(app.make_warper(
+                        ctx,
+                        pt,
+                        <span class="prelude-val">Some</span>(<span class="self">self</span>.target_zoom),
                         <span class="prelude-val">None</span>,
                     ));
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">roads</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">autocomplete_done</span>(<span class="string">&quot;street&quot;</span>) {
-            <span class="comment">// Find the best match</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="lifetime">&#39;OUTER</span>: <span class="kw">for</span> <span class="ident">r1</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">first</span> {
-                <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r1</span>);
-                <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">r1</span>.<span class="ident">src_i</span>, <span class="ident">r1</span>.<span class="ident">dst_i</span>] {
-                    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">r2</span><span class="op">|</span> <span class="ident">roads</span>.<span class="ident">contains</span>(<span class="ident">r2</span>)) {
-                        <span class="ident">found</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>);
-                        <span class="kw">break</span> <span class="lifetime">&#39;OUTER</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(roads) = <span class="self">self</span>.panel.autocomplete_done(<span class="string">&quot;street&quot;</span>) {
+            <span class="comment">// Find the best match
+            </span><span class="kw">let </span><span class="kw-2">mut </span>found = <span class="prelude-val">None</span>;
+            <span class="lifetime">&#39;OUTER</span>: <span class="kw">for </span>r1 <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.first {
+                <span class="kw">let </span>r1 = map.get_r(<span class="kw-2">*</span>r1);
+                <span class="kw">for </span>i <span class="kw">in </span>[r1.src_i, r1.dst_i] {
+                    <span class="kw">if </span>map.get_i(i).roads.iter().any(|r2| roads.contains(r2)) {
+                        found = <span class="prelude-val">Some</span>(i);
+                        <span class="kw">break </span><span class="lifetime">&#39;OUTER</span>;
                     }
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">found</span> {
-                <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
-                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">pt</span>,
-                    <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">target_zoom</span>),
-                    <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)),
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = found {
+                <span class="kw">let </span>pt = map.get_i(i).polygon.center();
+                <span class="kw">return </span>Transition::Replace(app.make_warper(
+                    ctx,
+                    pt,
+                    <span class="prelude-val">Some</span>(<span class="self">self</span>.target_zoom),
+                    <span class="prelude-val">Some</span>(ID::Intersection(i)),
                 ));
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">return </span>Transition::Pop;
             }
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
-            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">if </span><span class="self">self</span>.panel.clicked_outside(ctx) {
+            <span class="kw">return </span>Transition::Pop;
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>A) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw);
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">SearchBuildings</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
+<span class="kw">struct </span>SearchBuildings {
+    panel: Panel,
+    target_zoom: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">SearchBuildings</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
-        <span class="ident">target_zoom</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::new</span>(<span class="ident">SearchBuildings</span> {
-            <span class="ident">target_zoom</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Enter a business name or address&quot;</span>)
-                        .<span class="ident">small_heading</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+<span class="kw">impl </span>SearchBuildings {
+    <span class="kw">fn </span>new_state&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt;(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>A,
+        target_zoom: f64,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
+        Box::new(SearchBuildings {
+            target_zoom,
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Widget::row(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Enter a business name or address&quot;</span>)
+                        .small_heading()
+                        .into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="ident">Autocomplete::new_widget</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>.<span class="ident">map</span>()
-                        .<span class="ident">all_buildings</span>()
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">starts_with</span>(<span class="string">&quot;???&quot;</span>) {
-                                <span class="ident">results</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>(), <span class="ident">b</span>.<span class="ident">id</span>));
+                Autocomplete::new_widget(
+                    ctx,
+                    app.map()
+                        .all_buildings()
+                        .iter()
+                        .flat_map(|b| {
+                            <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+                            <span class="kw">if </span>!b.address.starts_with(<span class="string">&quot;???&quot;</span>) {
+                                results.push((b.address.clone(), b.id));
                             }
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">names</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">name</span> {
-                                <span class="ident">results</span>.<span class="ident">push</span>((
-                                    <span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>()).<span class="ident">to_string</span>(),
-                                    <span class="ident">b</span>.<span class="ident">id</span>,
+                            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>names) = b.name {
+                                results.push((
+                                    names.get(app.opts().language.as_ref()).to_string(),
+                                    b.id,
                                 ));
                             }
-                            <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                                <span class="ident">results</span>.<span class="ident">push</span>((
+                            <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span>b.amenities {
+                                results.push((
                                     <span class="macro">format!</span>(
                                         <span class="string">&quot;{} (at {})&quot;</span>,
-                                        <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>()),
-                                        <span class="ident">b</span>.<span class="ident">address</span>
+                                        a.names.get(app.opts().language.as_ref()),
+                                        b.address
                                     ),
-                                    <span class="ident">b</span>.<span class="ident">id</span>,
+                                    b.id,
                                 ));
                             }
-                            <span class="ident">results</span>
+                            results
                         })
-                        .<span class="ident">collect</span>(),
+                        .collect(),
                     <span class="number">10</span>,
                 )
-                .<span class="ident">named</span>(<span class="string">&quot;bldg&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Search for streets&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Tab</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                .named(<span class="string">&quot;bldg&quot;</span>),
+                ctx.style()
+                    .btn_outline
+                    .text(<span class="string">&quot;Search for streets&quot;</span>)
+                    .hotkey(Key::Tab)
+                    .build_def(ctx),
             ]))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
+            .build(ctx),
         })
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SearchBuildings</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt; State&lt;A&gt; <span class="kw">for </span>SearchBuildings {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Search for streets&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Navigator::new_state_with_target_zoom</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">target_zoom</span>,
+                <span class="string">&quot;Search for streets&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Replace(Navigator::new_state_with_target_zoom(
+                        ctx,
+                        app,
+                        <span class="self">self</span>.target_zoom,
                     ));
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bldgs</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">autocomplete_done</span>(<span class="string">&quot;bldg&quot;</span>) {
-            <span class="kw">if</span> <span class="ident">bldgs</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bldgs) = <span class="self">self</span>.panel.autocomplete_done(<span class="string">&quot;bldg&quot;</span>) {
+            <span class="kw">if </span>bldgs.is_empty() {
+                <span class="kw">return </span>Transition::Pop;
             }
-            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_b</span>(<span class="ident">bldgs</span>[<span class="number">0</span>]);
-            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">label_center</span>;
-            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">app</span>.<span class="ident">make_warper</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">pt</span>,
-                <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">target_zoom</span>),
-                <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">bldgs</span>[<span class="number">0</span>])),
+            <span class="kw">let </span>b = app.map().get_b(bldgs[<span class="number">0</span>]);
+            <span class="kw">let </span>pt = b.label_center;
+            <span class="kw">return </span>Transition::Replace(app.make_warper(
+                ctx,
+                pt,
+                <span class="prelude-val">Some</span>(<span class="self">self</span>.target_zoom),
+                <span class="prelude-val">Some</span>(ID::Building(bldgs[<span class="number">0</span>])),
             ));
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">clicked_outside</span>(<span class="ident">ctx</span>) {
-            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">if </span><span class="self">self</span>.panel.clicked_outside(ctx) {
+            <span class="kw">return </span>Transition::Pop;
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>A) {
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

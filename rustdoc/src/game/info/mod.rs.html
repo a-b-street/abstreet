@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -988,648 +988,648 @@
 <span id="988">988</span>
 <span id="989">989</span>
 <span id="990">990</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip::OpenTrip</span>;
+<span class="kw">pub use </span>trip::OpenTrip;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">AreaID</span>, <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">ParkingLotID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>,
+<span class="kw">use </span>geom::{Circle, Distance, Polygon, Time};
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::{
+    AreaID, BuildingID, IntersectionID, LaneID, ParkingLotID, TransitRouteID, TransitStopID,
 };
-<span class="kw">use</span> <span class="ident">sim</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">Analytics</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">PersonState</span>,
-    <span class="ident">ProblemType</span>, <span class="ident">TripID</span>, <span class="ident">VehicleType</span>,
+<span class="kw">use </span>sim::{
+    AgentID, AgentType, Analytics, CarID, ParkingSpot, PedestrianID, PersonID, PersonState,
+    ProblemType, TripID, VehicleType,
 };
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::open_browser</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>widgetry::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
+<span class="kw">use </span>widgetry::tools::open_browser;
+<span class="kw">use </span>widgetry::{
+    Color, EventCtx, GfxCtx, Key, Line, LinePlot, Outcome, Panel, PlotOptions, Series, Text,
+    TextExt, Toggle, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">color_for_agent_type</span>, <span class="ident">Warping</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug::path_counter::PathCounter</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">EditMode</span>, <span class="ident">RouteEditor</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer::PANEL_PLACEMENT</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">dashboards</span>, <span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>, <span class="ident">TimeWarpScreen</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::{color_for_agent_type, Warping};
+<span class="kw">use </span><span class="kw">crate</span>::debug::path_counter::PathCounter;
+<span class="kw">use </span><span class="kw">crate</span>::edit::{EditMode, RouteEditor};
+<span class="kw">use </span><span class="kw">crate</span>::layer::PANEL_PLACEMENT;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::{dashboards, GameplayMode, SandboxMode, TimeWarpScreen};
 
-<span class="kw">mod</span> <span class="ident">building</span>;
-<span class="kw">mod</span> <span class="ident">debug</span>;
-<span class="kw">mod</span> <span class="ident">intersection</span>;
-<span class="kw">mod</span> <span class="ident">lane</span>;
-<span class="kw">mod</span> <span class="ident">parking_lot</span>;
-<span class="kw">mod</span> <span class="ident">person</span>;
-<span class="kw">mod</span> <span class="ident">transit</span>;
-<span class="kw">mod</span> <span class="ident">trip</span>;
+<span class="kw">mod </span>building;
+<span class="kw">mod </span>debug;
+<span class="kw">mod </span>intersection;
+<span class="kw">mod </span>lane;
+<span class="kw">mod </span>parking_lot;
+<span class="kw">mod </span>person;
+<span class="kw">mod </span>transit;
+<span class="kw">mod </span>trip;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InfoPanel</span> {
-    <span class="ident">tab</span>: <span class="ident">Tab</span>,
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>InfoPanel {
+    tab: Tab,
+    time: Time,
+    is_paused: bool,
+    panel: Panel,
 
-    <span class="ident">draw_extra</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">tooltips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Text</span>, (<span class="ident">TripID</span>, <span class="ident">Time</span>))<span class="op">&gt;</span>,
+    draw_extra: ToggleZoomed,
+    tooltips: Vec&lt;(Polygon, Text, (TripID, Time))&gt;,
 
-    <span class="ident">hyperlinks</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Tab</span><span class="op">&gt;</span>,
-    <span class="ident">warpers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">ID</span><span class="op">&gt;</span>,
-    <span class="ident">time_warpers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">TripID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span>,
+    hyperlinks: HashMap&lt;String, Tab&gt;,
+    warpers: HashMap&lt;String, ID&gt;,
+    time_warpers: HashMap&lt;String, (TripID, Time)&gt;,
 
-    <span class="comment">// For drawing the OSD only</span>
-    <span class="ident">cached_actions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span>,
+    <span class="comment">// For drawing the OSD only
+    </span>cached_actions: Vec&lt;Key&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Tab</span> {
-    <span class="comment">// What trips are open? For finished trips, show the timeline in the current simulation if</span>
-    <span class="comment">// true, prebaked if false.</span>
-    <span class="ident">PersonTrips</span>(<span class="ident">PersonID</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">OpenTrip</span><span class="op">&gt;</span>),
-    <span class="ident">PersonBio</span>(<span class="ident">PersonID</span>),
-    <span class="ident">PersonSchedule</span>(<span class="ident">PersonID</span>),
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub enum </span>Tab {
+    <span class="comment">// What trips are open? For finished trips, show the timeline in the current simulation if
+    // true, prebaked if false.
+    </span>PersonTrips(PersonID, BTreeMap&lt;TripID, OpenTrip&gt;),
+    PersonBio(PersonID),
+    PersonSchedule(PersonID),
 
-    <span class="ident">TransitVehicleStatus</span>(<span class="ident">CarID</span>),
-    <span class="ident">TransitStop</span>(<span class="ident">TransitStopID</span>),
-    <span class="ident">TransitRoute</span>(<span class="ident">TransitRouteID</span>),
+    TransitVehicleStatus(CarID),
+    TransitStop(TransitStopID),
+    TransitRoute(TransitRouteID),
 
-    <span class="ident">ParkedCar</span>(<span class="ident">CarID</span>),
+    ParkedCar(CarID),
 
-    <span class="ident">BldgInfo</span>(<span class="ident">BuildingID</span>),
-    <span class="ident">BldgPeople</span>(<span class="ident">BuildingID</span>),
+    BldgInfo(BuildingID),
+    BldgPeople(BuildingID),
 
-    <span class="ident">ParkingLot</span>(<span class="ident">ParkingLotID</span>),
+    ParkingLot(ParkingLotID),
 
-    <span class="ident">Crowd</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PedestrianID</span><span class="op">&gt;</span>),
+    Crowd(Vec&lt;PedestrianID&gt;),
 
-    <span class="ident">Area</span>(<span class="ident">AreaID</span>),
+    Area(AreaID),
 
-    <span class="ident">IntersectionInfo</span>(<span class="ident">IntersectionID</span>),
-    <span class="ident">IntersectionTraffic</span>(<span class="ident">IntersectionID</span>, <span class="ident">DataOptions</span>),
-    <span class="comment">// The extra bool is for fan chart. TODO Probably scatter plot should own the job of switching</span>
-    <span class="comment">// between these?</span>
-    <span class="ident">IntersectionDelay</span>(<span class="ident">IntersectionID</span>, <span class="ident">DataOptions</span>, <span class="ident">bool</span>),
-    <span class="ident">IntersectionDemand</span>(<span class="ident">IntersectionID</span>),
-    <span class="ident">IntersectionArrivals</span>(<span class="ident">IntersectionID</span>, <span class="ident">DataOptions</span>),
-    <span class="ident">IntersectionTrafficSignal</span>(<span class="ident">IntersectionID</span>),
-    <span class="ident">IntersectionProblems</span>(<span class="ident">IntersectionID</span>, <span class="ident">ProblemOptions</span>),
+    IntersectionInfo(IntersectionID),
+    IntersectionTraffic(IntersectionID, DataOptions),
+    <span class="comment">// The extra bool is for fan chart. TODO Probably scatter plot should own the job of switching
+    // between these?
+    </span>IntersectionDelay(IntersectionID, DataOptions, bool),
+    IntersectionDemand(IntersectionID),
+    IntersectionArrivals(IntersectionID, DataOptions),
+    IntersectionTrafficSignal(IntersectionID),
+    IntersectionProblems(IntersectionID, ProblemOptions),
 
-    <span class="ident">LaneInfo</span>(<span class="ident">LaneID</span>),
-    <span class="ident">LaneDebug</span>(<span class="ident">LaneID</span>),
-    <span class="ident">LaneTraffic</span>(<span class="ident">LaneID</span>, <span class="ident">DataOptions</span>),
-    <span class="ident">LaneProblems</span>(<span class="ident">LaneID</span>, <span class="ident">ProblemOptions</span>),
+    LaneInfo(LaneID),
+    LaneDebug(LaneID),
+    LaneTraffic(LaneID, DataOptions),
+    LaneProblems(LaneID, ProblemOptions),
 }
 
-<span class="kw">impl</span> <span class="ident">Tab</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_id</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) -&gt; <span class="ident">Tab</span> {
-        <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">ID::Road</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">ID::Lane</span>(<span class="ident">l</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;lane&quot;</span>] {
-                <span class="string">&quot;info&quot;</span> =&gt; <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>),
-                <span class="string">&quot;debug&quot;</span> =&gt; <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>),
-                <span class="string">&quot;traffic&quot;</span> =&gt; <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="ident">DataOptions::new</span>()),
-                <span class="string">&quot;problems&quot;</span> =&gt; <span class="ident">Tab::LaneProblems</span>(<span class="ident">l</span>, <span class="ident">ProblemOptions::new</span>()),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">impl </span>Tab {
+    <span class="kw">pub fn </span>from_id(app: <span class="kw-2">&amp;</span>App, id: ID) -&gt; Tab {
+        <span class="kw">match </span>id {
+            ID::Road(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            ID::Lane(l) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;lane&quot;</span>] {
+                <span class="string">&quot;info&quot; </span>=&gt; Tab::LaneInfo(l),
+                <span class="string">&quot;debug&quot; </span>=&gt; Tab::LaneDebug(l),
+                <span class="string">&quot;traffic&quot; </span>=&gt; Tab::LaneTraffic(l, DataOptions::new()),
+                <span class="string">&quot;problems&quot; </span>=&gt; Tab::LaneProblems(l, ProblemOptions::new()),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">ID::Intersection</span>(<span class="ident">i</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;intersection&quot;</span>] {
-                <span class="string">&quot;info&quot;</span> =&gt; <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>),
-                <span class="string">&quot;traffic&quot;</span> =&gt; <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">i</span>, <span class="ident">DataOptions::new</span>()),
-                <span class="string">&quot;delay&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_traffic_signal</span>() {
-                        <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">i</span>, <span class="ident">DataOptions::new</span>(), <span class="bool-val">false</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
+            ID::Intersection(i) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;intersection&quot;</span>] {
+                <span class="string">&quot;info&quot; </span>=&gt; Tab::IntersectionInfo(i),
+                <span class="string">&quot;traffic&quot; </span>=&gt; Tab::IntersectionTraffic(i, DataOptions::new()),
+                <span class="string">&quot;delay&quot; </span>=&gt; {
+                    <span class="kw">if </span>app.primary.map.get_i(i).is_traffic_signal() {
+                        Tab::IntersectionDelay(i, DataOptions::new(), <span class="bool-val">false</span>)
+                    } <span class="kw">else </span>{
+                        Tab::IntersectionInfo(i)
                     }
                 }
-                <span class="string">&quot;demand&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_traffic_signal</span>() {
-                        <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">i</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
+                <span class="string">&quot;demand&quot; </span>=&gt; {
+                    <span class="kw">if </span>app.primary.map.get_i(i).is_traffic_signal() {
+                        Tab::IntersectionDemand(i)
+                    } <span class="kw">else </span>{
+                        Tab::IntersectionInfo(i)
                     }
                 }
-                <span class="string">&quot;arrivals&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_incoming_border</span>() {
-                        <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">i</span>, <span class="ident">DataOptions::new</span>())
-                    } <span class="kw">else</span> {
-                        <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
+                <span class="string">&quot;arrivals&quot; </span>=&gt; {
+                    <span class="kw">if </span>app.primary.map.get_i(i).is_incoming_border() {
+                        Tab::IntersectionArrivals(i, DataOptions::new())
+                    } <span class="kw">else </span>{
+                        Tab::IntersectionInfo(i)
                     }
                 }
-                <span class="string">&quot;traffic signal&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_traffic_signal</span>() {
-                        <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">i</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
+                <span class="string">&quot;traffic signal&quot; </span>=&gt; {
+                    <span class="kw">if </span>app.primary.map.get_i(i).is_traffic_signal() {
+                        Tab::IntersectionTrafficSignal(i)
+                    } <span class="kw">else </span>{
+                        Tab::IntersectionInfo(i)
                     }
                 }
-                <span class="string">&quot;problems&quot;</span> =&gt; <span class="ident">Tab::IntersectionProblems</span>(<span class="ident">i</span>, <span class="ident">ProblemOptions::new</span>()),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="string">&quot;problems&quot; </span>=&gt; Tab::IntersectionProblems(i, ProblemOptions::new()),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">ID::Building</span>(<span class="ident">b</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;bldg&quot;</span>] {
-                <span class="string">&quot;info&quot;</span> =&gt; <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>),
-                <span class="string">&quot;people&quot;</span> =&gt; <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            ID::Building(b) =&gt; <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;bldg&quot;</span>] {
+                <span class="string">&quot;info&quot; </span>=&gt; Tab::BldgInfo(b),
+                <span class="string">&quot;people&quot; </span>=&gt; Tab::BldgPeople(b),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">ID::ParkingLot</span>(<span class="ident">b</span>) =&gt; <span class="ident">Tab::ParkingLot</span>(<span class="ident">b</span>),
-            <span class="ident">ID::Car</span>(<span class="ident">c</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">agent_to_person</span>(<span class="ident">AgentID::Car</span>(<span class="ident">c</span>)) {
-                    <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;person&quot;</span>] {
-                        <span class="string">&quot;trips&quot;</span> =&gt; <span class="ident">Tab::PersonTrips</span>(
-                            <span class="ident">p</span>,
-                            <span class="ident">OpenTrip::single</span>(
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">agent_to_trip</span>(<span class="ident">AgentID::Car</span>(<span class="ident">c</span>)).<span class="ident">unwrap</span>(),
+            ID::ParkingLot(b) =&gt; Tab::ParkingLot(b),
+            ID::Car(c) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = app.primary.sim.agent_to_person(AgentID::Car(c)) {
+                    <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;person&quot;</span>] {
+                        <span class="string">&quot;trips&quot; </span>=&gt; Tab::PersonTrips(
+                            p,
+                            OpenTrip::single(
+                                app.primary.sim.agent_to_trip(AgentID::Car(c)).unwrap(),
                             ),
                         ),
-                        <span class="string">&quot;bio&quot;</span> =&gt; <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>),
-                        <span class="string">&quot;schedule&quot;</span> =&gt; <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>),
-                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                        <span class="string">&quot;bio&quot; </span>=&gt; Tab::PersonBio(p),
+                        <span class="string">&quot;schedule&quot; </span>=&gt; Tab::PersonSchedule(p),
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bus</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Train</span>
+                } <span class="kw">else if </span>c.vehicle_type == VehicleType::Bus || c.vehicle_type == VehicleType::Train
                 {
-                    <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;bus&quot;</span>] {
-                        <span class="string">&quot;status&quot;</span> =&gt; <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">c</span>),
-                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;bus&quot;</span>] {
+                        <span class="string">&quot;status&quot; </span>=&gt; Tab::TransitVehicleStatus(c),
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                     }
-                } <span class="kw">else</span> {
-                    <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>)
+                } <span class="kw">else </span>{
+                    Tab::ParkedCar(c)
                 }
             }
-            <span class="ident">ID::Pedestrian</span>(<span class="ident">p</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">primary</span>
-                    .<span class="ident">sim</span>
-                    .<span class="ident">agent_to_person</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">p</span>))
-                    .<span class="ident">unwrap</span>();
-                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>[<span class="string">&quot;person&quot;</span>] {
-                    <span class="string">&quot;trips&quot;</span> =&gt; <span class="ident">Tab::PersonTrips</span>(
-                        <span class="ident">person</span>,
-                        <span class="ident">OpenTrip::single</span>(
-                            <span class="ident">app</span>.<span class="ident">primary</span>
-                                .<span class="ident">sim</span>
-                                .<span class="ident">agent_to_trip</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">p</span>))
-                                .<span class="ident">unwrap</span>(),
+            ID::Pedestrian(p) =&gt; {
+                <span class="kw">let </span>person = app
+                    .primary
+                    .sim
+                    .agent_to_person(AgentID::Pedestrian(p))
+                    .unwrap();
+                <span class="kw">match </span>app.session.info_panel_tab[<span class="string">&quot;person&quot;</span>] {
+                    <span class="string">&quot;trips&quot; </span>=&gt; Tab::PersonTrips(
+                        person,
+                        OpenTrip::single(
+                            app.primary
+                                .sim
+                                .agent_to_trip(AgentID::Pedestrian(p))
+                                .unwrap(),
                         ),
                     ),
-                    <span class="string">&quot;bio&quot;</span> =&gt; <span class="ident">Tab::PersonBio</span>(<span class="ident">person</span>),
-                    <span class="string">&quot;schedule&quot;</span> =&gt; <span class="ident">Tab::PersonSchedule</span>(<span class="ident">person</span>),
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="string">&quot;bio&quot; </span>=&gt; Tab::PersonBio(person),
+                    <span class="string">&quot;schedule&quot; </span>=&gt; Tab::PersonSchedule(person),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
             }
-            <span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>) =&gt; <span class="ident">Tab::Crowd</span>(<span class="ident">members</span>),
-            <span class="ident">ID::TransitStop</span>(<span class="ident">bs</span>) =&gt; <span class="ident">Tab::TransitStop</span>(<span class="ident">bs</span>),
-            <span class="ident">ID::Area</span>(<span class="ident">a</span>) =&gt; <span class="ident">Tab::Area</span>(<span class="ident">a</span>),
+            ID::PedCrowd(members) =&gt; Tab::Crowd(members),
+            ID::TransitStop(bs) =&gt; Tab::TransitStop(bs),
+            ID::Area(a) =&gt; Tab::Area(a),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">to_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Tab::PersonTrips</span>(<span class="ident">p</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>) <span class="op">|</span> <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>) =&gt; {
-                <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="kw-2">*</span><span class="ident">p</span>).<span class="ident">state</span> {
-                    <span class="ident">PersonState::Inside</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
-                    <span class="ident">PersonState::Trip</span>(<span class="ident">t</span>) =&gt; {
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="ident">t</span>).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="ident">ID::from_agent</span>)
+    <span class="kw">fn </span>to_id(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            Tab::PersonTrips(p, <span class="kw">_</span>) | Tab::PersonBio(p) | Tab::PersonSchedule(p) =&gt; {
+                <span class="kw">match </span>app.primary.sim.get_person(<span class="kw-2">*</span>p).state {
+                    PersonState::Inside(b) =&gt; <span class="prelude-val">Some</span>(ID::Building(b)),
+                    PersonState::Trip(t) =&gt; {
+                        app.primary.sim.trip_to_agent(t).ok().map(ID::from_agent)
                     }
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                 }
             }
-            <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">c</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
-            <span class="ident">Tab::TransitStop</span>(<span class="ident">bs</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::TransitStop</span>(<span class="kw-2">*</span><span class="ident">bs</span>)),
-            <span class="ident">Tab::TransitRoute</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-            <span class="comment">// TODO If a parked car becomes in use while the panel is open, should update the</span>
-            <span class="comment">// panel better.</span>
-            <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>) =&gt; <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="kw-2">*</span><span class="ident">c</span>)<span class="question-mark">?</span>.<span class="ident">spot</span> {
-                <span class="ident">ParkingSpot::Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
-                <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
-                <span class="ident">ParkingSpot::Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Car</span>(<span class="kw-2">*</span><span class="ident">c</span>)),
+            Tab::TransitVehicleStatus(c) =&gt; <span class="prelude-val">Some</span>(ID::Car(<span class="kw-2">*</span>c)),
+            Tab::TransitStop(bs) =&gt; <span class="prelude-val">Some</span>(ID::TransitStop(<span class="kw-2">*</span>bs)),
+            Tab::TransitRoute(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            <span class="comment">// TODO If a parked car becomes in use while the panel is open, should update the
+            // panel better.
+            </span>Tab::ParkedCar(c) =&gt; <span class="kw">match </span>app.primary.sim.lookup_parked_car(<span class="kw-2">*</span>c)<span class="question-mark">?</span>.spot {
+                ParkingSpot::Onstreet(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(ID::Car(<span class="kw-2">*</span>c)),
+                ParkingSpot::Offstreet(b, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(ID::Building(b)),
+                ParkingSpot::Lot(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(ID::Car(<span class="kw-2">*</span>c)),
             },
-            <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>) <span class="op">|</span> <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="kw-2">*</span><span class="ident">b</span>)),
-            <span class="ident">Tab::ParkingLot</span>(<span class="ident">pl</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::ParkingLot</span>(<span class="kw-2">*</span><span class="ident">pl</span>)),
-            <span class="ident">Tab::Crowd</span>(<span class="ident">members</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>.<span class="ident">clone</span>())),
-            <span class="ident">Tab::Area</span>(<span class="ident">a</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Area</span>(<span class="kw-2">*</span><span class="ident">a</span>)),
-            <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">i</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">i</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">i</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">i</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionProblems</span>(<span class="ident">i</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="kw-2">*</span><span class="ident">i</span>)),
-            <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>)
-            <span class="op">|</span> <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>)
-            <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::LaneProblems</span>(<span class="ident">l</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="kw-2">*</span><span class="ident">l</span>)),
+            Tab::BldgInfo(b) | Tab::BldgPeople(b) =&gt; <span class="prelude-val">Some</span>(ID::Building(<span class="kw-2">*</span>b)),
+            Tab::ParkingLot(pl) =&gt; <span class="prelude-val">Some</span>(ID::ParkingLot(<span class="kw-2">*</span>pl)),
+            Tab::Crowd(members) =&gt; <span class="prelude-val">Some</span>(ID::PedCrowd(members.clone())),
+            Tab::Area(a) =&gt; <span class="prelude-val">Some</span>(ID::Area(<span class="kw-2">*</span>a)),
+            Tab::IntersectionInfo(i)
+            | Tab::IntersectionTraffic(i, <span class="kw">_</span>)
+            | Tab::IntersectionDelay(i, <span class="kw">_</span>, <span class="kw">_</span>)
+            | Tab::IntersectionDemand(i)
+            | Tab::IntersectionArrivals(i, <span class="kw">_</span>)
+            | Tab::IntersectionTrafficSignal(i)
+            | Tab::IntersectionProblems(i, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(ID::Intersection(<span class="kw-2">*</span>i)),
+            Tab::LaneInfo(l)
+            | Tab::LaneDebug(l)
+            | Tab::LaneTraffic(l, <span class="kw">_</span>)
+            | Tab::LaneProblems(l, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(ID::Lane(<span class="kw-2">*</span>l)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">changed_settings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Tab</span><span class="op">&gt;</span> {
-        <span class="comment">// Avoid an occasionally expensive clone.</span>
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Tab::IntersectionTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionArrivals</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionProblems</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
-            <span class="ident">Tab::LaneProblems</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">fn </span>changed_settings(<span class="kw-2">&amp;</span><span class="self">self</span>, c: <span class="kw-2">&amp;</span>Panel) -&gt; <span class="prelude-ty">Option</span>&lt;Tab&gt; {
+        <span class="comment">// Avoid an occasionally expensive clone.
+        </span><span class="kw">match </span><span class="self">self </span>{
+            Tab::IntersectionTraffic(<span class="kw">_</span>, <span class="kw">_</span>)
+            | Tab::IntersectionDelay(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+            | Tab::IntersectionArrivals(<span class="kw">_</span>, <span class="kw">_</span>)
+            | Tab::IntersectionProblems(<span class="kw">_</span>, <span class="kw">_</span>)
+            | Tab::LaneTraffic(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
+            Tab::LaneProblems(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_tab</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
-        <span class="kw">match</span> <span class="ident">new_tab</span> {
-            <span class="ident">Tab::IntersectionTraffic</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>)
-            <span class="op">|</span> <span class="ident">Tab::IntersectionArrivals</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>)
-            <span class="op">|</span> <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="ident">DataOptions::from_controls</span>(<span class="ident">c</span>);
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">==</span> <span class="ident">new_opts</span> {
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>new_tab = <span class="self">self</span>.clone();
+        <span class="kw">match </span>new_tab {
+            Tab::IntersectionTraffic(<span class="kw">_</span>, <span class="kw-2">ref mut </span>opts)
+            | Tab::IntersectionArrivals(<span class="kw">_</span>, <span class="kw-2">ref mut </span>opts)
+            | Tab::LaneTraffic(<span class="kw">_</span>, <span class="kw-2">ref mut </span>opts) =&gt; {
+                <span class="kw">let </span>new_opts = DataOptions::from_controls(c);
+                <span class="kw">if </span><span class="kw-2">*</span>opts == new_opts {
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">=</span> <span class="ident">new_opts</span>;
+                <span class="kw-2">*</span>opts = new_opts;
             }
-            <span class="ident">Tab::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">fan_chart</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="ident">DataOptions::from_controls</span>(<span class="ident">c</span>);
-                <span class="kw">let</span> <span class="ident">new_fan_chart</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">is_checked</span>(<span class="string">&quot;fan chart / scatter plot&quot;</span>);
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">==</span> <span class="ident">new_opts</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">fan_chart</span> <span class="op">==</span> <span class="ident">new_fan_chart</span> {
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+            Tab::IntersectionDelay(<span class="kw">_</span>, <span class="kw-2">ref mut </span>opts, <span class="kw-2">ref mut </span>fan_chart) =&gt; {
+                <span class="kw">let </span>new_opts = DataOptions::from_controls(c);
+                <span class="kw">let </span>new_fan_chart = c.is_checked(<span class="string">&quot;fan chart / scatter plot&quot;</span>);
+                <span class="kw">if </span><span class="kw-2">*</span>opts == new_opts &amp;&amp; <span class="kw-2">*</span>fan_chart == new_fan_chart {
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">=</span> <span class="ident">new_opts</span>;
-                <span class="kw-2">*</span><span class="ident">fan_chart</span> <span class="op">=</span> <span class="ident">new_fan_chart</span>;
+                <span class="kw-2">*</span>opts = new_opts;
+                <span class="kw-2">*</span>fan_chart = new_fan_chart;
             }
-            <span class="ident">Tab::IntersectionProblems</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>) <span class="op">|</span> <span class="ident">Tab::LaneProblems</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">opts</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="ident">ProblemOptions::from_controls</span>(<span class="ident">c</span>);
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">==</span> <span class="ident">new_opts</span> {
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+            Tab::IntersectionProblems(<span class="kw">_</span>, <span class="kw-2">ref mut </span>opts) | Tab::LaneProblems(<span class="kw">_</span>, <span class="kw-2">ref mut </span>opts) =&gt; {
+                <span class="kw">let </span>new_opts = ProblemOptions::from_controls(c);
+                <span class="kw">if </span><span class="kw-2">*</span>opts == new_opts {
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="kw-2">*</span><span class="ident">opts</span> <span class="op">=</span> <span class="ident">new_opts</span>;
+                <span class="kw-2">*</span>opts = new_opts;
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
-        <span class="prelude-val">Some</span>(<span class="ident">new_tab</span>)
+        <span class="prelude-val">Some</span>(new_tab)
     }
 
-    <span class="kw">fn</span> <span class="ident">variant</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Tab::PersonTrips</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;trips&quot;</span>),
-            <span class="ident">Tab::PersonBio</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;bio&quot;</span>),
-            <span class="ident">Tab::PersonSchedule</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;schedule&quot;</span>),
-            <span class="ident">Tab::TransitVehicleStatus</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;status&quot;</span>),
-            <span class="ident">Tab::TransitStop</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus stop&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::TransitRoute</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus route&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::ParkedCar</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parked car&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::BldgInfo</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::BldgPeople</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;people&quot;</span>),
-            <span class="ident">Tab::ParkingLot</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parking lot&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::Crowd</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;crowd&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::Area</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;area&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::IntersectionInfo</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::IntersectionTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
-            <span class="ident">Tab::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;delay&quot;</span>),
-            <span class="ident">Tab::IntersectionDemand</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;demand&quot;</span>),
-            <span class="ident">Tab::IntersectionArrivals</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;arrivals&quot;</span>),
-            <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic signal&quot;</span>),
-            <span class="ident">Tab::IntersectionProblems</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;problems&quot;</span>),
-            <span class="ident">Tab::LaneInfo</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;info&quot;</span>),
-            <span class="ident">Tab::LaneDebug</span>(<span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;debug&quot;</span>),
-            <span class="ident">Tab::LaneTraffic</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
-            <span class="ident">Tab::LaneProblems</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;problems&quot;</span>),
+    <span class="kw">fn </span>variant(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) {
+        <span class="kw">match </span><span class="self">self </span>{
+            Tab::PersonTrips(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;trips&quot;</span>),
+            Tab::PersonBio(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;bio&quot;</span>),
+            Tab::PersonSchedule(<span class="kw">_</span>) =&gt; (<span class="string">&quot;person&quot;</span>, <span class="string">&quot;schedule&quot;</span>),
+            Tab::TransitVehicleStatus(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus&quot;</span>, <span class="string">&quot;status&quot;</span>),
+            Tab::TransitStop(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus stop&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::TransitRoute(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bus route&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::ParkedCar(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parked car&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::BldgInfo(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::BldgPeople(<span class="kw">_</span>) =&gt; (<span class="string">&quot;bldg&quot;</span>, <span class="string">&quot;people&quot;</span>),
+            Tab::ParkingLot(<span class="kw">_</span>) =&gt; (<span class="string">&quot;parking lot&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::Crowd(<span class="kw">_</span>) =&gt; (<span class="string">&quot;crowd&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::Area(<span class="kw">_</span>) =&gt; (<span class="string">&quot;area&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::IntersectionInfo(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::IntersectionTraffic(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
+            Tab::IntersectionDelay(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;delay&quot;</span>),
+            Tab::IntersectionDemand(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;demand&quot;</span>),
+            Tab::IntersectionArrivals(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;arrivals&quot;</span>),
+            Tab::IntersectionTrafficSignal(<span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;traffic signal&quot;</span>),
+            Tab::IntersectionProblems(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;intersection&quot;</span>, <span class="string">&quot;problems&quot;</span>),
+            Tab::LaneInfo(<span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;info&quot;</span>),
+            Tab::LaneDebug(<span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;debug&quot;</span>),
+            Tab::LaneTraffic(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;traffic&quot;</span>),
+            Tab::LaneProblems(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="string">&quot;lane&quot;</span>, <span class="string">&quot;problems&quot;</span>),
         }
     }
 }
 
-<span class="comment">// TODO Name sucks</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Details</span> {
-    <span class="doccomment">/// Draw extra things when unzoomed or zoomed.</span>
-    <span class="kw">pub</span> <span class="ident">draw_extra</span>: <span class="ident">ToggleZoomedBuilder</span>,
-    <span class="doccomment">/// Show these tooltips over the map. If the tooltip is clicked, time-warp and open the info</span>
-    <span class="doccomment">/// panel.</span>
-    <span class="kw">pub</span> <span class="ident">tooltips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Text</span>, (<span class="ident">TripID</span>, <span class="ident">Time</span>))<span class="op">&gt;</span>,
-    <span class="doccomment">/// When a button with this label is clicked, open this info panel tab instead.</span>
-    <span class="kw">pub</span> <span class="ident">hyperlinks</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Tab</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// When a button with this label is clicked, warp to this ID.</span>
-    <span class="kw">pub</span> <span class="ident">warpers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">ID</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// When a button with this label is clicked, time-warp and open the info panel for this trip.</span>
-    <span class="kw">pub</span> <span class="ident">time_warpers</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">TripID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span>,
-    <span class="comment">// It&#39;s just convenient to plumb this here</span>
-    <span class="kw">pub</span> <span class="ident">can_jump_to_time</span>: <span class="ident">bool</span>,
+<span class="comment">// TODO Name sucks
+</span><span class="kw">pub struct </span>Details {
+    <span class="doccomment">/// Draw extra things when unzoomed or zoomed.
+    </span><span class="kw">pub </span>draw_extra: ToggleZoomedBuilder,
+    <span class="doccomment">/// Show these tooltips over the map. If the tooltip is clicked, time-warp and open the info
+    /// panel.
+    </span><span class="kw">pub </span>tooltips: Vec&lt;(Polygon, Text, (TripID, Time))&gt;,
+    <span class="doccomment">/// When a button with this label is clicked, open this info panel tab instead.
+    </span><span class="kw">pub </span>hyperlinks: HashMap&lt;String, Tab&gt;,
+    <span class="doccomment">/// When a button with this label is clicked, warp to this ID.
+    </span><span class="kw">pub </span>warpers: HashMap&lt;String, ID&gt;,
+    <span class="doccomment">/// When a button with this label is clicked, time-warp and open the info panel for this trip.
+    </span><span class="kw">pub </span>time_warpers: HashMap&lt;String, (TripID, Time)&gt;,
+    <span class="comment">// It&#39;s just convenient to plumb this here
+    </span><span class="kw">pub </span>can_jump_to_time: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">InfoPanel</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="kw-2">mut</span> <span class="ident">tab</span>: <span class="ident">Tab</span>,
-        <span class="ident">ctx_actions</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">ContextualActions</span>,
-    ) -&gt; <span class="ident">InfoPanel</span> {
-        <span class="kw">let</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="op">=</span> <span class="ident">tab</span>.<span class="ident">variant</span>();
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">info_panel_tab</span>.<span class="ident">insert</span>(<span class="ident">k</span>, <span class="ident">v</span>);
+<span class="kw">impl </span>InfoPanel {
+    <span class="kw">pub fn </span>new(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        <span class="kw-2">mut </span>tab: Tab,
+        ctx_actions: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ContextualActions,
+    ) -&gt; InfoPanel {
+        <span class="kw">let </span>(k, v) = tab.variant();
+        app.session.info_panel_tab.insert(k, v);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">details</span> <span class="op">=</span> <span class="ident">Details</span> {
-            <span class="ident">draw_extra</span>: <span class="ident">ToggleZoomed::builder</span>(),
-            <span class="ident">tooltips</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">hyperlinks</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">warpers</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">time_warpers</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">can_jump_to_time</span>: <span class="ident">ctx_actions</span>.<span class="ident">gameplay_mode</span>().<span class="ident">can_jump_to_time</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>details = Details {
+            draw_extra: ToggleZoomed::builder(),
+            tooltips: Vec::new(),
+            hyperlinks: HashMap::new(),
+            warpers: HashMap::new(),
+            time_warpers: HashMap::new(),
+            can_jump_to_time: ctx_actions.gameplay_mode().can_jump_to_time(),
         };
 
-        <span class="kw">let</span> (<span class="ident">header_and_tabs</span>, <span class="ident">main_tab</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">tab</span> {
-            <span class="ident">Tab::PersonTrips</span>(<span class="ident">p</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">open</span>) =&gt; (
-                <span class="ident">person::trips</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">p</span>, <span class="ident">open</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
+        <span class="kw">let </span>(header_and_tabs, main_tab) = <span class="kw">match </span>tab {
+            Tab::PersonTrips(p, <span class="kw-2">ref mut </span>open) =&gt; (
+                person::trips(ctx, app, <span class="kw-2">&amp;mut </span>details, p, open, ctx_actions.is_paused()),
                 <span class="bool-val">true</span>,
             ),
-            <span class="ident">Tab::PersonBio</span>(<span class="ident">p</span>) =&gt; (
-                <span class="ident">person::bio</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">p</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
+            Tab::PersonBio(p) =&gt; (
+                person::bio(ctx, app, <span class="kw-2">&amp;mut </span>details, p, ctx_actions.is_paused()),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::PersonSchedule</span>(<span class="ident">p</span>) =&gt; (
-                <span class="ident">person::schedule</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">p</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
+            Tab::PersonSchedule(p) =&gt; (
+                person::schedule(ctx, app, <span class="kw-2">&amp;mut </span>details, p, ctx_actions.is_paused()),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">c</span>) =&gt; (<span class="ident">transit::bus_status</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">c</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::TransitStop</span>(<span class="ident">bs</span>) =&gt; (<span class="ident">transit::stop</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">bs</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::TransitRoute</span>(<span class="ident">br</span>) =&gt; (<span class="ident">transit::route</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">br</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::ParkedCar</span>(<span class="ident">c</span>) =&gt; (
-                <span class="ident">person::parked_car</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">c</span>, <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>()),
+            Tab::TransitVehicleStatus(c) =&gt; (transit::bus_status(ctx, app, <span class="kw-2">&amp;mut </span>details, c), <span class="bool-val">true</span>),
+            Tab::TransitStop(bs) =&gt; (transit::stop(ctx, app, <span class="kw-2">&amp;mut </span>details, bs), <span class="bool-val">true</span>),
+            Tab::TransitRoute(br) =&gt; (transit::route(ctx, app, <span class="kw-2">&amp;mut </span>details, br), <span class="bool-val">true</span>),
+            Tab::ParkedCar(c) =&gt; (
+                person::parked_car(ctx, app, <span class="kw-2">&amp;mut </span>details, c, ctx_actions.is_paused()),
                 <span class="bool-val">true</span>,
             ),
-            <span class="ident">Tab::BldgInfo</span>(<span class="ident">b</span>) =&gt; (<span class="ident">building::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">b</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::BldgPeople</span>(<span class="ident">b</span>) =&gt; (<span class="ident">building::people</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">b</span>), <span class="bool-val">false</span>),
-            <span class="ident">Tab::ParkingLot</span>(<span class="ident">pl</span>) =&gt; (<span class="ident">parking_lot::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">pl</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::Crowd</span>(<span class="kw-2">ref</span> <span class="ident">members</span>) =&gt; (<span class="ident">person::crowd</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">members</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::Area</span>(<span class="ident">a</span>) =&gt; (<span class="ident">debug::area</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">a</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::IntersectionInfo</span>(<span class="ident">i</span>) =&gt; (<span class="ident">intersection::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">i</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::IntersectionTraffic</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) =&gt; (
-                <span class="ident">intersection::traffic</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">i</span>, <span class="ident">opts</span>),
+            Tab::BldgInfo(b) =&gt; (building::info(ctx, app, <span class="kw-2">&amp;mut </span>details, b), <span class="bool-val">true</span>),
+            Tab::BldgPeople(b) =&gt; (building::people(ctx, app, <span class="kw-2">&amp;mut </span>details, b), <span class="bool-val">false</span>),
+            Tab::ParkingLot(pl) =&gt; (parking_lot::info(ctx, app, <span class="kw-2">&amp;mut </span>details, pl), <span class="bool-val">true</span>),
+            Tab::Crowd(<span class="kw-2">ref </span>members) =&gt; (person::crowd(ctx, app, <span class="kw-2">&amp;mut </span>details, members), <span class="bool-val">true</span>),
+            Tab::Area(a) =&gt; (debug::area(ctx, app, <span class="kw-2">&amp;mut </span>details, a), <span class="bool-val">true</span>),
+            Tab::IntersectionInfo(i) =&gt; (intersection::info(ctx, app, <span class="kw-2">&amp;mut </span>details, i), <span class="bool-val">true</span>),
+            Tab::IntersectionTraffic(i, <span class="kw-2">ref </span>opts) =&gt; (
+                intersection::traffic(ctx, app, <span class="kw-2">&amp;mut </span>details, i, opts),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>, <span class="ident">fan_chart</span>) =&gt; (
-                <span class="ident">intersection::delay</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">i</span>, <span class="ident">opts</span>, <span class="ident">fan_chart</span>),
+            Tab::IntersectionDelay(i, <span class="kw-2">ref </span>opts, fan_chart) =&gt; (
+                intersection::delay(ctx, app, <span class="kw-2">&amp;mut </span>details, i, opts, fan_chart),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionDemand</span>(<span class="ident">i</span>) =&gt; (
-                <span class="ident">intersection::current_demand</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">i</span>),
+            Tab::IntersectionDemand(i) =&gt; (
+                intersection::current_demand(ctx, app, <span class="kw-2">&amp;mut </span>details, i),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionArrivals</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) =&gt; (
-                <span class="ident">intersection::arrivals</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">i</span>, <span class="ident">opts</span>),
+            Tab::IntersectionArrivals(i, <span class="kw-2">ref </span>opts) =&gt; (
+                intersection::arrivals(ctx, app, <span class="kw-2">&amp;mut </span>details, i, opts),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionTrafficSignal</span>(<span class="ident">i</span>) =&gt; (
-                <span class="ident">intersection::traffic_signal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">i</span>),
+            Tab::IntersectionTrafficSignal(i) =&gt; (
+                intersection::traffic_signal(ctx, app, <span class="kw-2">&amp;mut </span>details, i),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::IntersectionProblems</span>(<span class="ident">i</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) =&gt; (
-                <span class="ident">intersection::problems</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">i</span>, <span class="ident">opts</span>),
+            Tab::IntersectionProblems(i, <span class="kw-2">ref </span>opts) =&gt; (
+                intersection::problems(ctx, app, <span class="kw-2">&amp;mut </span>details, i, opts),
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Tab::LaneInfo</span>(<span class="ident">l</span>) =&gt; (<span class="ident">lane::info</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">l</span>), <span class="bool-val">true</span>),
-            <span class="ident">Tab::LaneDebug</span>(<span class="ident">l</span>) =&gt; (<span class="ident">lane::debug</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">l</span>), <span class="bool-val">false</span>),
-            <span class="ident">Tab::LaneTraffic</span>(<span class="ident">l</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) =&gt; {
-                (<span class="ident">lane::traffic</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">l</span>, <span class="ident">opts</span>), <span class="bool-val">false</span>)
+            Tab::LaneInfo(l) =&gt; (lane::info(ctx, app, <span class="kw-2">&amp;mut </span>details, l), <span class="bool-val">true</span>),
+            Tab::LaneDebug(l) =&gt; (lane::debug(ctx, app, <span class="kw-2">&amp;mut </span>details, l), <span class="bool-val">false</span>),
+            Tab::LaneTraffic(l, <span class="kw-2">ref </span>opts) =&gt; {
+                (lane::traffic(ctx, app, <span class="kw-2">&amp;mut </span>details, l, opts), <span class="bool-val">false</span>)
             }
-            <span class="ident">Tab::LaneProblems</span>(<span class="ident">l</span>, <span class="kw-2">ref</span> <span class="ident">opts</span>) =&gt; {
-                (<span class="ident">lane::problems</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>, <span class="ident">l</span>, <span class="ident">opts</span>), <span class="bool-val">false</span>)
+            Tab::LaneProblems(l, <span class="kw-2">ref </span>opts) =&gt; {
+                (lane::problems(ctx, app, <span class="kw-2">&amp;mut </span>details, l, opts), <span class="bool-val">false</span>)
             }
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">header_and_tabs</span>];
-        <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cached_actions</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">if</span> <span class="ident">main_tab</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">maybe_id</span>.<span class="ident">clone</span>() {
-                <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">label</span>) <span class="kw">in</span> <span class="ident">ctx_actions</span>.<span class="ident">actions</span>(<span class="ident">app</span>, <span class="ident">id</span>) {
-                    <span class="ident">cached_actions</span>.<span class="ident">push</span>(<span class="ident">key</span>);
-                    <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>
-                        .<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">label</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">key</span>)
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
-                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">button</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[header_and_tabs];
+        <span class="kw">let </span>maybe_id = tab.to_id(app);
+        <span class="kw">let </span><span class="kw-2">mut </span>cached_actions = Vec::new();
+        <span class="kw">if </span>main_tab {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = maybe_id.clone() {
+                <span class="kw">for </span>(key, label) <span class="kw">in </span>ctx_actions.actions(app, id) {
+                    cached_actions.push(key);
+                    <span class="kw">let </span>button = ctx
+                        .style()
+                        .btn_outline
+                        .text(<span class="kw-2">&amp;</span>label)
+                        .hotkey(key)
+                        .build_widget(ctx, label);
+                    col.push(button);
                 }
             }
         }
 
-        <span class="comment">// Highlight something?</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="ident">outline</span>)) <span class="op">=</span> <span class="ident">maybe_id</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> {
-            <span class="ident">app</span>.<span class="ident">primary</span>
-                .<span class="ident">draw_map</span>
-                .<span class="ident">get_obj</span>(<span class="ident">ctx</span>, <span class="ident">id</span>.<span class="ident">clone</span>(), <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>())
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">obj</span><span class="op">|</span> (<span class="ident">id</span>, <span class="ident">obj</span>.<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)))
+        <span class="comment">// Highlight something?
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((id, outline)) = maybe_id.and_then(|id| {
+            app.primary
+                .draw_map
+                .get_obj(ctx, id.clone(), app, <span class="kw-2">&amp;mut </span>app.primary.agents.borrow_mut())
+                .map(|obj| (id, obj.get_outline(<span class="kw-2">&amp;</span>app.primary.map)))
         }) {
-            <span class="comment">// Different selection styles for different objects.</span>
-            <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Car</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="comment">// Some objects are much wider/taller than others</span>
-                    <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
-                        <span class="ident">ID::Car</span>(<span class="ident">c</span>) =&gt; {
-                            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
-                                <span class="number">3.0</span>
-                            } <span class="kw">else</span> {
-                                <span class="number">0.75</span>
-                            }
+            <span class="comment">// Different selection styles for different objects.
+            </span><span class="kw">match </span>id {
+                ID::Car(<span class="kw">_</span>) | ID::Pedestrian(<span class="kw">_</span>) | ID::PedCrowd(<span class="kw">_</span>) =&gt; {
+                    <span class="comment">// Some objects are much wider/taller than others
+                    </span><span class="kw">let </span>multiplier = <span class="kw">match </span>id {
+                        ID::Car(c) =&gt; {
+                            <span class="kw">if </span>c.vehicle_type == VehicleType::Bike {
+                                <span class="number">3.0
+                            </span>} <span class="kw">else </span>{
+                                <span class="number">0.75
+                            </span>}
                         }
-                        <span class="ident">ID::Pedestrian</span>(<span class="kw">_</span>) =&gt; <span class="number">3.0</span>,
-                        <span class="ident">ID::PedCrowd</span>(<span class="kw">_</span>) =&gt; <span class="number">0.75</span>,
-                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                        ID::Pedestrian(<span class="kw">_</span>) =&gt; <span class="number">3.0</span>,
+                        ID::PedCrowd(<span class="kw">_</span>) =&gt; <span class="number">0.75</span>,
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                     };
-                    <span class="comment">// Make a circle to cover the object.</span>
-                    <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">outline</span>.<span class="ident">get_bounds</span>();
-                    <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">Distance::meters</span>(<span class="ident">bounds</span>.<span class="ident">width</span>().<span class="ident">max</span>(<span class="ident">bounds</span>.<span class="ident">height</span>()));
-                    <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">current_object</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                        <span class="ident">Circle::new</span>(<span class="ident">bounds</span>.<span class="ident">center</span>(), <span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
+                    <span class="comment">// Make a circle to cover the object.
+                    </span><span class="kw">let </span>bounds = outline.get_bounds();
+                    <span class="kw">let </span>radius = multiplier * Distance::meters(bounds.width().max(bounds.height()));
+                    details.draw_extra.unzoomed.push(
+                        app.cs.current_object.alpha(<span class="number">0.5</span>),
+                        Circle::new(bounds.center(), radius).to_polygon(),
                     );
-                    <span class="kw">match</span> <span class="ident">Circle::new</span>(<span class="ident">bounds</span>.<span class="ident">center</span>(), <span class="ident">radius</span>).<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.3</span>)) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">poly</span>) =&gt; {
-                            <span class="ident">details</span>
-                                .<span class="ident">draw_extra</span>
-                                .<span class="ident">unzoomed</span>
-                                .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">current_object</span>, <span class="ident">poly</span>.<span class="ident">clone</span>());
-                            <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">current_object</span>, <span class="ident">poly</span>);
+                    <span class="kw">match </span>Circle::new(bounds.center(), radius).to_outline(Distance::meters(<span class="number">0.3</span>)) {
+                        <span class="prelude-val">Ok</span>(poly) =&gt; {
+                            details
+                                .draw_extra
+                                .unzoomed
+                                .push(app.cs.current_object, poly.clone());
+                            details.draw_extra.zoomed.push(app.cs.current_object, poly);
                         }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                            <span class="macro">warn!</span>(<span class="string">&quot;No outline for {:?}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>);
+                        <span class="prelude-val">Err</span>(err) =&gt; {
+                            <span class="macro">warn!</span>(<span class="string">&quot;No outline for {:?}: {}&quot;</span>, id, err);
                         }
                     }
 
-                    <span class="comment">// TODO And actually, don&#39;t cover up the agent. The Renderable API isn&#39;t quite</span>
-                    <span class="comment">// conducive to doing this yet.</span>
-                }
-                <span class="kw">_</span> =&gt; {
-                    <span class="ident">details</span>
-                        .<span class="ident">draw_extra</span>
-                        .<span class="ident">unzoomed</span>
-                        .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">perma_selected_object</span>, <span class="ident">outline</span>.<span class="ident">clone</span>());
-                    <span class="ident">details</span>
-                        .<span class="ident">draw_extra</span>
-                        .<span class="ident">zoomed</span>
-                        .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">perma_selected_object</span>, <span class="ident">outline</span>);
+                    <span class="comment">// TODO And actually, don&#39;t cover up the agent. The Renderable API isn&#39;t quite
+                    // conducive to doing this yet.
+                </span>}
+                <span class="kw">_ </span>=&gt; {
+                    details
+                        .draw_extra
+                        .unzoomed
+                        .push(app.cs.perma_selected_object, outline.clone());
+                    details
+                        .draw_extra
+                        .zoomed
+                        .push(app.cs.perma_selected_object, outline);
                 }
             }
         }
 
-        <span class="ident">InfoPanel</span> {
-            <span class="ident">tab</span>,
-            <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">is_paused</span>: <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>(),
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>).<span class="ident">padding</span>(<span class="number">16</span>))
-                .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-                <span class="comment">// TODO Some headings are too wide.. Intersection #xyz (Traffic signals)</span>
-                .<span class="ident">exact_size_percent</span>(<span class="number">30</span>, <span class="number">60</span>)
-                .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
-            <span class="ident">draw_extra</span>: <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">tooltips</span>: <span class="ident">details</span>.<span class="ident">tooltips</span>,
-            <span class="ident">hyperlinks</span>: <span class="ident">details</span>.<span class="ident">hyperlinks</span>,
-            <span class="ident">warpers</span>: <span class="ident">details</span>.<span class="ident">warpers</span>,
-            <span class="ident">time_warpers</span>: <span class="ident">details</span>.<span class="ident">time_warpers</span>,
-            <span class="ident">cached_actions</span>,
+        InfoPanel {
+            tab,
+            time: app.primary.sim.time(),
+            is_paused: ctx_actions.is_paused(),
+            panel: Panel::new_builder(Widget::col(col).bg(app.cs.panel_bg).padding(<span class="number">16</span>))
+                .aligned_pair(PANEL_PLACEMENT)
+                <span class="comment">// TODO Some headings are too wide.. Intersection #xyz (Traffic signals)
+                </span>.exact_size_percent(<span class="number">30</span>, <span class="number">60</span>)
+                .build_custom(ctx),
+            draw_extra: details.draw_extra.build(ctx),
+            tooltips: details.tooltips,
+            hyperlinks: details.hyperlinks,
+            warpers: details.warpers,
+            time_warpers: details.time_warpers,
+            cached_actions,
         }
     }
 
-    <span class="comment">// (Are we done, optional transition)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">ctx_actions</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">ContextualActions</span>,
-    ) -&gt; (<span class="ident">bool</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>) {
-        <span class="comment">// Let the user click on the map to cancel out this info panel, or click on a tooltip to</span>
-        <span class="comment">// time warp.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-            <span class="comment">// TODO This&#39;ll fire left_click elsewhere and conflict; we can&#39;t override here</span>
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">is_none</span>() {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_tooltip</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, (<span class="ident">trip</span>, <span class="ident">time</span>))) <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">tooltips</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">poly</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">poly</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>))
+    <span class="comment">// (Are we done, optional transition)
+    </span><span class="kw">pub fn </span>event(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        ctx_actions: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ContextualActions,
+    ) -&gt; (bool, <span class="prelude-ty">Option</span>&lt;Transition&gt;) {
+        <span class="comment">// Let the user click on the map to cancel out this info panel, or click on a tooltip to
+        // time warp.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+            <span class="comment">// TODO This&#39;ll fire left_click elsewhere and conflict; we can&#39;t override here
+            </span><span class="kw">if </span>app.primary.current_selection.is_none() {
+                <span class="kw">let </span><span class="kw-2">mut </span>found_tooltip = <span class="bool-val">false</span>;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw">_</span>, (trip, time))) = <span class="self">self
+                    </span>.tooltips
+                    .iter()
+                    .find(|(poly, <span class="kw">_</span>, <span class="kw">_</span>)| poly.contains_pt(pt))
                 {
-                    <span class="ident">found_tooltip</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">if</span> <span class="ident">app</span>
-                        .<span class="ident">per_obj</span>
-                        .<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;warp here at {}&quot;</span>, <span class="ident">time</span>))
+                    found_tooltip = <span class="bool-val">true</span>;
+                    <span class="kw">if </span>app
+                        .per_obj
+                        .left_click(ctx, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;warp here at {}&quot;</span>, time))
                     {
-                        <span class="kw">return</span> <span class="ident">do_time_warp</span>(<span class="ident">ctx_actions</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">trip</span>, <span class="kw-2">*</span><span class="ident">time</span>);
+                        <span class="kw">return </span>do_time_warp(ctx_actions, app, <span class="kw-2">*</span>trip, <span class="kw-2">*</span>time);
                     }
                 }
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">found_tooltip</span> <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;stop showing info&quot;</span>) {
-                    <span class="kw">return</span> (<span class="bool-val">true</span>, <span class="prelude-val">None</span>);
+                <span class="kw">if </span>!found_tooltip &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;stop showing info&quot;</span>) {
+                    <span class="kw">return </span>(<span class="bool-val">true</span>, <span class="prelude-val">None</span>);
                 }
             }
         }
 
-        <span class="comment">// Live update?</span>
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ctx_actions</span>.<span class="ident">is_paused</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">is_paused</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfoPanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">clone</span>(), <span class="ident">ctx_actions</span>);
-            <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
-            <span class="kw">return</span> (<span class="bool-val">false</span>, <span class="prelude-val">None</span>);
+        <span class="comment">// Live update?
+        </span><span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time || ctx_actions.is_paused() != <span class="self">self</span>.is_paused {
+            <span class="kw">let </span><span class="kw-2">mut </span>new = InfoPanel::new(ctx, app, <span class="self">self</span>.tab.clone(), ctx_actions);
+            new.panel.restore(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.panel);
+            <span class="kw-2">*</span><span class="self">self </span>= new;
+            <span class="kw">return </span>(<span class="bool-val">false</span>, <span class="prelude-val">None</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>);
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">action</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_tab</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hyperlinks</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">action</span>).<span class="ident">cloned</span>() {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfoPanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_tab</span>, <span class="ident">ctx_actions</span>);
-                    <span class="comment">// TODO Most cases use changed_settings, but one doesn&#39;t. Detect that</span>
-                    <span class="comment">// &quot;sameness&quot; here.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> (<span class="ident">Tab::PersonTrips</span>(<span class="ident">p1</span>, <span class="kw">_</span>), <span class="ident">Tab::PersonTrips</span>(<span class="ident">p2</span>, <span class="kw">_</span>)) <span class="op">=</span>
-                        (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tab</span>, <span class="kw-2">&amp;</span><span class="ident">new</span>.<span class="ident">tab</span>)
+        <span class="kw">let </span>maybe_id = <span class="self">self</span>.tab.to_id(app);
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(action) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(new_tab) = <span class="self">self</span>.hyperlinks.get(<span class="kw-2">&amp;</span>action).cloned() {
+                    <span class="kw">let </span><span class="kw-2">mut </span>new = InfoPanel::new(ctx, app, new_tab, ctx_actions);
+                    <span class="comment">// TODO Most cases use changed_settings, but one doesn&#39;t. Detect that
+                    // &quot;sameness&quot; here.
+                    </span><span class="kw">if let </span>(Tab::PersonTrips(p1, <span class="kw">_</span>), Tab::PersonTrips(p2, <span class="kw">_</span>)) =
+                        (<span class="kw-2">&amp;</span><span class="self">self</span>.tab, <span class="kw-2">&amp;</span>new.tab)
                     {
-                        <span class="kw">if</span> <span class="ident">p1</span> <span class="op">==</span> <span class="ident">p2</span> {
-                            <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
+                        <span class="kw">if </span>p1 == p2 {
+                            new.panel.restore(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.panel);
                         }
                     }
-                    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
+                    <span class="kw-2">*</span><span class="self">self </span>= new;
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="string">&quot;close&quot;</span> {
+                } <span class="kw">else if </span>action == <span class="string">&quot;close&quot; </span>{
                     (<span class="bool-val">true</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="string">&quot;jump to object&quot;</span> {
-                    <span class="comment">// TODO Messy way of doing this</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>) {
+                } <span class="kw">else if </span>action == <span class="string">&quot;jump to object&quot; </span>{
+                    <span class="comment">// TODO Messy way of doing this
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.tab.to_id(app) {
                         (
                             <span class="bool-val">false</span>,
-                            <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>(),
+                            <span class="prelude-val">Some</span>(Transition::Push(Warping::new_state(
+                                ctx,
+                                app.primary.canonical_point(id.clone()).unwrap(),
                                 <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
-                                <span class="prelude-val">Some</span>(<span class="ident">id</span>),
-                                <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                                <span class="prelude-val">Some</span>(id),
+                                <span class="kw-2">&amp;mut </span>app.primary,
                             ))),
                         )
-                    } <span class="kw">else</span> {
+                    } <span class="kw">else </span>{
                         (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">warpers</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">action</span>) {
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.warpers.get(<span class="kw-2">&amp;</span>action) {
                     (
                         <span class="bool-val">false</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">id</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>(),
+                        <span class="prelude-val">Some</span>(Transition::Push(Warping::new_state(
+                            ctx,
+                            app.primary.canonical_point(id.clone()).unwrap(),
                             <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
                             <span class="prelude-val">None</span>,
-                            <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                            <span class="kw-2">&amp;mut </span>app.primary,
                         ))),
                     )
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="ident">time</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">time_warpers</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">action</span>) {
-                    <span class="ident">do_time_warp</span>(<span class="ident">ctx_actions</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">trip</span>, <span class="kw-2">*</span><span class="ident">time</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;open &quot;</span>) {
-                    <span class="ident">open_browser</span>(<span class="ident">url</span>);
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>((trip, time)) = <span class="self">self</span>.time_warpers.get(<span class="kw-2">&amp;</span>action) {
+                    do_time_warp(ctx_actions, app, <span class="kw-2">*</span>trip, <span class="kw-2">*</span>time)
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(url) = action.strip_prefix(<span class="string">&quot;open &quot;</span>) {
+                    open_browser(url);
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;edit TransitRoute #&quot;</span>) {
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = action.strip_prefix(<span class="string">&quot;edit TransitRoute #&quot;</span>) {
                     (
                         <span class="bool-val">false</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Transition::Push</span>(<span class="ident">EditMode::new_state</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">app</span>,
-                                <span class="ident">ctx_actions</span>.<span class="ident">gameplay_mode</span>(),
+                        <span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
+                            Transition::Push(EditMode::new_state(
+                                ctx,
+                                app,
+                                ctx_actions.gameplay_mode(),
                             )),
-                            <span class="ident">Transition::Push</span>(<span class="ident">RouteEditor::new_state</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">app</span>,
-                                <span class="ident">TransitRouteID</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()),
+                            Transition::Push(RouteEditor::new_state(
+                                ctx,
+                                app,
+                                TransitRouteID(x.parse::&lt;usize&gt;().unwrap()),
                             )),
                         ])),
                     )
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">action</span> <span class="op">==</span> <span class="string">&quot;Explore demand across all traffic signals&quot;</span> {
+                } <span class="kw">else if </span>action == <span class="string">&quot;Explore demand across all traffic signals&quot; </span>{
                     (
                         <span class="bool-val">false</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(
-                            <span class="ident">dashboards::TrafficSignalDemand::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                        <span class="prelude-val">Some</span>(Transition::Push(
+                            dashboards::TrafficSignalDemand::new_state(ctx, app),
                         )),
                     )
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">action</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;routes across Intersection #&quot;</span>) {
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(x) = action.strip_prefix(<span class="string">&quot;routes across Intersection #&quot;</span>) {
                     (
                         <span class="bool-val">false</span>,
-                        <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PathCounter::demand_across_intersection</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">IntersectionID</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>()),
+                        <span class="prelude-val">Some</span>(Transition::Push(PathCounter::demand_across_intersection(
+                            ctx,
+                            app,
+                            IntersectionID(x.parse::&lt;usize&gt;().unwrap()),
                         ))),
                     )
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">maybe_id</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">close_panel</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">ctx_actions</span>.<span class="ident">execute</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">action</span>, <span class="kw-2">&amp;mut</span> <span class="ident">close_panel</span>);
-                    (<span class="ident">close_panel</span>, <span class="prelude-val">Some</span>(<span class="ident">t</span>))
-                } <span class="kw">else</span> {
-                    <span class="comment">// This happens when clicking the follow/unfollow button on a trip whose</span>
-                    <span class="comment">// agent doesn&#39;t exist. Do nothing and just don&#39;t crash.</span>
-                    <span class="macro">error!</span>(
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(id) = maybe_id {
+                    <span class="kw">let </span><span class="kw-2">mut </span>close_panel = <span class="bool-val">true</span>;
+                    <span class="kw">let </span>t = ctx_actions.execute(ctx, app, id, action, <span class="kw-2">&amp;mut </span>close_panel);
+                    (close_panel, <span class="prelude-val">Some</span>(t))
+                } <span class="kw">else </span>{
+                    <span class="comment">// This happens when clicking the follow/unfollow button on a trip whose
+                    // agent doesn&#39;t exist. Do nothing and just don&#39;t crash.
+                    </span><span class="macro">error!</span>(
                         <span class="string">&quot;Can&#39;t do {} on this tab, because it doesn&#39;t map to an ID&quot;</span>,
-                        <span class="ident">action</span>
+                        action
                     );
                     (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
                 }
             }
-            <span class="kw">_</span> =&gt; {
-                <span class="comment">// Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on</span>
-                <span class="comment">// a tab.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_tab</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">changed_settings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">InfoPanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_tab</span>, <span class="ident">ctx_actions</span>);
-                    <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-                    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
-                    <span class="kw">return</span> (<span class="bool-val">false</span>, <span class="prelude-val">None</span>);
+            <span class="kw">_ </span>=&gt; {
+                <span class="comment">// Maybe a non-click action should change the tab. Aka, checkboxes/dropdowns/etc on
+                // a tab.
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(new_tab) = <span class="self">self</span>.tab.changed_settings(<span class="kw-2">&amp;</span><span class="self">self</span>.panel) {
+                    <span class="kw">let </span><span class="kw-2">mut </span>new = InfoPanel::new(ctx, app, new_tab, ctx_actions);
+                    new.panel.restore(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.panel);
+                    <span class="kw-2">*</span><span class="self">self </span>= new;
+                    <span class="kw">return </span>(<span class="bool-val">false</span>, <span class="prelude-val">None</span>);
                 }
 
                 (<span class="bool-val">false</span>, <span class="prelude-val">None</span>)
@@ -1637,346 +1637,346 @@
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw_extra</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-            <span class="kw">for</span> (<span class="ident">poly</span>, <span class="ident">txt</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">tooltips</span> {
-                <span class="kw">if</span> <span class="ident">poly</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
-                    <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.draw_extra.draw(g);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = g.canvas.get_cursor_in_map_space() {
+            <span class="kw">for </span>(poly, txt, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.tooltips {
+                <span class="kw">if </span>poly.contains_pt(pt) {
+                    g.draw_mouse_tooltip(txt.clone());
                     <span class="kw">break</span>;
                 }
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_keys</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cached_actions</span>
+    <span class="kw">pub fn </span>active_keys(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;Key&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.cached_actions
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">tab</span>.<span class="ident">to_id</span>(<span class="ident">app</span>)
+    <span class="kw">pub fn </span>active_id(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="self">self</span>.tab.to_id(app)
     }
 }
 
-<span class="comment">// Internal helper method for InfoPanel::event</span>
-<span class="kw">fn</span> <span class="ident">do_time_warp</span>(
-    <span class="ident">ctx_actions</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">ContextualActions</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-    <span class="ident">trip</span>: <span class="ident">TripID</span>,
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-) -&gt; (<span class="ident">bool</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_person</span>(<span class="ident">trip</span>).<span class="ident">unwrap</span>();
-    <span class="comment">// When executed, this assumes the SandboxMode is the top of the stack. It&#39;ll</span>
-    <span class="comment">// reopen the info panel, then launch the jump-to-time UI.</span>
-    <span class="kw">let</span> <span class="ident">jump_to_time</span> <span class="op">=</span> <span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
+<span class="comment">// Internal helper method for InfoPanel::event
+</span><span class="kw">fn </span>do_time_warp(
+    ctx_actions: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>ContextualActions,
+    app: <span class="kw-2">&amp;mut </span>App,
+    trip: TripID,
+    time: Time,
+) -&gt; (bool, <span class="prelude-ty">Option</span>&lt;Transition&gt;) {
+    <span class="kw">let </span>person = app.primary.sim.trip_to_person(trip).unwrap();
+    <span class="comment">// When executed, this assumes the SandboxMode is the top of the stack. It&#39;ll
+    // reopen the info panel, then launch the jump-to-time UI.
+    </span><span class="kw">let </span>jump_to_time = Transition::ConsumeState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+        <span class="kw">let </span><span class="kw-2">mut </span>sandbox = state.downcast::&lt;SandboxMode&gt;().ok().unwrap();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">sandbox</span>.<span class="ident">contextual_actions</span>();
-        <span class="ident">sandbox</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">Tab::PersonTrips</span>(<span class="ident">person</span>, <span class="ident">OpenTrip::single</span>(<span class="ident">trip</span>)),
-            <span class="kw-2">&amp;mut</span> <span class="ident">actions</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>actions = sandbox.contextual_actions();
+        sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+            ctx,
+            app,
+            Tab::PersonTrips(person, OpenTrip::single(trip)),
+            <span class="kw-2">&amp;mut </span>actions,
         );
 
-        <span class="macro">vec!</span>[<span class="ident">sandbox</span>, <span class="ident">TimeWarpScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">time</span>, <span class="prelude-val">None</span>)]
+        <span class="macro">vec!</span>[sandbox, TimeWarpScreen::new_state(ctx, app, time, <span class="prelude-val">None</span>)]
     }));
 
-    <span class="kw">if</span> <span class="ident">time</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() {
-        <span class="kw">return</span> (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">jump_to_time</span>));
+    <span class="kw">if </span>time &gt;= app.primary.sim.time() {
+        <span class="kw">return </span>(<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(jump_to_time));
     }
 
-    <span class="comment">// We need to first rewind the simulation</span>
-    <span class="kw">let</span> <span class="ident">rewind_sim</span> <span class="op">=</span> <span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::async_new</span>(
-        <span class="ident">app</span>,
-        <span class="ident">ctx_actions</span>.<span class="ident">gameplay_mode</span>(),
-        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="ident">jump_to_time</span>]),
+    <span class="comment">// We need to first rewind the simulation
+    </span><span class="kw">let </span>rewind_sim = Transition::Replace(SandboxMode::async_new(
+        app,
+        ctx_actions.gameplay_mode(),
+        Box::new(<span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>| <span class="macro">vec!</span>[jump_to_time]),
     ));
 
-    (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(<span class="ident">rewind_sim</span>))
+    (<span class="bool-val">false</span>, <span class="prelude-val">Some</span>(rewind_sim))
 }
 
-<span class="kw">fn</span> <span class="ident">make_table</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">rows</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">I</span>, <span class="ident">String</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
-    <span class="ident">rows</span>.<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> {
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="ident">k</span>).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="comment">// TODO not quite...</span>
-                <span class="ident">v</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">align_right</span>(),
+<span class="kw">fn </span>make_table&lt;I: Into&lt;String&gt;&gt;(ctx: <span class="kw-2">&amp;</span>EventCtx, rows: Vec&lt;(I, String)&gt;) -&gt; Vec&lt;Widget&gt; {
+    rows.into_iter()
+        .map(|(k, v)| {
+            Widget::row(<span class="macro">vec!</span>[
+                Line(k).secondary().into_widget(ctx),
+                <span class="comment">// TODO not quite...
+                </span>v.text_widget(ctx).centered_vert().align_right(),
             ])
         })
-        .<span class="ident">collect</span>()
+        .collect()
 }
 
-<span class="kw">fn</span> <span class="ident">throughput</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Analytics</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">get_data</span>: <span class="ident">F</span>,
-    <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">series</span> <span class="op">=</span> <span class="ident">get_data</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>())
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">agent_type</span>, <span class="ident">pts</span>)<span class="op">|</span> <span class="ident">Series</span> {
-            <span class="ident">label</span>: <span class="ident">agent_type</span>.<span class="ident">noun</span>().<span class="ident">to_string</span>(),
-            <span class="ident">color</span>: <span class="ident">color_for_agent_type</span>(<span class="ident">app</span>, <span class="ident">agent_type</span>),
-            <span class="ident">pts</span>,
+<span class="kw">fn </span>throughput&lt;F: Fn(<span class="kw-2">&amp;</span>Analytics) -&gt; Vec&lt;(AgentType, Vec&lt;(Time, usize)&gt;)&gt;&gt;(
+    ctx: <span class="kw-2">&amp;</span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    title: <span class="kw-2">&amp;</span>str,
+    get_data: F,
+    opts: <span class="kw-2">&amp;</span>DataOptions,
+) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>series = get_data(app.primary.sim.get_analytics())
+        .into_iter()
+        .map(|(agent_type, pts)| Series {
+            label: agent_type.noun().to_string(),
+            color: color_for_agent_type(app, agent_type),
+            pts,
         })
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show_before</span> {
-        <span class="comment">// TODO Ahh these colors don&#39;t show up differently at all.</span>
-        <span class="kw">for</span> (<span class="ident">agent_type</span>, <span class="ident">pts</span>) <span class="kw">in</span> <span class="ident">get_data</span>(<span class="ident">app</span>.<span class="ident">prebaked</span>()) {
-            <span class="ident">series</span>.<span class="ident">push</span>(<span class="ident">Series</span> {
-                <span class="ident">label</span>: <span class="ident">agent_type</span>.<span class="ident">noun</span>().<span class="ident">to_string</span>(),
-                <span class="ident">color</span>: <span class="ident">color_for_agent_type</span>(<span class="ident">app</span>, <span class="ident">agent_type</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-                <span class="ident">pts</span>,
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">if </span>opts.show_before {
+        <span class="comment">// TODO Ahh these colors don&#39;t show up differently at all.
+        </span><span class="kw">for </span>(agent_type, pts) <span class="kw">in </span>get_data(app.prebaked()) {
+            series.push(Series {
+                label: agent_type.noun().to_string(),
+                color: color_for_agent_type(app, agent_type).alpha(<span class="number">0.3</span>),
+                pts,
             });
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">plot_opts</span> <span class="op">=</span> <span class="ident">PlotOptions::filterable</span>();
-    <span class="ident">plot_opts</span>.<span class="ident">disabled</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">disabled_series</span>();
-    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">LinePlot::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">title</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>plot_opts = PlotOptions::filterable();
+    plot_opts.disabled = opts.disabled_series();
+    Widget::col(<span class="macro">vec!</span>[
+        Line(title).small_heading().into_widget(ctx),
+        LinePlot::new_widget(ctx, title, series, plot_opts, app.opts.units),
     ])
-    .<span class="ident">padding</span>(<span class="number">10</span>)
-    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-    .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
+    .padding(<span class="number">10</span>)
+    .bg(app.cs.inner_panel_bg)
+    .outline(ctx.style().section_outline)
 }
 
-<span class="comment">// Like above, but grouped differently...</span>
-<span class="kw">fn</span> <span class="ident">problem_count</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Analytics</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ProblemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">get_data</span>: <span class="ident">F</span>,
-    <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">ProblemOptions</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">series</span> <span class="op">=</span> <span class="ident">get_data</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>())
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">problem_type</span>, <span class="ident">pts</span>)<span class="op">|</span> <span class="ident">Series</span> {
-            <span class="ident">label</span>: <span class="ident">problem_type</span>.<span class="ident">name</span>().<span class="ident">to_string</span>(),
-            <span class="ident">color</span>: <span class="ident">color_for_problem_type</span>(<span class="ident">app</span>, <span class="ident">problem_type</span>),
-            <span class="ident">pts</span>,
+<span class="comment">// Like above, but grouped differently...
+</span><span class="kw">fn </span>problem_count&lt;F: Fn(<span class="kw-2">&amp;</span>Analytics) -&gt; Vec&lt;(ProblemType, Vec&lt;(Time, usize)&gt;)&gt;&gt;(
+    ctx: <span class="kw-2">&amp;</span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    title: <span class="kw-2">&amp;</span>str,
+    get_data: F,
+    opts: <span class="kw-2">&amp;</span>ProblemOptions,
+) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>series = get_data(app.primary.sim.get_analytics())
+        .into_iter()
+        .map(|(problem_type, pts)| Series {
+            label: problem_type.name().to_string(),
+            color: color_for_problem_type(app, problem_type),
+            pts,
         })
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show_before</span> {
-        <span class="kw">for</span> (<span class="ident">problem_type</span>, <span class="ident">pts</span>) <span class="kw">in</span> <span class="ident">get_data</span>(<span class="ident">app</span>.<span class="ident">prebaked</span>()) {
-            <span class="ident">series</span>.<span class="ident">push</span>(<span class="ident">Series</span> {
-                <span class="ident">label</span>: <span class="ident">problem_type</span>.<span class="ident">name</span>().<span class="ident">to_string</span>(),
-                <span class="ident">color</span>: <span class="ident">color_for_problem_type</span>(<span class="ident">app</span>, <span class="ident">problem_type</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-                <span class="ident">pts</span>,
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">if </span>opts.show_before {
+        <span class="kw">for </span>(problem_type, pts) <span class="kw">in </span>get_data(app.prebaked()) {
+            series.push(Series {
+                label: problem_type.name().to_string(),
+                color: color_for_problem_type(app, problem_type).alpha(<span class="number">0.3</span>),
+                pts,
             });
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">plot_opts</span> <span class="op">=</span> <span class="ident">PlotOptions::filterable</span>();
-    <span class="ident">plot_opts</span>.<span class="ident">disabled</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">disabled_series</span>();
-    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">LinePlot::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">title</span>, <span class="ident">series</span>, <span class="ident">plot_opts</span>, <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>plot_opts = PlotOptions::filterable();
+    plot_opts.disabled = opts.disabled_series();
+    Widget::col(<span class="macro">vec!</span>[
+        Line(title).small_heading().into_widget(ctx),
+        LinePlot::new_widget(ctx, title, series, plot_opts, app.opts.units),
     ])
-    .<span class="ident">padding</span>(<span class="number">10</span>)
-    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-    .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
+    .padding(<span class="number">10</span>)
+    .bg(app.cs.inner_panel_bg)
+    .outline(ctx.style().section_outline)
 }
 
-<span class="kw">fn</span> <span class="ident">make_tabs</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-    <span class="ident">hyperlinks</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Tab</span><span class="op">&gt;</span>,
-    <span class="ident">current_tab</span>: <span class="ident">Tab</span>,
-    <span class="ident">tabs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Tab</span>)<span class="op">&gt;</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">use</span> <span class="ident">widgetry::DEFAULT_CORNER_RADIUS</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">link</span>) <span class="kw">in</span> <span class="ident">tabs</span> {
-        <span class="ident">row</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_tab</span>
-                .<span class="ident">text</span>(<span class="ident">name</span>)
-                .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
-                    <span class="ident">top_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                    <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                    <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
-                    <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
+<span class="kw">fn </span>make_tabs(
+    ctx: <span class="kw-2">&amp;</span>EventCtx,
+    hyperlinks: <span class="kw-2">&amp;mut </span>HashMap&lt;String, Tab&gt;,
+    current_tab: Tab,
+    tabs: Vec&lt;(<span class="kw-2">&amp;</span>str, Tab)&gt;,
+) -&gt; Widget {
+    <span class="kw">use </span>widgetry::DEFAULT_CORNER_RADIUS;
+    <span class="kw">let </span><span class="kw-2">mut </span>row = Vec::new();
+    <span class="kw">for </span>(name, link) <span class="kw">in </span>tabs {
+        row.push(
+            ctx.style()
+                .btn_tab
+                .text(name)
+                .corner_rounding(geom::CornerRadii {
+                    top_left: DEFAULT_CORNER_RADIUS,
+                    top_right: DEFAULT_CORNER_RADIUS,
+                    bottom_left: <span class="number">0.0</span>,
+                    bottom_right: <span class="number">0.0</span>,
                 })
-                <span class="comment">// We abuse &quot;disabled&quot; to denote &quot;currently selected&quot;</span>
-                .<span class="ident">disabled</span>(<span class="ident">current_tab</span>.<span class="ident">variant</span>() <span class="op">==</span> <span class="ident">link</span>.<span class="ident">variant</span>())
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="comment">// We abuse &quot;disabled&quot; to denote &quot;currently selected&quot;
+                </span>.disabled(current_tab.variant() == link.variant())
+                .build_def(ctx),
         );
-        <span class="ident">hyperlinks</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">link</span>);
+        hyperlinks.insert(name.to_string(), link);
     }
 
-    <span class="ident">Widget::row</span>(<span class="ident">row</span>).<span class="ident">margin_above</span>(<span class="number">16</span>)
+    Widget::row(row).margin_above(<span class="number">16</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">header_btns</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::J</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to object&quot;</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+<span class="kw">fn </span>header_btns(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+    Widget::row(<span class="macro">vec!</span>[
+        ctx.style()
+            .btn_plain
+            .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+            .hotkey(Key::J)
+            .build_widget(ctx, <span class="string">&quot;jump to object&quot;</span>),
+        ctx.style().btn_close_widget(ctx),
     ])
-    .<span class="ident">align_right</span>()
+    .align_right()
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ContextualActions</span> {
-    <span class="comment">// TODO &amp;str?</span>
-    <span class="kw">fn</span> <span class="ident">actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Key</span>, <span class="ident">String</span>)<span class="op">&gt;</span>;
-    <span class="kw">fn</span> <span class="ident">execute</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">id</span>: <span class="ident">ID</span>,
-        <span class="ident">action</span>: <span class="ident">String</span>,
-        <span class="ident">close_panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Transition</span>;
+<span class="kw">pub trait </span>ContextualActions {
+    <span class="comment">// TODO &amp;str?
+    </span><span class="kw">fn </span>actions(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App, id: ID) -&gt; Vec&lt;(Key, String)&gt;;
+    <span class="kw">fn </span>execute(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        id: ID,
+        action: String,
+        close_panel: <span class="kw-2">&amp;mut </span>bool,
+    ) -&gt; Transition;
 
-    <span class="comment">// Slightly weird way to plumb in extra info, but...</span>
-    <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">gameplay_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GameplayMode</span>;
+    <span class="comment">// Slightly weird way to plumb in extra info, but...
+    </span><span class="kw">fn </span>is_paused(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
+    <span class="kw">fn </span>gameplay_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GameplayMode;
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DataOptions</span> {
-    <span class="kw">pub</span> <span class="ident">show_before</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">show_end_of_day</span>: <span class="ident">bool</span>,
-    <span class="ident">disabled_types</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">AgentType</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, PartialEq)]
+</span><span class="kw">pub struct </span>DataOptions {
+    <span class="kw">pub </span>show_before: bool,
+    <span class="kw">pub </span>show_end_of_day: bool,
+    disabled_types: BTreeSet&lt;AgentType&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">DataOptions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">DataOptions</span> {
-        <span class="ident">DataOptions</span> {
-            <span class="ident">show_before</span>: <span class="bool-val">false</span>,
-            <span class="ident">show_end_of_day</span>: <span class="bool-val">false</span>,
-            <span class="ident">disabled_types</span>: <span class="ident">BTreeSet::new</span>(),
+<span class="kw">impl </span>DataOptions {
+    <span class="kw">pub fn </span>new() -&gt; DataOptions {
+        DataOptions {
+            show_before: <span class="bool-val">false</span>,
+            show_end_of_day: <span class="bool-val">false</span>,
+            disabled_types: BTreeSet::new(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
+    <span class="kw">pub fn </span>to_controls(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">if </span>app.has_prebaked().is_none() {
+            <span class="kw">return </span>Widget::nothing();
         }
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Toggle::custom_checkbox</span>(
-                <span class="ident">ctx</span>,
+        Widget::row(<span class="macro">vec!</span>[
+            Toggle::custom_checkbox(
+                ctx,
                 <span class="string">&quot;Show before changes&quot;</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Show before &quot;</span>),
-                    <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>).<span class="ident">underlined</span>(),
+                    Line(<span class="string">&quot;Show before &quot;</span>),
+                    Line(<span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name).underlined(),
                 ],
                 <span class="prelude-val">None</span>,
-                <span class="self">self</span>.<span class="ident">show_before</span>,
+                <span class="self">self</span>.show_before,
             ),
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show_before</span> {
-                <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show full day&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">show_end_of_day</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::nothing</span>()
+            <span class="kw">if </span><span class="self">self</span>.show_before {
+                Toggle::switch(ctx, <span class="string">&quot;Show full day&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.show_end_of_day)
+            } <span class="kw">else </span>{
+                Widget::nothing()
             },
         ])
-        .<span class="ident">evenly_spaced</span>()
+        .evenly_spaced()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_controls</span>(<span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">DataOptions</span> {
-        <span class="kw">let</span> <span class="ident">show_before</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Show before changes&quot;</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">disabled_types</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">AgentType::all</span>() {
-            <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">a</span>.<span class="ident">noun</span>();
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">maybe_is_checked</span>(<span class="ident">label</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>) {
-                <span class="ident">disabled_types</span>.<span class="ident">insert</span>(<span class="ident">a</span>);
+    <span class="kw">pub fn </span>from_controls(c: <span class="kw-2">&amp;</span>Panel) -&gt; DataOptions {
+        <span class="kw">let </span>show_before = c.maybe_is_checked(<span class="string">&quot;Show before changes&quot;</span>).unwrap_or(<span class="bool-val">false</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>disabled_types = BTreeSet::new();
+        <span class="kw">for </span>a <span class="kw">in </span>AgentType::all() {
+            <span class="kw">let </span>label = a.noun();
+            <span class="kw">if </span>!c.maybe_is_checked(label).unwrap_or(<span class="bool-val">true</span>) {
+                disabled_types.insert(a);
             }
         }
-        <span class="ident">DataOptions</span> {
-            <span class="ident">show_before</span>,
-            <span class="ident">show_end_of_day</span>: <span class="ident">show_before</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span>.<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Show full day&quot;</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>),
-            <span class="ident">disabled_types</span>,
+        DataOptions {
+            show_before,
+            show_end_of_day: show_before &amp;&amp; c.maybe_is_checked(<span class="string">&quot;Show full day&quot;</span>).unwrap_or(<span class="bool-val">false</span>),
+            disabled_types,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled_series</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">disabled_types</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">noun</span>().<span class="ident">to_string</span>())
-            .<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>disabled_series(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HashSet&lt;String&gt; {
+        <span class="self">self</span>.disabled_types
+            .iter()
+            .map(|a| a.noun().to_string())
+            .collect()
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProblemOptions</span> {
-    <span class="kw">pub</span> <span class="ident">show_before</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">show_end_of_day</span>: <span class="ident">bool</span>,
-    <span class="ident">disabled_types</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">ProblemType</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, PartialEq)]
+</span><span class="kw">pub struct </span>ProblemOptions {
+    <span class="kw">pub </span>show_before: bool,
+    <span class="kw">pub </span>show_end_of_day: bool,
+    disabled_types: HashSet&lt;ProblemType&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ProblemOptions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">show_before</span>: <span class="bool-val">false</span>,
-            <span class="ident">show_end_of_day</span>: <span class="bool-val">false</span>,
-            <span class="ident">disabled_types</span>: <span class="ident">HashSet::new</span>(),
+<span class="kw">impl </span>ProblemOptions {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            show_before: <span class="bool-val">false</span>,
+            show_end_of_day: <span class="bool-val">false</span>,
+            disabled_types: HashSet::new(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
+    <span class="kw">pub fn </span>to_controls(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">if </span>app.has_prebaked().is_none() {
+            <span class="kw">return </span>Widget::nothing();
         }
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Toggle::custom_checkbox</span>(
-                <span class="ident">ctx</span>,
+        Widget::row(<span class="macro">vec!</span>[
+            Toggle::custom_checkbox(
+                ctx,
                 <span class="string">&quot;Show before changes&quot;</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Show before &quot;</span>),
-                    <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>).<span class="ident">underlined</span>(),
+                    Line(<span class="string">&quot;Show before &quot;</span>),
+                    Line(<span class="kw-2">&amp;</span>app.primary.map.get_edits().edits_name).underlined(),
                 ],
                 <span class="prelude-val">None</span>,
-                <span class="self">self</span>.<span class="ident">show_before</span>,
+                <span class="self">self</span>.show_before,
             ),
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">show_before</span> {
-                <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Show full day&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">show_end_of_day</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::nothing</span>()
+            <span class="kw">if </span><span class="self">self</span>.show_before {
+                Toggle::switch(ctx, <span class="string">&quot;Show full day&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.show_end_of_day)
+            } <span class="kw">else </span>{
+                Widget::nothing()
             },
         ])
-        .<span class="ident">evenly_spaced</span>()
+        .evenly_spaced()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_controls</span>(<span class="ident">c</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">ProblemOptions</span> {
-        <span class="kw">let</span> <span class="ident">show_before</span> <span class="op">=</span> <span class="ident">c</span>.<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Show before changes&quot;</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">disabled_types</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">ProblemType::all</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">c</span>.<span class="ident">maybe_is_checked</span>(<span class="ident">pt</span>.<span class="ident">name</span>()).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>) {
-                <span class="ident">disabled_types</span>.<span class="ident">insert</span>(<span class="ident">pt</span>);
+    <span class="kw">pub fn </span>from_controls(c: <span class="kw-2">&amp;</span>Panel) -&gt; ProblemOptions {
+        <span class="kw">let </span>show_before = c.maybe_is_checked(<span class="string">&quot;Show before changes&quot;</span>).unwrap_or(<span class="bool-val">false</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>disabled_types = HashSet::new();
+        <span class="kw">for </span>pt <span class="kw">in </span>ProblemType::all() {
+            <span class="kw">if </span>!c.maybe_is_checked(pt.name()).unwrap_or(<span class="bool-val">true</span>) {
+                disabled_types.insert(pt);
             }
         }
-        <span class="ident">ProblemOptions</span> {
-            <span class="ident">show_before</span>,
-            <span class="ident">show_end_of_day</span>: <span class="ident">show_before</span> <span class="op">&amp;&amp;</span> <span class="ident">c</span>.<span class="ident">maybe_is_checked</span>(<span class="string">&quot;Show full day&quot;</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>),
-            <span class="ident">disabled_types</span>,
+        ProblemOptions {
+            show_before,
+            show_end_of_day: show_before &amp;&amp; c.maybe_is_checked(<span class="string">&quot;Show full day&quot;</span>).unwrap_or(<span class="bool-val">false</span>),
+            disabled_types,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disabled_series</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">disabled_types</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">name</span>().<span class="ident">to_string</span>())
-            .<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>disabled_series(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; HashSet&lt;String&gt; {
+        <span class="self">self</span>.disabled_types
+            .iter()
+            .map(|pt| pt.name().to_string())
+            .collect()
     }
 }
 
-<span class="comment">// TODO Maybe color should be optional, and we&#39;ll default to rotating through some options in the</span>
-<span class="comment">// Series</span>
-<span class="kw">fn</span> <span class="ident">color_for_problem_type</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">problem_type</span>: <span class="ident">ProblemType</span>) -&gt; <span class="ident">Color</span> {
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">ProblemType::all</span>().<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">if</span> <span class="ident">problem_type</span> <span class="op">==</span> <span class="ident">pt</span> {
-            <span class="kw">return</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">rotating_color_plot</span>(<span class="ident">idx</span>);
+<span class="comment">// TODO Maybe color should be optional, and we&#39;ll default to rotating through some options in the
+// Series
+</span><span class="kw">fn </span>color_for_problem_type(app: <span class="kw-2">&amp;</span>App, problem_type: ProblemType) -&gt; Color {
+    <span class="kw">for </span>(idx, pt) <span class="kw">in </span>ProblemType::all().into_iter().enumerate() {
+        <span class="kw">if </span>problem_type == pt {
+            <span class="kw">return </span>app.cs.rotating_color_plot(idx);
         }
     }
     <span class="macro">unreachable!</span>()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

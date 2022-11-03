@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/before_level.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>before_level.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/before_level.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>before_level.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -383,380 +383,380 @@
 <span id="383">383</span>
 <span id="384">384</span>
 <span id="385">385</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeSet, HashSet};
 
-<span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use </span>rand::seq::SliceRandom;
+<span class="kw">use </span>rand::SeedableRng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom::Time</span>;
-<span class="kw">use</span> <span class="ident">map_gui::load::MapLoader</span>;
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model::BuildingID</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>,
-    <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>,
-    <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>geom::Time;
+<span class="kw">use </span>map_gui::load::MapLoader;
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::BuildingID;
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{
+    ButtonBuilder, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment,
+    Image, Key, Line, Outcome, Panel, RewriteColor, State, Text, TextExt, VerticalAlignment,
+    Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::buildings</span>::{<span class="ident">BldgState</span>, <span class="ident">Buildings</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::game::Game</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::levels::Level</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::meters</span>::{<span class="ident">custom_bar</span>, <span class="ident">make_bar</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::vehicles::Vehicle</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use </span><span class="kw">crate</span>::buildings::{BldgState, Buildings};
+<span class="kw">use </span><span class="kw">crate</span>::game::Game;
+<span class="kw">use </span><span class="kw">crate</span>::levels::Level;
+<span class="kw">use </span><span class="kw">crate</span>::meters::{custom_bar, make_bar};
+<span class="kw">use </span><span class="kw">crate</span>::vehicles::Vehicle;
+<span class="kw">use crate</span>::{App, Transition};
 
-<span class="kw">const</span> <span class="ident">ZOOM</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
+<span class="kw">const </span>ZOOM: f64 = <span class="number">2.0</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Picker</span> {
-    <span class="ident">vehicle_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">instructions_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">upzone_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">level</span>: <span class="ident">Level</span>,
-    <span class="ident">bldgs</span>: <span class="ident">Buildings</span>,
-    <span class="ident">current_picks</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    <span class="ident">draw_start</span>: <span class="ident">Drawable</span>,
+<span class="kw">pub struct </span>Picker {
+    vehicle_panel: Panel,
+    instructions_panel: Panel,
+    upzone_panel: Panel,
+    level: Level,
+    bldgs: Buildings,
+    current_picks: BTreeSet&lt;BuildingID&gt;,
+    draw_start: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">Picker</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">level</span>: <span class="ident">Level</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">MapLoader::new_state</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">level</span>.<span class="ident">map</span>.<span class="ident">clone</span>(),
-            <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">change_song</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">music</span>);
+<span class="kw">impl </span>Picker {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, level: Level) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        MapLoader::new_state(
+            ctx,
+            app,
+            level.map.clone(),
+            Box::new(<span class="kw">move </span>|ctx, app| {
+                app.session.music.change_song(<span class="kw-2">&amp;</span>level.music);
 
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">ZOOM</span>;
-                <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">map</span>
-                    .<span class="ident">get_i</span>(<span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">level</span>.<span class="ident">start</span>).<span class="ident">unwrap</span>())
-                    .<span class="ident">polygon</span>
-                    .<span class="ident">center</span>();
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">start</span>);
+                ctx.canvas.cam_zoom = ZOOM;
+                <span class="kw">let </span>start = app
+                    .map
+                    .get_i(app.map.find_i_by_osm_id(level.start).unwrap())
+                    .polygon
+                    .center();
+                ctx.canvas.center_on_map_pt(start);
 
-                <span class="kw">let</span> <span class="ident">bldgs</span> <span class="op">=</span> <span class="ident">Buildings::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">HashSet::new</span>());
+                <span class="kw">let </span>bldgs = Buildings::new(ctx, app, HashSet::new());
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Ready for {}?&quot;</span>, <span class="ident">level</span>.<span class="ident">title</span>)).<span class="ident">small_heading</span>());
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+                txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;Ready for {}?&quot;</span>, level.title)).small_heading());
+                txt.add_line(<span class="macro">format!</span>(
                     <span class="string">&quot;Goal: deliver {} presents&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">level</span>.<span class="ident">goal</span>)
+                    prettyprint_usize(level.goal)
                 ));
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Time limit: {}&quot;</span>, <span class="ident">level</span>.<span class="ident">time_limit</span>));
-                <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Deliver presents to &quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;single-family homes&quot;</span>).<span class="ident">fg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">residential_building</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot; and &quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;apartments&quot;</span>).<span class="ident">fg</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">apartment</span>),
+                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Time limit: {}&quot;</span>, level.time_limit));
+                txt.add_appended(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Deliver presents to &quot;</span>),
+                    Line(<span class="string">&quot;single-family homes&quot;</span>).fg(app.cs.residential_building),
+                    Line(<span class="string">&quot; and &quot;</span>),
+                    Line(<span class="string">&quot;apartments&quot;</span>).fg(app.session.colors.apartment),
                 ]);
-                <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Raise your blood sugar by visiting &quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;stores&quot;</span>).<span class="ident">fg</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">store</span>),
+                txt.add_appended(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Raise your blood sugar by visiting &quot;</span>),
+                    Line(<span class="string">&quot;stores&quot;</span>).fg(app.session.colors.store),
                 ]);
 
-                <span class="kw">let</span> <span class="ident">instructions_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">GeomBatch::load_svg_bytes</span>(
-                            <span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">prerender</span>,
+                <span class="kw">let </span>instructions_panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                    txt.into_widget(ctx),
+                    Widget::row(<span class="macro">vec!</span>[
+                        GeomBatch::load_svg_bytes(
+                            <span class="kw-2">&amp;</span>ctx.prerender,
                             <span class="macro">widgetry::include_labeled_bytes!</span>(
-                                <span class="string">&quot;../../../widgetry/icons/arrow_keys.svg&quot;</span>
-                            ),
+                                <span class="string">&quot;../../../widgetry/icons/arrow_keys.svg&quot;
+                            </span>),
                         )
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;arrow keys&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to move (or &quot;</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot;WASD&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot;)&quot;</span>),
+                        .into_widget(ctx),
+                        Text::from_all(<span class="macro">vec!</span>[
+                            Line(<span class="string">&quot;arrow keys&quot;</span>).fg(ctx.style().text_hotkey_color),
+                            Line(<span class="string">&quot; to move (or &quot;</span>),
+                            Line(<span class="string">&quot;WASD&quot;</span>).fg(ctx.style().text_hotkey_color),
+                            Line(<span class="string">&quot;)&quot;</span>),
                         ])
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                        .into_widget(ctx),
                     ]),
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/mouse.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;mouse scroll wheel or touchpad&quot;</span>)
-                                .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                            <span class="ident">Line</span>(<span class="string">&quot; to zoom in or out&quot;</span>),
+                    Widget::row(<span class="macro">vec!</span>[
+                        Image::from_path(<span class="string">&quot;system/assets/tools/mouse.svg&quot;</span>).into_widget(ctx),
+                        Text::from_all(<span class="macro">vec!</span>[
+                            Line(<span class="string">&quot;mouse scroll wheel or touchpad&quot;</span>)
+                                .fg(ctx.style().text_hotkey_color),
+                            Line(<span class="string">&quot; to zoom in or out&quot;</span>),
                         ])
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                        .into_widget(ctx),
                     ]),
-                    <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Escape key&quot;</span>).<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>),
-                        <span class="ident">Line</span>(<span class="string">&quot; to pause&quot;</span>),
+                    Text::from_all(<span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;Escape key&quot;</span>).fg(ctx.style().text_hotkey_color),
+                        Line(<span class="string">&quot; to pause&quot;</span>),
                     ])
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    .into_widget(ctx),
                 ]))
-                .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::LeftInset</span>, <span class="ident">VerticalAlignment::TopInset</span>)
-                .<span class="ident">build</span>(<span class="ident">ctx</span>);
+                .aligned(HorizontalAlignment::LeftInset, VerticalAlignment::TopInset)
+                .build(ctx);
 
-                <span class="kw">let</span> <span class="ident">draw_start</span> <span class="op">=</span> <span class="ident">map_gui::tools::start_marker</span>(<span class="ident">ctx</span>, <span class="ident">start</span>, <span class="number">3.0</span>);
+                <span class="kw">let </span>draw_start = map_gui::tools::start_marker(ctx, start, <span class="number">3.0</span>);
 
-                <span class="kw">let</span> <span class="ident">current_picks</span> <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">session</span>
-                    .<span class="ident">upzones_per_level</span>
-                    .<span class="ident">get</span>(<span class="ident">level</span>.<span class="ident">title</span>.<span class="ident">clone</span>())
-                    .<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="ident">upzone_panel</span> <span class="op">=</span> <span class="ident">make_upzone_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">current_picks</span>.<span class="ident">len</span>());
+                <span class="kw">let </span>current_picks = app
+                    .session
+                    .upzones_per_level
+                    .get(level.title.clone())
+                    .clone();
+                <span class="kw">let </span>upzone_panel = make_upzone_panel(ctx, app, current_picks.len());
 
-                <span class="ident">Transition::Replace</span>(<span class="ident">Box::new</span>(<span class="ident">Picker</span> {
-                    <span class="ident">vehicle_panel</span>: <span class="ident">make_vehicle_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                    <span class="ident">upzone_panel</span>,
-                    <span class="ident">instructions_panel</span>,
-                    <span class="ident">level</span>,
-                    <span class="ident">bldgs</span>,
-                    <span class="ident">current_picks</span>,
-                    <span class="ident">draw_start</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">draw_start</span>),
+                Transition::Replace(Box::new(Picker {
+                    vehicle_panel: make_vehicle_panel(ctx, app),
+                    upzone_panel,
+                    instructions_panel,
+                    level,
+                    bldgs,
+                    current_picks,
+                    draw_start: ctx.upload(draw_start),
                 }))
             }),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">randomly_pick_upzones</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">state</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">buildings</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BldgState::Undelivered</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">state</span> {
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">contains</span>(<span class="ident">b</span>) {
-                    <span class="ident">choices</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">b</span>);
+    <span class="kw">fn </span>randomly_pick_upzones(<span class="kw-2">&amp;mut </span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span><span class="kw-2">mut </span>choices = Vec::new();
+        <span class="kw">for </span>(b, state) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.bldgs.buildings {
+            <span class="kw">if let </span>BldgState::Undelivered(<span class="kw">_</span>) = state {
+                <span class="kw">if </span>!<span class="self">self</span>.current_picks.contains(b) {
+                    choices.push(<span class="kw-2">*</span>b);
                 }
             }
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="number">42</span>);
-        <span class="ident">choices</span>.<span class="ident">shuffle</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">len</span>();
-        <span class="comment">// Maps are definitely large enough for this to be fine</span>
-        <span class="macro">assert!</span>(<span class="ident">choices</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">n</span>);
-        <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">extend</span>(<span class="ident">choices</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">n</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(<span class="number">42</span>);
+        choices.shuffle(<span class="kw-2">&amp;mut </span>rng);
+        <span class="kw">let </span>n = app.session.upzones_unlocked - <span class="self">self</span>.current_picks.len();
+        <span class="comment">// Maps are definitely large enough for this to be fine
+        </span><span class="macro">assert!</span>(choices.len() &gt;= n);
+        <span class="self">self</span>.current_picks.extend(choices.into_iter().take(n));
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Picker</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_explained</span> {
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_explained</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="kw">return</span> <span class="ident">explain_upzoning</span>(<span class="ident">ctx</span>);
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>Picker {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if </span>app.session.upzones_unlocked &gt; <span class="number">0 </span>&amp;&amp; !app.session.upzones_explained {
+            app.session.upzones_explained = <span class="bool-val">true</span>;
+            <span class="kw">return </span>explain_upzoning(ctx);
         }
 
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
+        ctx.canvas_movement();
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="ident">app</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_buildings</span>(<span class="ident">ctx</span>).<span class="ident">filter</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> {
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            app.current_selection = app.mouseover_unzoomed_buildings(ctx).filter(|id| {
                 <span class="macro">matches!</span>(
-                    <span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">buildings</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">as_building</span>()],
-                    <span class="ident">BldgState::Undelivered</span>(<span class="kw">_</span>)
+                    <span class="self">self</span>.bldgs.buildings[<span class="kw-2">&amp;</span>id.as_building()],
+                    BldgState::Undelivered(<span class="kw">_</span>)
                 )
             });
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">current_selection</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
-                    <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>);
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> {
-                    <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">insert</span>(<span class="ident">b</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Building(b)) = app.current_selection {
+            <span class="kw">if </span>ctx.normal_left_click() {
+                <span class="kw">if </span><span class="self">self</span>.current_picks.contains(<span class="kw-2">&amp;</span>b) {
+                    <span class="self">self</span>.current_picks.remove(<span class="kw-2">&amp;</span>b);
+                } <span class="kw">else if </span><span class="self">self</span>.current_picks.len() &lt; app.session.upzones_unlocked {
+                    <span class="self">self</span>.current_picks.insert(b);
                 }
-                <span class="self">self</span>.<span class="ident">upzone_panel</span> <span class="op">=</span> <span class="ident">make_upzone_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">len</span>());
+                <span class="self">self</span>.upzone_panel = make_upzone_panel(ctx, app, <span class="self">self</span>.current_picks.len());
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">upzone_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Start game&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="ident">app</span>.<span class="ident">session</span>
-                        .<span class="ident">upzones_per_level</span>
-                        .<span class="ident">set</span>(<span class="self">self</span>.<span class="ident">level</span>.<span class="ident">title</span>.<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">clone</span>());
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">save</span>();
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.upzone_panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;Start game&quot; </span>=&gt; {
+                    app.current_selection = <span class="prelude-val">None</span>;
+                    app.session
+                        .upzones_per_level
+                        .set(<span class="self">self</span>.level.title.clone(), <span class="self">self</span>.current_picks.clone());
+                    app.session.save();
 
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Game::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">level</span>.<span class="ident">clone</span>(),
-                        <span class="ident">Vehicle::get</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">current_vehicle</span>),
-                        <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">clone</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
+                    <span class="kw">return </span>Transition::Replace(Game::new_state(
+                        ctx,
+                        app,
+                        <span class="self">self</span>.level.clone(),
+                        Vehicle::get(<span class="kw-2">&amp;</span>app.session.current_vehicle),
+                        <span class="self">self</span>.current_picks.clone().into_iter().collect(),
                     ));
                 }
-                <span class="string">&quot;Randomly choose upzones&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">randomly_pick_upzones</span>(<span class="ident">app</span>);
-                    <span class="self">self</span>.<span class="ident">upzone_panel</span> <span class="op">=</span> <span class="ident">make_upzone_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">len</span>());
+                <span class="string">&quot;Randomly choose upzones&quot; </span>=&gt; {
+                    <span class="self">self</span>.randomly_pick_upzones(app);
+                    <span class="self">self</span>.upzone_panel = make_upzone_panel(ctx, app, <span class="self">self</span>.current_picks.len());
                 }
-                <span class="string">&quot;Clear upzones&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">clear</span>();
-                    <span class="self">self</span>.<span class="ident">upzone_panel</span> <span class="op">=</span> <span class="ident">make_upzone_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">current_picks</span>.<span class="ident">len</span>());
+                <span class="string">&quot;Clear upzones&quot; </span>=&gt; {
+                    <span class="self">self</span>.current_picks.clear();
+                    <span class="self">self</span>.upzone_panel = make_upzone_panel(ctx, app, <span class="self">self</span>.current_picks.len());
                 }
-                <span class="string">&quot;help&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">explain_upzoning</span>(<span class="ident">ctx</span>);
+                <span class="string">&quot;help&quot; </span>=&gt; {
+                    <span class="kw">return </span>explain_upzoning(ctx);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">vehicle_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">current_vehicle</span> <span class="op">=</span> <span class="ident">x</span>;
-            <span class="self">self</span>.<span class="ident">vehicle_panel</span> <span class="op">=</span> <span class="ident">make_vehicle_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.vehicle_panel.event(ctx) {
+            app.session.current_vehicle = x;
+            <span class="self">self</span>.vehicle_panel = make_vehicle_panel(ctx, app);
         }
 
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">update_music</span>(<span class="ident">ctx</span>);
+        app.session.update_music(ctx);
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">vehicle_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">upzone_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">instructions_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">music</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">draw_all</span>);
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_picks</span> {
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">Color::PINK</span>, <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.vehicle_panel.draw(g);
+        <span class="self">self</span>.upzone_panel.draw(g);
+        <span class="self">self</span>.instructions_panel.draw(g);
+        app.session.music.draw(g);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.bldgs.draw_all);
+        <span class="kw">for </span>b <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.current_picks {
+            g.draw_polygon(Color::PINK, app.map.get_b(<span class="kw-2">*</span>b).polygon.clone());
         }
-        <span class="comment">// This covers up the current selection, so...</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">current_selection</span> {
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="comment">// This covers up the current selection, so...
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Building(b)) = app.current_selection {
+            g.draw_polygon(app.cs.selected, app.map.get_b(b).polygon.clone());
         }
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_start</span>);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_start);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_vehicle_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">vehicles_unlocked</span> {
-        <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="ident">Vehicle::get</span>(<span class="ident">name</span>);
-        <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">vehicle</span>
-            .<span class="ident">animate</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="ident">Time::START_OF_DAY</span>)
-            .<span class="ident">scale</span>(<span class="number">10.0</span>);
+<span class="kw">fn </span>make_vehicle_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Panel {
+    <span class="kw">let </span><span class="kw-2">mut </span>buttons = Vec::new();
+    <span class="kw">for </span>name <span class="kw">in </span><span class="kw-2">&amp;</span>app.session.vehicles_unlocked {
+        <span class="kw">let </span>vehicle = Vehicle::get(name);
+        <span class="kw">let </span>batch = vehicle
+            .animate(ctx.prerender, Time::START_OF_DAY)
+            .scale(<span class="number">10.0</span>);
 
-        <span class="ident">buttons</span>.<span class="ident">push</span>(
-            <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">current_vehicle</span> {
-                <span class="ident">batch</span>
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">container</span>()
-                    .<span class="ident">padding</span>(<span class="number">5</span>)
-                    .<span class="ident">outline</span>((<span class="number">2.0</span>, <span class="ident">Color::WHITE</span>))
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">clone</span>().<span class="ident">color</span>(<span class="ident">RewriteColor::MakeGrayscale</span>);
-                <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="ident">batch</span>;
-                <span class="ident">ButtonBuilder::new</span>()
-                    .<span class="ident">custom_batch</span>(<span class="ident">normal</span>, <span class="ident">ControlState::Default</span>)
-                    .<span class="ident">custom_batch</span>(<span class="ident">hovered</span>, <span class="ident">ControlState::Hovered</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">name</span>)
+        buttons.push(
+            <span class="kw">if </span>name == <span class="kw-2">&amp;</span>app.session.current_vehicle {
+                batch
+                    .into_widget(ctx)
+                    .container()
+                    .padding(<span class="number">5</span>)
+                    .outline((<span class="number">2.0</span>, Color::WHITE))
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>normal = batch.clone().color(RewriteColor::MakeGrayscale);
+                <span class="kw">let </span>hovered = batch;
+                ButtonBuilder::new()
+                    .custom_batch(normal, ControlState::Default)
+                    .custom_batch(hovered, ControlState::Hovered)
+                    .build_widget(ctx, name)
             }
-            .<span class="ident">centered_vert</span>(),
+            .centered_vert(),
         );
-        <span class="ident">buttons</span>.<span class="ident">push</span>(<span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">150.0</span>));
+        buttons.push(Widget::vert_separator(ctx, <span class="number">150.0</span>));
     }
-    <span class="ident">buttons</span>.<span class="ident">pop</span>();
+    buttons.pop();
 
-    <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="ident">Vehicle::get</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">current_vehicle</span>);
-    <span class="kw">let</span> (<span class="ident">max_speed</span>, <span class="ident">max_energy</span>) <span class="op">=</span> <span class="ident">Vehicle::max_stats</span>();
+    <span class="kw">let </span>vehicle = Vehicle::get(<span class="kw-2">&amp;</span>app.session.current_vehicle);
+    <span class="kw">let </span>(max_speed, max_energy) = Vehicle::max_stats();
 
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Pick Santa&#39;s vehicle&quot;</span>)
-            .<span class="ident">small_heading</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::row</span>(<span class="ident">buttons</span>),
-        <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">vehicle</span>.<span class="ident">name</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Speed:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">custom_bar</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">boost</span>,
-                <span class="ident">vehicle</span>.<span class="ident">speed</span> <span class="op">/</span> <span class="ident">max_speed</span>,
-                <span class="ident">Text::new</span>(),
+    Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+        Line(<span class="string">&quot;Pick Santa&#39;s vehicle&quot;</span>)
+            .small_heading()
+            .into_widget(ctx),
+        Widget::row(buttons),
+        Line(<span class="kw-2">&amp;</span>vehicle.name).small_heading().into_widget(ctx),
+        Widget::row(<span class="macro">vec!</span>[
+            <span class="string">&quot;Speed:&quot;</span>.text_widget(ctx),
+            custom_bar(
+                ctx,
+                app.session.colors.boost,
+                vehicle.speed / max_speed,
+                Text::new(),
             )
-            .<span class="ident">align_right</span>(),
+            .align_right(),
         ]),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Energy:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">custom_bar</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">energy</span>,
-                (<span class="ident">vehicle</span>.<span class="ident">max_energy</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">max_energy</span> <span class="kw">as</span> <span class="ident">f64</span>),
-                <span class="ident">Text::new</span>(),
+        Widget::row(<span class="macro">vec!</span>[
+            <span class="string">&quot;Energy:&quot;</span>.text_widget(ctx),
+            custom_bar(
+                ctx,
+                app.session.colors.energy,
+                (vehicle.max_energy <span class="kw">as </span>f64) / (max_energy <span class="kw">as </span>f64),
+                Text::new(),
             )
-            .<span class="ident">align_right</span>(),
+            .align_right(),
         ]),
     ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::RightInset</span>, <span class="ident">VerticalAlignment::TopInset</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
+    .build(ctx)
 }
 
-<span class="kw">fn</span> <span class="ident">make_upzone_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">num_picked</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="comment">// Don&#39;t overwhelm players on the very first level.</span>
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="ident">Panel::new_builder</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Start game&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                .<span class="ident">container</span>(),
+<span class="kw">fn </span>make_upzone_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, num_picked: usize) -&gt; Panel {
+    <span class="comment">// Don&#39;t overwhelm players on the very first level.
+    </span><span class="kw">if </span>app.session.upzones_unlocked == <span class="number">0 </span>{
+        <span class="kw">return </span>Panel::new_builder(
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Start game&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx)
+                .container(),
         )
-        .<span class="ident">aligned</span>(
-            <span class="ident">HorizontalAlignment::RightInset</span>,
-            <span class="ident">VerticalAlignment::BottomInset</span>,
+        .aligned(
+            HorizontalAlignment::RightInset,
+            VerticalAlignment::BottomInset,
         )
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .build(ctx);
     }
 
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Upzoning&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;help&quot;</span>)
-                .<span class="ident">align_right</span>(),
+    Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+        Widget::row(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Upzoning&quot;</span>).small_heading().into_widget(ctx),
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
+                .build_widget(ctx, <span class="string">&quot;help&quot;</span>)
+                .align_right(),
         ]),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/mouse.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Line</span>(<span class="string">&quot;Select the houses you want to turn into stores&quot;</span>)
-                .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>)
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            Image::from_path(<span class="string">&quot;system/assets/tools/mouse.svg&quot;</span>).into_widget(ctx),
+            Line(<span class="string">&quot;Select the houses you want to turn into stores&quot;</span>)
+                .fg(ctx.style().text_hotkey_color)
+                .into_widget(ctx),
         ]),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Upzones chosen:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">make_bar</span>(<span class="ident">ctx</span>, <span class="ident">Color::PINK</span>, <span class="ident">num_picked</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            <span class="string">&quot;Upzones chosen:&quot;</span>.text_widget(ctx),
+            make_bar(ctx, Color::PINK, num_picked, app.session.upzones_unlocked),
         ]),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Randomly choose upzones&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="ident">num_picked</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Clear upzones&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="ident">num_picked</span> <span class="op">==</span> <span class="number">0</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                .<span class="ident">align_right</span>(),
+        Widget::row(<span class="macro">vec!</span>[
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Randomly choose upzones&quot;</span>)
+                .disabled(num_picked == app.session.upzones_unlocked)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Clear upzones&quot;</span>)
+                .disabled(num_picked == <span class="number">0</span>)
+                .build_def(ctx)
+                .align_right(),
         ]),
-        <span class="kw">if</span> <span class="ident">num_picked</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">upzones_unlocked</span> {
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Start game&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Finish upzoning before playing&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+        <span class="kw">if </span>num_picked == app.session.upzones_unlocked {
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Start game&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx)
+        } <span class="kw">else </span>{
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Finish upzoning before playing&quot;</span>)
+                .disabled(<span class="bool-val">true</span>)
+                .build_def(ctx)
         },
     ]))
-    .<span class="ident">aligned</span>(
-        <span class="ident">HorizontalAlignment::RightInset</span>,
-        <span class="ident">VerticalAlignment::BottomInset</span>,
+    .aligned(
+        HorizontalAlignment::RightInset,
+        VerticalAlignment::BottomInset,
     )
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    .build(ctx)
 }
 
-<span class="kw">fn</span> <span class="ident">explain_upzoning</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Transition</span> {
-    <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-        <span class="ident">ctx</span>,
+<span class="kw">fn </span>explain_upzoning(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Transition {
+    Transition::Push(PopupMsg::new_state(
+        ctx,
         <span class="string">&quot;Upzoning power unlocked&quot;</span>,
         <span class="macro">vec!</span>[
             <span class="string">&quot;It&#39;s hard to deliver to houses far away from shops, isn&#39;t it?&quot;</span>,
@@ -769,4 +769,4 @@
     ))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/car.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>car.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/car.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>car.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -375,382 +375,382 @@
 <span id="375">375</span>
 <span id="376">376</span>
 <span id="377">377</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeSet, VecDeque};
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Time</span>, <span class="ident">EPSILON_DIST</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Direction</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Traversable</span>};
+<span class="kw">use </span>geom::{Distance, Duration, PolyLine, Time, EPSILON_DIST};
+<span class="kw">use </span>map_model::{Direction, LaneID, Map, Traversable};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">CarID</span>, <span class="ident">CarStatus</span>, <span class="ident">DistanceInterval</span>, <span class="ident">DrawCarInput</span>, <span class="ident">Intent</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">Router</span>,
-    <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleType</span>,
+<span class="kw">use crate</span>::{
+    CarID, CarStatus, DistanceInterval, DrawCarInput, Intent, ParkingSpot, PersonID, Router,
+    TimeInterval, TransitSimState, TripID, Vehicle, VehicleType,
 };
 
-<span class="doccomment">/// Represents a single vehicle. Note &quot;car&quot; is a misnomer; it could also be a bus or bike.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Car</span> {
-    <span class="kw">pub</span> <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
-    <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">CarState</span>,
-    <span class="kw">pub</span> <span class="ident">router</span>: <span class="ident">Router</span>,
-    <span class="doccomment">/// None for buses</span>
-    <span class="comment">// TODO Can we scrap person here and use vehicle owner?</span>
-    <span class="kw">pub</span> <span class="ident">trip_and_person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">started_at</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">total_blocked_time</span>: <span class="ident">Duration</span>,
+<span class="doccomment">/// Represents a single vehicle. Note &quot;car&quot; is a misnomer; it could also be a bus or bike.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Car {
+    <span class="kw">pub </span>vehicle: Vehicle,
+    <span class="kw">pub </span>state: CarState,
+    <span class="kw">pub </span>router: Router,
+    <span class="doccomment">/// None for buses
+    </span><span class="comment">// TODO Can we scrap person here and use vehicle owner?
+    </span><span class="kw">pub </span>trip_and_person: <span class="prelude-ty">Option</span>&lt;(TripID, PersonID)&gt;,
+    <span class="kw">pub </span>started_at: Time,
+    <span class="kw">pub </span>total_blocked_time: Duration,
 
-    <span class="doccomment">/// In reverse order -- most recently left is first. The sum length of these must be &gt;=</span>
-    <span class="doccomment">/// vehicle.length.</span>
-    <span class="kw">pub</span> <span class="ident">last_steps</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">Traversable</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// In reverse order -- most recently left is first. The sum length of these must be &gt;=
+    /// vehicle.length.
+    </span><span class="kw">pub </span>last_steps: VecDeque&lt;Traversable&gt;,
 
-    <span class="doccomment">/// Since lane over-taking isn&#39;t implemented yet, a vehicle tends to be stuck behind a slow</span>
-    <span class="doccomment">/// leader for a while. Avoid duplicate events.</span>
-    <span class="kw">pub</span> <span class="ident">wants_to_overtake</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Since lane over-taking isn&#39;t implemented yet, a vehicle tends to be stuck behind a slow
+    /// leader for a while. Avoid duplicate events.
+    </span><span class="kw">pub </span>wants_to_overtake: BTreeSet&lt;CarID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Car</span> {
-    <span class="doccomment">/// Assumes the current head of the path is the thing to cross.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crossing_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start_dist</span>: <span class="ident">Distance</span>, <span class="ident">start_time</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">CarState</span> {
-        <span class="kw">let</span> <span class="ident">end_dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">last_step</span>() {
-            <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">get_end_dist</span>()
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>()
+<span class="kw">impl </span>Car {
+    <span class="doccomment">/// Assumes the current head of the path is the thing to cross.
+    </span><span class="kw">pub fn </span>crossing_state(<span class="kw-2">&amp;</span><span class="self">self</span>, start_dist: Distance, start_time: Time, map: <span class="kw-2">&amp;</span>Map) -&gt; CarState {
+        <span class="kw">let </span>end_dist = <span class="kw">if </span><span class="self">self</span>.router.last_step() {
+            <span class="self">self</span>.router.get_end_dist()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.router.head().get_polyline(map).length()
         };
-        <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">&lt;</span> <span class="ident">start_dist</span> {
+        <span class="kw">if </span>end_dist &lt; start_dist {
             <span class="macro">panic!</span>(
                 <span class="string">&quot;{} trying to make a crossing_state from {} to {} at {}. Something&#39;s very wrong&quot;</span>,
-                <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">start_dist</span>, <span class="ident">end_dist</span>, <span class="ident">start_time</span>
+                <span class="self">self</span>.vehicle.id, start_dist, end_dist, start_time
             );
         }
 
-        <span class="kw">let</span> <span class="ident">dist_int</span> <span class="op">=</span> <span class="ident">DistanceInterval::new_driving</span>(<span class="ident">start_dist</span>, <span class="ident">end_dist</span>);
-        <span class="self">self</span>.<span class="ident">crossing_state_with_end_dist</span>(<span class="ident">dist_int</span>, <span class="ident">start_time</span>, <span class="ident">map</span>)
+        <span class="kw">let </span>dist_int = DistanceInterval::new_driving(start_dist, end_dist);
+        <span class="self">self</span>.crossing_state_with_end_dist(dist_int, start_time, map)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crossing_state_with_end_dist</span>(
+    <span class="kw">pub fn </span>crossing_state_with_end_dist(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">dist_int</span>: <span class="ident">DistanceInterval</span>,
-        <span class="ident">start_time</span>: <span class="ident">Time</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="ident">CarState</span> {
-        <span class="kw">let</span> (<span class="ident">speed</span>, <span class="ident">percent_incline</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">router</span>
-            .<span class="ident">get_path</span>()
-            .<span class="ident">current_step</span>()
-            .<span class="ident">max_speed_and_incline_along</span>(
-                <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">max_speed</span>,
-                <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>(),
-                <span class="ident">map</span>,
+        dist_int: DistanceInterval,
+        start_time: Time,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; CarState {
+        <span class="kw">let </span>(speed, percent_incline) = <span class="self">self
+            </span>.router
+            .get_path()
+            .current_step()
+            .max_speed_and_incline_along(
+                <span class="self">self</span>.vehicle.max_speed,
+                <span class="self">self</span>.vehicle.vehicle_type.to_constraints(),
+                map,
             );
-        <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> (<span class="ident">dist_int</span>.<span class="ident">end</span> <span class="op">-</span> <span class="ident">dist_int</span>.<span class="ident">start</span>) <span class="op">/</span> <span class="ident">speed</span>;
-        <span class="ident">CarState::Crossing</span> {
-            <span class="ident">time_int</span>: <span class="ident">TimeInterval::new</span>(<span class="ident">start_time</span>, <span class="ident">start_time</span> <span class="op">+</span> <span class="ident">dt</span>),
-            <span class="ident">dist_int</span>,
-            <span class="ident">steep_uphill</span>: <span class="ident">percent_incline</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.08</span>,
+        <span class="kw">let </span>dt = (dist_int.end - dist_int.start) / speed;
+        CarState::Crossing {
+            time_int: TimeInterval::new(start_time, start_time + dt),
+            dist_int,
+            steep_uphill: percent_incline &gt;= <span class="number">0.08</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_draw_car</span>(
+    <span class="kw">pub fn </span>get_draw_car(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">front</span>: <span class="ident">Distance</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">transit</span>: <span class="kw-2">&amp;</span><span class="ident">TransitSimState</span>,
-    ) -&gt; <span class="ident">DrawCarInput</span> {
-        <span class="macro">assert!</span>(<span class="ident">front</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">Distance::ZERO</span>);
-        <span class="comment">// This goes from back to front</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">partly_on</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="ident">raw_body</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">front</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> {
-            <span class="self">self</span>.<span class="ident">router</span>
-                .<span class="ident">head</span>()
-                .<span class="ident">get_polyline</span>(<span class="ident">map</span>)
-                .<span class="ident">exact_slice</span>(<span class="ident">front</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>, <span class="ident">front</span>)
-        } <span class="kw">else</span> {
-            <span class="comment">// TODO This is redoing some of the Path::trace work...</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="self">self</span>
-                .<span class="ident">router</span>
-                .<span class="ident">head</span>()
-                .<span class="ident">get_polyline</span>(<span class="ident">map</span>)
-                .<span class="ident">slice</span>(<span class="ident">Distance::ZERO</span>, <span class="ident">front</span>)
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">pl</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">pl</span>.<span class="ident">into_points</span>())
-                .<span class="ident">ok</span>()
-                .<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">leftover</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">length</span> <span class="op">-</span> <span class="ident">front</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">while</span> <span class="ident">leftover</span> <span class="op">&gt;</span> <span class="ident">Distance::ZERO</span> {
-                <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">last_steps</span>.<span class="ident">len</span>() {
-                    <span class="comment">// The vehicle is gradually appearing from somewhere. That&#39;s fine, just return</span>
-                    <span class="comment">// a truncated body.</span>
-                    <span class="kw">break</span>;
+        front: Distance,
+        now: Time,
+        map: <span class="kw-2">&amp;</span>Map,
+        transit: <span class="kw-2">&amp;</span>TransitSimState,
+    ) -&gt; DrawCarInput {
+        <span class="macro">assert!</span>(front &gt;= Distance::ZERO);
+        <span class="comment">// This goes from back to front
+        </span><span class="kw">let </span><span class="kw-2">mut </span>partly_on = Vec::new();
+        <span class="kw">let </span>raw_body = <span class="kw">if </span>front &gt;= <span class="self">self</span>.vehicle.length {
+            <span class="self">self</span>.router
+                .head()
+                .get_polyline(map)
+                .exact_slice(front - <span class="self">self</span>.vehicle.length, front)
+        } <span class="kw">else </span>{
+            <span class="comment">// TODO This is redoing some of the Path::trace work...
+            </span><span class="kw">let </span><span class="kw-2">mut </span>result = <span class="self">self
+                </span>.router
+                .head()
+                .get_polyline(map)
+                .slice(Distance::ZERO, front)
+                .map(|(pl, <span class="kw">_</span>)| pl.into_points())
+                .ok()
+                .unwrap_or_else(Vec::new);
+            <span class="kw">let </span><span class="kw-2">mut </span>leftover = <span class="self">self</span>.vehicle.length - front;
+            <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="number">0</span>;
+            <span class="kw">while </span>leftover &gt; Distance::ZERO {
+                <span class="kw">if </span>i == <span class="self">self</span>.last_steps.len() {
+                    <span class="comment">// The vehicle is gradually appearing from somewhere. That&#39;s fine, just return
+                    // a truncated body.
+                    </span><span class="kw">break</span>;
                 }
-                <span class="ident">partly_on</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">last_steps</span>[<span class="ident">i</span>]);
-                <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_steps</span>[<span class="ident">i</span>].<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
-                <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> (<span class="ident">len</span> <span class="op">-</span> <span class="ident">leftover</span>).<span class="ident">max</span>(<span class="ident">Distance::ZERO</span>);
-                <span class="kw">let</span> <span class="ident">piece</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">last_steps</span>[<span class="ident">i</span>]
-                    .<span class="ident">get_polyline</span>(<span class="ident">map</span>)
-                    .<span class="ident">slice</span>(<span class="ident">start</span>, <span class="ident">len</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">pl</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">pl</span>.<span class="ident">into_points</span>())
-                    .<span class="ident">ok</span>()
-                    .<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>);
-                <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">PolyLine::append</span>(<span class="ident">piece</span>, <span class="ident">result</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(
+                partly_on.push(<span class="self">self</span>.last_steps[i]);
+                <span class="kw">let </span>len = <span class="self">self</span>.last_steps[i].get_polyline(map).length();
+                <span class="kw">let </span>start = (len - leftover).max(Distance::ZERO);
+                <span class="kw">let </span>piece = <span class="self">self</span>.last_steps[i]
+                    .get_polyline(map)
+                    .slice(start, len)
+                    .map(|(pl, <span class="kw">_</span>)| pl.into_points())
+                    .ok()
+                    .unwrap_or_else(Vec::new);
+                result = <span class="kw">match </span>PolyLine::append(piece, result) {
+                    <span class="prelude-val">Ok</span>(pl) =&gt; pl,
+                    <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(
                         <span class="string">&quot;{} at {} has weird geom along {:?}: {}&quot;</span>,
-                        <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">now</span>, <span class="self">self</span>.<span class="ident">last_steps</span>, <span class="ident">err</span>
+                        <span class="self">self</span>.vehicle.id, now, <span class="self">self</span>.last_steps, err
                     ),
                 };
-                <span class="ident">leftover</span> <span class="op">-</span><span class="op">=</span> <span class="ident">len</span>;
-                <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                leftover -= len;
+                i += <span class="number">1</span>;
             }
 
-            <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-                <span class="comment">// Vehicles spawning at a border start with their front at literally 0 distance.</span>
-                <span class="comment">// Usually by the time we first try to render, they&#39;ve advanced at least a little.</span>
-                <span class="comment">// But sometimes there&#39;s a race when we try to immediately draw them.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pl</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">router</span>
-                    .<span class="ident">head</span>()
-                    .<span class="ident">get_polyline</span>(<span class="ident">map</span>)
-                    .<span class="ident">slice</span>(<span class="ident">Distance::ZERO</span>, <span class="number">2.0</span> <span class="op">*</span> <span class="ident">EPSILON_DIST</span>)
+            <span class="kw">if </span>result.len() &lt; <span class="number">2 </span>{
+                <span class="comment">// Vehicles spawning at a border start with their front at literally 0 distance.
+                // Usually by the time we first try to render, they&#39;ve advanced at least a little.
+                // But sometimes there&#39;s a race when we try to immediately draw them.
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>((pl, <span class="kw">_</span>)) = <span class="self">self
+                    </span>.router
+                    .head()
+                    .get_polyline(map)
+                    .slice(Distance::ZERO, <span class="number">2.0 </span>* EPSILON_DIST)
                 {
-                    <span class="ident">result</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">into_points</span>();
+                    result = pl.into_points();
                 }
             }
-            <span class="kw">match</span> <span class="ident">PolyLine::new</span>(<span class="ident">result</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Weird body for {} at {}: {}&quot;</span>, <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">now</span>, <span class="ident">err</span>),
+            <span class="kw">match </span>PolyLine::new(result) {
+                <span class="prelude-val">Ok</span>(pl) =&gt; pl,
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Weird body for {} at {}: {}&quot;</span>, <span class="self">self</span>.vehicle.id, now, err),
             }
         };
 
-        <span class="kw">let</span> <span class="ident">body</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">CarState::ChangingLanes</span> {
-                <span class="ident">from</span>,
-                <span class="ident">to</span>,
-                <span class="kw-2">ref</span> <span class="ident">lc_time</span>,
+        <span class="kw">let </span>body = <span class="kw">match </span><span class="self">self</span>.state {
+            CarState::ChangingLanes {
+                from,
+                to,
+                <span class="kw-2">ref </span>lc_time,
                 ..
             } =&gt; {
-                <span class="kw">let</span> <span class="ident">percent_time</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">-</span> <span class="ident">lc_time</span>.<span class="ident">percent</span>(<span class="ident">now</span>);
-                <span class="comment">// TODO Can probably simplify this! Lifted from the parking case</span>
-                <span class="comment">// The car&#39;s body is already at &#39;to&#39;, so shift back</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> (<span class="ident">to</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> (<span class="ident">from</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">from</span>);
-                <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
-                    <span class="ident">diff</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
+                <span class="kw">let </span>percent_time = <span class="number">1.0 </span>- lc_time.percent(now);
+                <span class="comment">// TODO Can probably simplify this! Lifted from the parking case
+                // The car&#39;s body is already at &#39;to&#39;, so shift back
+                </span><span class="kw">let </span><span class="kw-2">mut </span>diff = (to.offset <span class="kw">as </span>isize) - (from.offset <span class="kw">as </span>isize);
+                <span class="kw">let </span>from = map.get_l(from);
+                <span class="kw">if </span>from.dir == Direction::Fwd {
+                    diff <span class="kw-2">*</span>= -<span class="number">1</span>;
                 }
-                <span class="comment">// TODO Careful with this width math</span>
-                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">width</span> <span class="op">*</span> (<span class="ident">diff</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">percent_time</span>;
-                <span class="kw">match</span> <span class="ident">raw_body</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                <span class="comment">// TODO Careful with this width math
+                </span><span class="kw">let </span>width = from.width * (diff <span class="kw">as </span>f64) * percent_time;
+                <span class="kw">match </span>raw_body.shift_right(width) {
+                    <span class="prelude-val">Ok</span>(pl) =&gt; pl,
+                    <span class="prelude-val">Err</span>(err) =&gt; {
                         <span class="macro">println!</span>(
                             <span class="string">&quot;Body for lane-changing {} at {} broken: {}&quot;</span>,
-                            <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">now</span>, <span class="ident">err</span>
+                            <span class="self">self</span>.vehicle.id, now, err
                         );
-                        <span class="ident">raw_body</span>
+                        raw_body
                     }
                 }
             }
-            <span class="ident">CarState::Unparking</span> {
-                <span class="kw-2">ref</span> <span class="ident">spot</span>,
-                <span class="kw-2">ref</span> <span class="ident">time_int</span>,
+            CarState::Unparking {
+                <span class="kw-2">ref </span>spot,
+                <span class="kw-2">ref </span>time_int,
                 ..
             }
-            <span class="op">|</span> <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">percent_time</span>, <span class="ident">is_parking</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-                    <span class="ident">CarState::Unparking</span> { .. } =&gt; (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>), <span class="bool-val">false</span>),
-                    <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; (<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>), <span class="bool-val">true</span>),
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            | CarState::Parking(<span class="kw">_</span>, <span class="kw-2">ref </span>spot, <span class="kw-2">ref </span>time_int) =&gt; {
+                <span class="kw">let </span>(percent_time, is_parking) = <span class="kw">match </span><span class="self">self</span>.state {
+                    CarState::Unparking { .. } =&gt; (<span class="number">1.0 </span>- time_int.percent(now), <span class="bool-val">false</span>),
+                    CarState::Parking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; (time_int.percent(now), <span class="bool-val">true</span>),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 };
-                <span class="kw">match</span> <span class="ident">spot</span> {
-                    <span class="ident">ParkingSpot::Onstreet</span>(<span class="ident">parking_l</span>, <span class="kw">_</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">driving_offset</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>().<span class="ident">offset</span>;
-                        <span class="kw">let</span> <span class="ident">parking_offset</span> <span class="op">=</span> <span class="ident">parking_l</span>.<span class="ident">offset</span>;
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">diff</span> <span class="op">=</span> (<span class="ident">parking_offset</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> (<span class="ident">driving_offset</span> <span class="kw">as</span> <span class="ident">isize</span>);
-                        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>().<span class="ident">as_lane</span>()).<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Back</span> {
-                            <span class="ident">diff</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
+                <span class="kw">match </span>spot {
+                    ParkingSpot::Onstreet(parking_l, <span class="kw">_</span>) =&gt; {
+                        <span class="kw">let </span>driving_offset = <span class="self">self</span>.router.head().as_lane().offset;
+                        <span class="kw">let </span>parking_offset = parking_l.offset;
+                        <span class="kw">let </span><span class="kw-2">mut </span>diff = (parking_offset <span class="kw">as </span>isize) - (driving_offset <span class="kw">as </span>isize);
+                        <span class="kw">if </span>map.get_l(<span class="self">self</span>.router.head().as_lane()).dir == Direction::Back {
+                            diff <span class="kw-2">*</span>= -<span class="number">1</span>;
                         }
-                        <span class="comment">// TODO Sum widths in between, don&#39;t assume they&#39;re all the same as the</span>
-                        <span class="comment">// parking lane width!</span>
-                        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">parking_l</span>).<span class="ident">width</span> <span class="op">*</span> (<span class="ident">diff</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">percent_time</span>;
-                        <span class="kw">match</span> <span class="ident">raw_body</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>) {
-                            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; <span class="ident">pl</span>,
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                        <span class="comment">// TODO Sum widths in between, don&#39;t assume they&#39;re all the same as the
+                        // parking lane width!
+                        </span><span class="kw">let </span>width = map.get_l(<span class="kw-2">*</span>parking_l).width * (diff <span class="kw">as </span>f64) * percent_time;
+                        <span class="kw">match </span>raw_body.shift_right(width) {
+                            <span class="prelude-val">Ok</span>(pl) =&gt; pl,
+                            <span class="prelude-val">Err</span>(err) =&gt; {
                                 <span class="macro">println!</span>(
                                     <span class="string">&quot;Body for onstreet {} at {} broken: {}&quot;</span>,
-                                    <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">now</span>, <span class="ident">err</span>
+                                    <span class="self">self</span>.vehicle.id, now, err
                                 );
-                                <span class="ident">raw_body</span>
+                                raw_body
                             }
                         }
                     }
-                    <span class="kw">_</span> =&gt; {
-                        <span class="kw">let</span> <span class="ident">driveway</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">spot</span> {
-                            <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; {
-                                <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="number">1</span>
-                            }
-                            <span class="ident">ParkingSpot::Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="kw-2">*</span><span class="ident">pl</span>).<span class="ident">driveway_line</span>.<span class="ident">clone</span>(),
-                            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="kw">let </span>driveway = <span class="kw">match </span>spot {
+                            ParkingSpot::Offstreet(b, <span class="kw">_</span>) =&gt; {
+                                map.get_b(<span class="kw-2">*</span>b).driving_connection(map).unwrap().<span class="number">1
+                            </span>}
+                            ParkingSpot::Lot(pl, <span class="kw">_</span>) =&gt; map.get_pl(<span class="kw-2">*</span>pl).driveway_line.clone(),
+                            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                         };
 
-                        <span class="comment">// Append the car&#39;s polyline on the street with the driveway</span>
-                        <span class="kw">let</span> <span class="ident">maybe_full_piece</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_parking</span> {
-                            <span class="ident">raw_body</span>.<span class="ident">clone</span>().<span class="ident">extend</span>(<span class="ident">driveway</span>.<span class="ident">reversed</span>())
-                        } <span class="kw">else</span> {
-                            <span class="comment">// It&#39;s possible to exit a driveway onto something other than the lane</span>
-                            <span class="comment">// closest to the building. So use force_extend to handle possibly</span>
-                            <span class="comment">// mismatching points.</span>
-                            <span class="ident">driveway</span>
-                                .<span class="ident">clone</span>()
-                                .<span class="ident">force_extend</span>(<span class="ident">raw_body</span>.<span class="ident">clone</span>())
-                                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">reversed</span>())
+                        <span class="comment">// Append the car&#39;s polyline on the street with the driveway
+                        </span><span class="kw">let </span>maybe_full_piece = <span class="kw">if </span>is_parking {
+                            raw_body.clone().extend(driveway.reversed())
+                        } <span class="kw">else </span>{
+                            <span class="comment">// It&#39;s possible to exit a driveway onto something other than the lane
+                            // closest to the building. So use force_extend to handle possibly
+                            // mismatching points.
+                            </span>driveway
+                                .clone()
+                                .force_extend(raw_body.clone())
+                                .map(|pl| pl.reversed())
                         };
-                        <span class="kw">let</span> <span class="ident">sliced</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">maybe_full_piece</span> {
-                            <span class="prelude-val">Ok</span>(<span class="ident">full_piece</span>) =&gt; {
-                                <span class="comment">// Then make the car creep along the added length of the driveway (which</span>
-                                <span class="comment">// could be really short)</span>
-                                <span class="kw">let</span> <span class="ident">creep_along</span> <span class="op">=</span> <span class="ident">driveway</span>.<span class="ident">length</span>() <span class="op">*</span> <span class="ident">percent_time</span>;
-                                <span class="comment">// TODO Ideally the car would slowly (dis)appear into the building, but</span>
-                                <span class="comment">// some stuff downstream needs to understand that the windows and such will</span>
-                                <span class="comment">// get cut off. :)</span>
-                                <span class="ident">full_piece</span>
-                                    .<span class="ident">exact_slice</span>(<span class="ident">creep_along</span>, <span class="ident">creep_along</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">length</span>)
+                        <span class="kw">let </span>sliced = <span class="kw">match </span>maybe_full_piece {
+                            <span class="prelude-val">Ok</span>(full_piece) =&gt; {
+                                <span class="comment">// Then make the car creep along the added length of the driveway (which
+                                // could be really short)
+                                </span><span class="kw">let </span>creep_along = driveway.length() * percent_time;
+                                <span class="comment">// TODO Ideally the car would slowly (dis)appear into the building, but
+                                // some stuff downstream needs to understand that the windows and such will
+                                // get cut off. :)
+                                </span>full_piece
+                                    .exact_slice(creep_along, creep_along + <span class="self">self</span>.vehicle.length)
                             }
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                                <span class="comment">// Just avoid crashing; we&#39;ll display something nonsensical (just</span>
-                                <span class="comment">// part of the car body on the lane) in the meantime</span>
-                                <span class="macro">error!</span>(
+                            <span class="prelude-val">Err</span>(err) =&gt; {
+                                <span class="comment">// Just avoid crashing; we&#39;ll display something nonsensical (just
+                                // part of the car body on the lane) in the meantime
+                                </span><span class="macro">error!</span>(
                                     <span class="string">&quot;Body and driveway for {} at {} broken: {}&quot;</span>,
-                                    <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">now</span>, <span class="ident">err</span>
+                                    <span class="self">self</span>.vehicle.id, now, err
                                 );
-                                <span class="ident">raw_body</span>
+                                raw_body
                             }
                         };
-                        <span class="kw">if</span> <span class="ident">is_parking</span> {
-                            <span class="ident">sliced</span>
-                        } <span class="kw">else</span> {
-                            <span class="ident">sliced</span>.<span class="ident">reversed</span>()
+                        <span class="kw">if </span>is_parking {
+                            sliced
+                        } <span class="kw">else </span>{
+                            sliced.reversed()
                         }
                     }
                 }
             }
-            <span class="kw">_</span> =&gt; <span class="ident">raw_body</span>,
+            <span class="kw">_ </span>=&gt; raw_body,
         };
 
-        <span class="ident">DrawCarInput</span> {
-            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>,
-            <span class="ident">waiting_for_turn</span>: <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-                <span class="comment">// TODO Maybe also when Crossing?</span>
-                <span class="ident">CarState::WaitingToAdvance</span> { .. } <span class="op">|</span> <span class="ident">CarState::Queued</span> { .. } =&gt; {
-                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">maybe_next</span>() {
-                        <span class="prelude-val">Some</span>(<span class="ident">Traversable::Turn</span>(<span class="ident">t</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">t</span>),
-                        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+        DrawCarInput {
+            id: <span class="self">self</span>.vehicle.id,
+            waiting_for_turn: <span class="kw">match </span><span class="self">self</span>.state {
+                <span class="comment">// TODO Maybe also when Crossing?
+                </span>CarState::WaitingToAdvance { .. } | CarState::Queued { .. } =&gt; {
+                    <span class="kw">match </span><span class="self">self</span>.router.maybe_next() {
+                        <span class="prelude-val">Some</span>(Traversable::Turn(t)) =&gt; <span class="prelude-val">Some</span>(t),
+                        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                     }
                 }
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
             },
-            <span class="ident">status</span>: <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-                <span class="ident">CarState::Queued</span> { .. } =&gt; <span class="ident">CarStatus::Moving</span>,
-                <span class="ident">CarState::WaitingToAdvance</span> { .. } =&gt; <span class="ident">CarStatus::Moving</span>,
-                <span class="ident">CarState::Crossing</span> { .. } =&gt; <span class="ident">CarStatus::Moving</span>,
-                <span class="ident">CarState::ChangingLanes</span> { .. } =&gt; <span class="ident">CarStatus::Moving</span>,
-                <span class="ident">CarState::Unparking</span> { .. } =&gt; <span class="ident">CarStatus::Moving</span>,
-                <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">CarStatus::Moving</span>,
-                <span class="comment">// Changing color for idling buses is helpful</span>
-                <span class="ident">CarState::IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">CarStatus::Parked</span>,
+            status: <span class="kw">match </span><span class="self">self</span>.state {
+                CarState::Queued { .. } =&gt; CarStatus::Moving,
+                CarState::WaitingToAdvance { .. } =&gt; CarStatus::Moving,
+                CarState::Crossing { .. } =&gt; CarStatus::Moving,
+                CarState::ChangingLanes { .. } =&gt; CarStatus::Moving,
+                CarState::Unparking { .. } =&gt; CarStatus::Moving,
+                CarState::Parking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; CarStatus::Moving,
+                <span class="comment">// Changing color for idling buses is helpful
+                </span>CarState::IdlingAtStop(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; CarStatus::Parked,
             },
-            <span class="ident">intent</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_parking</span>() <span class="op">|</span><span class="op">|</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">state</span>, <span class="ident">CarState::Unparking</span> { .. }) {
-                <span class="prelude-val">Some</span>(<span class="ident">Intent::Parking</span>)
-            } <span class="kw">else</span> {
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-                    <span class="ident">CarState::Crossing</span> { <span class="ident">steep_uphill</span>, .. } <span class="kw">if</span> <span class="ident">steep_uphill</span> =&gt; {
-                        <span class="prelude-val">Some</span>(<span class="ident">Intent::SteepUphill</span>)
+            intent: <span class="kw">if </span><span class="self">self</span>.is_parking() || <span class="macro">matches!</span>(<span class="self">self</span>.state, CarState::Unparking { .. }) {
+                <span class="prelude-val">Some</span>(Intent::Parking)
+            } <span class="kw">else </span>{
+                <span class="kw">match </span><span class="self">self</span>.state {
+                    CarState::Crossing { steep_uphill, .. } <span class="kw">if </span>steep_uphill =&gt; {
+                        <span class="prelude-val">Some</span>(Intent::SteepUphill)
                     }
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                 }
             },
-            <span class="ident">on</span>: <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">head</span>(),
-            <span class="ident">partly_on</span>,
-            <span class="ident">label</span>: <span class="kw">if</span> <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bus</span>
-                <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Train</span>
+            on: <span class="self">self</span>.router.head(),
+            partly_on,
+            label: <span class="kw">if </span><span class="self">self</span>.vehicle.vehicle_type == VehicleType::Bus
+                || <span class="self">self</span>.vehicle.vehicle_type == VehicleType::Train
             {
                 <span class="prelude-val">Some</span>(
-                    <span class="ident">map</span>.<span class="ident">get_tr</span>(<span class="ident">transit</span>.<span class="ident">bus_route</span>(<span class="self">self</span>.<span class="ident">vehicle</span>.<span class="ident">id</span>))
-                        .<span class="ident">short_name</span>
-                        .<span class="ident">clone</span>(),
+                    map.get_tr(transit.bus_route(<span class="self">self</span>.vehicle.id))
+                        .short_name
+                        .clone(),
                 )
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
-            <span class="ident">body</span>,
-            <span class="ident">person</span>: <span class="self">self</span>.<span class="ident">trip_and_person</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">p</span>)<span class="op">|</span> <span class="ident">p</span>),
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>},
+            body,
+            person: <span class="self">self</span>.trip_and_person.map(|(<span class="kw">_</span>, p)| p),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+    <span class="kw">pub fn </span>is_parking(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">if let </span>CarState::Parking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) = <span class="self">self</span>.state {
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="self">self</span>.<span class="ident">router</span>.<span class="ident">is_parking</span>()
+        <span class="self">self</span>.router.is_parking()
     }
 }
 
-<span class="doccomment">/// See &lt;https://a-b-street.github.io/docs/tech/trafficsim/discrete_event.html&gt; for details about the</span>
-<span class="doccomment">/// state machine encoded here.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">CarState</span> {
-    <span class="ident">Crossing</span> {
-        <span class="ident">time_int</span>: <span class="ident">TimeInterval</span>,
-        <span class="ident">dist_int</span>: <span class="ident">DistanceInterval</span>,
-        <span class="ident">steep_uphill</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// See &lt;https://a-b-street.github.io/docs/tech/trafficsim/discrete_event.html&gt; for details about the
+/// state machine encoded here.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>CarState {
+    Crossing {
+        time_int: TimeInterval,
+        dist_int: DistanceInterval,
+        steep_uphill: bool,
     },
-    <span class="ident">ChangingLanes</span> {
-        <span class="ident">from</span>: <span class="ident">LaneID</span>,
-        <span class="ident">to</span>: <span class="ident">LaneID</span>,
-        <span class="comment">// For the most part, act just like a Crossing state with these intervals</span>
-        <span class="ident">new_time</span>: <span class="ident">TimeInterval</span>,
-        <span class="ident">new_dist</span>: <span class="ident">DistanceInterval</span>,
-        <span class="comment">// How long does the lane-changing itself last? This must end before new_time_int does.</span>
-        <span class="ident">lc_time</span>: <span class="ident">TimeInterval</span>,
+    ChangingLanes {
+        from: LaneID,
+        to: LaneID,
+        <span class="comment">// For the most part, act just like a Crossing state with these intervals
+        </span>new_time: TimeInterval,
+        new_dist: DistanceInterval,
+        <span class="comment">// How long does the lane-changing itself last? This must end before new_time_int does.
+        </span>lc_time: TimeInterval,
     },
-    <span class="ident">Queued</span> {
-        <span class="ident">blocked_since</span>: <span class="ident">Time</span>,
-        <span class="ident">want_to_change_lanes</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
+    Queued {
+        blocked_since: Time,
+        want_to_change_lanes: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
     },
-    <span class="ident">WaitingToAdvance</span> {
-        <span class="ident">blocked_since</span>: <span class="ident">Time</span>,
+    WaitingToAdvance {
+        blocked_since: Time,
     },
-    <span class="doccomment">/// Where&#39;s the front of the car while this is happening?</span>
-    <span class="ident">Unparking</span> {
-        <span class="ident">front</span>: <span class="ident">Distance</span>,
-        <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>,
-        <span class="ident">time_int</span>: <span class="ident">TimeInterval</span>,
-        <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Where&#39;s the front of the car while this is happening?
+    </span>Unparking {
+        front: Distance,
+        spot: ParkingSpot,
+        time_int: TimeInterval,
+        blocked_starts: Vec&lt;LaneID&gt;,
     },
-    <span class="ident">Parking</span>(<span class="ident">Distance</span>, <span class="ident">ParkingSpot</span>, <span class="ident">TimeInterval</span>),
-    <span class="ident">IdlingAtStop</span>(<span class="ident">Distance</span>, <span class="ident">TimeInterval</span>),
+    Parking(Distance, ParkingSpot, TimeInterval),
+    IdlingAtStop(Distance, TimeInterval),
 }
 
-<span class="kw">impl</span> <span class="ident">CarState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_end_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Time</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CarState::Crossing</span> { <span class="kw-2">ref</span> <span class="ident">time_int</span>, .. } =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">CarState::Queued</span> { .. } =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">CarState::WaitingToAdvance</span> { .. } =&gt; <span class="macro">unreachable!</span>(),
-            <span class="comment">// Note this state lasts for lc_time, NOT for new_time.</span>
-            <span class="ident">CarState::ChangingLanes</span> { <span class="kw-2">ref</span> <span class="ident">lc_time</span>, .. } =&gt; <span class="ident">lc_time</span>.<span class="ident">end</span>,
-            <span class="ident">CarState::Unparking</span> { <span class="kw-2">ref</span> <span class="ident">time_int</span>, .. } =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">CarState::Parking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">CarState::IdlingAtStop</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
+<span class="kw">impl </span>CarState {
+    <span class="kw">pub fn </span>get_end_time(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Time {
+        <span class="kw">match </span><span class="self">self </span>{
+            CarState::Crossing { <span class="kw-2">ref </span>time_int, .. } =&gt; time_int.end,
+            CarState::Queued { .. } =&gt; <span class="macro">unreachable!</span>(),
+            CarState::WaitingToAdvance { .. } =&gt; <span class="macro">unreachable!</span>(),
+            <span class="comment">// Note this state lasts for lc_time, NOT for new_time.
+            </span>CarState::ChangingLanes { <span class="kw-2">ref </span>lc_time, .. } =&gt; lc_time.end,
+            CarState::Unparking { <span class="kw-2">ref </span>time_int, .. } =&gt; time_int.end,
+            CarState::Parking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; time_int.end,
+            CarState::IdlingAtStop(<span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; time_int.end,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">time_spent_waiting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CarState::Queued</span> { <span class="ident">blocked_since</span>, .. }
-            <span class="op">|</span> <span class="ident">CarState::WaitingToAdvance</span> { <span class="ident">blocked_since</span> } =&gt; <span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">blocked_since</span>,
-            <span class="kw">_</span> =&gt; <span class="ident">Duration::ZERO</span>,
+    <span class="kw">pub fn </span>time_spent_waiting(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time) -&gt; Duration {
+        <span class="kw">match </span><span class="self">self </span>{
+            CarState::Queued { blocked_since, .. }
+            | CarState::WaitingToAdvance { blocked_since } =&gt; now - <span class="kw-2">*</span>blocked_since,
+            <span class="kw">_ </span>=&gt; Duration::ZERO,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

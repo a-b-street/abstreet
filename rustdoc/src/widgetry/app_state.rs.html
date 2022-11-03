@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/app_state.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app_state.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/app_state.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>app_state.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -314,321 +314,321 @@
 <span id="314">314</span>
 <span id="315">315</span>
 <span id="316">316</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the</span>
-<span class="doccomment">//! entire lifetime of the application, and a stack of smaller states, only one of which is active</span>
-<span class="doccomment">//! at a time. For example, imagine an application to view a map. The shared state would include</span>
-<span class="doccomment">//! the map and pre-rendered geometry for it. The individual states might start with a splash</span>
-<span class="doccomment">//! screen or menu to choose a map, then a map viewer, then maybe a state to drill down into pieces</span>
-<span class="doccomment">//! of the map.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A widgetry application splits its state into two pieces: global shared state that lasts for the
+//! entire lifetime of the application, and a stack of smaller states, only one of which is active
+//! at a time. For example, imagine an application to view a map. The shared state would include
+//! the map and pre-rendered geometry for it. The individual states might start with a splash
+//! screen or menu to choose a map, then a map viewer, then maybe a state to drill down into pieces
+//! of the map.
 
-<span class="kw">use</span> <span class="ident">abstutil::CloneableAny</span>;
+</span><span class="kw">use </span>abstutil::CloneableAny;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>};
+<span class="kw">use crate</span>::{Canvas, Color, EventCtx, GfxCtx, Outcome, Panel};
 
-<span class="doccomment">/// Any data that should last the entire lifetime of the application should be stored in the struct</span>
-<span class="doccomment">/// implementing this trait.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SharedAppState</span> {
-    <span class="doccomment">/// Before `State::event` is called, call this.</span>
-    <span class="kw">fn</span> <span class="ident">before_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
-    <span class="doccomment">/// When DrawBaselayer::DefaultDraw is called, run this.</span>
-    <span class="kw">fn</span> <span class="ident">draw_default</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {}
+<span class="doccomment">/// Any data that should last the entire lifetime of the application should be stored in the struct
+/// implementing this trait.
+</span><span class="kw">pub trait </span>SharedAppState {
+    <span class="doccomment">/// Before `State::event` is called, call this.
+    </span><span class="kw">fn </span>before_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
+    <span class="doccomment">/// When DrawBaselayer::DefaultDraw is called, run this.
+    </span><span class="kw">fn </span>draw_default(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>GfxCtx) {}
 
-    <span class="doccomment">/// Will be called if `State::event` or `State::draw` panics.</span>
-    <span class="kw">fn</span> <span class="ident">dump_before_abort</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {}
-    <span class="doccomment">/// Called before a normal exit, like window close</span>
-    <span class="kw">fn</span> <span class="ident">before_quit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {}
+    <span class="doccomment">/// Will be called if `State::event` or `State::draw` panics.
+    </span><span class="kw">fn </span>dump_before_abort(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Canvas) {}
+    <span class="doccomment">/// Called before a normal exit, like window close
+    </span><span class="kw">fn </span>before_quit(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Canvas) {}
 
-    <span class="doccomment">/// If widgetry determines the video card is low on memory, this may be called. The application</span>
-    <span class="doccomment">/// should make its best effort to delete any unused Drawables.</span>
-    <span class="kw">fn</span> <span class="ident">free_memory</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
+    <span class="doccomment">/// If widgetry determines the video card is low on memory, this may be called. The application
+    /// should make its best effort to delete any unused Drawables.
+    </span><span class="kw">fn </span>free_memory(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {}
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">App</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">SharedAppState</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// A stack of states</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">states</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">shared_app_state</span>: <span class="ident">A</span>,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>App&lt;A: SharedAppState&gt; {
+    <span class="doccomment">/// A stack of states
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) states: Vec&lt;Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) shared_app_state: A,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">SharedAppState</span><span class="op">&gt;</span> <span class="ident">App</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
-        <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">before_event</span>();
+<span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static </span>+ SharedAppState&gt; App&lt;A&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
+        <span class="self">self</span>.shared_app_state.before_event();
 
-        <span class="kw">let</span> <span class="ident">transition</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">states</span>
-            .<span class="ident">last_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">execute_transition</span>(<span class="ident">ctx</span>, <span class="ident">transition</span>) {
-            <span class="comment">// Let the new state initialize with a fake event. Usually these just return</span>
-            <span class="comment">// Transition::Keep, but nothing stops them from doing whatever. (For example, entering</span>
-            <span class="comment">// tutorial mode immediately pushes on a Warper.) So just recurse.</span>
-            <span class="ident">ctx</span>.<span class="ident">no_op_event</span>(<span class="bool-val">true</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">event</span>(<span class="ident">ctx</span>));
+        <span class="kw">let </span>transition = <span class="self">self
+            </span>.states
+            .last_mut()
+            .unwrap()
+            .event(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
+        <span class="kw">if </span><span class="self">self</span>.execute_transition(ctx, transition) {
+            <span class="comment">// Let the new state initialize with a fake event. Usually these just return
+            // Transition::Keep, but nothing stops them from doing whatever. (For example, entering
+            // tutorial mode immediately pushes on a Warper.) So just recurse.
+            </span>ctx.no_op_event(<span class="bool-val">true</span>, |ctx| <span class="self">self</span>.event(ctx));
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="kw">let </span>state = <span class="self">self</span>.states.last().unwrap();
 
-        <span class="kw">match</span> <span class="ident">state</span>.<span class="ident">draw_baselayer</span>() {
-            <span class="ident">DrawBaselayer::DefaultDraw</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">draw_default</span>(<span class="ident">g</span>);
+        <span class="kw">match </span>state.draw_baselayer() {
+            DrawBaselayer::DefaultDraw =&gt; {
+                <span class="self">self</span>.shared_app_state.draw_default(g);
             }
-            <span class="ident">DrawBaselayer::Custom</span> =&gt; {}
-            <span class="ident">DrawBaselayer::PreviousState</span> =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span> {
-                    <span class="kw">match</span> <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw_baselayer</span>() {
-                        <span class="ident">DrawBaselayer::DefaultDraw</span> =&gt; {
-                            <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">draw_default</span>(<span class="ident">g</span>);
+            DrawBaselayer::Custom =&gt; {}
+            DrawBaselayer::PreviousState =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.states.len() &gt;= <span class="number">2 </span>{
+                    <span class="kw">match </span><span class="self">self</span>.states[<span class="self">self</span>.states.len() - <span class="number">2</span>].draw_baselayer() {
+                        DrawBaselayer::DefaultDraw =&gt; {
+                            <span class="self">self</span>.shared_app_state.draw_default(g);
                         }
-                        <span class="ident">DrawBaselayer::Custom</span> =&gt; {}
-                        <span class="comment">// Don&#39;t recurse, but at least clear the screen, because the state is</span>
-                        <span class="comment">// usually expecting the previous thing to happen.</span>
-                        <span class="ident">DrawBaselayer::PreviousState</span> =&gt; {
-                            <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
+                        DrawBaselayer::Custom =&gt; {}
+                        <span class="comment">// Don&#39;t recurse, but at least clear the screen, because the state is
+                        // usually expecting the previous thing to happen.
+                        </span>DrawBaselayer::PreviousState =&gt; {
+                            g.clear(Color::BLACK);
                         }
                     }
 
-                    <span class="self">self</span>.<span class="ident">states</span>[<span class="self">self</span>.<span class="ident">states</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>].<span class="ident">draw</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared_app_state</span>);
-                } <span class="kw">else</span> {
-                    <span class="comment">// I&#39;m not entirely sure why this happens, but crashing isn&#39;t ideal.</span>
-                    <span class="macro">warn!</span>(
+                    <span class="self">self</span>.states[<span class="self">self</span>.states.len() - <span class="number">2</span>].draw(g, <span class="kw-2">&amp;</span><span class="self">self</span>.shared_app_state);
+                } <span class="kw">else </span>{
+                    <span class="comment">// I&#39;m not entirely sure why this happens, but crashing isn&#39;t ideal.
+                    </span><span class="macro">warn!</span>(
                         <span class="string">&quot;A state requested DrawBaselayer::PreviousState, but it&#39;s the only state \
-                         on the stack!&quot;</span>
-                    );
-                    <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
+                         on the stack!&quot;
+                    </span>);
+                    g.clear(Color::BLACK);
                 }
             }
         }
-        <span class="ident">state</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shared_app_state</span>);
+        state.draw(g, <span class="kw-2">&amp;</span><span class="self">self</span>.shared_app_state);
     }
 
-    <span class="doccomment">/// If true, then the top-most state on the stack needs to be &quot;woken up&quot; with a fake mouseover</span>
-    <span class="doccomment">/// event.</span>
-    <span class="kw">fn</span> <span class="ident">execute_transition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">transition</span>: <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="ident">transition</span> {
-            <span class="ident">Transition::Keep</span> =&gt; <span class="bool-val">false</span>,
-            <span class="ident">Transition::KeepWithMouseover</span> =&gt; <span class="bool-val">true</span>,
-            <span class="ident">Transition::Pop</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-                <span class="ident">state</span>.<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
-                        <span class="comment">// Just kidding, don&#39;t actually leave.</span>
-                        <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">state</span>);
-                    <span class="comment">// TODO Once PopupMsg is lifted here, add an explanation</span>
-                    } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">shared_app_state</span>.<span class="ident">before_quit</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>);
-                        <span class="ident">std::process::exit</span>(<span class="number">0</span>);
+    <span class="doccomment">/// If true, then the top-most state on the stack needs to be &quot;woken up&quot; with a fake mouseover
+    /// event.
+    </span><span class="kw">fn </span>execute_transition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, transition: Transition&lt;A&gt;) -&gt; bool {
+        <span class="kw">match </span>transition {
+            Transition::Keep =&gt; <span class="bool-val">false</span>,
+            Transition::KeepWithMouseover =&gt; <span class="bool-val">true</span>,
+            Transition::Pop =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>state = <span class="self">self</span>.states.pop().unwrap();
+                state.on_destroy(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
+                <span class="kw">if </span><span class="self">self</span>.states.is_empty() {
+                    <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
+                        <span class="comment">// Just kidding, don&#39;t actually leave.
+                        </span><span class="self">self</span>.states.push(state);
+                    <span class="comment">// TODO Once PopupMsg is lifted here, add an explanation
+                    </span>} <span class="kw">else </span>{
+                        <span class="self">self</span>.shared_app_state.before_quit(ctx.canvas);
+                        std::process::exit(<span class="number">0</span>);
                     }
                 }
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">Transition::ModifyState</span>(<span class="ident">cb</span>) =&gt; {
-                <span class="ident">cb</span>(
-                    <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>(),
-                    <span class="ident">ctx</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>,
+                <span class="bool-val">true
+            </span>}
+            Transition::ModifyState(cb) =&gt; {
+                cb(
+                    <span class="self">self</span>.states.last_mut().unwrap(),
+                    ctx,
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state,
                 );
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">Transition::ConsumeState</span>(<span class="ident">cb</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-                <span class="ident">last</span>.<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
-                <span class="kw">let</span> <span class="ident">new_states</span> <span class="op">=</span> <span class="ident">cb</span>(<span class="ident">last</span>, <span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
-                <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">extend</span>(<span class="ident">new_states</span>);
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">Transition::Push</span>(<span class="ident">state</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">state</span>);
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">Transition::Replace</span>(<span class="ident">state</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">states</span>
-                    .<span class="ident">pop</span>()
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
-                <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">state</span>);
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">Transition::Clear</span>(<span class="ident">states</span>) =&gt; {
-                <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">states</span>.<span class="ident">is_empty</span>() {
-                    <span class="self">self</span>.<span class="ident">states</span>
-                        .<span class="ident">pop</span>()
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">on_destroy</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
+                <span class="bool-val">true
+            </span>}
+            Transition::ConsumeState(cb) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>last = <span class="self">self</span>.states.pop().unwrap();
+                last.on_destroy(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
+                <span class="kw">let </span>new_states = cb(last, ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
+                <span class="self">self</span>.states.extend(new_states);
+                <span class="bool-val">true
+            </span>}
+            Transition::Push(state) =&gt; {
+                <span class="self">self</span>.states.push(state);
+                <span class="bool-val">true
+            </span>}
+            Transition::Replace(state) =&gt; {
+                <span class="self">self</span>.states
+                    .pop()
+                    .unwrap()
+                    .on_destroy(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
+                <span class="self">self</span>.states.push(state);
+                <span class="bool-val">true
+            </span>}
+            Transition::Clear(states) =&gt; {
+                <span class="kw">while </span>!<span class="self">self</span>.states.is_empty() {
+                    <span class="self">self</span>.states
+                        .pop()
+                        .unwrap()
+                        .on_destroy(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
                 }
-                <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">extend</span>(<span class="ident">states</span>);
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">Transition::Recreate</span> =&gt; {
-                <span class="comment">// TODO Don&#39;t call on_destroy?</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">replacement</span> <span class="op">=</span> <span class="ident">last</span>.<span class="ident">recreate</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">shared_app_state</span>);
-                <span class="self">self</span>.<span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">replacement</span>);
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">Transition::Multi</span>(<span class="ident">list</span>) =&gt; {
-                <span class="comment">// Always wake-up just the last state remaining after the sequence</span>
-                <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">list</span> {
-                    <span class="self">self</span>.<span class="ident">execute_transition</span>(<span class="ident">ctx</span>, <span class="ident">t</span>);
+                <span class="self">self</span>.states.extend(states);
+                <span class="bool-val">true
+            </span>}
+            Transition::Recreate =&gt; {
+                <span class="comment">// TODO Don&#39;t call on_destroy?
+                </span><span class="kw">let </span><span class="kw-2">mut </span>last = <span class="self">self</span>.states.pop().unwrap();
+                <span class="kw">let </span>replacement = last.recreate(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.shared_app_state);
+                <span class="self">self</span>.states.push(replacement);
+                <span class="bool-val">true
+            </span>}
+            Transition::Multi(list) =&gt; {
+                <span class="comment">// Always wake-up just the last state remaining after the sequence
+                </span><span class="kw">for </span>t <span class="kw">in </span>list {
+                    <span class="self">self</span>.execute_transition(ctx, t);
                 }
-                <span class="bool-val">true</span>
-            }
+                <span class="bool-val">true
+            </span>}
         }
     }
 }
 
-<span class="doccomment">/// Before `State::draw` is called, draw something else.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DrawBaselayer</span> {
-    <span class="doccomment">/// Call `SharedAppState::draw_default`.</span>
-    <span class="ident">DefaultDraw</span>,
-    <span class="doccomment">/// Don&#39;t draw anything.</span>
-    <span class="ident">Custom</span>,
-    <span class="doccomment">/// Call the previous state&#39;s `draw`. This won&#39;t recurse, even if that state specifies</span>
-    <span class="doccomment">/// `PreviousState`.</span>
-    <span class="ident">PreviousState</span>,
+<span class="doccomment">/// Before `State::draw` is called, draw something else.
+</span><span class="kw">pub enum </span>DrawBaselayer {
+    <span class="doccomment">/// Call `SharedAppState::draw_default`.
+    </span>DefaultDraw,
+    <span class="doccomment">/// Don&#39;t draw anything.
+    </span>Custom,
+    <span class="doccomment">/// Call the previous state&#39;s `draw`. This won&#39;t recurse, even if that state specifies
+    /// `PreviousState`.
+    </span>PreviousState,
 }
 
-<span class="doccomment">/// A temporary state of an application. There&#39;s a stack of these, with the most recent being the</span>
-<span class="doccomment">/// active one.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>: <span class="ident">downcast_rs::Downcast</span> {
-    <span class="doccomment">/// Respond to a UI event, such as input or time passing.</span>
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">shared_app_state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Draw</span>
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">shared_app_state</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>);
+<span class="doccomment">/// A temporary state of an application. There&#39;s a stack of these, with the most recent being the
+/// active one.
+</span><span class="kw">pub trait </span>State&lt;A&gt;: downcast_rs::Downcast {
+    <span class="doccomment">/// Respond to a UI event, such as input or time passing.
+    </span><span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, shared_app_state: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt;;
+    <span class="doccomment">/// Draw
+    </span><span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, shared_app_state: <span class="kw-2">&amp;</span>A);
 
-    <span class="doccomment">/// Specifies what to draw before draw()</span>
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::DefaultDraw</span>
+    <span class="doccomment">/// Specifies what to draw before draw()
+    </span><span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::DefaultDraw
     }
 
-    <span class="doccomment">/// Before this state is popped or replaced, call this.</span>
-    <span class="kw">fn</span> <span class="ident">on_destroy</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) {}
-    <span class="comment">// We don&#39;t need an on_enter -- the constructor for the state can just do it.</span>
+    <span class="doccomment">/// Before this state is popped or replaced, call this.
+    </span><span class="kw">fn </span>on_destroy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A) {}
+    <span class="comment">// We don&#39;t need an on_enter -- the constructor for the state can just do it.
 
-    <span class="doccomment">/// Respond to `Transition::Recreate` by assuming state in the app has changed, but preserving</span>
-    <span class="doccomment">/// the `State`-specific state appropriately.</span>
-    <span class="kw">fn</span> <span class="ident">recreate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    </span><span class="doccomment">/// Respond to `Transition::Recreate` by assuming state in the app has changed, but preserving
+    /// the `State`-specific state appropriately.
+    </span><span class="kw">fn </span>recreate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
         <span class="macro">panic!</span>(<span class="string">&quot;This state hasn&#39;t implemented support for Transition::Recreate&quot;</span>);
     }
 }
 
-<span class="macro">downcast_rs::impl_downcast!</span>(<span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>);
+<span class="macro">downcast_rs::impl_downcast!</span>(State&lt;A&gt;);
 
-<span class="doccomment">/// When a state responds to an event, it can specify some way to manipulate the stack of states.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Don&#39;t do anything, keep the current state as the active one</span>
-    <span class="ident">Keep</span>,
-    <span class="doccomment">/// Keep the current state as the active one, but immediately call `event` again with a mouse</span>
-    <span class="doccomment">/// moved event</span>
-    <span class="ident">KeepWithMouseover</span>,
-    <span class="doccomment">/// Destroy the current state, and resume from the previous one</span>
-    <span class="ident">Pop</span>,
-    <span class="doccomment">/// If a state needs to pass data back to its parent, use this. In the callback, you have to</span>
-    <span class="doccomment">/// downcast the previous state to populate it with data.</span>
-    <span class="ident">ModifyState</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">A</span>)<span class="op">&gt;</span>),
-    <span class="doccomment">/// This destroys the current state, running the callback on it, and pushes new states onto the</span>
-    <span class="doccomment">/// stack. The callback can consume the current state, thus salvaging fields from it without</span>
-    <span class="doccomment">/// cloning.</span>
-    <span class="ident">ConsumeState</span>(
-        <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>, <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// When a state responds to an event, it can specify some way to manipulate the stack of states.
+</span><span class="kw">pub enum </span>Transition&lt;A&gt; {
+    <span class="doccomment">/// Don&#39;t do anything, keep the current state as the active one
+    </span>Keep,
+    <span class="doccomment">/// Keep the current state as the active one, but immediately call `event` again with a mouse
+    /// moved event
+    </span>KeepWithMouseover,
+    <span class="doccomment">/// Destroy the current state, and resume from the previous one
+    </span>Pop,
+    <span class="doccomment">/// If a state needs to pass data back to its parent, use this. In the callback, you have to
+    /// downcast the previous state to populate it with data.
+    </span>ModifyState(Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;, <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A)&gt;),
+    <span class="doccomment">/// This destroys the current state, running the callback on it, and pushes new states onto the
+    /// stack. The callback can consume the current state, thus salvaging fields from it without
+    /// cloning.
+    </span>ConsumeState(
+        Box&lt;<span class="kw">dyn </span>FnOnce(Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;, <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A) -&gt; Vec&lt;Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;&gt;&gt;,
     ),
-    <span class="doccomment">/// Push a new active state on the top of the stack.</span>
-    <span class="ident">Push</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// Replace the current state with a new one. Equivalent to Pop, then Push.</span>
-    <span class="ident">Replace</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// Replace the entire stack of states with this stack.</span>
-    <span class="ident">Clear</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// Call `State::recreate` on the current top of the stack</span>
-    <span class="ident">Recreate</span>,
-    <span class="doccomment">/// Execute a sequence of transitions in order.</span>
-    <span class="ident">Multi</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="doccomment">/// Push a new active state on the top of the stack.
+    </span>Push(Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;),
+    <span class="doccomment">/// Replace the current state with a new one. Equivalent to Pop, then Push.
+    </span>Replace(Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;),
+    <span class="doccomment">/// Replace the entire stack of states with this stack.
+    </span>Clear(Vec&lt;Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt;&gt;),
+    <span class="doccomment">/// Call `State::recreate` on the current top of the stack
+    </span>Recreate,
+    <span class="doccomment">/// Execute a sequence of transitions in order.
+    </span>Multi(Vec&lt;Transition&lt;A&gt;&gt;),
 }
 
-<span class="doccomment">/// Many states fit a pattern of managing a single panel, handling mouseover events, and other</span>
-<span class="doccomment">/// interactions on the map. Implementing this instead of `State` reduces some boilerplate.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Called when something on the panel has been clicked. Since the action is just a string,</span>
-    <span class="doccomment">/// the fallback case can just use `unreachable!()`.</span>
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>,
-        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>;
-    <span class="doccomment">/// Called when something on the panel has been clicked.</span>
-    <span class="kw">fn</span> <span class="ident">on_click_custom</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">_ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">_app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>,
-        <span class="ident">_action</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">CloneableAny</span><span class="op">&gt;</span>,
-        <span class="ident">_panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="ident">Transition::Keep</span>
+<span class="doccomment">/// Many states fit a pattern of managing a single panel, handling mouseover events, and other
+/// interactions on the map. Implementing this instead of `State` reduces some boilerplate.
+</span><span class="kw">pub trait </span>SimpleState&lt;A&gt; {
+    <span class="doccomment">/// Called when something on the panel has been clicked. Since the action is just a string,
+    /// the fallback case can just use `unreachable!()`.
+    </span><span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>A,
+        action: <span class="kw-2">&amp;</span>str,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition&lt;A&gt;;
+    <span class="doccomment">/// Called when something on the panel has been clicked.
+    </span><span class="kw">fn </span>on_click_custom(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        _ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        _app: <span class="kw-2">&amp;mut </span>A,
+        _action: Box&lt;<span class="kw">dyn </span>CloneableAny&gt;,
+        _panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition&lt;A&gt; {
+        Transition::Keep
     }
-    <span class="doccomment">/// Called when something on the panel has changed. If a transition is returned, stop handling</span>
-    <span class="doccomment">/// the event and immediately apply the transition.</span>
-    <span class="kw">fn</span> <span class="ident">panel_changed</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="prelude-val">None</span>
+    <span class="doccomment">/// Called when something on the panel has changed. If a transition is returned, stop handling
+    /// the event and immediately apply the transition.
+    </span><span class="kw">fn </span>panel_changed(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&lt;A&gt;&gt; {
+        <span class="prelude-val">None
+    </span>}
+    <span class="doccomment">/// Called when the mouse has moved.
+    </span><span class="kw">fn </span>on_mouseover(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A) {}
+    <span class="doccomment">/// If a panel `on_click` event didn&#39;t occur and `panel_changed` didn&#39;t return  transition, then
+    /// call this to handle all other events.
+    </span><span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
+        Transition::Keep
     }
-    <span class="doccomment">/// Called when the mouse has moved.</span>
-    <span class="kw">fn</span> <span class="ident">on_mouseover</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) {}
-    <span class="doccomment">/// If a panel `on_click` event didn&#39;t occur and `panel_changed` didn&#39;t return  transition, then</span>
-    <span class="doccomment">/// call this to handle all other events.</span>
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="ident">Transition::Keep</span>
-    }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {}
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::DefaultDraw</span>
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">panel</span>: <span class="ident">Panel</span>, <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::new</span>(<span class="ident">SimpleStateWrapper</span> { <span class="ident">panel</span>, <span class="ident">inner</span> })
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>A) {}
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::DefaultDraw
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimpleStateWrapper</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">inner</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static</span>&gt; <span class="kw">dyn </span>SimpleState&lt;A&gt; {
+    <span class="kw">pub fn </span>new_state(panel: Panel, inner: Box&lt;<span class="kw">dyn </span>SimpleState&lt;A&gt;&gt;) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
+        Box::new(SimpleStateWrapper { panel, inner })
+    }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SimpleStateWrapper</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">on_mouseover</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+<span class="kw">pub struct </span>SimpleStateWrapper&lt;A&gt; {
+    panel: Panel,
+    inner: Box&lt;<span class="kw">dyn </span>SimpleState&lt;A&gt;&gt;,
+}
+
+<span class="kw">impl</span>&lt;A: <span class="lifetime">&#39;static</span>&gt; State&lt;A&gt; <span class="kw">for </span>SimpleStateWrapper&lt;A&gt; {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="self">self</span>.inner.on_mouseover(ctx, app);
         }
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">action</span>) =&gt; <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">on_click</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">action</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">panel</span>),
-            <span class="ident">Outcome::ClickCustom</span>(<span class="ident">data</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">on_click_custom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">data</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">panel</span>)
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(action) =&gt; <span class="self">self</span>.inner.on_click(ctx, app, <span class="kw-2">&amp;</span>action, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel),
+            Outcome::ClickCustom(data) =&gt; {
+                <span class="self">self</span>.inner.on_click_custom(ctx, app, data, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel)
             }
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; <span class="self">self</span>
-                .<span class="ident">inner</span>
-                .<span class="ident">panel_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">panel</span>)
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">other_event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="ident">Outcome::DragDropReleased</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Outcome::Focused</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">Outcome::Nothing</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">other_event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
+            Outcome::Changed(<span class="kw">_</span>) =&gt; <span class="self">self
+                </span>.inner
+                .panel_changed(ctx, app, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel)
+                .unwrap_or_else(|| <span class="self">self</span>.inner.other_event(ctx, app)),
+            Outcome::DragDropReleased(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) | Outcome::Focused(<span class="kw">_</span>) | Outcome::Nothing =&gt; {
+                <span class="self">self</span>.inner.other_event(ctx, app)
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="comment">// Draw last</span>
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>A) {
+        <span class="self">self</span>.inner.draw(g, app);
+        <span class="comment">// Draw last
+        </span><span class="self">self</span>.panel.draw(g);
     }
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">draw_baselayer</span>()
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        <span class="self">self</span>.inner.draw_baselayer()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

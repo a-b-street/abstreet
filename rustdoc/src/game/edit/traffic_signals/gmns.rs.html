@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/gmns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gmns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/gmns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gmns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -377,384 +377,384 @@
 <span id="377">377</span>
 <span id="378">378</span>
 <span id="379">379</span>
-</pre><pre class="rust"><code><span class="comment">// TODO Move to map_model</span>
+</pre><pre class="rust"><code><span class="comment">// TODO Move to map_model
 
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
+</span><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, HashMap};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Deserializer};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">osm</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">DrivingSide</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>,
-    <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">Movement</span>, <span class="ident">MovementID</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+<span class="kw">use </span>geom::{Angle, Duration, LonLat, Pt2D};
+<span class="kw">use </span>map_model::{
+    osm, ControlTrafficSignal, DirectedRoadID, DrivingSide, EditCmd, EditIntersection,
+    IntersectionID, Map, Movement, MovementID, Stage, StageType, TurnPriority, TurnType,
 };
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">State</span>};
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{EventCtx, State};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::apply_map_edits</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
+<span class="kw">use </span><span class="kw">crate</span>::edit::apply_map_edits;
+<span class="kw">use </span><span class="kw">crate</span>::App;
 
-<span class="doccomment">/// This imports timing.csv from https://github.com/asu-trans-ai-lab/Vol2Timing. It operates in a</span>
-<span class="doccomment">/// best-effort / permissive mode, skipping over mismatched movements and other problems and should</span>
-<span class="doccomment">/// still be considered experimental.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches_per_plan</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Record</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">fs_err::File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>).<span class="ident">deserialize</span>() {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">rec</span>.<span class="ident">osm_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">orig_id</span>) {
+<span class="doccomment">/// This imports timing.csv from https://github.com/asu-trans-ai-lab/Vol2Timing. It operates in a
+/// best-effort / permissive mode, skipping over mismatched movements and other problems and should
+/// still be considered experimental.
+</span><span class="kw">pub fn </span>import(map: <span class="kw-2">&amp;</span>Map, i: IntersectionID, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ControlTrafficSignal&gt; {
+    <span class="kw">let </span>i = map.get_i(i);
+    <span class="kw">let </span><span class="kw-2">mut </span>matches_per_plan: BTreeMap&lt;String, Vec&lt;Record&gt;&gt; = BTreeMap::new();
+    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(fs_err::File::open(path)<span class="question-mark">?</span>).deserialize() {
+        <span class="kw">let </span>rec: Record = rec<span class="question-mark">?</span>;
+        <span class="kw">if </span>!rec.osm_ids.contains(<span class="kw-2">&amp;</span>i.orig_id) {
             <span class="kw">continue</span>;
         }
-        <span class="ident">matches_per_plan</span>
-            .<span class="ident">entry</span>(<span class="ident">rec</span>.<span class="ident">timing_plan_id</span>.<span class="ident">clone</span>())
-            .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-            .<span class="ident">push</span>(<span class="ident">rec</span>);
+        matches_per_plan
+            .entry(rec.timing_plan_id.clone())
+            .or_insert_with(Vec::new)
+            .push(rec);
     }
 
-    <span class="comment">// For now, just use any arbitrary plan</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">records</span> <span class="op">=</span> <span class="ident">matches_per_plan</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">next</span>()
-        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;no matches for {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>))<span class="question-mark">?</span>
-        .<span class="number">1</span>;
-    <span class="ident">records</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">rec</span><span class="op">|</span> <span class="ident">rec</span>.<span class="ident">stage</span>);
+    <span class="comment">// For now, just use any arbitrary plan
+    </span><span class="kw">let </span><span class="kw-2">mut </span>records = matches_per_plan
+        .into_iter()
+        .next()
+        .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;no matches for {}&quot;</span>, i.orig_id))<span class="question-mark">?
+        </span>.<span class="number">1</span>;
+    records.sort_by_key(|rec| rec.stage);
 
-    <span class="kw">let</span> <span class="ident">snapper</span> <span class="op">=</span> <span class="ident">Snapper::new</span>(<span class="ident">map</span>, <span class="ident">i</span>.<span class="ident">id</span>)<span class="question-mark">?</span>;
+    <span class="kw">let </span>snapper = Snapper::new(map, i.id)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">signal</span> <span class="op">=</span> <span class="ident">ControlTrafficSignal::new</span>(<span class="ident">map</span>, <span class="ident">i</span>.<span class="ident">id</span>);
-    <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">clear</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">records</span> {
-        <span class="kw">let</span> <span class="ident">stage_idx</span> <span class="op">=</span> <span class="ident">rec</span>.<span class="ident">stage</span> <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">len</span>().<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">stage_idx</span>) {
-            <span class="ident">std::cmp::Ordering::Equal</span> =&gt; {
-                <span class="ident">signal</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">Stage</span> {
-                    <span class="ident">protected_movements</span>: <span class="ident">BTreeSet::new</span>(),
-                    <span class="ident">yield_movements</span>: <span class="ident">BTreeSet::new</span>(),
-                    <span class="ident">stage_type</span>: <span class="ident">StageType::Fixed</span>(<span class="ident">Duration::seconds</span>(<span class="ident">rec</span>.<span class="ident">green_time</span> <span class="kw">as</span> <span class="ident">f64</span>)),
+    <span class="kw">let </span><span class="kw-2">mut </span>signal = ControlTrafficSignal::new(map, i.id);
+    signal.stages.clear();
+    <span class="kw">for </span>rec <span class="kw">in </span>records {
+        <span class="kw">let </span>stage_idx = rec.stage - <span class="number">1</span>;
+        <span class="kw">match </span>signal.stages.len().cmp(<span class="kw-2">&amp;</span>stage_idx) {
+            std::cmp::Ordering::Equal =&gt; {
+                signal.stages.push(Stage {
+                    protected_movements: BTreeSet::new(),
+                    yield_movements: BTreeSet::new(),
+                    stage_type: StageType::Fixed(Duration::seconds(rec.green_time <span class="kw">as </span>f64)),
                 });
             }
-            <span class="ident">std::cmp::Ordering::Less</span> =&gt; {
+            std::cmp::Ordering::Less =&gt; {
                 <span class="macro">bail!</span>(<span class="string">&quot;missing intermediate stage&quot;</span>);
             }
-            <span class="ident">std::cmp::Ordering::Greater</span> =&gt; {}
+            std::cmp::Ordering::Greater =&gt; {}
         }
-        <span class="kw">let</span> <span class="ident">stage</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">stage_idx</span>];
+        <span class="kw">let </span>stage = <span class="kw-2">&amp;mut </span>signal.stages[stage_idx];
 
-        <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="ident">rec</span>.<span class="ident">green_time</span> <span class="kw">as</span> <span class="ident">f64</span>) {
+        <span class="kw">if </span>stage.stage_type.simple_duration() != Duration::seconds(rec.green_time <span class="kw">as </span>f64) {
             <span class="macro">bail!</span>(
                 <span class="string">&quot;Stage {} has green_times {} and {}&quot;</span>,
-                <span class="ident">rec</span>.<span class="ident">stage</span>,
-                <span class="ident">stage</span>.<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>(),
-                <span class="ident">rec</span>.<span class="ident">green_time</span>
+                rec.stage,
+                stage.stage_type.simple_duration(),
+                rec.green_time
             );
         }
 
-        <span class="kw">let</span> <span class="ident">mvmnt</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">snapper</span>.<span class="ident">get_mvmnt</span>(
+        <span class="kw">let </span>mvmnt = <span class="kw">match </span>snapper.get_mvmnt(
             (
-                <span class="ident">rec</span>.<span class="ident">geometry</span>.<span class="number">0</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
-                <span class="ident">rec</span>.<span class="ident">geometry</span>.<span class="number">1</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
+                rec.geometry.<span class="number">0</span>.to_pt(map.get_gps_bounds()),
+                rec.geometry.<span class="number">1</span>.to_pt(map.get_gps_bounds()),
             ),
-            <span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">mvmt_txt_id</span>,
-            <span class="ident">map</span>,
+            <span class="kw-2">&amp;</span>rec.mvmt_txt_id,
+            map,
         ) {
-            <span class="prelude-val">Ok</span>(<span class="ident">x</span>) =&gt; <span class="ident">x</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+            <span class="prelude-val">Ok</span>(x) =&gt; x,
+            <span class="prelude-val">Err</span>(err) =&gt; {
                 <span class="macro">error!</span>(
                     <span class="string">&quot;Skipping {} -&gt; {} for stage {}: {}&quot;</span>,
-                    <span class="ident">rec</span>.<span class="ident">geometry</span>.<span class="number">0</span>, <span class="ident">rec</span>.<span class="ident">geometry</span>.<span class="number">1</span>, <span class="ident">rec</span>.<span class="ident">stage</span>, <span class="ident">err</span>
+                    rec.geometry.<span class="number">0</span>, rec.geometry.<span class="number">1</span>, rec.stage, err
                 );
                 <span class="kw">continue</span>;
             }
         };
-        <span class="kw">if</span> <span class="ident">rec</span>.<span class="ident">protection</span> <span class="op">==</span> <span class="string">&quot;protected&quot;</span> {
-            <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">mvmnt</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">insert</span>(<span class="ident">mvmnt</span>);
+        <span class="kw">if </span>rec.protection == <span class="string">&quot;protected&quot; </span>{
+            stage.protected_movements.insert(mvmnt);
+        } <span class="kw">else </span>{
+            stage.yield_movements.insert(mvmnt);
         }
     }
 
-    <span class="ident">add_crosswalks</span>(<span class="kw-2">&amp;mut</span> <span class="ident">signal</span>, <span class="ident">map</span>);
+    add_crosswalks(<span class="kw-2">&amp;mut </span>signal, map);
 
-    <span class="prelude-val">Ok</span>(<span class="ident">signal</span>)
+    <span class="prelude-val">Ok</span>(signal)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import_all</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">all_signals</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">primary</span>
-        .<span class="ident">map</span>
-        .<span class="ident">all_intersections</span>()
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">i</span>.<span class="ident">id</span>)
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            }
+<span class="kw">pub fn </span>import_all(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, path: <span class="kw-2">&amp;</span>str) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+    <span class="kw">let </span>all_signals: Vec&lt;IntersectionID&gt; = app
+        .primary
+        .map
+        .all_intersections()
+        .iter()
+        .filter_map(|i| {
+            <span class="kw">if </span>i.is_traffic_signal() {
+                <span class="prelude-val">Some</span>(i.id)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         })
-        .<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">successes</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">failures_no_match</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">failures_other</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+        .collect();
+    <span class="kw">let </span><span class="kw-2">mut </span>successes = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>failures_no_match = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>failures_other = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
 
-    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;import signal timing&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;import&quot;</span>, <span class="ident">all_signals</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">all_signals</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">match</span> <span class="ident">import</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">i</span>, <span class="ident">path</span>)
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">signal</span><span class="op">|</span> <span class="ident">signal</span>.<span class="ident">validate</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>)).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">signal</span>))
+    ctx.loading_screen(<span class="string">&quot;import signal timing&quot;</span>, |<span class="kw">_</span>, timer| {
+        timer.start_iter(<span class="string">&quot;import&quot;</span>, all_signals.len());
+        <span class="kw">for </span>i <span class="kw">in </span>all_signals {
+            timer.next();
+            <span class="kw">match </span>import(<span class="kw-2">&amp;</span>app.primary.map, i, path)
+                .and_then(|signal| signal.validate(app.primary.map.get_i(i)).map(|<span class="kw">_</span>| signal))
             {
-                <span class="prelude-val">Ok</span>(<span class="ident">signal</span>) =&gt; {
-                    <span class="macro">info!</span>(<span class="string">&quot;Success at {}&quot;</span>, <span class="ident">i</span>);
-                    <span class="ident">successes</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeIntersection</span> {
-                        <span class="ident">i</span>,
-                        <span class="ident">old</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="ident">i</span>),
-                        <span class="ident">new</span>: <span class="ident">EditIntersection::TrafficSignal</span>(<span class="ident">signal</span>.<span class="ident">export</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)),
+                <span class="prelude-val">Ok</span>(signal) =&gt; {
+                    <span class="macro">info!</span>(<span class="string">&quot;Success at {}&quot;</span>, i);
+                    successes += <span class="number">1</span>;
+                    edits.commands.push(EditCmd::ChangeIntersection {
+                        i,
+                        old: app.primary.map.get_i_edit(i),
+                        new: EditIntersection::TrafficSignal(signal.export(<span class="kw-2">&amp;</span>app.primary.map)),
                     });
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">error!</span>(<span class="string">&quot;Failure at {}: {}&quot;</span>, <span class="ident">i</span>, <span class="ident">err</span>);
-                    <span class="kw">if</span> <span class="ident">err</span>.<span class="ident">to_string</span>().<span class="ident">contains</span>(<span class="string">&quot;no matches for&quot;</span>) {
-                        <span class="ident">failures_no_match</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">failures_other</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">error!</span>(<span class="string">&quot;Failure at {}: {}&quot;</span>, i, err);
+                    <span class="kw">if </span>err.to_string().contains(<span class="string">&quot;no matches for&quot;</span>) {
+                        failures_no_match += <span class="number">1</span>;
+                    } <span class="kw">else </span>{
+                        failures_other += <span class="number">1</span>;
                     }
                 }
             }
         }
     });
 
-    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+    apply_map_edits(ctx, app, edits);
 
-    <span class="ident">PopupMsg::new_state</span>(
-        <span class="ident">ctx</span>,
-        <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Import from {}&quot;</span>, <span class="ident">path</span>),
+    PopupMsg::new_state(
+        ctx,
+        <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Import from {}&quot;</span>, path),
         <span class="macro">vec!</span>[
-            <span class="macro">format!</span>(<span class="string">&quot;{} traffic signals successfully imported&quot;</span>, <span class="ident">successes</span>),
-            <span class="macro">format!</span>(<span class="string">&quot;{} intersections without any data&quot;</span>, <span class="ident">failures_no_match</span>),
-            <span class="macro">format!</span>(<span class="string">&quot;{} other failures&quot;</span>, <span class="ident">failures_other</span>),
+            <span class="macro">format!</span>(<span class="string">&quot;{} traffic signals successfully imported&quot;</span>, successes),
+            <span class="macro">format!</span>(<span class="string">&quot;{} intersections without any data&quot;</span>, failures_no_match),
+            <span class="macro">format!</span>(<span class="string">&quot;{} other failures&quot;</span>, failures_other),
         ],
     )
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Record</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;parse_osm_ids&quot;</span>, <span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;osm_node_id&quot;</span>)]</span>
-    <span class="ident">osm_ids</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span><span class="op">&gt;</span>,
-    <span class="ident">timing_plan_id</span>: <span class="ident">String</span>,
-    <span class="ident">green_time</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;stage_no&quot;</span>)]</span>
-    <span class="ident">stage</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;parse_linestring&quot;</span>)]</span>
-    <span class="ident">geometry</span>: (<span class="ident">LonLat</span>, <span class="ident">LonLat</span>),
-    <span class="ident">protection</span>: <span class="ident">String</span>,
-    <span class="comment">// Something like EBL or NBT -- eastbound left, northbound through.</span>
-    <span class="ident">mvmt_txt_id</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>Record {
+    <span class="attribute">#[serde(deserialize_with = <span class="string">&quot;parse_osm_ids&quot;</span>, rename = <span class="string">&quot;osm_node_id&quot;</span>)]
+    </span>osm_ids: Vec&lt;osm::NodeID&gt;,
+    timing_plan_id: String,
+    green_time: usize,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;stage_no&quot;</span>)]
+    </span>stage: usize,
+    <span class="attribute">#[serde(deserialize_with = <span class="string">&quot;parse_linestring&quot;</span>)]
+    </span>geometry: (LonLat, LonLat),
+    protection: String,
+    <span class="comment">// Something like EBL or NBT -- eastbound left, northbound through.
+    </span>mvmt_txt_id: String,
 }
 
-<span class="kw">fn</span> <span class="ident">parse_linestring</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">LonLat</span>, <span class="ident">LonLat</span>), <span class="ident">D::Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="ident">::deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">LonLat::parse_wkt_linestring</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>)
-        .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">serde::de::Error::custom</span>(<span class="macro">format!</span>(<span class="string">&quot;bad linestring {}&quot;</span>, <span class="ident">raw</span>)))<span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">serde::de::Error::custom</span>(<span class="macro">format!</span>(
+<span class="kw">fn </span>parse_linestring&lt;<span class="lifetime">&#39;de</span>, D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;(LonLat, LonLat), D::Error&gt; {
+    <span class="kw">let </span>raw = &lt;String&gt;::deserialize(d)<span class="question-mark">?</span>;
+    <span class="kw">let </span>pts = LonLat::parse_wkt_linestring(<span class="kw-2">&amp;</span>raw)
+        .ok_or_else(|| serde::de::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;bad linestring {}&quot;</span>, raw)))<span class="question-mark">?</span>;
+    <span class="kw">if </span>pts.len() != <span class="number">2 </span>{
+        <span class="kw">return </span><span class="prelude-val">Err</span>(serde::de::Error::custom(<span class="macro">format!</span>(
             <span class="string">&quot;{} points, expecting 2&quot;</span>,
-            <span class="ident">pts</span>.<span class="ident">len</span>()
+            pts.len()
         )));
     }
-    <span class="prelude-val">Ok</span>((<span class="ident">pts</span>[<span class="number">0</span>], <span class="ident">pts</span>[<span class="number">1</span>]))
+    <span class="prelude-val">Ok</span>((pts[<span class="number">0</span>], pts[<span class="number">1</span>]))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_osm_ids</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">osm::NodeID</span><span class="op">&gt;</span>, <span class="ident">D::Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="ident">::deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ids</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">split</span>(<span class="string">&#39;_&#39;</span>) {
-        <span class="ident">ids</span>.<span class="ident">push</span>(<span class="ident">osm::NodeID</span>(<span class="ident">id</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-            <span class="ident">serde::de::Error::custom</span>(<span class="macro">format!</span>(<span class="string">&quot;bad ID {}&quot;</span>, <span class="ident">id</span>))
+<span class="kw">fn </span>parse_osm_ids&lt;<span class="lifetime">&#39;de</span>, D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;osm::NodeID&gt;, D::Error&gt; {
+    <span class="kw">let </span>raw = &lt;String&gt;::deserialize(d)<span class="question-mark">?</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>ids = Vec::new();
+    <span class="kw">for </span>id <span class="kw">in </span>raw.split(<span class="string">&#39;_&#39;</span>) {
+        ids.push(osm::NodeID(id.parse::&lt;i64&gt;().map_err(|<span class="kw">_</span>| {
+            serde::de::Error::custom(<span class="macro">format!</span>(<span class="string">&quot;bad ID {}&quot;</span>, id))
         })<span class="question-mark">?</span>));
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">ids</span>)
+    <span class="prelude-val">Ok</span>(ids)
 }
 
-<span class="doccomment">/// Snaps a line to a vehicle movement across an intersection. It uses movement endpoints and a</span>
-<span class="doccomment">/// hint about turn type to match.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// OSM IDs aren&#39;t used to snap, because GMNS and A/B Street may disagree about where a road</span>
-<span class="doccomment">/// segment begins/ends. This could happen from OSM IDs changing over time or from different rules</span>
-<span class="doccomment">/// about importing things like service roads.</span>
-<span class="kw">struct</span> <span class="ident">Snapper</span> {
-    <span class="ident">roads_incoming</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Pt2D</span><span class="op">&gt;</span>,
-    <span class="ident">roads_outgoing</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Pt2D</span><span class="op">&gt;</span>,
-    <span class="ident">movements</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Snaps a line to a vehicle movement across an intersection. It uses movement endpoints and a
+/// hint about turn type to match.
+///
+/// OSM IDs aren&#39;t used to snap, because GMNS and A/B Street may disagree about where a road
+/// segment begins/ends. This could happen from OSM IDs changing over time or from different rules
+/// about importing things like service roads.
+</span><span class="kw">struct </span>Snapper {
+    roads_incoming: HashMap&lt;DirectedRoadID, Pt2D&gt;,
+    roads_outgoing: HashMap&lt;DirectedRoadID, Pt2D&gt;,
+    movements: BTreeMap&lt;MovementID, Movement&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Snapper</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Snapper</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads_incoming</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads_outgoing</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span> {
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+<span class="kw">impl </span>Snapper {
+    <span class="kw">fn </span>new(map: <span class="kw-2">&amp;</span>Map, i: IntersectionID) -&gt; <span class="prelude-ty">Result</span>&lt;Snapper&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>roads_incoming = HashMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>roads_outgoing = HashMap::new();
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_i(i).roads {
+            <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>r);
 
-            <span class="kw">let</span> <span class="ident">incoming_id</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">directed_id_to</span>(<span class="ident">i</span>);
-            <span class="kw">let</span> <span class="ident">outgoing_id</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">directed_id_from</span>(<span class="ident">i</span>);
+            <span class="kw">let </span>incoming_id = r.directed_id_to(i);
+            <span class="kw">let </span>outgoing_id = r.directed_id_from(i);
 
-            <span class="comment">// TODO There are a few methods for finding the &quot;middle&quot; of a directed road; here&#39;s yet</span>
-            <span class="comment">// another.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">incoming_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outgoing_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+            <span class="comment">// TODO There are a few methods for finding the &quot;middle&quot; of a directed road; here&#39;s yet
+            // another.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>incoming_pts = Vec::new();
+            <span class="kw">let </span><span class="kw-2">mut </span>outgoing_pts = Vec::new();
 
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lanes</span> {
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_walkable</span>() {
+            <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span>r.lanes {
+                <span class="kw">if </span>l.lane_type.is_walkable() {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">incoming_id</span>.<span class="ident">dir</span> {
-                    <span class="ident">incoming_pts</span>.<span class="ident">push</span>(<span class="ident">l</span>.<span class="ident">lane_center_pts</span>.<span class="ident">last_pt</span>());
-                } <span class="kw">else</span> {
-                    <span class="ident">outgoing_pts</span>.<span class="ident">push</span>(<span class="ident">l</span>.<span class="ident">lane_center_pts</span>.<span class="ident">first_pt</span>());
+                <span class="kw">if </span>l.dir == incoming_id.dir {
+                    incoming_pts.push(l.lane_center_pts.last_pt());
+                } <span class="kw">else </span>{
+                    outgoing_pts.push(l.lane_center_pts.first_pt());
                 }
             }
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">incoming_pts</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">roads_incoming</span>.<span class="ident">insert</span>(<span class="ident">incoming_id</span>, <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">incoming_pts</span>));
+            <span class="kw">if </span>!incoming_pts.is_empty() {
+                roads_incoming.insert(incoming_id, Pt2D::center(<span class="kw-2">&amp;</span>incoming_pts));
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">outgoing_pts</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">roads_outgoing</span>.<span class="ident">insert</span>(<span class="ident">outgoing_id</span>, <span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">outgoing_pts</span>));
+            <span class="kw">if </span>!outgoing_pts.is_empty() {
+                roads_outgoing.insert(outgoing_id, Pt2D::center(<span class="kw-2">&amp;</span>outgoing_pts));
             }
         }
-        <span class="kw">if</span> <span class="ident">roads_incoming</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">roads_outgoing</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">bail!</span>(<span class="string">&quot;{} has no incoming or outgoing roads&quot;</span>, <span class="ident">i</span>);
+        <span class="kw">if </span>roads_incoming.is_empty() || roads_outgoing.is_empty() {
+            <span class="macro">bail!</span>(<span class="string">&quot;{} has no incoming or outgoing roads&quot;</span>, i);
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Snapper</span> {
-            <span class="ident">roads_incoming</span>,
-            <span class="ident">roads_outgoing</span>,
-            <span class="ident">movements</span>: <span class="ident">map</span>
-                .<span class="ident">get_i</span>(<span class="ident">i</span>)
-                .<span class="ident">movements</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="op">!</span><span class="ident">id</span>.<span class="ident">crosswalk</span>)
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">clone</span>()))
-                .<span class="ident">collect</span>(),
+        <span class="prelude-val">Ok</span>(Snapper {
+            roads_incoming,
+            roads_outgoing,
+            movements: map
+                .get_i(i)
+                .movements
+                .iter()
+                .filter(|(id, <span class="kw">_</span>)| !id.crosswalk)
+                .map(|(k, v)| (<span class="kw-2">*</span>k, v.clone()))
+                .collect(),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">get_mvmnt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pair</span>: (<span class="ident">Pt2D</span>, <span class="ident">Pt2D</span>), <span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> {
-        <span class="comment">// Code is something like &quot;WBT&quot;, westbound through.</span>
-        <span class="kw">let</span> <span class="ident">code_turn_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">code</span>.<span class="ident">chars</span>().<span class="ident">last</span>() {
-            <span class="prelude-val">Some</span>(<span class="string">&#39;T&#39;</span>) =&gt; <span class="ident">TurnType::Straight</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&#39;L&#39;</span>) =&gt; <span class="ident">TurnType::Left</span>,
-            <span class="prelude-val">Some</span>(<span class="string">&#39;R&#39;</span>) =&gt; <span class="ident">TurnType::Right</span>,
-            <span class="ident">x</span> =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Weird movement_str {:?}&quot;</span>, <span class="ident">x</span>),
+    <span class="kw">fn </span>get_mvmnt(<span class="kw-2">&amp;</span><span class="self">self</span>, pair: (Pt2D, Pt2D), code: <span class="kw-2">&amp;</span>str, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;MovementID&gt; {
+        <span class="comment">// Code is something like &quot;WBT&quot;, westbound through.
+        </span><span class="kw">let </span>code_turn_type = <span class="kw">match </span>code.chars().last() {
+            <span class="prelude-val">Some</span>(<span class="string">&#39;T&#39;</span>) =&gt; TurnType::Straight,
+            <span class="prelude-val">Some</span>(<span class="string">&#39;L&#39;</span>) =&gt; TurnType::Left,
+            <span class="prelude-val">Some</span>(<span class="string">&#39;R&#39;</span>) =&gt; TurnType::Right,
+            x =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Weird movement_str {:?}&quot;</span>, x),
         };
-        <span class="kw">let</span> <span class="ident">code_direction</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">code</span>[<span class="number">0</span>..<span class="number">2</span>];
+        <span class="kw">let </span>code_direction = <span class="kw-2">&amp;</span>code[<span class="number">0</span>..<span class="number">2</span>];
 
-        <span class="kw">let</span> (<span class="ident">id</span>, <span class="ident">mvmnt</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">movements</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">mvmnt</span>)<span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">from_cost</span> <span class="op">=</span> <span class="ident">pair</span>.<span class="number">0</span>.<span class="ident">dist_to</span>(<span class="self">self</span>.<span class="ident">roads_incoming</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">from</span>]);
-                <span class="kw">let</span> <span class="ident">to_cost</span> <span class="op">=</span> <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">dist_to</span>(<span class="self">self</span>.<span class="ident">roads_outgoing</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">to</span>]);
-                <span class="kw">let</span> <span class="ident">direction</span> <span class="op">=</span> <span class="ident">cardinal_direction</span>(
-                    <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">mvmnt</span>.<span class="ident">members</span>[<span class="number">0</span>].<span class="ident">src</span>)
-                        .<span class="ident">lane_center_pts</span>
-                        .<span class="ident">overall_angle</span>(),
+        <span class="kw">let </span>(id, mvmnt) = <span class="self">self
+            </span>.movements
+            .iter()
+            .min_by_key(|(id, mvmnt)| {
+                <span class="kw">let </span>from_cost = pair.<span class="number">0</span>.dist_to(<span class="self">self</span>.roads_incoming[<span class="kw-2">&amp;</span>id.from]);
+                <span class="kw">let </span>to_cost = pair.<span class="number">1</span>.dist_to(<span class="self">self</span>.roads_outgoing[<span class="kw-2">&amp;</span>id.to]);
+                <span class="kw">let </span>direction = cardinal_direction(
+                    map.get_l(mvmnt.members[<span class="number">0</span>].src)
+                        .lane_center_pts
+                        .overall_angle(),
                 );
 
-                <span class="comment">// Arbitrary parameters, tuned to make weird geometry at University/Mill in Tempe</span>
-                <span class="comment">// work.</span>
-                <span class="kw">let</span> <span class="ident">type_cost</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">mvmnt</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">code_turn_type</span> {
-                    <span class="number">1.0</span>
-                } <span class="kw">else</span> {
-                    <span class="number">2.0</span>
-                };
-                <span class="comment">// TODO This one is way more important than the geometry! Maybe JUST use the code?</span>
-                <span class="kw">let</span> <span class="ident">direction_cost</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">direction</span> <span class="op">==</span> <span class="ident">code_direction</span> {
-                    <span class="number">1.0</span>
-                } <span class="kw">else</span> {
-                    <span class="number">10.0</span>
-                };
-                <span class="ident">type_cost</span> <span class="op">*</span> <span class="ident">direction_cost</span> <span class="op">*</span> (<span class="ident">from_cost</span> <span class="op">+</span> <span class="ident">to_cost</span>)
+                <span class="comment">// Arbitrary parameters, tuned to make weird geometry at University/Mill in Tempe
+                // work.
+                </span><span class="kw">let </span>type_cost = <span class="kw">if </span>mvmnt.turn_type == code_turn_type {
+                    <span class="number">1.0
+                </span>} <span class="kw">else </span>{
+                    <span class="number">2.0
+                </span>};
+                <span class="comment">// TODO This one is way more important than the geometry! Maybe JUST use the code?
+                </span><span class="kw">let </span>direction_cost = <span class="kw">if </span>direction == code_direction {
+                    <span class="number">1.0
+                </span>} <span class="kw">else </span>{
+                    <span class="number">10.0
+                </span>};
+                type_cost * direction_cost * (from_cost + to_cost)
             })
-            .<span class="ident">unwrap</span>();
+            .unwrap();
 
-        <span class="comment">// Debug if the we didn&#39;t agree</span>
-        <span class="kw">let</span> <span class="ident">direction</span> <span class="op">=</span> <span class="ident">cardinal_direction</span>(
-            <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">mvmnt</span>.<span class="ident">members</span>[<span class="number">0</span>].<span class="ident">src</span>)
-                .<span class="ident">lane_center_pts</span>
-                .<span class="ident">overall_angle</span>(),
+        <span class="comment">// Debug if the we didn&#39;t agree
+        </span><span class="kw">let </span>direction = cardinal_direction(
+            map.get_l(mvmnt.members[<span class="number">0</span>].src)
+                .lane_center_pts
+                .overall_angle(),
         );
-        <span class="kw">if</span> <span class="ident">mvmnt</span>.<span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">code_turn_type</span> <span class="op">|</span><span class="op">|</span> <span class="ident">direction</span> <span class="op">!</span><span class="op">=</span> <span class="ident">code_direction</span> {
+        <span class="kw">if </span>mvmnt.turn_type != code_turn_type || direction != code_direction {
             <span class="macro">warn!</span>(
                 <span class="string">&quot;A {} snapped to a {} {:?}&quot;</span>,
-                <span class="ident">code</span>, <span class="ident">direction</span>, <span class="ident">mvmnt</span>.<span class="ident">turn_type</span>
+                code, direction, mvmnt.turn_type
             );
         }
 
-        <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">id</span>)
+        <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>id)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">cardinal_direction</span>(<span class="ident">angle</span>: <span class="ident">Angle</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-    <span class="comment">// Note Y inversion, as usual</span>
-    <span class="kw">let</span> <span class="ident">deg</span> <span class="op">=</span> <span class="ident">angle</span>.<span class="ident">normalized_degrees</span>();
-    <span class="kw">if</span> <span class="ident">deg</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">335.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">deg</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">45.0</span> {
-        <span class="kw">return</span> <span class="string">&quot;EB&quot;</span>;
+<span class="kw">fn </span>cardinal_direction(angle: Angle) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="comment">// Note Y inversion, as usual
+    </span><span class="kw">let </span>deg = angle.normalized_degrees();
+    <span class="kw">if </span>deg &gt;= <span class="number">335.0 </span>|| deg &lt;= <span class="number">45.0 </span>{
+        <span class="kw">return </span><span class="string">&quot;EB&quot;</span>;
     }
-    <span class="kw">if</span> (<span class="number">45.0</span>..<span class="op">=</span><span class="number">135.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">deg</span>) {
-        <span class="kw">return</span> <span class="string">&quot;SB&quot;</span>;
+    <span class="kw">if </span>(<span class="number">45.0</span>..=<span class="number">135.0</span>).contains(<span class="kw-2">&amp;</span>deg) {
+        <span class="kw">return </span><span class="string">&quot;SB&quot;</span>;
     }
-    <span class="kw">if</span> (<span class="number">135.0</span>..<span class="op">=</span><span class="number">225.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">deg</span>) {
-        <span class="kw">return</span> <span class="string">&quot;WB&quot;</span>;
+    <span class="kw">if </span>(<span class="number">135.0</span>..=<span class="number">225.0</span>).contains(<span class="kw-2">&amp;</span>deg) {
+        <span class="kw">return </span><span class="string">&quot;WB&quot;</span>;
     }
-    <span class="string">&quot;NB&quot;</span>
-}
+    <span class="string">&quot;NB&quot;
+</span>}
 
-<span class="comment">// The GMNS input doesn&#39;t include crosswalks yet -- and even once it does, it&#39;s likely the two map</span>
-<span class="comment">// models will disagree about where sidewalks exist. Try to add all crosswalks to the stage where</span>
-<span class="comment">// they&#39;re compatible. Downgrade right turns from protected to permitted as needed.</span>
-<span class="kw">fn</span> <span class="ident">add_crosswalks</span>(<span class="ident">signal</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ControlTrafficSignal</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-    <span class="kw">let</span> <span class="ident">downgrade_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
-        <span class="ident">TurnType::Right</span>
-    } <span class="kw">else</span> {
-        <span class="ident">TurnType::Left</span>
+<span class="comment">// The GMNS input doesn&#39;t include crosswalks yet -- and even once it does, it&#39;s likely the two map
+// models will disagree about where sidewalks exist. Try to add all crosswalks to the stage where
+// they&#39;re compatible. Downgrade right turns from protected to permitted as needed.
+</span><span class="kw">fn </span>add_crosswalks(signal: <span class="kw-2">&amp;mut </span>ControlTrafficSignal, map: <span class="kw-2">&amp;</span>Map) {
+    <span class="kw">let </span>downgrade_type = <span class="kw">if </span>map.get_config().driving_side == DrivingSide::Right {
+        TurnType::Right
+    } <span class="kw">else </span>{
+        TurnType::Left
     };
 
-    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">signal</span>.<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">crosswalks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">keys</span>() {
-        <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">crosswalk</span> {
-            <span class="ident">crosswalks</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+    <span class="kw">let </span>i = map.get_i(signal.id);
+    <span class="kw">let </span><span class="kw-2">mut </span>crosswalks: Vec&lt;MovementID&gt; = Vec::new();
+    <span class="kw">for </span>id <span class="kw">in </span>i.movements.keys() {
+        <span class="kw">if </span>id.crosswalk {
+            crosswalks.push(<span class="kw-2">*</span>id);
         }
     }
 
-    <span class="comment">// We could try to look for straight turns parallel to the crosswalk, but... just brute-force</span>
-    <span class="comment">// it</span>
-    <span class="kw">for</span> <span class="ident">stage</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">signal</span>.<span class="ident">stages</span> {
-        <span class="ident">crosswalks</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">i</span>) {
-                <span class="ident">stage</span>.<span class="ident">edit_movement</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">id</span>], <span class="ident">TurnPriority::Protected</span>);
-                <span class="bool-val">false</span>
-            } <span class="kw">else</span> {
-                <span class="comment">// There may be conflicting right turns that we can downgrade. Try that.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage_copy</span> <span class="op">=</span> <span class="ident">stage</span>.<span class="ident">clone</span>();
-                <span class="kw">for</span> <span class="ident">maybe_right_turn</span> <span class="kw">in</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">clone</span>() {
-                    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">maybe_right_turn</span>].<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">downgrade_type</span> {
-                        <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">maybe_right_turn</span>);
-                        <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">insert</span>(<span class="ident">maybe_right_turn</span>);
+    <span class="comment">// We could try to look for straight turns parallel to the crosswalk, but... just brute-force
+    // it
+    </span><span class="kw">for </span>stage <span class="kw">in </span><span class="kw-2">&amp;mut </span>signal.stages {
+        crosswalks.retain(|id| {
+            <span class="kw">if </span>stage.could_be_protected(<span class="kw-2">*</span>id, i) {
+                stage.edit_movement(<span class="kw-2">&amp;</span>i.movements[id], TurnPriority::Protected);
+                <span class="bool-val">false
+            </span>} <span class="kw">else </span>{
+                <span class="comment">// There may be conflicting right turns that we can downgrade. Try that.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>stage_copy = stage.clone();
+                <span class="kw">for </span>maybe_right_turn <span class="kw">in </span>stage.protected_movements.clone() {
+                    <span class="kw">if </span>i.movements[<span class="kw-2">&amp;</span>maybe_right_turn].turn_type == downgrade_type {
+                        stage.protected_movements.remove(<span class="kw-2">&amp;</span>maybe_right_turn);
+                        stage.yield_movements.insert(maybe_right_turn);
                     }
                 }
-                <span class="kw">if</span> <span class="ident">stage_copy</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">i</span>) {
-                    <span class="ident">stage_copy</span>.<span class="ident">edit_movement</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="ident">id</span>], <span class="ident">TurnPriority::Protected</span>);
-                    <span class="kw-2">*</span><span class="ident">stage</span> <span class="op">=</span> <span class="ident">stage_copy</span>;
-                    <span class="bool-val">false</span>
-                } <span class="kw">else</span> {
-                    <span class="bool-val">true</span>
-                }
+                <span class="kw">if </span>stage_copy.could_be_protected(<span class="kw-2">*</span>id, i) {
+                    stage_copy.edit_movement(<span class="kw-2">&amp;</span>i.movements[id], TurnPriority::Protected);
+                    <span class="kw-2">*</span>stage = stage_copy;
+                    <span class="bool-val">false
+                </span>} <span class="kw">else </span>{
+                    <span class="bool-val">true
+                </span>}
             }
         });
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

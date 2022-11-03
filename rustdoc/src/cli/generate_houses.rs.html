@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/generate_houses.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generate_houses.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/generate_houses.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generate_houses.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -150,157 +150,157 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
-<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use </span>aabb_quadtree::QuadTree;
+<span class="kw">use </span>rand::{Rng, SeedableRng};
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Map</span>};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{Distance, Polygon};
+<span class="kw">use </span>map_model::{osm, Map};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">map</span>: <span class="ident">String</span>, <span class="ident">num_required</span>: <span class="ident">usize</span>, <span class="ident">rng_seed</span>: <span class="ident">u64</span>, <span class="ident">output</span>: <span class="ident">String</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;generate houses&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">rng_seed</span>);
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+<span class="kw">pub fn </span>run(map: String, num_required: usize, rng_seed: u64, output: String) {
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;generate houses&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(rng_seed);
+    <span class="kw">let </span>map = Map::load_synchronously(map, <span class="kw-2">&amp;mut </span>timer);
 
-    <span class="kw">let</span> <span class="ident">houses</span> <span class="op">=</span> <span class="ident">generate_buildings_on_empty_residential_roads</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-    <span class="kw">if</span> <span class="ident">houses</span>.<span class="ident">len</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">num_required</span> {
+    <span class="kw">let </span>houses = generate_buildings_on_empty_residential_roads(<span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;mut </span>timer);
+    <span class="kw">if </span>houses.len() &lt;= num_required {
         <span class="macro">panic!</span>(
             <span class="string">&quot;Only generated {} houses, but wanted at least {}&quot;</span>,
-            <span class="ident">houses</span>.<span class="ident">len</span>(),
-            <span class="ident">num_required</span>
+            houses.len(),
+            num_required
         );
     }
 
-    <span class="ident">abstio::write_json</span>(
-        <span class="ident">output</span>,
-        <span class="kw-2">&amp;</span><span class="ident">geom::geometries_to_geojson</span>(
-            <span class="ident">houses</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">poly</span><span class="op">|</span> <span class="ident">poly</span>.<span class="ident">to_geojson</span>(<span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>())))
-                .<span class="ident">collect</span>(),
+    abstio::write_json(
+        output,
+        <span class="kw-2">&amp;</span>geom::geometries_to_geojson(
+            houses
+                .into_iter()
+                .map(|poly| poly.to_geojson(<span class="prelude-val">Some</span>(map.get_gps_bounds())))
+                .collect(),
         ),
     );
 }
 
-<span class="kw">fn</span> <span class="ident">generate_buildings_on_empty_residential_roads</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;initially place buildings&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes_with_buildings</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="ident">lanes_with_buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">sidewalk</span>());
+<span class="kw">fn </span>generate_buildings_on_empty_residential_roads(
+    map: <span class="kw-2">&amp;</span>Map,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; Vec&lt;Polygon&gt; {
+    timer.start(<span class="string">&quot;initially place buildings&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>lanes_with_buildings = HashSet::new();
+    <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+        lanes_with_buildings.insert(b.sidewalk());
     }
 
-    <span class="comment">// Find all sidewalks belonging to residential roads that have no buildings</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">empty_sidewalks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-        <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_sidewalk</span>()
-            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">lanes_with_buildings</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>.<span class="ident">id</span>)
-            <span class="op">&amp;&amp;</span> <span class="ident">map</span>
-                .<span class="ident">get_parent</span>(<span class="ident">l</span>.<span class="ident">id</span>)
-                .<span class="ident">osm_tags</span>
-                .<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;residential&quot;</span>)
+    <span class="comment">// Find all sidewalks belonging to residential roads that have no buildings
+    </span><span class="kw">let </span><span class="kw-2">mut </span>empty_sidewalks = Vec::new();
+    <span class="kw">for </span>l <span class="kw">in </span>map.all_lanes() {
+        <span class="kw">if </span>l.is_sidewalk()
+            &amp;&amp; !lanes_with_buildings.contains(<span class="kw-2">&amp;</span>l.id)
+            &amp;&amp; map
+                .get_parent(l.id)
+                .osm_tags
+                .is(osm::HIGHWAY, <span class="string">&quot;residential&quot;</span>)
         {
-            <span class="ident">empty_sidewalks</span>.<span class="ident">push</span>(<span class="ident">l</span>.<span class="ident">id</span>);
+            empty_sidewalks.push(l.id);
         }
     }
 
-    <span class="comment">// Walk along each sidewalk, trying to place some simple houses with a bit of setback from the</span>
-    <span class="comment">// road.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">houses</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">empty_sidewalks</span> {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_along</span> <span class="op">=</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">1.0</span>, <span class="number">5.0</span>);
-        <span class="kw">while</span> <span class="ident">dist_along</span> <span class="op">&lt;</span> <span class="ident">lane</span>.<span class="ident">length</span>() {
-            <span class="kw">let</span> (<span class="ident">sidewalk_pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">lane_center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">dist_along</span>);
-            <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">6.0</span>..<span class="number">14.0</span>);
-            <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">6.0</span>..<span class="number">14.0</span>);
+    <span class="comment">// Walk along each sidewalk, trying to place some simple houses with a bit of setback from the
+    // road.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>houses = Vec::new();
+    <span class="kw">for </span>l <span class="kw">in </span>empty_sidewalks {
+        <span class="kw">let </span>lane = map.get_l(l);
+        <span class="kw">let </span><span class="kw-2">mut </span>dist_along = rand_dist(rng, <span class="number">1.0</span>, <span class="number">5.0</span>);
+        <span class="kw">while </span>dist_along &lt; lane.length() {
+            <span class="kw">let </span>(sidewalk_pt, angle) = lane.lane_center_pts.must_dist_along(dist_along);
+            <span class="kw">let </span>width = rng.gen_range(<span class="number">6.0</span>..<span class="number">14.0</span>);
+            <span class="kw">let </span>height = rng.gen_range(<span class="number">6.0</span>..<span class="number">14.0</span>);
 
-            <span class="comment">// Make it so that the front of the house is always set back a fixed amount. So account</span>
-            <span class="comment">// for the chosen &quot;height&quot;.</span>
-            <span class="kw">let</span> <span class="ident">setback</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">10.0</span>) <span class="op">+</span> <span class="ident">Distance::meters</span>(<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>);
-            <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">sidewalk_pt</span>.<span class="ident">project_away</span>(<span class="ident">setback</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">90.0</span>));
+            <span class="comment">// Make it so that the front of the house is always set back a fixed amount. So account
+            // for the chosen &quot;height&quot;.
+            </span><span class="kw">let </span>setback = Distance::meters(<span class="number">10.0</span>) + Distance::meters(height / <span class="number">2.0</span>);
+            <span class="kw">let </span>center = sidewalk_pt.project_away(setback, angle.rotate_degs(-<span class="number">90.0</span>));
 
-            <span class="ident">houses</span>.<span class="ident">push</span>(
-                <span class="ident">Polygon::rectangle</span>(<span class="ident">width</span>, <span class="ident">height</span>)
-                    .<span class="ident">rotate</span>(<span class="ident">angle</span>)
-                    .<span class="ident">translate</span>(<span class="ident">center</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">center</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>),
+            houses.push(
+                Polygon::rectangle(width, height)
+                    .rotate(angle)
+                    .translate(center.x() - width / <span class="number">2.0</span>, center.y() - height / <span class="number">2.0</span>),
             );
 
-            <span class="ident">dist_along</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="ident">width</span>.<span class="ident">max</span>(<span class="ident">height</span>)) <span class="op">+</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="number">2.0</span>, <span class="number">4.0</span>);
+            dist_along += Distance::meters(width.max(height)) + rand_dist(rng, <span class="number">2.0</span>, <span class="number">4.0</span>);
         }
     }
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;initially place buildings&quot;</span>);
+    timer.stop(<span class="string">&quot;initially place buildings&quot;</span>);
 
-    <span class="comment">// Remove buildings that hit each other. Build up the quadtree of finalized houses as we go,</span>
-    <span class="comment">// using index as the ID.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">non_overlapping</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;prune buildings overlapping each other&quot;</span>, <span class="ident">houses</span>.<span class="ident">len</span>());
-    <span class="lifetime">&#39;HOUSE</span>: <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">houses</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">search</span> <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">get_bounds</span>();
-        <span class="ident">search</span>.<span class="ident">add_buffer</span>(<span class="ident">Distance::meters</span>(<span class="number">1.0</span>));
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">quadtree</span>.<span class="ident">query</span>(<span class="ident">search</span>.<span class="ident">as_bbox</span>()) {
-            <span class="kw">if</span> <span class="ident">poly</span>.<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">non_overlapping</span>[<span class="kw-2">*</span><span class="ident">idx</span>]) {
-                <span class="kw">continue</span> <span class="lifetime">&#39;HOUSE</span>;
+    <span class="comment">// Remove buildings that hit each other. Build up the quadtree of finalized houses as we go,
+    // using index as the ID.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>non_overlapping = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>quadtree = QuadTree::default(map.get_bounds().as_bbox());
+    timer.start_iter(<span class="string">&quot;prune buildings overlapping each other&quot;</span>, houses.len());
+    <span class="lifetime">&#39;HOUSE</span>: <span class="kw">for </span>poly <span class="kw">in </span>houses {
+        timer.next();
+        <span class="kw">let </span><span class="kw-2">mut </span>search = poly.get_bounds();
+        search.add_buffer(Distance::meters(<span class="number">1.0</span>));
+        <span class="kw">for </span>(idx, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span>quadtree.query(search.as_bbox()) {
+            <span class="kw">if </span>poly.intersects(<span class="kw-2">&amp;</span>non_overlapping[<span class="kw-2">*</span>idx]) {
+                <span class="kw">continue </span><span class="lifetime">&#39;HOUSE</span>;
             }
         }
-        <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">non_overlapping</span>.<span class="ident">len</span>(), <span class="ident">poly</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="ident">non_overlapping</span>.<span class="ident">push</span>(<span class="ident">poly</span>);
+        quadtree.insert_with_box(non_overlapping.len(), poly.get_bounds().as_bbox());
+        non_overlapping.push(poly);
     }
 
-    <span class="comment">// Create a different quadtree, just containing static things in the map that we don&#39;t want</span>
-    <span class="comment">// new buildings to hit. The index is just into a list of polygons.</span>
-    <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">static_polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="kw">let</span> <span class="ident">poly</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>();
-        <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">static_polygons</span>.<span class="ident">len</span>(), <span class="ident">poly</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="ident">static_polygons</span>.<span class="ident">push</span>(<span class="ident">poly</span>);
+    <span class="comment">// Create a different quadtree, just containing static things in the map that we don&#39;t want
+    // new buildings to hit. The index is just into a list of polygons.
+    </span>quadtree = QuadTree::default(map.get_bounds().as_bbox());
+    <span class="kw">let </span><span class="kw-2">mut </span>static_polygons = Vec::new();
+    <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+        <span class="kw">let </span>poly = r.get_thick_polygon();
+        quadtree.insert_with_box(static_polygons.len(), poly.get_bounds().as_bbox());
+        static_polygons.push(poly);
     }
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-        <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">static_polygons</span>.<span class="ident">len</span>(), <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="ident">static_polygons</span>.<span class="ident">push</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+    <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
+        quadtree.insert_with_box(static_polygons.len(), i.polygon.get_bounds().as_bbox());
+        static_polygons.push(i.polygon.clone());
     }
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">static_polygons</span>.<span class="ident">len</span>(), <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="ident">static_polygons</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+    <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+        quadtree.insert_with_box(static_polygons.len(), b.polygon.get_bounds().as_bbox());
+        static_polygons.push(b.polygon.clone());
     }
-    <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_parking_lots</span>() {
-        <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">static_polygons</span>.<span class="ident">len</span>(), <span class="ident">pl</span>.<span class="ident">polygon</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="ident">static_polygons</span>.<span class="ident">push</span>(<span class="ident">pl</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+    <span class="kw">for </span>pl <span class="kw">in </span>map.all_parking_lots() {
+        quadtree.insert_with_box(static_polygons.len(), pl.polygon.get_bounds().as_bbox());
+        static_polygons.push(pl.polygon.clone());
     }
-    <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_areas</span>() {
-        <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">static_polygons</span>.<span class="ident">len</span>(), <span class="ident">a</span>.<span class="ident">polygon</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-        <span class="ident">static_polygons</span>.<span class="ident">push</span>(<span class="ident">a</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+    <span class="kw">for </span>a <span class="kw">in </span>map.all_areas() {
+        quadtree.insert_with_box(static_polygons.len(), a.polygon.get_bounds().as_bbox());
+        static_polygons.push(a.polygon.clone());
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">survivors</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>survivors = Vec::new();
+    timer.start_iter(
         <span class="string">&quot;prune buildings overlapping the basemap&quot;</span>,
-        <span class="ident">non_overlapping</span>.<span class="ident">len</span>(),
+        non_overlapping.len(),
     );
-    <span class="lifetime">&#39;NON_OVERLAP</span>: <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">non_overlapping</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">quadtree</span>.<span class="ident">query</span>(<span class="ident">poly</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>()) {
-            <span class="kw">if</span> <span class="ident">poly</span>.<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">static_polygons</span>[<span class="kw-2">*</span><span class="ident">idx</span>]) {
-                <span class="kw">continue</span> <span class="lifetime">&#39;NON_OVERLAP</span>;
+    <span class="lifetime">&#39;NON_OVERLAP</span>: <span class="kw">for </span>poly <span class="kw">in </span>non_overlapping {
+        timer.next();
+        <span class="kw">for </span>(idx, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span>quadtree.query(poly.get_bounds().as_bbox()) {
+            <span class="kw">if </span>poly.intersects(<span class="kw-2">&amp;</span>static_polygons[<span class="kw-2">*</span>idx]) {
+                <span class="kw">continue </span><span class="lifetime">&#39;NON_OVERLAP</span>;
             }
         }
-        <span class="ident">survivors</span>.<span class="ident">push</span>(<span class="ident">poly</span>);
+        survivors.push(poly);
     }
-    <span class="ident">survivors</span>
+    survivors
 }
 
-<span class="kw">fn</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">f64</span>, <span class="ident">high</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-    <span class="macro">assert!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
-    <span class="ident">Distance::meters</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>..<span class="ident">high</span>))
+<span class="kw">fn </span>rand_dist(rng: <span class="kw-2">&amp;mut </span>XorShiftRng, low: f64, high: f64) -&gt; Distance {
+    <span class="macro">assert!</span>(high &gt; low);
+    Distance::meters(rng.gen_range(low..high))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

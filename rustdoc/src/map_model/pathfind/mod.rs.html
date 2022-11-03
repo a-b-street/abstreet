@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -228,235 +228,235 @@
 <span id="228">228</span>
 <span id="229">229</span>
 <span id="230">230</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Everything related to pathfinding through a map for different types of agents.
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</span><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">enumset::EnumSetType</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>enumset::EnumSetType;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom::Duration</span>;
+<span class="kw">use </span>geom::Duration;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::engine::CreateEngine</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::pathfinder</span>::{<span class="ident">Pathfinder</span>, <span class="ident">PathfinderCache</span>, <span class="ident">PathfinderCaching</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::v1</span>::{<span class="ident">Path</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::v2</span>::{<span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::vehicles::vehicle_cost</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::walking::WalkingNode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>, <span class="ident">TurnType</span>};
+<span class="kw">pub use </span><span class="self">self</span>::engine::CreateEngine;
+<span class="kw">pub use </span><span class="self">self</span>::pathfinder::{Pathfinder, PathfinderCache, PathfinderCaching};
+<span class="kw">pub use </span><span class="self">self</span>::v1::{Path, PathRequest, PathStep};
+<span class="kw">pub use </span><span class="self">self</span>::v2::{PathStepV2, PathV2};
+<span class="kw">pub use </span><span class="self">self</span>::vehicles::vehicle_cost;
+<span class="kw">pub use </span><span class="self">self</span>::walking::WalkingNode;
+<span class="kw">use crate</span>::{osm, Lane, LaneID, LaneType, Map, MovementID, Road, RoadID, TurnType};
 
-<span class="kw">mod</span> <span class="ident">engine</span>;
-<span class="kw">mod</span> <span class="ident">node_map</span>;
-<span class="kw">mod</span> <span class="ident">pathfinder</span>;
-<span class="comment">// TODO tmp</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">uber_turns</span>;
-<span class="kw">mod</span> <span class="ident">v1</span>;
-<span class="kw">mod</span> <span class="ident">v2</span>;
-<span class="kw">mod</span> <span class="ident">vehicles</span>;
-<span class="kw">mod</span> <span class="ident">walking</span>;
+<span class="kw">mod </span>engine;
+<span class="kw">mod </span>node_map;
+<span class="kw">mod </span>pathfinder;
+<span class="comment">// TODO tmp
+</span><span class="kw">pub mod </span>uber_turns;
+<span class="kw">mod </span>v1;
+<span class="kw">mod </span>v2;
+<span class="kw">mod </span>vehicles;
+<span class="kw">mod </span>walking;
 
-<span class="doccomment">/// Who&#39;s asking for a path?</span>
-<span class="comment">// TODO This is an awful name.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">EnumSetType</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathConstraints</span> {
-    <span class="ident">Pedestrian</span>,
-    <span class="ident">Car</span>,
-    <span class="ident">Bike</span>,
-    <span class="ident">Bus</span>,
-    <span class="ident">Train</span>,
+<span class="doccomment">/// Who&#39;s asking for a path?
+</span><span class="comment">// TODO This is an awful name.
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialOrd, Ord, EnumSetType)]
+</span><span class="kw">pub enum </span>PathConstraints {
+    Pedestrian,
+    Car,
+    Bike,
+    Bus,
+    Train,
 }
 
-<span class="kw">impl</span> <span class="ident">PathConstraints</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>PathConstraints {
+    <span class="kw">pub fn </span>all() -&gt; Vec&lt;PathConstraints&gt; {
         <span class="macro">vec!</span>[
-            <span class="ident">PathConstraints::Pedestrian</span>,
-            <span class="ident">PathConstraints::Car</span>,
-            <span class="ident">PathConstraints::Bike</span>,
-            <span class="ident">PathConstraints::Bus</span>,
-            <span class="ident">PathConstraints::Train</span>,
+            PathConstraints::Pedestrian,
+            PathConstraints::Car,
+            PathConstraints::Bike,
+            PathConstraints::Bus,
+            PathConstraints::Train,
         ]
     }
 
-    <span class="doccomment">/// Not bijective, but this is the best guess of user intent</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_lt</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>) -&gt; <span class="ident">PathConstraints</span> {
-        <span class="kw">match</span> <span class="ident">lt</span> {
-            <span class="ident">LaneType::Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType::Shoulder</span> =&gt; <span class="ident">PathConstraints::Pedestrian</span>,
-            <span class="ident">LaneType::Driving</span> =&gt; <span class="ident">PathConstraints::Car</span>,
-            <span class="ident">LaneType::Biking</span> =&gt; <span class="ident">PathConstraints::Bike</span>,
-            <span class="ident">LaneType::Bus</span> =&gt; <span class="ident">PathConstraints::Bus</span>,
-            <span class="ident">LaneType::LightRail</span> =&gt; <span class="ident">PathConstraints::Train</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;PathConstraints::from_lt({:?}) doesn&#39;t make sense&quot;</span>, <span class="ident">lt</span>),
+    <span class="doccomment">/// Not bijective, but this is the best guess of user intent
+    </span><span class="kw">pub fn </span>from_lt(lt: LaneType) -&gt; PathConstraints {
+        <span class="kw">match </span>lt {
+            LaneType::Sidewalk | LaneType::Shoulder =&gt; PathConstraints::Pedestrian,
+            LaneType::Driving =&gt; PathConstraints::Car,
+            LaneType::Biking =&gt; PathConstraints::Bike,
+            LaneType::Bus =&gt; PathConstraints::Bus,
+            LaneType::LightRail =&gt; PathConstraints::Train,
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;PathConstraints::from_lt({:?}) doesn&#39;t make sense&quot;</span>, lt),
         }
     }
 
-    <span class="doccomment">/// Can an agent use a lane? There are some subtle exceptions with using bus-only lanes for</span>
-    <span class="doccomment">/// turns.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_use</span>(<span class="self">self</span>, <span class="ident">lane</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathConstraints::Pedestrian</span> =&gt; {
-                <span class="kw">return</span> <span class="ident">lane</span>.<span class="ident">is_walkable</span>();
+    <span class="doccomment">/// Can an agent use a lane? There are some subtle exceptions with using bus-only lanes for
+    /// turns.
+    </span><span class="kw">pub fn </span>can_use(<span class="self">self</span>, lane: <span class="kw-2">&amp;</span>Lane, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="kw">let </span>result = <span class="kw">match </span><span class="self">self </span>{
+            PathConstraints::Pedestrian =&gt; {
+                <span class="kw">return </span>lane.is_walkable();
             }
-            <span class="ident">PathConstraints::Car</span> =&gt; <span class="ident">lane</span>.<span class="ident">is_driving</span>(),
-            <span class="ident">PathConstraints::Bike</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_biking</span>() {
-                    <span class="bool-val">true</span>
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_driving</span>() <span class="op">|</span><span class="op">|</span> (<span class="ident">lane</span>.<span class="ident">is_bus</span>() <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">bikes_can_use_bus_lanes</span>)
+            PathConstraints::Car =&gt; lane.is_driving(),
+            PathConstraints::Bike =&gt; {
+                <span class="kw">if </span>lane.is_biking() {
+                    <span class="bool-val">true
+                </span>} <span class="kw">else if </span>lane.is_driving() || (lane.is_bus() &amp;&amp; map.config.bikes_can_use_bus_lanes)
                 {
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">id</span>.<span class="ident">road</span>);
-                    <span class="op">!</span><span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>)
-                        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">road</span>
-                            .<span class="ident">osm_tags</span>
-                            .<span class="ident">is_any</span>(<span class="ident">osm::HIGHWAY</span>, <span class="macro">vec!</span>[<span class="string">&quot;motorway&quot;</span>, <span class="string">&quot;motorway_link&quot;</span>])
-                } <span class="kw">else</span> {
-                    <span class="bool-val">false</span>
-                }
+                    <span class="kw">let </span>road = map.get_r(lane.id.road);
+                    !road.osm_tags.is(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>)
+                        &amp;&amp; !road
+                            .osm_tags
+                            .is_any(osm::HIGHWAY, <span class="macro">vec!</span>[<span class="string">&quot;motorway&quot;</span>, <span class="string">&quot;motorway_link&quot;</span>])
+                } <span class="kw">else </span>{
+                    <span class="bool-val">false
+                </span>}
             }
-            <span class="ident">PathConstraints::Bus</span> =&gt; {
-                <span class="kw">return</span> <span class="ident">lane</span>.<span class="ident">is_driving</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>();
+            PathConstraints::Bus =&gt; {
+                <span class="kw">return </span>lane.is_driving() || lane.is_bus();
             }
-            <span class="ident">PathConstraints::Train</span> =&gt; {
-                <span class="kw">return</span> <span class="ident">lane</span>.<span class="ident">is_light_rail</span>();
+            PathConstraints::Train =&gt; {
+                <span class="kw">return </span>lane.is_light_rail();
             }
         };
-        <span class="kw">if</span> <span class="ident">result</span> {
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="kw">if </span>result {
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="comment">// Second chance for cars and bikes trying to use a bus-only lane that also happens to be a</span>
-        <span class="comment">// turn lane.</span>
-        <span class="comment">//</span>
-        <span class="comment">// TODO This check could be made stricter in two ways:</span>
-        <span class="comment">// 1) Verify that the bus-only lanes are the ONLY way to make this movement; if there&#39;s a</span>
-        <span class="comment">//    general purpose lane that can also turn, we shouldn&#39;t allow this.</span>
-        <span class="comment">// 2) Verify that the turn-&gt;lane-&gt;turn sequence is the only way to reach the destination</span>
-        <span class="comment">//    road. Since this function operates on a single lane, a vehicle could abuse this to</span>
-        <span class="comment">//    stay in the bus lane and go straight, even if there was another lane for that. Fixing</span>
-        <span class="comment">//    this is hard, since it requires so much context about the sequence of movements. In</span>
-        <span class="comment">//    practice this isn&#39;t an issue; a bus lane often leads to another one, but the next bus</span>
-        <span class="comment">//    lane won&#39;t also be an exclusive turn lane.</span>
-        <span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">is_bus</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">types</span>) <span class="op">=</span>
-                <span class="ident">lane</span>.<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">id</span>.<span class="ident">road</span>), <span class="bool-val">true</span>)
+        <span class="comment">// Second chance for cars and bikes trying to use a bus-only lane that also happens to be a
+        // turn lane.
+        //
+        // TODO This check could be made stricter in two ways:
+        // 1) Verify that the bus-only lanes are the ONLY way to make this movement; if there&#39;s a
+        //    general purpose lane that can also turn, we shouldn&#39;t allow this.
+        // 2) Verify that the turn-&gt;lane-&gt;turn sequence is the only way to reach the destination
+        //    road. Since this function operates on a single lane, a vehicle could abuse this to
+        //    stay in the bus lane and go straight, even if there was another lane for that. Fixing
+        //    this is hard, since it requires so much context about the sequence of movements. In
+        //    practice this isn&#39;t an issue; a bus lane often leads to another one, but the next bus
+        //    lane won&#39;t also be an exclusive turn lane.
+        </span><span class="kw">if </span>lane.is_bus() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(types) =
+                lane.get_lane_level_turn_restrictions(map.get_r(lane.id.road), <span class="bool-val">true</span>)
             {
-                <span class="kw">if</span> <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType::Right</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">TurnType::Left</span>) {
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
+                <span class="kw">if </span>types.contains(<span class="kw-2">&amp;</span>TurnType::Right) || types.contains(<span class="kw-2">&amp;</span>TurnType::Left) {
+                    <span class="kw">return </span><span class="bool-val">true</span>;
                 }
             }
         }
-        <span class="bool-val">false</span>
+        <span class="bool-val">false
+    </span>}
+
+    <span class="doccomment">/// Can an agent use a road in either direction? There are some subtle exceptions with using
+    /// bus-only lanes for turns.
+    </span><span class="kw">pub fn </span>can_use_road(<span class="self">self</span>, road: <span class="kw-2">&amp;</span>Road, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        road.lanes.iter().any(|lane| <span class="self">self</span>.can_use(lane, map))
     }
 
-    <span class="doccomment">/// Can an agent use a road in either direction? There are some subtle exceptions with using</span>
-    <span class="doccomment">/// bus-only lanes for turns.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_use_road</span>(<span class="self">self</span>, <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">lane</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">can_use</span>(<span class="ident">lane</span>, <span class="ident">map</span>))
-    }
-
-    <span class="doccomment">/// Strict for bikes. If there are bike lanes, not allowed to use other lanes.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">filter_lanes</span>(<span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
-        <span class="ident">choices</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">can_use</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>), <span class="ident">map</span>));
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">PathConstraints::Bike</span> {
-            <span class="kw">let</span> <span class="ident">just_bike_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">choices</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">copied</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">is_biking</span>())
-                .<span class="ident">collect</span>();
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">just_bike_lanes</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="ident">just_bike_lanes</span>;
+    <span class="doccomment">/// Strict for bikes. If there are bike lanes, not allowed to use other lanes.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>filter_lanes(<span class="self">self</span>, <span class="kw-2">mut </span>choices: Vec&lt;LaneID&gt;, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;LaneID&gt; {
+        choices.retain(|l| <span class="self">self</span>.can_use(map.get_l(<span class="kw-2">*</span>l), map));
+        <span class="kw">if </span><span class="self">self </span>== PathConstraints::Bike {
+            <span class="kw">let </span>just_bike_lanes: Vec&lt;LaneID&gt; = choices
+                .iter()
+                .copied()
+                .filter(|l| map.get_l(<span class="kw-2">*</span>l).is_biking())
+                .collect();
+            <span class="kw">if </span>!just_bike_lanes.is_empty() {
+                <span class="kw">return </span>just_bike_lanes;
             }
         }
-        <span class="ident">choices</span>
+        choices
     }
 }
 
-<span class="doccomment">/// Heavily penalize crossing into an access-restricted zone that doesn&#39;t allow this mode.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">zone_cost</span>(<span class="ident">mvmnt</span>: <span class="ident">MovementID</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Duration</span> {
-    <span class="comment">// Detect when we cross into a new zone that doesn&#39;t allow constraints.</span>
-    <span class="kw">if</span> <span class="ident">map</span>
-        .<span class="ident">get_r</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">road</span>)
-        .<span class="ident">access_restrictions</span>
-        .<span class="ident">allow_through_traffic</span>
-        .<span class="ident">contains</span>(<span class="ident">constraints</span>)
-        <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">map</span>
-            .<span class="ident">get_r</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">road</span>)
-            .<span class="ident">access_restrictions</span>
-            .<span class="ident">allow_through_traffic</span>
-            .<span class="ident">contains</span>(<span class="ident">constraints</span>)
+<span class="doccomment">/// Heavily penalize crossing into an access-restricted zone that doesn&#39;t allow this mode.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>zone_cost(mvmnt: MovementID, constraints: PathConstraints, map: <span class="kw-2">&amp;</span>Map) -&gt; Duration {
+    <span class="comment">// Detect when we cross into a new zone that doesn&#39;t allow constraints.
+    </span><span class="kw">if </span>map
+        .get_r(mvmnt.from.road)
+        .access_restrictions
+        .allow_through_traffic
+        .contains(constraints)
+        &amp;&amp; !map
+            .get_r(mvmnt.to.road)
+            .access_restrictions
+            .allow_through_traffic
+            .contains(constraints)
     {
-        <span class="comment">// This should be high enough to achieve the desired effect of somebody not entering</span>
-        <span class="comment">// the zone unless absolutely necessary. Someone would violate that and cut through anyway</span>
-        <span class="comment">// only when the alternative route would take more than 3 hours longer!</span>
-        <span class="ident">Duration::hours</span>(<span class="number">3</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">Duration::ZERO</span>
+        <span class="comment">// This should be high enough to achieve the desired effect of somebody not entering
+        // the zone unless absolutely necessary. Someone would violate that and cut through anyway
+        // only when the alternative route would take more than 3 hours longer!
+        </span>Duration::hours(<span class="number">3</span>)
+    } <span class="kw">else </span>{
+        Duration::ZERO
     }
 }
 
-<span class="doccomment">/// Tuneable parameters for all types of routing.</span>
-<span class="comment">// These will maybe become part of the PathRequest later, but that&#39;s an extremely invasive and</span>
-<span class="comment">// space-expensive change right now.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutingParams</span> {
-    <span class="comment">// For all vehicles. This is added to the cost of a movement as an additional delay.</span>
-    <span class="kw">pub</span> <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration</span>,
+<span class="doccomment">/// Tuneable parameters for all types of routing.
+</span><span class="comment">// These will maybe become part of the PathRequest later, but that&#39;s an extremely invasive and
+// space-expensive change right now.
+</span><span class="attribute">#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>RoutingParams {
+    <span class="comment">// For all vehicles. This is added to the cost of a movement as an additional delay.
+    </span><span class="kw">pub </span>unprotected_turn_penalty: Duration,
 
-    <span class="comment">// For bike routing. Multiplied by the base cost, since spending more time on the wrong lane</span>
-    <span class="comment">// type matters.</span>
-    <span class="kw">pub</span> <span class="ident">bike_lane_penalty</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">bus_lane_penalty</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">driving_lane_penalty</span>: <span class="ident">f64</span>,
+    <span class="comment">// For bike routing. Multiplied by the base cost, since spending more time on the wrong lane
+    // type matters.
+    </span><span class="kw">pub </span>bike_lane_penalty: f64,
+    <span class="kw">pub </span>bus_lane_penalty: f64,
+    <span class="kw">pub </span>driving_lane_penalty: f64,
 
-    <span class="comment">// For bike routing.</span>
-    <span class="comment">// &quot;Steep&quot; is a fixed threshold of 8% incline, uphill only. Multiply by the base cost. (Note</span>
-    <span class="comment">// that cost already includes a reduction of speed to account for the incline -- this is a</span>
-    <span class="comment">// further &quot;delay&quot; on top of that!)</span>
-    <span class="comment">// TODO But even steeper roads matter more!</span>
-    <span class="kw">pub</span> <span class="ident">avoid_steep_incline_penalty</span>: <span class="ident">f64</span>,
-    <span class="comment">// If the road is `high_stress_for_bikes`, multiply by the base cost.</span>
-    <span class="kw">pub</span> <span class="ident">avoid_high_stress</span>: <span class="ident">f64</span>,
+    <span class="comment">// For bike routing.
+    // &quot;Steep&quot; is a fixed threshold of 8% incline, uphill only. Multiply by the base cost. (Note
+    // that cost already includes a reduction of speed to account for the incline -- this is a
+    // further &quot;delay&quot; on top of that!)
+    // TODO But even steeper roads matter more!
+    </span><span class="kw">pub </span>avoid_steep_incline_penalty: f64,
+    <span class="comment">// If the road is `high_stress_for_bikes`, multiply by the base cost.
+    </span><span class="kw">pub </span>avoid_high_stress: f64,
 
-    <span class="doccomment">/// When crossing an arterial or highway road, multiply the base cost by this penalty. When</span>
-    <span class="doccomment">/// greater than 1, this will encourage routes to use local roads more.</span>
-    <span class="kw">pub</span> <span class="ident">main_road_penalty</span>: <span class="ident">f64</span>,
+    <span class="doccomment">/// When crossing an arterial or highway road, multiply the base cost by this penalty. When
+    /// greater than 1, this will encourage routes to use local roads more.
+    </span><span class="kw">pub </span>main_road_penalty: f64,
 
-    <span class="doccomment">/// Don&#39;t allow crossing these roads at all. Only affects vehicle routing, not pedestrian.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// TODO The route may cross one of these roads if it&#39;s the start or end!</span>
-    <span class="kw">pub</span> <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Don&#39;t allow crossing these roads at all. Only affects vehicle routing, not pedestrian.
+    ///
+    /// TODO The route may cross one of these roads if it&#39;s the start or end!
+    </span><span class="kw">pub </span>avoid_roads: BTreeSet&lt;RoadID&gt;,
 
-    <span class="doccomment">/// Don&#39;t allow movements between these roads at all. Only affects vehicle routing, not</span>
-    <span class="doccomment">/// pedestrian.</span>
-    <span class="kw">pub</span> <span class="ident">avoid_movements_between</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">RoadID</span>)<span class="op">&gt;</span>,
+    <span class="doccomment">/// Don&#39;t allow movements between these roads at all. Only affects vehicle routing, not
+    /// pedestrian.
+    </span><span class="kw">pub </span>avoid_movements_between: BTreeSet&lt;(RoadID, RoadID)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RoutingParams</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="comment">// This is a total guess -- it really depends on the traffic patterns of the particular</span>
-            <span class="comment">// road at the time we&#39;re routing.</span>
-            <span class="ident">unprotected_turn_penalty</span>: <span class="ident">Duration::const_seconds</span>(<span class="number">30.0</span>),
+<span class="kw">impl </span>Default <span class="kw">for </span>RoutingParams {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            <span class="comment">// This is a total guess -- it really depends on the traffic patterns of the particular
+            // road at the time we&#39;re routing.
+            </span>unprotected_turn_penalty: Duration::const_seconds(<span class="number">30.0</span>),
 
-            <span class="ident">bike_lane_penalty</span>: <span class="number">1.0</span>,
-            <span class="ident">bus_lane_penalty</span>: <span class="number">1.1</span>,
-            <span class="ident">driving_lane_penalty</span>: <span class="number">1.5</span>,
+            bike_lane_penalty: <span class="number">1.0</span>,
+            bus_lane_penalty: <span class="number">1.1</span>,
+            driving_lane_penalty: <span class="number">1.5</span>,
 
-            <span class="ident">avoid_steep_incline_penalty</span>: <span class="number">1.0</span>,
-            <span class="ident">avoid_high_stress</span>: <span class="number">1.0</span>,
+            avoid_steep_incline_penalty: <span class="number">1.0</span>,
+            avoid_high_stress: <span class="number">1.0</span>,
 
-            <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,
+            main_road_penalty: <span class="number">1.0</span>,
 
-            <span class="ident">avoid_roads</span>: <span class="ident">BTreeSet::new</span>(),
-            <span class="ident">avoid_movements_between</span>: <span class="ident">BTreeSet::new</span>(),
+            avoid_roads: BTreeSet::new(),
+            avoid_movements_between: BTreeSet::new(),
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">round</span>(<span class="ident">cost</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">usize</span> {
-    <span class="comment">// Round up! 0 cost edges are ignored</span>
-    (<span class="ident">cost</span>.<span class="ident">inner_seconds</span>().<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>).<span class="ident">max</span>(<span class="number">1</span>)
+<span class="kw">pub fn </span>round(cost: Duration) -&gt; usize {
+    <span class="comment">// Round up! 0 cost edges are ignored
+    </span>(cost.inner_seconds().round() <span class="kw">as </span>usize).max(<span class="number">1</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unround</span>(<span class="ident">cost</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Duration</span> {
-    <span class="ident">Duration::seconds</span>(<span class="ident">cost</span> <span class="kw">as</span> <span class="ident">f64</span>)
+<span class="kw">pub fn </span>unround(cost: usize) -&gt; Duration {
+    Duration::seconds(cost <span class="kw">as </span>f64)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

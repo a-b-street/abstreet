@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -187,194 +187,194 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-</pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">bike_network</span>;
-<span class="kw">mod</span> <span class="ident">explore</span>;
-<span class="kw">mod</span> <span class="ident">layers</span>;
-<span class="kw">mod</span> <span class="ident">predict</span>;
-<span class="kw">mod</span> <span class="ident">quick_sketch</span>;
-<span class="kw">mod</span> <span class="ident">trip</span>;
+</pre><pre class="rust"><code><span class="kw">mod </span>bike_network;
+<span class="kw">mod </span>explore;
+<span class="kw">mod </span>layers;
+<span class="kw">mod </span>predict;
+<span class="kw">mod </span>quick_sketch;
+<span class="kw">mod </span>trip;
 
-<span class="kw">use</span> <span class="ident">geom::CornerRadii</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::CityPicker</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">EventCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">State</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
-    <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+<span class="kw">use </span>geom::CornerRadii;
+<span class="kw">use </span>map_gui::tools::CityPicker;
+<span class="kw">use </span>widgetry::{
+    EventCtx, HorizontalAlignment, Key, Line, Panel, PanelDims, State, VerticalAlignment, Widget,
+    DEFAULT_CORNER_RADIUS,
 };
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::explore::ExploreMap</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::layers::Layers</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">predict::ModeShiftData</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">trip::RoutingPreferences</span>;
+<span class="kw">pub use </span><span class="self">self</span>::explore::ExploreMap;
+<span class="kw">pub use </span><span class="self">self</span>::layers::Layers;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">pub use </span>predict::ModeShiftData;
+<span class="kw">pub use </span>trip::RoutingPreferences;
 
-<span class="comment">// The 3 modes are very different States, so TabController doesn&#39;t seem like the best fit</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Tab</span> {
-    <span class="ident">Explore</span>,
-    <span class="ident">Trip</span>,
-    <span class="ident">AddLanes</span>,
-    <span class="ident">PredictImpact</span>,
+<span class="comment">// The 3 modes are very different States, so TabController doesn&#39;t seem like the best fit
+</span><span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">pub enum </span>Tab {
+    Explore,
+    Trip,
+    AddLanes,
+    PredictImpact,
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TakeLayers</span> {
-    <span class="kw">fn</span> <span class="ident">take_layers</span>(<span class="self">self</span>) -&gt; <span class="ident">Layers</span>;
+<span class="kw">pub trait </span>TakeLayers {
+    <span class="kw">fn </span>take_layers(<span class="self">self</span>) -&gt; Layers;
 }
 
-<span class="kw">impl</span> <span class="ident">Tab</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_left_panel</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">contents</span>: <span class="ident">Widget</span>) -&gt; <span class="ident">Panel</span> {
-        <span class="comment">// Ideally TabController could manage this, but the contents of each section are</span>
-        <span class="comment">// substantial, controlled by entirely different States.</span>
+<span class="kw">impl </span>Tab {
+    <span class="kw">pub fn </span>make_left_panel(<span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, contents: Widget) -&gt; Panel {
+        <span class="comment">// Ideally TabController could manage this, but the contents of each section are
+        // substantial, controlled by entirely different States.
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">contents</span>.<span class="ident">section</span>(<span class="ident">ctx</span>));
+        </span><span class="kw">let </span><span class="kw-2">mut </span>contents = <span class="prelude-val">Some</span>(contents.section(ctx));
 
-        <span class="comment">// map_gui::tools::app_header uses 2 rows, but we&#39;ve tuned the horizontal space here. It&#39;s</span>
-        <span class="comment">// nicer to fit on one row.</span>
-        <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">map_gui::tools::home_btn</span>(<span class="ident">ctx</span>),
-            <span class="ident">Line</span>(<span class="string">&quot;Ungap the Map&quot;</span>)
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>(),
-            <span class="ident">map_gui::tools::change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
-                .<span class="ident">centered_vert</span>()
-                .<span class="ident">align_right</span>(),
+        <span class="comment">// map_gui::tools::app_header uses 2 rows, but we&#39;ve tuned the horizontal space here. It&#39;s
+        // nicer to fit on one row.
+        </span><span class="kw">let </span>header = Widget::row(<span class="macro">vec!</span>[
+            map_gui::tools::home_btn(ctx),
+            Line(<span class="string">&quot;Ungap the Map&quot;</span>)
+                .small_heading()
+                .into_widget(ctx)
+                .centered_vert(),
+            map_gui::tools::change_map_btn(ctx, app)
+                .centered_vert()
+                .align_right(),
         ]);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">build_tab</span> <span class="op">=</span> <span class="op">|</span>(<span class="ident">tab</span>, <span class="ident">image_path</span>, <span class="ident">tab_title</span>, <span class="ident">hotkey</span>): (<span class="ident">Tab</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Key</span>)<span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
-                .<span class="ident">style</span>()
-                .<span class="ident">btn_tab</span>
-                .<span class="ident">icon_text</span>(<span class="ident">image_path</span>, <span class="ident">tab_title</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">hotkey</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>build_tab = |(tab, image_path, tab_title, hotkey): (Tab, <span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>str, Key)| {
+            <span class="kw">let </span><span class="kw-2">mut </span>btn = ctx
+                .style()
+                .btn_tab
+                .icon_text(image_path, tab_title)
+                .hotkey(hotkey);
 
-            <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">tab</span> {
-                <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>
-                    .<span class="ident">corner_rounding</span>(<span class="ident">CornerRadii</span> {
-                        <span class="ident">top_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                        <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                        <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
-                        <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
+            <span class="kw">if </span><span class="self">self </span>== tab {
+                btn = btn
+                    .corner_rounding(CornerRadii {
+                        top_left: DEFAULT_CORNER_RADIUS,
+                        top_right: DEFAULT_CORNER_RADIUS,
+                        bottom_left: <span class="number">0.0</span>,
+                        bottom_right: <span class="number">0.0</span>,
                     })
-                    .<span class="ident">disabled</span>(<span class="bool-val">true</span>);
+                    .disabled(<span class="bool-val">true</span>);
             }
 
-            <span class="comment">// Add a little margin to compensate for the border on the tab content</span>
-            <span class="comment">// otherwise things look ever-so-slightly out of alignment.</span>
-            <span class="kw">let</span> <span class="ident">btn_widget</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">margin_left</span>(<span class="number">1</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tab_elements</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">btn_widget</span>];
+            <span class="comment">// Add a little margin to compensate for the border on the tab content
+            // otherwise things look ever-so-slightly out of alignment.
+            </span><span class="kw">let </span>btn_widget = btn.build_def(ctx).margin_left(<span class="number">1</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>tab_elements = <span class="macro">vec!</span>[btn_widget];
 
-            <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">tab</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">contents</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="ident">contents</span> <span class="op">=</span> <span class="ident">contents</span>.<span class="ident">corner_rounding</span>(<span class="ident">CornerRadii</span> {
-                    <span class="ident">top_left</span>: <span class="number">0.0</span>,
-                    <span class="ident">top_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                    <span class="ident">bottom_left</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
-                    <span class="ident">bottom_right</span>: <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+            <span class="kw">if </span><span class="self">self </span>== tab {
+                <span class="kw">let </span><span class="kw-2">mut </span>contents = contents.take().unwrap();
+                contents = contents.corner_rounding(CornerRadii {
+                    top_left: <span class="number">0.0</span>,
+                    top_right: DEFAULT_CORNER_RADIUS,
+                    bottom_left: DEFAULT_CORNER_RADIUS,
+                    bottom_right: DEFAULT_CORNER_RADIUS,
                 });
-                <span class="ident">tab_elements</span>.<span class="ident">push</span>(<span class="ident">contents</span>);
+                tab_elements.push(contents);
             }
 
-            <span class="ident">Widget::custom_col</span>(<span class="ident">tab_elements</span>)
+            Widget::custom_col(tab_elements)
         };
 
-        <span class="kw">let</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">build_tab</span>((
-                <span class="ident">Tab::Explore</span>,
+        <span class="kw">let </span>tabs = Widget::col(<span class="macro">vec!</span>[
+            build_tab((
+                Tab::Explore,
                 <span class="string">&quot;system/assets/tools/pan.svg&quot;</span>,
                 <span class="string">&quot;Explore&quot;</span>,
-                <span class="ident">Key::Num1</span>,
+                Key::Num1,
             )),
-            <span class="ident">build_tab</span>((
-                <span class="ident">Tab::Trip</span>,
+            build_tab((
+                Tab::Trip,
                 <span class="string">&quot;system/assets/tools/pin.svg&quot;</span>,
                 <span class="string">&quot;Your trip&quot;</span>,
-                <span class="ident">Key::Num2</span>,
+                Key::Num2,
             )),
-            <span class="ident">build_tab</span>((
-                <span class="ident">Tab::AddLanes</span>,
+            build_tab((
+                Tab::AddLanes,
                 <span class="string">&quot;system/assets/tools/pencil.svg&quot;</span>,
                 <span class="string">&quot;Propose new bike lanes&quot;</span>,
-                <span class="ident">Key::Num3</span>,
+                Key::Num3,
             )),
-            <span class="ident">build_tab</span>((
-                <span class="ident">Tab::PredictImpact</span>,
+            build_tab((
+                Tab::PredictImpact,
                 <span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>,
                 <span class="string">&quot;Predict impact&quot;</span>,
-                <span class="ident">Key::Num4</span>,
+                Key::Num4,
             )),
         ]);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">header</span>, <span class="ident">tabs</span>]))
-            <span class="comment">// The different tabs have different widths. To avoid the UI bouncing around as the user</span>
-            <span class="comment">// navigates, this is hardcoded to be a bit wider than the widest tab.</span>
-            .<span class="ident">dims_width</span>(<span class="ident">PanelDims::ExactPixels</span>(<span class="number">620.0</span>))
-            .<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPercent</span>(<span class="number">1.0</span>))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>);
-        <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">Tab::Trip</span> {
-            <span class="comment">// Hovering on a card</span>
-            <span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">ignore_initial_events</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[header, tabs]))
+            <span class="comment">// The different tabs have different widths. To avoid the UI bouncing around as the user
+            // navigates, this is hardcoded to be a bit wider than the widest tab.
+            </span>.dims_width(PanelDims::ExactPixels(<span class="number">620.0</span>))
+            .dims_height(PanelDims::ExactPercent(<span class="number">1.0</span>))
+            .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
+        <span class="kw">if </span><span class="self">self </span>== Tab::Trip {
+            <span class="comment">// Hovering on a card
+            </span>panel = panel.ignore_initial_events();
         }
-        <span class="ident">panel</span>.<span class="ident">build</span>(<span class="ident">ctx</span>)
+        panel.build(ctx)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_action</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">TakeLayers</span> <span class="op">+</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="kw">pub fn </span>handle_action&lt;T: TakeLayers + State&lt;App&gt;&gt;(
         <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="string">&quot;Home&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Pop</span>),
-            <span class="string">&quot;change map&quot;</span> =&gt; {
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="comment">// Since we&#39;re totally changing maps, don&#39;t reuse the Layers</span>
-                        <span class="kw">let</span> <span class="ident">layers</span> <span class="op">=</span> <span class="ident">Layers::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Transition::Pop</span>,
-                            <span class="ident">Transition::Replace</span>(<span class="kw">match</span> <span class="self">self</span> {
-                                <span class="ident">Tab::Explore</span> =&gt; <span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
-                                <span class="ident">Tab::Trip</span> =&gt; <span class="ident">trip::TripPlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>),
-                                <span class="ident">Tab::AddLanes</span> =&gt; {
-                                    <span class="ident">quick_sketch::QuickSketch::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        action: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="kw">match </span>action {
+            <span class="string">&quot;Home&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Pop),
+            <span class="string">&quot;change map&quot; </span>=&gt; {
+                <span class="prelude-val">Some</span>(Transition::Push(CityPicker::new_state(
+                    ctx,
+                    app,
+                    Box::new(<span class="kw">move </span>|ctx, app| {
+                        <span class="comment">// Since we&#39;re totally changing maps, don&#39;t reuse the Layers
+                        </span><span class="kw">let </span>layers = Layers::new(ctx, app);
+                        Transition::Multi(<span class="macro">vec!</span>[
+                            Transition::Pop,
+                            Transition::Replace(<span class="kw">match </span><span class="self">self </span>{
+                                Tab::Explore =&gt; ExploreMap::new_state(ctx, app, layers),
+                                Tab::Trip =&gt; trip::TripPlanner::new_state(ctx, app, layers),
+                                Tab::AddLanes =&gt; {
+                                    quick_sketch::QuickSketch::new_state(ctx, app, layers)
                                 }
-                                <span class="ident">Tab::PredictImpact</span> =&gt; {
-                                    <span class="ident">predict::ShowGaps::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">layers</span>)
+                                Tab::PredictImpact =&gt; {
+                                    predict::ShowGaps::new_state(ctx, app, layers)
                                 }
                             }),
                         ])
                     }),
                 )))
             }
-            <span class="string">&quot;Explore&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                <span class="macro">vec!</span>[<span class="ident">ExploreMap::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">state</span>.<span class="ident">take_layers</span>())]
+            <span class="string">&quot;Explore&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::ConsumeState(Box::new(|state, ctx, app| {
+                <span class="kw">let </span>state = state.downcast::&lt;T&gt;().ok().unwrap();
+                <span class="macro">vec!</span>[ExploreMap::new_state(ctx, app, state.take_layers())]
             }))),
-            <span class="string">&quot;Your trip&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                <span class="macro">vec!</span>[<span class="ident">trip::TripPlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">state</span>.<span class="ident">take_layers</span>())]
+            <span class="string">&quot;Your trip&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::ConsumeState(Box::new(|state, ctx, app| {
+                <span class="kw">let </span>state = state.downcast::&lt;T&gt;().ok().unwrap();
+                <span class="macro">vec!</span>[trip::TripPlanner::new_state(ctx, app, state.take_layers())]
             }))),
-            <span class="string">&quot;Propose new bike lanes&quot;</span> =&gt; {
-                <span class="comment">// This is only necessary to do coming from ExploreMap, but eh</span>
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                    <span class="macro">vec!</span>[<span class="ident">quick_sketch::QuickSketch::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">state</span>.<span class="ident">take_layers</span>(),
+            <span class="string">&quot;Propose new bike lanes&quot; </span>=&gt; {
+                <span class="comment">// This is only necessary to do coming from ExploreMap, but eh
+                </span>app.primary.current_selection = <span class="prelude-val">None</span>;
+                <span class="prelude-val">Some</span>(Transition::ConsumeState(Box::new(|state, ctx, app| {
+                    <span class="kw">let </span>state = state.downcast::&lt;T&gt;().ok().unwrap();
+                    <span class="macro">vec!</span>[quick_sketch::QuickSketch::new_state(
+                        ctx,
+                        app,
+                        state.take_layers(),
                     )]
                 })))
             }
-            <span class="string">&quot;Predict impact&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::ConsumeState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>().<span class="ident">ok</span>().<span class="ident">unwrap</span>();
-                <span class="macro">vec!</span>[<span class="ident">predict::ShowGaps::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">state</span>.<span class="ident">take_layers</span>())]
+            <span class="string">&quot;Predict impact&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::ConsumeState(Box::new(|state, ctx, app| {
+                <span class="kw">let </span>state = state.downcast::&lt;T&gt;().ok().unwrap();
+                <span class="macro">vec!</span>[predict::ShowGaps::new_state(ctx, app, state.take_layers())]
             }))),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

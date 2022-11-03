@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -117,124 +117,124 @@
 <span id="117">117</span>
 <span id="118">118</span>
 <span id="119">119</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This crate describes a synthetic population that exist in a map. Currently each person&#39;s travel</span>
-<span class="doccomment">//! behavior is modelled, but in the future, demographic and health attributes may be added.</span>
-<span class="doccomment">//! There&#39;s a variety of ways to create these populations, scattered in other crates.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Note that &quot;scenario&quot; is the term currently used to describe the population. This will be</span>
-<span class="doccomment">//! renamed &quot;soon.&quot;</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This crate describes a synthetic population that exist in a map. Currently each person&#39;s travel
+//! behavior is modelled, but in the future, demographic and health attributes may be added.
+//! There&#39;s a variety of ways to create these populations, scattered in other crates.
+//!
+//! Note that &quot;scenario&quot; is the term currently used to describe the population. This will be
+//! renamed &quot;soon.&quot;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+</span><span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>anyhow;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
-<span class="kw">use</span> <span class="ident">map_model::PathConstraints</span>;
+<span class="kw">use </span>abstutil::{deserialize_usize, serialize_usize};
+<span class="kw">use </span>map_model::PathConstraints;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::borders</span>::{<span class="ident">MapBorder</span>, <span class="ident">MapBorders</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::counts::TrafficCounts</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::endpoint::TripEndpoint</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::external</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>, <span class="ident">ExternalTripEndpoint</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::modifier::ScenarioModifier</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::scenario</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">pub use </span><span class="self">self</span>::borders::{MapBorder, MapBorders};
+<span class="kw">pub use </span><span class="self">self</span>::counts::TrafficCounts;
+<span class="kw">pub use </span><span class="self">self</span>::endpoint::TripEndpoint;
+<span class="kw">pub use </span><span class="self">self</span>::external::{ExternalPerson, ExternalTrip, ExternalTripEndpoint};
+<span class="kw">pub use </span><span class="self">self</span>::modifier::ScenarioModifier;
+<span class="kw">pub use </span><span class="self">self</span>::scenario::{IndividTrip, PersonSpec, Scenario, TripPurpose};
 
-<span class="kw">mod</span> <span class="ident">borders</span>;
-<span class="kw">mod</span> <span class="ident">counts</span>;
-<span class="kw">mod</span> <span class="ident">endpoint</span>;
-<span class="kw">mod</span> <span class="ident">external</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">make</span>;
-<span class="kw">mod</span> <span class="ident">modifier</span>;
-<span class="kw">mod</span> <span class="ident">scenario</span>;
+<span class="kw">mod </span>borders;
+<span class="kw">mod </span>counts;
+<span class="kw">mod </span>endpoint;
+<span class="kw">mod </span>external;
+<span class="kw">pub mod </span>make;
+<span class="kw">mod </span>modifier;
+<span class="kw">mod </span>scenario;
 
-<span class="doccomment">/// How does a trip primarily happen?</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note most trips are &quot;multi-modal&quot; -- somebody has to walk a bit before and after parking their</span>
-<span class="doccomment">/// car.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripMode</span> {
-    <span class="ident">Walk</span>,
-    <span class="ident">Bike</span>,
-    <span class="ident">Transit</span>,
-    <span class="ident">Drive</span>,
+<span class="doccomment">/// How does a trip primarily happen?
+///
+/// Note most trips are &quot;multi-modal&quot; -- somebody has to walk a bit before and after parking their
+/// car.
+</span><span class="attribute">#[derive(Serialize, Deserialize, PartialEq, Eq, Debug, Clone, Copy, PartialOrd, Ord)]
+</span><span class="kw">pub enum </span>TripMode {
+    Walk,
+    Bike,
+    Transit,
+    Drive,
 }
 
-<span class="kw">impl</span> <span class="ident">TripMode</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>TripMode {
+    <span class="kw">pub fn </span>all() -&gt; Vec&lt;TripMode&gt; {
         <span class="macro">vec!</span>[
-            <span class="ident">TripMode::Walk</span>,
-            <span class="ident">TripMode::Bike</span>,
-            <span class="ident">TripMode::Transit</span>,
-            <span class="ident">TripMode::Drive</span>,
+            TripMode::Walk,
+            TripMode::Bike,
+            TripMode::Transit,
+            TripMode::Drive,
         ]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">verb</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="string">&quot;walk&quot;</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; <span class="string">&quot;bike&quot;</span>,
-            <span class="ident">TripMode::Transit</span> =&gt; <span class="string">&quot;use transit&quot;</span>,
-            <span class="ident">TripMode::Drive</span> =&gt; <span class="string">&quot;drive&quot;</span>,
+    <span class="kw">pub fn </span>verb(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            TripMode::Walk =&gt; <span class="string">&quot;walk&quot;</span>,
+            TripMode::Bike =&gt; <span class="string">&quot;bike&quot;</span>,
+            TripMode::Transit =&gt; <span class="string">&quot;use transit&quot;</span>,
+            TripMode::Drive =&gt; <span class="string">&quot;drive&quot;</span>,
         }
     }
 
-    <span class="comment">// If I used &quot;present participle&quot; in a method name, I&#39;d never live it down.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ongoing_verb</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="string">&quot;walking&quot;</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; <span class="string">&quot;biking&quot;</span>,
-            <span class="ident">TripMode::Transit</span> =&gt; <span class="string">&quot;using transit&quot;</span>,
-            <span class="ident">TripMode::Drive</span> =&gt; <span class="string">&quot;driving&quot;</span>,
+    <span class="comment">// If I used &quot;present participle&quot; in a method name, I&#39;d never live it down.
+    </span><span class="kw">pub fn </span>ongoing_verb(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            TripMode::Walk =&gt; <span class="string">&quot;walking&quot;</span>,
+            TripMode::Bike =&gt; <span class="string">&quot;biking&quot;</span>,
+            TripMode::Transit =&gt; <span class="string">&quot;using transit&quot;</span>,
+            TripMode::Drive =&gt; <span class="string">&quot;driving&quot;</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">noun</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="string">&quot;Pedestrian&quot;</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; <span class="string">&quot;Bike&quot;</span>,
-            <span class="ident">TripMode::Transit</span> =&gt; <span class="string">&quot;Bus&quot;</span>,
-            <span class="ident">TripMode::Drive</span> =&gt; <span class="string">&quot;Car&quot;</span>,
+    <span class="kw">pub fn </span>noun(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            TripMode::Walk =&gt; <span class="string">&quot;Pedestrian&quot;</span>,
+            TripMode::Bike =&gt; <span class="string">&quot;Bike&quot;</span>,
+            TripMode::Transit =&gt; <span class="string">&quot;Bus&quot;</span>,
+            TripMode::Drive =&gt; <span class="string">&quot;Car&quot;</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_constraints</span>(<span class="self">self</span>) -&gt; <span class="ident">PathConstraints</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="ident">PathConstraints::Pedestrian</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; <span class="ident">PathConstraints::Bike</span>,
-            <span class="comment">// TODO WRONG</span>
-            <span class="ident">TripMode::Transit</span> =&gt; <span class="ident">PathConstraints::Bus</span>,
-            <span class="ident">TripMode::Drive</span> =&gt; <span class="ident">PathConstraints::Car</span>,
+    <span class="kw">pub fn </span>to_constraints(<span class="self">self</span>) -&gt; PathConstraints {
+        <span class="kw">match </span><span class="self">self </span>{
+            TripMode::Walk =&gt; PathConstraints::Pedestrian,
+            TripMode::Bike =&gt; PathConstraints::Bike,
+            <span class="comment">// TODO WRONG
+            </span>TripMode::Transit =&gt; PathConstraints::Bus,
+            TripMode::Drive =&gt; PathConstraints::Car,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_constraints</span>(<span class="ident">c</span>: <span class="ident">PathConstraints</span>) -&gt; <span class="ident">TripMode</span> {
-        <span class="kw">match</span> <span class="ident">c</span> {
-            <span class="ident">PathConstraints::Pedestrian</span> =&gt; <span class="ident">TripMode::Walk</span>,
-            <span class="ident">PathConstraints::Bike</span> =&gt; <span class="ident">TripMode::Bike</span>,
-            <span class="comment">// TODO The bijection breaks down... transit rider vs train vs bus...</span>
-            <span class="ident">PathConstraints::Bus</span> <span class="op">|</span> <span class="ident">PathConstraints::Train</span> =&gt; <span class="ident">TripMode::Transit</span>,
-            <span class="ident">PathConstraints::Car</span> =&gt; <span class="ident">TripMode::Drive</span>,
+    <span class="kw">pub fn </span>from_constraints(c: PathConstraints) -&gt; TripMode {
+        <span class="kw">match </span>c {
+            PathConstraints::Pedestrian =&gt; TripMode::Walk,
+            PathConstraints::Bike =&gt; TripMode::Bike,
+            <span class="comment">// TODO The bijection breaks down... transit rider vs train vs bus...
+            </span>PathConstraints::Bus | PathConstraints::Train =&gt; TripMode::Transit,
+            PathConstraints::Car =&gt; TripMode::Drive,
         }
     }
 }
 
-<span class="doccomment">/// This is an ID used by Seattle soundcast. Originally it was preserved for debugging, but that</span>
-<span class="doccomment">/// hasn&#39;t happened in a long time. Also the format is tied to Soundcast. Consider deleting /</span>
-<span class="doccomment">/// changing.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OrigPersonID</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">usize</span>,
+<span class="doccomment">/// This is an ID used by Seattle soundcast. Originally it was preserved for debugging, but that
+/// hasn&#39;t happened in a long time. Also the format is tied to Soundcast. Consider deleting /
+/// changing.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>OrigPersonID(
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>usize,
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>usize,
 );
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

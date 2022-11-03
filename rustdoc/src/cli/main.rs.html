@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/main.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/main.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -437,424 +437,424 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
-<span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a
+//! single executable to reduce the cost of static linking in the release&#39;s file size.
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+</span><span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">mod</span> <span class="ident">augment_scenario</span>;
-<span class="kw">mod</span> <span class="ident">clip_osm</span>;
-<span class="kw">mod</span> <span class="ident">generate_houses</span>;
-<span class="kw">mod</span> <span class="ident">import_grid2demand</span>;
-<span class="kw">mod</span> <span class="ident">import_scenario</span>;
-<span class="kw">mod</span> <span class="ident">one_step_import</span>;
+<span class="kw">mod </span>augment_scenario;
+<span class="kw">mod </span>clip_osm;
+<span class="kw">mod </span>generate_houses;
+<span class="kw">mod </span>import_grid2demand;
+<span class="kw">mod </span>import_scenario;
+<span class="kw">mod </span>one_step_import;
 
-<span class="kw">use</span> <span class="ident">std::io::Write</span>;
+<span class="kw">use </span>std::io::Write;
 
-<span class="kw">use</span> <span class="ident">abstio::CityName</span>;
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">fs_err::File</span>;
-<span class="kw">use</span> <span class="ident">importer::Job</span>;
-<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
+<span class="kw">use </span>abstio::CityName;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>fs_err::File;
+<span class="kw">use </span>importer::Job;
+<span class="kw">use </span>structopt::StructOpt;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
+<span class="kw">use </span>abstutil::Timer;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
-<span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;abcli&quot;</span>, <span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;The A/B Street multi-tool&quot;</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Command</span> {
-    <span class="doccomment">/// Print a binary map or scenario file as JSON</span>
-    <span class="ident">DumpJSON</span> {
-        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-        <span class="ident">path</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(StructOpt)]
+#[structopt(name = <span class="string">&quot;abcli&quot;</span>, about = <span class="string">&quot;The A/B Street multi-tool&quot;</span>)]
+</span><span class="kw">enum </span>Command {
+    <span class="doccomment">/// Print a binary map or scenario file as JSON
+    </span>DumpJSON {
+        <span class="attribute">#[structopt()]
+        </span>path: String,
     },
-    <span class="doccomment">/// Generates a random scenario using the proletariat robot travel demand model</span>
-    <span class="ident">RandomScenario</span> {
-        <span class="doccomment">/// A seed for generating random numbers</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
-        <span class="doccomment">/// The path to a map to generate a scenario for</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">map</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The name of the scenario to generate</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">scenario_name</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Generates a random scenario using the proletariat robot travel demand model
+    </span>RandomScenario {
+        <span class="doccomment">/// A seed for generating random numbers
+        </span><span class="attribute">#[structopt(long)]
+        </span>rng_seed: u64,
+        <span class="doccomment">/// The path to a map to generate a scenario for
+        </span><span class="attribute">#[structopt(long)]
+        </span>map: String,
+        <span class="doccomment">/// The name of the scenario to generate
+        </span><span class="attribute">#[structopt(long)]
+        </span>scenario_name: String,
     },
-    <span class="doccomment">/// Modifies the schedule of every person in an existing scenario.</span>
-    <span class="ident">AugmentScenario</span> {
-        <span class="doccomment">/// The path to a scenario to augment. This will be modified in-place.</span>
-        <span class="doccomment">///</span>
-        <span class="doccomment">/// This tool isn&#39;t very smart about detecting if a scenario already has these extra trips</span>
-        <span class="doccomment">/// added in; be careful about running this on the correct input.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">input_scenario</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// For people with only a single trip, add a return trip back home sometime 4-12 hours</span>
-        <span class="doccomment">/// later</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">add_return_trips</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Before a person&#39;s final trip home, insert a round-trip to a nearby cafe or restaurant</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">add_lunch_trips</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">parse</span>(<span class="ident">try_from_str</span> <span class="op">=</span> <span class="ident">parse_modifiers</span>), <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;[]&quot;</span>)]</span>
-        <span class="ident">scenario_modifiers</span>: <span class="ident">ModifierList</span>,
-        <span class="doccomment">/// Delete cancelled trips, and delete people with no remaining trips.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">delete_cancelled_trips</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// A seed for generating random numbers</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;42&quot;</span>)]</span>
-        <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
+    <span class="doccomment">/// Modifies the schedule of every person in an existing scenario.
+    </span>AugmentScenario {
+        <span class="doccomment">/// The path to a scenario to augment. This will be modified in-place.
+        ///
+        /// This tool isn&#39;t very smart about detecting if a scenario already has these extra trips
+        /// added in; be careful about running this on the correct input.
+        </span><span class="attribute">#[structopt(long)]
+        </span>input_scenario: String,
+        <span class="doccomment">/// For people with only a single trip, add a return trip back home sometime 4-12 hours
+        /// later
+        </span><span class="attribute">#[structopt(long)]
+        </span>add_return_trips: bool,
+        <span class="doccomment">/// Before a person&#39;s final trip home, insert a round-trip to a nearby cafe or restaurant
+        </span><span class="attribute">#[structopt(long)]
+        </span>add_lunch_trips: bool,
+        <span class="doccomment">/// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.
+        </span><span class="attribute">#[structopt(long, parse(try_from_str = parse_modifiers), default_value = <span class="string">&quot;[]&quot;</span>)]
+        </span>scenario_modifiers: ModifierList,
+        <span class="doccomment">/// Delete cancelled trips, and delete people with no remaining trips.
+        </span><span class="attribute">#[structopt(long)]
+        </span>delete_cancelled_trips: bool,
+        <span class="doccomment">/// A seed for generating random numbers
+        </span><span class="attribute">#[structopt(long, default_value = <span class="string">&quot;42&quot;</span>)]
+        </span>rng_seed: u64,
     },
-    <span class="doccomment">/// Clips an OSM file to a boundary. This is a simple Rust port of `osmium extract large_map.osm</span>
-    <span class="doccomment">/// -p clipping.poly -o smaller_map.osm`.</span>
-    <span class="ident">ClipOSM</span> {
-        <span class="doccomment">/// The path to the input .osm.pbf file</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">pbf_path</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">clip_path</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The path to write the XML results</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">out_path</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Clips an OSM file to a boundary. This is a simple Rust port of `osmium extract large_map.osm
+    /// -p clipping.poly -o smaller_map.osm`.
+    </span>ClipOSM {
+        <span class="doccomment">/// The path to the input .osm.pbf file
+        </span><span class="attribute">#[structopt(long)]
+        </span>pbf_path: String,
+        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon
+        </span><span class="attribute">#[structopt(long)]
+        </span>clip_path: String,
+        <span class="doccomment">/// The path to write the XML results
+        </span><span class="attribute">#[structopt(long)]
+        </span>out_path: String,
     },
-    <span class="doccomment">/// Import a scenario from https://github.com/asu-trans-ai-lab/grid2demand.</span>
-    <span class="ident">ImportGrid2Demand</span> {
-        <span class="doccomment">/// The path to a grid2demand CSV file</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">input</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The path to a map matching the grid2demand data</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">map</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Import a scenario from https://github.com/asu-trans-ai-lab/grid2demand.
+    </span>ImportGrid2Demand {
+        <span class="doccomment">/// The path to a grid2demand CSV file
+        </span><span class="attribute">#[structopt(long)]
+        </span>input: String,
+        <span class="doccomment">/// The path to a map matching the grid2demand data
+        </span><span class="attribute">#[structopt(long)]
+        </span>map: String,
     },
-    <span class="doccomment">/// Import a JSON scenario in the</span>
-    <span class="doccomment">/// https://a-b-street.github.io/docs/tech/dev/formats/scenarios.html format</span>
-    <span class="ident">ImportScenario</span> {
-        <span class="doccomment">/// The path to a JSON scenario file</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">input</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The path to a map matching the scenario data</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">map</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// Problems occur when a position is within the map boundary, but not close enough to</span>
-        <span class="doccomment">/// buildings. Skip people with problematic positions if true, abort otherwise.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">skip_problems</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Import a JSON scenario in the
+    /// https://a-b-street.github.io/docs/tech/dev/formats/scenarios.html format
+    </span>ImportScenario {
+        <span class="doccomment">/// The path to a JSON scenario file
+        </span><span class="attribute">#[structopt(long)]
+        </span>input: String,
+        <span class="doccomment">/// The path to a map matching the scenario data
+        </span><span class="attribute">#[structopt(long)]
+        </span>map: String,
+        <span class="doccomment">/// Problems occur when a position is within the map boundary, but not close enough to
+        /// buildings. Skip people with problematic positions if true, abort otherwise.
+        </span><span class="attribute">#[structopt(long)]
+        </span>skip_problems: bool,
     },
-    <span class="doccomment">/// Transform a JSON map that&#39;s been manually edited into the binary format suitable for</span>
-    <span class="doccomment">/// simulation.</span>
-    <span class="ident">ImportJSONMap</span> {
-        <span class="doccomment">/// The path to a JSON map file to import</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">input</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The path to write</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">output</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Transform a JSON map that&#39;s been manually edited into the binary format suitable for
+    /// simulation.
+    </span>ImportJSONMap {
+        <span class="doccomment">/// The path to a JSON map file to import
+        </span><span class="attribute">#[structopt(long)]
+        </span>input: String,
+        <span class="doccomment">/// The path to write
+        </span><span class="attribute">#[structopt(long)]
+        </span>output: String,
     },
-    <span class="doccomment">/// Removes nonessential parts of a Map, for the bike network tool.</span>
-    <span class="ident">MinifyMap</span> {
-        <span class="doccomment">/// The path to a map to shrink. The map is modified in-place.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-        <span class="ident">map</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Removes nonessential parts of a Map, for the bike network tool.
+    </span>MinifyMap {
+        <span class="doccomment">/// The path to a map to shrink. The map is modified in-place.
+        </span><span class="attribute">#[structopt()]
+        </span>map: String,
     },
-    <span class="doccomment">/// Procedurally generates houses along empty residential roads of a map</span>
-    <span class="ident">GenerateHouses</span> {
-        <span class="doccomment">/// The path to a map to generate houses for</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">map</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// If the tool doesn&#39;t generate at least this many houses, then fail. This can be used to</span>
-        <span class="doccomment">/// autodetect if a map probably already has most houses tagged in OSM.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">num_required</span>: <span class="ident">usize</span>,
-        <span class="doccomment">/// A seed for generating random numbers</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;42&quot;</span>)]</span>
-        <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
-        <span class="doccomment">/// The GeoJSON file to write</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">output</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Procedurally generates houses along empty residential roads of a map
+    </span>GenerateHouses {
+        <span class="doccomment">/// The path to a map to generate houses for
+        </span><span class="attribute">#[structopt(long)]
+        </span>map: String,
+        <span class="doccomment">/// If the tool doesn&#39;t generate at least this many houses, then fail. This can be used to
+        /// autodetect if a map probably already has most houses tagged in OSM.
+        </span><span class="attribute">#[structopt(long)]
+        </span>num_required: usize,
+        <span class="doccomment">/// A seed for generating random numbers
+        </span><span class="attribute">#[structopt(long, default_value = <span class="string">&quot;42&quot;</span>)]
+        </span>rng_seed: u64,
+        <span class="doccomment">/// The GeoJSON file to write
+        </span><span class="attribute">#[structopt(long)]
+        </span>output: String,
     },
-    <span class="doccomment">/// Prints the osm.pbf file from download.geofabrik.de that covers a given boundary.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is a useful tool when importing a new map, if you don&#39;t already know which geofabrik</span>
-    <span class="doccomment">/// file you should use as your OSM input.</span>
-    <span class="ident">PickGeofabrik</span> {
-        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon</span>
-        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-        <span class="ident">input</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Prints the osm.pbf file from download.geofabrik.de that covers a given boundary.
+    ///
+    /// This is a useful tool when importing a new map, if you don&#39;t already know which geofabrik
+    /// file you should use as your OSM input.
+    </span>PickGeofabrik {
+        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon
+        </span><span class="attribute">#[structopt()]
+        </span>input: String,
     },
-    <span class="doccomment">/// Imports a one-shot A/B Street map from a GeoJSON boundary in a single command.</span>
-    <span class="ident">OneStepImport</span> {
-        <span class="doccomment">/// The path to a GeoJSON file with a boundary</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">geojson_path</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// What to name the new imported map. The country will always be &quot;zz&quot; (a fake country</span>
-        <span class="doccomment">/// code), with the city as &quot;oneshot.&quot; This name shouldn&#39;t contain spaces or be empty.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">map_name</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// Do people drive on the left side of the road in this map?</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">drive_on_left</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">use_geofabrik</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Generate a simple travel demand model based on 2011 UK commuting data. This will only</span>
-        <span class="doccomment">/// work if the boundary is in the UK.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">create_uk_travel_demand_model</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// Imports a one-shot A/B Street map from a GeoJSON boundary in a single command.
+    </span>OneStepImport {
+        <span class="doccomment">/// The path to a GeoJSON file with a boundary
+        </span><span class="attribute">#[structopt(long)]
+        </span>geojson_path: String,
+        <span class="doccomment">/// What to name the new imported map. The country will always be &quot;zz&quot; (a fake country
+        /// code), with the city as &quot;oneshot.&quot; This name shouldn&#39;t contain spaces or be empty.
+        </span><span class="attribute">#[structopt(long)]
+        </span>map_name: String,
+        <span class="doccomment">/// Do people drive on the left side of the road in this map?
+        </span><span class="attribute">#[structopt(long)]
+        </span>drive_on_left: bool,
+        <span class="doccomment">/// Use Geofabrik to grab OSM input if true, or Overpass if false. Overpass is faster.
+        </span><span class="attribute">#[structopt(long)]
+        </span>use_geofabrik: bool,
+        <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
+        </span><span class="attribute">#[structopt(long)]
+        </span>filter_crosswalks: bool,
+        <span class="doccomment">/// Generate a simple travel demand model based on 2011 UK commuting data. This will only
+        /// work if the boundary is in the UK.
+        </span><span class="attribute">#[structopt(long)]
+        </span>create_uk_travel_demand_model: bool,
     },
-    <span class="doccomment">/// Imports a one-shot A/B Street map from an .osm file in a single command.</span>
-    <span class="ident">OneshotImport</span> {
-        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-        <span class="ident">osm_input</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon. If omitted, a boundary will be</span>
-        <span class="doccomment">/// derived from the .osm file, but borders will likely be broken or missing.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">clip_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// Do people drive on the left side of the road in this map?</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">drive_on_left</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
-        <span class="doccomment">/// Generate a simple travel demand model based on 2011 UK commuting data. This will only</span>
-        <span class="doccomment">/// work if the boundary is in the UK.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-        <span class="ident">create_uk_travel_demand_model</span>: <span class="ident">bool</span>,
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">opts</span>: <span class="ident">map_model::RawToMapOptions</span>,
+    <span class="doccomment">/// Imports a one-shot A/B Street map from an .osm file in a single command.
+    </span>OneshotImport {
+        <span class="attribute">#[structopt()]
+        </span>osm_input: String,
+        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon. If omitted, a boundary will be
+        /// derived from the .osm file, but borders will likely be broken or missing.
+        </span><span class="attribute">#[structopt(long)]
+        </span>clip_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+        <span class="doccomment">/// Do people drive on the left side of the road in this map?
+        </span><span class="attribute">#[structopt(long)]
+        </span>drive_on_left: bool,
+        <span class="doccomment">/// Downgrade crosswalks not matching a `highway=crossing` OSM node into unmarked crossings.
+        </span><span class="attribute">#[structopt(long)]
+        </span>filter_crosswalks: bool,
+        <span class="doccomment">/// Generate a simple travel demand model based on 2011 UK commuting data. This will only
+        /// work if the boundary is in the UK.
+        </span><span class="attribute">#[structopt(long)]
+        </span>create_uk_travel_demand_model: bool,
+        <span class="attribute">#[structopt(flatten)]
+        </span>opts: map_model::RawToMapOptions,
     },
-    <span class="doccomment">/// Regenerate all maps and scenarios from scratch.</span>
-    <span class="ident">RegenerateEverything</span> {
-        <span class="doccomment">/// If this command is being run in the cloud, parallelize the jobs by specifying which</span>
-        <span class="doccomment">/// shard this invocation should run.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;0&quot;</span>)]</span>
-        <span class="ident">shard_num</span>: <span class="ident">usize</span>,
-        <span class="doccomment">/// If this command is being run in the cloud, parallelize the jobs by specifying how many</span>
-        <span class="doccomment">/// total shards there are.</span>
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;1&quot;</span>)]</span>
-        <span class="ident">num_shards</span>: <span class="ident">usize</span>,
+    <span class="doccomment">/// Regenerate all maps and scenarios from scratch.
+    </span>RegenerateEverything {
+        <span class="doccomment">/// If this command is being run in the cloud, parallelize the jobs by specifying which
+        /// shard this invocation should run.
+        </span><span class="attribute">#[structopt(long, default_value = <span class="string">&quot;0&quot;</span>)]
+        </span>shard_num: usize,
+        <span class="doccomment">/// If this command is being run in the cloud, parallelize the jobs by specifying how many
+        /// total shards there are.
+        </span><span class="attribute">#[structopt(long, default_value = <span class="string">&quot;1&quot;</span>)]
+        </span>num_shards: usize,
     },
-    <span class="doccomment">/// Generate a shell script to regenerate all cities that uses an external task runner.</span>
-    <span class="ident">RegenerateEverythingExternally</span>,
-    <span class="doccomment">/// Import RawMaps, maps, scenarios, and city overviews for a single city.</span>
-    <span class="ident">Import</span> {
-        <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-        <span class="ident">job</span>: <span class="ident">Job</span>,
+    <span class="doccomment">/// Generate a shell script to regenerate all cities that uses an external task runner.
+    </span>RegenerateEverythingExternally,
+    <span class="doccomment">/// Import RawMaps, maps, scenarios, and city overviews for a single city.
+    </span>Import {
+        <span class="attribute">#[structopt(flatten)]
+        </span>job: Job,
     },
-    <span class="doccomment">/// Simulate a full day of a scenario, and write the &quot;prebaked results,&quot; so the UI can later be</span>
-    <span class="doccomment">/// used for A/B testing.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;prebake-scenario&quot;</span>)]</span>
-    <span class="ident">PrebakeScenario</span> {
-        <span class="doccomment">/// The path to a scenario file</span>
-        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-        <span class="ident">scenario_path</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Simulate a full day of a scenario, and write the &quot;prebaked results,&quot; so the UI can later be
+    /// used for A/B testing.
+    </span><span class="attribute">#[structopt(name = <span class="string">&quot;prebake-scenario&quot;</span>)]
+    </span>PrebakeScenario {
+        <span class="doccomment">/// The path to a scenario file
+        </span><span class="attribute">#[structopt()]
+        </span>scenario_path: String,
     },
 }
 
-<span class="comment">// See https://github.com/TeXitoi/structopt/issues/94</span>
-<span class="kw">type</span> <span class="ident">ModifierList</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">synthpop::ScenarioModifier</span><span class="op">&gt;</span>;
+<span class="comment">// See https://github.com/TeXitoi/structopt/issues/94
+</span><span class="kw">type </span>ModifierList = Vec&lt;synthpop::ScenarioModifier&gt;;
 
-<span class="kw">fn</span> <span class="ident">parse_modifiers</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ModifierList</span><span class="op">&gt;</span> {
-    <span class="ident">abstutil::from_json</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>())
+<span class="kw">fn </span>parse_modifiers(x: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ModifierList&gt; {
+    abstutil::from_json(<span class="kw-2">&amp;</span>x.to_string().into_bytes())
 }
 
-<span class="attribute">#[<span class="ident">tokio::main</span>]</span>
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">main</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">Command::from_args</span>();
+<span class="attribute">#[tokio::main]
+</span><span class="kw">async fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>cmd = Command::from_args();
 
-    <span class="comment">// All but a few commands want logging</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="macro">matches!</span>(
-        <span class="ident">cmd</span>,
-        <span class="ident">Command::DumpJSON</span> { .. } <span class="op">|</span> <span class="ident">Command::PickGeofabrik</span> { .. },
+    <span class="comment">// All but a few commands want logging
+    </span><span class="kw">if </span>!<span class="macro">matches!</span>(
+        cmd,
+        Command::DumpJSON { .. } | Command::PickGeofabrik { .. },
     ) {
-        <span class="ident">abstutil::logger::setup</span>();
+        abstutil::logger::setup();
     }
 
-    <span class="comment">// Short implementations can stay in this file, but please split larger subcommands to their</span>
-    <span class="comment">// own module.</span>
-    <span class="kw">match</span> <span class="ident">Command::from_args</span>() {
-        <span class="ident">Command::DumpJSON</span> { <span class="ident">path</span> } =&gt; <span class="ident">dump_json</span>(<span class="ident">path</span>),
-        <span class="ident">Command::RandomScenario</span> {
-            <span class="ident">rng_seed</span>,
-            <span class="ident">map</span>,
-            <span class="ident">scenario_name</span>,
-        } =&gt; <span class="ident">random_scenario</span>(<span class="ident">rng_seed</span>, <span class="ident">map</span>, <span class="ident">scenario_name</span>),
-        <span class="ident">Command::AugmentScenario</span> {
-            <span class="ident">input_scenario</span>,
-            <span class="ident">add_return_trips</span>,
-            <span class="ident">add_lunch_trips</span>,
-            <span class="ident">scenario_modifiers</span>,
-            <span class="ident">delete_cancelled_trips</span>,
-            <span class="ident">rng_seed</span>,
-        } =&gt; <span class="ident">augment_scenario::run</span>(
-            <span class="ident">input_scenario</span>,
-            <span class="ident">add_return_trips</span>,
-            <span class="ident">add_lunch_trips</span>,
-            <span class="ident">scenario_modifiers</span>,
-            <span class="ident">delete_cancelled_trips</span>,
-            <span class="ident">rng_seed</span>,
+    <span class="comment">// Short implementations can stay in this file, but please split larger subcommands to their
+    // own module.
+    </span><span class="kw">match </span>Command::from_args() {
+        Command::DumpJSON { path } =&gt; dump_json(path),
+        Command::RandomScenario {
+            rng_seed,
+            map,
+            scenario_name,
+        } =&gt; random_scenario(rng_seed, map, scenario_name),
+        Command::AugmentScenario {
+            input_scenario,
+            add_return_trips,
+            add_lunch_trips,
+            scenario_modifiers,
+            delete_cancelled_trips,
+            rng_seed,
+        } =&gt; augment_scenario::run(
+            input_scenario,
+            add_return_trips,
+            add_lunch_trips,
+            scenario_modifiers,
+            delete_cancelled_trips,
+            rng_seed,
         ),
-        <span class="ident">Command::ClipOSM</span> {
-            <span class="ident">pbf_path</span>,
-            <span class="ident">clip_path</span>,
-            <span class="ident">out_path</span>,
-        } =&gt; <span class="ident">clip_osm::run</span>(<span class="ident">pbf_path</span>, <span class="ident">clip_path</span>, <span class="ident">out_path</span>)<span class="question-mark">?</span>,
-        <span class="ident">Command::ImportGrid2Demand</span> { <span class="ident">input</span>, <span class="ident">map</span> } =&gt; <span class="ident">import_grid2demand::run</span>(<span class="ident">input</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-        <span class="ident">Command::ImportScenario</span> {
-            <span class="ident">input</span>,
-            <span class="ident">map</span>,
-            <span class="ident">skip_problems</span>,
-        } =&gt; <span class="ident">import_scenario::run</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">skip_problems</span>),
-        <span class="ident">Command::ImportJSONMap</span> { <span class="ident">input</span>, <span class="ident">output</span> } =&gt; <span class="ident">import_json_map</span>(<span class="ident">input</span>, <span class="ident">output</span>),
-        <span class="ident">Command::MinifyMap</span> { <span class="ident">map</span> } =&gt; <span class="ident">minify_map</span>(<span class="ident">map</span>),
-        <span class="ident">Command::GenerateHouses</span> {
-            <span class="ident">map</span>,
-            <span class="ident">num_required</span>,
-            <span class="ident">rng_seed</span>,
-            <span class="ident">output</span>,
-        } =&gt; <span class="ident">generate_houses::run</span>(<span class="ident">map</span>, <span class="ident">num_required</span>, <span class="ident">rng_seed</span>, <span class="ident">output</span>),
-        <span class="ident">Command::PickGeofabrik</span> { <span class="ident">input</span> } =&gt; {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">importer::pick_geofabrik</span>(<span class="ident">input</span>).<span class="kw">await</span><span class="question-mark">?</span>)
+        Command::ClipOSM {
+            pbf_path,
+            clip_path,
+            out_path,
+        } =&gt; clip_osm::run(pbf_path, clip_path, out_path)<span class="question-mark">?</span>,
+        Command::ImportGrid2Demand { input, map } =&gt; import_grid2demand::run(input, map)<span class="question-mark">?</span>,
+        Command::ImportScenario {
+            input,
+            map,
+            skip_problems,
+        } =&gt; import_scenario::run(input, map, skip_problems),
+        Command::ImportJSONMap { input, output } =&gt; import_json_map(input, output),
+        Command::MinifyMap { map } =&gt; minify_map(map),
+        Command::GenerateHouses {
+            map,
+            num_required,
+            rng_seed,
+            output,
+        } =&gt; generate_houses::run(map, num_required, rng_seed, output),
+        Command::PickGeofabrik { input } =&gt; {
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, importer::pick_geofabrik(input).<span class="kw">await</span><span class="question-mark">?</span>)
         }
-        <span class="ident">Command::OneStepImport</span> {
-            <span class="ident">geojson_path</span>,
-            <span class="ident">map_name</span>,
-            <span class="ident">drive_on_left</span>,
-            <span class="ident">use_geofabrik</span>,
-            <span class="ident">filter_crosswalks</span>,
-            <span class="ident">create_uk_travel_demand_model</span>,
+        Command::OneStepImport {
+            geojson_path,
+            map_name,
+            drive_on_left,
+            use_geofabrik,
+            filter_crosswalks,
+            create_uk_travel_demand_model,
         } =&gt; {
-            <span class="ident">one_step_import::run</span>(
-                <span class="ident">geojson_path</span>,
-                <span class="ident">map_name</span>,
-                <span class="ident">driving_side</span>(<span class="ident">drive_on_left</span>),
-                <span class="ident">use_geofabrik</span>,
-                <span class="ident">filter_crosswalks</span>,
-                <span class="ident">create_uk_travel_demand_model</span>,
+            one_step_import::run(
+                geojson_path,
+                map_name,
+                driving_side(drive_on_left),
+                use_geofabrik,
+                filter_crosswalks,
+                create_uk_travel_demand_model,
             )
-            .<span class="kw">await</span><span class="question-mark">?</span>
-        }
-        <span class="ident">Command::OneshotImport</span> {
-            <span class="ident">osm_input</span>,
-            <span class="ident">clip_path</span>,
-            <span class="ident">drive_on_left</span>,
-            <span class="ident">filter_crosswalks</span>,
-            <span class="ident">create_uk_travel_demand_model</span>,
-            <span class="ident">opts</span>,
+            .<span class="kw">await</span><span class="question-mark">?
+        </span>}
+        Command::OneshotImport {
+            osm_input,
+            clip_path,
+            drive_on_left,
+            filter_crosswalks,
+            create_uk_travel_demand_model,
+            opts,
         } =&gt; {
-            <span class="ident">importer::oneshot</span>(
-                <span class="ident">osm_input</span>,
-                <span class="ident">clip_path</span>,
-                <span class="ident">driving_side</span>(<span class="ident">drive_on_left</span>),
-                <span class="ident">filter_crosswalks</span>,
-                <span class="ident">create_uk_travel_demand_model</span>,
-                <span class="ident">opts</span>,
+            importer::oneshot(
+                osm_input,
+                clip_path,
+                driving_side(drive_on_left),
+                filter_crosswalks,
+                create_uk_travel_demand_model,
+                opts,
             )
-            .<span class="kw">await</span>
-        }
-        <span class="ident">Command::RegenerateEverything</span> {
-            <span class="ident">shard_num</span>,
-            <span class="ident">num_shards</span>,
-        } =&gt; <span class="ident">importer::regenerate_everything</span>(<span class="ident">shard_num</span>, <span class="ident">num_shards</span>).<span class="kw">await</span>,
-        <span class="ident">Command::RegenerateEverythingExternally</span> =&gt; <span class="ident">regenerate_everything_externally</span>()<span class="question-mark">?</span>,
-        <span class="ident">Command::Import</span> { <span class="ident">job</span> } =&gt; <span class="ident">job</span>.<span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
-        <span class="ident">Command::PrebakeScenario</span> { <span class="ident">scenario_path</span> } =&gt; <span class="ident">prebake_scenario</span>(<span class="ident">scenario_path</span>),
+            .<span class="kw">await
+        </span>}
+        Command::RegenerateEverything {
+            shard_num,
+            num_shards,
+        } =&gt; importer::regenerate_everything(shard_num, num_shards).<span class="kw">await</span>,
+        Command::RegenerateEverythingExternally =&gt; regenerate_everything_externally()<span class="question-mark">?</span>,
+        Command::Import { job } =&gt; job.run(<span class="kw-2">&amp;mut </span>Timer::new(<span class="string">&quot;import one city&quot;</span>)).<span class="kw">await</span>,
+        Command::PrebakeScenario { scenario_path } =&gt; prebake_scenario(scenario_path),
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">dump_json</span>(<span class="ident">path</span>: <span class="ident">String</span>) {
-    <span class="comment">// Just try to deserialize as different formats</span>
-    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span>
-            <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">map_model::Map</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
+<span class="kw">fn </span>dump_json(path: String) {
+    <span class="comment">// Just try to deserialize as different formats
+    </span><span class="kw">if </span>path.contains(<span class="string">&quot;/maps/&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(map) =
+            abstio::maybe_read_binary::&lt;map_model::Map&gt;(path.clone(), <span class="kw-2">&amp;mut </span>Timer::throwaway())
         {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>));
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(<span class="kw-2">&amp;</span>map));
             <span class="kw">return</span>;
         }
     }
-    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/raw_maps/&quot;</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span>
-            <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">raw_map::RawMap</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
+    <span class="kw">if </span>path.contains(<span class="string">&quot;/raw_maps/&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(map) =
+            abstio::maybe_read_binary::&lt;raw_map::RawMap&gt;(path.clone(), <span class="kw-2">&amp;mut </span>Timer::throwaway())
         {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>));
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(<span class="kw-2">&amp;</span>map));
             <span class="kw">return</span>;
         }
     }
-    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">scenario</span>) <span class="op">=</span>
-            <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">synthpop::Scenario</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
+    <span class="kw">if </span>path.contains(<span class="string">&quot;/scenarios/&quot;</span>) {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(scenario) =
+            abstio::maybe_read_binary::&lt;synthpop::Scenario&gt;(path.clone(), <span class="kw-2">&amp;mut </span>Timer::throwaway())
         {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>));
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(<span class="kw-2">&amp;</span>scenario));
             <span class="kw">return</span>;
         }
     }
     <span class="macro">panic!</span>(
         <span class="string">&quot;Don&#39;t know how to dump JSON for {}. Only maps, raw maps, and scenarios are supported.&quot;</span>,
-        <span class="ident">path</span>
+        path
     );
 }
 
-<span class="kw">fn</span> <span class="ident">random_scenario</span>(<span class="ident">rng_seed</span>: <span class="ident">u64</span>, <span class="ident">map</span>: <span class="ident">String</span>, <span class="ident">scenario_name</span>: <span class="ident">String</span>) {
-    <span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
-    <span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">fn </span>random_scenario(rng_seed: u64, map: String, scenario_name: String) {
+    <span class="kw">use </span>rand::SeedableRng;
+    <span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">rng_seed</span>);
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span>
-        <span class="ident">sim::ScenarioGenerator::proletariat_robot</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
-    <span class="ident">scenario</span>.<span class="ident">scenario_name</span> <span class="op">=</span> <span class="ident">scenario_name</span>;
-    <span class="ident">scenario</span>.<span class="ident">save</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(rng_seed);
+    <span class="kw">let </span>map = map_model::Map::load_synchronously(map, <span class="kw-2">&amp;mut </span>Timer::throwaway());
+    <span class="kw">let </span><span class="kw-2">mut </span>scenario =
+        sim::ScenarioGenerator::proletariat_robot(<span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;mut </span>Timer::throwaway());
+    scenario.scenario_name = scenario_name;
+    scenario.save();
     <span class="macro">println!</span>(
         <span class="string">&quot;Wrote {}&quot;</span>,
-        <span class="ident">abstio::path_scenario</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>.<span class="ident">map_name</span>, <span class="kw-2">&amp;</span><span class="ident">scenario</span>.<span class="ident">scenario_name</span>)
+        abstio::path_scenario(<span class="kw-2">&amp;</span>scenario.map_name, <span class="kw-2">&amp;</span>scenario.scenario_name)
     );
 }
 
-<span class="kw">fn</span> <span class="ident">import_json_map</span>(<span class="ident">input</span>: <span class="ident">String</span>, <span class="ident">output</span>: <span class="ident">String</span>) {
-    <span class="comment">// TODO This can&#39;t handle the output of dump_map! What?!</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span>: <span class="ident">map_model::Map</span> <span class="op">=</span> <span class="ident">abstio::read_json</span>(<span class="ident">input</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
-    <span class="ident">map</span>.<span class="ident">map_loaded_directly</span>(<span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
-    <span class="ident">abstio::write_binary</span>(<span class="ident">output</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>);
+<span class="kw">fn </span>import_json_map(input: String, output: String) {
+    <span class="comment">// TODO This can&#39;t handle the output of dump_map! What?!
+    </span><span class="kw">let </span><span class="kw-2">mut </span>map: map_model::Map = abstio::read_json(input, <span class="kw-2">&amp;mut </span>Timer::throwaway());
+    map.map_loaded_directly(<span class="kw-2">&amp;mut </span>Timer::throwaway());
+    abstio::write_binary(output, <span class="kw-2">&amp;</span>map);
 }
 
-<span class="kw">fn</span> <span class="ident">minify_map</span>(<span class="ident">path</span>: <span class="ident">String</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;minify map&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">path</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-    <span class="ident">map</span>.<span class="ident">minify</span>(<span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-    <span class="comment">// This also changes the name, so this won&#39;t overwrite anything</span>
-    <span class="ident">map</span>.<span class="ident">save</span>();
+<span class="kw">fn </span>minify_map(path: String) {
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;minify map&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>map = map_model::Map::load_synchronously(path, <span class="kw-2">&amp;mut </span>timer);
+    map.minify(<span class="kw-2">&amp;mut </span>timer);
+    <span class="comment">// This also changes the name, so this won&#39;t overwrite anything
+    </span>map.save();
 }
 
-<span class="kw">fn</span> <span class="ident">regenerate_everything_externally</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;regenerate.sh&quot;</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-    <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;#!/bin/sh&quot;</span>)<span class="question-mark">?</span>;
-    <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;set -e&quot;</span>)<span class="question-mark">?</span>;
-    <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;pueue parallel 16&quot;</span>)<span class="question-mark">?</span>;
-    <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">CityName::list_all_cities_from_importer_config</span>() {
-        <span class="kw">if</span> <span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>) {
-            <span class="comment">// Special case because there are so many maps</span>
-            <span class="kw">for</span> <span class="ident">map</span> <span class="kw">in</span> <span class="ident">city</span>.<span class="ident">list_all_maps_in_city_from_importer_config</span>() {
+<span class="kw">fn </span>regenerate_everything_externally() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>path = <span class="string">&quot;regenerate.sh&quot;</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>f = File::create(path)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(f, <span class="string">&quot;#!/bin/sh&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(f, <span class="string">&quot;set -e&quot;</span>)<span class="question-mark">?</span>;
+    <span class="macro">writeln!</span>(f, <span class="string">&quot;pueue parallel 16&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">for </span>city <span class="kw">in </span>CityName::list_all_cities_from_importer_config() {
+        <span class="kw">if </span>city == CityName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>) {
+            <span class="comment">// Special case because there are so many maps
+            </span><span class="kw">for </span>map <span class="kw">in </span>city.list_all_maps_in_city_from_importer_config() {
                 <span class="macro">writeln!</span>(
-                    <span class="ident">f</span>,
+                    f,
                     <span class="string">&quot;pueue add -- ./import.sh --raw --map --scenario {} --city=gb/london&quot;</span>,
-                    <span class="ident">map</span>.<span class="ident">map</span>
+                    map.map
                 )<span class="question-mark">?</span>;
             }
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">job</span> <span class="op">=</span> <span class="ident">Job::full_for_city</span>(<span class="ident">city</span>);
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;pueue add -- ./import.sh {}&quot;</span>, <span class="ident">job</span>.<span class="ident">flags</span>().<span class="ident">join</span>(<span class="string">&quot; &quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>job = Job::full_for_city(city);
+        <span class="macro">writeln!</span>(f, <span class="string">&quot;pueue add -- ./import.sh {}&quot;</span>, job.flags().join(<span class="string">&quot; &quot;</span>))<span class="question-mark">?</span>;
     }
     <span class="macro">println!</span>(<span class="string">&quot;&quot;</span>);
     <span class="macro">println!</span>(
         <span class="string">&quot;You can run {}. You&#39;ll need https://github.com/Nukesor/pueue set up first&quot;</span>,
-        <span class="ident">path</span>
+        path
     );
     <span class="macro">println!</span>(<span class="string">&quot;Handy reminders: pueue status / pause / reset&quot;</span>);
     <span class="macro">println!</span>(<span class="string">&quot;pueue status | grep Success | wc -l&quot;</span>);
@@ -862,19 +862,19 @@
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">prebake_scenario</span>(<span class="ident">path</span>: <span class="ident">String</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;prebake scenario&quot;</span>);
-    <span class="kw">let</span> <span class="ident">scenario</span>: <span class="ident">synthpop::Scenario</span> <span class="op">=</span> <span class="ident">abstio::must_read_object</span>(<span class="ident">path</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-    <span class="ident">sim::prebake::prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+<span class="kw">fn </span>prebake_scenario(path: String) {
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;prebake scenario&quot;</span>);
+    <span class="kw">let </span>scenario: synthpop::Scenario = abstio::must_read_object(path, <span class="kw-2">&amp;mut </span>timer);
+    <span class="kw">let </span>map = map_model::Map::load_synchronously(scenario.map_name.path(), <span class="kw-2">&amp;mut </span>timer);
+    sim::prebake::prebake(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>timer);
 }
 
-<span class="kw">fn</span> <span class="ident">driving_side</span>(<span class="ident">drive_on_left</span>: <span class="ident">bool</span>) -&gt; <span class="ident">map_model::DrivingSide</span> {
-    <span class="kw">if</span> <span class="ident">drive_on_left</span> {
-        <span class="ident">map_model::DrivingSide::Left</span>
-    } <span class="kw">else</span> {
-        <span class="ident">map_model::DrivingSide::Right</span>
+<span class="kw">fn </span>driving_side(drive_on_left: bool) -&gt; map_model::DrivingSide {
+    <span class="kw">if </span>drive_on_left {
+        map_model::DrivingSide::Left
+    } <span class="kw">else </span>{
+        map_model::DrivingSide::Right
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

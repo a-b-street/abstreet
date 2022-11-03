@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/parking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/parking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -401,408 +401,408 @@
 <span id="401">401</span>
 <span id="402">402</span>
 <span id="403">403</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::render::unzoomed_agent_radius</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">OffstreetParking</span>, <span class="ident">ParkingLotID</span>, <span class="ident">PathRequest</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ParkingSpot</span>, <span class="ident">VehicleType</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::ColorLegend</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
+<span class="kw">use </span>geom::{Circle, Distance, Duration, Pt2D, Time};
+<span class="kw">use </span>map_gui::render::unzoomed_agent_radius;
+<span class="kw">use </span>map_gui::tools::ColorNetwork;
+<span class="kw">use </span>map_model::{BuildingID, OffstreetParking, ParkingLotID, PathRequest, RoadID};
+<span class="kw">use </span>sim::{ParkingSpot, VehicleType};
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::tools::ColorLegend;
+<span class="kw">use </span>widgetry::{EventCtx, GfxCtx, Line, Outcome, Panel, Text, Toggle, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer</span>::{<span class="ident">header</span>, <span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>, <span class="ident">PANEL_PLACEMENT</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Occupancy</span> {
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">onstreet</span>: <span class="ident">bool</span>,
-    <span class="ident">garages</span>: <span class="ident">bool</span>,
-    <span class="ident">lots</span>: <span class="ident">bool</span>,
-    <span class="ident">private_bldgs</span>: <span class="ident">bool</span>,
-    <span class="ident">looking_for_parking</span>: <span class="ident">bool</span>,
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>Occupancy {
+    time: Time,
+    onstreet: bool,
+    garages: bool,
+    lots: bool,
+    private_bldgs: bool,
+    looking_for_parking: bool,
+    draw: ToggleZoomed,
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">Occupancy</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Layer <span class="kw">for </span>Occupancy {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="string">&quot;parking occupancy&quot;</span>)
     }
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Occupancy::new</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="self">self</span>.<span class="ident">onstreet</span>,
-                <span class="self">self</span>.<span class="ident">garages</span>,
-                <span class="self">self</span>.<span class="ident">lots</span>,
-                <span class="self">self</span>.<span class="ident">private_bldgs</span>,
-                <span class="self">self</span>.<span class="ident">looking_for_parking</span>,
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
+        <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
+            <span class="kw-2">*</span><span class="self">self </span>= Occupancy::new(
+                ctx,
+                app,
+                <span class="self">self</span>.onstreet,
+                <span class="self">self</span>.garages,
+                <span class="self">self</span>.lots,
+                <span class="self">self</span>.private_bldgs,
+                <span class="self">self</span>.looking_for_parking,
             );
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Close</span>);
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Occupancy::new</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;On-street spots&quot;</span>),
-                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Public garages&quot;</span>),
-                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Parking lots&quot;</span>),
-                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Private buildings&quot;</span>),
-                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Cars looking for parking&quot;</span>),
+            Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                <span class="kw-2">*</span><span class="self">self </span>= Occupancy::new(
+                    ctx,
+                    app,
+                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;On-street spots&quot;</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Public garages&quot;</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Parking lots&quot;</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Private buildings&quot;</span>),
+                    <span class="self">self</span>.panel.is_checked(<span class="string">&quot;Cars looking for parking&quot;</span>),
                 );
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.draw.draw(g);
     }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    }
-    <span class="kw">fn</span> <span class="ident">draw_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>);
+    <span class="kw">fn </span>draw_minimap(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw.unzoomed);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Occupancy</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">onstreet</span>: <span class="ident">bool</span>,
-        <span class="ident">garages</span>: <span class="ident">bool</span>,
-        <span class="ident">lots</span>: <span class="ident">bool</span>,
-        <span class="ident">private_bldgs</span>: <span class="ident">bool</span>,
-        <span class="ident">looking_for_parking</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Occupancy</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_ppl</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_car</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_all_people</span>() {
-            <span class="ident">total_ppl</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">vehicles</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Car</span>)
+<span class="kw">impl </span>Occupancy {
+    <span class="kw">pub fn </span>new(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        onstreet: bool,
+        garages: bool,
+        lots: bool,
+        private_bldgs: bool,
+        looking_for_parking: bool,
+    ) -&gt; Occupancy {
+        <span class="kw">let </span><span class="kw-2">mut </span>total_ppl = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>has_car = <span class="number">0</span>;
+        <span class="kw">for </span>p <span class="kw">in </span>app.primary.sim.get_all_people() {
+            total_ppl += <span class="number">1</span>;
+            <span class="kw">if </span>p.vehicles
+                .iter()
+                .any(|v| v.vehicle_type == VehicleType::Car)
             {
-                <span class="ident">has_car</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                has_car += <span class="number">1</span>;
             }
         }
 
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">infinite_parking</span>() {
-            <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Parking occupancy&quot;</span>),
-                <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(
+        <span class="kw">if </span>app.primary.sim.infinite_parking() {
+            <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                header(ctx, <span class="string">&quot;Parking occupancy&quot;</span>),
+                Text::from_multiline(<span class="macro">vec!</span>[
+                    Line(<span class="macro">format!</span>(
                         <span class="string">&quot;{:.0}% of the population owns a car&quot;</span>,
-                        <span class="kw">if</span> <span class="ident">total_ppl</span> <span class="op">==</span> <span class="number">0</span> {
-                            <span class="number">0.0</span>
-                        } <span class="kw">else</span> {
-                            <span class="number">100.0</span> <span class="op">*</span> (<span class="ident">has_car</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">total_ppl</span> <span class="kw">as</span> <span class="ident">f64</span>)
+                        <span class="kw">if </span>total_ppl == <span class="number">0 </span>{
+                            <span class="number">0.0
+                        </span>} <span class="kw">else </span>{
+                            <span class="number">100.0 </span>* (has_car <span class="kw">as </span>f64) / (total_ppl <span class="kw">as </span>f64)
                         }
                     )),
-                    <span class="ident">Line</span>(<span class="string">&quot;&quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;Parking simulation disabled.&quot;</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot;Every building has unlimited capacity.&quot;</span>).<span class="ident">secondary</span>(),
+                    Line(<span class="string">&quot;&quot;</span>),
+                    Line(<span class="string">&quot;Parking simulation disabled.&quot;</span>),
+                    Line(<span class="string">&quot;Every building has unlimited capacity.&quot;</span>).secondary(),
                 ])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                .into_widget(ctx),
             ]))
-            .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
-            <span class="kw">return</span> <span class="ident">Occupancy</span> {
-                <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-                <span class="ident">onstreet</span>: <span class="bool-val">false</span>,
-                <span class="ident">garages</span>: <span class="bool-val">false</span>,
-                <span class="ident">lots</span>: <span class="bool-val">false</span>,
-                <span class="ident">private_bldgs</span>: <span class="bool-val">false</span>,
-                <span class="ident">looking_for_parking</span>: <span class="bool-val">false</span>,
-                <span class="ident">draw</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
-                <span class="ident">panel</span>,
+            .aligned_pair(PANEL_PLACEMENT)
+            .build(ctx);
+            <span class="kw">return </span>Occupancy {
+                time: app.primary.sim.time(),
+                onstreet: <span class="bool-val">false</span>,
+                garages: <span class="bool-val">false</span>,
+                lots: <span class="bool-val">false</span>,
+                private_bldgs: <span class="bool-val">false</span>,
+                looking_for_parking: <span class="bool-val">false</span>,
+                draw: ToggleZoomed::empty(ctx),
+                panel,
             };
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filled_spots</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">avail_spots</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">keys</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>filled_spots = Counter::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>avail_spots = Counter::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>keys = BTreeSet::new();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">public_filled</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">public_avail</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">private_filled</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">private_avail</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>public_filled = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>public_avail = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>private_filled = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>private_avail = <span class="number">0</span>;
 
-        <span class="kw">let</span> (<span class="ident">all_filled_spots</span>, <span class="ident">all_avail_spots</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_all_parking_spots</span>();
+        <span class="kw">let </span>(all_filled_spots, all_avail_spots) = app.primary.sim.get_all_parking_spots();
 
-        <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">public_counter</span>, <span class="ident">private_counter</span>, <span class="ident">spots</span>) <span class="kw">in</span> <span class="macro">vec!</span>[
+        <span class="kw">for </span>(input, public_counter, private_counter, spots) <span class="kw">in </span><span class="macro">vec!</span>[
             (
-                <span class="ident">all_filled_spots</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">public_filled</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">private_filled</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">filled_spots</span>,
+                all_filled_spots,
+                <span class="kw-2">&amp;mut </span>public_filled,
+                <span class="kw-2">&amp;mut </span>private_filled,
+                <span class="kw-2">&amp;mut </span>filled_spots,
             ),
             (
-                <span class="ident">all_avail_spots</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">public_avail</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">private_avail</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">avail_spots</span>,
+                all_avail_spots,
+                <span class="kw-2">&amp;mut </span>public_avail,
+                <span class="kw-2">&amp;mut </span>private_avail,
+                <span class="kw-2">&amp;mut </span>avail_spots,
             ),
         ] {
-            <span class="kw">for</span> <span class="ident">spot</span> <span class="kw">in</span> <span class="ident">input</span> {
-                <span class="kw">match</span> <span class="ident">spot</span> {
-                    <span class="ident">ParkingSpot::Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">onstreet</span> {
+            <span class="kw">for </span>spot <span class="kw">in </span>input {
+                <span class="kw">match </span>spot {
+                    ParkingSpot::Onstreet(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                        <span class="kw">if </span>!onstreet {
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw-2">*</span><span class="ident">public_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                        <span class="kw-2">*</span>public_counter += <span class="number">1</span>;
                     }
-                    <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking::PublicGarage</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span>
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">parking</span>
+                    ParkingSpot::Offstreet(b, <span class="kw">_</span>) =&gt; {
+                        <span class="kw">if let </span>OffstreetParking::PublicGarage(<span class="kw">_</span>, <span class="kw">_</span>) =
+                            app.primary.map.get_b(b).parking
                         {
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">garages</span> {
+                            <span class="kw">if </span>!garages {
                                 <span class="kw">continue</span>;
                             }
-                            <span class="kw-2">*</span><span class="ident">public_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                        } <span class="kw">else</span> {
-                            <span class="kw">if</span> <span class="op">!</span><span class="ident">private_bldgs</span> {
+                            <span class="kw-2">*</span>public_counter += <span class="number">1</span>;
+                        } <span class="kw">else </span>{
+                            <span class="kw">if </span>!private_bldgs {
                                 <span class="kw">continue</span>;
                             }
-                            <span class="kw-2">*</span><span class="ident">private_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                            <span class="kw-2">*</span>private_counter += <span class="number">1</span>;
                         }
                     }
-                    <span class="ident">ParkingSpot::Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">lots</span> {
+                    ParkingSpot::Lot(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                        <span class="kw">if </span>!lots {
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw-2">*</span><span class="ident">public_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                        <span class="kw-2">*</span>public_counter += <span class="number">1</span>;
                     }
                 }
 
-                <span class="kw">let</span> <span class="ident">loc</span> <span class="op">=</span> <span class="ident">Loc::new</span>(<span class="ident">spot</span>);
-                <span class="ident">keys</span>.<span class="ident">insert</span>(<span class="ident">loc</span>);
-                <span class="ident">spots</span>.<span class="ident">inc</span>(<span class="ident">loc</span>);
+                <span class="kw">let </span>loc = Loc::new(spot);
+                keys.insert(loc);
+                spots.inc(loc);
             }
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Parking occupancy&quot;</span>),
-            <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            header(ctx, <span class="string">&quot;Parking occupancy&quot;</span>),
+            Text::from_multiline(<span class="macro">vec!</span>[
+                Line(<span class="macro">format!</span>(
                     <span class="string">&quot;{:.0}% of the population owns a car&quot;</span>,
-                    <span class="kw">if</span> <span class="ident">total_ppl</span> <span class="op">==</span> <span class="number">0</span> {
-                        <span class="number">0.0</span>
-                    } <span class="kw">else</span> {
-                        <span class="number">100.0</span> <span class="op">*</span> (<span class="ident">has_car</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">total_ppl</span> <span class="kw">as</span> <span class="ident">f64</span>)
+                    <span class="kw">if </span>total_ppl == <span class="number">0 </span>{
+                        <span class="number">0.0
+                    </span>} <span class="kw">else </span>{
+                        <span class="number">100.0 </span>* (has_car <span class="kw">as </span>f64) / (total_ppl <span class="kw">as </span>f64)
                     }
                 )),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+                Line(<span class="macro">format!</span>(
                     <span class="string">&quot;{} / {} public spots filled&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">public_filled</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">public_filled</span> <span class="op">+</span> <span class="ident">public_avail</span>)
+                    prettyprint_usize(public_filled),
+                    prettyprint_usize(public_filled + public_avail)
                 )),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+                Line(<span class="macro">format!</span>(
                     <span class="string">&quot;{} / {} private spots filled&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">private_filled</span>),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">private_filled</span> <span class="op">+</span> <span class="ident">private_avail</span>)
+                    prettyprint_usize(private_filled),
+                    prettyprint_usize(private_filled + private_avail)
                 )),
             ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;On-street spots&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">onstreet</span>),
-                <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Parking lots&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">lots</span>),
+            .into_widget(ctx),
+            Widget::row(<span class="macro">vec!</span>[
+                Toggle::switch(ctx, <span class="string">&quot;On-street spots&quot;</span>, <span class="prelude-val">None</span>, onstreet),
+                Toggle::switch(ctx, <span class="string">&quot;Parking lots&quot;</span>, <span class="prelude-val">None</span>, lots),
             ])
-            .<span class="ident">evenly_spaced</span>(),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Public garages&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">garages</span>),
-                <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Private buildings&quot;</span>, <span class="prelude-val">None</span>, <span class="ident">private_bldgs</span>),
+            .evenly_spaced(),
+            Widget::row(<span class="macro">vec!</span>[
+                Toggle::switch(ctx, <span class="string">&quot;Public garages&quot;</span>, <span class="prelude-val">None</span>, garages),
+                Toggle::switch(ctx, <span class="string">&quot;Private buildings&quot;</span>, <span class="prelude-val">None</span>, private_bldgs),
             ])
-            .<span class="ident">evenly_spaced</span>(),
-            <span class="ident">Toggle::colored_checkbox</span>(
-                <span class="ident">ctx</span>,
+            .evenly_spaced(),
+            Toggle::colored_checkbox(
+                ctx,
                 <span class="string">&quot;Cars looking for parking&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_trip</span>,
-                <span class="ident">looking_for_parking</span>,
+                app.cs.parking_trip,
+                looking_for_parking,
             ),
-            <span class="ident">ColorLegend::gradient</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>, <span class="macro">vec!</span>[<span class="string">&quot;0%&quot;</span>, <span class="string">&quot;100%&quot;</span>]),
+            ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">&quot;0%&quot;</span>, <span class="string">&quot;100%&quot;</span>]),
         ]))
-        .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .aligned_pair(PANEL_PLACEMENT)
+        .build(ctx);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::new</span>(<span class="ident">app</span>);
-        <span class="kw">for</span> <span class="ident">loc</span> <span class="kw">in</span> <span class="ident">keys</span> {
-            <span class="kw">let</span> <span class="ident">open</span> <span class="op">=</span> <span class="ident">avail_spots</span>.<span class="ident">get</span>(<span class="ident">loc</span>);
-            <span class="kw">let</span> <span class="ident">closed</span> <span class="op">=</span> <span class="ident">filled_spots</span>.<span class="ident">get</span>(<span class="ident">loc</span>);
-            <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> (<span class="ident">closed</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">open</span> <span class="op">+</span> <span class="ident">closed</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>.<span class="ident">eval</span>(<span class="ident">percent</span>);
-            <span class="kw">match</span> <span class="ident">loc</span> {
-                <span class="ident">Loc::Road</span>(<span class="ident">r</span>) =&gt; <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="ident">r</span>, <span class="ident">color</span>),
-                <span class="ident">Loc::Bldg</span>(<span class="ident">b</span>) =&gt; <span class="ident">colorer</span>.<span class="ident">add_b</span>(<span class="ident">b</span>, <span class="ident">color</span>),
-                <span class="ident">Loc::Lot</span>(<span class="ident">pl</span>) =&gt; <span class="ident">colorer</span>.<span class="ident">add_pl</span>(<span class="ident">pl</span>, <span class="ident">color</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorNetwork::new(app);
+        <span class="kw">for </span>loc <span class="kw">in </span>keys {
+            <span class="kw">let </span>open = avail_spots.get(loc);
+            <span class="kw">let </span>closed = filled_spots.get(loc);
+            <span class="kw">let </span>percent = (closed <span class="kw">as </span>f64) / ((open + closed) <span class="kw">as </span>f64);
+            <span class="kw">let </span>color = app.cs.good_to_bad_red.eval(percent);
+            <span class="kw">match </span>loc {
+                Loc::Road(r) =&gt; colorer.add_r(r, color),
+                Loc::Bldg(b) =&gt; colorer.add_b(b, color),
+                Loc::Lot(pl) =&gt; colorer.add_pl(pl, color),
             }
         }
 
-        <span class="kw">if</span> <span class="ident">looking_for_parking</span> {
-            <span class="comment">// A bit of copied code from draw_unzoomed_agents</span>
-            <span class="kw">let</span> <span class="ident">car_circle</span> <span class="op">=</span> <span class="ident">Circle::new</span>(
-                <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-                <span class="ident">unzoomed_agent_radius</span>(<span class="prelude-val">Some</span>(<span class="ident">VehicleType::Car</span>)),
+        <span class="kw">if </span>looking_for_parking {
+            <span class="comment">// A bit of copied code from draw_unzoomed_agents
+            </span><span class="kw">let </span>car_circle = Circle::new(
+                Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+                unzoomed_agent_radius(<span class="prelude-val">Some</span>(VehicleType::Car)),
             )
-            .<span class="ident">to_polygon</span>();
-            <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_unzoomed_agents</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-                <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">parking</span> {
-                    <span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_trip</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                        <span class="ident">car_circle</span>.<span class="ident">translate</span>(<span class="ident">a</span>.<span class="ident">pos</span>.<span class="ident">x</span>(), <span class="ident">a</span>.<span class="ident">pos</span>.<span class="ident">y</span>()),
+            .to_polygon();
+            <span class="kw">for </span>a <span class="kw">in </span>app.primary.sim.get_unzoomed_agents(<span class="kw-2">&amp;</span>app.primary.map) {
+                <span class="kw">if </span>a.parking {
+                    colorer.draw.unzoomed.push(
+                        app.cs.parking_trip.alpha(<span class="number">0.8</span>),
+                        car_circle.translate(a.pos.x(), a.pos.y()),
                     );
                 }
             }
         }
 
-        <span class="ident">Occupancy</span> {
-            <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">onstreet</span>,
-            <span class="ident">garages</span>,
-            <span class="ident">lots</span>,
-            <span class="ident">private_bldgs</span>,
-            <span class="ident">looking_for_parking</span>,
-            <span class="ident">draw</span>: <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">panel</span>,
+        Occupancy {
+            time: app.primary.sim.time(),
+            onstreet,
+            garages,
+            lots,
+            private_bldgs,
+            looking_for_parking,
+            draw: colorer.build(ctx),
+            panel,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Loc</span> {
-    <span class="ident">Road</span>(<span class="ident">RoadID</span>),
-    <span class="ident">Bldg</span>(<span class="ident">BuildingID</span>),
-    <span class="ident">Lot</span>(<span class="ident">ParkingLotID</span>),
+<span class="attribute">#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+</span><span class="kw">enum </span>Loc {
+    Road(RoadID),
+    Bldg(BuildingID),
+    Lot(ParkingLotID),
 }
 
-<span class="kw">impl</span> <span class="ident">Loc</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">spot</span>: <span class="ident">ParkingSpot</span>) -&gt; <span class="ident">Loc</span> {
-        <span class="kw">match</span> <span class="ident">spot</span> {
-            <span class="ident">ParkingSpot::Onstreet</span>(<span class="ident">l</span>, <span class="kw">_</span>) =&gt; <span class="ident">Loc::Road</span>(<span class="ident">l</span>.<span class="ident">road</span>),
-            <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; <span class="ident">Loc::Bldg</span>(<span class="ident">b</span>),
-            <span class="ident">ParkingSpot::Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) =&gt; <span class="ident">Loc::Lot</span>(<span class="ident">pl</span>),
+<span class="kw">impl </span>Loc {
+    <span class="kw">fn </span>new(spot: ParkingSpot) -&gt; Loc {
+        <span class="kw">match </span>spot {
+            ParkingSpot::Onstreet(l, <span class="kw">_</span>) =&gt; Loc::Road(l.road),
+            ParkingSpot::Offstreet(b, <span class="kw">_</span>) =&gt; Loc::Bldg(b),
+            ParkingSpot::Lot(pl, <span class="kw">_</span>) =&gt; Loc::Lot(pl),
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Efficiency</span> {
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>Efficiency {
+    time: Time,
+    draw: ToggleZoomed,
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">Efficiency</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Layer <span class="kw">for </span>Efficiency {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="string">&quot;parking efficiency&quot;</span>)
     }
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Efficiency::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
+        <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
+            <span class="kw-2">*</span><span class="self">self </span>= Efficiency::new(ctx, app);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Close</span>);
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.draw.draw(g);
     }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    }
-    <span class="kw">fn</span> <span class="ident">draw_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>);
+    <span class="kw">fn </span>draw_minimap(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw.unzoomed);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Efficiency</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Efficiency</span> {
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Parking efficiency&quot;</span>),
-            <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="string">&quot;How far away are people parked? (minutes)&quot;</span>).<span class="ident">secondary</span>())
-                .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">15</span>)
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ColorLegend::gradient</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>,
-                <span class="comment">// TODO Show a nonproportional scale? Most should be &lt; 1 min, a few &lt; 5 mins,</span>
-                <span class="comment">// rarely more than that.</span>
-                <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;10+&quot;</span>],
+<span class="kw">impl </span>Efficiency {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Efficiency {
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            header(ctx, <span class="string">&quot;Parking efficiency&quot;</span>),
+            Text::from(Line(<span class="string">&quot;How far away are people parked? (minutes)&quot;</span>).secondary())
+                .wrap_to_pct(ctx, <span class="number">15</span>)
+                .into_widget(ctx),
+            ColorLegend::gradient(
+                ctx,
+                <span class="kw-2">&amp;</span>app.cs.good_to_bad_red,
+                <span class="comment">// TODO Show a nonproportional scale? Most should be &lt; 1 min, a few &lt; 5 mins,
+                // rarely more than that.
+                </span><span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;3&quot;</span>, <span class="string">&quot;6&quot;</span>, <span class="string">&quot;10+&quot;</span>],
             ),
         ]))
-        .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .aligned_pair(PANEL_PLACEMENT)
+        .build(ctx);
 
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="comment">// TODO This is going to spam constantly while the sim is running! Probably cache per car.</span>
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;measure parking efficiency&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+        <span class="comment">// TODO This is going to spam constantly while the sim is running! Probably cache per car.
+        </span><span class="kw">let </span>draw = ctx.loading_screen(<span class="string">&quot;measure parking efficiency&quot;</span>, |ctx, timer| {
+            <span class="kw">let </span><span class="kw-2">mut </span>draw = ToggleZoomed::builder();
 
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;gather requests&quot;</span>);
-            <span class="kw">let</span> <span class="ident">requests</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">app</span>
-                .<span class="ident">primary</span>
-                .<span class="ident">sim</span>
-                .<span class="ident">all_parked_car_positions</span>(<span class="ident">map</span>)
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">start</span>, <span class="ident">end</span>)<span class="op">|</span> <span class="ident">PathRequest::walking</span>(<span class="ident">start</span>, <span class="ident">end</span>))
-                .<span class="ident">collect</span>();
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;gather requests&quot;</span>);
-            <span class="kw">for</span> (<span class="ident">car_pt</span>, <span class="ident">time</span>) <span class="kw">in</span> <span class="ident">timer</span>
-                .<span class="ident">parallelize</span>(<span class="string">&quot;calculate paths&quot;</span>, <span class="ident">requests</span>, <span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">car_pt</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">pt</span>(<span class="ident">map</span>);
-                    <span class="comment">// TODO Walking paths should really return some indication of &quot;zero length</span>
-                    <span class="comment">// path&quot; for this</span>
-                    <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span> <span class="op">==</span> <span class="ident">req</span>.<span class="ident">end</span> {
-                        <span class="prelude-val">Some</span>((<span class="ident">car_pt</span>, <span class="ident">Duration::ZERO</span>))
-                    } <span class="kw">else</span> {
-                        <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
+            timer.start(<span class="string">&quot;gather requests&quot;</span>);
+            <span class="kw">let </span>requests: Vec&lt;PathRequest&gt; = app
+                .primary
+                .sim
+                .all_parked_car_positions(map)
+                .into_iter()
+                .map(|(start, end)| PathRequest::walking(start, end))
+                .collect();
+            timer.stop(<span class="string">&quot;gather requests&quot;</span>);
+            <span class="kw">for </span>(car_pt, time) <span class="kw">in </span>timer
+                .parallelize(<span class="string">&quot;calculate paths&quot;</span>, requests, |req| {
+                    <span class="kw">let </span>car_pt = req.start.pt(map);
+                    <span class="comment">// TODO Walking paths should really return some indication of &quot;zero length
+                    // path&quot; for this
+                    </span><span class="kw">if </span>req.start == req.end {
+                        <span class="prelude-val">Some</span>((car_pt, Duration::ZERO))
+                    } <span class="kw">else </span>{
+                        map.pathfind(req).ok().map(|path| {
                             (
-                                <span class="ident">car_pt</span>,
-                                <span class="ident">path</span>.<span class="ident">estimate_duration</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>(<span class="ident">map_model::MAX_WALKING_SPEED</span>)),
+                                car_pt,
+                                path.estimate_duration(map, <span class="prelude-val">Some</span>(map_model::MAX_WALKING_SPEED)),
                             )
                         })
                     }
                 })
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">flatten</span>()
+                .into_iter()
+                .flatten()
             {
-                <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">cs</span>
-                    .<span class="ident">good_to_bad_red</span>
-                    .<span class="ident">eval</span>((<span class="ident">time</span> <span class="op">/</span> <span class="ident">Duration::minutes</span>(<span class="number">10</span>)).<span class="ident">min</span>(<span class="number">1.0</span>));
-                <span class="comment">// TODO Actual car shapes? At least cache the circle?</span>
-                <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                    <span class="ident">color</span>,
-                    <span class="ident">Circle::new</span>(<span class="ident">car_pt</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>)).<span class="ident">to_polygon</span>(),
+                <span class="kw">let </span>color = app
+                    .cs
+                    .good_to_bad_red
+                    .eval((time / Duration::minutes(<span class="number">10</span>)).min(<span class="number">1.0</span>));
+                <span class="comment">// TODO Actual car shapes? At least cache the circle?
+                </span>draw.unzoomed.push(
+                    color,
+                    Circle::new(car_pt, Distance::meters(<span class="number">5.0</span>)).to_polygon(),
                 );
-                <span class="ident">draw</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-                    <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                    <span class="ident">Circle::new</span>(<span class="ident">car_pt</span>, <span class="ident">Distance::meters</span>(<span class="number">2.0</span>)).<span class="ident">to_polygon</span>(),
+                draw.zoomed.push(
+                    color.alpha(<span class="number">0.5</span>),
+                    Circle::new(car_pt, Distance::meters(<span class="number">2.0</span>)).to_polygon(),
                 );
             }
-            <span class="ident">draw</span>.<span class="ident">build</span>(<span class="ident">ctx</span>)
+            draw.build(ctx)
         });
 
-        <span class="ident">Efficiency</span> {
-            <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">draw</span>,
-            <span class="ident">panel</span>,
+        Efficiency {
+            time: app.primary.sim.time(),
+            draw,
+            panel,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

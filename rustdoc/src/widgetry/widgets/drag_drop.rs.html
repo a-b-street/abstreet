@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/drag_drop.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>drag_drop.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/drag_drop.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>drag_drop.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -359,366 +359,366 @@
 <span id="359">359</span>
 <span id="360">360</span>
 <span id="361">361</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>,
-    <span class="ident">ScreenRectangle</span>, <span class="ident">StackAlignment</span>, <span class="ident">StackAxis</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{
+    Drawable, EventCtx, GeomBatch, GeomBatchStack, GfxCtx, Outcome, ScreenDims, ScreenPt,
+    ScreenRectangle, StackAlignment, StackAxis, Widget, WidgetImpl, WidgetOutput,
 };
 
-<span class="kw">const</span> <span class="ident">SPACE_BETWEEN_CARDS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
+<span class="kw">const </span>SPACE_BETWEEN_CARDS: f64 = <span class="number">2.0</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span><span class="op">&gt;</span> {
-    <span class="ident">label</span>: <span class="ident">String</span>,
-    <span class="ident">cards</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Card</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
-    <span class="ident">state</span>: <span class="ident">State</span>,
-    <span class="ident">axis</span>: <span class="ident">StackAxis</span>,
-    <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
-    <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>,
+<span class="kw">pub struct </span>DragDrop&lt;T: Copy + PartialEq&gt; {
+    label: String,
+    cards: Vec&lt;Card&lt;T&gt;&gt;,
+    draw: Drawable,
+    state: State,
+    axis: StackAxis,
+    dims: ScreenDims,
+    top_left: ScreenPt,
 }
 
-<span class="kw">struct</span> <span class="ident">Card</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">PartialEq</span><span class="op">&gt;</span> {
-    <span class="ident">value</span>: <span class="ident">T</span>,
-    <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
-    <span class="ident">default_batch</span>: <span class="ident">GeomBatch</span>,
-    <span class="ident">hovering_batch</span>: <span class="ident">GeomBatch</span>,
-    <span class="ident">selected_batch</span>: <span class="ident">GeomBatch</span>,
+<span class="kw">struct </span>Card&lt;T: PartialEq&gt; {
+    value: T,
+    dims: ScreenDims,
+    default_batch: GeomBatch,
+    hovering_batch: GeomBatch,
+    selected_batch: GeomBatch,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">State</span> {
-    <span class="ident">Initial</span> {
-        <span class="ident">hovering</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-        <span class="ident">selected</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">enum </span>State {
+    Initial {
+        hovering: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+        selected: <span class="prelude-ty">Option</span>&lt;usize&gt;,
     },
-    <span class="ident">Idle</span> {
-        <span class="ident">hovering</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-        <span class="ident">selected</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    Idle {
+        hovering: <span class="prelude-ty">Option</span>&lt;usize&gt;,
+        selected: <span class="prelude-ty">Option</span>&lt;usize&gt;,
     },
-    <span class="ident">Dragging</span> {
-        <span class="ident">orig_idx</span>: <span class="ident">usize</span>,
-        <span class="ident">drag_from</span>: <span class="ident">ScreenPt</span>,
-        <span class="ident">cursor_at</span>: <span class="ident">ScreenPt</span>,
-        <span class="ident">new_idx</span>: <span class="ident">usize</span>,
+    Dragging {
+        orig_idx: usize,
+        drag_from: ScreenPt,
+        cursor_at: ScreenPt,
+        new_idx: usize,
     },
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span><span class="op">&gt;</span> <span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// This widget emits several events.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - `Outcome::Changed(label)` when a different card is selected or hovered on</span>
-    <span class="doccomment">/// - `Outcome::Changed(&quot;dragging &quot; + label)` while dragging, when the drop position of the</span>
-    <span class="doccomment">///    card changes. Call `get_dragging_state` to learn the indices.</span>
-    <span class="doccomment">/// - `Outcome::DragDropReleased` when a card is dropped</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// When you build a `Panel` containing one of these, you may need to call</span>
-    <span class="doccomment">/// `ignore_initial_events()`. If the cursor is hovering over a card when the panel is first</span>
-    <span class="doccomment">/// created, `Outcome::Changed` is immediately fired from this widget.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">axis</span>: <span class="ident">StackAxis</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">DragDrop</span> {
-            <span class="ident">label</span>: <span class="ident">label</span>.<span class="ident">to_string</span>(),
-            <span class="ident">cards</span>: <span class="macro">vec!</span>[],
-            <span class="ident">draw</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">state</span>: <span class="ident">State::Idle</span> {
-                <span class="ident">hovering</span>: <span class="prelude-val">None</span>,
-                <span class="ident">selected</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Copy + PartialEq&gt; DragDrop&lt;T&gt; {
+    <span class="doccomment">/// This widget emits several events.
+    ///
+    /// - `Outcome::Changed(label)` when a different card is selected or hovered on
+    /// - `Outcome::Changed(&quot;dragging &quot; + label)` while dragging, when the drop position of the
+    ///    card changes. Call `get_dragging_state` to learn the indices.
+    /// - `Outcome::DragDropReleased` when a card is dropped
+    ///
+    /// When you build a `Panel` containing one of these, you may need to call
+    /// `ignore_initial_events()`. If the cursor is hovering over a card when the panel is first
+    /// created, `Outcome::Changed` is immediately fired from this widget.
+    </span><span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;</span>EventCtx, label: <span class="kw-2">&amp;</span>str, axis: StackAxis) -&gt; <span class="self">Self </span>{
+        DragDrop {
+            label: label.to_string(),
+            cards: <span class="macro">vec!</span>[],
+            draw: Drawable::empty(ctx),
+            state: State::Idle {
+                hovering: <span class="prelude-val">None</span>,
+                selected: <span class="prelude-val">None</span>,
             },
-            <span class="ident">axis</span>,
-            <span class="ident">dims</span>: <span class="ident">ScreenDims::zero</span>(),
-            <span class="ident">top_left</span>: <span class="ident">ScreenPt::zero</span>(),
+            axis,
+            dims: ScreenDims::zero(),
+            top_left: ScreenPt::zero(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="self">self</span>.<span class="ident">recalc_draw</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>();
-        <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="self">self</span>)).<span class="ident">named</span>(<span class="ident">label</span>)
+    <span class="kw">pub fn </span>into_widget(<span class="kw-2">mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        <span class="self">self</span>.recalc_draw(ctx);
+        <span class="kw">let </span>label = <span class="self">self</span>.label.clone();
+        Widget::new(Box::new(<span class="self">self</span>)).named(label)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">selected_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State::Initial</span> { <span class="ident">selected</span>, .. } <span class="op">|</span> <span class="ident">State::Idle</span> { <span class="ident">selected</span>, .. } =&gt; <span class="ident">selected</span>,
-            <span class="ident">State::Dragging</span> { <span class="ident">orig_idx</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">orig_idx</span>),
+    <span class="kw">pub fn </span>selected_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+        <span class="kw">let </span>idx = <span class="kw">match </span><span class="self">self</span>.state {
+            State::Initial { selected, .. } | State::Idle { selected, .. } =&gt; selected,
+            State::Dragging { orig_idx, .. } =&gt; <span class="prelude-val">Some</span>(orig_idx),
         }<span class="question-mark">?</span>;
 
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cards</span>[<span class="ident">idx</span>].<span class="ident">value</span>)
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cards[idx].value)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hovering_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State::Initial</span> { <span class="ident">hovering</span>, .. } <span class="op">|</span> <span class="ident">State::Idle</span> { <span class="ident">hovering</span>, .. } =&gt; <span class="ident">hovering</span>,
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">pub fn </span>hovering_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;T&gt; {
+        <span class="kw">let </span>idx = <span class="kw">match </span><span class="self">self</span>.state {
+            State::Initial { hovering, .. } | State::Idle { hovering, .. } =&gt; hovering,
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cards</span>[<span class="ident">idx</span>].<span class="ident">value</span>)
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.cards[idx].value)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_card</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">value</span>: <span class="ident">T</span>,
-        <span class="ident">dims</span>: <span class="ident">ScreenDims</span>,
-        <span class="ident">default_batch</span>: <span class="ident">GeomBatch</span>,
-        <span class="ident">hovering_batch</span>: <span class="ident">GeomBatch</span>,
-        <span class="ident">selected_batch</span>: <span class="ident">GeomBatch</span>,
+    <span class="kw">pub fn </span>push_card(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        value: T,
+        dims: ScreenDims,
+        default_batch: GeomBatch,
+        hovering_batch: GeomBatch,
+        selected_batch: GeomBatch,
     ) {
-        <span class="self">self</span>.<span class="ident">cards</span>.<span class="ident">push</span>(<span class="ident">Card</span> {
-            <span class="ident">value</span>,
-            <span class="ident">dims</span>,
-            <span class="ident">default_batch</span>,
-            <span class="ident">hovering_batch</span>,
-            <span class="ident">selected_batch</span>,
+        <span class="self">self</span>.cards.push(Card {
+            value,
+            dims,
+            default_batch,
+            hovering_batch,
+            selected_batch,
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_initial_state</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">selected_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">hovering_value</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">selected</span> <span class="op">=</span> <span class="ident">selected_value</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">selected_value</span><span class="op">|</span> {
-            <span class="self">self</span>.<span class="ident">cards</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">position</span>(<span class="op">|</span><span class="ident">card</span><span class="op">|</span> <span class="ident">card</span>.<span class="ident">value</span> <span class="op">==</span> <span class="ident">selected_value</span>)
+    <span class="kw">pub fn </span>set_initial_state(<span class="kw-2">&amp;mut </span><span class="self">self</span>, selected_value: <span class="prelude-ty">Option</span>&lt;T&gt;, hovering_value: <span class="prelude-ty">Option</span>&lt;T&gt;) {
+        <span class="kw">let </span>selected = selected_value.and_then(|selected_value| {
+            <span class="self">self</span>.cards
+                .iter()
+                .position(|card| card.value == selected_value)
         });
 
-        <span class="kw">let</span> <span class="ident">hovering</span> <span class="op">=</span> <span class="ident">hovering_value</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">hovering_value</span><span class="op">|</span> {
-            <span class="self">self</span>.<span class="ident">cards</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">position</span>(<span class="op">|</span><span class="ident">card</span><span class="op">|</span> <span class="ident">card</span>.<span class="ident">value</span> <span class="op">==</span> <span class="ident">hovering_value</span>)
+        <span class="kw">let </span>hovering = hovering_value.and_then(|hovering_value| {
+            <span class="self">self</span>.cards
+                .iter()
+                .position(|card| card.value == hovering_value)
         });
 
-        <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">State::Initial</span> { <span class="ident">selected</span>, <span class="ident">hovering</span> };
+        <span class="self">self</span>.state = State::Initial { selected, hovering };
     }
 
-    <span class="doccomment">/// If a card is currently being dragged, return its original and (potential) new index.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_dragging_state</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State::Dragging</span> {
-                <span class="ident">orig_idx</span>, <span class="ident">new_idx</span>, ..
-            } =&gt; <span class="prelude-val">Some</span>((<span class="ident">orig_idx</span>, <span class="ident">new_idx</span>)),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// If a card is currently being dragged, return its original and (potential) new index.
+    </span><span class="kw">pub fn </span>get_dragging_state(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, usize)&gt; {
+        <span class="kw">match </span><span class="self">self</span>.state {
+            State::Dragging {
+                orig_idx, new_idx, ..
+            } =&gt; <span class="prelude-val">Some</span>((orig_idx, new_idx)),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span><span class="op">&gt;</span> <span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">recalc_draw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack::from_axis</span>(<span class="ident">Vec::new</span>(), <span class="self">self</span>.<span class="ident">axis</span>);
-        <span class="ident">stack</span>.<span class="ident">set_spacing</span>(<span class="ident">SPACE_BETWEEN_CARDS</span>);
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Copy + PartialEq&gt; DragDrop&lt;T&gt; {
+    <span class="kw">fn </span>recalc_draw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) {
+        <span class="kw">let </span><span class="kw-2">mut </span>stack = GeomBatchStack::from_axis(Vec::new(), <span class="self">self</span>.axis);
+        stack.set_spacing(SPACE_BETWEEN_CARDS);
 
-        <span class="comment">// TODO: we could make alignment separately configurable, but these are the only</span>
-        <span class="comment">// combinations we currently use</span>
-        <span class="ident">stack</span>.<span class="ident">set_alignment</span>(<span class="kw">if</span> <span class="self">self</span>.<span class="ident">axis</span> <span class="op">==</span> <span class="ident">StackAxis::Vertical</span> {
-            <span class="ident">StackAlignment::Left</span>
-        } <span class="kw">else</span> {
-            <span class="ident">StackAlignment::Top</span>
+        <span class="comment">// TODO: we could make alignment separately configurable, but these are the only
+        // combinations we currently use
+        </span>stack.set_alignment(<span class="kw">if </span><span class="self">self</span>.axis == StackAxis::Vertical {
+            StackAlignment::Left
+        } <span class="kw">else </span>{
+            StackAlignment::Top
         });
 
-        <span class="kw">let</span> (<span class="ident">dims</span>, <span class="ident">batch</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State::Initial</span> { <span class="ident">hovering</span>, <span class="ident">selected</span> } <span class="op">|</span> <span class="ident">State::Idle</span> { <span class="ident">hovering</span>, <span class="ident">selected</span> } =&gt; {
-                <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">card</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">cards</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="kw">if</span> <span class="ident">selected</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) {
-                        <span class="ident">stack</span>.<span class="ident">push</span>(<span class="ident">card</span>.<span class="ident">selected_batch</span>.<span class="ident">clone</span>());
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">hovering</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) {
-                        <span class="ident">stack</span>.<span class="ident">push</span>(<span class="ident">card</span>.<span class="ident">hovering_batch</span>.<span class="ident">clone</span>());
-                    } <span class="kw">else</span> {
-                        <span class="ident">stack</span>.<span class="ident">push</span>(<span class="ident">card</span>.<span class="ident">default_batch</span>.<span class="ident">clone</span>());
+        <span class="kw">let </span>(dims, batch) = <span class="kw">match </span><span class="self">self</span>.state {
+            State::Initial { hovering, selected } | State::Idle { hovering, selected } =&gt; {
+                <span class="kw">for </span>(idx, card) <span class="kw">in </span><span class="self">self</span>.cards.iter().enumerate() {
+                    <span class="kw">if </span>selected == <span class="prelude-val">Some</span>(idx) {
+                        stack.push(card.selected_batch.clone());
+                    } <span class="kw">else if </span>hovering == <span class="prelude-val">Some</span>(idx) {
+                        stack.push(card.hovering_batch.clone());
+                    } <span class="kw">else </span>{
+                        stack.push(card.default_batch.clone());
                     }
                 }
-                <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">stack</span>.<span class="ident">batch</span>();
-                (<span class="ident">batch</span>.<span class="ident">get_dims</span>(), <span class="ident">batch</span>)
+                <span class="kw">let </span>batch = stack.batch();
+                (batch.get_dims(), batch)
             }
-            <span class="ident">State::Dragging</span> {
-                <span class="ident">orig_idx</span>,
-                <span class="ident">drag_from</span>,
-                <span class="ident">cursor_at</span>,
-                <span class="ident">new_idx</span>,
+            State::Dragging {
+                orig_idx,
+                drag_from,
+                cursor_at,
+                new_idx,
             } =&gt; {
-                <span class="kw">let</span> <span class="ident">orig_dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cards</span>[<span class="ident">orig_idx</span>].<span class="ident">dims</span>;
+                <span class="kw">let </span>orig_dims = <span class="self">self</span>.cards[orig_idx].dims;
 
-                <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">card</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">cards</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                    <span class="comment">// the target we&#39;re dragging</span>
-                    <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">orig_idx</span> {
-                        <span class="ident">card</span>.<span class="ident">selected_batch</span>.<span class="ident">clone</span>()
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">new_idx</span> <span class="op">&amp;&amp;</span> <span class="ident">idx</span> <span class="op">&gt;</span> <span class="ident">orig_idx</span> {
-                        <span class="comment">// move batch to the left or top if target is newly greater than us</span>
-                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">axis</span> {
-                            <span class="ident">StackAxis::Horizontal</span> =&gt; <span class="ident">card</span>
-                                .<span class="ident">default_batch</span>
-                                .<span class="ident">clone</span>()
-                                .<span class="ident">translate</span>(<span class="op">-</span>(<span class="ident">orig_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">SPACE_BETWEEN_CARDS</span>), <span class="number">0.0</span>),
-                            <span class="ident">StackAxis::Vertical</span> =&gt; <span class="ident">card</span>
-                                .<span class="ident">default_batch</span>
-                                .<span class="ident">clone</span>()
-                                .<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="op">-</span>(<span class="ident">orig_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">SPACE_BETWEEN_CARDS</span>)),
+                <span class="kw">for </span>(idx, card) <span class="kw">in </span><span class="self">self</span>.cards.iter().enumerate() {
+                    <span class="comment">// the target we&#39;re dragging
+                    </span><span class="kw">let </span>batch = <span class="kw">if </span>idx == orig_idx {
+                        card.selected_batch.clone()
+                    } <span class="kw">else if </span>idx &lt;= new_idx &amp;&amp; idx &gt; orig_idx {
+                        <span class="comment">// move batch to the left or top if target is newly greater than us
+                        </span><span class="kw">match </span><span class="self">self</span>.axis {
+                            StackAxis::Horizontal =&gt; card
+                                .default_batch
+                                .clone()
+                                .translate(-(orig_dims.width + SPACE_BETWEEN_CARDS), <span class="number">0.0</span>),
+                            StackAxis::Vertical =&gt; card
+                                .default_batch
+                                .clone()
+                                .translate(<span class="number">0.0</span>, -(orig_dims.height + SPACE_BETWEEN_CARDS)),
                         }
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">new_idx</span> <span class="op">&amp;&amp;</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="ident">orig_idx</span> {
-                        <span class="comment">// move batch to the right or bottom if target is newly less than us</span>
-                        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">axis</span> {
-                            <span class="ident">StackAxis::Horizontal</span> =&gt; <span class="ident">card</span>
-                                .<span class="ident">default_batch</span>
-                                .<span class="ident">clone</span>()
-                                .<span class="ident">translate</span>(<span class="ident">orig_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">SPACE_BETWEEN_CARDS</span>, <span class="number">0.0</span>),
-                            <span class="ident">StackAxis::Vertical</span> =&gt; <span class="ident">card</span>
-                                .<span class="ident">default_batch</span>
-                                .<span class="ident">clone</span>()
-                                .<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="ident">orig_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">SPACE_BETWEEN_CARDS</span>),
+                    } <span class="kw">else if </span>idx &gt;= new_idx &amp;&amp; idx &lt; orig_idx {
+                        <span class="comment">// move batch to the right or bottom if target is newly less than us
+                        </span><span class="kw">match </span><span class="self">self</span>.axis {
+                            StackAxis::Horizontal =&gt; card
+                                .default_batch
+                                .clone()
+                                .translate(orig_dims.width + SPACE_BETWEEN_CARDS, <span class="number">0.0</span>),
+                            StackAxis::Vertical =&gt; card
+                                .default_batch
+                                .clone()
+                                .translate(<span class="number">0.0</span>, orig_dims.height + SPACE_BETWEEN_CARDS),
                         }
-                    } <span class="kw">else</span> {
-                        <span class="ident">card</span>.<span class="ident">default_batch</span>.<span class="ident">clone</span>()
+                    } <span class="kw">else </span>{
+                        card.default_batch.clone()
                     };
 
-                    <span class="ident">stack</span>.<span class="ident">push</span>(<span class="ident">batch</span>);
+                    stack.push(batch);
                 }
 
-                <span class="comment">// PERF: avoid this clone by implementing a non-consuming `stack.get_dims()`.</span>
-                <span class="comment">// At the moment it seems like not a big deal to just clone the thing</span>
-                <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">stack</span>.<span class="ident">clone</span>().<span class="ident">batch</span>().<span class="ident">get_dims</span>();
+                <span class="comment">// PERF: avoid this clone by implementing a non-consuming `stack.get_dims()`.
+                // At the moment it seems like not a big deal to just clone the thing
+                </span><span class="kw">let </span>dims = stack.clone().batch().get_dims();
 
-                <span class="comment">// The dragged batch follows the cursor, but don&#39;t translate it until we&#39;ve captured</span>
-                <span class="comment">// the pre-existing `dims`, otherwise the dragged position will be included in the</span>
-                <span class="comment">// overall dims of this widget, causing other screen content to shift around as we</span>
-                <span class="comment">// drag.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dragged_batch</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="ident">stack</span>.<span class="ident">get_mut</span>(<span class="ident">orig_idx</span>).<span class="ident">unwrap</span>());
+                <span class="comment">// The dragged batch follows the cursor, but don&#39;t translate it until we&#39;ve captured
+                // the pre-existing `dims`, otherwise the dragged position will be included in the
+                // overall dims of this widget, causing other screen content to shift around as we
+                // drag.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>dragged_batch = std::mem::take(stack.get_mut(orig_idx).unwrap());
 
-                <span class="comment">// offset the dragged item just a little to initially hint that it&#39;s moveable</span>
-                <span class="kw">let</span> <span class="ident">floating_effect_offset</span> <span class="op">=</span> <span class="number">4.0</span>;
-                <span class="ident">dragged_batch</span> <span class="op">=</span> <span class="ident">dragged_batch</span>
-                    .<span class="ident">translate</span>(
-                        <span class="ident">cursor_at</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">drag_from</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">floating_effect_offset</span>,
-                        <span class="ident">cursor_at</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">drag_from</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">floating_effect_offset</span>,
+                <span class="comment">// offset the dragged item just a little to initially hint that it&#39;s moveable
+                </span><span class="kw">let </span>floating_effect_offset = <span class="number">4.0</span>;
+                dragged_batch = dragged_batch
+                    .translate(
+                        cursor_at.x - drag_from.x + floating_effect_offset,
+                        cursor_at.y - drag_from.y - floating_effect_offset,
                     )
-                    .<span class="ident">set_z_offset</span>(<span class="op">-</span><span class="number">0.1</span>);
-                <span class="kw-2">*</span><span class="ident">stack</span>.<span class="ident">get_mut</span>(<span class="ident">orig_idx</span>).<span class="ident">unwrap</span>() <span class="op">=</span> <span class="ident">dragged_batch</span>;
+                    .set_z_offset(-<span class="number">0.1</span>);
+                <span class="kw-2">*</span>stack.get_mut(orig_idx).unwrap() = dragged_batch;
 
-                (<span class="ident">dims</span>, <span class="ident">stack</span>.<span class="ident">batch</span>())
+                (dims, stack.batch())
             }
         };
-        <span class="self">self</span>.<span class="ident">dims</span> <span class="op">=</span> <span class="ident">dims</span>;
-        <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.dims = dims;
+        <span class="self">self</span>.draw = batch.upload(ctx);
     }
 
-    <span class="kw">fn</span> <span class="ident">mouseover_card</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_left</span>;
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">Card</span> { <span class="ident">dims</span>, .. }) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">cards</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">ScreenRectangle::top_left</span>(<span class="ident">top_left</span>, <span class="kw-2">*</span><span class="ident">dims</span>).<span class="ident">contains</span>(<span class="ident">pt</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>);
+    <span class="kw">fn </span>mouseover_card(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;usize&gt; {
+        <span class="kw">let </span>pt = ctx.canvas.get_cursor_in_screen_space()<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>top_left = <span class="self">self</span>.top_left;
+        <span class="kw">for </span>(idx, Card { dims, .. }) <span class="kw">in </span><span class="self">self</span>.cards.iter().enumerate() {
+            <span class="kw">if </span>ScreenRectangle::top_left(top_left, <span class="kw-2">*</span>dims).contains(pt) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(idx);
             }
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">axis</span> {
-                <span class="ident">StackAxis::Horizontal</span> =&gt; {
-                    <span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">SPACE_BETWEEN_CARDS</span>;
+            <span class="kw">match </span><span class="self">self</span>.axis {
+                StackAxis::Horizontal =&gt; {
+                    top_left.x += dims.width + SPACE_BETWEEN_CARDS;
                 }
-                <span class="ident">StackAxis::Vertical</span> =&gt; {
-                    <span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">SPACE_BETWEEN_CARDS</span>;
+                StackAxis::Vertical =&gt; {
+                    top_left.y += dims.height + SPACE_BETWEEN_CARDS;
                 }
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialEq</span><span class="op">&gt;</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">dims</span>
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Copy + PartialEq&gt; WidgetImpl <span class="kw">for </span>DragDrop&lt;T&gt; {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="self">self</span>.dims
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
-        <span class="self">self</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">top_left</span>;
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+        <span class="self">self</span>.top_left = top_left;
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="kw">let</span> <span class="ident">new_state</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State::Initial</span> { <span class="ident">selected</span>, <span class="ident">hovering</span> } =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mouseover_card</span>(<span class="ident">ctx</span>) {
-                    <span class="kw">if</span> <span class="ident">hovering</span> <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) {
-                        <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, output: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="kw">let </span>new_state = <span class="kw">match </span><span class="self">self</span>.state {
+            State::Initial { selected, hovering } =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = <span class="self">self</span>.mouseover_card(ctx) {
+                    <span class="kw">if </span>hovering != <span class="prelude-val">Some</span>(idx) {
+                        output.outcome = Outcome::Changed(<span class="self">self</span>.label.clone());
                     }
-                    <span class="ident">State::Idle</span> {
-                        <span class="ident">hovering</span>: <span class="prelude-val">Some</span>(<span class="ident">idx</span>),
-                        <span class="ident">selected</span>,
+                    State::Idle {
+                        hovering: <span class="prelude-val">Some</span>(idx),
+                        selected,
                     }
-                } <span class="kw">else</span> {
-                    <span class="comment">// Keep the initial state, which reflects hovering/selection from interacting</span>
-                    <span class="comment">// with the lanes on the map.</span>
-                    <span class="kw">return</span>;
+                } <span class="kw">else </span>{
+                    <span class="comment">// Keep the initial state, which reflects hovering/selection from interacting
+                    // with the lanes on the map.
+                    </span><span class="kw">return</span>;
                 }
             }
-            <span class="ident">State::Idle</span> { <span class="ident">hovering</span>, <span class="ident">selected</span> } =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">mouseover_card</span>(<span class="ident">ctx</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() =&gt; {
-                    <span class="kw">let</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>().<span class="ident">unwrap</span>();
-                    <span class="ident">State::Dragging</span> {
-                        <span class="ident">orig_idx</span>: <span class="ident">idx</span>,
-                        <span class="ident">drag_from</span>: <span class="ident">cursor</span>,
-                        <span class="ident">cursor_at</span>: <span class="ident">cursor</span>,
-                        <span class="ident">new_idx</span>: <span class="ident">idx</span>,
+            State::Idle { hovering, selected } =&gt; <span class="kw">match </span><span class="self">self</span>.mouseover_card(ctx) {
+                <span class="prelude-val">Some</span>(idx) <span class="kw">if </span>ctx.input.left_mouse_button_pressed() =&gt; {
+                    <span class="kw">let </span>cursor = ctx.canvas.get_cursor_in_screen_space().unwrap();
+                    State::Dragging {
+                        orig_idx: idx,
+                        drag_from: cursor,
+                        cursor_at: cursor,
+                        new_idx: idx,
                     }
                 }
-                <span class="ident">maybe_idx</span> =&gt; {
-                    <span class="kw">if</span> <span class="ident">hovering</span> <span class="op">!</span><span class="op">=</span> <span class="ident">maybe_idx</span> {
-                        <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
+                maybe_idx =&gt; {
+                    <span class="kw">if </span>hovering != maybe_idx {
+                        output.outcome = Outcome::Changed(<span class="self">self</span>.label.clone());
                     }
-                    <span class="ident">State::Idle</span> {
-                        <span class="ident">hovering</span>: <span class="ident">maybe_idx</span>,
-                        <span class="ident">selected</span>,
+                    State::Idle {
+                        hovering: maybe_idx,
+                        selected,
                     }
                 }
             },
-            <span class="ident">State::Dragging</span> {
-                <span class="ident">orig_idx</span>,
-                <span class="ident">new_idx</span>,
-                <span class="ident">cursor_at</span>,
-                <span class="ident">drag_from</span>,
+            State::Dragging {
+                orig_idx,
+                new_idx,
+                cursor_at,
+                drag_from,
             } =&gt; {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-                    <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span>
-                        <span class="ident">Outcome::DragDropReleased</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>(), <span class="ident">orig_idx</span>, <span class="ident">new_idx</span>);
-                    <span class="kw">if</span> <span class="ident">orig_idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_idx</span> {
-                        <span class="kw">let</span> <span class="ident">item</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cards</span>.<span class="ident">remove</span>(<span class="ident">orig_idx</span>);
-                        <span class="self">self</span>.<span class="ident">cards</span>.<span class="ident">insert</span>(<span class="ident">new_idx</span>, <span class="ident">item</span>);
+                <span class="kw">if </span>ctx.input.left_mouse_button_released() {
+                    output.outcome =
+                        Outcome::DragDropReleased(<span class="self">self</span>.label.clone(), orig_idx, new_idx);
+                    <span class="kw">if </span>orig_idx != new_idx {
+                        <span class="kw">let </span>item = <span class="self">self</span>.cards.remove(orig_idx);
+                        <span class="self">self</span>.cards.insert(new_idx, item);
                     }
 
-                    <span class="ident">State::Idle</span> {
-                        <span class="ident">hovering</span>: <span class="prelude-val">Some</span>(<span class="ident">new_idx</span>),
-                        <span class="ident">selected</span>: <span class="prelude-val">Some</span>(<span class="ident">new_idx</span>),
+                    State::Idle {
+                        hovering: <span class="prelude-val">Some</span>(new_idx),
+                        selected: <span class="prelude-val">Some</span>(new_idx),
                     }
-                } <span class="kw">else</span> {
-                    <span class="comment">// TODO https://jqueryui.com/sortable/ only swaps once you cross the center of</span>
-                    <span class="comment">// the new card</span>
-                    <span class="kw">let</span> <span class="ident">updated_idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mouseover_card</span>(<span class="ident">ctx</span>).<span class="ident">unwrap_or</span>(<span class="ident">new_idx</span>);
-                    <span class="kw">if</span> <span class="ident">new_idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">updated_idx</span> {
-                        <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="macro">format!</span>(<span class="string">&quot;dragging {}&quot;</span>, <span class="self">self</span>.<span class="ident">label</span>));
+                } <span class="kw">else </span>{
+                    <span class="comment">// TODO https://jqueryui.com/sortable/ only swaps once you cross the center of
+                    // the new card
+                    </span><span class="kw">let </span>updated_idx = <span class="self">self</span>.mouseover_card(ctx).unwrap_or(new_idx);
+                    <span class="kw">if </span>new_idx != updated_idx {
+                        output.outcome = Outcome::Changed(<span class="macro">format!</span>(<span class="string">&quot;dragging {}&quot;</span>, <span class="self">self</span>.label));
                     }
 
-                    <span class="ident">State::Dragging</span> {
-                        <span class="ident">orig_idx</span>,
-                        <span class="ident">new_idx</span>: <span class="ident">updated_idx</span>,
-                        <span class="ident">cursor_at</span>: <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>().<span class="ident">unwrap_or</span>(<span class="ident">cursor_at</span>),
-                        <span class="ident">drag_from</span>,
+                    State::Dragging {
+                        orig_idx,
+                        new_idx: updated_idx,
+                        cursor_at: ctx.canvas.get_cursor_in_screen_space().unwrap_or(cursor_at),
+                        drag_from,
                     }
                 }
             }
         };
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">state</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_state</span> {
-            <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">new_state</span>;
-            <span class="self">self</span>.<span class="ident">recalc_draw</span>(<span class="ident">ctx</span>);
+        <span class="kw">if </span><span class="self">self</span>.state != new_state {
+            <span class="self">self</span>.state = new_state;
+            <span class="self">self</span>.recalc_draw(ctx);
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">State::Initial</span> {
-                <span class="ident">hovering</span>: <span class="prelude-val">Some</span>(<span class="kw">_</span>), ..
+        <span class="kw">match </span><span class="self">self</span>.state {
+            State::Initial {
+                hovering: <span class="prelude-val">Some</span>(<span class="kw">_</span>), ..
             }
-            <span class="op">|</span> <span class="ident">State::Idle</span> {
-                <span class="ident">hovering</span>: <span class="prelude-val">Some</span>(<span class="kw">_</span>), ..
-            } =&gt; <span class="ident">ctx</span>.<span class="ident">cursor_grabbable</span>(),
-            <span class="ident">State::Dragging</span> { .. } =&gt; {
-                <span class="ident">ctx</span>.<span class="ident">cursor_grabbing</span>();
-                <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">output</span>.<span class="ident">outcome</span>, <span class="ident">Outcome::Nothing</span>) {
-                    <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Focused</span>(<span class="self">self</span>.<span class="ident">label</span>.<span class="ident">clone</span>());
+            | State::Idle {
+                hovering: <span class="prelude-val">Some</span>(<span class="kw">_</span>), ..
+            } =&gt; ctx.cursor_grabbable(),
+            State::Dragging { .. } =&gt; {
+                ctx.cursor_grabbing();
+                <span class="kw">if </span><span class="macro">matches!</span>(output.outcome, Outcome::Nothing) {
+                    output.outcome = Outcome::Focused(<span class="self">self</span>.label.clone());
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw_at</span>(<span class="self">self</span>.<span class="ident">top_left</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw_at(<span class="self">self</span>.top_left, <span class="kw-2">&amp;</span><span class="self">self</span>.draw);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

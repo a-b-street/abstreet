@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/traffic_signals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>traffic_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/traffic_signals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>traffic_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -226,233 +226,233 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::render::DrawOptions</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">MovementID</span>, <span class="ident">PathStep</span>, <span class="ident">TurnType</span>};
-<span class="kw">use</span> <span class="ident">synthpop::TripEndpoint</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">World</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">Panel</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter, Timer};
+<span class="kw">use </span>geom::{ArrowCap, Distance, Duration, Time};
+<span class="kw">use </span>map_gui::render::DrawOptions;
+<span class="kw">use </span>map_model::{IntersectionID, MovementID, PathStep, TurnType};
+<span class="kw">use </span>synthpop::TripEndpoint;
+<span class="kw">use </span>widgetry::mapspace::{DummyID, World};
+<span class="kw">use </span>widgetry::{
+    Color, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome,
+    Panel, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::dashboards::DashTab</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, ShowEverything, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::dashboards::DashTab;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TrafficSignalDemand</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">all_demand</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">Demand</span><span class="op">&gt;</span>,
-    <span class="ident">hour</span>: <span class="ident">Time</span>,
-    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>TrafficSignalDemand {
+    panel: Panel,
+    all_demand: HashMap&lt;IntersectionID, Demand&gt;,
+    hour: Time,
+    world: World&lt;DummyID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">TrafficSignalDemand</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">all_demand</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;predict all demand&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">Demand::all_demand</span>(<span class="ident">app</span>, <span class="ident">timer</span>)
+<span class="kw">impl </span>TrafficSignalDemand {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>all_demand = ctx.loading_screen(<span class="string">&quot;predict all demand&quot;</span>, |<span class="kw">_</span>, timer| {
+            Demand::all_demand(app, timer)
         });
 
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">is_none</span>());
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>());
+        app.primary.current_selection = <span class="prelude-val">None</span>;
+        <span class="macro">assert!</span>(app.primary.suspended_sim.is_none());
+        app.primary.suspended_sim = <span class="prelude-val">Some</span>(app.primary.clear_sim());
 
-        <span class="kw">let</span> <span class="ident">hour</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">TrafficSignalDemand</span> {
-            <span class="ident">all_demand</span>,
-            <span class="ident">hour</span>,
-            <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">DashTab::TrafficSignals</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-                    <span class="ident">Key::LeftArrow</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot; and &quot;</span>),
-                    <span class="ident">Key::RightArrow</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Line</span>(<span class="string">&quot; to adjust the hour&quot;</span>),
+        <span class="kw">let </span>hour = Time::START_OF_DAY;
+        <span class="kw">let </span><span class="kw-2">mut </span>state = TrafficSignalDemand {
+            all_demand,
+            hour,
+            world: World::unbounded(),
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                DashTab::TrafficSignals.picker(ctx, app),
+                Text::from_all(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Press &quot;</span>),
+                    Key::LeftArrow.txt(ctx),
+                    Line(<span class="string">&quot; and &quot;</span>),
+                    Key::RightArrow.txt(ctx),
+                    Line(<span class="string">&quot; to adjust the hour&quot;</span>),
                 ])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="string">&quot;Hour:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                    <span class="ident">Spinner::widget</span>(
-                        <span class="ident">ctx</span>,
+                .into_widget(ctx),
+                Widget::row(<span class="macro">vec!</span>[
+                    <span class="string">&quot;Hour:&quot;</span>.text_widget(ctx).centered_vert(),
+                    Spinner::widget(
+                        ctx,
                         <span class="string">&quot;hour&quot;</span>,
-                        (<span class="ident">Duration::ZERO</span>, <span class="ident">Duration::hours</span>(<span class="number">24</span>)),
-                        <span class="ident">Duration::hours</span>(<span class="number">7</span>),
-                        <span class="ident">Duration::hours</span>(<span class="number">1</span>),
+                        (Duration::ZERO, Duration::hours(<span class="number">24</span>)),
+                        Duration::hours(<span class="number">7</span>),
+                        Duration::hours(<span class="number">1</span>),
                     ),
                 ]),
             ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
         };
-        <span class="ident">state</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">Box::new</span>(<span class="ident">state</span>)
+        state.rebuild_world(ctx, app);
+        Box::new(state)
     }
 
-    <span class="kw">fn</span> <span class="ident">rebuild_world</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+    <span class="kw">fn </span>rebuild_world(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span><span class="kw-2">mut </span>world = World::bounded(app.primary.map.get_bounds());
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_all</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">demand</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">all_demand</span> {
-            <span class="kw">let</span> <span class="ident">cnt_per_movement</span> <span class="op">=</span> <span class="ident">demand</span>.<span class="ident">count</span>(<span class="self">self</span>.<span class="ident">hour</span>);
-            <span class="kw">let</span> <span class="ident">total_demand</span> <span class="op">=</span> <span class="ident">cnt_per_movement</span>.<span class="ident">sum</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>draw_all = GeomBatch::new();
+        <span class="kw">for </span>(i, demand) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.all_demand {
+            <span class="kw">let </span>cnt_per_movement = demand.count(<span class="self">self</span>.hour);
+            <span class="kw">let </span>total_demand = cnt_per_movement.sum();
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outlines</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> (<span class="ident">movement</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="ident">cnt_per_movement</span>.<span class="ident">consume</span>() {
-                <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> (<span class="ident">cnt</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">total_demand</span> <span class="kw">as</span> <span class="ident">f64</span>);
-                <span class="kw">let</span> <span class="ident">arrow</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">movement</span>]
-                    .<span class="ident">geom</span>
-                    .<span class="ident">make_arrow</span>(<span class="ident">percent</span> <span class="op">*</span> <span class="ident">Distance::meters</span>(<span class="number">3.0</span>), <span class="ident">ArrowCap::Triangle</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>outlines = Vec::new();
+            <span class="kw">for </span>(movement, cnt) <span class="kw">in </span>cnt_per_movement.consume() {
+                <span class="kw">let </span>percent = (cnt <span class="kw">as </span>f64) / (total_demand <span class="kw">as </span>f64);
+                <span class="kw">let </span>arrow = app.primary.map.get_i(<span class="kw-2">*</span>i).movements[<span class="kw-2">&amp;</span>movement]
+                    .geom
+                    .make_arrow(percent * Distance::meters(<span class="number">3.0</span>), ArrowCap::Triangle);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_hovered</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-                <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">arrow</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.1</span>));
-                <span class="ident">outlines</span>.<span class="ident">push</span>(<span class="ident">outline</span>.<span class="ident">clone</span>());
-                <span class="ident">draw_hovered</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>, <span class="ident">outline</span>);
-                <span class="ident">draw_all</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
-                <span class="ident">draw_hovered</span>.<span class="ident">push</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#EE702E&quot;</span>), <span class="ident">arrow</span>.<span class="ident">clone</span>());
+                <span class="kw">let </span><span class="kw-2">mut </span>draw_hovered = GeomBatch::new();
+                <span class="kw">let </span>outline = arrow.to_outline(Distance::meters(<span class="number">0.1</span>));
+                outlines.push(outline.clone());
+                draw_hovered.push(Color::WHITE, outline);
+                draw_all.push(Color::hex(<span class="string">&quot;#A3A3A3&quot;</span>), arrow.clone());
+                draw_hovered.push(Color::hex(<span class="string">&quot;#EE702E&quot;</span>), arrow.clone());
 
-                <span class="ident">world</span>
-                    .<span class="ident">add_unnamed</span>()
-                    .<span class="ident">hitbox</span>(<span class="ident">arrow</span>)
-                    .<span class="ident">drawn_in_master_batch</span>()
-                    .<span class="ident">draw_hovered</span>(<span class="ident">draw_hovered</span>)
-                    .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
+                world
+                    .add_unnamed()
+                    .hitbox(arrow)
+                    .drawn_in_master_batch()
+                    .draw_hovered(draw_hovered)
+                    .tooltip(Text::from(<span class="macro">format!</span>(
                         <span class="string">&quot;{} / {}&quot;</span>,
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">cnt</span>),
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">total_demand</span>)
+                        prettyprint_usize(cnt),
+                        prettyprint_usize(total_demand)
                     )))
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>);
+                    .build(ctx);
             }
-            <span class="ident">draw_all</span>.<span class="ident">extend</span>(<span class="ident">Color::WHITE</span>, <span class="ident">outlines</span>);
+            draw_all.extend(Color::WHITE, outlines);
         }
-        <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(<span class="ident">ctx</span>, <span class="ident">draw_all</span>);
+        world.draw_master_batch(ctx, draw_all);
 
-        <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">world</span>;
+        world.initialize_hover(ctx);
+        <span class="self">self</span>.world = world;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TrafficSignalDemand</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>TrafficSignalDemand {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="self">self</span>.world.event(ctx);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>changed = <span class="bool-val">false</span>;
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    app.primary.sim = app.primary.suspended_sim.take().unwrap();
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tab</span>) <span class="op">=</span> <span class="ident">DashTab::TrafficSignals</span>.<span class="ident">tab_changed</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">tab</span>.<span class="ident">launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(tab) = DashTab::TrafficSignals.tab_changed(app, <span class="kw-2">&amp;</span><span class="self">self</span>.panel) {
+                    app.primary.sim = app.primary.suspended_sim.take().unwrap();
+                    <span class="kw">return </span>Transition::Replace(tab.launch(ctx, app));
                 }
-                <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                changed = <span class="bool-val">true</span>;
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::LeftArrow</span>) {
-            <span class="self">self</span>.<span class="ident">panel</span>
-                .<span class="ident">modify_spinner</span>(<span class="ident">ctx</span>, <span class="string">&quot;hour&quot;</span>, <span class="op">-</span><span class="number">1.0</span> <span class="op">*</span> <span class="ident">Duration::hours</span>(<span class="number">1</span>));
-            <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">if </span>ctx.input.pressed(Key::LeftArrow) {
+            <span class="self">self</span>.panel
+                .modify_spinner(ctx, <span class="string">&quot;hour&quot;</span>, -<span class="number">1.0 </span>* Duration::hours(<span class="number">1</span>));
+            changed = <span class="bool-val">true</span>;
         }
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::RightArrow</span>) {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">modify_spinner</span>(<span class="ident">ctx</span>, <span class="string">&quot;hour&quot;</span>, <span class="ident">Duration::hours</span>(<span class="number">1</span>));
-            <span class="ident">changed</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">if </span>ctx.input.pressed(Key::RightArrow) {
+            <span class="self">self</span>.panel.modify_spinner(ctx, <span class="string">&quot;hour&quot;</span>, Duration::hours(<span class="number">1</span>));
+            changed = <span class="bool-val">true</span>;
         }
-        <span class="kw">if</span> <span class="ident">changed</span> {
-            <span class="self">self</span>.<span class="ident">hour</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;hour&quot;</span>);
-            <span class="self">self</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if </span>changed {
+            <span class="self">self</span>.hour = Time::START_OF_DAY + <span class="self">self</span>.panel.spinner(<span class="string">&quot;hour&quot;</span>);
+            <span class="self">self</span>.rebuild_world(ctx, app);
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::Custom</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">DrawOptions::new</span>();
-        <span class="ident">opts</span>.<span class="ident">suppress_traffic_signal_details</span>
-            .<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">all_demand</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>());
-        <span class="ident">app</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>());
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span><span class="kw-2">mut </span>opts = DrawOptions::new();
+        opts.suppress_traffic_signal_details
+            .extend(<span class="self">self</span>.all_demand.keys().cloned());
+        app.draw(g, opts, <span class="kw-2">&amp;</span>ShowEverything::new());
 
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.world.draw(g);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">Demand</span> {
-    <span class="comment">// Unsorted</span>
-    <span class="ident">raw</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">MovementID</span>)<span class="op">&gt;</span>,
+<span class="kw">struct </span>Demand {
+    <span class="comment">// Unsorted
+    </span>raw: Vec&lt;(Time, MovementID)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Demand</span> {
-    <span class="kw">fn</span> <span class="ident">all_demand</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">Demand</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+<span class="kw">impl </span>Demand {
+    <span class="kw">fn </span>all_demand(app: <span class="kw-2">&amp;</span>App, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; HashMap&lt;IntersectionID, Demand&gt; {
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_demand</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() {
-                <span class="ident">all_demand</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">Demand</span> { <span class="ident">raw</span>: <span class="ident">Vec::new</span>() });
+        <span class="kw">let </span><span class="kw-2">mut </span>all_demand = HashMap::new();
+        <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
+            <span class="kw">if </span>i.is_traffic_signal() {
+                all_demand.insert(i.id, Demand { raw: Vec::new() });
             }
         }
 
-        <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">timer</span>
-            .<span class="ident">parallelize</span>(
+        <span class="kw">let </span>paths = timer
+            .parallelize(
                 <span class="string">&quot;predict routes&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">all_trip_info</span>(),
-                <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">trip</span>)<span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">departure</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">departure</span>;
-                    <span class="ident">TripEndpoint::path_req</span>(<span class="ident">trip</span>.<span class="ident">start</span>, <span class="ident">trip</span>.<span class="ident">end</span>, <span class="ident">trip</span>.<span class="ident">mode</span>, <span class="ident">map</span>)
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> (<span class="ident">departure</span>, <span class="ident">path</span>))
+                app.primary.sim.all_trip_info(),
+                |(<span class="kw">_</span>, trip)| {
+                    <span class="kw">let </span>departure = trip.departure;
+                    TripEndpoint::path_req(trip.start, trip.end, trip.mode, map)
+                        .and_then(|req| map.pathfind(req).ok())
+                        .map(|path| (departure, path))
                 },
             )
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flatten</span>()
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;compute demand&quot;</span>, <span class="ident">paths</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> (<span class="ident">now</span>, <span class="ident">path</span>) <span class="kw">in</span> <span class="ident">paths</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="comment">// TODO For every step, increase &#39;now&#39; by the best-case time to cross that step.</span>
-            <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
-                <span class="kw">match</span> <span class="ident">step</span> {
-                    <span class="ident">PathStep::Lane</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowLane</span>(<span class="kw">_</span>) =&gt; {}
-                    <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; {
-                        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::SharedSidewalkCorner</span> {
+            .into_iter()
+            .flatten()
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        timer.start_iter(<span class="string">&quot;compute demand&quot;</span>, paths.len());
+        <span class="kw">for </span>(now, path) <span class="kw">in </span>paths {
+            timer.next();
+            <span class="comment">// TODO For every step, increase &#39;now&#39; by the best-case time to cross that step.
+            </span><span class="kw">for </span>step <span class="kw">in </span>path.get_steps() {
+                <span class="kw">match </span>step {
+                    PathStep::Lane(<span class="kw">_</span>) | PathStep::ContraflowLane(<span class="kw">_</span>) =&gt; {}
+                    PathStep::Turn(t) | PathStep::ContraflowTurn(t) =&gt; {
+                        <span class="kw">if </span>map.get_t(<span class="kw-2">*</span>t).turn_type == TurnType::SharedSidewalkCorner {
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">demand</span>) <span class="op">=</span> <span class="ident">all_demand</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">parent</span>) {
-                            <span class="ident">demand</span>
-                                .<span class="ident">raw</span>
-                                .<span class="ident">push</span>((<span class="ident">now</span>, <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">turn_to_movement</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="number">0</span>));
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(demand) = all_demand.get_mut(<span class="kw-2">&amp;</span>t.parent) {
+                            demand
+                                .raw
+                                .push((now, map.get_i(t.parent).turn_to_movement(<span class="kw-2">*</span>t).<span class="number">0</span>));
                         }
                     }
                 }
             }
         }
 
-        <span class="ident">all_demand</span>
+        all_demand
     }
 
-    <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">start</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">1</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">m</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">raw</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">start</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">end</span> {
-                <span class="ident">cnt</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">m</span>);
+    <span class="kw">fn </span>count(<span class="kw-2">&amp;</span><span class="self">self</span>, start: Time) -&gt; Counter&lt;MovementID&gt; {
+        <span class="kw">let </span>end = start + Duration::hours(<span class="number">1</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>cnt = Counter::new();
+        <span class="kw">for </span>(t, m) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.raw {
+            <span class="kw">if </span><span class="kw-2">*</span>t &gt;= start &amp;&amp; <span class="kw-2">*</span>t &lt;= end {
+                cnt.inc(<span class="kw-2">*</span>m);
             }
         }
-        <span class="ident">cnt</span>
+        cnt
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

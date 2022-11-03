@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/command.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>command.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/command.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>command.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -174,181 +174,181 @@
 <span id="174">174</span>
 <span id="175">175</span>
 <span id="176">176</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
-<span class="kw">use</span> <span class="ident">std::time::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::VecDeque;
+<span class="kw">use </span>std::time::Duration;
 
-<span class="kw">use</span> <span class="ident">instant::Instant</span>;
-<span class="kw">use</span> <span class="ident">subprocess</span>::{<span class="ident">Communicator</span>, <span class="ident">Popen</span>};
+<span class="kw">use </span>instant::Instant;
+<span class="kw">use </span>subprocess::{Communicator, Popen};
 
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>, <span class="ident">UpdateType</span>};
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{Color, EventCtx, GfxCtx, Line, Panel, State, Text, Transition, UpdateType};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="doccomment">/// Executes a command and displays STDOUT and STDERR in a loading screen window. Only works on</span>
-<span class="doccomment">/// native, of course.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RunCommand</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
-    <span class="ident">p</span>: <span class="ident">Popen</span>,
-    <span class="comment">// Only wrapped in an Option so we can modify it when we&#39;re almost done.</span>
-    <span class="ident">comm</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Communicator</span><span class="op">&gt;</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">lines</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">max_capacity</span>: <span class="ident">usize</span>,
-    <span class="ident">started</span>: <span class="ident">Instant</span>,
-    <span class="ident">last_drawn</span>: <span class="ident">Instant</span>,
-    <span class="ident">show_success_popup</span>: <span class="ident">bool</span>,
-    <span class="comment">// Wrapped in an Option just to make calling from event() work. The bool is success, and the</span>
-    <span class="comment">// strings are the last lines of output.</span>
-    <span class="ident">on_load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">A</span>, <span class="ident">bool</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Executes a command and displays STDOUT and STDERR in a loading screen window. Only works on
+/// native, of course.
+</span><span class="kw">pub struct </span>RunCommand&lt;A: AppLike&gt; {
+    p: Popen,
+    <span class="comment">// Only wrapped in an Option so we can modify it when we&#39;re almost done.
+    </span>comm: <span class="prelude-ty">Option</span>&lt;Communicator&gt;,
+    panel: Panel,
+    lines: VecDeque&lt;String&gt;,
+    max_capacity: usize,
+    started: Instant,
+    last_drawn: Instant,
+    show_success_popup: bool,
+    <span class="comment">// Wrapped in an Option just to make calling from event() work. The bool is success, and the
+    // strings are the last lines of output.
+    </span>on_load: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A, bool, Vec&lt;String&gt;) -&gt; Transition&lt;A&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">RunCommand</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">show_success_popup</span>: <span class="ident">bool</span>,
-        <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">A</span>, <span class="ident">bool</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="macro">info!</span>(<span class="string">&quot;RunCommand: {}&quot;</span>, <span class="ident">args</span>.<span class="ident">join</span>(<span class="string">&quot; &quot;</span>));
-        <span class="kw">match</span> <span class="ident">subprocess::Popen::create</span>(
-            <span class="kw-2">&amp;</span><span class="ident">args</span>,
-            <span class="ident">subprocess::PopenConfig</span> {
-                <span class="ident">stdout</span>: <span class="ident">subprocess::Redirection::Pipe</span>,
-                <span class="ident">stderr</span>: <span class="ident">subprocess::Redirection::Merge</span>,
-                ..<span class="ident">Default::default</span>()
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt; RunCommand&lt;A&gt; {
+    <span class="kw">pub fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        show_success_popup: bool,
+        args: Vec&lt;String&gt;,
+        on_load: Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A, bool, Vec&lt;String&gt;) -&gt; Transition&lt;A&gt;&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
+        <span class="macro">info!</span>(<span class="string">&quot;RunCommand: {}&quot;</span>, args.join(<span class="string">&quot; &quot;</span>));
+        <span class="kw">match </span>subprocess::Popen::create(
+            <span class="kw-2">&amp;</span>args,
+            subprocess::PopenConfig {
+                stdout: subprocess::Redirection::Pipe,
+                stderr: subprocess::Redirection::Merge,
+                ..Default::default()
             },
         ) {
-            <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">p</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">comm</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-                    <span class="ident">p</span>.<span class="ident">communicate_start</span>(<span class="prelude-val">None</span>)
-                        .<span class="ident">limit_time</span>(<span class="ident">Duration::from_millis</span>(<span class="number">0</span>)),
+            <span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>p) =&gt; {
+                <span class="kw">let </span>comm = <span class="prelude-val">Some</span>(
+                    p.communicate_start(<span class="prelude-val">None</span>)
+                        .limit_time(Duration::from_millis(<span class="number">0</span>)),
                 );
-                <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">Text::from</span>(<span class="string">&quot;Starting command...&quot;</span>));
-                <span class="kw">let</span> <span class="ident">max_capacity</span> <span class="op">=</span>
-                    (<span class="number">0.8</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="op">/</span> <span class="ident">ctx</span>.<span class="ident">default_line_height</span>()) <span class="kw">as</span> <span class="ident">usize</span>;
-                <span class="ident">Box::new</span>(<span class="ident">RunCommand</span> {
-                    <span class="ident">p</span>,
-                    <span class="ident">comm</span>,
-                    <span class="ident">panel</span>,
-                    <span class="ident">lines</span>: <span class="ident">VecDeque::new</span>(),
-                    <span class="ident">max_capacity</span>,
-                    <span class="ident">started</span>: <span class="ident">Instant::now</span>(),
-                    <span class="ident">last_drawn</span>: <span class="ident">Instant::now</span>(),
-                    <span class="ident">show_success_popup</span>,
-                    <span class="ident">on_load</span>: <span class="prelude-val">Some</span>(<span class="ident">on_load</span>),
+                <span class="kw">let </span>panel = ctx.make_loading_screen(Text::from(<span class="string">&quot;Starting command...&quot;</span>));
+                <span class="kw">let </span>max_capacity =
+                    (<span class="number">0.8 </span>* ctx.canvas.window_height / ctx.default_line_height()) <span class="kw">as </span>usize;
+                Box::new(RunCommand {
+                    p,
+                    comm,
+                    panel,
+                    lines: VecDeque::new(),
+                    max_capacity,
+                    started: Instant::now(),
+                    last_drawn: Instant::now(),
+                    show_success_popup,
+                    on_load: <span class="prelude-val">Some</span>(on_load),
                 })
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">PopupMsg::new_state</span>(
-                <span class="ident">ctx</span>,
+            <span class="prelude-val">Err</span>(err) =&gt; PopupMsg::new_state(
+                ctx,
                 <span class="string">&quot;Error&quot;</span>,
-                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t start command: {}&quot;</span>, <span class="ident">err</span>)],
+                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t start command: {}&quot;</span>, err)],
             ),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">read_output</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_lines</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> (<span class="ident">stdout</span>, <span class="ident">stderr</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">comm</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">read</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">pair</span>) =&gt; <span class="ident">pair</span>,
-            <span class="comment">// This is almost always a timeout.</span>
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">err</span>.<span class="ident">capture</span>,
+    <span class="kw">fn </span>read_output(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>new_lines = Vec::new();
+        <span class="kw">let </span>(stdout, stderr) = <span class="kw">match </span><span class="self">self</span>.comm.as_mut().unwrap().read() {
+            <span class="prelude-val">Ok</span>(pair) =&gt; pair,
+            <span class="comment">// This is almost always a timeout.
+            </span><span class="prelude-val">Err</span>(err) =&gt; err.capture,
         };
-        <span class="macro">assert!</span>(<span class="ident">stderr</span>.<span class="ident">is_none</span>());
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">bytes</span>) <span class="op">=</span> <span class="ident">stdout</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">string</span>) <span class="op">=</span> <span class="ident">String::from_utf8</span>(<span class="ident">bytes</span>) {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">string</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">string</span>.<span class="ident">split</span>(<span class="string">&#39;\n&#39;</span>) {
-                        <span class="ident">new_lines</span>.<span class="ident">push</span>(<span class="ident">line</span>.<span class="ident">to_string</span>());
+        <span class="macro">assert!</span>(stderr.is_none());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(bytes) = stdout {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(string) = String::from_utf8(bytes) {
+                <span class="kw">if </span>!string.is_empty() {
+                    <span class="kw">for </span>line <span class="kw">in </span>string.split(<span class="string">&#39;\n&#39;</span>) {
+                        new_lines.push(line.to_string());
                     }
                 }
             }
         }
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">new_lines</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">max_capacity</span> {
-                <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_front</span>();
+        <span class="kw">for </span>line <span class="kw">in </span>new_lines {
+            <span class="kw">if </span><span class="self">self</span>.lines.len() == <span class="self">self</span>.max_capacity {
+                <span class="self">self</span>.lines.pop_front();
             }
-            <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">contains</span>(<span class="string">&#39;\r&#39;</span>) {
-                <span class="comment">// \r shows up in two cases:</span>
-                <span class="comment">// 1) As output from docker</span>
-                <span class="comment">// 2) As the &quot;clear the current line&quot; escape code</span>
-                <span class="comment">// TODO Assuming always 2 parts...</span>
-                <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">split</span>(<span class="string">&#39;\r&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                <span class="kw">if</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">is_empty</span>() {
-                    <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_back</span>();
-                    <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">to_string</span>());
-                } <span class="kw">else</span> {
-                    <span class="macro">println!</span>(<span class="string">&quot;&gt; {}&quot;</span>, <span class="ident">parts</span>[<span class="number">0</span>]);
-                    <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">to_string</span>());
+            <span class="kw">if </span>line.contains(<span class="string">&#39;\r&#39;</span>) {
+                <span class="comment">// \r shows up in two cases:
+                // 1) As output from docker
+                // 2) As the &quot;clear the current line&quot; escape code
+                // TODO Assuming always 2 parts...
+                </span><span class="kw">let </span>parts = line.split(<span class="string">&#39;\r&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                <span class="kw">if </span>parts[<span class="number">0</span>].is_empty() {
+                    <span class="self">self</span>.lines.pop_back();
+                    <span class="self">self</span>.lines.push_back(parts[<span class="number">1</span>].to_string());
+                } <span class="kw">else </span>{
+                    <span class="macro">println!</span>(<span class="string">&quot;&gt; {}&quot;</span>, parts[<span class="number">0</span>]);
+                    <span class="self">self</span>.lines.push_back(parts[<span class="number">0</span>].to_string());
                 }
-            } <span class="kw">else</span> {
-                <span class="macro">println!</span>(<span class="string">&quot;&gt; {}&quot;</span>, <span class="ident">line</span>);
-                <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push_back</span>(<span class="ident">line</span>);
+            } <span class="kw">else </span>{
+                <span class="macro">println!</span>(<span class="string">&quot;&gt; {}&quot;</span>, line);
+                <span class="self">self</span>.lines.push_back(line);
             }
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RunCommand</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType::Game</span>);
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>().<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt; State&lt;A&gt; <span class="kw">for </span>RunCommand&lt;A&gt; {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt; {
+        ctx.request_update(UpdateType::Game);
+        <span class="kw">if </span>ctx.input.nonblocking_is_update_event().is_none() {
+            <span class="kw">return </span>Transition::Keep;
         }
 
-        <span class="self">self</span>.<span class="ident">read_output</span>();
+        <span class="self">self</span>.read_output();
 
-        <span class="comment">// Throttle rerendering</span>
-        <span class="kw">if</span> <span class="ident">abstutil::elapsed_seconds</span>(<span class="self">self</span>.<span class="ident">last_drawn</span>) <span class="op">&gt;</span> <span class="number">0.1</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+        <span class="comment">// Throttle rerendering
+        </span><span class="kw">if </span>abstutil::elapsed_seconds(<span class="self">self</span>.last_drawn) &gt; <span class="number">0.1 </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(
+                Line(<span class="macro">format!</span>(
                     <span class="string">&quot;Running command... {} so far&quot;</span>,
-                    <span class="ident">geom::Duration::realtime_elapsed</span>(<span class="self">self</span>.<span class="ident">started</span>)
+                    geom::Duration::realtime_elapsed(<span class="self">self</span>.started)
                 ))
-                .<span class="ident">small_heading</span>(),
+                .small_heading(),
             );
-            <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lines</span> {
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
+            <span class="kw">for </span>line <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.lines {
+                txt.add_line(line);
             }
-            <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">make_loading_screen</span>(<span class="ident">txt</span>);
-            <span class="self">self</span>.<span class="ident">last_drawn</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+            <span class="self">self</span>.panel = ctx.make_loading_screen(txt);
+            <span class="self">self</span>.last_drawn = Instant::now();
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">status</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">p</span>.<span class="ident">poll</span>() {
-            <span class="comment">// Make sure to grab all remaining output.</span>
-            <span class="kw">let</span> <span class="ident">comm</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">comm</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-            <span class="self">self</span>.<span class="ident">comm</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">comm</span>.<span class="ident">limit_time</span>(<span class="ident">Duration::from_secs</span>(<span class="number">10</span>)));
-            <span class="self">self</span>.<span class="ident">read_output</span>();
-            <span class="comment">// TODO Possible hack -- why is this last line empty?</span>
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">back</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_empty</span>()).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>) {
-                <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">pop_back</span>();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(status) = <span class="self">self</span>.p.poll() {
+            <span class="comment">// Make sure to grab all remaining output.
+            </span><span class="kw">let </span>comm = <span class="self">self</span>.comm.take().unwrap();
+            <span class="self">self</span>.comm = <span class="prelude-val">Some</span>(comm.limit_time(Duration::from_secs(<span class="number">10</span>)));
+            <span class="self">self</span>.read_output();
+            <span class="comment">// TODO Possible hack -- why is this last line empty?
+            </span><span class="kw">if </span><span class="self">self</span>.lines.back().map(|x| x.is_empty()).unwrap_or(<span class="bool-val">false</span>) {
+                <span class="self">self</span>.lines.pop_back();
             }
 
-            <span class="kw">let</span> <span class="ident">success</span> <span class="op">=</span> <span class="ident">status</span>.<span class="ident">success</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>();
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">success</span> {
-                <span class="ident">lines</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;Command failed: {:?}&quot;</span>, <span class="ident">status</span>));
+            <span class="kw">let </span>success = status.success();
+            <span class="kw">let </span><span class="kw-2">mut </span>lines: Vec&lt;String&gt; = <span class="self">self</span>.lines.drain(..).collect();
+            <span class="kw">if </span>!success {
+                lines.push(<span class="macro">format!</span>(<span class="string">&quot;Command failed: {:?}&quot;</span>, status));
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transitions</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                <span class="ident">Transition::Pop</span>,
-                (<span class="self">self</span>.<span class="ident">on_load</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">success</span>, <span class="ident">lines</span>.<span class="ident">clone</span>()),
+            <span class="kw">let </span><span class="kw-2">mut </span>transitions = <span class="macro">vec!</span>[
+                Transition::Pop,
+                (<span class="self">self</span>.on_load.take().unwrap())(ctx, app, success, lines.clone()),
             ];
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">success</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">show_success_popup</span> {
-                <span class="ident">transitions</span>.<span class="ident">push</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="kw">if</span> <span class="ident">success</span> { <span class="string">&quot;Success!&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;Failure!&quot;</span> },
-                    <span class="ident">lines</span>,
+            <span class="kw">if </span>!success || <span class="self">self</span>.show_success_popup {
+                transitions.push(Transition::Push(PopupMsg::new_state(
+                    ctx,
+                    <span class="kw">if </span>success { <span class="string">&quot;Success!&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;Failure!&quot; </span>},
+                    lines,
                 )));
             }
-            <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="ident">transitions</span>);
+            <span class="kw">return </span>Transition::Multi(transitions);
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="ident">g</span>.<span class="ident">clear</span>(<span class="ident">Color::BLACK</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>A) {
+        g.clear(Color::BLACK);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

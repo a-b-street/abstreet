@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/blockfinder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>blockfinder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/blockfinder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>blockfinder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -495,502 +495,502 @@
 <span id="495">495</span>
 <span id="496">496</span>
 <span id="497">497</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Block</span>, <span class="ident">Perimeter</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::Distance;
+<span class="kw">use </span>map_model::osm::RoadRank;
+<span class="kw">use </span>map_model::{Block, Perimeter};
+<span class="kw">use </span>widgetry::mapspace::{ObjectID, World, WorldOutcome};
+<span class="kw">use </span>widgetry::{
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    SimpleState, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug::polygons</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::debug::polygons;
 
-<span class="kw">const</span> <span class="ident">COLORS</span>: [<span class="ident">Color</span>; <span class="number">6</span>] <span class="op">=</span> [
-    <span class="ident">Color::BLUE</span>,
-    <span class="ident">Color::YELLOW</span>,
-    <span class="ident">Color::GREEN</span>,
-    <span class="ident">Color::PURPLE</span>,
-    <span class="ident">Color::PINK</span>,
-    <span class="ident">Color::ORANGE</span>,
+<span class="kw">const </span>COLORS: [Color; <span class="number">6</span>] = [
+    Color::BLUE,
+    Color::YELLOW,
+    Color::GREEN,
+    Color::PURPLE,
+    Color::PINK,
+    Color::ORANGE,
 ];
-<span class="kw">const</span> <span class="ident">MODIFIED</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::RED</span>;
-<span class="kw">const</span> <span class="ident">TO_MERGE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::CYAN</span>;
+<span class="kw">const </span>MODIFIED: Color = Color::RED;
+<span class="kw">const </span>TO_MERGE: Color = Color::CYAN;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Blockfinder</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">id_counter</span>: <span class="ident">usize</span>,
-    <span class="ident">blocks</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">Obj</span>, <span class="ident">Block</span><span class="op">&gt;</span>,
-    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
-    <span class="ident">to_merge</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Blockfinder {
+    panel: Panel,
+    id_counter: usize,
+    blocks: BTreeMap&lt;Obj, Block&gt;,
+    world: World&lt;Obj&gt;,
+    to_merge: BTreeSet&lt;Obj&gt;,
 
-    <span class="comment">// Since we can&#39;t easily color adjacent groups of blocks differently when we classify but don&#39;t</span>
-    <span class="comment">// merge, just remember the groups here</span>
-    <span class="ident">partitions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// Since we can&#39;t easily color adjacent groups of blocks differently when we classify but don&#39;t
+    // merge, just remember the groups here
+    </span>partitions: Vec&lt;Vec&lt;Obj&gt;&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Obj</span>(<span class="ident">usize</span>);
-<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">Obj</span> {}
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+</span><span class="kw">struct </span>Obj(usize);
+<span class="kw">impl </span>ObjectID <span class="kw">for </span>Obj {}
 
-<span class="kw">impl</span> <span class="ident">Blockfinder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">Blockfinder</span> {
-            <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>),
-            <span class="ident">id_counter</span>: <span class="number">0</span>,
-            <span class="ident">blocks</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">world</span>: <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
-            <span class="ident">to_merge</span>: <span class="ident">BTreeSet::new</span>(),
+<span class="kw">impl </span>Blockfinder {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>state = Blockfinder {
+            panel: make_panel(ctx),
+            id_counter: <span class="number">0</span>,
+            blocks: BTreeMap::new(),
+            world: World::bounded(app.primary.map.get_bounds()),
+            to_merge: BTreeSet::new(),
 
-            <span class="ident">partitions</span>: <span class="ident">Vec::new</span>(),
+            partitions: Vec::new(),
         };
 
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;calculate all blocks&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;find single blocks&quot;</span>);
-            <span class="kw">let</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="ident">Perimeter::find_all_single_blocks</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;find single blocks&quot;</span>);
-            <span class="ident">state</span>.<span class="ident">add_blocks_with_coloring</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">perimeters</span>, <span class="ident">timer</span>);
+        ctx.loading_screen(<span class="string">&quot;calculate all blocks&quot;</span>, |ctx, timer| {
+            timer.start(<span class="string">&quot;find single blocks&quot;</span>);
+            <span class="kw">let </span>perimeters = Perimeter::find_all_single_blocks(<span class="kw-2">&amp;</span>app.primary.map);
+            timer.stop(<span class="string">&quot;find single blocks&quot;</span>);
+            state.add_blocks_with_coloring(ctx, app, perimeters, timer);
         });
-        <span class="ident">state</span>.<span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
-        <span class="ident">Box::new</span>(<span class="ident">state</span>)
+        state.world.initialize_hover(ctx);
+        Box::new(state)
     }
 
-    <span class="kw">fn</span> <span class="ident">new_id</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Obj</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">Obj</span>(<span class="self">self</span>.<span class="ident">id_counter</span>);
-        <span class="self">self</span>.<span class="ident">id_counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="ident">id</span>
+    <span class="kw">fn </span>new_id(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Obj {
+        <span class="kw">let </span>id = Obj(<span class="self">self</span>.id_counter);
+        <span class="self">self</span>.id_counter += <span class="number">1</span>;
+        id
     }
 
-    <span class="kw">fn</span> <span class="ident">add_block</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">Obj</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">block</span>: <span class="ident">Block</span>) {
-        <span class="comment">// Label the order of the perimeter roads while hovering</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>())]);
-        <span class="ident">hovered</span>.<span class="ident">push</span>(
-            <span class="ident">Color::BLACK</span>,
-            <span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>)),
+    <span class="kw">fn </span>add_block(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, id: Obj, color: Color, block: Block) {
+        <span class="comment">// Label the order of the perimeter roads while hovering
+        </span><span class="kw">let </span><span class="kw-2">mut </span>hovered = GeomBatch::from(<span class="macro">vec!</span>[(color.alpha(<span class="number">0.5</span>), block.polygon.clone())]);
+        hovered.push(
+            Color::BLACK,
+            block.polygon.to_outline(Distance::meters(<span class="number">5.0</span>)),
         );
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
-            <span class="ident">hovered</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">idx</span>)).<span class="ident">fg</span>(<span class="ident">Color::RED</span>))
-                    .<span class="ident">bg</span>(<span class="ident">Color::BLACK</span>)
-                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">scale</span>(<span class="number">1.0</span>)
-                    .<span class="ident">centered_on</span>(
-                        <span class="ident">id</span>.<span class="ident">get_outermost_lane</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
-                            .<span class="ident">lane_center_pts</span>
-                            .<span class="ident">middle</span>(),
+        <span class="kw">for </span>(idx, id) <span class="kw">in </span>block.perimeter.roads.iter().enumerate().skip(<span class="number">1</span>) {
+            hovered.append(
+                Text::from(Line(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, idx)).fg(Color::RED))
+                    .bg(Color::BLACK)
+                    .render_autocropped(ctx)
+                    .scale(<span class="number">1.0</span>)
+                    .centered_on(
+                        id.get_outermost_lane(<span class="kw-2">&amp;</span>app.primary.map)
+                            .lane_center_pts
+                            .middle(),
                     ),
             );
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">obj</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">world</span>
-            .<span class="ident">add</span>(<span class="ident">id</span>)
-            .<span class="ident">hitbox</span>(<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>())
-            .<span class="ident">draw_color</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>))
-            .<span class="ident">draw_hovered</span>(<span class="ident">hovered</span>)
-            .<span class="ident">clickable</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-            <span class="ident">obj</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>, <span class="string">&quot;remove from merge set&quot;</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">obj</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>, <span class="string">&quot;add to merge set&quot;</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>obj = <span class="self">self
+            </span>.world
+            .add(id)
+            .hitbox(block.polygon.clone())
+            .draw_color(color.alpha(<span class="number">0.5</span>))
+            .draw_hovered(hovered)
+            .clickable();
+        <span class="kw">if </span><span class="self">self</span>.to_merge.contains(<span class="kw-2">&amp;</span>id) {
+            obj = obj.hotkey(Key::Space, <span class="string">&quot;remove from merge set&quot;</span>)
+        } <span class="kw">else </span>{
+            obj = obj.hotkey(Key::Space, <span class="string">&quot;add to merge set&quot;</span>)
         }
-        <span class="ident">obj</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">insert</span>(<span class="ident">id</span>, <span class="ident">block</span>);
+        obj.build(ctx);
+        <span class="self">self</span>.blocks.insert(id, block);
     }
 
-    <span class="kw">fn</span> <span class="ident">add_blocks_with_coloring</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">perimeters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
+    <span class="kw">fn </span>add_blocks_with_coloring(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        perimeters: Vec&lt;Perimeter&gt;,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
     ) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colors</span> <span class="op">=</span> <span class="ident">Perimeter::calculate_coloring</span>(<span class="kw-2">&amp;</span><span class="ident">perimeters</span>, <span class="ident">COLORS</span>.<span class="ident">len</span>())
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> (<span class="number">0</span>..<span class="ident">perimeters</span>.<span class="ident">len</span>()).<span class="ident">collect</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>colors = Perimeter::calculate_coloring(<span class="kw-2">&amp;</span>perimeters, COLORS.len())
+            .unwrap_or_else(|| (<span class="number">0</span>..perimeters.len()).collect());
 
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;blockify&quot;</span>, <span class="ident">perimeters</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">perimeters</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
+        timer.start_iter(<span class="string">&quot;blockify&quot;</span>, perimeters.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>blocks = Vec::new();
+        <span class="kw">for </span>perimeter <span class="kw">in </span>perimeters {
+            timer.next();
 
-            <span class="comment">// TODO Match the LTN partitioning and strip out blocks that break after collapsing</span>
-            <span class="comment">// deadends. See https://github.com/a-b-street/abstreet/issues/841.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">copy</span> <span class="op">=</span> <span class="ident">perimeter</span>.<span class="ident">clone</span>();
-            <span class="ident">copy</span>.<span class="ident">collapse_deadends</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">copy</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
+            <span class="comment">// TODO Match the LTN partitioning and strip out blocks that break after collapsing
+            // deadends. See https://github.com/a-b-street/abstreet/issues/841.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>copy = perimeter.clone();
+            copy.collapse_deadends();
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = copy.to_block(<span class="kw-2">&amp;</span>app.primary.map) {
                 <span class="macro">error!</span>(
                     <span class="string">&quot;A perimeter won&#39;t blockify after collapsing deadends: {}&quot;</span>,
-                    <span class="ident">err</span>
+                    err
                 );
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">match</span> <span class="ident">perimeter</span>.<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">block</span>) =&gt; {
-                    <span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">block</span>);
+            <span class="kw">match </span>perimeter.to_block(<span class="kw-2">&amp;</span>app.primary.map) {
+                <span class="prelude-val">Ok</span>(block) =&gt; {
+                    blocks.push(block);
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">warn!</span>(<span class="string">&quot;Failed to make a block from a perimeter: {}&quot;</span>, <span class="ident">err</span>);
-                    <span class="comment">// We assigned a color, so don&#39;t let the indices get out of sync!</span>
-                    <span class="ident">colors</span>.<span class="ident">remove</span>(<span class="ident">blocks</span>.<span class="ident">len</span>());
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">warn!</span>(<span class="string">&quot;Failed to make a block from a perimeter: {}&quot;</span>, err);
+                    <span class="comment">// We assigned a color, so don&#39;t let the indices get out of sync!
+                    </span>colors.remove(blocks.len());
                 }
             }
         }
 
-        <span class="kw">for</span> (<span class="ident">block</span>, <span class="ident">color_idx</span>) <span class="kw">in</span> <span class="ident">blocks</span>.<span class="ident">into_iter</span>().<span class="ident">zip</span>(<span class="ident">colors</span>.<span class="ident">into_iter</span>()) {
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_id</span>();
-            <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">COLORS</span>[<span class="ident">color_idx</span> <span class="op">%</span> <span class="ident">COLORS</span>.<span class="ident">len</span>()], <span class="ident">block</span>);
+        <span class="kw">for </span>(block, color_idx) <span class="kw">in </span>blocks.into_iter().zip(colors.into_iter()) {
+            <span class="kw">let </span>id = <span class="self">self</span>.new_id();
+            <span class="self">self</span>.add_block(ctx, app, id, COLORS[color_idx % COLORS.len()], block);
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Blockfinder</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>Blockfinder {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Merge&quot;</span> =&gt; {
-                    <span class="comment">// TODO We could update the panel, but meh</span>
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">to_merge</span>) {
-                        <span class="ident">perimeters</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">perimeter</span>);
-                        <span class="comment">// TODO If we happen to be hovering on one, uh oh! It&#39;s going to change</span>
-                        <span class="comment">// ID...</span>
-                        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete</span>(<span class="ident">id</span>);
+                <span class="string">&quot;Merge&quot; </span>=&gt; {
+                    <span class="comment">// TODO We could update the panel, but meh
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>perimeters = Vec::new();
+                    <span class="kw">for </span>id <span class="kw">in </span>std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.to_merge) {
+                        perimeters.push(<span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap().perimeter);
+                        <span class="comment">// TODO If we happen to be hovering on one, uh oh! It&#39;s going to change
+                        // ID...
+                        </span><span class="self">self</span>.world.delete(id);
                     }
-                    <span class="kw">let</span> <span class="ident">stepwise_debug</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">let</span> <span class="ident">use_expensive_blockfinding</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    <span class="kw">let</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Perimeter::merge_all</span>(
-                        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                        <span class="ident">perimeters</span>,
-                        <span class="ident">stepwise_debug</span>,
-                        <span class="ident">use_expensive_blockfinding</span>,
+                    <span class="kw">let </span>stepwise_debug = <span class="bool-val">true</span>;
+                    <span class="kw">let </span>use_expensive_blockfinding = <span class="bool-val">false</span>;
+                    <span class="kw">let </span>results = Perimeter::merge_all(
+                        <span class="kw-2">&amp;</span>app.primary.map,
+                        perimeters,
+                        stepwise_debug,
+                        use_expensive_blockfinding,
                     );
-                    <span class="kw">let</span> <span class="ident">debug</span> <span class="op">=</span> <span class="ident">results</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span>;
-                    <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">results</span> {
-                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_id</span>();
-                        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">perimeter</span>
-                            .<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
-                            .<span class="ident">expect</span>(<span class="string">&quot;Merged perimeter broke the polygon&quot;</span>);
-                        <span class="comment">// To make the one-merge-at-a-time debugging easier, keep these in the</span>
-                        <span class="comment">// merge set</span>
-                        <span class="kw">if</span> <span class="ident">debug</span> {
-                            <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
-                            <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">TO_MERGE</span>, <span class="ident">block</span>);
-                        } <span class="kw">else</span> {
-                            <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">MODIFIED</span>, <span class="ident">block</span>);
+                    <span class="kw">let </span>debug = results.len() &gt; <span class="number">1</span>;
+                    <span class="kw">for </span>perimeter <span class="kw">in </span>results {
+                        <span class="kw">let </span>id = <span class="self">self</span>.new_id();
+                        <span class="kw">let </span>block = perimeter
+                            .to_block(<span class="kw-2">&amp;</span>app.primary.map)
+                            .expect(<span class="string">&quot;Merged perimeter broke the polygon&quot;</span>);
+                        <span class="comment">// To make the one-merge-at-a-time debugging easier, keep these in the
+                        // merge set
+                        </span><span class="kw">if </span>debug {
+                            <span class="self">self</span>.to_merge.insert(id);
+                            <span class="self">self</span>.add_block(ctx, app, id, TO_MERGE, block);
+                        } <span class="kw">else </span>{
+                            <span class="self">self</span>.add_block(ctx, app, id, MODIFIED, block);
                         }
                     }
-                    <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+                    <span class="kw">return </span>Transition::Keep;
                 }
-                <span class="string">&quot;Collapse dead-ends&quot;</span> =&gt; {
-                    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">to_merge</span>) {
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">perimeter</span>;
-                        <span class="ident">perimeter</span>.<span class="ident">collapse_deadends</span>();
-                        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">perimeter</span>
-                            .<span class="ident">to_block</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
-                            .<span class="ident">expect</span>(<span class="string">&quot;collapsing deadends broke the polygon shape&quot;</span>);
-                        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">id</span>);
-                        <span class="comment">// We&#39;ll lose the original coloring, oh well</span>
-                        <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">MODIFIED</span>, <span class="ident">block</span>);
+                <span class="string">&quot;Collapse dead-ends&quot; </span>=&gt; {
+                    <span class="kw">for </span>id <span class="kw">in </span>std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.to_merge) {
+                        <span class="kw">let </span><span class="kw-2">mut </span>perimeter = <span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap().perimeter;
+                        perimeter.collapse_deadends();
+                        <span class="kw">let </span>block = perimeter
+                            .to_block(<span class="kw-2">&amp;</span>app.primary.map)
+                            .expect(<span class="string">&quot;collapsing deadends broke the polygon shape&quot;</span>);
+                        <span class="self">self</span>.world.delete_before_replacement(id);
+                        <span class="comment">// We&#39;ll lose the original coloring, oh well
+                        </span><span class="self">self</span>.add_block(ctx, app, id, MODIFIED, block);
                     }
                 }
-                <span class="string">&quot;Classify neighborhoods (but don&#39;t merge)&quot;</span> <span class="op">|</span> <span class="string">&quot;Auto-merge all neighborhoods&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">perimeters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">blocks</span>)
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">b</span>)<span class="op">|</span> <span class="ident">b</span>.<span class="ident">perimeter</span>)
-                        .<span class="ident">collect</span>();
-                    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-                    <span class="kw">let</span> <span class="ident">partitions</span> <span class="op">=</span> <span class="ident">Perimeter::partition_by_predicate</span>(<span class="ident">perimeters</span>, <span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-                        <span class="comment">// &quot;Interior&quot; roads of a neighborhood aren&#39;t classified as arterial</span>
-                        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-                        <span class="ident">road</span>.<span class="ident">get_rank</span>() <span class="op">==</span> <span class="ident">RoadRank::Local</span>
+                <span class="string">&quot;Classify neighborhoods (but don&#39;t merge)&quot; </span>| <span class="string">&quot;Auto-merge all neighborhoods&quot; </span>=&gt; {
+                    <span class="kw">let </span>perimeters: Vec&lt;Perimeter&gt; = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.blocks)
+                        .into_iter()
+                        .map(|(<span class="kw">_</span>, b)| b.perimeter)
+                        .collect();
+                    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+                    <span class="kw">let </span>partitions = Perimeter::partition_by_predicate(perimeters, |r| {
+                        <span class="comment">// &quot;Interior&quot; roads of a neighborhood aren&#39;t classified as arterial
+                        </span><span class="kw">let </span>road = map.get_r(r);
+                        road.get_rank() == RoadRank::Local
                     });
 
-                    <span class="comment">// Reset pretty much all of our state</span>
-                    <span class="self">self</span>.<span class="ident">id_counter</span> <span class="op">=</span> <span class="number">0</span>;
-                    <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-                    <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">clear</span>();
-                    <span class="self">self</span>.<span class="ident">partitions</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+                    <span class="comment">// Reset pretty much all of our state
+                    </span><span class="self">self</span>.id_counter = <span class="number">0</span>;
+                    <span class="self">self</span>.world = World::bounded(app.primary.map.get_bounds());
+                    <span class="self">self</span>.to_merge.clear();
+                    <span class="self">self</span>.partitions = Vec::new();
 
-                    <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Auto-merge all neighborhoods&quot;</span> {
-                        <span class="comment">// Actually merge the partitions</span>
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">merged</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                        <span class="kw">for</span> <span class="ident">perimeters</span> <span class="kw">in</span> <span class="ident">partitions</span> {
-                            <span class="comment">// If we got more than one result back, merging partially failed. Oh</span>
-                            <span class="comment">// well?</span>
-                            <span class="kw">let</span> <span class="ident">stepwise_debug</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                            <span class="kw">let</span> <span class="ident">use_expensive_blockfinding</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                            <span class="ident">merged</span>.<span class="ident">extend</span>(<span class="ident">Perimeter::merge_all</span>(
-                                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                                <span class="ident">perimeters</span>,
-                                <span class="ident">stepwise_debug</span>,
-                                <span class="ident">use_expensive_blockfinding</span>,
+                    <span class="kw">if </span>x == <span class="string">&quot;Auto-merge all neighborhoods&quot; </span>{
+                        <span class="comment">// Actually merge the partitions
+                        </span><span class="kw">let </span><span class="kw-2">mut </span>merged = Vec::new();
+                        <span class="kw">for </span>perimeters <span class="kw">in </span>partitions {
+                            <span class="comment">// If we got more than one result back, merging partially failed. Oh
+                            // well?
+                            </span><span class="kw">let </span>stepwise_debug = <span class="bool-val">false</span>;
+                            <span class="kw">let </span>use_expensive_blockfinding = <span class="bool-val">false</span>;
+                            merged.extend(Perimeter::merge_all(
+                                <span class="kw-2">&amp;</span>app.primary.map,
+                                perimeters,
+                                stepwise_debug,
+                                use_expensive_blockfinding,
                             ));
                         }
-                        <span class="self">self</span>.<span class="ident">add_blocks_with_coloring</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">merged</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
-                    } <span class="kw">else</span> {
-                        <span class="comment">// Until we can actually do the merge, just color the partition to show</span>
-                        <span class="comment">// results. The coloring is half-useless; adjacent partitions might be the</span>
-                        <span class="comment">// same.</span>
-                        <span class="kw">for</span> (<span class="ident">color_idx</span>, <span class="ident">perimeters</span>) <span class="kw">in</span> <span class="ident">partitions</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-                            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">COLORS</span>[<span class="ident">color_idx</span> <span class="op">%</span> <span class="ident">COLORS</span>.<span class="ident">len</span>()];
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">group</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                            <span class="kw">for</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">perimeters</span> {
-                                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="ident">perimeter</span>.<span class="ident">to_block</span>(<span class="ident">map</span>) {
-                                    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_id</span>();
-                                    <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">color</span>, <span class="ident">block</span>);
-                                    <span class="ident">group</span>.<span class="ident">push</span>(<span class="ident">id</span>);
+                        <span class="self">self</span>.add_blocks_with_coloring(ctx, app, merged, <span class="kw-2">&amp;mut </span>Timer::throwaway());
+                    } <span class="kw">else </span>{
+                        <span class="comment">// Until we can actually do the merge, just color the partition to show
+                        // results. The coloring is half-useless; adjacent partitions might be the
+                        // same.
+                        </span><span class="kw">for </span>(color_idx, perimeters) <span class="kw">in </span>partitions.into_iter().enumerate() {
+                            <span class="kw">let </span>color = COLORS[color_idx % COLORS.len()];
+                            <span class="kw">let </span><span class="kw-2">mut </span>group = Vec::new();
+                            <span class="kw">for </span>perimeter <span class="kw">in </span>perimeters {
+                                <span class="kw">if let </span><span class="prelude-val">Ok</span>(block) = perimeter.to_block(map) {
+                                    <span class="kw">let </span>id = <span class="self">self</span>.new_id();
+                                    <span class="self">self</span>.add_block(ctx, app, id, color, block);
+                                    group.push(id);
                                 }
                             }
-                            <span class="self">self</span>.<span class="ident">partitions</span>.<span class="ident">push</span>(<span class="ident">group</span>);
+                            <span class="self">self</span>.partitions.push(group);
                         }
                     }
                 }
-                <span class="string">&quot;Merge all holes&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">perimeters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">blocks</span>)
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">b</span>)<span class="op">|</span> <span class="ident">b</span>.<span class="ident">perimeter</span>)
-                        .<span class="ident">collect</span>();
-                    <span class="kw">let</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="ident">Perimeter::merge_holes</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">perimeters</span>);
+                <span class="string">&quot;Merge all holes&quot; </span>=&gt; {
+                    <span class="kw">let </span>perimeters: Vec&lt;Perimeter&gt; = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.blocks)
+                        .into_iter()
+                        .map(|(<span class="kw">_</span>, b)| b.perimeter)
+                        .collect();
+                    <span class="kw">let </span>perimeters = Perimeter::merge_holes(<span class="kw-2">&amp;</span>app.primary.map, perimeters);
 
-                    <span class="comment">// Reset pretty much all of our state</span>
-                    <span class="self">self</span>.<span class="ident">id_counter</span> <span class="op">=</span> <span class="number">0</span>;
-                    <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-                    <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">clear</span>();
-                    <span class="self">self</span>.<span class="ident">partitions</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+                    <span class="comment">// Reset pretty much all of our state
+                    </span><span class="self">self</span>.id_counter = <span class="number">0</span>;
+                    <span class="self">self</span>.world = World::bounded(app.primary.map.get_bounds());
+                    <span class="self">self</span>.to_merge.clear();
+                    <span class="self">self</span>.partitions = Vec::new();
 
-                    <span class="self">self</span>.<span class="ident">add_blocks_with_coloring</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">perimeters</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>());
+                    <span class="self">self</span>.add_blocks_with_coloring(ctx, app, perimeters, <span class="kw-2">&amp;mut </span>Timer::throwaway());
                 }
-                <span class="string">&quot;Reset&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">Blockfinder::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                <span class="string">&quot;Reset&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Replace(Blockfinder::new_state(ctx, app));
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;add to merge set&quot;</span>, <span class="ident">id</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
-                <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-                <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">id</span>);
-                <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">TO_MERGE</span>, <span class="ident">block</span>);
+        <span class="kw">match </span><span class="self">self</span>.world.event(ctx) {
+            WorldOutcome::Keypress(<span class="string">&quot;add to merge set&quot;</span>, id) =&gt; {
+                <span class="self">self</span>.to_merge.insert(id);
+                <span class="kw">let </span>block = <span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap();
+                <span class="self">self</span>.world.delete_before_replacement(id);
+                <span class="self">self</span>.add_block(ctx, app, id, TO_MERGE, block);
             }
-            <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;remove from merge set&quot;</span>, <span class="ident">id</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
-                <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-                <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">id</span>);
-                <span class="comment">// We&#39;ll lose the original coloring, oh well</span>
-                <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">MODIFIED</span>, <span class="ident">block</span>);
+            WorldOutcome::Keypress(<span class="string">&quot;remove from merge set&quot;</span>, id) =&gt; {
+                <span class="self">self</span>.to_merge.remove(<span class="kw-2">&amp;</span>id);
+                <span class="kw">let </span>block = <span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap();
+                <span class="self">self</span>.world.delete_before_replacement(id);
+                <span class="comment">// We&#39;ll lose the original coloring, oh well
+                </span><span class="self">self</span>.add_block(ctx, app, id, MODIFIED, block);
             }
-            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">OneBlock::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">blocks</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">clone</span>()));
+            WorldOutcome::ClickedObject(id) =&gt; {
+                <span class="kw">return </span>Transition::Push(OneBlock::new_state(ctx, app, <span class="self">self</span>.blocks[<span class="kw-2">&amp;</span>id].clone()));
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">is_key_down</span>(<span class="ident">Key::LeftControl</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">get_hovering</span>() {
-                    <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-                        <span class="self">self</span>.<span class="ident">to_merge</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
-                        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-                        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">id</span>);
-                        <span class="self">self</span>.<span class="ident">add_block</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">TO_MERGE</span>, <span class="ident">block</span>);
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="kw">if </span>ctx.is_key_down(Key::LeftControl) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.world.get_hovering() {
+                    <span class="kw">if </span>!<span class="self">self</span>.to_merge.contains(<span class="kw-2">&amp;</span>id) {
+                        <span class="self">self</span>.to_merge.insert(id);
+                        <span class="kw">let </span>block = <span class="self">self</span>.blocks.remove(<span class="kw-2">&amp;</span>id).unwrap();
+                        <span class="self">self</span>.world.delete_before_replacement(id);
+                        <span class="self">self</span>.add_block(ctx, app, id, TO_MERGE, block);
                     }
                 }
             }
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.world.draw(g);
+        <span class="self">self</span>.panel.draw(g);
 
-        <span class="comment">// If we&#39;ve partitioned by neighborhood but not merged, show the grouping when hovering</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">get_hovering</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="kw">for</span> <span class="ident">group</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">partitions</span> {
-                <span class="kw">if</span> <span class="ident">group</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-                    <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="ident">group</span> {
-                        <span class="comment">// Some of the block IDs will vanish if we start merging pieces based on</span>
-                        <span class="comment">// the partitioning</span>
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">block</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">get</span>(<span class="ident">block</span>) {
-                            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="comment">// If we&#39;ve partitioned by neighborhood but not merged, show the grouping when hovering
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.world.get_hovering() {
+            <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+            <span class="kw">for </span>group <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.partitions {
+                <span class="kw">if </span>group.contains(<span class="kw-2">&amp;</span>id) {
+                    <span class="kw">for </span>block <span class="kw">in </span>group {
+                        <span class="comment">// Some of the block IDs will vanish if we start merging pieces based on
+                        // the partitioning
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(block) = <span class="self">self</span>.blocks.get(block) {
+                            batch.push(Color::RED.alpha(<span class="number">0.5</span>), block.polygon.clone());
                         }
                     }
                     <span class="kw">break</span>;
                 }
             }
-            <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+            batch.draw(g);
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OneBlock</span> {
-    <span class="ident">block</span>: <span class="ident">Block</span>,
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
+<span class="kw">pub struct </span>OneBlock {
+    block: Block,
+    draw: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">OneBlock</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">block</span>: <span class="ident">Block</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">interior</span> {
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">Color::CYAN</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_thick_polygon</span>(),
+<span class="kw">impl </span>OneBlock {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, block: Block) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        batch.push(Color::RED.alpha(<span class="number">0.5</span>), block.polygon.clone());
+        <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>block.perimeter.interior {
+            batch.push(
+                Color::CYAN.alpha(<span class="number">0.5</span>),
+                app.primary.map.get_r(<span class="kw-2">*</span>r).get_thick_polygon(),
             );
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Blockfinder&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Blockfinder&quot;</span>).small_heading().into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="string">&quot;You can also hold LCtrl to quickly highlight&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Show perimeter in order&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::O</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Debug polygon by points&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::D</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Debug polygon by triangles&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;You can also hold LCtrl to quickly highlight&quot;</span>.text_widget(ctx),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Show perimeter in order&quot;</span>)
+                .hotkey(Key::O)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Debug polygon by points&quot;</span>)
+                .hotkey(Key::D)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Debug polygon by triangles&quot;</span>)
+                .build_def(ctx),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-            <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">OneBlock</span> {
-                <span class="ident">block</span>,
-                <span class="ident">draw</span>: <span class="ident">batch</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>),
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
+            panel,
+            Box::new(OneBlock {
+                block,
+                draw: batch.upload(ctx),
             }),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">OneBlock</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Show perimeter in order&quot;</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-                <span class="kw">for</span> <span class="ident">road_side</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">roads</span> {
-                    <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">road_side</span>.<span class="ident">get_outermost_lane</span>(<span class="ident">map</span>);
-                    <span class="ident">items</span>.<span class="ident">push</span>(<span class="ident">polygons::Item::Polygon</span>(<span class="ident">lane</span>.<span class="ident">get_thick_polygon</span>()));
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>OneBlock {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;Show perimeter in order&quot; </span>=&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>items = Vec::new();
+                <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+                <span class="kw">for </span>road_side <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.block.perimeter.roads {
+                    <span class="kw">let </span>lane = road_side.get_outermost_lane(map);
+                    items.push(polygons::Item::Polygon(lane.get_thick_polygon()));
                 }
-                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">polygons::PolygonDebugger::new_state</span>(
-                    <span class="ident">ctx</span>,
+                <span class="kw">return </span>Transition::Push(polygons::PolygonDebugger::new_state(
+                    ctx,
                     <span class="string">&quot;side of road&quot;</span>,
-                    <span class="ident">items</span>,
+                    items,
                     <span class="prelude-val">None</span>,
                 ));
             }
-            <span class="string">&quot;Debug polygon by points&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">polygons::PolygonDebugger::new_state</span>(
-                    <span class="ident">ctx</span>,
+            <span class="string">&quot;Debug polygon by points&quot; </span>=&gt; {
+                <span class="kw">return </span>Transition::Push(polygons::PolygonDebugger::new_state(
+                    ctx,
                     <span class="string">&quot;pt&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">block</span>
-                        .<span class="ident">polygon</span>
-                        .<span class="ident">get_outer_ring</span>()
-                        .<span class="ident">clone</span>()
-                        .<span class="ident">into_points</span>()
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="ident">polygons::Item::Point</span>)
-                        .<span class="ident">collect</span>(),
+                    <span class="self">self</span>.block
+                        .polygon
+                        .get_outer_ring()
+                        .clone()
+                        .into_points()
+                        .into_iter()
+                        .map(polygons::Item::Point)
+                        .collect(),
                     <span class="prelude-val">None</span>,
                 ));
             }
-            <span class="string">&quot;Debug polygon by triangles&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">polygons::PolygonDebugger::new_state</span>(
-                    <span class="ident">ctx</span>,
+            <span class="string">&quot;Debug polygon by triangles&quot; </span>=&gt; {
+                <span class="kw">return </span>Transition::Push(polygons::PolygonDebugger::new_state(
+                    ctx,
                     <span class="string">&quot;pt&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">block</span>
-                        .<span class="ident">polygon</span>
-                        .<span class="ident">triangles</span>()
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="ident">polygons::Item::Triangle</span>)
-                        .<span class="ident">collect</span>(),
+                    <span class="self">self</span>.block
+                        .polygon
+                        .triangles()
+                        .into_iter()
+                        .map(polygons::Item::Triangle)
+                        .collect(),
                     <span class="prelude-val">None</span>,
                 ));
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="ident">Transition::Keep</span>
+    <span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Blockfinder&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+<span class="kw">fn </span>make_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Panel {
+    Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+        Widget::row(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Blockfinder&quot;</span>).small_heading().into_widget(ctx),
+            ctx.style().btn_close_widget(ctx),
         ]),
-        <span class="string">&quot;Click a block to examine.&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-        <span class="string">&quot;Press space to mark/unmark for merging&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Merge&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::M</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Collapse dead-ends&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::D</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Classify neighborhoods (but don&#39;t merge)&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::C</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Auto-merge all neighborhoods&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::A</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Merge all holes&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::H</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_solid_destructive</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Reset&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::R</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="string">&quot;Click a block to examine.&quot;</span>.text_widget(ctx),
+        <span class="string">&quot;Press space to mark/unmark for merging&quot;</span>.text_widget(ctx),
+        ctx.style()
+            .btn_outline
+            .text(<span class="string">&quot;Merge&quot;</span>)
+            .hotkey(Key::M)
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
+            .text(<span class="string">&quot;Collapse dead-ends&quot;</span>)
+            .hotkey(Key::D)
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
+            .text(<span class="string">&quot;Classify neighborhoods (but don&#39;t merge)&quot;</span>)
+            .hotkey(Key::C)
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
+            .text(<span class="string">&quot;Auto-merge all neighborhoods&quot;</span>)
+            .hotkey(Key::A)
+            .build_def(ctx),
+        ctx.style()
+            .btn_outline
+            .text(<span class="string">&quot;Merge all holes&quot;</span>)
+            .hotkey(Key::H)
+            .build_def(ctx),
+        ctx.style()
+            .btn_solid_destructive
+            .text(<span class="string">&quot;Reset&quot;</span>)
+            .hotkey(Key::R)
+            .build_def(ctx),
     ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+    .build(ctx)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

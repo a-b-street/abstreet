@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/backend_glow.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backend_glow.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/backend_glow.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backend_glow.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -679,686 +679,686 @@
 <span id="679">679</span>
 <span id="680">680</span>
 <span id="681">681</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
-<span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::Cell;
+<span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">use</span> <span class="ident">glow::HasContext</span>;
+<span class="kw">use </span>glow::HasContext;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::drawing::Uniforms</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenRectangle</span>};
+<span class="kw">use </span><span class="kw">crate</span>::drawing::Uniforms;
+<span class="kw">use crate</span>::{Canvas, Color, EventCtx, GeomBatch, GfxCtx, ScreenDims, ScreenRectangle};
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend_glow_native::setup</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;native-backend&quot;</span>)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::backend_glow_native::setup;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend_glow_wasm::setup</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;wasm-backend&quot;</span>)]
+</span><span class="kw">pub use </span><span class="kw">crate</span>::backend_glow_wasm::setup;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">build_program</span>(
-    <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>,
-    <span class="ident">vertex_shader_src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">fragment_shader_src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">glow::Program</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="ident">gl</span>.<span class="ident">create_program</span>().<span class="ident">expect</span>(<span class="string">&quot;Cannot create program&quot;</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>build_program(
+    gl: <span class="kw-2">&amp;</span>glow::Context,
+    vertex_shader_src: <span class="kw-2">&amp;</span>str,
+    fragment_shader_src: <span class="kw-2">&amp;</span>str,
+) -&gt; anyhow::Result&lt;glow::Program&gt; {
+    <span class="kw">let </span>program = gl.create_program().expect(<span class="string">&quot;Cannot create program&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">shaders</span> <span class="op">=</span> [
-        <span class="ident">compile_shader</span>(<span class="ident">gl</span>, <span class="ident">glow::VERTEX_SHADER</span>, <span class="ident">vertex_shader_src</span>)<span class="question-mark">?</span>,
-        <span class="ident">compile_shader</span>(<span class="ident">gl</span>, <span class="ident">glow::FRAGMENT_SHADER</span>, <span class="ident">fragment_shader_src</span>)<span class="question-mark">?</span>,
+    <span class="kw">let </span>shaders = [
+        compile_shader(gl, glow::VERTEX_SHADER, vertex_shader_src)<span class="question-mark">?</span>,
+        compile_shader(gl, glow::FRAGMENT_SHADER, fragment_shader_src)<span class="question-mark">?</span>,
     ];
 
-    <span class="kw">for</span> <span class="ident">shader</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">shaders</span> {
-        <span class="ident">gl</span>.<span class="ident">attach_shader</span>(<span class="ident">program</span>, <span class="kw-2">*</span><span class="ident">shader</span>);
+    <span class="kw">for </span>shader <span class="kw">in </span><span class="kw-2">&amp;</span>shaders {
+        gl.attach_shader(program, <span class="kw-2">*</span>shader);
     }
 
-    <span class="ident">gl</span>.<span class="ident">link_program</span>(<span class="ident">program</span>);
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">gl</span>.<span class="ident">get_program_link_status</span>(<span class="ident">program</span>) {
-        <span class="macro">error!</span>(<span class="string">&quot;Linking error: {}&quot;</span>, <span class="ident">gl</span>.<span class="ident">get_program_info_log</span>(<span class="ident">program</span>));
-        <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">gl</span>.<span class="ident">get_program_info_log</span>(<span class="ident">program</span>));
+    gl.link_program(program);
+    <span class="kw">if </span>!gl.get_program_link_status(program) {
+        <span class="macro">error!</span>(<span class="string">&quot;Linking error: {}&quot;</span>, gl.get_program_info_log(program));
+        <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, gl.get_program_info_log(program));
     }
 
-    <span class="kw">for</span> <span class="ident">shader</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">shaders</span> {
-        <span class="ident">gl</span>.<span class="ident">detach_shader</span>(<span class="ident">program</span>, <span class="kw-2">*</span><span class="ident">shader</span>);
-        <span class="ident">gl</span>.<span class="ident">delete_shader</span>(<span class="kw-2">*</span><span class="ident">shader</span>);
+    <span class="kw">for </span>shader <span class="kw">in </span><span class="kw-2">&amp;</span>shaders {
+        gl.detach_shader(program, <span class="kw-2">*</span>shader);
+        gl.delete_shader(<span class="kw-2">*</span>shader);
     }
 
-    <span class="ident">gl</span>.<span class="ident">use_program</span>(<span class="prelude-val">Some</span>(<span class="ident">program</span>));
+    gl.use_program(<span class="prelude-val">Some</span>(program));
 
-    <span class="ident">gl</span>.<span class="ident">enable</span>(<span class="ident">glow::SCISSOR_TEST</span>);
-    <span class="ident">gl</span>.<span class="ident">enable</span>(<span class="ident">glow::DEPTH_TEST</span>);
-    <span class="ident">gl</span>.<span class="ident">depth_func</span>(<span class="ident">glow::LEQUAL</span>);
-    <span class="ident">gl</span>.<span class="ident">enable</span>(<span class="ident">glow::BLEND</span>);
-    <span class="ident">gl</span>.<span class="ident">blend_func_separate</span>(
-        <span class="ident">glow::ONE</span>,
-        <span class="ident">glow::ONE_MINUS_SRC_ALPHA</span>,
-        <span class="ident">glow::ONE_MINUS_DST_ALPHA</span>,
-        <span class="ident">glow::ONE</span>,
+    gl.enable(glow::SCISSOR_TEST);
+    gl.enable(glow::DEPTH_TEST);
+    gl.depth_func(glow::LEQUAL);
+    gl.enable(glow::BLEND);
+    gl.blend_func_separate(
+        glow::ONE,
+        glow::ONE_MINUS_SRC_ALPHA,
+        glow::ONE_MINUS_DST_ALPHA,
+        glow::ONE,
     );
 
-    <span class="prelude-val">Ok</span>(<span class="ident">program</span>)
+    <span class="prelude-val">Ok</span>(program)
 }
 
-<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">compile_shader</span>(
-    <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>,
-    <span class="ident">shader_type</span>: <span class="ident">u32</span>,
-    <span class="ident">shader_source</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="ident">glow::Shader</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">shader</span> <span class="op">=</span> <span class="ident">gl</span>.<span class="ident">create_shader</span>(<span class="ident">shader_type</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="ident">e</span>))<span class="question-mark">?</span>;
-    <span class="ident">gl</span>.<span class="ident">shader_source</span>(<span class="ident">shader</span>, <span class="ident">shader_source</span>);
-    <span class="ident">gl</span>.<span class="ident">compile_shader</span>(<span class="ident">shader</span>);
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">gl</span>.<span class="ident">get_shader_compile_status</span>(<span class="ident">shader</span>) {
-        <span class="macro">bail!</span>(<span class="string">&quot;error compiling shader: {}&quot;</span>, <span class="ident">gl</span>.<span class="ident">get_shader_info_log</span>(<span class="ident">shader</span>));
+<span class="kw">unsafe fn </span>compile_shader(
+    gl: <span class="kw-2">&amp;</span>glow::Context,
+    shader_type: u32,
+    shader_source: <span class="kw-2">&amp;</span>str,
+) -&gt; anyhow::Result&lt;glow::Shader&gt; {
+    <span class="kw">let </span>shader = gl.create_shader(shader_type).map_err(|e| <span class="macro">anyhow!</span>(e))<span class="question-mark">?</span>;
+    gl.shader_source(shader, shader_source);
+    gl.compile_shader(shader);
+    <span class="kw">if </span>!gl.get_shader_compile_status(shader) {
+        <span class="macro">bail!</span>(<span class="string">&quot;error compiling shader: {}&quot;</span>, gl.get_shader_info_log(shader));
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">shader</span>)
+    <span class="prelude-val">Ok</span>(shader)
 }
 
-<span class="comment">// Represents one frame that&#39;s gonna be drawn</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GfxCtxInnards</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">glow::Context</span>,
-    <span class="ident">current_clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span>,
-    <span class="ident">transform_location</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::UniformLocation</span>,
-    <span class="ident">window_location</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::UniformLocation</span>,
+<span class="comment">// Represents one frame that&#39;s gonna be drawn
+</span><span class="kw">pub struct </span>GfxCtxInnards&lt;<span class="lifetime">&#39;a</span>&gt; {
+    gl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>glow::Context,
+    current_clip: <span class="prelude-ty">Option</span>&lt;[i32; <span class="number">4</span>]&gt;,
+    transform_location: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::UniformLocation,
+    window_location: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::UniformLocation,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">GfxCtxInnards</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">glow::Context</span>,
-        <span class="ident">program</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::Program</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> (<span class="ident">transform_location</span>, <span class="ident">window_location</span>) <span class="op">=</span> <span class="kw">unsafe</span> {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GfxCtxInnards&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub fn </span>new(
+        gl: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>glow::Context,
+        program: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>&lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::Program,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>(transform_location, window_location) = <span class="kw">unsafe </span>{
             (
-                <span class="ident">gl</span>.<span class="ident">get_uniform_location</span>(<span class="kw-2">*</span><span class="ident">program</span>, <span class="string">&quot;transform&quot;</span>).<span class="ident">unwrap</span>(),
-                <span class="ident">gl</span>.<span class="ident">get_uniform_location</span>(<span class="kw-2">*</span><span class="ident">program</span>, <span class="string">&quot;window&quot;</span>).<span class="ident">unwrap</span>(),
+                gl.get_uniform_location(<span class="kw-2">*</span>program, <span class="string">&quot;transform&quot;</span>).unwrap(),
+                gl.get_uniform_location(<span class="kw-2">*</span>program, <span class="string">&quot;window&quot;</span>).unwrap(),
             )
         };
-        <span class="ident">GfxCtxInnards</span> {
-            <span class="ident">gl</span>,
-            <span class="ident">current_clip</span>: <span class="prelude-val">None</span>,
-            <span class="ident">transform_location</span>,
-            <span class="ident">window_location</span>,
+        GfxCtxInnards {
+            gl,
+            current_clip: <span class="prelude-val">None</span>,
+            transform_location,
+            window_location,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">clear_color</span>(<span class="ident">color</span>.<span class="ident">r</span>, <span class="ident">color</span>.<span class="ident">g</span>, <span class="ident">color</span>.<span class="ident">b</span>, <span class="ident">color</span>.<span class="ident">a</span>);
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">clear</span>(<span class="ident">glow::COLOR_BUFFER_BIT</span>);
+    <span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>, color: Color) {
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.gl.clear_color(color.r, color.g, color.b, color.a);
+            <span class="self">self</span>.gl.clear(glow::COLOR_BUFFER_BIT);
 
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">clear_depth_f32</span>(<span class="number">1.0</span>);
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">clear</span>(<span class="ident">glow::DEPTH_BUFFER_BIT</span>);
+            <span class="self">self</span>.gl.clear_depth_f32(<span class="number">1.0</span>);
+            <span class="self">self</span>.gl.clear(glow::DEPTH_BUFFER_BIT);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redraw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">Drawable</span>, <span class="ident">uniforms</span>: <span class="kw-2">&amp;</span><span class="ident">Uniforms</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">PrerenderInnards</span>) {
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">uniform_3_f32_slice</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">transform_location</span>), <span class="kw-2">&amp;</span><span class="ident">uniforms</span>.<span class="ident">transform</span>);
-            <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">uniform_3_f32_slice</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">window_location</span>), <span class="kw-2">&amp;</span><span class="ident">uniforms</span>.<span class="ident">window</span>);
+    <span class="kw">pub fn </span>redraw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, obj: <span class="kw-2">&amp;</span>Drawable, uniforms: <span class="kw-2">&amp;</span>Uniforms, <span class="kw">_</span>: <span class="kw-2">&amp;</span>PrerenderInnards) {
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.gl
+                .uniform_3_f32_slice(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.transform_location), <span class="kw-2">&amp;</span>uniforms.transform);
+            <span class="self">self</span>.gl
+                .uniform_3_f32_slice(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.window_location), <span class="kw-2">&amp;</span>uniforms.window);
 
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">bind_vertex_array</span>(<span class="prelude-val">Some</span>(<span class="ident">obj</span>.<span class="ident">vert_array</span>.<span class="ident">id</span>));
-            <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">draw_elements</span>(<span class="ident">glow::TRIANGLES</span>, <span class="ident">obj</span>.<span class="ident">num_indices</span>, <span class="ident">glow::UNSIGNED_INT</span>, <span class="number">0</span>);
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">bind_vertex_array</span>(<span class="prelude-val">None</span>);
+            <span class="self">self</span>.gl.bind_vertex_array(<span class="prelude-val">Some</span>(obj.vert_array.id));
+            <span class="self">self</span>.gl
+                .draw_elements(glow::TRIANGLES, obj.num_indices, glow::UNSIGNED_INT, <span class="number">0</span>);
+            <span class="self">self</span>.gl.bind_vertex_array(<span class="prelude-val">None</span>);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enable_clipping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rect</span>: <span class="ident">ScreenRectangle</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">current_clip</span>.<span class="ident">is_none</span>());
-        <span class="comment">// The scissor rectangle is in units of physical pixles, as opposed to logical pixels</span>
-        <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> (<span class="ident">rect</span>.<span class="ident">x1</span> <span class="op">*</span> <span class="ident">scale_factor</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-        <span class="comment">// Y-inversion</span>
-        <span class="kw">let</span> <span class="ident">bottom</span> <span class="op">=</span> ((<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">y2</span>) <span class="op">*</span> <span class="ident">scale_factor</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> ((<span class="ident">rect</span>.<span class="ident">x2</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">x1</span>) <span class="op">*</span> <span class="ident">scale_factor</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> ((<span class="ident">rect</span>.<span class="ident">y2</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">y1</span>) <span class="op">*</span> <span class="ident">scale_factor</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">scissor</span>(<span class="ident">left</span>, <span class="ident">bottom</span>, <span class="ident">width</span>, <span class="ident">height</span>);
+    <span class="kw">pub fn </span>enable_clipping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rect: ScreenRectangle, scale_factor: f64, canvas: <span class="kw-2">&amp;</span>Canvas) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.current_clip.is_none());
+        <span class="comment">// The scissor rectangle is in units of physical pixles, as opposed to logical pixels
+        </span><span class="kw">let </span>left = (rect.x1 * scale_factor) <span class="kw">as </span>i32;
+        <span class="comment">// Y-inversion
+        </span><span class="kw">let </span>bottom = ((canvas.window_height - rect.y2) * scale_factor) <span class="kw">as </span>i32;
+        <span class="kw">let </span>width = ((rect.x2 - rect.x1) * scale_factor) <span class="kw">as </span>i32;
+        <span class="kw">let </span>height = ((rect.y2 - rect.y1) * scale_factor) <span class="kw">as </span>i32;
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.gl.scissor(left, bottom, width, height);
         }
-        <span class="self">self</span>.<span class="ident">current_clip</span> <span class="op">=</span> <span class="prelude-val">Some</span>([<span class="ident">left</span>, <span class="ident">bottom</span>, <span class="ident">width</span>, <span class="ident">height</span>]);
+        <span class="self">self</span>.current_clip = <span class="prelude-val">Some</span>([left, bottom, width, height]);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable_clipping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">current_clip</span>.<span class="ident">is_some</span>());
-        <span class="self">self</span>.<span class="ident">current_clip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">scissor</span>(
+    <span class="kw">pub fn </span>disable_clipping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, scale_factor: f64, canvas: <span class="kw-2">&amp;</span>Canvas) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.current_clip.is_some());
+        <span class="self">self</span>.current_clip = <span class="prelude-val">None</span>;
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.gl.scissor(
                 <span class="number">0</span>,
                 <span class="number">0</span>,
-                (<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">*</span> <span class="ident">scale_factor</span>) <span class="kw">as</span> <span class="ident">i32</span>,
-                (<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="op">*</span> <span class="ident">scale_factor</span>) <span class="kw">as</span> <span class="ident">i32</span>,
+                (canvas.window_width * scale_factor) <span class="kw">as </span>i32,
+                (canvas.window_height * scale_factor) <span class="kw">as </span>i32,
             );
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_clip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">clip</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_clip</span><span class="question-mark">?</span>;
-        <span class="self">self</span>.<span class="ident">disable_clipping</span>(<span class="ident">scale_factor</span>, <span class="ident">canvas</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">clip</span>)
+    <span class="kw">pub fn </span>take_clip(<span class="kw-2">&amp;mut </span><span class="self">self</span>, scale_factor: f64, canvas: <span class="kw-2">&amp;</span>Canvas) -&gt; <span class="prelude-ty">Option</span>&lt;[i32; <span class="number">4</span>]&gt; {
+        <span class="kw">let </span>clip = <span class="self">self</span>.current_clip<span class="question-mark">?</span>;
+        <span class="self">self</span>.disable_clipping(scale_factor, canvas);
+        <span class="prelude-val">Some</span>(clip)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">restore_clip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">clip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>[<span class="ident">i32</span>; <span class="number">4</span>]<span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">current_clip</span> <span class="op">=</span> <span class="ident">clip</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">clip</span> {
-            <span class="kw">unsafe</span> {
-                <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">scissor</span>(<span class="ident">c</span>[<span class="number">0</span>], <span class="ident">c</span>[<span class="number">1</span>], <span class="ident">c</span>[<span class="number">2</span>], <span class="ident">c</span>[<span class="number">3</span>]);
+    <span class="kw">pub fn </span>restore_clip(<span class="kw-2">&amp;mut </span><span class="self">self</span>, clip: <span class="prelude-ty">Option</span>&lt;[i32; <span class="number">4</span>]&gt;) {
+        <span class="self">self</span>.current_clip = clip;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = clip {
+            <span class="kw">unsafe </span>{
+                <span class="self">self</span>.gl.scissor(c[<span class="number">0</span>], c[<span class="number">1</span>], c[<span class="number">2</span>], c[<span class="number">3</span>]);
             }
         }
     }
 }
 
-<span class="doccomment">/// Geometry that&#39;s been uploaded to the GPU once and can be quickly redrawn many times. Create by</span>
-<span class="doccomment">/// creating a `GeomBatch` and calling `ctx.upload(batch)`.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Drawable</span> {
-    <span class="ident">vert_array</span>: <span class="ident">VertexArray</span>,
-    <span class="ident">vert_buffer</span>: <span class="ident">Buffer</span>,
-    <span class="ident">elem_buffer</span>: <span class="ident">Buffer</span>,
-    <span class="ident">num_indices</span>: <span class="ident">i32</span>,
-    <span class="ident">gl</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">glow::Context</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Geometry that&#39;s been uploaded to the GPU once and can be quickly redrawn many times. Create by
+/// creating a `GeomBatch` and calling `ctx.upload(batch)`.
+</span><span class="kw">pub struct </span>Drawable {
+    vert_array: VertexArray,
+    vert_buffer: Buffer,
+    elem_buffer: Buffer,
+    num_indices: i32,
+    gl: Rc&lt;glow::Context&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Drawable</span> {
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">elem_buffer</span>.<span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
-        <span class="self">self</span>.<span class="ident">vert_buffer</span>.<span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
-        <span class="self">self</span>.<span class="ident">vert_array</span>.<span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
+<span class="kw">impl </span>Drop <span class="kw">for </span>Drawable {
+    <span class="attribute">#[inline]
+    </span><span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.elem_buffer.destroy(<span class="kw-2">&amp;</span><span class="self">self</span>.gl);
+        <span class="self">self</span>.vert_buffer.destroy(<span class="kw-2">&amp;</span><span class="self">self</span>.gl);
+        <span class="self">self</span>.vert_array.destroy(<span class="kw-2">&amp;</span><span class="self">self</span>.gl);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Drawable</span> {
-    <span class="doccomment">/// This has no effect when drawn.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">GeomBatch::new</span>())
+<span class="kw">impl </span>Drawable {
+    <span class="doccomment">/// This has no effect when drawn.
+    </span><span class="kw">pub fn </span>empty(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Drawable {
+        ctx.upload(GeomBatch::new())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="self">self</span>);
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="self">self</span>);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">VertexArray</span> {
-    <span class="ident">id</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::VertexArray</span>,
-    <span class="ident">was_destroyed</span>: <span class="ident">bool</span>,
+<span class="kw">struct </span>VertexArray {
+    id: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::VertexArray,
+    was_destroyed: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">VertexArray</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>) -&gt; <span class="ident">VertexArray</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gl</span>.<span class="ident">create_vertex_array</span>().<span class="ident">unwrap</span>() };
-        <span class="ident">VertexArray</span> {
-            <span class="ident">id</span>,
-            <span class="ident">was_destroyed</span>: <span class="bool-val">false</span>,
+<span class="kw">impl </span>VertexArray {
+    <span class="kw">fn </span>new(gl: <span class="kw-2">&amp;</span>glow::Context) -&gt; VertexArray {
+        <span class="kw">let </span>id = <span class="kw">unsafe </span>{ gl.create_vertex_array().unwrap() };
+        VertexArray {
+            id,
+            was_destroyed: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">destroy</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>) {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">was_destroyed</span>, <span class="string">&quot;already destroyed&quot;</span>);
-        <span class="self">self</span>.<span class="ident">was_destroyed</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">unsafe</span> {
-            <span class="ident">gl</span>.<span class="ident">delete_vertex_array</span>(<span class="self">self</span>.<span class="ident">id</span>);
+    <span class="kw">fn </span>destroy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gl: <span class="kw-2">&amp;</span>glow::Context) {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.was_destroyed, <span class="string">&quot;already destroyed&quot;</span>);
+        <span class="self">self</span>.was_destroyed = <span class="bool-val">true</span>;
+        <span class="kw">unsafe </span>{
+            gl.delete_vertex_array(<span class="self">self</span>.id);
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">VertexArray</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+<span class="kw">impl </span>Drop <span class="kw">for </span>VertexArray {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="macro">assert!</span>(
-            <span class="self">self</span>.<span class="ident">was_destroyed</span>,
-            <span class="string">&quot;failed to call `destroy` before dropped. Memory leaked.&quot;</span>
-        );
+            <span class="self">self</span>.was_destroyed,
+            <span class="string">&quot;failed to call `destroy` before dropped. Memory leaked.&quot;
+        </span>);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">Buffer</span> {
-    <span class="ident">id</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::Buffer</span>,
-    <span class="ident">was_destroyed</span>: <span class="ident">bool</span>,
+<span class="kw">struct </span>Buffer {
+    id: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::Buffer,
+    was_destroyed: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">Buffer</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>) -&gt; <span class="ident">Buffer</span> {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">gl</span>.<span class="ident">create_buffer</span>().<span class="ident">unwrap</span>() };
-        <span class="ident">Buffer</span> {
-            <span class="ident">id</span>,
-            <span class="ident">was_destroyed</span>: <span class="bool-val">false</span>,
+<span class="kw">impl </span>Buffer {
+    <span class="kw">fn </span>new(gl: <span class="kw-2">&amp;</span>glow::Context) -&gt; Buffer {
+        <span class="kw">let </span>id = <span class="kw">unsafe </span>{ gl.create_buffer().unwrap() };
+        Buffer {
+            id,
+            was_destroyed: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">destroy</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>) {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">was_destroyed</span>, <span class="string">&quot;already destroyed&quot;</span>);
-        <span class="self">self</span>.<span class="ident">was_destroyed</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">unsafe</span> { <span class="ident">gl</span>.<span class="ident">delete_buffer</span>(<span class="self">self</span>.<span class="ident">id</span>) };
+    <span class="kw">fn </span>destroy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, gl: <span class="kw-2">&amp;</span>glow::Context) {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.was_destroyed, <span class="string">&quot;already destroyed&quot;</span>);
+        <span class="self">self</span>.was_destroyed = <span class="bool-val">true</span>;
+        <span class="kw">unsafe </span>{ gl.delete_buffer(<span class="self">self</span>.id) };
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">Buffer</span> {
-    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
+<span class="kw">impl </span>Drop <span class="kw">for </span>Buffer {
+    <span class="kw">fn </span>drop(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
         <span class="macro">assert!</span>(
-            <span class="self">self</span>.<span class="ident">was_destroyed</span>,
-            <span class="string">&quot;failed to call `destroy` before dropped. Memory leaked.&quot;</span>
-        );
+            <span class="self">self</span>.was_destroyed,
+            <span class="string">&quot;failed to call `destroy` before dropped. Memory leaked.&quot;
+        </span>);
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm-backend&quot;</span>)]</span>
-<span class="kw">type</span> <span class="ident">WindowAdapter</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::backend_glow_wasm::WindowAdapter</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;wasm-backend&quot;</span>)]
+</span><span class="kw">type </span>WindowAdapter = <span class="kw">crate</span>::backend_glow_wasm::WindowAdapter;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;native-backend&quot;</span>)]</span>
-<span class="kw">type</span> <span class="ident">WindowAdapter</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::backend_glow_native::WindowAdapter</span>;
+<span class="attribute">#[cfg(feature = <span class="string">&quot;native-backend&quot;</span>)]
+</span><span class="kw">type </span>WindowAdapter = <span class="kw">crate</span>::backend_glow_native::WindowAdapter;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrerenderInnards</span> {
-    <span class="ident">gl</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">glow::Context</span><span class="op">&gt;</span>,
-    <span class="ident">is_gl2</span>: <span class="ident">bool</span>,
-    <span class="ident">window_adapter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WindowAdapter</span><span class="op">&gt;</span>,
-    <span class="ident">program</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::Program</span>,
+<span class="kw">pub struct </span>PrerenderInnards {
+    gl: Rc&lt;glow::Context&gt;,
+    is_gl2: bool,
+    window_adapter: <span class="prelude-ty">Option</span>&lt;WindowAdapter&gt;,
+    program: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::Program,
 
-    <span class="comment">// TODO Prerender doesn&#39;t know what things are temporary and permanent. Could make the API more</span>
-    <span class="comment">// detailed.</span>
-    <span class="kw">pub</span> <span class="ident">total_bytes_uploaded</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="comment">// TODO Prerender doesn&#39;t know what things are temporary and permanent. Could make the API more
+    // detailed.
+    </span><span class="kw">pub </span>total_bytes_uploaded: Cell&lt;usize&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PrerenderInnards</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">gl</span>: <span class="ident">glow::Context</span>,
-        <span class="ident">is_gl2</span>: <span class="ident">bool</span>,
-        <span class="ident">program</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::Program</span>,
-        <span class="ident">window_adapter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WindowAdapter</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">PrerenderInnards</span> {
-        <span class="ident">PrerenderInnards</span> {
-            <span class="ident">gl</span>: <span class="ident">Rc::new</span>(<span class="ident">gl</span>),
-            <span class="ident">is_gl2</span>,
-            <span class="ident">program</span>,
-            <span class="ident">window_adapter</span>,
-            <span class="ident">total_bytes_uploaded</span>: <span class="ident">Cell::new</span>(<span class="number">0</span>),
+<span class="kw">impl </span>PrerenderInnards {
+    <span class="kw">pub fn </span>new(
+        gl: glow::Context,
+        is_gl2: bool,
+        program: &lt;glow::Context <span class="kw">as </span>glow::HasContext&gt;::Program,
+        window_adapter: <span class="prelude-ty">Option</span>&lt;WindowAdapter&gt;,
+    ) -&gt; PrerenderInnards {
+        PrerenderInnards {
+            gl: Rc::new(gl),
+            is_gl2,
+            program,
+            window_adapter,
+            total_bytes_uploaded: Cell::new(<span class="number">0</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">actually_upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permanent</span>: <span class="ident">bool</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vertices</span>: <span class="ident">Vec</span><span class="op">&lt;</span>[<span class="ident">f32</span>; <span class="number">8</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">pub fn </span>actually_upload(<span class="kw-2">&amp;</span><span class="self">self</span>, permanent: bool, batch: GeomBatch) -&gt; Drawable {
+        <span class="kw">let </span><span class="kw-2">mut </span>vertices: Vec&lt;[f32; <span class="number">8</span>]&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>indices: Vec&lt;u32&gt; = Vec::new();
 
-        <span class="kw">for</span> (<span class="ident">color</span>, <span class="ident">poly</span>, <span class="ident">z</span>) <span class="kw">in</span> <span class="ident">batch</span>.<span class="ident">consume</span>() {
-            <span class="kw">let</span> <span class="ident">idx_offset</span> <span class="op">=</span> <span class="ident">vertices</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u32</span>;
-            <span class="kw">let</span> (<span class="ident">pts</span>, <span class="ident">raw_indices</span>) <span class="op">=</span> <span class="ident">poly</span>.<span class="ident">consume</span>();
-            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-                <span class="kw">let</span> <span class="ident">style</span> <span class="op">=</span> <span class="ident">color</span>.<span class="ident">shader_style</span>(<span class="ident">pt</span>);
-                <span class="ident">vertices</span>.<span class="ident">push</span>([
-                    <span class="ident">pt</span>.<span class="ident">x</span>() <span class="kw">as</span> <span class="ident">f32</span>,
-                    <span class="ident">pt</span>.<span class="ident">y</span>() <span class="kw">as</span> <span class="ident">f32</span>,
-                    <span class="ident">z</span> <span class="kw">as</span> <span class="ident">f32</span>,
-                    <span class="ident">style</span>[<span class="number">0</span>],
-                    <span class="ident">style</span>[<span class="number">1</span>],
-                    <span class="ident">style</span>[<span class="number">2</span>],
-                    <span class="ident">style</span>[<span class="number">3</span>],
-                    <span class="ident">style</span>[<span class="number">4</span>],
+        <span class="kw">for </span>(color, poly, z) <span class="kw">in </span>batch.consume() {
+            <span class="kw">let </span>idx_offset = vertices.len() <span class="kw">as </span>u32;
+            <span class="kw">let </span>(pts, raw_indices) = poly.consume();
+            <span class="kw">for </span>pt <span class="kw">in </span>pts {
+                <span class="kw">let </span>style = color.shader_style(pt);
+                vertices.push([
+                    pt.x() <span class="kw">as </span>f32,
+                    pt.y() <span class="kw">as </span>f32,
+                    z <span class="kw">as </span>f32,
+                    style[<span class="number">0</span>],
+                    style[<span class="number">1</span>],
+                    style[<span class="number">2</span>],
+                    style[<span class="number">3</span>],
+                    style[<span class="number">4</span>],
                 ]);
             }
-            <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">raw_indices</span> {
-                <span class="ident">indices</span>.<span class="ident">push</span>(<span class="ident">idx_offset</span> <span class="op">+</span> (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">u32</span>));
+            <span class="kw">for </span>idx <span class="kw">in </span>raw_indices {
+                indices.push(idx_offset + (idx <span class="kw">as </span>u32));
             }
         }
 
-        <span class="kw">let</span> (<span class="ident">vert_buffer</span>, <span class="ident">vert_array</span>, <span class="ident">elem_buffer</span>) <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="kw">let</span> <span class="ident">vert_array</span> <span class="op">=</span> <span class="ident">VertexArray::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
-            <span class="kw">let</span> <span class="ident">vert_buffer</span> <span class="op">=</span> <span class="ident">Buffer::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
-            <span class="kw">let</span> <span class="ident">elem_buffer</span> <span class="op">=</span> <span class="ident">Buffer::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>);
+        <span class="kw">let </span>(vert_buffer, vert_array, elem_buffer) = <span class="kw">unsafe </span>{
+            <span class="kw">let </span>vert_array = VertexArray::new(<span class="kw-2">&amp;</span><span class="self">self</span>.gl);
+            <span class="kw">let </span>vert_buffer = Buffer::new(<span class="kw-2">&amp;</span><span class="self">self</span>.gl);
+            <span class="kw">let </span>elem_buffer = Buffer::new(<span class="kw-2">&amp;</span><span class="self">self</span>.gl);
 
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">bind_vertex_array</span>(<span class="prelude-val">Some</span>(<span class="ident">vert_array</span>.<span class="ident">id</span>));
+            <span class="self">self</span>.gl.bind_vertex_array(<span class="prelude-val">Some</span>(vert_array.id));
 
-            <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">bind_buffer</span>(<span class="ident">glow::ARRAY_BUFFER</span>, <span class="prelude-val">Some</span>(<span class="ident">vert_buffer</span>.<span class="ident">id</span>));
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">buffer_data_u8_slice</span>(
-                <span class="ident">glow::ARRAY_BUFFER</span>,
-                <span class="ident">vertices</span>.<span class="ident">align_to</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="number">1</span>,
-                <span class="comment">// TODO Use permanent</span>
-                <span class="ident">glow::STATIC_DRAW</span>,
+            <span class="self">self</span>.gl
+                .bind_buffer(glow::ARRAY_BUFFER, <span class="prelude-val">Some</span>(vert_buffer.id));
+            <span class="self">self</span>.gl.buffer_data_u8_slice(
+                glow::ARRAY_BUFFER,
+                vertices.align_to::&lt;u8&gt;().<span class="number">1</span>,
+                <span class="comment">// TODO Use permanent
+                </span>glow::STATIC_DRAW,
             );
 
-            <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">bind_buffer</span>(<span class="ident">glow::ELEMENT_ARRAY_BUFFER</span>, <span class="prelude-val">Some</span>(<span class="ident">elem_buffer</span>.<span class="ident">id</span>));
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">buffer_data_u8_slice</span>(
-                <span class="ident">glow::ELEMENT_ARRAY_BUFFER</span>,
-                <span class="ident">indices</span>.<span class="ident">align_to</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>().<span class="number">1</span>,
-                <span class="ident">glow::STATIC_DRAW</span>,
+            <span class="self">self</span>.gl
+                .bind_buffer(glow::ELEMENT_ARRAY_BUFFER, <span class="prelude-val">Some</span>(elem_buffer.id));
+            <span class="self">self</span>.gl.buffer_data_u8_slice(
+                glow::ELEMENT_ARRAY_BUFFER,
+                indices.align_to::&lt;u8&gt;().<span class="number">1</span>,
+                glow::STATIC_DRAW,
             );
 
-            <span class="kw">let</span> <span class="ident">vertex_attributes</span>: [<span class="ident">i32</span>; <span class="number">3</span>] <span class="op">=</span> [
-                <span class="number">3</span>, <span class="comment">// position is vec2</span>
-                <span class="number">4</span>, <span class="comment">// color is vec4</span>
-                <span class="number">1</span>, <span class="comment">// texture_id is float</span>
-            ];
-            <span class="kw">let</span> <span class="ident">stride</span> <span class="op">=</span> <span class="ident">vertex_attributes</span>.<span class="ident">iter</span>().<span class="ident">sum</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>() <span class="op">*</span> <span class="ident">std::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">i32</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">size</span>) <span class="kw">in</span> <span class="ident">vertex_attributes</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">enable_vertex_attrib_array</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">u32</span>);
-                <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">vertex_attrib_pointer_f32</span>(
-                    <span class="ident">i</span> <span class="kw">as</span> <span class="ident">u32</span>,
-                    <span class="kw-2">*</span><span class="ident">size</span>,
-                    <span class="ident">glow::FLOAT</span>,
+            <span class="kw">let </span>vertex_attributes: [i32; <span class="number">3</span>] = [
+                <span class="number">3</span>, <span class="comment">// position is vec2
+                </span><span class="number">4</span>, <span class="comment">// color is vec4
+                </span><span class="number">1</span>, <span class="comment">// texture_id is float
+            </span>];
+            <span class="kw">let </span>stride = vertex_attributes.iter().sum::&lt;i32&gt;() * std::mem::size_of::&lt;f32&gt;() <span class="kw">as </span>i32;
+            <span class="kw">let </span><span class="kw-2">mut </span>offset = <span class="number">0</span>;
+            <span class="kw">for </span>(i, size) <span class="kw">in </span>vertex_attributes.iter().enumerate() {
+                <span class="self">self</span>.gl.enable_vertex_attrib_array(i <span class="kw">as </span>u32);
+                <span class="self">self</span>.gl.vertex_attrib_pointer_f32(
+                    i <span class="kw">as </span>u32,
+                    <span class="kw-2">*</span>size,
+                    glow::FLOAT,
                     <span class="bool-val">false</span>,
-                    <span class="ident">stride</span>,
-                    <span class="ident">offset</span>,
+                    stride,
+                    offset,
                 );
-                <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">size</span> <span class="op">*</span> <span class="ident">std::mem::size_of</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">i32</span>;
+                offset += size * std::mem::size_of::&lt;f32&gt;() <span class="kw">as </span>i32;
             }
 
-            <span class="comment">// Safety?</span>
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">bind_vertex_array</span>(<span class="prelude-val">None</span>);
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">bind_buffer</span>(<span class="ident">glow::ARRAY_BUFFER</span>, <span class="prelude-val">None</span>);
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">bind_buffer</span>(<span class="ident">glow::ELEMENT_ARRAY_BUFFER</span>, <span class="prelude-val">None</span>);
+            <span class="comment">// Safety?
+            </span><span class="self">self</span>.gl.bind_vertex_array(<span class="prelude-val">None</span>);
+            <span class="self">self</span>.gl.bind_buffer(glow::ARRAY_BUFFER, <span class="prelude-val">None</span>);
+            <span class="self">self</span>.gl.bind_buffer(glow::ELEMENT_ARRAY_BUFFER, <span class="prelude-val">None</span>);
 
-            (<span class="ident">vert_buffer</span>, <span class="ident">vert_array</span>, <span class="ident">elem_buffer</span>)
+            (vert_buffer, vert_array, elem_buffer)
         };
-        <span class="kw">let</span> <span class="ident">num_indices</span> <span class="op">=</span> <span class="ident">indices</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">i32</span>;
+        <span class="kw">let </span>num_indices = indices.len() <span class="kw">as </span>i32;
 
-        <span class="kw">if</span> <span class="ident">permanent</span> {
+        <span class="kw">if </span>permanent {
             <span class="comment">/*self.total_bytes_uploaded.set(
                 self.total_bytes_uploaded.get()
                     + vertex_buffer.get_size()
                     + index_buffer.get_size(),
-            );*/</span>
-        }
+            );*/
+        </span>}
 
-        <span class="ident">Drawable</span> {
-            <span class="ident">vert_array</span>,
-            <span class="ident">vert_buffer</span>,
-            <span class="ident">elem_buffer</span>,
-            <span class="ident">num_indices</span>,
-            <span class="ident">gl</span>: <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">clone</span>(),
-        }
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">window</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">winit::window::Window</span> {
-        <span class="self">self</span>.<span class="ident">window_adapter</span>.<span class="ident">as_ref</span>().<span class="ident">expect</span>(<span class="string">&quot;no window&quot;</span>).<span class="ident">window</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">request_redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">request_redraw</span>();
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cursor_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">icon</span>: <span class="ident">winit::window::CursorIcon</span>) {
-        <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">set_cursor_icon</span>(<span class="ident">icon</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_cursor_visible</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">visible</span>: <span class="ident">bool</span>) {
-        <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">set_cursor_visible</span>(<span class="ident">visible</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_new_frame</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GfxCtxInnards</span> {
-        <span class="ident">GfxCtxInnards::new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">program</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_resized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">ScreenDims</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) {
-        <span class="kw">let</span> <span class="ident">physical_size</span> <span class="op">=</span> <span class="ident">winit::dpi::LogicalSize::from</span>(<span class="ident">new_size</span>).<span class="ident">to_physical</span>(<span class="ident">scale_factor</span>);
-        <span class="self">self</span>.<span class="ident">window_adapter</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;no window&quot;</span>)
-            .<span class="ident">window_resized</span>(<span class="ident">new_size</span>, <span class="ident">scale_factor</span>);
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">viewport</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">physical_size</span>.<span class="ident">width</span>, <span class="ident">physical_size</span>.<span class="ident">height</span>);
-            <span class="comment">// I think it&#39;s safe to assume there&#39;s not a clip right now.</span>
-            <span class="self">self</span>.<span class="ident">gl</span>
-                .<span class="ident">scissor</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="ident">physical_size</span>.<span class="ident">width</span>, <span class="ident">physical_size</span>.<span class="ident">height</span>);
+        Drawable {
+            vert_array,
+            vert_buffer,
+            elem_buffer,
+            num_indices,
+            gl: <span class="self">self</span>.gl.clone(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">inner_size</span>().<span class="ident">to_logical</span>(<span class="ident">scale_factor</span>).<span class="ident">into</span>()
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>window(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>winit::window::Window {
+        <span class="self">self</span>.window_adapter.as_ref().expect(<span class="string">&quot;no window&quot;</span>).window()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_window_icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">icon</span>: <span class="ident">winit::window::Icon</span>) {
-        <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">set_window_icon</span>(<span class="prelude-val">Some</span>(<span class="ident">icon</span>));
+    <span class="kw">pub fn </span>request_redraw(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.window().request_redraw();
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">monitor_scale_factor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">window</span>().<span class="ident">scale_factor</span>()
+    <span class="kw">pub fn </span>set_cursor_icon(<span class="kw-2">&amp;</span><span class="self">self</span>, icon: winit::window::CursorIcon) {
+        <span class="self">self</span>.window().set_cursor_icon(icon);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_finished</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gfx_ctx_innards</span>: <span class="ident">GfxCtxInnards</span>) {
-        <span class="self">self</span>.<span class="ident">window_adapter</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;no window&quot;</span>)
-            .<span class="ident">draw_finished</span>(<span class="ident">gfx_ctx_innards</span>)
+    <span class="kw">pub fn </span>set_cursor_visible(<span class="kw-2">&amp;</span><span class="self">self</span>, visible: bool) {
+        <span class="self">self</span>.window().set_cursor_visible(visible);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">screencap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dims</span>: <span class="ident">ScreenDims</span>, <span class="ident">filename</span>: <span class="ident">String</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u32</span>;
-        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u32</span>;
+    <span class="kw">pub fn </span>draw_new_frame(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GfxCtxInnards {
+        GfxCtxInnards::new(<span class="kw-2">&amp;</span><span class="self">self</span>.gl, <span class="kw-2">&amp;</span><span class="self">self</span>.program)
+    }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">img</span> <span class="op">=</span> <span class="ident">image::DynamicImage::new_rgba8</span>(<span class="ident">width</span>, <span class="ident">height</span>);
-        <span class="kw">let</span> <span class="ident">pixels</span> <span class="op">=</span> <span class="ident">img</span>.<span class="ident">as_mut_rgba8</span>().<span class="ident">unwrap</span>();
+    <span class="kw">pub fn </span>window_resized(<span class="kw-2">&amp;</span><span class="self">self</span>, new_size: ScreenDims, scale_factor: f64) {
+        <span class="kw">let </span>physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
+        <span class="self">self</span>.window_adapter
+            .as_ref()
+            .expect(<span class="string">&quot;no window&quot;</span>)
+            .window_resized(new_size, scale_factor);
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.gl
+                .viewport(<span class="number">0</span>, <span class="number">0</span>, physical_size.width, physical_size.height);
+            <span class="comment">// I think it&#39;s safe to assume there&#39;s not a clip right now.
+            </span><span class="self">self</span>.gl
+                .scissor(<span class="number">0</span>, <span class="number">0</span>, physical_size.width, physical_size.height);
+        }
+    }
 
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">pixel_store_i32</span>(<span class="ident">glow::PACK_ALIGNMENT</span>, <span class="number">1</span>);
-            <span class="comment">// TODO This starts at lower-left, I think we need to use window height here</span>
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">read_pixels</span>(
+    <span class="kw">pub fn </span>window_size(<span class="kw-2">&amp;</span><span class="self">self</span>, scale_factor: f64) -&gt; ScreenDims {
+        <span class="self">self</span>.window().inner_size().to_logical(scale_factor).into()
+    }
+
+    <span class="kw">pub fn </span>set_window_icon(<span class="kw-2">&amp;</span><span class="self">self</span>, icon: winit::window::Icon) {
+        <span class="self">self</span>.window().set_window_icon(<span class="prelude-val">Some</span>(icon));
+    }
+
+    <span class="kw">pub fn </span>monitor_scale_factor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.window().scale_factor()
+    }
+
+    <span class="kw">pub fn </span>draw_finished(<span class="kw-2">&amp;</span><span class="self">self</span>, gfx_ctx_innards: GfxCtxInnards) {
+        <span class="self">self</span>.window_adapter
+            .as_ref()
+            .expect(<span class="string">&quot;no window&quot;</span>)
+            .draw_finished(gfx_ctx_innards)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>screencap(<span class="kw-2">&amp;</span><span class="self">self</span>, dims: ScreenDims, filename: String) -&gt; anyhow::Result&lt;()&gt; {
+        <span class="kw">let </span>width = dims.width <span class="kw">as </span>u32;
+        <span class="kw">let </span>height = dims.height <span class="kw">as </span>u32;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>img = image::DynamicImage::new_rgba8(width, height);
+        <span class="kw">let </span>pixels = img.as_mut_rgba8().unwrap();
+
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.gl.pixel_store_i32(glow::PACK_ALIGNMENT, <span class="number">1</span>);
+            <span class="comment">// TODO This starts at lower-left, I think we need to use window height here
+            </span><span class="self">self</span>.gl.read_pixels(
                 <span class="number">0</span>,
                 <span class="number">0</span>,
-                <span class="ident">width</span> <span class="kw">as</span> <span class="ident">i32</span>,
-                <span class="ident">height</span> <span class="kw">as</span> <span class="ident">i32</span>,
-                <span class="ident">glow::RGBA</span>,
-                <span class="ident">glow::UNSIGNED_BYTE</span>,
-                <span class="ident">glow::PixelPackData::Slice</span>(<span class="ident">pixels</span>),
+                width <span class="kw">as </span>i32,
+                height <span class="kw">as </span>i32,
+                glow::RGBA,
+                glow::UNSIGNED_BYTE,
+                glow::PixelPackData::Slice(pixels),
             );
         }
 
-        <span class="ident">image::save_buffer</span>(
-            <span class="kw-2">&amp;</span><span class="ident">filename</span>,
-            <span class="kw-2">&amp;</span><span class="ident">image::imageops::flip_vertical</span>(<span class="kw-2">&amp;</span><span class="ident">img</span>),
-            <span class="ident">width</span>,
-            <span class="ident">height</span>,
-            <span class="ident">image::ColorType::Rgba8</span>,
+        image::save_buffer(
+            <span class="kw-2">&amp;</span>filename,
+            <span class="kw-2">&amp;</span>image::imageops::flip_vertical(<span class="kw-2">&amp;</span>img),
+            width,
+            height,
+            image::ColorType::Rgba8,
         )<span class="question-mark">?</span>;
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_program_for_renderonly</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="kw">unsafe</span> {
-            <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">use_program</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">program</span>));
+    <span class="attribute">#[allow(unused)]
+    </span><span class="kw">pub fn </span>use_program_for_renderonly(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="kw">unsafe </span>{
+            <span class="self">self</span>.gl.use_program(<span class="prelude-val">Some</span>(<span class="self">self</span>.program));
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload_texture</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">texture</span>: <span class="ident">SpriteTexture</span>, <span class="ident">scale</span>: (<span class="ident">f32</span>, <span class="ident">f32</span>)) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_gl2</span> {
-            <span class="ident">texture</span>
-                .<span class="ident">upload_gl2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;failed to upload textures&quot;</span>);
+    <span class="kw">pub fn </span>upload_texture(<span class="kw-2">&amp;</span><span class="self">self</span>, texture: SpriteTexture, scale: (f32, f32)) {
+        <span class="kw">if </span><span class="self">self</span>.is_gl2 {
+            texture
+                .upload_gl2(<span class="kw-2">&amp;</span><span class="self">self</span>.gl)
+                .expect(<span class="string">&quot;failed to upload textures&quot;</span>);
 
-            <span class="kw">unsafe</span> {
-                <span class="kw">let</span> <span class="ident">location</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">gl</span>
-                    .<span class="ident">get_uniform_location</span>(<span class="self">self</span>.<span class="ident">program</span>, <span class="string">&quot;texture_scale&quot;</span>)
-                    .<span class="ident">unwrap</span>();
-                <span class="self">self</span>.<span class="ident">gl</span>
-                    .<span class="ident">uniform_2_f32_slice</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">location</span>), <span class="kw-2">&amp;</span>[<span class="ident">scale</span>.<span class="number">0</span>, <span class="ident">scale</span>.<span class="number">1</span>]);
+            <span class="kw">unsafe </span>{
+                <span class="kw">let </span>location = <span class="self">self
+                    </span>.gl
+                    .get_uniform_location(<span class="self">self</span>.program, <span class="string">&quot;texture_scale&quot;</span>)
+                    .unwrap();
+                <span class="self">self</span>.gl
+                    .uniform_2_f32_slice(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>location), <span class="kw-2">&amp;</span>[scale.<span class="number">0</span>, scale.<span class="number">1</span>]);
             }
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="macro">warn!</span>(
                 <span class="string">&quot;texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
-                 browser.&quot;</span>
-            );
+                 browser.&quot;
+            </span>);
         }
     }
 }
 
-<span class="doccomment">/// Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and</span>
-<span class="doccomment">/// friends to paint shapes.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// `path` - image file which is a grid of images.</span>
-<span class="doccomment">/// `sprite_length` - the width and height of an individual cell in the image grid</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The image file can have any number of sprites, but they must all be the same size.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Once uploaded, textures are addressed by their id, starting from 1, from left to right, top to</span>
-<span class="doccomment">/// bottom, like so:</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///   ┌─┬─┬─┐</span>
-<span class="doccomment">///   │1│2│3│</span>
-<span class="doccomment">///   ├─┼─┼─┤</span>
-<span class="doccomment">///   │4│5│6│</span>
-<span class="doccomment">///   ├─┼─┼─┤</span>
-<span class="doccomment">///   │7│8│9│</span>
-<span class="doccomment">///   └─┴─┴─┘</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Texture(0) is reserved for a pure white (no-op) texture.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Implementation is based on the the description of ArrayTextures from:</span>
-<span class="doccomment">/// https://www.khronos.org/opengl/wiki/Array_Texture.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// OpenGL texture arrays expect each texture&#39;s bytes to be contiguous, but it&#39;s conventional to</span>
-<span class="doccomment">/// store textures in a grid within a single spritesheet image, where a row and column traverses</span>
-<span class="doccomment">/// multiple sprites.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For example, if we had 6 textures, A-F, the input spritesheet bytes would be like:</span>
-<span class="doccomment">/// [[AAA, BBB, CCC],</span>
-<span class="doccomment">///  [AAA, BBB, CCC]</span>
-<span class="doccomment">///  [AAA, BBB, CCC],</span>
-<span class="doccomment">///  [DDD, EEE, FFF],</span>
-<span class="doccomment">///  [DDD, EEE, FFF],</span>
-<span class="doccomment">///  [DDD, EEE, FFF]]</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Which we need to convert to:</span>
-<span class="doccomment">/// [[AAAAAAAAA],</span>
-<span class="doccomment">///  [BBBBBBBBB],</span>
-<span class="doccomment">///  [CCCCCCCCC],</span>
-<span class="doccomment">///  [DDDDDDDDD],</span>
-<span class="doccomment">///  [EEEEEEEEE],</span>
-<span class="doccomment">///  [FFFFFFFFF]]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SpriteTexture</span> {
-    <span class="ident">texture_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-    <span class="ident">sprite_width</span>: <span class="ident">u32</span>,
-    <span class="ident">sprite_height</span>: <span class="ident">u32</span>,
-    <span class="ident">sprite_count</span>: <span class="ident">u32</span>,
+<span class="doccomment">/// Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and
+/// friends to paint shapes.
+///
+/// `path` - image file which is a grid of images.
+/// `sprite_length` - the width and height of an individual cell in the image grid
+///
+/// The image file can have any number of sprites, but they must all be the same size.
+///
+/// Once uploaded, textures are addressed by their id, starting from 1, from left to right, top to
+/// bottom, like so:
+///
+///   ┌─┬─┬─┐
+///   │1│2│3│
+///   ├─┼─┼─┤
+///   │4│5│6│
+///   ├─┼─┼─┤
+///   │7│8│9│
+///   └─┴─┴─┘
+///
+/// Texture(0) is reserved for a pure white (no-op) texture.
+///
+/// Implementation is based on the the description of ArrayTextures from:
+/// https://www.khronos.org/opengl/wiki/Array_Texture.
+///
+/// OpenGL texture arrays expect each texture&#39;s bytes to be contiguous, but it&#39;s conventional to
+/// store textures in a grid within a single spritesheet image, where a row and column traverses
+/// multiple sprites.
+///
+/// For example, if we had 6 textures, A-F, the input spritesheet bytes would be like:
+/// [[AAA, BBB, CCC],
+///  [AAA, BBB, CCC]
+///  [AAA, BBB, CCC],
+///  [DDD, EEE, FFF],
+///  [DDD, EEE, FFF],
+///  [DDD, EEE, FFF]]
+///
+/// Which we need to convert to:
+/// [[AAAAAAAAA],
+///  [BBBBBBBBB],
+///  [CCCCCCCCC],
+///  [DDDDDDDDD],
+///  [EEEEEEEEE],
+///  [FFFFFFFFF]]
+</span><span class="kw">pub struct </span>SpriteTexture {
+    texture_bytes: Vec&lt;u8&gt;,
+    sprite_width: u32,
+    sprite_height: u32,
+    sprite_count: u32,
 }
 
-<span class="kw">impl</span> <span class="ident">SpriteTexture</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">sprite_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
-        <span class="ident">sprite_width</span>: <span class="ident">u32</span>,
-        <span class="ident">sprite_height</span>: <span class="ident">u32</span>,
-    ) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">dynamic_img</span> <span class="op">=</span> <span class="ident">image::load_from_memory</span>(<span class="kw-2">&amp;</span><span class="ident">sprite_bytes</span>)<span class="question-mark">?</span>;
+<span class="kw">impl </span>SpriteTexture {
+    <span class="kw">pub fn </span>new(
+        sprite_bytes: Vec&lt;u8&gt;,
+        sprite_width: u32,
+        sprite_height: u32,
+    ) -&gt; anyhow::Result&lt;<span class="self">Self</span>&gt; {
+        <span class="kw">let </span>dynamic_img = image::load_from_memory(<span class="kw-2">&amp;</span>sprite_bytes)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">img</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">image::DynamicImage::ImageRgba8</span>(<span class="ident">img</span>) <span class="op">=</span> <span class="ident">dynamic_img</span> {
-            <span class="ident">img</span>
-        } <span class="kw">else</span> {
+        <span class="kw">let </span>img = <span class="kw">if let </span>image::DynamicImage::ImageRgba8(img) = dynamic_img {
+            img
+        } <span class="kw">else </span>{
             <span class="macro">todo!</span>(<span class="string">&quot;support other image formats&quot;</span>);
         };
 
-        <span class="kw">let</span> <span class="ident">bytes_per_pixel</span> <span class="op">=</span> <span class="number">4</span>;
+        <span class="kw">let </span>bytes_per_pixel = <span class="number">4</span>;
 
-        <span class="kw">let</span> (<span class="ident">img_width</span>, <span class="ident">img_height</span>) <span class="op">=</span> <span class="ident">img</span>.<span class="ident">dimensions</span>();
-        <span class="kw">let</span> <span class="ident">sprites_per_row</span> <span class="op">=</span> <span class="ident">img_width</span> <span class="op">/</span> <span class="ident">sprite_width</span>;
-        <span class="kw">let</span> <span class="ident">sprites_per_column</span> <span class="op">=</span> <span class="ident">img_height</span> <span class="op">/</span> <span class="ident">sprite_height</span>;
-        <span class="kw">let</span> <span class="ident">sprite_count</span> <span class="op">=</span> <span class="ident">sprites_per_row</span> <span class="op">*</span> <span class="ident">sprites_per_column</span>;
+        <span class="kw">let </span>(img_width, img_height) = img.dimensions();
+        <span class="kw">let </span>sprites_per_row = img_width / sprite_width;
+        <span class="kw">let </span>sprites_per_column = img_height / sprite_height;
+        <span class="kw">let </span>sprite_count = sprites_per_row * sprites_per_column;
 
         <span class="macro">assert_eq!</span>(
-            <span class="ident">sprites_per_row</span> <span class="op">*</span> <span class="ident">sprite_width</span>,
-            <span class="ident">img_width</span>,
-            <span class="string">&quot;sprites must align exactly&quot;</span>
-        );
+            sprites_per_row * sprite_width,
+            img_width,
+            <span class="string">&quot;sprites must align exactly&quot;
+        </span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">sprites_per_column</span> <span class="op">*</span> <span class="ident">sprite_height</span>,
-            <span class="ident">img_height</span>,
-            <span class="string">&quot;sprites must align exactly&quot;</span>
-        );
+            sprites_per_column * sprite_height,
+            img_height,
+            <span class="string">&quot;sprites must align exactly&quot;
+        </span>);
 
         <span class="macro">info!</span>(
             <span class="string">&quot;img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)&quot;</span>,
-            <span class="ident">img_width</span>,
-            <span class="ident">img_height</span>,
-            <span class="ident">img</span>.<span class="ident">pixels</span>().<span class="ident">len</span>(),
-            <span class="ident">sprite_width</span>,
-            <span class="ident">sprite_height</span>,
-            <span class="ident">sprites_per_row</span>,
-            <span class="ident">sprites_per_column</span>,
-            <span class="ident">sprite_count</span>
+            img_width,
+            img_height,
+            img.pixels().len(),
+            sprite_width,
+            sprite_height,
+            sprites_per_row,
+            sprites_per_column,
+            sprite_count
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">texture_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">img</span>.<span class="ident">pixels</span>().<span class="ident">len</span>() <span class="op">*</span> <span class="ident">bytes_per_pixel</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>texture_bytes: Vec&lt;u8&gt; = Vec::with_capacity(img.pixels().len() * bytes_per_pixel);
 
-        <span class="comment">// In order to avoid branching in our shader logic, all shapes are rendered with a texture.</span>
-        <span class="comment">// Even &quot;non-textured&quot; styles like Fill::Color, use a &quot;default&quot; no-op (pure white) texture,</span>
-        <span class="comment">// which we generate here.</span>
-        <span class="ident">texture_bytes</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="macro">vec!</span>[
+        <span class="comment">// In order to avoid branching in our shader logic, all shapes are rendered with a texture.
+        // Even &quot;non-textured&quot; styles like Fill::Color, use a &quot;default&quot; no-op (pure white) texture,
+        // which we generate here.
+        </span>texture_bytes.append(<span class="kw-2">&amp;mut </span><span class="macro">vec!</span>[
             <span class="number">255</span>;
-            (<span class="ident">sprite_width</span> <span class="op">*</span> <span class="ident">sprite_height</span>) <span class="kw">as</span> <span class="ident">usize</span>
-                <span class="op">*</span> <span class="ident">bytes_per_pixel</span>
+            (sprite_width * sprite_height) <span class="kw">as </span>usize
+                * bytes_per_pixel
         ]);
 
-        <span class="kw">use</span> <span class="ident">image::GenericImageView</span>;
-        <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sprites_per_column</span> {
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sprites_per_row</span> {
-                <span class="kw">let</span> <span class="ident">sprite_cell</span> <span class="op">=</span> <span class="ident">img</span>.<span class="ident">view</span>(
-                    <span class="ident">x</span> <span class="op">*</span> <span class="ident">sprite_width</span>,
-                    <span class="ident">y</span> <span class="op">*</span> <span class="ident">sprite_height</span>,
-                    <span class="ident">sprite_width</span>,
-                    <span class="ident">sprite_height</span>,
+        <span class="kw">use </span>image::GenericImageView;
+        <span class="kw">for </span>y <span class="kw">in </span><span class="number">0</span>..sprites_per_column {
+            <span class="kw">for </span>x <span class="kw">in </span><span class="number">0</span>..sprites_per_row {
+                <span class="kw">let </span>sprite_cell = img.view(
+                    x * sprite_width,
+                    y * sprite_height,
+                    sprite_width,
+                    sprite_height,
                 );
-                <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">sprite_cell</span>.<span class="ident">pixels</span>() {
-                    <span class="ident">texture_bytes</span>.<span class="ident">extend_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="number">2</span> .<span class="number">0</span>);
+                <span class="kw">for </span>p <span class="kw">in </span>sprite_cell.pixels() {
+                    texture_bytes.extend_from_slice(<span class="kw-2">&amp;</span>p.<span class="number">2 </span>.<span class="number">0</span>);
                 }
             }
         }
 
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
-            <span class="ident">texture_bytes</span>,
-            <span class="ident">sprite_width</span>,
-            <span class="ident">sprite_height</span>,
-            <span class="ident">sprite_count</span>,
+        <span class="prelude-val">Ok</span>(<span class="self">Self </span>{
+            texture_bytes,
+            sprite_width,
+            sprite_height,
+            sprite_count,
         })
     }
 
-    <span class="comment">// Utilizes `tex_storage_3d` which isn&#39;t supported by WebGL 1.0.</span>
-    <span class="kw">fn</span> <span class="ident">upload_gl2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">texture_id</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-            <span class="ident">gl</span>.<span class="ident">create_texture</span>()
-                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;error creating texture: {}&quot;</span>, <span class="ident">err</span>))<span class="question-mark">?</span>
-        };
+    <span class="comment">// Utilizes `tex_storage_3d` which isn&#39;t supported by WebGL 1.0.
+    </span><span class="kw">fn </span>upload_gl2(<span class="kw-2">&amp;</span><span class="self">self</span>, gl: <span class="kw-2">&amp;</span>glow::Context) -&gt; anyhow::Result&lt;()&gt; {
+        <span class="kw">let </span>texture_id = <span class="kw">unsafe </span>{
+            gl.create_texture()
+                .map_err(|err| <span class="macro">anyhow!</span>(<span class="string">&quot;error creating texture: {}&quot;</span>, err))<span class="question-mark">?
+        </span>};
 
-        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">glow::RGBA</span>;
-        <span class="kw">let</span> <span class="ident">target</span> <span class="op">=</span> <span class="ident">glow::TEXTURE_2D_ARRAY</span>;
-        <span class="kw">let</span> <span class="ident">mipmap_levels</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">2</span>;
-        <span class="kw">let</span> <span class="ident">internal_format</span> <span class="op">=</span> <span class="ident">glow::RGBA</span>;
+        <span class="kw">let </span>format = glow::RGBA;
+        <span class="kw">let </span>target = glow::TEXTURE_2D_ARRAY;
+        <span class="kw">let </span>mipmap_levels: u32 = <span class="number">2</span>;
+        <span class="kw">let </span>internal_format = glow::RGBA;
 
-        <span class="kw">unsafe</span> {
-            <span class="ident">gl</span>.<span class="ident">bind_texture</span>(<span class="ident">target</span>, <span class="prelude-val">Some</span>(<span class="ident">texture_id</span>));
+        <span class="kw">unsafe </span>{
+            gl.bind_texture(target, <span class="prelude-val">Some</span>(texture_id));
         }
 
-        <span class="comment">// Allocate the storage.</span>
-        <span class="kw">unsafe</span> {
-            <span class="ident">gl</span>.<span class="ident">tex_storage_3d</span>(
-                <span class="ident">target</span>,
-                <span class="ident">mipmap_levels</span> <span class="kw">as</span> <span class="ident">i32</span>,
-                <span class="ident">internal_format</span>,
-                <span class="self">self</span>.<span class="ident">sprite_width</span> <span class="kw">as</span> <span class="ident">i32</span>,
-                <span class="self">self</span>.<span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span>,
-                <span class="self">self</span>.<span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
+        <span class="comment">// Allocate the storage.
+        </span><span class="kw">unsafe </span>{
+            gl.tex_storage_3d(
+                target,
+                mipmap_levels <span class="kw">as </span>i32,
+                internal_format,
+                <span class="self">self</span>.sprite_width <span class="kw">as </span>i32,
+                <span class="self">self</span>.sprite_height <span class="kw">as </span>i32,
+                <span class="self">self</span>.sprite_count <span class="kw">as </span>i32,
             );
         }
 
-        <span class="kw">unsafe</span> {
-            <span class="comment">// Upload pixel data for each mipmap level</span>
-            <span class="kw">for</span> <span class="ident">mipmap_level</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">mipmap_levels</span> {
-                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sprite_width</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">/</span> <span class="number">2i32</span>.<span class="ident">pow</span>(<span class="ident">mipmap_level</span>);
-                <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sprite_height</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">/</span> <span class="number">2i32</span>.<span class="ident">pow</span>(<span class="ident">mipmap_level</span>);
-                <span class="ident">gl</span>.<span class="ident">tex_image_3d</span>(
-                    <span class="ident">target</span>,
-                    <span class="ident">mipmap_level</span> <span class="kw">as</span> <span class="ident">i32</span>,
-                    <span class="ident">format</span> <span class="kw">as</span> <span class="ident">i32</span>,
-                    <span class="ident">width</span>,
-                    <span class="ident">height</span>,
-                    <span class="self">self</span>.<span class="ident">sprite_count</span> <span class="kw">as</span> <span class="ident">i32</span>,
+        <span class="kw">unsafe </span>{
+            <span class="comment">// Upload pixel data for each mipmap level
+            </span><span class="kw">for </span>mipmap_level <span class="kw">in </span><span class="number">0</span>..mipmap_levels {
+                <span class="kw">let </span>width = <span class="self">self</span>.sprite_width <span class="kw">as </span>i32 / <span class="number">2i32</span>.pow(mipmap_level);
+                <span class="kw">let </span>height = <span class="self">self</span>.sprite_height <span class="kw">as </span>i32 / <span class="number">2i32</span>.pow(mipmap_level);
+                gl.tex_image_3d(
+                    target,
+                    mipmap_level <span class="kw">as </span>i32,
+                    format <span class="kw">as </span>i32,
+                    width,
+                    height,
+                    <span class="self">self</span>.sprite_count <span class="kw">as </span>i32,
                     <span class="number">0</span>,
-                    <span class="ident">format</span>,
-                    <span class="ident">glow::UNSIGNED_BYTE</span>,
-                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">texture_bytes</span>),
+                    format,
+                    glow::UNSIGNED_BYTE,
+                    <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.texture_bytes),
                 );
             }
-            <span class="ident">gl</span>.<span class="ident">generate_mipmap</span>(<span class="ident">target</span>);
+            gl.generate_mipmap(target);
         }
 
         <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

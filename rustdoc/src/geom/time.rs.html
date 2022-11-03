@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/time.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>time.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -224,231 +224,231 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">ops</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{cmp, ops};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">ordered_float::NotNan</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>ordered_float::NotNan;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">deserialize_f64</span>, <span class="ident">serialize_f64</span>, <span class="ident">trim_f64</span>, <span class="ident">Duration</span>};
+<span class="kw">use crate</span>::{deserialize_f64, serialize_f64, trim_f64, Duration};
 
-<span class="doccomment">/// In seconds since midnight. Can&#39;t be negative.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Default</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Time</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_f64&quot;</span>, <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_f64&quot;</span>)]</span> <span class="ident">f64</span>,
+<span class="doccomment">/// In seconds since midnight. Can&#39;t be negative.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, Default, PartialEq, PartialOrd, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Time(
+    <span class="attribute">#[serde(serialize_with = <span class="string">&quot;serialize_f64&quot;</span>, deserialize_with = <span class="string">&quot;deserialize_f64&quot;</span>)] </span>f64,
 );
 
-<span class="comment">// By construction, Time is a finite f64 with trimmed precision.</span>
-<span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Time</span> {}
+<span class="comment">// By construction, Time is a finite f64 with trimmed precision.
+</span><span class="kw">impl </span>Eq <span class="kw">for </span>Time {}
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::derive_ord_xor_partial_ord</span>)]</span> <span class="comment">// false positive</span>
-<span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Time</span>) -&gt; <span class="ident">cmp::Ordering</span> {
-        <span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()
+<span class="attribute">#[allow(clippy::derive_ord_xor_partial_ord)] </span><span class="comment">// false positive
+</span><span class="kw">impl </span>Ord <span class="kw">for </span>Time {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Time) -&gt; cmp::Ordering {
+        <span class="self">self</span>.partial_cmp(other).unwrap()
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::derive_hash_xor_eq</span>)]</span> <span class="comment">// false positive</span>
-<span class="kw">impl</span> <span class="ident">std::hash::Hash</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">hash</span><span class="op">&lt;</span><span class="ident">H</span>: <span class="ident">std::hash::Hasher</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">state</span>: <span class="kw-2">&amp;mut</span> <span class="ident">H</span>) {
-        <span class="ident">NotNan::new</span>(<span class="self">self</span>.<span class="number">0</span>).<span class="ident">unwrap</span>().<span class="ident">hash</span>(<span class="ident">state</span>);
+<span class="attribute">#[allow(clippy::derive_hash_xor_eq)] </span><span class="comment">// false positive
+</span><span class="kw">impl </span>std::hash::Hash <span class="kw">for </span>Time {
+    <span class="kw">fn </span>hash&lt;H: std::hash::Hasher&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, state: <span class="kw-2">&amp;mut </span>H) {
+        NotNan::new(<span class="self">self</span>.<span class="number">0</span>).unwrap().hash(state);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Time</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">START_OF_DAY</span>: <span class="ident">Time</span> <span class="op">=</span> <span class="ident">Time</span>(<span class="number">0.0</span>);
+<span class="kw">impl </span>Time {
+    <span class="kw">pub const </span>START_OF_DAY: Time = Time(<span class="number">0.0</span>);
 
-    <span class="comment">// No direct public constructors. Explicitly do Time::START_OF_DAY + duration.</span>
-    <span class="kw">fn</span> <span class="ident">seconds_since_midnight</span>(<span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Time</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">value</span>.<span class="ident">is_finite</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">value</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Bad Time {}&quot;</span>, <span class="ident">value</span>);
+    <span class="comment">// No direct public constructors. Explicitly do Time::START_OF_DAY + duration.
+    </span><span class="kw">fn </span>seconds_since_midnight(value: f64) -&gt; Time {
+        <span class="kw">if </span>!value.is_finite() || value &lt; <span class="number">0.0 </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;Bad Time {}&quot;</span>, value);
         }
 
-        <span class="ident">Time</span>(<span class="ident">trim_f64</span>(<span class="ident">value</span>))
+        Time(trim_f64(value))
     }
 
-    <span class="doccomment">/// (hours, minutes, seconds, centiseconds)</span>
-    <span class="kw">fn</span> <span class="ident">get_parts</span>(<span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>;
-        <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> (<span class="ident">remainder</span> <span class="op">/</span> <span class="number">3600.0</span>).<span class="ident">floor</span>();
-        <span class="ident">remainder</span> <span class="op">-</span><span class="op">=</span> <span class="ident">hours</span> <span class="op">*</span> <span class="number">3600.0</span>;
-        <span class="kw">let</span> <span class="ident">minutes</span> <span class="op">=</span> (<span class="ident">remainder</span> <span class="op">/</span> <span class="number">60.0</span>).<span class="ident">floor</span>();
-        <span class="ident">remainder</span> <span class="op">-</span><span class="op">=</span> <span class="ident">minutes</span> <span class="op">*</span> <span class="number">60.0</span>;
-        <span class="kw">let</span> <span class="ident">seconds</span> <span class="op">=</span> <span class="ident">remainder</span>.<span class="ident">floor</span>();
-        <span class="ident">remainder</span> <span class="op">-</span><span class="op">=</span> <span class="ident">seconds</span>;
-        <span class="kw">let</span> <span class="ident">centis</span> <span class="op">=</span> (<span class="ident">remainder</span> <span class="op">/</span> <span class="number">0.1</span>).<span class="ident">floor</span>();
+    <span class="doccomment">/// (hours, minutes, seconds, centiseconds)
+    </span><span class="kw">fn </span>get_parts(<span class="self">self</span>) -&gt; (usize, usize, usize, usize) {
+        <span class="kw">let </span><span class="kw-2">mut </span>remainder = <span class="self">self</span>.<span class="number">0</span>;
+        <span class="kw">let </span>hours = (remainder / <span class="number">3600.0</span>).floor();
+        remainder -= hours * <span class="number">3600.0</span>;
+        <span class="kw">let </span>minutes = (remainder / <span class="number">60.0</span>).floor();
+        remainder -= minutes * <span class="number">60.0</span>;
+        <span class="kw">let </span>seconds = remainder.floor();
+        remainder -= seconds;
+        <span class="kw">let </span>centis = (remainder / <span class="number">0.1</span>).floor();
 
         (
-            <span class="ident">hours</span> <span class="kw">as</span> <span class="ident">usize</span>,
-            <span class="ident">minutes</span> <span class="kw">as</span> <span class="ident">usize</span>,
-            <span class="ident">seconds</span> <span class="kw">as</span> <span class="ident">usize</span>,
-            <span class="ident">centis</span> <span class="kw">as</span> <span class="ident">usize</span>,
+            hours <span class="kw">as </span>usize,
+            minutes <span class="kw">as </span>usize,
+            seconds <span class="kw">as </span>usize,
+            centis <span class="kw">as </span>usize,
         )
     }
-    <span class="doccomment">/// Rounded down. 6:59:00 is hour 6.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hours</span>(<span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">get_parts</span>().<span class="number">0</span>
-    }
+    <span class="doccomment">/// Rounded down. 6:59:00 is hour 6.
+    </span><span class="kw">pub fn </span>get_hours(<span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.get_parts().<span class="number">0
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ampm_tostring</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
-        <span class="kw">let</span> <span class="ident">next_day</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">hours</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span> {
-            <span class="kw">let</span> <span class="ident">days</span> <span class="op">=</span> <span class="ident">hours</span> <span class="op">/</span> <span class="number">24</span>;
-            <span class="ident">hours</span> <span class="op">%</span><span class="op">=</span> <span class="number">24</span>;
-            <span class="macro">format!</span>(<span class="string">&quot; (+{} days)&quot;</span>, <span class="ident">days</span>)
-        } <span class="kw">else</span> {
-            <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()
+    <span class="kw">pub fn </span>ampm_tostring(<span class="self">self</span>) -&gt; String {
+        <span class="kw">let </span>(<span class="kw-2">mut </span>hours, minutes, seconds, <span class="kw">_</span>) = <span class="self">self</span>.get_parts();
+        <span class="kw">let </span>next_day = <span class="kw">if </span>hours &gt;= <span class="number">24 </span>{
+            <span class="kw">let </span>days = hours / <span class="number">24</span>;
+            hours %= <span class="number">24</span>;
+            <span class="macro">format!</span>(<span class="string">&quot; (+{} days)&quot;</span>, days)
+        } <span class="kw">else </span>{
+            <span class="string">&quot;&quot;</span>.to_string()
         };
-        <span class="kw">let</span> <span class="ident">suffix</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">hours</span> <span class="op">&lt;</span> <span class="number">12</span> { <span class="string">&quot;AM&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;PM&quot;</span> };
-        <span class="kw">if</span> <span class="ident">hours</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">hours</span> <span class="op">=</span> <span class="number">12</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">hours</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">24</span> {
-            <span class="ident">hours</span> <span class="op">-</span><span class="op">=</span> <span class="number">24</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">hours</span> <span class="op">&gt;</span> <span class="number">12</span> {
-            <span class="ident">hours</span> <span class="op">-</span><span class="op">=</span> <span class="number">12</span>;
+        <span class="kw">let </span>suffix = <span class="kw">if </span>hours &lt; <span class="number">12 </span>{ <span class="string">&quot;AM&quot; </span>} <span class="kw">else </span>{ <span class="string">&quot;PM&quot; </span>};
+        <span class="kw">if </span>hours == <span class="number">0 </span>{
+            hours = <span class="number">12</span>;
+        } <span class="kw">else if </span>hours &gt;= <span class="number">24 </span>{
+            hours -= <span class="number">24</span>;
+        } <span class="kw">else if </span>hours &gt; <span class="number">12 </span>{
+            hours -= <span class="number">12</span>;
         }
 
         <span class="macro">format!</span>(
             <span class="string">&quot;{:02}:{:02}:{:02} {}{}&quot;</span>,
-            <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">suffix</span>, <span class="ident">next_day</span>
+            hours, minutes, seconds, suffix, next_day
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_filename</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> (<span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">remainder</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
+    <span class="kw">pub fn </span>as_filename(<span class="self">self</span>) -&gt; String {
+        <span class="kw">let </span>(hours, minutes, seconds, remainder) = <span class="self">self</span>.get_parts();
         <span class="macro">format!</span>(
             <span class="string">&quot;{0:02}h{1:02}m{2:02}.{3:01}s&quot;</span>,
-            <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">remainder</span>
+            hours, minutes, seconds, remainder
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">string</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">string</span>.<span class="ident">split</span>(<span class="string">&#39;:&#39;</span>).<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">bail!</span>(<span class="string">&quot;Time {}: no :&#39;s&quot;</span>, <span class="ident">string</span>);
+    <span class="kw">pub fn </span>parse(string: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Time&gt; {
+        <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = string.split(<span class="string">&#39;:&#39;</span>).collect();
+        <span class="kw">if </span>parts.is_empty() {
+            <span class="macro">bail!</span>(<span class="string">&quot;Time {}: no :&#39;s&quot;</span>, string);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seconds</span> <span class="op">=</span> <span class="ident">parts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="kw">match</span> <span class="ident">parts</span>.<span class="ident">len</span>() {
-            <span class="number">1</span> =&gt; <span class="prelude-val">Ok</span>(<span class="ident">Time::seconds_since_midnight</span>(<span class="ident">seconds</span>)),
-            <span class="number">2</span> =&gt; {
-                <span class="comment">// They&#39;re really minutes</span>
-                <span class="ident">seconds</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">60.0</span>;
-                <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="number">3600.0</span> <span class="op">*</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-                <span class="prelude-val">Ok</span>(<span class="ident">Time::seconds_since_midnight</span>(<span class="ident">seconds</span>))
+        <span class="kw">let </span><span class="kw-2">mut </span>seconds = parts.last().unwrap().parse::&lt;f64&gt;()<span class="question-mark">?</span>;
+        <span class="kw">match </span>parts.len() {
+            <span class="number">1 </span>=&gt; <span class="prelude-val">Ok</span>(Time::seconds_since_midnight(seconds)),
+            <span class="number">2 </span>=&gt; {
+                <span class="comment">// They&#39;re really minutes
+                </span>seconds <span class="kw-2">*</span>= <span class="number">60.0</span>;
+                seconds += <span class="number">3600.0 </span>* parts[<span class="number">0</span>].parse::&lt;f64&gt;()<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(Time::seconds_since_midnight(seconds))
             }
-            <span class="number">3</span> =&gt; {
-                <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="number">60.0</span> <span class="op">*</span> <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-                <span class="ident">seconds</span> <span class="op">+</span><span class="op">=</span> <span class="number">3600.0</span> <span class="op">*</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-                <span class="prelude-val">Ok</span>(<span class="ident">Time::seconds_since_midnight</span>(<span class="ident">seconds</span>))
+            <span class="number">3 </span>=&gt; {
+                seconds += <span class="number">60.0 </span>* parts[<span class="number">1</span>].parse::&lt;f64&gt;()<span class="question-mark">?</span>;
+                seconds += <span class="number">3600.0 </span>* parts[<span class="number">0</span>].parse::&lt;f64&gt;()<span class="question-mark">?</span>;
+                <span class="prelude-val">Ok</span>(Time::seconds_since_midnight(seconds))
             }
-            <span class="kw">_</span> =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Time {}: weird number of parts&quot;</span>, <span class="ident">string</span>),
+            <span class="kw">_ </span>=&gt; <span class="macro">bail!</span>(<span class="string">&quot;Time {}: weird number of parts&quot;</span>, string),
         }
     }
 
-    <span class="comment">// TODO These are a little weird, so don&#39;t operator overload yet</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent_of</span>(<span class="self">self</span>, <span class="ident">p</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Time</span> {
-        <span class="kw">if</span> <span class="op">!</span>(<span class="number">0.0</span>..<span class="op">=</span><span class="number">1.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>) {
-            <span class="macro">panic!</span>(<span class="string">&quot;Bad percent_of input: {}&quot;</span>, <span class="ident">p</span>);
+    <span class="comment">// TODO These are a little weird, so don&#39;t operator overload yet
+    </span><span class="kw">pub fn </span>percent_of(<span class="self">self</span>, p: f64) -&gt; Time {
+        <span class="kw">if </span>!(<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>p) {
+            <span class="macro">panic!</span>(<span class="string">&quot;Bad percent_of input: {}&quot;</span>, p);
         }
-        <span class="ident">Time::seconds_since_midnight</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="ident">p</span>)
+        Time::seconds_since_midnight(<span class="self">self</span>.<span class="number">0 </span>* p)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_percent</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Time</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">other</span>.<span class="number">0</span>
+    <span class="kw">pub fn </span>to_percent(<span class="self">self</span>, other: Time) -&gt; f64 {
+        <span class="self">self</span>.<span class="number">0 </span>/ other.<span class="number">0
+    </span>}
+
+    <span class="doccomment">/// For RNG range generation. Don&#39;t abuse.
+    </span><span class="kw">pub fn </span>inner_seconds(<span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+
+    <span class="kw">pub fn </span>clamped_sub(<span class="self">self</span>, dt: Duration) -&gt; Time {
+        Time::seconds_since_midnight((<span class="self">self</span>.<span class="number">0 </span>- dt.inner_seconds()).max(<span class="number">0.0</span>))
     }
 
-    <span class="doccomment">/// For RNG range generation. Don&#39;t abuse.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_seconds</span>(<span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clamped_sub</span>(<span class="self">self</span>, <span class="ident">dt</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">Time</span> {
-        <span class="ident">Time::seconds_since_midnight</span>((<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">dt</span>.<span class="ident">inner_seconds</span>()).<span class="ident">max</span>(<span class="number">0.0</span>))
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">round_seconds</span>(<span class="self">self</span>, <span class="ident">s</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Time</span> {
-        <span class="ident">Time::seconds_since_midnight</span>(<span class="ident">s</span> <span class="op">*</span> (<span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">s</span>).<span class="ident">round</span>())
+    <span class="kw">pub fn </span>round_seconds(<span class="self">self</span>, s: f64) -&gt; Time {
+        Time::seconds_since_midnight(s * (<span class="self">self</span>.<span class="number">0 </span>/ s).round())
     }
 }
 
-<span class="comment">// 24-hour format by default</span>
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">let</span> (<span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">remainder</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_parts</span>();
+<span class="comment">// 24-hour format by default
+</span><span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>Time {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter) -&gt; std::fmt::Result {
+        <span class="kw">let </span>(hours, minutes, seconds, remainder) = <span class="self">self</span>.get_parts();
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;{0:02}:{1:02}:{2:02}.{3:01}&quot;</span>,
-            <span class="ident">hours</span>, <span class="ident">minutes</span>, <span class="ident">seconds</span>, <span class="ident">remainder</span>
+            hours, minutes, seconds, remainder
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ops::Add</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Time</span>;
+<span class="kw">impl </span>ops::Add&lt;Duration&gt; <span class="kw">for </span>Time {
+    <span class="kw">type </span>Output = Time;
 
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">Time</span> {
-        <span class="ident">Time::seconds_since_midnight</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">other</span>.<span class="ident">inner_seconds</span>())
+    <span class="kw">fn </span>add(<span class="self">self</span>, other: Duration) -&gt; Time {
+        Time::seconds_since_midnight(<span class="self">self</span>.<span class="number">0 </span>+ other.inner_seconds())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ops::AddAssign</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">+</span> <span class="ident">other</span>;
+<span class="kw">impl </span>ops::AddAssign&lt;Duration&gt; <span class="kw">for </span>Time {
+    <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Duration) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>+ other;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ops::Sub</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Time</span>;
+<span class="kw">impl </span>ops::Sub&lt;Duration&gt; <span class="kw">for </span>Time {
+    <span class="kw">type </span>Output = Time;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">Time</span> {
-        <span class="ident">Time::seconds_since_midnight</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="ident">inner_seconds</span>())
+    <span class="kw">fn </span>sub(<span class="self">self</span>, other: Duration) -&gt; Time {
+        Time::seconds_since_midnight(<span class="self">self</span>.<span class="number">0 </span>- other.inner_seconds())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ops::Sub</span> <span class="kw">for</span> <span class="ident">Time</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Duration</span>;
+<span class="kw">impl </span>ops::Sub <span class="kw">for </span>Time {
+    <span class="kw">type </span>Output = Duration;
 
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="ident">Duration::seconds</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="number">0</span>)
+    <span class="kw">fn </span>sub(<span class="self">self</span>, other: Time) -&gt; Duration {
+        Duration::seconds(<span class="self">self</span>.<span class="number">0 </span>- other.<span class="number">0</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">parse</span>() {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>parse() {
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">42.3</span>),
-            <span class="ident">Time::parse</span>(<span class="string">&quot;42.3&quot;</span>).<span class="ident">unwrap</span>()
+            Time::START_OF_DAY + Duration::seconds(<span class="number">42.3</span>),
+            Time::parse(<span class="string">&quot;42.3&quot;</span>).unwrap()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">7</span>) <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
-            <span class="ident">Time::parse</span>(<span class="string">&quot;07:30&quot;</span>).<span class="ident">unwrap</span>()
+            Time::START_OF_DAY + Duration::hours(<span class="number">7</span>) + Duration::minutes(<span class="number">30</span>),
+            Time::parse(<span class="string">&quot;07:30&quot;</span>).unwrap()
         );
         <span class="macro">assert_eq!</span>(
-            <span class="ident">Time::START_OF_DAY</span>
-                <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">7</span>)
-                <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="number">30</span>)
-                <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">5.0</span>),
-            <span class="ident">Time::parse</span>(<span class="string">&quot;07:30:05&quot;</span>).<span class="ident">unwrap</span>()
+            Time::START_OF_DAY
+                + Duration::hours(<span class="number">7</span>)
+                + Duration::minutes(<span class="number">30</span>)
+                + Duration::seconds(<span class="number">5.0</span>),
+            Time::parse(<span class="string">&quot;07:30:05&quot;</span>).unwrap()
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">get_hours</span>() {
-        <span class="macro">assert_eq!</span>((<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">6</span>)).<span class="ident">get_hours</span>(), <span class="number">6</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>get_hours() {
+        <span class="macro">assert_eq!</span>((Time::START_OF_DAY + Duration::hours(<span class="number">6</span>)).get_hours(), <span class="number">6</span>);
         <span class="macro">assert_eq!</span>(
-            (<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">6</span>) <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>)).<span class="ident">get_hours</span>(),
-            <span class="number">6</span>
-        );
+            (Time::START_OF_DAY + Duration::hours(<span class="number">6</span>) + Duration::seconds(<span class="number">1.0</span>)).get_hours(),
+            <span class="number">6
+        </span>);
         <span class="macro">assert_eq!</span>(
-            (<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">6</span>) <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="number">59</span>)).<span class="ident">get_hours</span>(),
-            <span class="number">6</span>
-        );
+            (Time::START_OF_DAY + Duration::hours(<span class="number">6</span>) + Duration::minutes(<span class="number">59</span>)).get_hours(),
+            <span class="number">6
+        </span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

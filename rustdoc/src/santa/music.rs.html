@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/music.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>music.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/music.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>music.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -167,174 +167,174 @@
 <span id="167">167</span>
 <span id="168">168</span>
 <span id="169">169</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::io::Cursor</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::io::Cursor;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">rodio</span>::{<span class="ident">Decoder</span>, <span class="ident">OutputStream</span>, <span class="ident">OutputStreamHandle</span>, <span class="ident">Sink</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>rodio::{Decoder, OutputStream, OutputStreamHandle, Sink};
 
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>};
+<span class="kw">use </span>widgetry::{EventCtx, GfxCtx, HorizontalAlignment, Outcome, Panel, Toggle, VerticalAlignment};
 
-<span class="comment">// TODO Speed up when we&#39;re almost out of time, slow down when we&#39;re low on energy</span>
+<span class="comment">// TODO Speed up when we&#39;re almost out of time, slow down when we&#39;re low on energy
 
-<span class="comment">// Don&#39;t play music loudly on the title screen, menus, etc</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OUT_OF_GAME</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.5</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">IN_GAME</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">1.0</span>;
+// Don&#39;t play music loudly on the title screen, menus, etc
+</span><span class="kw">pub const </span>OUT_OF_GAME: f32 = <span class="number">0.5</span>;
+<span class="kw">pub const </span>IN_GAME: f32 = <span class="number">1.0</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Music</span> {
-    <span class="ident">inner</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Music {
+    inner: <span class="prelude-ty">Option</span>&lt;Inner&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Music</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Music</span> {
-        <span class="ident">Music::empty</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>Music {
+    <span class="kw">fn </span>default() -&gt; Music {
+        Music::empty()
     }
 }
 
-<span class="kw">struct</span> <span class="ident">Inner</span> {
-    <span class="comment">// Have to keep this alive for the background thread to continue</span>
-    <span class="ident">_stream</span>: <span class="ident">OutputStream</span>,
-    <span class="ident">stream_handle</span>: <span class="ident">OutputStreamHandle</span>,
-    <span class="ident">sink</span>: <span class="ident">Sink</span>,
-    <span class="ident">unmuted_volume</span>: <span class="ident">f32</span>,
-    <span class="ident">current_song</span>: <span class="ident">String</span>,
+<span class="kw">struct </span>Inner {
+    <span class="comment">// Have to keep this alive for the background thread to continue
+    </span>_stream: OutputStream,
+    stream_handle: OutputStreamHandle,
+    sink: Sink,
+    unmuted_volume: f32,
+    current_song: String,
 
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">Music</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Music</span> {
-        <span class="ident">Music</span> { <span class="ident">inner</span>: <span class="prelude-val">None</span> }
+<span class="kw">impl </span>Music {
+    <span class="kw">pub fn </span>empty() -&gt; Music {
+        Music { inner: <span class="prelude-val">None </span>}
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">play_music</span>: <span class="ident">bool</span>, <span class="ident">song</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Music</span> {
-        <span class="kw">match</span> <span class="ident">Inner::new</span>(<span class="ident">ctx</span>, <span class="ident">play_music</span>, <span class="ident">song</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">inner</span>) =&gt; <span class="ident">Music</span> { <span class="ident">inner</span>: <span class="prelude-val">Some</span>(<span class="ident">inner</span>) },
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;No music, sorry: {}&quot;</span>, <span class="ident">err</span>);
-                <span class="ident">Music::empty</span>()
+    <span class="kw">pub fn </span>start(ctx: <span class="kw-2">&amp;mut </span>EventCtx, play_music: bool, song: <span class="kw-2">&amp;</span>str) -&gt; Music {
+        <span class="kw">match </span>Inner::new(ctx, play_music, song) {
+            <span class="prelude-val">Ok</span>(inner) =&gt; Music { inner: <span class="prelude-val">Some</span>(inner) },
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="macro">error!</span>(<span class="string">&quot;No music, sorry: {}&quot;</span>, err);
+                Music::empty()
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">play_music</span>: <span class="kw-2">&amp;mut</span> <span class="ident">bool</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="kw">match</span> <span class="ident">inner</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-                <span class="ident">Outcome::Clicked</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-                <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">inner</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;play music&quot;</span>) {
-                        <span class="kw-2">*</span><span class="ident">play_music</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="ident">inner</span>.<span class="ident">unmute</span>();
-                    } <span class="kw">else</span> {
-                        <span class="kw-2">*</span><span class="ident">play_music</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                        <span class="ident">inner</span>.<span class="ident">mute</span>();
+    <span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, play_music: <span class="kw-2">&amp;mut </span>bool) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>inner) = <span class="self">self</span>.inner {
+            <span class="kw">match </span>inner.panel.event(ctx) {
+                Outcome::Clicked(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+                Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                    <span class="kw">if </span>inner.panel.is_checked(<span class="string">&quot;play music&quot;</span>) {
+                        <span class="kw-2">*</span>play_music = <span class="bool-val">true</span>;
+                        inner.unmute();
+                    } <span class="kw">else </span>{
+                        <span class="kw-2">*</span>play_music = <span class="bool-val">false</span>;
+                        inner.mute();
                     }
                 }
-                <span class="kw">_</span> =&gt; {}
+                <span class="kw">_ </span>=&gt; {}
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">inner</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>inner) = <span class="self">self</span>.inner {
+            inner.panel.draw(g);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">specify_volume</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="ident">inner</span>.<span class="ident">specify_volume</span>(<span class="ident">volume</span>);
+    <span class="kw">pub fn </span>specify_volume(<span class="kw-2">&amp;mut </span><span class="self">self</span>, volume: f32) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>inner) = <span class="self">self</span>.inner {
+            inner.specify_volume(volume);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_song</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">song</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">inner</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">change_song</span>(<span class="ident">song</span>) {
-                <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t play {}: {}&quot;</span>, <span class="ident">song</span>, <span class="ident">err</span>);
+    <span class="kw">pub fn </span>change_song(<span class="kw-2">&amp;mut </span><span class="self">self</span>, song: <span class="kw-2">&amp;</span>str) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>inner) = <span class="self">self</span>.inner {
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = inner.change_song(song) {
+                <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t play {}: {}&quot;</span>, song, err);
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Inner</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">play_music</span>: <span class="ident">bool</span>, <span class="ident">song</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Inner</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">windows</span>) {
+<span class="kw">impl </span>Inner {
+    <span class="kw">fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, play_music: bool, song: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Inner&gt; {
+        <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
             <span class="macro">bail!</span>(<span class="string">&quot;Audio disabled on Windows: https://github.com/a-b-street/abstreet/issues/430&quot;</span>);
         }
 
-        <span class="kw">let</span> (<span class="ident">stream</span>, <span class="ident">stream_handle</span>) <span class="op">=</span> <span class="ident">OutputStream::try_default</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">sink</span> <span class="op">=</span> <span class="ident">rodio::Sink::try_new</span>(<span class="kw-2">&amp;</span><span class="ident">stream_handle</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span>(stream, stream_handle) = OutputStream::try_default()<span class="question-mark">?</span>;
+        <span class="kw">let </span>sink = rodio::Sink::try_new(<span class="kw-2">&amp;</span>stream_handle)<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">raw_bytes</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">abstio::slurp_file</span>(<span class="ident">abstio::path</span>(<span class="macro">format!</span>(
+        <span class="kw">let </span>raw_bytes = Cursor::new(abstio::slurp_file(abstio::path(<span class="macro">format!</span>(
             <span class="string">&quot;system/assets/music/{}.ogg&quot;</span>,
-            <span class="ident">song</span>
+            song
         )))<span class="question-mark">?</span>);
-        <span class="ident">sink</span>.<span class="ident">append</span>(<span class="ident">Decoder::new_looped</span>(<span class="ident">raw_bytes</span>)<span class="question-mark">?</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">play_music</span> {
-            <span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="number">0.0</span>);
+        sink.append(Decoder::new_looped(raw_bytes)<span class="question-mark">?</span>);
+        <span class="kw">if </span>!play_music {
+            sink.set_volume(<span class="number">0.0</span>);
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(
-            <span class="ident">Toggle::new_widget</span>(
-                <span class="ident">play_music</span>,
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/volume_off.svg&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;play music&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/volume_on.svg&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="string">&quot;mute music&quot;</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(
+            Toggle::new_widget(
+                play_music,
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/volume_off.svg&quot;</span>)
+                    .build(ctx, <span class="string">&quot;play music&quot;</span>),
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/volume_on.svg&quot;</span>)
+                    .build(ctx, <span class="string">&quot;mute music&quot;</span>),
             )
-            .<span class="ident">named</span>(<span class="string">&quot;play music&quot;</span>)
-            .<span class="ident">container</span>(),
+            .named(<span class="string">&quot;play music&quot;</span>)
+            .container(),
         )
-        .<span class="ident">aligned</span>(
-            <span class="ident">HorizontalAlignment::LeftInset</span>,
-            <span class="ident">VerticalAlignment::BottomInset</span>,
+        .aligned(
+            HorizontalAlignment::LeftInset,
+            VerticalAlignment::BottomInset,
         )
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .build(ctx);
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Inner</span> {
-            <span class="ident">_stream</span>: <span class="ident">stream</span>,
-            <span class="ident">stream_handle</span>,
-            <span class="ident">sink</span>,
-            <span class="ident">unmuted_volume</span>: <span class="number">1.0</span>,
-            <span class="ident">current_song</span>: <span class="ident">song</span>.<span class="ident">to_string</span>(),
-            <span class="ident">panel</span>,
+        <span class="prelude-val">Ok</span>(Inner {
+            _stream: stream,
+            stream_handle,
+            sink,
+            unmuted_volume: <span class="number">1.0</span>,
+            current_song: song.to_string(),
+            panel,
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">unmute</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="self">self</span>.<span class="ident">unmuted_volume</span>);
+    <span class="kw">fn </span>unmute(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.sink.set_volume(<span class="self">self</span>.unmuted_volume);
     }
 
-    <span class="kw">fn</span> <span class="ident">mute</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="number">0.0</span>);
+    <span class="kw">fn </span>mute(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.sink.set_volume(<span class="number">0.0</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">specify_volume</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">volume</span>: <span class="ident">f32</span>) {
-        <span class="self">self</span>.<span class="ident">unmuted_volume</span> <span class="op">=</span> <span class="ident">volume</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">volume</span>() <span class="op">!</span><span class="op">=</span> <span class="number">0.0</span> {
-            <span class="self">self</span>.<span class="ident">unmute</span>();
+    <span class="kw">fn </span>specify_volume(<span class="kw-2">&amp;mut </span><span class="self">self</span>, volume: f32) {
+        <span class="self">self</span>.unmuted_volume = volume;
+        <span class="kw">if </span><span class="self">self</span>.sink.volume() != <span class="number">0.0 </span>{
+            <span class="self">self</span>.unmute();
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">change_song</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">song</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_song</span> <span class="op">==</span> <span class="ident">song</span> {
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(());
+    <span class="kw">fn </span>change_song(<span class="kw-2">&amp;mut </span><span class="self">self</span>, song: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.current_song == song {
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(());
         }
-        <span class="self">self</span>.<span class="ident">current_song</span> <span class="op">=</span> <span class="ident">song</span>.<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">old_volume</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">volume</span>();
+        <span class="self">self</span>.current_song = song.to_string();
+        <span class="kw">let </span>old_volume = <span class="self">self</span>.sink.volume();
 
-        <span class="self">self</span>.<span class="ident">sink</span> <span class="op">=</span> <span class="ident">rodio::Sink::try_new</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">stream_handle</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">raw_bytes</span> <span class="op">=</span> <span class="ident">Cursor::new</span>(<span class="ident">abstio::slurp_file</span>(<span class="ident">abstio::path</span>(<span class="macro">format!</span>(
+        <span class="self">self</span>.sink = rodio::Sink::try_new(<span class="kw-2">&amp;</span><span class="self">self</span>.stream_handle)<span class="question-mark">?</span>;
+        <span class="kw">let </span>raw_bytes = Cursor::new(abstio::slurp_file(abstio::path(<span class="macro">format!</span>(
             <span class="string">&quot;system/assets/music/{}.ogg&quot;</span>,
-            <span class="ident">song</span>
+            song
         )))<span class="question-mark">?</span>);
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">append</span>(<span class="ident">Decoder::new_looped</span>(<span class="ident">raw_bytes</span>)<span class="question-mark">?</span>);
-        <span class="self">self</span>.<span class="ident">sink</span>.<span class="ident">set_volume</span>(<span class="ident">old_volume</span>);
+        <span class="self">self</span>.sink.append(Decoder::new_looped(raw_bytes)<span class="question-mark">?</span>);
+        <span class="self">self</span>.sink.set_volume(old_volume);
         <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

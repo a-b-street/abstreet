@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/style/button_style.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>button_style.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/style/button_style.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>button_style.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -143,150 +143,150 @@
 <span id="143">143</span>
 <span id="144">144</span>
 <span id="145">145</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::CornerRadii</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>geom::CornerRadii;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">include_labeled_bytes</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">OutlineStyle</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Widget</span>,
+<span class="kw">use crate</span>::{
+    include_labeled_bytes, ButtonBuilder, Color, ControlState, EventCtx, Key, OutlineStyle,
+    ScreenDims, Style, Widget,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ButtonStyle</span> {
-    <span class="kw">pub</span> <span class="ident">fg</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">fg_disabled</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">outline</span>: <span class="ident">OutlineStyle</span>,
-    <span class="kw">pub</span> <span class="ident">bg</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">bg_hover</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">bg_disabled</span>: <span class="ident">Color</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>ButtonStyle {
+    <span class="kw">pub </span>fg: Color,
+    <span class="kw">pub </span>fg_disabled: Color,
+    <span class="kw">pub </span>outline: OutlineStyle,
+    <span class="kw">pub </span>bg: Color,
+    <span class="kw">pub </span>bg_hover: Color,
+    <span class="kw">pub </span>bg_disabled: Color,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">ButtonStyle</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">apply</span>(<span class="ident">ButtonBuilder::new</span>())
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; ButtonStyle {
+    <span class="kw">pub fn </span>btn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.apply(ButtonBuilder::new())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">builder</span>: <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">builder</span>
-            .<span class="ident">label_color</span>(<span class="self">self</span>.<span class="ident">fg</span>, <span class="ident">ControlState::Default</span>)
-            .<span class="ident">label_color</span>(<span class="self">self</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState::Disabled</span>)
-            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">fg</span>, <span class="ident">ControlState::Default</span>)
-            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState::Disabled</span>)
-            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg</span>, <span class="ident">ControlState::Default</span>)
-            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState::Hovered</span>)
-            .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">bg_disabled</span>, <span class="ident">ControlState::Disabled</span>);
+    <span class="kw">pub fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, builder: ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="kw">let </span>builder = builder
+            .label_color(<span class="self">self</span>.fg, ControlState::Default)
+            .label_color(<span class="self">self</span>.fg_disabled, ControlState::Disabled)
+            .image_color(<span class="self">self</span>.fg, ControlState::Default)
+            .image_color(<span class="self">self</span>.fg_disabled, ControlState::Disabled)
+            .bg_color(<span class="self">self</span>.bg, ControlState::Default)
+            .bg_color(<span class="self">self</span>.bg_hover, ControlState::Hovered)
+            .bg_color(<span class="self">self</span>.bg_disabled, ControlState::Disabled);
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outline</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
-            <span class="ident">builder</span>.<span class="ident">outline</span>(<span class="self">self</span>.<span class="ident">outline</span>, <span class="ident">ControlState::Default</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">builder</span>
+        <span class="kw">if </span><span class="self">self</span>.outline.<span class="number">0 </span>&gt; <span class="number">0.0 </span>{
+            builder.outline(<span class="self">self</span>.outline, ControlState::Default)
+        } <span class="kw">else </span>{
+            builder
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">text</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="ident">I</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
+    <span class="kw">pub fn </span>text&lt;I: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, text: I) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.btn().label_text(text)
     }
 
-    <span class="doccomment">/// Note this usually removes color from the icon. Use `image_color(RewriteColor::NoOp,</span>
-    <span class="doccomment">/// ControlState::Default)` or similar to retain color.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">icon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn</span>().<span class="ident">image_path</span>(<span class="ident">image_path</span>))
+    <span class="doccomment">/// Note this usually removes color from the icon. Use `image_color(RewriteColor::NoOp,
+    /// ControlState::Default)` or similar to retain color.
+    </span><span class="kw">pub fn </span>icon(<span class="kw-2">&amp;</span><span class="self">self</span>, image_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        icon_button(<span class="self">self</span>.btn().image_path(image_path))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">icon_bytes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> [<span class="ident">u8</span>])) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="ident">icon_button</span>(<span class="self">self</span>.<span class="ident">btn</span>().<span class="ident">image_bytes</span>(<span class="ident">labeled_bytes</span>))
+    <span class="kw">pub fn </span>icon_bytes(<span class="kw-2">&amp;</span><span class="self">self</span>, labeled_bytes: (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>[u8])) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        icon_button(<span class="self">self</span>.btn().image_bytes(labeled_bytes))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">icon_text</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+    <span class="kw">pub fn </span>icon_text&lt;I: Into&lt;String&gt;&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">image_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
-        <span class="ident">text</span>: <span class="ident">I</span>,
-    ) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn</span>()
-            .<span class="ident">label_text</span>(<span class="ident">text</span>)
-            .<span class="ident">image_path</span>(<span class="ident">image_path</span>)
-            .<span class="ident">image_dims</span>(<span class="ident">ScreenDims::square</span>(<span class="number">18.0</span>))
+        image_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
+        text: I,
+    ) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.btn()
+            .label_text(text)
+            .image_path(image_path)
+            .image_dims(ScreenDims::square(<span class="number">18.0</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dropdown</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/arrow_drop_down.svg&quot;</span>))
-            .<span class="ident">image_dims</span>(<span class="number">12.0</span>)
-            .<span class="ident">stack_spacing</span>(<span class="number">12.0</span>)
-            .<span class="ident">label_first</span>()
+    <span class="kw">pub fn </span>dropdown(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.icon_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/arrow_drop_down.svg&quot;</span>))
+            .image_dims(<span class="number">12.0</span>)
+            .stack_spacing(<span class="number">12.0</span>)
+            .label_first()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">popup</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">dropdown</span>().<span class="ident">label_text</span>(<span class="ident">text</span>)
+    <span class="kw">pub fn </span>popup(<span class="kw-2">&amp;</span><span class="self">self</span>, text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.dropdown().label_text(text)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> <span class="ident">Style</span> {
-    <span class="doccomment">/// title: name of previous screen, which you&#39;ll return to</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_outline</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/nav_back.svg&quot;</span>))
-            .<span class="ident">label_text</span>(<span class="ident">title</span>)
-            .<span class="ident">padding_left</span>(<span class="number">8.0</span>)
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; Style {
+    <span class="doccomment">/// title: name of previous screen, which you&#39;ll return to
+    </span><span class="kw">pub fn </span>btn_back(<span class="kw-2">&amp;</span><span class="self">self</span>, title: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.btn_outline
+            .icon_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/nav_back.svg&quot;</span>))
+            .label_text(title)
+            .padding_left(<span class="number">8.0</span>)
     }
 
-    <span class="doccomment">/// A right facing caret, like &quot;&gt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/next.svg&quot;</span>))
+    <span class="doccomment">/// A right facing caret, like &quot;&gt;&quot;, suitable for paging to the &quot;next&quot; set of results
+    </span><span class="kw">pub fn </span>btn_next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.btn_plain
+            .icon_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/next.svg&quot;</span>))
     }
 
-    <span class="doccomment">/// A left facing caret, like &quot;&lt;&quot;, suitable for paging to the &quot;next&quot; set of results</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/prev.svg&quot;</span>))
+    <span class="doccomment">/// A left facing caret, like &quot;&lt;&quot;, suitable for paging to the &quot;next&quot; set of results
+    </span><span class="kw">pub fn </span>btn_prev(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.btn_plain
+            .icon_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/prev.svg&quot;</span>))
     }
 
-    <span class="doccomment">/// An &quot;X&quot; button</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_close</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/close.svg&quot;</span>))
+    <span class="doccomment">/// An &quot;X&quot; button
+    </span><span class="kw">pub fn </span>btn_close(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="self">self</span>.btn_plain
+            .icon_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/close.svg&quot;</span>))
     }
 
-    <span class="doccomment">/// An &quot;X&quot; button to close the current state. Bound to the escape key and aligned to the right,</span>
-    <span class="doccomment">/// usually after a title.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_close_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="self">self</span>.<span class="ident">btn_close</span>()
-            .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;close&quot;</span>)
-            .<span class="ident">align_right</span>()
+    <span class="doccomment">/// An &quot;X&quot; button to close the current state. Bound to the escape key and aligned to the right,
+    /// usually after a title.
+    </span><span class="kw">pub fn </span>btn_close_widget(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        <span class="self">self</span>.btn_close()
+            .hotkey(Key::Escape)
+            .build_widget(ctx, <span class="string">&quot;close&quot;</span>)
+            .align_right()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">btn_popup_icon_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">icon_path</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-        <span class="comment">// The text is styled like an &quot;outline&quot; button, while the image is styled like a &quot;solid&quot;</span>
-        <span class="comment">// button.</span>
-        <span class="self">self</span>.<span class="ident">btn_outline</span>
-            .<span class="ident">btn</span>()
-            .<span class="ident">label_text</span>(<span class="ident">text</span>)
-            .<span class="ident">image_path</span>(<span class="ident">icon_path</span>)
-            .<span class="ident">image_dims</span>(<span class="number">25.0</span>)
-            .<span class="ident">image_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>, <span class="ident">ControlState::Default</span>)
-            .<span class="ident">image_bg_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>, <span class="ident">ControlState::Default</span>)
-            .<span class="ident">image_bg_color</span>(<span class="self">self</span>.<span class="ident">btn_solid</span>.<span class="ident">bg_hover</span>, <span class="ident">ControlState::Hovered</span>)
-            <span class="comment">// Move the padding from the *entire button* to just the image, so we get a colored</span>
-            <span class="comment">// padded area around the image.</span>
-            .<span class="ident">padding</span>(<span class="number">0</span>)
-            .<span class="ident">image_padding</span>(<span class="number">8.0</span>)
-            <span class="comment">// ...though we still need to pad between the text and button edge</span>
-            .<span class="ident">padding_right</span>(<span class="number">8.0</span>)
-            <span class="comment">// Round the button&#39;s image&#39;s exterior corners so they don&#39;t protrude past the button&#39;s</span>
-            <span class="comment">// corners. However, per design, we want the images interior corners to be</span>
-            <span class="comment">// unrounded.</span>
-            .<span class="ident">image_corner_rounding</span>(<span class="ident">CornerRadii</span> {
-                <span class="ident">top_left</span>: <span class="number">2.0</span>,
-                <span class="ident">top_right</span>: <span class="number">0.0</span>,
-                <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
-                <span class="ident">bottom_left</span>: <span class="number">2.0</span>,
+    <span class="kw">pub fn </span>btn_popup_icon_text(<span class="kw-2">&amp;</span><span class="self">self</span>, icon_path: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, text: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+        <span class="comment">// The text is styled like an &quot;outline&quot; button, while the image is styled like a &quot;solid&quot;
+        // button.
+        </span><span class="self">self</span>.btn_outline
+            .btn()
+            .label_text(text)
+            .image_path(icon_path)
+            .image_dims(<span class="number">25.0</span>)
+            .image_color(<span class="self">self</span>.btn_solid.fg, ControlState::Default)
+            .image_bg_color(<span class="self">self</span>.btn_solid.bg, ControlState::Default)
+            .image_bg_color(<span class="self">self</span>.btn_solid.bg_hover, ControlState::Hovered)
+            <span class="comment">// Move the padding from the *entire button* to just the image, so we get a colored
+            // padded area around the image.
+            </span>.padding(<span class="number">0</span>)
+            .image_padding(<span class="number">8.0</span>)
+            <span class="comment">// ...though we still need to pad between the text and button edge
+            </span>.padding_right(<span class="number">8.0</span>)
+            <span class="comment">// Round the button&#39;s image&#39;s exterior corners so they don&#39;t protrude past the button&#39;s
+            // corners. However, per design, we want the images interior corners to be
+            // unrounded.
+            </span>.image_corner_rounding(CornerRadii {
+                top_left: <span class="number">2.0</span>,
+                top_right: <span class="number">0.0</span>,
+                bottom_right: <span class="number">0.0</span>,
+                bottom_left: <span class="number">2.0</span>,
             })
     }
 }
 
-<span class="comment">// Captures some constants for uniform styling of icon-only buttons</span>
-<span class="kw">fn</span> <span class="ident">icon_button</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>(<span class="ident">builder</span>: <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-    <span class="ident">builder</span>.<span class="ident">padding</span>(<span class="number">8.0</span>).<span class="ident">image_dims</span>(<span class="number">25.0</span>)
+<span class="comment">// Captures some constants for uniform styling of icon-only buttons
+</span><span class="kw">fn </span>icon_button&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;(builder: ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+    builder.padding(<span class="number">8.0</span>).image_dims(<span class="number">25.0</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

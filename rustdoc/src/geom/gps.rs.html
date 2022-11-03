@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/gps.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gps.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/gps.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gps.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -169,176 +169,176 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">GeoJson</span>, <span class="ident">Value</span>};
-<span class="kw">use</span> <span class="ident">ordered_float::NotNan</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>geojson::{GeoJson, Value};
+<span class="kw">use </span>ordered_float::NotNan;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Distance</span>, <span class="ident">GPSBounds</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use crate</span>::{Distance, GPSBounds, Pt2D};
 
-<span class="doccomment">/// Represents a (longitude, latitude) point.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LonLat</span> {
-    <span class="ident">longitude</span>: <span class="ident">NotNan</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
-    <span class="ident">latitude</span>: <span class="ident">NotNan</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Represents a (longitude, latitude) point.
+</span><span class="attribute">#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>LonLat {
+    longitude: NotNan&lt;f64&gt;,
+    latitude: NotNan&lt;f64&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">LonLat</span> {
-    <span class="doccomment">/// Note the order of arguments!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">lon</span>: <span class="ident">f64</span>, <span class="ident">lat</span>: <span class="ident">f64</span>) -&gt; <span class="ident">LonLat</span> {
-        <span class="ident">LonLat</span> {
-            <span class="ident">longitude</span>: <span class="ident">NotNan::new</span>(<span class="ident">lon</span>).<span class="ident">unwrap</span>(),
-            <span class="ident">latitude</span>: <span class="ident">NotNan::new</span>(<span class="ident">lat</span>).<span class="ident">unwrap</span>(),
+<span class="kw">impl </span>LonLat {
+    <span class="doccomment">/// Note the order of arguments!
+    </span><span class="kw">pub fn </span>new(lon: f64, lat: f64) -&gt; LonLat {
+        LonLat {
+            longitude: NotNan::new(lon).unwrap(),
+            latitude: NotNan::new(lat).unwrap(),
         }
     }
 
-    <span class="doccomment">/// Returns the longitude of this point.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">x</span>(<span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">longitude</span>.<span class="ident">into_inner</span>()
+    <span class="doccomment">/// Returns the longitude of this point.
+    </span><span class="kw">pub fn </span>x(<span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.longitude.into_inner()
     }
 
-    <span class="doccomment">/// Returns the latitude of this point.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">y</span>(<span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">latitude</span>.<span class="ident">into_inner</span>()
+    <span class="doccomment">/// Returns the latitude of this point.
+    </span><span class="kw">pub fn </span>y(<span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.latitude.into_inner()
     }
 
-    <span class="doccomment">/// Transform this to a world-space point. Can go out of bounds.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_pt</span>(<span class="self">self</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">get_max_world_pt</span>();
-            (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+    <span class="doccomment">/// Transform this to a world-space point. Can go out of bounds.
+    </span><span class="kw">pub fn </span>to_pt(<span class="self">self</span>, b: <span class="kw-2">&amp;</span>GPSBounds) -&gt; Pt2D {
+        <span class="kw">let </span>(width, height) = {
+            <span class="kw">let </span>pt = b.get_max_world_pt();
+            (pt.x(), pt.y())
         };
 
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">b</span>.<span class="ident">min_lon</span>) <span class="op">/</span> (<span class="ident">b</span>.<span class="ident">max_lon</span> <span class="op">-</span> <span class="ident">b</span>.<span class="ident">min_lon</span>) <span class="op">*</span> <span class="ident">width</span>;
-        <span class="comment">// Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian</span>
-        <span class="comment">// grid.</span>
-        <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">height</span> <span class="op">-</span> ((<span class="self">self</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">b</span>.<span class="ident">min_lat</span>) <span class="op">/</span> (<span class="ident">b</span>.<span class="ident">max_lat</span> <span class="op">-</span> <span class="ident">b</span>.<span class="ident">min_lat</span>) <span class="op">*</span> <span class="ident">height</span>);
-        <span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>)
+        <span class="kw">let </span>x = (<span class="self">self</span>.x() - b.min_lon) / (b.max_lon - b.min_lon) * width;
+        <span class="comment">// Invert y, so that the northernmost latitude is 0. Screen drawing order, not Cartesian
+        // grid.
+        </span><span class="kw">let </span>y = height - ((<span class="self">self</span>.y() - b.min_lat) / (b.max_lat - b.min_lat) * height);
+        Pt2D::new(x, y)
     }
 
-    <span class="doccomment">/// Returns the Haversine distance to another point.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">gps_dist</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">LonLat</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="kw">let</span> <span class="ident">earth_radius_m</span> <span class="op">=</span> <span class="number">6_371_000.0</span>;
-        <span class="kw">let</span> <span class="ident">lon1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">x</span>().<span class="ident">to_radians</span>();
-        <span class="kw">let</span> <span class="ident">lon2</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">x</span>().<span class="ident">to_radians</span>();
-        <span class="kw">let</span> <span class="ident">lat1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">y</span>().<span class="ident">to_radians</span>();
-        <span class="kw">let</span> <span class="ident">lat2</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">y</span>().<span class="ident">to_radians</span>();
+    <span class="doccomment">/// Returns the Haversine distance to another point.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>gps_dist(<span class="self">self</span>, other: LonLat) -&gt; Distance {
+        <span class="kw">let </span>earth_radius_m = <span class="number">6_371_000.0</span>;
+        <span class="kw">let </span>lon1 = <span class="self">self</span>.x().to_radians();
+        <span class="kw">let </span>lon2 = other.x().to_radians();
+        <span class="kw">let </span>lat1 = <span class="self">self</span>.y().to_radians();
+        <span class="kw">let </span>lat2 = other.y().to_radians();
 
-        <span class="kw">let</span> <span class="ident">delta_lat</span> <span class="op">=</span> <span class="ident">lat2</span> <span class="op">-</span> <span class="ident">lat1</span>;
-        <span class="kw">let</span> <span class="ident">delta_lon</span> <span class="op">=</span> <span class="ident">lon2</span> <span class="op">-</span> <span class="ident">lon1</span>;
+        <span class="kw">let </span>delta_lat = lat2 - lat1;
+        <span class="kw">let </span>delta_lon = lon2 - lon1;
 
-        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> (<span class="ident">delta_lat</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">sin</span>().<span class="ident">powi</span>(<span class="number">2</span>)
-            <span class="op">+</span> (<span class="ident">delta_lon</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">sin</span>().<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">*</span> <span class="ident">lat1</span>.<span class="ident">cos</span>() <span class="op">*</span> <span class="ident">lat2</span>.<span class="ident">cos</span>();
-        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">a</span>.<span class="ident">sqrt</span>().<span class="ident">atan2</span>((<span class="number">1.0</span> <span class="op">-</span> <span class="ident">a</span>).<span class="ident">sqrt</span>());
-        <span class="ident">Distance::meters</span>(<span class="ident">earth_radius_m</span> <span class="op">*</span> <span class="ident">c</span>)
+        <span class="kw">let </span>a = (delta_lat / <span class="number">2.0</span>).sin().powi(<span class="number">2</span>)
+            + (delta_lon / <span class="number">2.0</span>).sin().powi(<span class="number">2</span>) * lat1.cos() * lat2.cos();
+        <span class="kw">let </span>c = <span class="number">2.0 </span>* a.sqrt().atan2((<span class="number">1.0 </span>- a).sqrt());
+        Distance::meters(earth_radius_m * c)
     }
 
-    <span class="doccomment">/// Pretty meaningless units, for comparing distances very roughly</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fast_dist</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">LonLat</span>) -&gt; <span class="ident">NotNan</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
-        <span class="ident">NotNan::new</span>((<span class="self">self</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">x</span>()).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="self">self</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">y</span>()).<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">unwrap</span>()
+    <span class="doccomment">/// Pretty meaningless units, for comparing distances very roughly
+    </span><span class="kw">pub fn </span>fast_dist(<span class="self">self</span>, other: LonLat) -&gt; NotNan&lt;f64&gt; {
+        NotNan::new((<span class="self">self</span>.x() - other.x()).powi(<span class="number">2</span>) + (<span class="self">self</span>.y() - other.y()).powi(<span class="number">2</span>)).unwrap()
     }
 
-    <span class="doccomment">/// Finds the average of a set of coordinates.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">LonLat</span>]) -&gt; <span class="ident">LonLat</span> {
-        <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">is_empty</span>() {
+    <span class="doccomment">/// Finds the average of a set of coordinates.
+    </span><span class="kw">pub fn </span>center(pts: <span class="kw-2">&amp;</span>[LonLat]) -&gt; LonLat {
+        <span class="kw">if </span>pts.is_empty() {
             <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t find center of 0 points&quot;</span>);
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="ident">x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pt</span>.<span class="ident">x</span>();
-            <span class="ident">y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pt</span>.<span class="ident">y</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>x = <span class="number">0.0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>y = <span class="number">0.0</span>;
+        <span class="kw">for </span>pt <span class="kw">in </span>pts {
+            x += pt.x();
+            y += pt.y();
         }
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>;
-        <span class="ident">LonLat::new</span>(<span class="ident">x</span> <span class="op">/</span> <span class="ident">len</span>, <span class="ident">y</span> <span class="op">/</span> <span class="ident">len</span>)
+        <span class="kw">let </span>len = pts.len() <span class="kw">as </span>f64;
+        LonLat::new(x / len, y / len)
     }
 
-    <span class="doccomment">/// Parses a WKT-style line-string into a list of coordinates.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_wkt_linestring</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// Input is something like LINESTRING (-111.9263026 33.4245036, -111.9275146 33.4245016,</span>
-        <span class="comment">// -111.9278751 33.4233106)</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="comment">// -111.9446 33.425474, -111.9442814 33.4254737, -111.9442762 33.426894</span>
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">raw</span>
-            .<span class="ident">strip_prefix</span>(<span class="string">&quot;LINESTRING (&quot;</span>)<span class="question-mark">?</span>
-            .<span class="ident">strip_suffix</span>(<span class="string">&#39;)&#39;</span>)<span class="question-mark">?</span>
-            .<span class="ident">split</span>(<span class="string">&quot;, &quot;</span>)
+    <span class="doccomment">/// Parses a WKT-style line-string into a list of coordinates.
+    </span><span class="kw">pub fn </span>parse_wkt_linestring(raw: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;LonLat&gt;&gt; {
+        <span class="comment">// Input is something like LINESTRING (-111.9263026 33.4245036, -111.9275146 33.4245016,
+        // -111.9278751 33.4233106)
+        </span><span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+        <span class="comment">// -111.9446 33.425474, -111.9442814 33.4254737, -111.9442762 33.426894
+        </span><span class="kw">for </span>pair <span class="kw">in </span>raw
+            .strip_prefix(<span class="string">&quot;LINESTRING (&quot;</span>)<span class="question-mark">?
+            </span>.strip_suffix(<span class="string">&#39;)&#39;</span>)<span class="question-mark">?
+            </span>.split(<span class="string">&quot;, &quot;</span>)
         {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nums</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">pair</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>) {
-                <span class="ident">nums</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>nums = Vec::new();
+            <span class="kw">for </span>x <span class="kw">in </span>pair.split(<span class="string">&#39; &#39;</span>) {
+                nums.push(x.parse::&lt;f64&gt;().ok()<span class="question-mark">?</span>);
             }
-            <span class="kw">if</span> <span class="ident">nums</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">if </span>nums.len() != <span class="number">2 </span>{
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
-            <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">LonLat::new</span>(<span class="ident">nums</span>[<span class="number">0</span>], <span class="ident">nums</span>[<span class="number">1</span>]));
+            pts.push(LonLat::new(nums[<span class="number">0</span>], nums[<span class="number">1</span>]));
         }
-        <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">if </span>pts.len() &lt; <span class="number">2 </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="prelude-val">Some</span>(<span class="ident">pts</span>)
+        <span class="prelude-val">Some</span>(pts)
     }
 
-    <span class="doccomment">/// Extract polygons from a raw GeoJSON string. For multipolygons, only returns the first</span>
-    <span class="doccomment">/// member. If the GeoJSON feature has a property called `name`, this will also be returned.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_geojson_polygons</span>(<span class="ident">raw</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">GeoJson</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">features</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">geojson</span> {
-            <span class="ident">GeoJson::Feature</span>(<span class="ident">feature</span>) =&gt; <span class="macro">vec!</span>[<span class="ident">feature</span>],
-            <span class="ident">GeoJson::FeatureCollection</span>(<span class="ident">feature_collection</span>) =&gt; <span class="ident">feature_collection</span>.<span class="ident">features</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, <span class="ident">geojson</span>),
+    <span class="doccomment">/// Extract polygons from a raw GeoJSON string. For multipolygons, only returns the first
+    /// member. If the GeoJSON feature has a property called `name`, this will also be returned.
+    </span><span class="kw">pub fn </span>parse_geojson_polygons(raw: String) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;(Vec&lt;LonLat&gt;, <span class="prelude-ty">Option</span>&lt;String&gt;)&gt;&gt; {
+        <span class="kw">let </span>geojson = raw.parse::&lt;GeoJson&gt;()<span class="question-mark">?</span>;
+        <span class="kw">let </span>features = <span class="kw">match </span>geojson {
+            GeoJson::Feature(feature) =&gt; <span class="macro">vec!</span>[feature],
+            GeoJson::FeatureCollection(feature_collection) =&gt; feature_collection.features,
+            <span class="kw">_ </span>=&gt; <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Unexpected geojson: {:?}&quot;</span>, geojson),
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="kw">in</span> <span class="ident">features</span> {
-            <span class="kw">let</span> <span class="ident">points</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="ident">g</span>.<span class="ident">value</span>) {
-                <span class="prelude-val">Some</span>(<span class="ident">Value::MultiPolygon</span>(<span class="ident">multi_polygon</span>)) =&gt; <span class="ident">multi_polygon</span>[<span class="number">0</span>][<span class="number">0</span>].<span class="ident">clone</span>(),
-                <span class="prelude-val">Some</span>(<span class="ident">Value::Polygon</span>(<span class="ident">polygon</span>)) =&gt; <span class="ident">polygon</span>[<span class="number">0</span>].<span class="ident">clone</span>(),
-                <span class="kw">_</span> =&gt; {
-                    <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Unexpected feature: {:?}&quot;</span>, <span class="ident">feature</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>polygons = Vec::new();
+        <span class="kw">for </span><span class="kw-2">mut </span>feature <span class="kw">in </span>features {
+            <span class="kw">let </span>points = <span class="kw">match </span>feature.geometry.take().map(|g| g.value) {
+                <span class="prelude-val">Some</span>(Value::MultiPolygon(multi_polygon)) =&gt; multi_polygon[<span class="number">0</span>][<span class="number">0</span>].clone(),
+                <span class="prelude-val">Some</span>(Value::Polygon(polygon)) =&gt; polygon[<span class="number">0</span>].clone(),
+                <span class="kw">_ </span>=&gt; {
+                    <span class="macro">anyhow::bail!</span>(<span class="string">&quot;Unexpected feature: {:?}&quot;</span>, feature);
                 }
             };
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">feature</span>
-                .<span class="ident">property</span>(<span class="string">&quot;name&quot;</span>)
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">value</span><span class="op">|</span> <span class="ident">value</span>.<span class="ident">as_str</span>())
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>());
-            <span class="ident">polygons</span>.<span class="ident">push</span>((
-                <span class="ident">points</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">LonLat::new</span>(<span class="ident">pt</span>[<span class="number">0</span>], <span class="ident">pt</span>[<span class="number">1</span>]))
-                    .<span class="ident">collect</span>(),
-                <span class="ident">name</span>,
+            <span class="kw">let </span>name = feature
+                .property(<span class="string">&quot;name&quot;</span>)
+                .and_then(|value| value.as_str())
+                .map(|x| x.to_string());
+            polygons.push((
+                points
+                    .into_iter()
+                    .map(|pt| LonLat::new(pt[<span class="number">0</span>], pt[<span class="number">1</span>]))
+                    .collect(),
+                name,
             ));
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">polygons</span>)
+        <span class="prelude-val">Ok</span>(polygons)
     }
 
-    <span class="doccomment">/// Reads a GeoJSON file and returns coordinates from the one polygon contained.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_geojson_polygon</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">fs_err::read_to_string</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::parse_geojson_polygons</span>(<span class="ident">raw</span>)<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
+    <span class="doccomment">/// Reads a GeoJSON file and returns coordinates from the one polygon contained.
+    </span><span class="kw">pub fn </span>read_geojson_polygon(path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;LonLat&gt;&gt; {
+        <span class="kw">let </span>raw = fs_err::read_to_string(path)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>list = <span class="self">Self</span>::parse_geojson_polygons(raw)<span class="question-mark">?</span>;
+        <span class="kw">if </span>list.len() != <span class="number">1 </span>{
             <span class="macro">bail!</span>(<span class="string">&quot;{path} doesn&#39;t contain exactly one polygon&quot;</span>);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">list</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="number">0</span>)
+        <span class="prelude-val">Ok</span>(list.pop().unwrap().<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="self">self</span>) -&gt; <span class="ident">geojson::Geometry</span> {
-        <span class="ident">geojson::Geometry::new</span>(<span class="ident">geojson::Value::Point</span>(<span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">x</span>(), <span class="self">self</span>.<span class="ident">y</span>()]))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">LonLat</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;LonLat({0}, {1})&quot;</span>, <span class="self">self</span>.<span class="ident">x</span>(), <span class="self">self</span>.<span class="ident">y</span>())
+    <span class="kw">pub fn </span>to_geojson(<span class="self">self</span>) -&gt; geojson::Geometry {
+        geojson::Geometry::new(geojson::Value::Point(<span class="macro">vec!</span>[<span class="self">self</span>.x(), <span class="self">self</span>.y()]))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">geo::Point</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pt</span>: <span class="ident">LonLat</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">geo::Point::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>LonLat {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;LonLat({0}, {1})&quot;</span>, <span class="self">self</span>.x(), <span class="self">self</span>.y())
+    }
+}
+
+<span class="kw">impl </span>From&lt;LonLat&gt; <span class="kw">for </span>geo::Point {
+    <span class="kw">fn </span>from(pt: LonLat) -&gt; <span class="self">Self </span>{
+        geo::Point::new(pt.x(), pt.y())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

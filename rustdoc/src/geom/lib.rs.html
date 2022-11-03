@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -194,201 +194,201 @@
 <span id="194">194</span>
 <span id="195">195</span>
 <span id="196">196</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::new_without_default</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(clippy::new_without_default)]
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
+#[macro_use]
+</span><span class="kw">extern crate </span>anyhow;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
+<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::angle::Angle</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bounds</span>::{<span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::circle::Circle</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::distance::Distance</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::duration::Duration</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::find_closest::FindClosest</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::gps::LonLat</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::line</span>::{<span class="ident">InfiniteLine</span>, <span class="ident">Line</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::percent::Percent</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::polygon::Polygon</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::polyline</span>::{<span class="ident">ArrowCap</span>, <span class="ident">PolyLine</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pt</span>::{<span class="ident">HashablePt2D</span>, <span class="ident">Pt2D</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ring::Ring</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::speed::Speed</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::stats</span>::{<span class="ident">HgramValue</span>, <span class="ident">Histogram</span>, <span class="ident">Statistic</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tessellation</span>::{<span class="ident">Tessellation</span>, <span class="ident">Triangle</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::time::Time</span>;
+<span class="kw">pub use </span><span class="kw">crate</span>::angle::Angle;
+<span class="kw">pub use </span><span class="kw">crate</span>::bounds::{Bounds, GPSBounds};
+<span class="kw">pub use </span><span class="kw">crate</span>::circle::Circle;
+<span class="kw">pub use </span><span class="kw">crate</span>::distance::Distance;
+<span class="kw">pub use </span><span class="kw">crate</span>::duration::Duration;
+<span class="kw">pub use </span><span class="kw">crate</span>::find_closest::FindClosest;
+<span class="kw">pub use </span><span class="kw">crate</span>::gps::LonLat;
+<span class="kw">pub use </span><span class="kw">crate</span>::line::{InfiniteLine, Line};
+<span class="kw">pub use </span><span class="kw">crate</span>::percent::Percent;
+<span class="kw">pub use </span><span class="kw">crate</span>::polygon::Polygon;
+<span class="kw">pub use </span><span class="kw">crate</span>::polyline::{ArrowCap, PolyLine};
+<span class="kw">pub use </span><span class="kw">crate</span>::pt::{HashablePt2D, Pt2D};
+<span class="kw">pub use </span><span class="kw">crate</span>::ring::Ring;
+<span class="kw">pub use </span><span class="kw">crate</span>::speed::Speed;
+<span class="kw">pub use </span><span class="kw">crate</span>::stats::{HgramValue, Histogram, Statistic};
+<span class="kw">pub use </span><span class="kw">crate</span>::tessellation::{Tessellation, Triangle};
+<span class="kw">pub use </span><span class="kw">crate</span>::time::Time;
 
-<span class="kw">mod</span> <span class="ident">angle</span>;
-<span class="kw">mod</span> <span class="ident">bounds</span>;
-<span class="kw">mod</span> <span class="ident">circle</span>;
-<span class="kw">mod</span> <span class="ident">conversions</span>;
-<span class="kw">mod</span> <span class="ident">distance</span>;
-<span class="kw">mod</span> <span class="ident">duration</span>;
-<span class="kw">mod</span> <span class="ident">find_closest</span>;
-<span class="kw">mod</span> <span class="ident">gps</span>;
-<span class="kw">mod</span> <span class="ident">line</span>;
-<span class="kw">mod</span> <span class="ident">percent</span>;
-<span class="kw">mod</span> <span class="ident">polygon</span>;
-<span class="kw">mod</span> <span class="ident">polyline</span>;
-<span class="kw">mod</span> <span class="ident">pt</span>;
-<span class="kw">mod</span> <span class="ident">ring</span>;
-<span class="kw">mod</span> <span class="ident">speed</span>;
-<span class="kw">mod</span> <span class="ident">stats</span>;
-<span class="kw">mod</span> <span class="ident">tessellation</span>;
-<span class="kw">mod</span> <span class="ident">time</span>;
+<span class="kw">mod </span>angle;
+<span class="kw">mod </span>bounds;
+<span class="kw">mod </span>circle;
+<span class="kw">mod </span>conversions;
+<span class="kw">mod </span>distance;
+<span class="kw">mod </span>duration;
+<span class="kw">mod </span>find_closest;
+<span class="kw">mod </span>gps;
+<span class="kw">mod </span>line;
+<span class="kw">mod </span>percent;
+<span class="kw">mod </span>polygon;
+<span class="kw">mod </span>polyline;
+<span class="kw">mod </span>pt;
+<span class="kw">mod </span>ring;
+<span class="kw">mod </span>speed;
+<span class="kw">mod </span>stats;
+<span class="kw">mod </span>tessellation;
+<span class="kw">mod </span>time;
 
-<span class="comment">// About 0.4 inches... which is quite tiny on the scale of things. :)</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">EPSILON_DIST</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">0.01</span>);
+<span class="comment">// About 0.4 inches... which is quite tiny on the scale of things. :)
+</span><span class="kw">pub const </span>EPSILON_DIST: Distance = Distance::const_meters(<span class="number">0.01</span>);
 
-<span class="doccomment">/// Reduce the precision of an f64. This helps ensure serialization is idempotent (everything is</span>
-<span class="doccomment">/// exactly the same before and after saving/loading). Ideally we&#39;d use some kind of proper</span>
-<span class="doccomment">/// fixed-precision type instead of f64.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trim_f64</span>(<span class="ident">x</span>: <span class="ident">f64</span>) -&gt; <span class="ident">f64</span> {
-    (<span class="ident">x</span> <span class="op">*</span> <span class="number">10_000.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10_000.0</span>
+<span class="doccomment">/// Reduce the precision of an f64. This helps ensure serialization is idempotent (everything is
+/// exactly the same before and after saving/loading). Ideally we&#39;d use some kind of proper
+/// fixed-precision type instead of f64.
+</span><span class="kw">pub fn </span>trim_f64(x: f64) -&gt; f64 {
+    (x * <span class="number">10_000.0</span>).round() / <span class="number">10_000.0
+</span>}
+
+<span class="doccomment">/// Serializes a trimmed `f64` as an `i32` to save space.
+</span><span class="kw">fn </span>serialize_f64&lt;S: Serializer&gt;(x: <span class="kw-2">&amp;</span>f64, s: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt; {
+    <span class="comment">// So a trimmed f64&#39;s range becomes 2**31 / 10,000 =~ 214,000, which is plenty
+    // We don&#39;t need to round() here; trim_f64 already handles that.
+    </span><span class="kw">let </span>int = (x * <span class="number">10_000.0</span>) <span class="kw">as </span>i32;
+    int.serialize(s)
 }
 
-<span class="doccomment">/// Serializes a trimmed `f64` as an `i32` to save space.</span>
-<span class="kw">fn</span> <span class="ident">serialize_f64</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Serializer</span><span class="op">&gt;</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">f64</span>, <span class="ident">s</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span> {
-    <span class="comment">// So a trimmed f64&#39;s range becomes 2**31 / 10,000 =~ 214,000, which is plenty</span>
-    <span class="comment">// We don&#39;t need to round() here; trim_f64 already handles that.</span>
-    <span class="kw">let</span> <span class="ident">int</span> <span class="op">=</span> (<span class="ident">x</span> <span class="op">*</span> <span class="number">10_000.0</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-    <span class="ident">int</span>.<span class="ident">serialize</span>(<span class="ident">s</span>)
+<span class="doccomment">/// Deserializes a trimmed `f64` from an `i32`.
+</span><span class="kw">fn </span>deserialize_f64&lt;<span class="lifetime">&#39;de</span>, D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;f64, D::Error&gt; {
+    <span class="kw">let </span>x = &lt;i32&gt;::deserialize(d)<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(x <span class="kw">as </span>f64 / <span class="number">10_000.0</span>)
 }
 
-<span class="doccomment">/// Deserializes a trimmed `f64` from an `i32`.</span>
-<span class="kw">fn</span> <span class="ident">deserialize_f64</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span>, <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">f64</span>, <span class="ident">D::Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span><span class="ident">::deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">10_000.0</span>)
+<span class="doccomment">/// Specifies how to stringify different geom objects.
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize, Copy)]
+</span><span class="kw">pub struct </span>UnitFmt {
+    <span class="doccomment">/// Round `Duration`s to a whole number of seconds.
+    </span><span class="kw">pub </span>round_durations: bool,
+    <span class="doccomment">/// Display in metric; US imperial otherwise.
+    </span><span class="kw">pub </span>metric: bool,
 }
 
-<span class="doccomment">/// Specifies how to stringify different geom objects.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnitFmt</span> {
-    <span class="doccomment">/// Round `Duration`s to a whole number of seconds.</span>
-    <span class="kw">pub</span> <span class="ident">round_durations</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Display in metric; US imperial otherwise.</span>
-    <span class="kw">pub</span> <span class="ident">metric</span>: <span class="ident">bool</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">UnitFmt</span> {
-    <span class="doccomment">/// Default settings using metric.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">metric</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">round_durations</span>: <span class="bool-val">true</span>,
-            <span class="ident">metric</span>: <span class="bool-val">true</span>,
+<span class="kw">impl </span>UnitFmt {
+    <span class="doccomment">/// Default settings using metric.
+    </span><span class="kw">pub fn </span>metric() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            round_durations: <span class="bool-val">true</span>,
+            metric: <span class="bool-val">true</span>,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CornerRadii</span> {
-    <span class="kw">pub</span> <span class="ident">top_left</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">top_right</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">bottom_right</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">bottom_left</span>: <span class="ident">f64</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug)]
+</span><span class="kw">pub struct </span>CornerRadii {
+    <span class="kw">pub </span>top_left: f64,
+    <span class="kw">pub </span>top_right: f64,
+    <span class="kw">pub </span>bottom_right: f64,
+    <span class="kw">pub </span>bottom_left: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">CornerRadii</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform</span>(<span class="ident">radius</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">top_left</span>: <span class="ident">radius</span>,
-            <span class="ident">top_right</span>: <span class="ident">radius</span>,
-            <span class="ident">bottom_right</span>: <span class="ident">radius</span>,
-            <span class="ident">bottom_left</span>: <span class="ident">radius</span>,
+<span class="kw">impl </span>CornerRadii {
+    <span class="kw">pub fn </span>uniform(radius: f64) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            top_left: radius,
+            top_right: radius,
+            bottom_right: radius,
+            bottom_left: radius,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::uniform</span>(<span class="number">0.0</span>)
+    <span class="kw">pub fn </span>zero() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::uniform(<span class="number">0.0</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CornerRadii</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">uniform</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::uniform</span>(<span class="ident">uniform</span>)
+<span class="kw">impl </span>std::convert::From&lt;f64&gt; <span class="kw">for </span>CornerRadii {
+    <span class="kw">fn </span>from(uniform: f64) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::uniform(uniform)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">CornerRadii</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::zero</span>()
+<span class="kw">impl </span>Default <span class="kw">for </span>CornerRadii {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::zero()
     }
 }
 
-<span class="doccomment">/// Create a GeoJson with one feature per geometry, with the specified properties.</span>
-<span class="comment">// TODO Rethink after https://github.com/georust/geojson/issues/170</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">geometries_with_properties_to_geojson</span>(
-    <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(
-        <span class="ident">geojson::Geometry</span>,
-        <span class="ident">serde_json::Map</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">serde_json::Value</span><span class="op">&gt;</span>,
-    )<span class="op">&gt;</span>,
-) -&gt; <span class="ident">geojson::GeoJson</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> (<span class="ident">geom</span>, <span class="ident">properties</span>) <span class="kw">in</span> <span class="ident">input</span> {
-        <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">geojson::Feature</span> {
-            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">geom</span>),
-            <span class="ident">id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">properties</span>),
-            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+<span class="doccomment">/// Create a GeoJson with one feature per geometry, with the specified properties.
+</span><span class="comment">// TODO Rethink after https://github.com/georust/geojson/issues/170
+</span><span class="kw">pub fn </span>geometries_with_properties_to_geojson(
+    input: Vec&lt;(
+        geojson::Geometry,
+        serde_json::Map&lt;String, serde_json::Value&gt;,
+    )&gt;,
+) -&gt; geojson::GeoJson {
+    <span class="kw">let </span><span class="kw-2">mut </span>features = Vec::new();
+    <span class="kw">for </span>(geom, properties) <span class="kw">in </span>input {
+        features.push(geojson::Feature {
+            bbox: <span class="prelude-val">None</span>,
+            geometry: <span class="prelude-val">Some</span>(geom),
+            id: <span class="prelude-val">None</span>,
+            properties: <span class="prelude-val">Some</span>(properties),
+            foreign_members: <span class="prelude-val">None</span>,
         });
     }
-    <span class="ident">geojson::GeoJson::from</span>(<span class="ident">geojson::FeatureCollection</span> {
-        <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-        <span class="ident">features</span>,
-        <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+    geojson::GeoJson::from(geojson::FeatureCollection {
+        bbox: <span class="prelude-val">None</span>,
+        features,
+        foreign_members: <span class="prelude-val">None</span>,
     })
 }
 
-<span class="doccomment">/// Create a GeoJson with one feature per geometry, and no properties.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">geometries_to_geojson</span>(<span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geojson::Geometry</span><span class="op">&gt;</span>) -&gt; <span class="ident">geojson::GeoJson</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">geom</span> <span class="kw">in</span> <span class="ident">input</span> {
-        <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">geojson::Feature</span> {
-            <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-            <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">geom</span>),
-            <span class="ident">id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">properties</span>: <span class="prelude-val">None</span>,
-            <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+<span class="doccomment">/// Create a GeoJson with one feature per geometry, and no properties.
+</span><span class="kw">pub fn </span>geometries_to_geojson(input: Vec&lt;geojson::Geometry&gt;) -&gt; geojson::GeoJson {
+    <span class="kw">let </span><span class="kw-2">mut </span>features = Vec::new();
+    <span class="kw">for </span>geom <span class="kw">in </span>input {
+        features.push(geojson::Feature {
+            bbox: <span class="prelude-val">None</span>,
+            geometry: <span class="prelude-val">Some</span>(geom),
+            id: <span class="prelude-val">None</span>,
+            properties: <span class="prelude-val">None</span>,
+            foreign_members: <span class="prelude-val">None</span>,
         });
     }
-    <span class="ident">geojson::GeoJson::from</span>(<span class="ident">geojson::FeatureCollection</span> {
-        <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-        <span class="ident">features</span>,
-        <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+    geojson::GeoJson::from(geojson::FeatureCollection {
+        bbox: <span class="prelude-val">None</span>,
+        features,
+        foreign_members: <span class="prelude-val">None</span>,
     })
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use </span>rand::{Rng, SeedableRng};
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">f64_trimming</span>() {
-        <span class="comment">// Roundtrip a bunch of random f64&#39;s</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand_xorshift::XorShiftRng::seed_from_u64</span>(<span class="number">42</span>);
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">1_000</span> {
-            <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="op">-</span><span class="number">214_000.00</span>..<span class="number">214_000.0</span>);
-            <span class="kw">let</span> <span class="ident">trimmed</span> <span class="op">=</span> <span class="ident">trim_f64</span>(<span class="ident">input</span>);
-            <span class="kw">let</span> <span class="ident">json_roundtrip</span>: <span class="ident">f64</span> <span class="op">=</span>
-                <span class="ident">abstutil::from_json</span>(<span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">trimmed</span>).<span class="ident">as_bytes</span>()).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">bincode_roundtrip</span>: <span class="ident">f64</span> <span class="op">=</span>
-                <span class="ident">abstutil::from_binary</span>(<span class="kw-2">&amp;</span><span class="ident">abstutil::to_binary</span>(<span class="kw-2">&amp;</span><span class="ident">trimmed</span>)).<span class="ident">unwrap</span>();
-            <span class="macro">assert_eq!</span>(<span class="ident">json_roundtrip</span>, <span class="ident">trimmed</span>);
-            <span class="macro">assert_eq!</span>(<span class="ident">bincode_roundtrip</span>, <span class="ident">trimmed</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>f64_trimming() {
+        <span class="comment">// Roundtrip a bunch of random f64&#39;s
+        </span><span class="kw">let </span><span class="kw-2">mut </span>rng = rand_xorshift::XorShiftRng::seed_from_u64(<span class="number">42</span>);
+        <span class="kw">for _ in </span><span class="number">0</span>..<span class="number">1_000 </span>{
+            <span class="kw">let </span>input = rng.gen_range(-<span class="number">214_000.00</span>..<span class="number">214_000.0</span>);
+            <span class="kw">let </span>trimmed = trim_f64(input);
+            <span class="kw">let </span>json_roundtrip: f64 =
+                abstutil::from_json(abstutil::to_json(<span class="kw-2">&amp;</span>trimmed).as_bytes()).unwrap();
+            <span class="kw">let </span>bincode_roundtrip: f64 =
+                abstutil::from_binary(<span class="kw-2">&amp;</span>abstutil::to_binary(<span class="kw-2">&amp;</span>trimmed)).unwrap();
+            <span class="macro">assert_eq!</span>(json_roundtrip, trimmed);
+            <span class="macro">assert_eq!</span>(bincode_roundtrip, trimmed);
         }
 
-        <span class="comment">// Hardcode a particular case, where we can hand-verify that it trims to 4 decimal places</span>
-        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="number">1.2345678</span>;
-        <span class="kw">let</span> <span class="ident">trimmed</span> <span class="op">=</span> <span class="ident">trim_f64</span>(<span class="ident">input</span>);
-        <span class="kw">let</span> <span class="ident">json_roundtrip</span>: <span class="ident">f64</span> <span class="op">=</span>
-            <span class="ident">abstutil::from_json</span>(<span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">trimmed</span>).<span class="ident">as_bytes</span>()).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">bincode_roundtrip</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="ident">abstutil::from_binary</span>(<span class="kw-2">&amp;</span><span class="ident">abstutil::to_binary</span>(<span class="kw-2">&amp;</span><span class="ident">trimmed</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">json_roundtrip</span>, <span class="number">1.2346</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">bincode_roundtrip</span>, <span class="number">1.2346</span>);
+        <span class="comment">// Hardcode a particular case, where we can hand-verify that it trims to 4 decimal places
+        </span><span class="kw">let </span>input = <span class="number">1.2345678</span>;
+        <span class="kw">let </span>trimmed = trim_f64(input);
+        <span class="kw">let </span>json_roundtrip: f64 =
+            abstutil::from_json(abstutil::to_json(<span class="kw-2">&amp;</span>trimmed).as_bytes()).unwrap();
+        <span class="kw">let </span>bincode_roundtrip: f64 = abstutil::from_binary(<span class="kw-2">&amp;</span>abstutil::to_binary(<span class="kw-2">&amp;</span>trimmed)).unwrap();
+        <span class="macro">assert_eq!</span>(json_roundtrip, <span class="number">1.2346</span>);
+        <span class="macro">assert_eq!</span>(bincode_roundtrip, <span class="number">1.2346</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

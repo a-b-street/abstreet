@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/generic_trip_table.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generic_trip_table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/generic_trip_table.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generic_trip_table.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -105,112 +105,112 @@
 <span id="105">105</span>
 <span id="106">106</span>
 <span id="107">107</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">sim::TripID</span>;
-<span class="kw">use</span> <span class="ident">synthpop::TripEndpoint</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Distance, Pt2D};
+<span class="kw">use </span>sim::TripID;
+<span class="kw">use </span>synthpop::TripEndpoint;
+<span class="kw">use </span>widgetry::{Drawable, GeomBatch, GfxCtx, Panel, ScreenPt};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::color_for_trip_phase</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info</span>::{<span class="ident">OpenTrip</span>, <span class="ident">Tab</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::SandboxMode</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::color_for_trip_phase;
+<span class="kw">use </span><span class="kw">crate</span>::info::{OpenTrip, Tab};
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::SandboxMode;
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">open_trip_transition</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Transition</span> {
-    <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="ident">idx</span>);
-    <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_person</span>(<span class="ident">trip</span>).<span class="ident">unwrap</span>();
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>open_trip_transition(app: <span class="kw-2">&amp;</span>App, idx: usize) -&gt; Transition {
+    <span class="kw">let </span>trip = TripID(idx);
+    <span class="kw">let </span>person = app.primary.sim.trip_to_person(trip).unwrap();
 
-    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-        <span class="ident">Transition::Pop</span>,
-        <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">sandbox</span>.<span class="ident">contextual_actions</span>();
-            <span class="ident">sandbox</span>.<span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="ident">Tab::PersonTrips</span>(<span class="ident">person</span>, <span class="ident">OpenTrip::single</span>(<span class="ident">trip</span>)),
-                <span class="kw-2">&amp;mut</span> <span class="ident">actions</span>,
+    Transition::Multi(<span class="macro">vec!</span>[
+        Transition::Pop,
+        Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+            <span class="kw">let </span>sandbox = state.downcast_mut::&lt;SandboxMode&gt;().unwrap();
+            <span class="kw">let </span><span class="kw-2">mut </span>actions = sandbox.contextual_actions();
+            sandbox.controls.common.as_mut().unwrap().launch_info_panel(
+                ctx,
+                app,
+                Tab::PersonTrips(person, OpenTrip::single(trip)),
+                <span class="kw-2">&amp;mut </span>actions,
             );
         })),
     ])
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">preview_trip</span>(
-    <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
-    <span class="kw-2">mut</span> <span class="ident">batch</span>: <span class="ident">GeomBatch</span>,
-    <span class="ident">draw_extra</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Drawable</span><span class="op">&gt;</span>,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>preview_trip(
+    g: <span class="kw-2">&amp;mut </span>GfxCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    panel: <span class="kw-2">&amp;</span>Panel,
+    <span class="kw-2">mut </span>batch: GeomBatch,
+    draw_extra: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Drawable&gt;,
 ) {
-    <span class="kw">let</span> <span class="ident">inner_rect</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;preview&quot;</span>).<span class="ident">clone</span>();
-    <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>();
-    <span class="kw">let</span> <span class="ident">zoom</span> <span class="op">=</span> <span class="number">0.15</span> <span class="op">*</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="ident">map_bounds</span>.<span class="ident">width</span>().<span class="ident">max</span>(<span class="ident">map_bounds</span>.<span class="ident">height</span>());
-    <span class="ident">g</span>.<span class="ident">fork</span>(
-        <span class="ident">Pt2D::new</span>(<span class="ident">map_bounds</span>.<span class="ident">min_x</span>, <span class="ident">map_bounds</span>.<span class="ident">min_y</span>),
-        <span class="ident">ScreenPt::new</span>(<span class="ident">inner_rect</span>.<span class="ident">x1</span>, <span class="ident">inner_rect</span>.<span class="ident">y1</span>),
-        <span class="ident">zoom</span>,
+    <span class="kw">let </span>inner_rect = panel.rect_of(<span class="string">&quot;preview&quot;</span>).clone();
+    <span class="kw">let </span>map_bounds = <span class="kw-2">*</span>app.primary.map.get_bounds();
+    <span class="kw">let </span>zoom = <span class="number">0.15 </span>* g.canvas.window_width / map_bounds.width().max(map_bounds.height());
+    g.fork(
+        Pt2D::new(map_bounds.min_x, map_bounds.min_y),
+        ScreenPt::new(inner_rect.x1, inner_rect.y1),
+        zoom,
         <span class="prelude-val">None</span>,
     );
-    <span class="ident">g</span>.<span class="ident">enable_clipping</span>(<span class="ident">inner_rect</span>);
+    g.enable_clipping(inner_rect);
 
-    <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">boundary_polygon</span>);
-    <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">draw_all_areas</span>);
-    <span class="ident">g</span>.<span class="ident">redraw</span>(
-        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>
-            .<span class="ident">draw_map</span>
-            .<span class="ident">draw_all_unzoomed_roads_and_intersections</span>,
+    g.redraw(<span class="kw-2">&amp;</span>app.primary.draw_map.boundary_polygon);
+    g.redraw(<span class="kw-2">&amp;</span>app.primary.draw_map.draw_all_areas);
+    g.redraw(
+        <span class="kw-2">&amp;</span>app.primary
+            .draw_map
+            .draw_all_unzoomed_roads_and_intersections,
     );
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">currently_hovering</span>() {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() {
-            <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="ident">idx</span>);
-            <span class="ident">preview_route</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">trip</span>, <span class="kw-2">&amp;mut</span> <span class="ident">batch</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = panel.currently_hovering() {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(idx) = x.parse::&lt;usize&gt;() {
+            <span class="kw">let </span>trip = TripID(idx);
+            preview_route(g, app, trip, <span class="kw-2">&amp;mut </span>batch);
         }
     }
-    <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">draw</span>) <span class="op">=</span> <span class="ident">draw_extra</span> {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
+    batch.draw(g);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(draw) = draw_extra {
+        g.redraw(draw);
     }
 
-    <span class="ident">g</span>.<span class="ident">disable_clipping</span>();
-    <span class="ident">g</span>.<span class="ident">unfork</span>();
+    g.disable_clipping();
+    g.unfork();
 }
 
-<span class="kw">fn</span> <span class="ident">preview_route</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">TripID</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>) {
-    <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">app</span>
-        .<span class="ident">primary</span>
-        .<span class="ident">sim</span>
-        .<span class="ident">get_analytics</span>()
-        .<span class="ident">get_trip_phases</span>(<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+<span class="kw">fn </span>preview_route(g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App, id: TripID, batch: <span class="kw-2">&amp;mut </span>GeomBatch) {
+    <span class="kw">for </span>p <span class="kw">in </span>app
+        .primary
+        .sim
+        .get_analytics()
+        .get_trip_phases(id, <span class="kw-2">&amp;</span>app.primary.map)
     {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">path</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trace</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">color_for_trip_phase</span>(<span class="ident">app</span>, <span class="ident">p</span>.<span class="ident">phase_type</span>),
-                    <span class="ident">trace</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">20.0</span>)),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = <span class="kw-2">&amp;</span>p.path {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(trace) = path.trace(<span class="kw-2">&amp;</span>app.primary.map) {
+                batch.push(
+                    color_for_trip_phase(app, p.phase_type),
+                    trace.make_polygons(Distance::meters(<span class="number">20.0</span>)),
                 );
             }
         }
     }
 
-    <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="ident">id</span>);
-    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">map_gui::tools::start_marker</span>(
-        <span class="ident">g</span>,
-        <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
-            <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
-            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">pos</span>) =&gt; <span class="ident">pos</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
+    <span class="kw">let </span>trip = app.primary.sim.trip_info(id);
+    batch.append(map_gui::tools::start_marker(
+        g,
+        <span class="kw">match </span>trip.start {
+            TripEndpoint::Building(b) =&gt; app.primary.map.get_b(b).label_center,
+            TripEndpoint::Border(i) =&gt; app.primary.map.get_i(i).polygon.center(),
+            TripEndpoint::SuddenlyAppear(pos) =&gt; pos.pt(<span class="kw-2">&amp;</span>app.primary.map),
         },
         <span class="number">5.0</span>,
     ));
-    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">map_gui::tools::goal_marker</span>(
-        <span class="ident">g</span>,
-        <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>,
-            <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(),
-            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">pos</span>) =&gt; <span class="ident">pos</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
+    batch.append(map_gui::tools::goal_marker(
+        g,
+        <span class="kw">match </span>trip.end {
+            TripEndpoint::Building(b) =&gt; app.primary.map.get_b(b).label_center,
+            TripEndpoint::Border(i) =&gt; app.primary.map.get_i(i).polygon.center(),
+            TripEndpoint::SuddenlyAppear(pos) =&gt; pos.pt(<span class="kw-2">&amp;</span>app.primary.map),
         },
         <span class="number">5.0</span>,
     ));
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

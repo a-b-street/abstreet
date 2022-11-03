@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/mapspace/world.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>world.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/mapspace/world.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>world.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -690,697 +690,697 @@
 <span id="690">690</span>
 <span id="691">691</span>
 <span id="692">692</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
-<span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
+<span class="kw">use </span>std::fmt::Debug;
+<span class="kw">use </span>std::hash::Hash;
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree</span>::{<span class="ident">ItemId</span>, <span class="ident">QuadTree</span>};
+<span class="kw">use </span>aabb_quadtree::{ItemId, QuadTree};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>geom::{Bounds, Circle, Distance, Polygon, Pt2D};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mapspace</span>::{<span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">MultiKey</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>};
+<span class="kw">use </span><span class="kw">crate</span>::mapspace::{ToggleZoomed, ToggleZoomedBuilder};
+<span class="kw">use crate</span>::{Color, EventCtx, GeomBatch, GfxCtx, MultiKey, RewriteColor, Text};
 
-<span class="comment">// TODO Tests...</span>
-<span class="comment">// - start drag in screenspace, release in map</span>
-<span class="comment">// - start drag in mapspace, release in screen</span>
-<span class="comment">// - reset hovering when we go out of screenspace</span>
-<span class="comment">// - start dragging one object, and while dragging, hover on top of other objects</span>
+<span class="comment">// TODO Tests...
+// - start drag in screenspace, release in map
+// - start drag in mapspace, release in screen
+// - reset hovering when we go out of screenspace
+// - start dragging one object, and while dragging, hover on top of other objects
 
-<span class="doccomment">/// A `World` manages objects that exist in &quot;map-space&quot;, the zoomable and pannable canvas. These</span>
-<span class="doccomment">/// objects can be drawn, hovered on, clicked, dragged, etc.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">World</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> {
-    <span class="comment">// TODO Hashing may be too slow in some cases</span>
-    <span class="ident">objects</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ID</span>, <span class="ident">Object</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">quadtree</span>: <span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
+</span><span class="doccomment">/// A `World` manages objects that exist in &quot;map-space&quot;, the zoomable and pannable canvas. These
+/// objects can be drawn, hovered on, clicked, dragged, etc.
+</span><span class="kw">pub struct </span>World&lt;ID: ObjectID&gt; {
+    <span class="comment">// TODO Hashing may be too slow in some cases
+    </span>objects: HashMap&lt;ID, Object&lt;ID&gt;&gt;,
+    quadtree: QuadTree&lt;ID&gt;,
 
-    <span class="ident">draw_master_batches</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ToggleZoomed</span><span class="op">&gt;</span>,
+    draw_master_batches: Vec&lt;ToggleZoomed&gt;,
 
-    <span class="ident">hovering</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
-    <span class="comment">// If we&#39;re currently dragging, where was the cursor during the last movement, and has the</span>
-    <span class="comment">// cursor moved since starting the drag?</span>
-    <span class="ident">dragging_from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">bool</span>)<span class="op">&gt;</span>,
+    hovering: <span class="prelude-ty">Option</span>&lt;ID&gt;,
+    <span class="comment">// If we&#39;re currently dragging, where was the cursor during the last movement, and has the
+    // cursor moved since starting the drag?
+    </span>dragging_from: <span class="prelude-ty">Option</span>&lt;(Pt2D, bool)&gt;,
 }
 
-<span class="doccomment">/// The result of a `World` handling an event</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// A left click occurred while not hovering on any object</span>
-    <span class="ident">ClickedFreeSpace</span>(<span class="ident">Pt2D</span>),
-    <span class="doccomment">/// An object is being dragged. The given offsets are relative to the previous dragging event.</span>
-    <span class="doccomment">/// The current position of the cursor is included. If you&#39;re dragging a large object, applying</span>
-    <span class="doccomment">/// the offset will likely feel more natural than centering on the cursor.</span>
-    <span class="ident">Dragging</span> {
-        <span class="ident">obj</span>: <span class="ident">ID</span>,
-        <span class="ident">dx</span>: <span class="ident">f64</span>,
-        <span class="ident">dy</span>: <span class="ident">f64</span>,
-        <span class="ident">cursor</span>: <span class="ident">Pt2D</span>,
+<span class="doccomment">/// The result of a `World` handling an event
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub enum </span>WorldOutcome&lt;ID: ObjectID&gt; {
+    <span class="doccomment">/// A left click occurred while not hovering on any object
+    </span>ClickedFreeSpace(Pt2D),
+    <span class="doccomment">/// An object is being dragged. The given offsets are relative to the previous dragging event.
+    /// The current position of the cursor is included. If you&#39;re dragging a large object, applying
+    /// the offset will likely feel more natural than centering on the cursor.
+    </span>Dragging {
+        obj: ID,
+        dx: f64,
+        dy: f64,
+        cursor: Pt2D,
     },
-    <span class="doccomment">/// While hovering on an object with a defined hotkey, that key was pressed.</span>
-    <span class="ident">Keypress</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">ID</span>),
-    <span class="doccomment">/// A hoverable object was clicked</span>
-    <span class="ident">ClickedObject</span>(<span class="ident">ID</span>),
-    <span class="doccomment">/// The object being hovered on changed from (something before, to something after). Note this</span>
-    <span class="doccomment">/// transition may also occur outside of `event` -- such as during `delete` or `initialize_hover`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// TODO Bug in the map_editor: If you delete one object, then the caller does initialize_hover</span>
-    <span class="doccomment">/// and we immediately wind up on another road beneath, we don&#39;t detect this and start showing</span>
-    <span class="doccomment">/// road points.</span>
-    <span class="ident">HoverChanged</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>),
-    <span class="doccomment">/// Nothing interesting happened</span>
-    <span class="ident">Nothing</span>,
+    <span class="doccomment">/// While hovering on an object with a defined hotkey, that key was pressed.
+    </span>Keypress(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, ID),
+    <span class="doccomment">/// A hoverable object was clicked
+    </span>ClickedObject(ID),
+    <span class="doccomment">/// The object being hovered on changed from (something before, to something after). Note this
+    /// transition may also occur outside of `event` -- such as during `delete` or `initialize_hover`.
+    ///
+    /// TODO Bug in the map_editor: If you delete one object, then the caller does initialize_hover
+    /// and we immediately wind up on another road beneath, we don&#39;t detect this and start showing
+    /// road points.
+    </span>HoverChanged(<span class="prelude-ty">Option</span>&lt;ID&gt;, <span class="prelude-ty">Option</span>&lt;ID&gt;),
+    <span class="doccomment">/// Nothing interesting happened
+    </span>Nothing,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> <span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// If the outcome references some ID, transform it to another type. This is useful when some</span>
-    <span class="doccomment">/// component owns a World that contains a few different types of objects, some of which are</span>
-    <span class="doccomment">/// managed by another component that only cares about its IDs.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_map_id</span><span class="op">&lt;</span><span class="ident">O</span>: <span class="ident">ObjectID</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">I</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">f</span>: <span class="ident">F</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">O</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>)),
-            <span class="ident">WorldOutcome::Dragging</span> {
-                <span class="ident">obj</span>,
-                <span class="ident">dx</span>,
-                <span class="ident">dy</span>,
-                <span class="ident">cursor</span>,
-            } =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::Dragging</span> {
-                <span class="ident">obj</span>: <span class="ident">f</span>(<span class="ident">obj</span>)<span class="question-mark">?</span>,
-                <span class="ident">dx</span>,
-                <span class="ident">dy</span>,
-                <span class="ident">cursor</span>,
+<span class="kw">impl</span>&lt;I: ObjectID&gt; WorldOutcome&lt;I&gt; {
+    <span class="doccomment">/// If the outcome references some ID, transform it to another type. This is useful when some
+    /// component owns a World that contains a few different types of objects, some of which are
+    /// managed by another component that only cares about its IDs.
+    </span><span class="kw">pub fn </span>maybe_map_id&lt;O: ObjectID, F: Fn(I) -&gt; <span class="prelude-ty">Option</span>&lt;O&gt;&gt;(<span class="self">self</span>, f: F) -&gt; <span class="prelude-ty">Option</span>&lt;WorldOutcome&lt;O&gt;&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            WorldOutcome::ClickedFreeSpace(pt) =&gt; <span class="prelude-val">Some</span>(WorldOutcome::ClickedFreeSpace(pt)),
+            WorldOutcome::Dragging {
+                obj,
+                dx,
+                dy,
+                cursor,
+            } =&gt; <span class="prelude-val">Some</span>(WorldOutcome::Dragging {
+                obj: f(obj)<span class="question-mark">?</span>,
+                dx,
+                dy,
+                cursor,
             }),
-            <span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">f</span>(<span class="ident">id</span>)<span class="question-mark">?</span>)),
-            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">f</span>(<span class="ident">id</span>)<span class="question-mark">?</span>)),
-            <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="ident">after</span>) =&gt; {
-                <span class="comment">// If f returns None, bail out. But preserve None if before or after originally was</span>
-                <span class="comment">// that.</span>
-                <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">before</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">f</span>(<span class="ident">x</span>)<span class="question-mark">?</span>),
-                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+            WorldOutcome::Keypress(action, id) =&gt; <span class="prelude-val">Some</span>(WorldOutcome::Keypress(action, f(id)<span class="question-mark">?</span>)),
+            WorldOutcome::ClickedObject(id) =&gt; <span class="prelude-val">Some</span>(WorldOutcome::ClickedObject(f(id)<span class="question-mark">?</span>)),
+            WorldOutcome::HoverChanged(before, after) =&gt; {
+                <span class="comment">// If f returns None, bail out. But preserve None if before or after originally was
+                // that.
+                </span><span class="kw">let </span>before = <span class="kw">match </span>before {
+                    <span class="prelude-val">Some</span>(x) =&gt; <span class="prelude-val">Some</span>(f(x)<span class="question-mark">?</span>),
+                    <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
                 };
-                <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">after</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">x</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">f</span>(<span class="ident">x</span>)<span class="question-mark">?</span>),
-                    <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>,
+                <span class="kw">let </span>after = <span class="kw">match </span>after {
+                    <span class="prelude-val">Some</span>(x) =&gt; <span class="prelude-val">Some</span>(f(x)<span class="question-mark">?</span>),
+                    <span class="prelude-val">None </span>=&gt; <span class="prelude-val">None</span>,
                 };
-                <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="ident">after</span>))
+                <span class="prelude-val">Some</span>(WorldOutcome::HoverChanged(before, after))
             }
-            <span class="ident">WorldOutcome::Nothing</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">WorldOutcome::Nothing</span>),
+            WorldOutcome::Nothing =&gt; <span class="prelude-val">Some</span>(WorldOutcome::Nothing),
         }
     }
 }
 
-<span class="doccomment">/// Objects in a `World` are uniquely identified by this caller-specified type</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">ObjectID</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Eq</span> <span class="op">+</span> <span class="ident">Hash</span> {}
+<span class="doccomment">/// Objects in a `World` are uniquely identified by this caller-specified type
+</span><span class="kw">pub trait </span>ObjectID: Clone + Copy + Debug + Eq + Hash {}
 
-<span class="doccomment">/// This provides a builder API for adding objects to a `World`.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ObjectBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> {
-    <span class="ident">world</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">World</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>,
+<span class="doccomment">/// This provides a builder API for adding objects to a `World`.
+</span><span class="kw">pub struct </span>ObjectBuilder&lt;<span class="lifetime">&#39;a</span>, ID: ObjectID&gt; {
+    world: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span>World&lt;ID&gt;,
 
-    <span class="ident">id</span>: <span class="ident">ID</span>,
-    <span class="ident">hitboxes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>,
-    <span class="ident">zorder</span>: <span class="ident">usize</span>,
-    <span class="ident">draw_normal</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ToggleZoomedBuilder</span><span class="op">&gt;</span>,
-    <span class="ident">draw_hover</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ToggleZoomedBuilder</span><span class="op">&gt;</span>,
-    <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
-    <span class="ident">clickable</span>: <span class="ident">bool</span>,
-    <span class="ident">draggable</span>: <span class="ident">bool</span>,
-    <span class="ident">keybindings</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">MultiKey</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>)<span class="op">&gt;</span>,
+    id: ID,
+    hitboxes: Vec&lt;Polygon&gt;,
+    zorder: usize,
+    draw_normal: <span class="prelude-ty">Option</span>&lt;ToggleZoomedBuilder&gt;,
+    draw_hover: <span class="prelude-ty">Option</span>&lt;ToggleZoomedBuilder&gt;,
+    tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;,
+    clickable: bool,
+    draggable: bool,
+    keybindings: Vec&lt;(MultiKey, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> <span class="ident">ObjectBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">ID</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Specifies the geometry of the object. Required.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hitbox</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">polygon</span>: <span class="ident">Polygon</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;called hitbox twice&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hitboxes</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">polygon</span>];
-        <span class="self">self</span>
-    }
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>, ID: ObjectID&gt; ObjectBuilder&lt;<span class="lifetime">&#39;a</span>, ID&gt; {
+    <span class="doccomment">/// Specifies the geometry of the object. Required.
+    </span><span class="kw">pub fn </span>hitbox(<span class="kw-2">mut </span><span class="self">self</span>, polygon: Polygon) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(<span class="self">self</span>.hitboxes.is_empty(), <span class="string">&quot;called hitbox twice&quot;</span>);
+        <span class="self">self</span>.hitboxes = <span class="macro">vec!</span>[polygon];
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies the geometry of the object as a multipolygon.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hitboxes</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">polygons</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;called hitbox twice&quot;</span>);
-        <span class="self">self</span>.<span class="ident">hitboxes</span> <span class="op">=</span> <span class="ident">polygons</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Specifies the geometry of the object as a multipolygon.
+    </span><span class="kw">pub fn </span>hitboxes(<span class="kw-2">mut </span><span class="self">self</span>, polygons: Vec&lt;Polygon&gt;) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(<span class="self">self</span>.hitboxes.is_empty(), <span class="string">&quot;called hitbox twice&quot;</span>);
+        <span class="self">self</span>.hitboxes = polygons;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Provides ordering for overlapping objects. Higher values are &quot;on top&quot; of lower values.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zorder</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">zorder</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">zorder</span> <span class="op">==</span> <span class="number">0</span>, <span class="string">&quot;called zorder twice&quot;</span>);
-        <span class="self">self</span>.<span class="ident">zorder</span> <span class="op">=</span> <span class="ident">zorder</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Provides ordering for overlapping objects. Higher values are &quot;on top&quot; of lower values.
+    </span><span class="kw">pub fn </span>zorder(<span class="kw-2">mut </span><span class="self">self</span>, zorder: usize) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(<span class="self">self</span>.zorder == <span class="number">0</span>, <span class="string">&quot;called zorder twice&quot;</span>);
+        <span class="self">self</span>.zorder = zorder;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Specifies how to draw this object normally (while not hovering on it)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ToggleZoomedBuilder</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">normal</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span> {
+    <span class="doccomment">/// Specifies how to draw this object normally (while not hovering on it)
+    </span><span class="kw">pub fn </span>draw&lt;I: Into&lt;ToggleZoomedBuilder&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, normal: I) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(
-            <span class="self">self</span>.<span class="ident">draw_normal</span>.<span class="ident">is_none</span>(),
-            <span class="string">&quot;already specified how to draw normally&quot;</span>
-        );
-        <span class="self">self</span>.<span class="ident">draw_normal</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">normal</span>.<span class="ident">into</span>());
-        <span class="self">self</span>
+            <span class="self">self</span>.draw_normal.is_none(),
+            <span class="string">&quot;already specified how to draw normally&quot;
+        </span>);
+        <span class="self">self</span>.draw_normal = <span class="prelude-val">Some</span>(normal.into());
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Draw the object by coloring its hitbox
+    </span><span class="kw">pub fn </span>draw_color(<span class="self">self</span>, color: Color) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(!<span class="self">self</span>.hitboxes.is_empty(), <span class="string">&quot;call hitbox first&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        batch.extend(color, <span class="self">self</span>.hitboxes.clone());
+        <span class="self">self</span>.draw(batch)
     }
 
-    <span class="doccomment">/// Draw the object by coloring its hitbox</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_color</span>(<span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;call hitbox first&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">batch</span>)
+    <span class="doccomment">/// Draw the object by coloring its hitbox, only when unzoomed. Show nothing when zoomed.
+    </span><span class="kw">pub fn </span>draw_color_unzoomed(<span class="self">self</span>, color: Color) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(!<span class="self">self</span>.hitboxes.is_empty(), <span class="string">&quot;call hitbox first&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>draw = ToggleZoomed::builder();
+        draw.unzoomed.extend(color, <span class="self">self</span>.hitboxes.clone());
+        <span class="self">self</span>.draw(draw)
     }
 
-    <span class="doccomment">/// Draw the object by coloring its hitbox, only when unzoomed. Show nothing when zoomed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_color_unzoomed</span>(<span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;call hitbox first&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
-        <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">extend</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">draw</span>)
-    }
-
-    <span class="doccomment">/// Indicate that an object doesn&#39;t need to be drawn individually. A call to</span>
-    <span class="doccomment">/// `draw_master_batch` covers it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">drawn_in_master_batch</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
+    <span class="doccomment">/// Indicate that an object doesn&#39;t need to be drawn individually. A call to
+    /// `draw_master_batch` covers it.
+    </span><span class="kw">pub fn </span>drawn_in_master_batch(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(
-            <span class="self">self</span>.<span class="ident">draw_normal</span>.<span class="ident">is_none</span>(),
-            <span class="string">&quot;object is already drawn normally&quot;</span>
-        );
-        <span class="self">self</span>.<span class="ident">draw</span>(<span class="ident">GeomBatch::new</span>())
+            <span class="self">self</span>.draw_normal.is_none(),
+            <span class="string">&quot;object is already drawn normally&quot;
+        </span>);
+        <span class="self">self</span>.draw(GeomBatch::new())
     }
 
-    <span class="doccomment">/// Specifies how to draw the object while the cursor is hovering on it. Note that an object</span>
-    <span class="doccomment">/// isn&#39;t considered hoverable unless this is specified!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_hovered</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ToggleZoomedBuilder</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">hovered</span>: <span class="ident">I</span>) -&gt; <span class="self">Self</span> {
+    <span class="doccomment">/// Specifies how to draw the object while the cursor is hovering on it. Note that an object
+    /// isn&#39;t considered hoverable unless this is specified!
+    </span><span class="kw">pub fn </span>draw_hovered&lt;I: Into&lt;ToggleZoomedBuilder&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, hovered: I) -&gt; <span class="self">Self </span>{
         <span class="macro">assert!</span>(
-            <span class="self">self</span>.<span class="ident">draw_hover</span>.<span class="ident">is_none</span>(),
-            <span class="string">&quot;already specified how to draw hovered&quot;</span>
-        );
-        <span class="self">self</span>.<span class="ident">draw_hover</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">hovered</span>.<span class="ident">into</span>());
-        <span class="self">self</span>
+            <span class="self">self</span>.draw_hover.is_none(),
+            <span class="string">&quot;already specified how to draw hovered&quot;
+        </span>);
+        <span class="self">self</span>.draw_hover = <span class="prelude-val">Some</span>(hovered.into());
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Draw the object in a hovered state by transforming the normal drawing.
+    </span><span class="kw">pub fn </span>draw_hover_rewrite(<span class="self">self</span>, rewrite: RewriteColor) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>hovered = <span class="self">self
+            </span>.draw_normal
+            .clone()
+            .expect(<span class="string">&quot;first specify how to draw normally&quot;</span>)
+            .color(rewrite);
+        <span class="self">self</span>.draw_hovered(hovered)
     }
 
-    <span class="doccomment">/// Draw the object in a hovered state by transforming the normal drawing.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_hover_rewrite</span>(<span class="self">self</span>, <span class="ident">rewrite</span>: <span class="ident">RewriteColor</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">hovered</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">draw_normal</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;first specify how to draw normally&quot;</span>)
-            .<span class="ident">color</span>(<span class="ident">rewrite</span>);
-        <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">hovered</span>)
+    <span class="doccomment">/// Draw the object in a hovered state by changing the alpha value of the normal drawing.
+    </span><span class="kw">pub fn </span>hover_alpha(<span class="self">self</span>, alpha: f32) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.draw_hover_rewrite(RewriteColor::ChangeAlpha(alpha))
     }
 
-    <span class="doccomment">/// Draw the object in a hovered state by changing the alpha value of the normal drawing.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hover_alpha</span>(<span class="self">self</span>, <span class="ident">alpha</span>: <span class="ident">f32</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">draw_hover_rewrite</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="ident">alpha</span>))
-    }
-
-    <span class="doccomment">/// Draw the object in a hovered state by adding an outline to the normal drawing. The</span>
-    <span class="doccomment">/// specified `color` and `thickness` will be used when unzoomed. For the zoomed view, the</span>
-    <span class="doccomment">/// color&#39;s opacity and the thickness will be halved.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hover_outline</span>(<span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">thickness</span>: <span class="ident">Distance</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">draw_normal</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">expect</span>(<span class="string">&quot;first specify how to draw normally&quot;</span>)
-            .<span class="ident">draw_differently_zoomed</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unzoomed</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;call hitbox first&quot;</span>);
-        <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hitboxes</span> {
-            <span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span>));
-            <span class="ident">zoomed</span>.<span class="ident">push</span>(<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>));
+    <span class="doccomment">/// Draw the object in a hovered state by adding an outline to the normal drawing. The
+    /// specified `color` and `thickness` will be used when unzoomed. For the zoomed view, the
+    /// color&#39;s opacity and the thickness will be halved.
+    </span><span class="kw">pub fn </span>hover_outline(<span class="self">self</span>, color: Color, thickness: Distance) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>draw = <span class="self">self
+            </span>.draw_normal
+            .clone()
+            .expect(<span class="string">&quot;first specify how to draw normally&quot;</span>)
+            .draw_differently_zoomed();
+        <span class="kw">let </span><span class="kw-2">mut </span>unzoomed = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>zoomed = Vec::new();
+        <span class="macro">assert!</span>(!<span class="self">self</span>.hitboxes.is_empty(), <span class="string">&quot;call hitbox first&quot;</span>);
+        <span class="kw">for </span>polygon <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.hitboxes {
+            unzoomed.push(polygon.to_outline(thickness));
+            zoomed.push(polygon.to_outline(thickness / <span class="number">2.0</span>));
         }
-        <span class="kw">if</span> <span class="ident">unzoomed</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">zoomed</span>.<span class="ident">len</span>() <span class="op">&amp;&amp;</span> <span class="ident">unzoomed</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">len</span>() {
-            <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">extend</span>(<span class="ident">color</span>, <span class="ident">unzoomed</span>);
-            <span class="ident">draw</span>.<span class="ident">zoomed</span>.<span class="ident">extend</span>(<span class="ident">color</span>.<span class="ident">multiply_alpha</span>(<span class="number">0.5</span>), <span class="ident">zoomed</span>);
-        } <span class="kw">else</span> {
+        <span class="kw">if </span>unzoomed.len() == zoomed.len() &amp;&amp; unzoomed.len() == <span class="self">self</span>.hitboxes.len() {
+            draw.unzoomed.extend(color, unzoomed);
+            draw.zoomed.extend(color.multiply_alpha(<span class="number">0.5</span>), zoomed);
+        } <span class="kw">else </span>{
             <span class="macro">warn!</span>(
                 <span class="string">&quot;Can&#39;t hover_outline for {:?}. Falling back to a colored polygon&quot;</span>,
-                <span class="self">self</span>.<span class="ident">id</span>
+                <span class="self">self</span>.id
             );
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">color</span>.<span class="ident">multiply_alpha</span>(<span class="number">0.5</span>), <span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">clone</span>());
-            <span class="ident">draw</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">into</span>();
+            <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+            batch.extend(color.multiply_alpha(<span class="number">0.5</span>), <span class="self">self</span>.hitboxes.clone());
+            draw = batch.into();
         }
-        <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">draw</span>)
+        <span class="self">self</span>.draw_hovered(draw)
     }
 
-    <span class="doccomment">/// Draw the object in a hovered state by coloring its hitbox. Useful when</span>
-    <span class="doccomment">/// `drawn_in_master_batch` is used and there&#39;s no normal drawn polygon.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hover_color</span>(<span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;call hitbox first&quot;</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="ident">batch</span>.<span class="ident">extend</span>(<span class="ident">color</span>, <span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">batch</span>)
+    <span class="doccomment">/// Draw the object in a hovered state by coloring its hitbox. Useful when
+    /// `drawn_in_master_batch` is used and there&#39;s no normal drawn polygon.
+    </span><span class="kw">pub fn </span>hover_color(<span class="self">self</span>, color: Color) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(!<span class="self">self</span>.hitboxes.is_empty(), <span class="string">&quot;call hitbox first&quot;</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        batch.extend(color, <span class="self">self</span>.hitboxes.clone());
+        <span class="self">self</span>.draw_hovered(batch)
     }
 
-    <span class="doccomment">/// Mark that an object is hoverable, but don&#39;t actually draw anything while hovering on it</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invisibly_hoverable</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">GeomBatch::new</span>())
+    <span class="doccomment">/// Mark that an object is hoverable, but don&#39;t actually draw anything while hovering on it
+    </span><span class="kw">pub fn </span>invisibly_hoverable(<span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.draw_hovered(GeomBatch::new())
     }
 
-    <span class="doccomment">/// Maybe draw a tooltip while hovering over this object.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_tooltip</span>(<span class="self">self</span>, <span class="ident">txt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>) <span class="op">=</span> <span class="ident">txt</span> {
-            <span class="self">self</span>.<span class="ident">tooltip</span>(<span class="ident">txt</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>
-        }
+    <span class="doccomment">/// Maybe draw a tooltip while hovering over this object.
+    </span><span class="kw">pub fn </span>maybe_tooltip(<span class="self">self</span>, txt: <span class="prelude-ty">Option</span>&lt;Text&gt;) -&gt; <span class="self">Self </span>{
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(txt) = txt {
+            <span class="self">self</span>.tooltip(txt)
+        } <span class="kw">else </span>{
+            <span class="self">self
+        </span>}
     }
 
-    <span class="doccomment">/// Draw a tooltip while hovering over this object.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">tooltip</span>.<span class="ident">is_none</span>(), <span class="string">&quot;already specified tooltip&quot;</span>);
-        <span class="comment">// TODO Or should this implicitly mark the object as hoverable? Is it weird to base this</span>
-        <span class="comment">// off drawing?</span>
-        <span class="macro">assert!</span>(
-            <span class="self">self</span>.<span class="ident">draw_hover</span>.<span class="ident">is_some</span>(),
-            <span class="string">&quot;first specify how to draw hovered&quot;</span>
-        );
-        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>);
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Draw a tooltip while hovering over this object.
+    </span><span class="kw">pub fn </span>tooltip(<span class="kw-2">mut </span><span class="self">self</span>, txt: Text) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(<span class="self">self</span>.tooltip.is_none(), <span class="string">&quot;already specified tooltip&quot;</span>);
+        <span class="comment">// TODO Or should this implicitly mark the object as hoverable? Is it weird to base this
+        // off drawing?
+        </span><span class="macro">assert!</span>(
+            <span class="self">self</span>.draw_hover.is_some(),
+            <span class="string">&quot;first specify how to draw hovered&quot;
+        </span>);
+        <span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(txt);
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Mark the object as clickable. `WorldOutcome::ClickedObject` will be fired.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clickable</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">clickable</span>, <span class="string">&quot;called clickable twice&quot;</span>);
-        <span class="self">self</span>.<span class="ident">clickable</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Mark the object as clickable. `WorldOutcome::ClickedObject` will be fired.
+    </span><span class="kw">pub fn </span>clickable(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(!<span class="self">self</span>.clickable, <span class="string">&quot;called clickable twice&quot;</span>);
+        <span class="self">self</span>.clickable = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Mark the object as clickable or not. `WorldOutcome::ClickedObject` will be fired.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clickable</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">clickable</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">clickable</span> <span class="op">=</span> <span class="ident">clickable</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Mark the object as clickable or not. `WorldOutcome::ClickedObject` will be fired.
+    </span><span class="kw">pub fn </span>set_clickable(<span class="kw-2">mut </span><span class="self">self</span>, clickable: bool) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.clickable = clickable;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Mark the object as draggable. The user can hover on this object, then click and drag it.</span>
-    <span class="doccomment">/// `WorldOutcome::Dragging` events will be fired.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note that dragging an object doesn&#39;t transform it at all (for example, by translating its</span>
-    <span class="doccomment">/// hitbox). The caller is responsible for doing that.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draggable</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">draggable</span>, <span class="string">&quot;called draggable twice&quot;</span>);
-        <span class="self">self</span>.<span class="ident">draggable</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// Mark the object as draggable. The user can hover on this object, then click and drag it.
+    /// `WorldOutcome::Dragging` events will be fired.
+    ///
+    /// Note that dragging an object doesn&#39;t transform it at all (for example, by translating its
+    /// hitbox). The caller is responsible for doing that.
+    </span><span class="kw">pub fn </span>draggable(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="macro">assert!</span>(!<span class="self">self</span>.draggable, <span class="string">&quot;called draggable twice&quot;</span>);
+        <span class="self">self</span>.draggable = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// While the user hovers over this object, they can press a key to perform the specified</span>
-    <span class="doccomment">/// action. `WorldOutcome::Keypress` will be fired.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hotkey</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">I</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// TODO Check for duplicate keybindings</span>
-        <span class="self">self</span>.<span class="ident">keybindings</span>.<span class="ident">push</span>((<span class="ident">key</span>.<span class="ident">into</span>(), <span class="ident">action</span>));
-        <span class="self">self</span>
-    }
+    <span class="doccomment">/// While the user hovers over this object, they can press a key to perform the specified
+    /// action. `WorldOutcome::Keypress` will be fired.
+    </span><span class="kw">pub fn </span>hotkey&lt;I: Into&lt;MultiKey&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, key: I, action: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str) -&gt; <span class="self">Self </span>{
+        <span class="comment">// TODO Check for duplicate keybindings
+        </span><span class="self">self</span>.keybindings.push((key.into(), action));
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Finalize the object, adding it to the `World`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">hitboxes</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;didn&#39;t specify hitbox&quot;</span>);
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">Bounds::from_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hitboxes</span>);
-        <span class="kw">let</span> <span class="ident">quadtree_id</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">world</span>
-            .<span class="ident">quadtree</span>
-            .<span class="ident">insert_with_box</span>(<span class="self">self</span>.<span class="ident">id</span>, <span class="ident">bounds</span>.<span class="ident">as_bbox</span>());
+    <span class="doccomment">/// Finalize the object, adding it to the `World`.
+    </span><span class="kw">pub fn </span>build(<span class="kw-2">mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.hitboxes.is_empty(), <span class="string">&quot;didn&#39;t specify hitbox&quot;</span>);
+        <span class="kw">let </span>bounds = Bounds::from_polygons(<span class="kw-2">&amp;</span><span class="self">self</span>.hitboxes);
+        <span class="kw">let </span>quadtree_id = <span class="self">self
+            </span>.world
+            .quadtree
+            .insert_with_box(<span class="self">self</span>.id, bounds.as_bbox());
 
-        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">objects</span>.<span class="ident">insert</span>(
-            <span class="self">self</span>.<span class="ident">id</span>,
-            <span class="ident">Object</span> {
-                <span class="ident">_id</span>: <span class="self">self</span>.<span class="ident">id</span>,
-                <span class="ident">quadtree_id</span>,
-                <span class="ident">hitboxes</span>: <span class="self">self</span>.<span class="ident">hitboxes</span>,
-                <span class="ident">zorder</span>: <span class="self">self</span>.<span class="ident">zorder</span>,
-                <span class="ident">draw_normal</span>: <span class="self">self</span>
-                    .<span class="ident">draw_normal</span>
-                    .<span class="ident">expect</span>(<span class="string">&quot;didn&#39;t specify how to draw normally&quot;</span>)
-                    .<span class="ident">build</span>(<span class="ident">ctx</span>),
-                <span class="ident">draw_hover</span>: <span class="self">self</span>.<span class="ident">draw_hover</span>.<span class="ident">take</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">draw</span><span class="op">|</span> <span class="ident">draw</span>.<span class="ident">build</span>(<span class="ident">ctx</span>)),
-                <span class="ident">tooltip</span>: <span class="self">self</span>.<span class="ident">tooltip</span>,
-                <span class="ident">clickable</span>: <span class="self">self</span>.<span class="ident">clickable</span>,
-                <span class="ident">draggable</span>: <span class="self">self</span>.<span class="ident">draggable</span>,
-                <span class="ident">keybindings</span>: <span class="self">self</span>.<span class="ident">keybindings</span>,
+        <span class="self">self</span>.world.objects.insert(
+            <span class="self">self</span>.id,
+            Object {
+                _id: <span class="self">self</span>.id,
+                quadtree_id,
+                hitboxes: <span class="self">self</span>.hitboxes,
+                zorder: <span class="self">self</span>.zorder,
+                draw_normal: <span class="self">self
+                    </span>.draw_normal
+                    .expect(<span class="string">&quot;didn&#39;t specify how to draw normally&quot;</span>)
+                    .build(ctx),
+                draw_hover: <span class="self">self</span>.draw_hover.take().map(|draw| draw.build(ctx)),
+                tooltip: <span class="self">self</span>.tooltip,
+                clickable: <span class="self">self</span>.clickable,
+                draggable: <span class="self">self</span>.draggable,
+                keybindings: <span class="self">self</span>.keybindings,
             },
         );
     }
 }
 
-<span class="kw">struct</span> <span class="ident">Object</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> {
-    <span class="ident">_id</span>: <span class="ident">ID</span>,
-    <span class="ident">quadtree_id</span>: <span class="ident">ItemId</span>,
-    <span class="ident">hitboxes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span>,
-    <span class="ident">zorder</span>: <span class="ident">usize</span>,
-    <span class="ident">draw_normal</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">draw_hover</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ToggleZoomed</span><span class="op">&gt;</span>,
-    <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
-    <span class="ident">clickable</span>: <span class="ident">bool</span>,
-    <span class="ident">draggable</span>: <span class="ident">bool</span>,
-    <span class="comment">// TODO How should we communicate these keypresses are possible? Something standard, like</span>
-    <span class="comment">// button tooltips?</span>
-    <span class="ident">keybindings</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">MultiKey</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>)<span class="op">&gt;</span>,
+<span class="kw">struct </span>Object&lt;ID: ObjectID&gt; {
+    _id: ID,
+    quadtree_id: ItemId,
+    hitboxes: Vec&lt;Polygon&gt;,
+    zorder: usize,
+    draw_normal: ToggleZoomed,
+    draw_hover: <span class="prelude-ty">Option</span>&lt;ToggleZoomed&gt;,
+    tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;,
+    clickable: bool,
+    draggable: bool,
+    <span class="comment">// TODO How should we communicate these keypresses are possible? Something standard, like
+    // button tooltips?
+    </span>keybindings: Vec&lt;(MultiKey, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="ident">ObjectID</span><span class="op">&gt;</span> <span class="ident">World</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Creates an empty `World`, whose objects can exist anywhere from (0, 0) to the max f64.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unbounded</span>() -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="ident">World</span> {
-            <span class="ident">objects</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">quadtree</span>: <span class="ident">QuadTree::default</span>(
-                <span class="ident">Bounds::from</span>(<span class="kw-2">&amp;</span>[<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="ident">std::f64::MAX</span>, <span class="ident">std::f64::MAX</span>)])
-                    .<span class="ident">as_bbox</span>(),
+<span class="kw">impl</span>&lt;ID: ObjectID&gt; World&lt;ID&gt; {
+    <span class="doccomment">/// Creates an empty `World`, whose objects can exist anywhere from (0, 0) to the max f64.
+    </span><span class="kw">pub fn </span>unbounded() -&gt; World&lt;ID&gt; {
+        World {
+            objects: HashMap::new(),
+            quadtree: QuadTree::default(
+                Bounds::from(<span class="kw-2">&amp;</span>[Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>), Pt2D::new(std::f64::MAX, std::f64::MAX)])
+                    .as_bbox(),
             ),
 
-            <span class="ident">draw_master_batches</span>: <span class="ident">Vec::new</span>(),
+            draw_master_batches: Vec::new(),
 
-            <span class="ident">hovering</span>: <span class="prelude-val">None</span>,
-            <span class="ident">dragging_from</span>: <span class="prelude-val">None</span>,
+            hovering: <span class="prelude-val">None</span>,
+            dragging_from: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Creates an empty `World`, whose objects can exist in the provided rectangular boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bounded</span>(<span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">Bounds</span>) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="ident">World</span> {
-            <span class="ident">objects</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">quadtree</span>: <span class="ident">QuadTree::default</span>(<span class="ident">bounds</span>.<span class="ident">as_bbox</span>()),
+    <span class="doccomment">/// Creates an empty `World`, whose objects can exist in the provided rectangular boundary.
+    </span><span class="kw">pub fn </span>bounded(bounds: <span class="kw-2">&amp;</span>Bounds) -&gt; World&lt;ID&gt; {
+        World {
+            objects: HashMap::new(),
+            quadtree: QuadTree::default(bounds.as_bbox()),
 
-            <span class="ident">draw_master_batches</span>: <span class="ident">Vec::new</span>(),
+            draw_master_batches: Vec::new(),
 
-            <span class="ident">hovering</span>: <span class="prelude-val">None</span>,
-            <span class="ident">dragging_from</span>: <span class="prelude-val">None</span>,
+            hovering: <span class="prelude-val">None</span>,
+            dragging_from: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Start adding an object to the `World`. The caller should specify the object with methods on</span>
-    <span class="doccomment">/// `ObjectBuilder`, then call `build`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>) -&gt; <span class="ident">ObjectBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">objects</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>), <span class="string">&quot;duplicate object added&quot;</span>);
-        <span class="ident">ObjectBuilder</span> {
-            <span class="ident">world</span>: <span class="self">self</span>,
+    <span class="doccomment">/// Start adding an object to the `World`. The caller should specify the object with methods on
+    /// `ObjectBuilder`, then call `build`.
+    </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: ID) -&gt; ObjectBuilder&lt;<span class="lifetime">&#39;_</span>, ID&gt; {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.objects.contains_key(<span class="kw-2">&amp;</span>id), <span class="string">&quot;duplicate object added&quot;</span>);
+        ObjectBuilder {
+            world: <span class="self">self</span>,
 
-            <span class="ident">id</span>,
-            <span class="ident">hitboxes</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">zorder</span>: <span class="number">0</span>,
-            <span class="ident">draw_normal</span>: <span class="prelude-val">None</span>,
-            <span class="ident">draw_hover</span>: <span class="prelude-val">None</span>,
-            <span class="ident">tooltip</span>: <span class="prelude-val">None</span>,
-            <span class="ident">clickable</span>: <span class="bool-val">false</span>,
-            <span class="ident">draggable</span>: <span class="bool-val">false</span>,
-            <span class="ident">keybindings</span>: <span class="ident">Vec::new</span>(),
+            id,
+            hitboxes: Vec::new(),
+            zorder: <span class="number">0</span>,
+            draw_normal: <span class="prelude-val">None</span>,
+            draw_hover: <span class="prelude-val">None</span>,
+            tooltip: <span class="prelude-val">None</span>,
+            clickable: <span class="bool-val">false</span>,
+            draggable: <span class="bool-val">false</span>,
+            keybindings: Vec::new(),
         }
     }
 
-    <span class="doccomment">/// Delete an object. Not idempotent -- this will panic if the object doesn&#39;t exist. Will panic</span>
-    <span class="doccomment">/// if the object is deleted in the middle of being dragged.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) {
-            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging_from</span>.<span class="ident">is_some</span>() {
-                <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t delete {:?} mid-drag&quot;</span>, <span class="ident">id</span>);
+    <span class="doccomment">/// Delete an object. Not idempotent -- this will panic if the object doesn&#39;t exist. Will panic
+    /// if the object is deleted in the middle of being dragged.
+    </span><span class="kw">pub fn </span>delete(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: ID) {
+        <span class="kw">if </span><span class="self">self</span>.hovering == <span class="prelude-val">Some</span>(id) {
+            <span class="self">self</span>.hovering = <span class="prelude-val">None</span>;
+            <span class="kw">if </span><span class="self">self</span>.dragging_from.is_some() {
+                <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t delete {:?} mid-drag&quot;</span>, id);
             }
         }
 
-        <span class="self">self</span>.<span class="ident">delete_before_replacement</span>(<span class="ident">id</span>);
+        <span class="self">self</span>.delete_before_replacement(id);
     }
 
-    <span class="doccomment">/// Delete an object, with the promise to recreate it with the same ID before the next call to</span>
-    <span class="doccomment">/// `event`. This may be called while the object is being hovered on or dragged.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_before_replacement</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">objects</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">obj</span>.<span class="ident">quadtree_id</span>).<span class="ident">is_none</span>() {
-                <span class="comment">// This can happen for objects that&#39;re out-of-bounds. One example is intersections</span>
-                <span class="comment">// in map_editor.</span>
-                <span class="macro">warn!</span>(<span class="string">&quot;{:?} wasn&#39;t in the quadtree&quot;</span>, <span class="ident">id</span>);
+    <span class="doccomment">/// Delete an object, with the promise to recreate it with the same ID before the next call to
+    /// `event`. This may be called while the object is being hovered on or dragged.
+    </span><span class="kw">pub fn </span>delete_before_replacement(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: ID) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(obj) = <span class="self">self</span>.objects.remove(<span class="kw-2">&amp;</span>id) {
+            <span class="kw">if </span><span class="self">self</span>.quadtree.remove(obj.quadtree_id).is_none() {
+                <span class="comment">// This can happen for objects that&#39;re out-of-bounds. One example is intersections
+                // in map_editor.
+                </span><span class="macro">warn!</span>(<span class="string">&quot;{:?} wasn&#39;t in the quadtree&quot;</span>, id);
             }
-        } <span class="kw">else</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t delete {:?}; it&#39;s not in the World&quot;</span>, <span class="ident">id</span>);
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t delete {:?}; it&#39;s not in the World&quot;</span>, id);
         }
     }
 
-    <span class="doccomment">/// Like delete, but doesn&#39;t crash if the object doesn&#39;t exist</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_delete</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) {
-            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging_from</span>.<span class="ident">is_some</span>() {
-                <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t delete {:?} mid-drag&quot;</span>, <span class="ident">id</span>);
-            }
-        }
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">objects</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">remove</span>(<span class="ident">obj</span>.<span class="ident">quadtree_id</span>).<span class="ident">is_none</span>() {
-                <span class="comment">// This can happen for objects that&#39;re out-of-bounds. One example is intersections</span>
-                <span class="comment">// in map_editor.</span>
-                <span class="macro">warn!</span>(<span class="string">&quot;{:?} wasn&#39;t in the quadtree&quot;</span>, <span class="ident">id</span>);
+    <span class="doccomment">/// Like delete, but doesn&#39;t crash if the object doesn&#39;t exist
+    </span><span class="kw">pub fn </span>maybe_delete(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: ID) {
+        <span class="kw">if </span><span class="self">self</span>.hovering == <span class="prelude-val">Some</span>(id) {
+            <span class="self">self</span>.hovering = <span class="prelude-val">None</span>;
+            <span class="kw">if </span><span class="self">self</span>.dragging_from.is_some() {
+                <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t delete {:?} mid-drag&quot;</span>, id);
             }
         }
-    }
 
-    <span class="doccomment">/// After adding all objects to a `World`, call this to initially detect if the cursor is</span>
-    <span class="doccomment">/// hovering on an object. This may also be called after adding or deleting objects to</span>
-    <span class="doccomment">/// immediately recalculate hover before the mouse moves.</span>
-    <span class="comment">// TODO Maybe we should automatically do this after mutations? Except we don&#39;t want to in the</span>
-    <span class="comment">// middle of a bulk operation, like initial setup or a many-step mutation. So maybe the caller</span>
-    <span class="comment">// really should handle it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize_hover</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) {
-        <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">canvas</span>
-            .<span class="ident">get_cursor_in_map_space</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cursor</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">calculate_hover</span>(<span class="ident">cursor</span>));
-    }
-
-    <span class="doccomment">/// Forcibly reset the hovering state to empty. This is a necessary hack when launching a new</span>
-    <span class="doccomment">/// state that uses `DrawBaselayer::PreviousState` and has tooltips.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hack_unset_hovering</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    }
-
-    <span class="doccomment">/// If a drag event causes the world to be totally rebuilt, call this with the previous world</span>
-    <span class="doccomment">/// to preserve the ongoing drag.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should be called after `initialize_hover`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Important: the rebuilt world must include the same object ID that&#39;s currently being dragged</span>
-    <span class="doccomment">/// from the previous world.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rebuilt_during_drag</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">prev_world</span>: <span class="kw-2">&amp;</span><span class="ident">World</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="ident">prev_world</span>.<span class="ident">dragging_from</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">dragging_from</span> <span class="op">=</span> <span class="ident">prev_world</span>.<span class="ident">dragging_from</span>;
-            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="ident">prev_world</span>.<span class="ident">hovering</span>;
-            <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">objects</span>.<span class="ident">contains_key</span>(<span class="self">self</span>.<span class="ident">hovering</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(obj) = <span class="self">self</span>.objects.remove(<span class="kw-2">&amp;</span>id) {
+            <span class="kw">if </span><span class="self">self</span>.quadtree.remove(obj.quadtree_id).is_none() {
+                <span class="comment">// This can happen for objects that&#39;re out-of-bounds. One example is intersections
+                // in map_editor.
+                </span><span class="macro">warn!</span>(<span class="string">&quot;{:?} wasn&#39;t in the quadtree&quot;</span>, id);
+            }
         }
     }
 
-    <span class="doccomment">/// Draw something underneath all objects. This is useful for performance, when a large number</span>
-    <span class="doccomment">/// of objects never change appearance.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_master_batch</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ToggleZoomedBuilder</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">draw</span>: <span class="ident">I</span>) {
-        <span class="self">self</span>.<span class="ident">draw_master_batches</span>.<span class="ident">push</span>(<span class="ident">draw</span>.<span class="ident">into</span>().<span class="ident">build</span>(<span class="ident">ctx</span>));
+    <span class="doccomment">/// After adding all objects to a `World`, call this to initially detect if the cursor is
+    /// hovering on an object. This may also be called after adding or deleting objects to
+    /// immediately recalculate hover before the mouse moves.
+    </span><span class="comment">// TODO Maybe we should automatically do this after mutations? Except we don&#39;t want to in the
+    // middle of a bulk operation, like initial setup or a many-step mutation. So maybe the caller
+    // really should handle it.
+    </span><span class="kw">pub fn </span>initialize_hover(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) {
+        <span class="self">self</span>.hovering = ctx
+            .canvas
+            .get_cursor_in_map_space()
+            .and_then(|cursor| <span class="self">self</span>.calculate_hover(cursor));
     }
 
-    <span class="doccomment">/// Like `draw_master_batch`, but for already-built objects.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_master_batch_built</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>) {
-        <span class="self">self</span>.<span class="ident">draw_master_batches</span>.<span class="ident">push</span>(<span class="ident">draw</span>);
+    <span class="doccomment">/// Forcibly reset the hovering state to empty. This is a necessary hack when launching a new
+    /// state that uses `DrawBaselayer::PreviousState` and has tooltips.
+    </span><span class="kw">pub fn </span>hack_unset_hovering(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.hovering = <span class="prelude-val">None</span>;
     }
 
-    <span class="doccomment">/// Let objects in the world respond to something happening.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">drag_from</span>, <span class="ident">moved</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">dragging_from</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-                <span class="self">self</span>.<span class="ident">dragging_from</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="comment">// For objects that&#39;re both clickable and draggable, we don&#39;t know what the user is</span>
-                <span class="comment">// doing until they release the mouse!</span>
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">moved</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">objects</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hovering</span>.<span class="ident">unwrap</span>()].<span class="ident">clickable</span> {
-                    <span class="kw">return</span> <span class="ident">WorldOutcome::ClickedObject</span>(<span class="self">self</span>.<span class="ident">hovering</span>.<span class="ident">unwrap</span>());
+    <span class="doccomment">/// If a drag event causes the world to be totally rebuilt, call this with the previous world
+    /// to preserve the ongoing drag.
+    ///
+    /// This should be called after `initialize_hover`.
+    ///
+    /// Important: the rebuilt world must include the same object ID that&#39;s currently being dragged
+    /// from the previous world.
+    </span><span class="kw">pub fn </span>rebuilt_during_drag(<span class="kw-2">&amp;mut </span><span class="self">self</span>, prev_world: <span class="kw-2">&amp;</span>World&lt;ID&gt;) {
+        <span class="kw">if </span>prev_world.dragging_from.is_some() {
+            <span class="self">self</span>.dragging_from = prev_world.dragging_from;
+            <span class="self">self</span>.hovering = prev_world.hovering;
+            <span class="macro">assert!</span>(<span class="self">self</span>.objects.contains_key(<span class="self">self</span>.hovering.as_ref().unwrap()));
+        }
+    }
+
+    <span class="doccomment">/// Draw something underneath all objects. This is useful for performance, when a large number
+    /// of objects never change appearance.
+    </span><span class="kw">pub fn </span>draw_master_batch&lt;I: Into&lt;ToggleZoomedBuilder&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, draw: I) {
+        <span class="self">self</span>.draw_master_batches.push(draw.into().build(ctx));
+    }
+
+    <span class="doccomment">/// Like `draw_master_batch`, but for already-built objects.
+    </span><span class="kw">pub fn </span>draw_master_batch_built(<span class="kw-2">&amp;mut </span><span class="self">self</span>, draw: ToggleZoomed) {
+        <span class="self">self</span>.draw_master_batches.push(draw);
+    }
+
+    <span class="doccomment">/// Let objects in the world respond to something happening.
+    </span><span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; WorldOutcome&lt;ID&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((drag_from, moved)) = <span class="self">self</span>.dragging_from {
+            <span class="kw">if </span>ctx.input.left_mouse_button_released() {
+                <span class="self">self</span>.dragging_from = <span class="prelude-val">None</span>;
+                <span class="comment">// For objects that&#39;re both clickable and draggable, we don&#39;t know what the user is
+                // doing until they release the mouse!
+                </span><span class="kw">if </span>!moved &amp;&amp; <span class="self">self</span>.objects[<span class="kw-2">&amp;</span><span class="self">self</span>.hovering.unwrap()].clickable {
+                    <span class="kw">return </span>WorldOutcome::ClickedObject(<span class="self">self</span>.hovering.unwrap());
                 }
 
-                <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span>;
-                <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="ident">ctx</span>
-                    .<span class="ident">canvas</span>
-                    .<span class="ident">get_cursor_in_map_space</span>()
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cursor</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">calculate_hover</span>(<span class="ident">cursor</span>));
-                <span class="kw">return</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-                    <span class="ident">WorldOutcome::Nothing</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="self">self</span>.<span class="ident">hovering</span>)
+                <span class="kw">let </span>before = <span class="self">self</span>.hovering;
+                <span class="self">self</span>.hovering = ctx
+                    .canvas
+                    .get_cursor_in_map_space()
+                    .and_then(|cursor| <span class="self">self</span>.calculate_hover(cursor));
+                <span class="kw">return if </span>before == <span class="self">self</span>.hovering {
+                    WorldOutcome::Nothing
+                } <span class="kw">else </span>{
+                    WorldOutcome::HoverChanged(before, <span class="self">self</span>.hovering)
                 };
             }
-            <span class="comment">// Allow zooming, but not panning, while dragging</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">zoom</span>(<span class="ident">dy</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>());
+            <span class="comment">// Allow zooming, but not panning, while dragging
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, dy)) = ctx.input.get_mouse_scroll() {
+                ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
             }
 
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cursor</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                    <span class="kw">let</span> <span class="ident">dx</span> <span class="op">=</span> <span class="ident">cursor</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">drag_from</span>.<span class="ident">x</span>();
-                    <span class="kw">let</span> <span class="ident">dy</span> <span class="op">=</span> <span class="ident">cursor</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">drag_from</span>.<span class="ident">y</span>();
-                    <span class="self">self</span>.<span class="ident">dragging_from</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">cursor</span>, <span class="bool-val">true</span>));
-                    <span class="kw">return</span> <span class="ident">WorldOutcome::Dragging</span> {
-                        <span class="ident">obj</span>: <span class="self">self</span>.<span class="ident">hovering</span>.<span class="ident">unwrap</span>(),
-                        <span class="ident">dx</span>,
-                        <span class="ident">dy</span>,
-                        <span class="ident">cursor</span>,
+            <span class="kw">if </span>ctx.redo_mouseover() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(cursor) = ctx.canvas.get_cursor_in_map_space() {
+                    <span class="kw">let </span>dx = cursor.x() - drag_from.x();
+                    <span class="kw">let </span>dy = cursor.y() - drag_from.y();
+                    <span class="self">self</span>.dragging_from = <span class="prelude-val">Some</span>((cursor, <span class="bool-val">true</span>));
+                    <span class="kw">return </span>WorldOutcome::Dragging {
+                        obj: <span class="self">self</span>.hovering.unwrap(),
+                        dx,
+                        dy,
+                        cursor,
                     };
                 }
             }
 
-            <span class="kw">return</span> <span class="ident">WorldOutcome::Nothing</span>;
+            <span class="kw">return </span>WorldOutcome::Nothing;
         }
 
-        <span class="kw">let</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-            <span class="ident">pt</span>
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span>.<span class="ident">take</span>();
-            <span class="kw">return</span> <span class="kw">if</span> <span class="ident">before</span>.<span class="ident">is_some</span>() {
-                <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="prelude-val">None</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">WorldOutcome::Nothing</span>
+        <span class="kw">let </span>cursor = <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+            pt
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>before = <span class="self">self</span>.hovering.take();
+            <span class="kw">return if </span>before.is_some() {
+                WorldOutcome::HoverChanged(before, <span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                WorldOutcome::Nothing
             };
         };
 
-        <span class="comment">// Possibly recalculate hovering</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">neutral_outcome</span> <span class="op">=</span> <span class="ident">WorldOutcome::Nothing</span>;
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span>;
-            <span class="self">self</span>.<span class="ident">hovering</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">calculate_hover</span>(<span class="ident">cursor</span>);
-            <span class="kw">if</span> <span class="ident">before</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-                <span class="ident">neutral_outcome</span> <span class="op">=</span> <span class="ident">WorldOutcome::HoverChanged</span>(<span class="ident">before</span>, <span class="self">self</span>.<span class="ident">hovering</span>);
+        <span class="comment">// Possibly recalculate hovering
+        </span><span class="kw">let </span><span class="kw-2">mut </span>neutral_outcome = WorldOutcome::Nothing;
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="kw">let </span>before = <span class="self">self</span>.hovering;
+            <span class="self">self</span>.hovering = <span class="self">self</span>.calculate_hover(cursor);
+            <span class="kw">if </span>before != <span class="self">self</span>.hovering {
+                neutral_outcome = WorldOutcome::HoverChanged(before, <span class="self">self</span>.hovering);
             }
         }
 
-        <span class="comment">// If we&#39;re hovering on a draggable thing, only allow zooming, not panning</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">allow_panning</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-            <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
+        <span class="comment">// If we&#39;re hovering on a draggable thing, only allow zooming, not panning
+        </span><span class="kw">let </span><span class="kw-2">mut </span>allow_panning = <span class="bool-val">true</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.hovering {
+            <span class="kw">let </span>obj = <span class="kw-2">&amp;</span><span class="self">self</span>.objects[<span class="kw-2">&amp;</span>id];
 
-            <span class="comment">// For objects both clickable and draggable, the branch below will win, and we&#39;ll</span>
-            <span class="comment">// detect a normal click elsewhere.</span>
-            <span class="kw">if</span> <span class="ident">obj</span>.<span class="ident">clickable</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="kw">return</span> <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">id</span>);
+            <span class="comment">// For objects both clickable and draggable, the branch below will win, and we&#39;ll
+            // detect a normal click elsewhere.
+            </span><span class="kw">if </span>obj.clickable &amp;&amp; ctx.normal_left_click() {
+                <span class="kw">return </span>WorldOutcome::ClickedObject(id);
             }
 
-            <span class="kw">if</span> <span class="ident">obj</span>.<span class="ident">draggable</span> {
-                <span class="ident">allow_panning</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                    <span class="self">self</span>.<span class="ident">dragging_from</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">cursor</span>, <span class="bool-val">false</span>));
-                    <span class="kw">return</span> <span class="ident">neutral_outcome</span>;
+            <span class="kw">if </span>obj.draggable {
+                allow_panning = <span class="bool-val">false</span>;
+                <span class="kw">if </span>ctx.input.left_mouse_button_pressed() {
+                    <span class="self">self</span>.dragging_from = <span class="prelude-val">Some</span>((cursor, <span class="bool-val">false</span>));
+                    <span class="kw">return </span>neutral_outcome;
                 }
             }
 
-            <span class="kw">for</span> (<span class="ident">key</span>, <span class="ident">action</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">obj</span>.<span class="ident">keybindings</span> {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">key</span>.<span class="ident">clone</span>()) {
-                    <span class="kw">return</span> <span class="ident">WorldOutcome::Keypress</span>(<span class="ident">action</span>, <span class="ident">id</span>);
+            <span class="kw">for </span>(key, action) <span class="kw">in </span><span class="kw-2">&amp;</span>obj.keybindings {
+                <span class="kw">if </span>ctx.input.pressed(key.clone()) {
+                    <span class="kw">return </span>WorldOutcome::Keypress(action, id);
                 }
             }
         }
 
-        <span class="kw">if</span> <span class="ident">allow_panning</span> {
-            <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
+        <span class="kw">if </span>allow_panning {
+            ctx.canvas_movement();
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">hovering</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="kw">return</span> <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">cursor</span>);
+            <span class="kw">if </span><span class="self">self</span>.hovering.is_none() &amp;&amp; ctx.normal_left_click() {
+                <span class="kw">return </span>WorldOutcome::ClickedFreeSpace(cursor);
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">dy</span>)) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">get_mouse_scroll</span>() {
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">zoom</span>(<span class="ident">dy</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>());
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, dy)) = ctx.input.get_mouse_scroll() {
+            ctx.canvas.zoom(dy, ctx.canvas.get_cursor());
         }
 
-        <span class="ident">neutral_outcome</span>
+        neutral_outcome
     }
 
-    <span class="kw">fn</span> <span class="ident">calculate_hover</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cursor</span>: <span class="ident">Pt2D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">objects</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">query</span>(
-            <span class="comment">// Maybe worth tuning. Since we do contains_pt below, it doesn&#39;t matter if this is too</span>
-            <span class="comment">// big; just a performance impact possibly.</span>
-            <span class="ident">Circle::new</span>(<span class="ident">cursor</span>, <span class="ident">Distance::meters</span>(<span class="number">3.0</span>))
-                .<span class="ident">get_bounds</span>()
-                .<span class="ident">as_bbox</span>(),
+    <span class="kw">fn </span>calculate_hover(<span class="kw-2">&amp;</span><span class="self">self</span>, cursor: Pt2D) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>objects = Vec::new();
+        <span class="kw">for </span><span class="kw-2">&amp;</span>(id, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.quadtree.query(
+            <span class="comment">// Maybe worth tuning. Since we do contains_pt below, it doesn&#39;t matter if this is too
+            // big; just a performance impact possibly.
+            </span>Circle::new(cursor, Distance::meters(<span class="number">3.0</span>))
+                .get_bounds()
+                .as_bbox(),
         ) {
-            <span class="ident">objects</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+            objects.push(<span class="kw-2">*</span>id);
         }
-        <span class="ident">objects</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">objects</span>[<span class="ident">id</span>].<span class="ident">zorder</span>);
-        <span class="ident">objects</span>.<span class="ident">reverse</span>();
+        objects.sort_by_key(|id| <span class="self">self</span>.objects[id].zorder);
+        objects.reverse();
 
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">objects</span> {
-            <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-            <span class="kw">if</span> <span class="ident">obj</span>.<span class="ident">draw_hover</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">obj</span>.<span class="ident">hitboxes</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">poly</span><span class="op">|</span> <span class="ident">poly</span>.<span class="ident">contains_pt</span>(<span class="ident">cursor</span>))
+        <span class="kw">for </span>id <span class="kw">in </span>objects {
+            <span class="kw">let </span>obj = <span class="kw-2">&amp;</span><span class="self">self</span>.objects[<span class="kw-2">&amp;</span>id];
+            <span class="kw">if </span>obj.draw_hover.is_some() &amp;&amp; obj.hitboxes.iter().any(|poly| poly.contains_pt(cursor))
             {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>);
+                <span class="kw">return </span><span class="prelude-val">Some</span>(id);
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="doccomment">/// Draw objects in the world that&#39;re currently visible.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="comment">// Always draw master batches first</span>
-        <span class="kw">for</span> <span class="ident">draw</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_master_batches</span> {
-            <span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="doccomment">/// Draw objects in the world that&#39;re currently visible.
+    </span><span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="comment">// Always draw master batches first
+        </span><span class="kw">for </span>draw <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.draw_master_batches {
+            draw.draw(g);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">objects</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="kw-2">&amp;</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">quadtree</span>.<span class="ident">query</span>(<span class="ident">g</span>.<span class="ident">get_screen_bounds</span>().<span class="ident">as_bbox</span>()) {
-            <span class="ident">objects</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">id</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>objects = Vec::new();
+        <span class="kw">for </span><span class="kw-2">&amp;</span>(id, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.quadtree.query(g.get_screen_bounds().as_bbox()) {
+            objects.push(<span class="kw-2">*</span>id);
         }
-        <span class="ident">objects</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">objects</span>[<span class="ident">id</span>].<span class="ident">zorder</span>);
+        objects.sort_by_key(|id| <span class="self">self</span>.objects[id].zorder);
 
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">objects</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drawn</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
-            <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">==</span> <span class="self">self</span>.<span class="ident">hovering</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">draw</span>) <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">draw_hover</span> {
-                    <span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-                    <span class="ident">drawn</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">for </span>id <span class="kw">in </span>objects {
+            <span class="kw">let </span><span class="kw-2">mut </span>drawn = <span class="bool-val">false</span>;
+            <span class="kw">let </span>obj = <span class="kw-2">&amp;</span><span class="self">self</span>.objects[<span class="kw-2">&amp;</span>id];
+            <span class="kw">if </span><span class="prelude-val">Some</span>(id) == <span class="self">self</span>.hovering {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>draw) = obj.draw_hover {
+                    draw.draw(g);
+                    drawn = <span class="bool-val">true</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">txt</span>) <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">tooltip</span> {
-                    <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>txt) = obj.tooltip {
+                    g.draw_mouse_tooltip(txt.clone());
                 }
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">drawn</span> {
-                <span class="ident">obj</span>.<span class="ident">draw_normal</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+            <span class="kw">if </span>!drawn {
+                obj.draw_normal.draw(g);
             }
         }
     }
 
-    <span class="doccomment">/// Returns the object currently hovered on.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hovering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">hovering</span>
+    <span class="doccomment">/// Returns the object currently hovered on.
+    </span><span class="kw">pub fn </span>get_hovering(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="self">self</span>.hovering
     }
 
-    <span class="doccomment">/// Change an object&#39;s tooltip. Returns true for success, false if the object didn&#39;t exist.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">override_tooltip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">ID</span>, <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">objects</span>.<span class="ident">get_mut</span>(<span class="ident">id</span>) {
-            <span class="ident">obj</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="ident">tooltip</span>;
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+    <span class="doccomment">/// Change an object&#39;s tooltip. Returns true for success, false if the object didn&#39;t exist.
+    </span><span class="kw">pub fn </span>override_tooltip(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: <span class="kw-2">&amp;</span>ID, tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;) -&gt; bool {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(obj) = <span class="self">self</span>.objects.get_mut(id) {
+            obj.tooltip = tooltip;
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     }
 
-    <span class="doccomment">/// Calculate the object currently underneath the cursor. This should only be used when the</span>
-    <span class="doccomment">/// `World` is not being actively updated by calling `event`. If another state temporarily</span>
-    <span class="doccomment">/// needs to disable most interactions with objects, it can poll this instead.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_hovering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO Seems expensive! Maybe instead set some kind of &quot;locked&quot; mode and disable</span>
-        <span class="comment">// everything except hovering?</span>
-        <span class="ident">ctx</span>.<span class="ident">canvas</span>
-            .<span class="ident">get_cursor_in_map_space</span>()
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">cursor</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">calculate_hover</span>(<span class="ident">cursor</span>))
+    <span class="doccomment">/// Calculate the object currently underneath the cursor. This should only be used when the
+    /// `World` is not being actively updated by calling `event`. If another state temporarily
+    /// needs to disable most interactions with objects, it can poll this instead.
+    </span><span class="kw">pub fn </span>calculate_hovering(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;ID&gt; {
+        <span class="comment">// TODO Seems expensive! Maybe instead set some kind of &quot;locked&quot; mode and disable
+        // everything except hovering?
+        </span>ctx.canvas
+            .get_cursor_in_map_space()
+            .and_then(|cursor| <span class="self">self</span>.calculate_hover(cursor))
     }
 
-    <span class="doccomment">/// If an object is currently being hovered on, return its keybindings. This should be used to</span>
-    <span class="doccomment">/// describe interactions; to detect the keypresses, listen for `WorldOutcome::Keypress`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_hovered_keybindings</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">MultiKey</span>, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>[<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">hovering</span><span class="question-mark">?</span>].<span class="ident">keybindings</span>)
+    <span class="doccomment">/// If an object is currently being hovered on, return its keybindings. This should be used to
+    /// describe interactions; to detect the keypresses, listen for `WorldOutcome::Keypress`.
+    </span><span class="kw">pub fn </span>get_hovered_keybindings(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Vec&lt;(MultiKey, <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str)&gt;&gt; {
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.objects[<span class="kw-2">&amp;</span><span class="self">self</span>.hovering<span class="question-mark">?</span>].keybindings)
     }
 }
 
-<span class="doccomment">/// If you don&#39;t ever need to refer to objects in a `World`, you can auto-assign dummy IDs.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DummyID</span>(<span class="ident">usize</span>);
-<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">DummyID</span> {}
+<span class="doccomment">/// If you don&#39;t ever need to refer to objects in a `World`, you can auto-assign dummy IDs.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+</span><span class="kw">pub struct </span>DummyID(usize);
+<span class="kw">impl </span>ObjectID <span class="kw">for </span>DummyID {}
 
-<span class="kw">impl</span> <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Begin adding an unnamed object to the `World`.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note: You must call `build` on this object before calling `add_unnamed` again. Otherwise,</span>
-    <span class="doccomment">/// the object IDs will collide.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// TODO This will break when objects are deleted!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_unnamed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">ObjectBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">DummyID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">DummyID</span>(<span class="self">self</span>.<span class="ident">objects</span>.<span class="ident">len</span>()))
+<span class="kw">impl </span>World&lt;DummyID&gt; {
+    <span class="doccomment">/// Begin adding an unnamed object to the `World`.
+    ///
+    /// Note: You must call `build` on this object before calling `add_unnamed` again. Otherwise,
+    /// the object IDs will collide.
+    ///
+    /// TODO This will break when objects are deleted!
+    </span><span class="kw">pub fn </span>add_unnamed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; ObjectBuilder&lt;<span class="lifetime">&#39;_</span>, DummyID&gt; {
+        <span class="self">self</span>.add(DummyID(<span class="self">self</span>.objects.len()))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/distance.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>distance.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/distance.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>distance.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -307,314 +307,314 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">cmp</span>, <span class="ident">f64</span>, <span class="ident">fmt</span>, <span class="ident">ops</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::{cmp, f64, fmt, ops};
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">deserialize_f64</span>, <span class="ident">serialize_f64</span>, <span class="ident">trim_f64</span>, <span class="ident">Duration</span>, <span class="ident">Speed</span>, <span class="ident">UnitFmt</span>, <span class="ident">EPSILON_DIST</span>};
+<span class="kw">use crate</span>::{deserialize_f64, serialize_f64, trim_f64, Duration, Speed, UnitFmt, EPSILON_DIST};
 
-<span class="doccomment">/// A distance, in meters. Can be negative.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Distance</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_f64&quot;</span>, <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_f64&quot;</span>)]</span> <span class="ident">f64</span>,
+<span class="doccomment">/// A distance, in meters. Can be negative.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Distance(
+    <span class="attribute">#[serde(serialize_with = <span class="string">&quot;serialize_f64&quot;</span>, deserialize_with = <span class="string">&quot;deserialize_f64&quot;</span>)] </span>f64,
 );
 
-<span class="comment">// By construction, Distance is a finite f64 with trimmed precision.</span>
-<span class="kw">impl</span> <span class="ident">Eq</span> <span class="kw">for</span> <span class="ident">Distance</span> {}
+<span class="comment">// By construction, Distance is a finite f64 with trimmed precision.
+</span><span class="kw">impl </span>Eq <span class="kw">for </span>Distance {}
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::derive_ord_xor_partial_ord</span>)]</span> <span class="comment">// false positive</span>
-<span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Distance</span>) -&gt; <span class="ident">cmp::Ordering</span> {
-        <span class="self">self</span>.<span class="ident">partial_cmp</span>(<span class="ident">other</span>).<span class="ident">unwrap</span>()
+<span class="attribute">#[allow(clippy::derive_ord_xor_partial_ord)] </span><span class="comment">// false positive
+</span><span class="kw">impl </span>Ord <span class="kw">for </span>Distance {
+    <span class="kw">fn </span>cmp(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Distance) -&gt; cmp::Ordering {
+        <span class="self">self</span>.partial_cmp(other).unwrap()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Distance</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">ZERO</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">0.0</span>);
+<span class="kw">impl </span>Distance {
+    <span class="kw">pub const </span>ZERO: Distance = Distance::const_meters(<span class="number">0.0</span>);
 
-    <span class="doccomment">/// Creates a distance in meters.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">meters</span>(<span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">value</span>.<span class="ident">is_finite</span>() {
-            <span class="macro">panic!</span>(<span class="string">&quot;Bad Distance {}&quot;</span>, <span class="ident">value</span>);
+    <span class="doccomment">/// Creates a distance in meters.
+    </span><span class="kw">pub fn </span>meters(value: f64) -&gt; Distance {
+        <span class="kw">if </span>!value.is_finite() {
+            <span class="macro">panic!</span>(<span class="string">&quot;Bad Distance {}&quot;</span>, value);
         }
 
-        <span class="ident">Distance</span>(<span class="ident">trim_f64</span>(<span class="ident">value</span>))
+        Distance(trim_f64(value))
     }
 
-    <span class="comment">// TODO Can&#39;t panic inside a const fn, seemingly. Don&#39;t pass in anything bad!</span>
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="kw">fn</span> <span class="ident">const_meters</span>(<span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance</span>(<span class="ident">value</span>)
+    <span class="comment">// TODO Can&#39;t panic inside a const fn, seemingly. Don&#39;t pass in anything bad!
+    </span><span class="kw">pub const fn </span>const_meters(value: f64) -&gt; Distance {
+        Distance(value)
     }
 
-    <span class="doccomment">/// Creates a distance in inches.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inches</span>(<span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="number">0.0254</span> <span class="op">*</span> <span class="ident">value</span>)
+    <span class="doccomment">/// Creates a distance in inches.
+    </span><span class="kw">pub fn </span>inches(value: f64) -&gt; Distance {
+        Distance::meters(<span class="number">0.0254 </span>* value)
     }
 
-    <span class="doccomment">/// Creates a distance in miles.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">miles</span>(<span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="number">1609.34</span> <span class="op">*</span> <span class="ident">value</span>)
+    <span class="doccomment">/// Creates a distance in miles.
+    </span><span class="kw">pub fn </span>miles(value: f64) -&gt; Distance {
+        Distance::meters(<span class="number">1609.34 </span>* value)
     }
 
-    <span class="doccomment">/// Creates a distance in centimeters.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">centimeters</span>(<span class="ident">value</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>((<span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span>)
+    <span class="doccomment">/// Creates a distance in centimeters.
+    </span><span class="kw">pub fn </span>centimeters(value: usize) -&gt; Distance {
+        Distance::meters((value <span class="kw">as </span>f64) / <span class="number">100.0</span>)
     }
 
-    <span class="doccomment">/// Creates a distance in feet.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">feet</span>(<span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="ident">value</span> <span class="op">*</span> <span class="number">0.3048</span>)
+    <span class="doccomment">/// Creates a distance in feet.
+    </span><span class="kw">pub fn </span>feet(value: f64) -&gt; Distance {
+        Distance::meters(value * <span class="number">0.3048</span>)
     }
 
-    <span class="doccomment">/// Returns the absolute value of this distance.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">abs</span>(<span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
-            <span class="self">self</span>
-        } <span class="kw">else</span> {
-            <span class="ident">Distance</span>(<span class="op">-</span><span class="self">self</span>.<span class="number">0</span>)
+    <span class="doccomment">/// Returns the absolute value of this distance.
+    </span><span class="kw">pub fn </span>abs(<span class="self">self</span>) -&gt; Distance {
+        <span class="kw">if </span><span class="self">self</span>.<span class="number">0 </span>&gt; <span class="number">0.0 </span>{
+            <span class="self">self
+        </span>} <span class="kw">else </span>{
+            Distance(-<span class="self">self</span>.<span class="number">0</span>)
         }
     }
 
-    <span class="doccomment">/// Returns the square root of this distance.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sqrt</span>(<span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="number">0</span>.<span class="ident">sqrt</span>())
+    <span class="doccomment">/// Returns the square root of this distance.
+    </span><span class="kw">pub fn </span>sqrt(<span class="self">self</span>) -&gt; Distance {
+        Distance::meters(<span class="self">self</span>.<span class="number">0</span>.sqrt())
     }
 
-    <span class="doccomment">/// Returns the distance in meters. Prefer to work with type-safe `Distance`s.</span>
-    <span class="comment">// TODO Remove if possible.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner_meters</span>(<span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns the distance in meters. Prefer to work with type-safe `Distance`s.
+    </span><span class="comment">// TODO Remove if possible.
+    </span><span class="kw">pub fn </span>inner_meters(<span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Returns the distance in feet.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_feet</span>(<span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="number">3.28084</span>
-    }
+    <span class="doccomment">/// Returns the distance in feet.
+    </span><span class="kw">pub fn </span>to_feet(<span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.<span class="number">0 </span>* <span class="number">3.28084
+    </span>}
 
-    <span class="doccomment">/// Returns the distance in miles.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_miles</span>(<span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">to_feet</span>() <span class="op">/</span> <span class="number">5280.0</span>
-    }
+    <span class="doccomment">/// Returns the distance in miles.
+    </span><span class="kw">pub fn </span>to_miles(<span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.to_feet() / <span class="number">5280.0
+    </span>}
 
-    <span class="doccomment">/// Describes the distance according to formatting rules. Rounds to 1 decimal place for both</span>
-    <span class="doccomment">/// small (feet and meters) and large (miles and kilometers) units.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="ident">UnitFmt</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="ident">fmt</span>.<span class="ident">metric</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">&lt;</span> <span class="number">1000.0</span> {
-                <span class="macro">format!</span>(<span class="string">&quot;{}m&quot;</span>, (<span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>)
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">km</span> <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="number">1000.0</span>;
-                <span class="macro">format!</span>(<span class="string">&quot;{}km&quot;</span>, (<span class="ident">km</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>)
+    <span class="doccomment">/// Describes the distance according to formatting rules. Rounds to 1 decimal place for both
+    /// small (feet and meters) and large (miles and kilometers) units.
+    </span><span class="kw">pub fn </span>to_string(<span class="self">self</span>, fmt: <span class="kw-2">&amp;</span>UnitFmt) -&gt; String {
+        <span class="kw">if </span>fmt.metric {
+            <span class="kw">if </span><span class="self">self</span>.<span class="number">0 </span>&lt; <span class="number">1000.0 </span>{
+                <span class="macro">format!</span>(<span class="string">&quot;{}m&quot;</span>, (<span class="self">self</span>.<span class="number">0 </span>* <span class="number">10.0</span>).round() / <span class="number">10.0</span>)
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>km = <span class="self">self</span>.<span class="number">0 </span>/ <span class="number">1000.0</span>;
+                <span class="macro">format!</span>(<span class="string">&quot;{}km&quot;</span>, (km * <span class="number">10.0</span>).round() / <span class="number">10.0</span>)
             }
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">feet</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_feet</span>();
-            <span class="kw">let</span> <span class="ident">miles</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_miles</span>();
-            <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.1</span> {
-                <span class="macro">format!</span>(<span class="string">&quot;{} miles&quot;</span>, (<span class="ident">miles</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>)
-            } <span class="kw">else</span> {
-                <span class="macro">format!</span>(<span class="string">&quot;{} ft&quot;</span>, (<span class="ident">feet</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>() <span class="op">/</span> <span class="number">10.0</span>)
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>feet = <span class="self">self</span>.to_feet();
+            <span class="kw">let </span>miles = <span class="self">self</span>.to_miles();
+            <span class="kw">if </span>miles &gt;= <span class="number">0.1 </span>{
+                <span class="macro">format!</span>(<span class="string">&quot;{} miles&quot;</span>, (miles * <span class="number">10.0</span>).round() / <span class="number">10.0</span>)
+            } <span class="kw">else </span>{
+                <span class="macro">format!</span>(<span class="string">&quot;{} ft&quot;</span>, (feet * <span class="number">10.0</span>).round() / <span class="number">10.0</span>)
             }
         }
     }
 
-    <span class="doccomment">/// Calculates a percentage, usually in [0.0, 1.0], of self / other. If the denominator is</span>
-    <span class="doccomment">/// zero, returns 0%.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">safe_percent</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">f64</span> {
-        <span class="kw">if</span> <span class="ident">other</span> <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
-            <span class="kw">return</span> <span class="number">0.0</span>;
+    <span class="doccomment">/// Calculates a percentage, usually in [0.0, 1.0], of self / other. If the denominator is
+    /// zero, returns 0%.
+    </span><span class="kw">pub fn </span>safe_percent(<span class="self">self</span>, other: Distance) -&gt; f64 {
+        <span class="kw">if </span>other == Distance::ZERO {
+            <span class="kw">return </span><span class="number">0.0</span>;
         }
-        <span class="self">self</span> <span class="op">/</span> <span class="ident">other</span>
+        <span class="self">self </span>/ other
     }
 
-    <span class="doccomment">/// Rounds this distance up to a higher, more &quot;even&quot; value to use for buckets along a plot&#39;s</span>
-    <span class="doccomment">/// axis. Always rounds for imperial units (feet).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">round_up_for_axis</span>(<span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="kw">let</span> <span class="ident">ft</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">to_feet</span>();
-        <span class="kw">let</span> <span class="ident">miles</span> <span class="op">=</span> <span class="ident">ft</span> <span class="op">/</span> <span class="number">5280.0</span>;
-        <span class="kw">if</span> <span class="ident">ft</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.0</span> {
-            <span class="ident">Distance::ZERO</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ft</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">10.0</span> {
-            <span class="ident">Distance::feet</span>(<span class="ident">ft</span>.<span class="ident">ceil</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ft</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">100.0</span> {
-            <span class="ident">Distance::feet</span>(<span class="number">10.0</span> <span class="op">*</span> (<span class="ident">ft</span> <span class="op">/</span> <span class="number">10.0</span>).<span class="ident">ceil</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span> <span class="number">0.1</span> {
-            <span class="ident">Distance::feet</span>(<span class="number">100.0</span> <span class="op">*</span> (<span class="ident">ft</span> <span class="op">/</span> <span class="number">100.0</span>).<span class="ident">ceil</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1.0</span> {
-            <span class="ident">Distance::miles</span>((<span class="ident">miles</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">ceil</span>() <span class="op">/</span> <span class="number">10.0</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">10.0</span> {
-            <span class="ident">Distance::miles</span>(<span class="ident">miles</span>.<span class="ident">ceil</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">miles</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">100.0</span> {
-            <span class="ident">Distance::miles</span>(<span class="number">10.0</span> <span class="op">*</span> (<span class="ident">miles</span> <span class="op">/</span> <span class="number">10.0</span>).<span class="ident">ceil</span>())
-        } <span class="kw">else</span> {
-            <span class="self">self</span>
+    <span class="doccomment">/// Rounds this distance up to a higher, more &quot;even&quot; value to use for buckets along a plot&#39;s
+    /// axis. Always rounds for imperial units (feet).
+    </span><span class="kw">pub fn </span>round_up_for_axis(<span class="self">self</span>) -&gt; Distance {
+        <span class="kw">let </span>ft = <span class="self">self</span>.to_feet();
+        <span class="kw">let </span>miles = ft / <span class="number">5280.0</span>;
+        <span class="kw">if </span>ft &lt;= <span class="number">0.0 </span>{
+            Distance::ZERO
+        } <span class="kw">else if </span>ft &lt;= <span class="number">10.0 </span>{
+            Distance::feet(ft.ceil())
+        } <span class="kw">else if </span>ft &lt;= <span class="number">100.0 </span>{
+            Distance::feet(<span class="number">10.0 </span>* (ft / <span class="number">10.0</span>).ceil())
+        } <span class="kw">else if </span>miles &lt; <span class="number">0.1 </span>{
+            Distance::feet(<span class="number">100.0 </span>* (ft / <span class="number">100.0</span>).ceil())
+        } <span class="kw">else if </span>miles &lt;= <span class="number">1.0 </span>{
+            Distance::miles((miles * <span class="number">10.0</span>).ceil() / <span class="number">10.0</span>)
+        } <span class="kw">else if </span>miles &lt;= <span class="number">10.0 </span>{
+            Distance::miles(miles.ceil())
+        } <span class="kw">else if </span>miles &lt;= <span class="number">100.0 </span>{
+            Distance::miles(<span class="number">10.0 </span>* (miles / <span class="number">10.0</span>).ceil())
+        } <span class="kw">else </span>{
+            <span class="self">self
+        </span>}
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>to_u64(<span class="self">self</span>) -&gt; u64 {
+        (<span class="self">self</span>.<span class="number">0 </span>/ EPSILON_DIST.<span class="number">0</span>) <span class="kw">as </span>u64
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>from_u64(x: u64) -&gt; Distance {
+        (x <span class="kw">as </span>f64) * EPSILON_DIST
+    }
+}
+
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>Distance {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;{}m&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl </span>ops::Add <span class="kw">for </span>Distance {
+    <span class="kw">type </span>Output = Distance;
+
+    <span class="kw">fn </span>add(<span class="self">self</span>, other: Distance) -&gt; Distance {
+        Distance::meters(<span class="self">self</span>.<span class="number">0 </span>+ other.<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl </span>ops::AddAssign <span class="kw">for </span>Distance {
+    <span class="kw">fn </span>add_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Distance) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>+ other;
+    }
+}
+
+<span class="kw">impl </span>ops::Sub <span class="kw">for </span>Distance {
+    <span class="kw">type </span>Output = Distance;
+
+    <span class="kw">fn </span>sub(<span class="self">self</span>, other: Distance) -&gt; Distance {
+        Distance::meters(<span class="self">self</span>.<span class="number">0 </span>- other.<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl </span>ops::Neg <span class="kw">for </span>Distance {
+    <span class="kw">type </span>Output = Distance;
+
+    <span class="kw">fn </span>neg(<span class="self">self</span>) -&gt; Distance {
+        Distance::meters(-<span class="self">self</span>.<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl </span>ops::SubAssign <span class="kw">for </span>Distance {
+    <span class="kw">fn </span>sub_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Distance) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>- other;
+    }
+}
+
+<span class="kw">impl </span>ops::Mul&lt;f64&gt; <span class="kw">for </span>Distance {
+    <span class="kw">type </span>Output = Distance;
+
+    <span class="kw">fn </span>mul(<span class="self">self</span>, scalar: f64) -&gt; Distance {
+        Distance::meters(<span class="self">self</span>.<span class="number">0 </span>* scalar)
+    }
+}
+
+<span class="kw">impl </span>ops::Mul&lt;Distance&gt; <span class="kw">for </span>f64 {
+    <span class="kw">type </span>Output = Distance;
+
+    <span class="kw">fn </span>mul(<span class="self">self</span>, other: Distance) -&gt; Distance {
+        Distance::meters(<span class="self">self </span>* other.<span class="number">0</span>)
+    }
+}
+
+<span class="kw">impl </span>ops::MulAssign&lt;f64&gt; <span class="kw">for </span>Distance {
+    <span class="kw">fn </span>mul_assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: f64) {
+        <span class="kw-2">*</span><span class="self">self </span>= <span class="kw-2">*</span><span class="self">self </span>* other;
+    }
+}
+
+<span class="kw">impl </span>ops::Div&lt;Distance&gt; <span class="kw">for </span>Distance {
+    <span class="kw">type </span>Output = f64;
+
+    <span class="kw">fn </span>div(<span class="self">self</span>, other: Distance) -&gt; f64 {
+        <span class="kw">if </span>other == Distance::ZERO {
+            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t divide {} / {}&quot;</span>, <span class="self">self</span>, other);
         }
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">to_u64</span>(<span class="self">self</span>) -&gt; <span class="ident">u64</span> {
-        (<span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">EPSILON_DIST</span>.<span class="number">0</span>) <span class="kw">as</span> <span class="ident">u64</span>
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">from_u64</span>(<span class="ident">x</span>: <span class="ident">u64</span>) -&gt; <span class="ident">Distance</span> {
-        (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">EPSILON_DIST</span>
-    }
+        <span class="self">self</span>.<span class="number">0 </span>/ other.<span class="number">0
+    </span>}
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{}m&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
-    }
-}
+<span class="kw">impl </span>ops::Div&lt;f64&gt; <span class="kw">for </span>Distance {
+    <span class="kw">type </span>Output = Distance;
 
-<span class="kw">impl</span> <span class="ident">ops::Add</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
-
-    <span class="kw">fn</span> <span class="ident">add</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">other</span>.<span class="number">0</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::AddAssign</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">add_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">+</span> <span class="ident">other</span>;
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::Sub</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
-
-    <span class="kw">fn</span> <span class="ident">sub</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">-</span> <span class="ident">other</span>.<span class="number">0</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::Neg</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
-
-    <span class="kw">fn</span> <span class="ident">neg</span>(<span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="op">-</span><span class="self">self</span>.<span class="number">0</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::SubAssign</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">sub_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">-</span> <span class="ident">other</span>;
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::Mul</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
-
-    <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">scalar</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="ident">scalar</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::Mul</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">f64</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
-
-    <span class="kw">fn</span> <span class="ident">mul</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::meters</span>(<span class="self">self</span> <span class="op">*</span> <span class="ident">other</span>.<span class="number">0</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::MulAssign</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">mul_assign</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">f64</span>) {
-        <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> <span class="op">*</span> <span class="ident">other</span>;
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::Div</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">f64</span>;
-
-    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">f64</span> {
-        <span class="kw">if</span> <span class="ident">other</span> <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t divide {} / {}&quot;</span>, <span class="self">self</span>, <span class="ident">other</span>);
+    <span class="kw">fn </span>div(<span class="self">self</span>, scalar: f64) -&gt; Distance {
+        <span class="kw">if </span>scalar == <span class="number">0.0 </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t divide {} / {}&quot;</span>, <span class="self">self</span>, scalar);
         }
-        <span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">other</span>.<span class="number">0</span>
+        Distance::meters(<span class="self">self</span>.<span class="number">0 </span>/ scalar)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ops::Div</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Distance</span>;
+<span class="kw">impl </span>ops::Div&lt;Speed&gt; <span class="kw">for </span>Distance {
+    <span class="kw">type </span>Output = Duration;
 
-    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">scalar</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="kw">if</span> <span class="ident">scalar</span> <span class="op">==</span> <span class="number">0.0</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t divide {} / {}&quot;</span>, <span class="self">self</span>, <span class="ident">scalar</span>);
-        }
-        <span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">scalar</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">ops::Div</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">Duration</span>;
-
-    <span class="kw">fn</span> <span class="ident">div</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Speed</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="kw">if</span> <span class="ident">other</span> <span class="op">==</span> <span class="ident">Speed::ZERO</span> {
+    <span class="kw">fn </span>div(<span class="self">self</span>, other: Speed) -&gt; Duration {
+        <span class="kw">if </span>other == Speed::ZERO {
             <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t divide {} / 0 mph&quot;</span>, <span class="self">self</span>);
         }
-        <span class="ident">Duration::seconds</span>(<span class="self">self</span>.<span class="number">0</span> <span class="op">/</span> <span class="ident">other</span>.<span class="ident">inner_meters_per_second</span>())
+        Duration::seconds(<span class="self">self</span>.<span class="number">0 </span>/ other.inner_meters_per_second())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::iter::Sum</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">sum</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">iter</span>: <span class="ident">I</span>) -&gt; <span class="ident">Distance</span>
-    <span class="kw">where</span>
-        <span class="ident">I</span>: <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">Distance</span><span class="op">&gt;</span>,
+<span class="kw">impl </span>std::iter::Sum <span class="kw">for </span>Distance {
+    <span class="kw">fn </span>sum&lt;I&gt;(iter: I) -&gt; Distance
+    <span class="kw">where
+        </span>I: Iterator&lt;Item = Distance&gt;,
     {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">iter</span> {
-            <span class="ident">sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">x</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>sum = Distance::ZERO;
+        <span class="kw">for </span>x <span class="kw">in </span>iter {
+            sum += x;
         }
-        <span class="ident">sum</span>
+        sum
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Distance</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Distance</span> {
-        <span class="ident">Distance::ZERO</span>
+<span class="kw">impl </span>Default <span class="kw">for </span>Distance {
+    <span class="kw">fn </span>default() -&gt; Distance {
+        Distance::ZERO
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">round_up_for_axis</span>() {
-        <span class="kw">let</span> <span class="ident">fmt</span> <span class="op">=</span> <span class="ident">UnitFmt</span> {
-            <span class="ident">metric</span>: <span class="bool-val">false</span>,
-            <span class="ident">round_durations</span>: <span class="bool-val">false</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>round_up_for_axis() {
+        <span class="kw">let </span>fmt = UnitFmt {
+            metric: <span class="bool-val">false</span>,
+            round_durations: <span class="bool-val">false</span>,
         };
 
-        <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">expected</span>) <span class="kw">in</span> [
-            (<span class="op">-</span><span class="number">3.0</span>, <span class="number">0.0</span>),
+        <span class="kw">for </span>(input, expected) <span class="kw">in </span>[
+            (-<span class="number">3.0</span>, <span class="number">0.0</span>),
             (<span class="number">0.0</span>, <span class="number">0.0</span>),
             (<span class="number">3.2</span>, <span class="number">4.0</span>),
             (<span class="number">30.2</span>, <span class="number">40.0</span>),
             (<span class="number">300.2</span>, <span class="number">400.0</span>),
             (
-                <span class="ident">Distance::miles</span>(<span class="number">0.13</span>).<span class="ident">to_feet</span>(),
-                <span class="ident">Distance::miles</span>(<span class="number">0.2</span>).<span class="ident">to_feet</span>(),
+                Distance::miles(<span class="number">0.13</span>).to_feet(),
+                Distance::miles(<span class="number">0.2</span>).to_feet(),
             ),
             (
-                <span class="ident">Distance::miles</span>(<span class="number">0.64</span>).<span class="ident">to_feet</span>(),
-                <span class="ident">Distance::miles</span>(<span class="number">0.7</span>).<span class="ident">to_feet</span>(),
+                Distance::miles(<span class="number">0.64</span>).to_feet(),
+                Distance::miles(<span class="number">0.7</span>).to_feet(),
             ),
             (
-                <span class="ident">Distance::miles</span>(<span class="number">2.6</span>).<span class="ident">to_feet</span>(),
-                <span class="ident">Distance::miles</span>(<span class="number">3.0</span>).<span class="ident">to_feet</span>(),
+                Distance::miles(<span class="number">2.6</span>).to_feet(),
+                Distance::miles(<span class="number">3.0</span>).to_feet(),
             ),
             (
-                <span class="ident">Distance::miles</span>(<span class="number">2.9</span>).<span class="ident">to_feet</span>(),
-                <span class="ident">Distance::miles</span>(<span class="number">3.0</span>).<span class="ident">to_feet</span>(),
+                Distance::miles(<span class="number">2.9</span>).to_feet(),
+                Distance::miles(<span class="number">3.0</span>).to_feet(),
             ),
         ] {
             <span class="macro">assert_eq!</span>(
-                <span class="ident">Distance::feet</span>(<span class="ident">input</span>).<span class="ident">round_up_for_axis</span>().<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">fmt</span>),
-                <span class="ident">Distance::feet</span>(<span class="ident">expected</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">fmt</span>)
+                Distance::feet(input).round_up_for_axis().to_string(<span class="kw-2">&amp;</span>fmt),
+                Distance::feet(expected).to_string(<span class="kw-2">&amp;</span>fmt)
             );
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

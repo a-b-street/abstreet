@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/prebake.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>prebake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/prebake.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>prebake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -84,91 +84,91 @@
 <span id="84">84</span>
 <span id="85">85</span>
 <span id="86">86</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">sim::prebake::prebake</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ScenarioGenerator</span>, <span class="ident">SimFlags</span>};
-<span class="kw">use</span> <span class="ident">synthpop::Scenario</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>sim::prebake::prebake;
+<span class="kw">use </span>sim::{ScenarioGenerator, SimFlags};
+<span class="kw">use </span>synthpop::Scenario;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::TutorialState</span>;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::TutorialState;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prebake_all</span>() {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;prebake all challenge results&quot;</span>);
+<span class="kw">pub fn </span>prebake_all() {
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;prebake all challenge results&quot;</span>);
 
     {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span>
-            <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-        <span class="kw">for</span> <span class="ident">generator</span> <span class="kw">in</span> <span class="ident">TutorialState::scenarios_to_prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>) {
-            <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">generator</span>.<span class="ident">generate</span>(
-                <span class="kw-2">&amp;</span><span class="ident">map</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">SimFlags::for_test</span>(<span class="string">&quot;prebaked&quot;</span>).<span class="ident">make_rng</span>(),
-                <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
+        <span class="kw">let </span>map =
+            map_model::Map::load_synchronously(MapName::seattle(<span class="string">&quot;montlake&quot;</span>).path(), <span class="kw-2">&amp;mut </span>timer);
+        <span class="kw">for </span>generator <span class="kw">in </span>TutorialState::scenarios_to_prebake(<span class="kw-2">&amp;</span>map) {
+            <span class="kw">let </span>scenario = generator.generate(
+                <span class="kw-2">&amp;</span>map,
+                <span class="kw-2">&amp;mut </span>SimFlags::for_test(<span class="string">&quot;prebaked&quot;</span>).make_rng(),
+                <span class="kw-2">&amp;mut </span>timer,
             );
-            <span class="comment">// Don&#39;t record a summary for this</span>
-            <span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+            <span class="comment">// Don&#39;t record a summary for this
+            </span>prebake(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>timer);
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">summaries</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="macro">vec!</span>[
-        <span class="comment">//MapName::seattle(&quot;arboretum&quot;),</span>
-        <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>),
-        <span class="comment">//MapName::seattle(&quot;lakeslice&quot;),</span>
-        <span class="comment">//MapName::seattle(&quot;phinney&quot;),</span>
-        <span class="comment">//MapName::seattle(&quot;qa&quot;),</span>
-        <span class="comment">//MapName::seattle(&quot;wallingford&quot;),</span>
-    ] {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(<span class="ident">name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-        <span class="kw">let</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span>
-            <span class="ident">abstio::read_binary</span>(<span class="ident">abstio::path_scenario</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="string">&quot;weekday&quot;</span>), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-        <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>summaries = Vec::new();
+    <span class="kw">for </span>name <span class="kw">in </span><span class="macro">vec!</span>[
+        <span class="comment">//MapName::seattle(&quot;arboretum&quot;),
+        </span>MapName::seattle(<span class="string">&quot;montlake&quot;</span>),
+        <span class="comment">//MapName::seattle(&quot;lakeslice&quot;),
+        //MapName::seattle(&quot;phinney&quot;),
+        //MapName::seattle(&quot;qa&quot;),
+        //MapName::seattle(&quot;wallingford&quot;),
+    </span>] {
+        <span class="kw">let </span>map = map_model::Map::load_synchronously(name.path(), <span class="kw-2">&amp;mut </span>timer);
+        <span class="kw">let </span>scenario: Scenario =
+            abstio::read_binary(abstio::path_scenario(map.get_name(), <span class="string">&quot;weekday&quot;</span>), <span class="kw-2">&amp;mut </span>timer);
+        summaries.push(prebake(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>timer));
     }
 
-    <span class="comment">// Since adding off-map traffic, these all gridlock now</span>
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">let</span> <span class="ident">pbury_map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(
-            <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;poundbury&quot;</span>, <span class="string">&quot;center&quot;</span>).<span class="ident">path</span>(),
-            <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
+    <span class="comment">// Since adding off-map traffic, these all gridlock now
+    </span><span class="kw">if </span><span class="bool-val">false </span>{
+        <span class="kw">let </span>pbury_map = map_model::Map::load_synchronously(
+            MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;poundbury&quot;</span>, <span class="string">&quot;center&quot;</span>).path(),
+            <span class="kw-2">&amp;mut </span>timer,
         );
-        <span class="kw">for</span> <span class="ident">scenario_name</span> <span class="kw">in</span> [<span class="string">&quot;base&quot;</span>, <span class="string">&quot;go_active&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>, <span class="string">&quot;go_active_with_bg&quot;</span>] {
-            <span class="kw">let</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span> <span class="ident">abstio::read_binary</span>(
-                <span class="ident">abstio::path_scenario</span>(<span class="ident">pbury_map</span>.<span class="ident">get_name</span>(), <span class="ident">scenario_name</span>),
-                <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
+        <span class="kw">for </span>scenario_name <span class="kw">in </span>[<span class="string">&quot;base&quot;</span>, <span class="string">&quot;go_active&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>, <span class="string">&quot;go_active_with_bg&quot;</span>] {
+            <span class="kw">let </span>scenario: Scenario = abstio::read_binary(
+                abstio::path_scenario(pbury_map.get_name(), scenario_name),
+                <span class="kw-2">&amp;mut </span>timer,
             );
-            <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">pbury_map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>));
+            summaries.push(prebake(<span class="kw-2">&amp;</span>pbury_map, scenario, <span class="kw-2">&amp;mut </span>timer));
         }
     }
 
-    <span class="comment">// Started gridlocking with more realistic pedestrian crossing behavior</span>
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">let</span> <span class="ident">tehran_map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(
-            <span class="ident">MapName::new</span>(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>, <span class="string">&quot;parliament&quot;</span>).<span class="ident">path</span>(),
-            <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
+    <span class="comment">// Started gridlocking with more realistic pedestrian crossing behavior
+    </span><span class="kw">if </span><span class="bool-val">false </span>{
+        <span class="kw">let </span>tehran_map = map_model::Map::load_synchronously(
+            MapName::new(<span class="string">&quot;ir&quot;</span>, <span class="string">&quot;tehran&quot;</span>, <span class="string">&quot;parliament&quot;</span>).path(),
+            <span class="kw-2">&amp;mut </span>timer,
         );
-        <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">ScenarioGenerator::proletariat_robot</span>(
-            <span class="kw-2">&amp;</span><span class="ident">tehran_map</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">SimFlags::for_test</span>(<span class="string">&quot;prebaked&quot;</span>).<span class="ident">make_rng</span>(),
-            <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
+        <span class="kw">let </span>scenario = ScenarioGenerator::proletariat_robot(
+            <span class="kw-2">&amp;</span>tehran_map,
+            <span class="kw-2">&amp;mut </span>SimFlags::for_test(<span class="string">&quot;prebaked&quot;</span>).make_rng(),
+            <span class="kw-2">&amp;mut </span>timer,
         );
-        <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">tehran_map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>));
+        summaries.push(prebake(<span class="kw-2">&amp;</span>tehran_map, scenario, <span class="kw-2">&amp;mut </span>timer));
     }
 
     {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">map_model::Map::load_synchronously</span>(
-            <span class="ident">MapName::new</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;sao_miguel_paulista&quot;</span>).<span class="ident">path</span>(),
-            <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
+        <span class="kw">let </span>map = map_model::Map::load_synchronously(
+            MapName::new(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;sao_miguel_paulista&quot;</span>).path(),
+            <span class="kw-2">&amp;mut </span>timer,
         );
-        <span class="kw">let</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span>
-            <span class="ident">abstio::read_binary</span>(<span class="ident">abstio::path_scenario</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="string">&quot;Full&quot;</span>), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-        <span class="ident">summaries</span>.<span class="ident">push</span>(<span class="ident">prebake</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>));
+        <span class="kw">let </span>scenario: Scenario =
+            abstio::read_binary(abstio::path_scenario(map.get_name(), <span class="string">&quot;Full&quot;</span>), <span class="kw-2">&amp;mut </span>timer);
+        summaries.push(prebake(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>timer));
     }
 
-    <span class="comment">// Assume this is being run from the root directory (via import.sh). This other tests directory</span>
-    <span class="comment">// is the most appropriate place to keep this.</span>
-    <span class="ident">abstio::write_json</span>(
-        <span class="string">&quot;tests/goldenfiles/prebaked_summaries.json&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="kw-2">&amp;</span><span class="ident">summaries</span>,
+    <span class="comment">// Assume this is being run from the root directory (via import.sh). This other tests directory
+    // is the most appropriate place to keep this.
+    </span>abstio::write_json(
+        <span class="string">&quot;tests/goldenfiles/prebaked_summaries.json&quot;</span>.to_string(),
+        <span class="kw-2">&amp;</span>summaries,
     );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

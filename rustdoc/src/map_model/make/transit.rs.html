@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/transit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/transit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -246,253 +246,253 @@
 <span id="246">246</span>
 <span id="247">247</span>
 <span id="248">248</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{HashMap, HashSet};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">HashablePt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">RawMap</span>, <span class="ident">RawTransitRoute</span>, <span class="ident">RawTransitStop</span>, <span class="ident">RawTransitType</span>};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{Distance, Duration, FindClosest, HashablePt2D, Time};
+<span class="kw">use </span>raw_map::{RawMap, RawTransitRoute, RawTransitStop, RawTransitType};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::make::match_points_to_lanes</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStop</span>,
-    <span class="ident">TransitStopID</span>,
+<span class="kw">use </span><span class="kw">crate</span>::make::match_points_to_lanes;
+<span class="kw">use crate</span>::{
+    LaneID, Map, PathConstraints, Position, TransitRoute, TransitRouteID, TransitStop,
+    TransitStopID,
 };
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finalize_transit</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Map</span>, <span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="comment">// Snap stops to sidewalks and driving lanes, similar to buildings</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">transit_stops</span>.<span class="ident">values</span>() {
-        <span class="ident">query</span>.<span class="ident">insert</span>(<span class="ident">stop</span>.<span class="ident">position</span>.<span class="ident">to_hashable</span>());
+<span class="kw">pub fn </span>finalize_transit(map: <span class="kw-2">&amp;mut </span>Map, raw: <span class="kw-2">&amp;</span>RawMap, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="comment">// Snap stops to sidewalks and driving lanes, similar to buildings
+    </span><span class="kw">let </span><span class="kw-2">mut </span>query: HashSet&lt;HashablePt2D&gt; = HashSet::new();
+    <span class="kw">for </span>stop <span class="kw">in </span>raw.transit_stops.values() {
+        query.insert(stop.position.to_hashable());
     }
-    <span class="kw">let</span> <span class="ident">sidewalk_pts</span> <span class="op">=</span> <span class="ident">match_points_to_lanes</span>(
-        <span class="ident">map</span>,
-        <span class="ident">query</span>,
-        <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>(),
-        <span class="comment">// Stops can be very close to intersections</span>
-        <span class="ident">Distance::ZERO</span>,
-        <span class="comment">// Stops shouldn&#39;t be far from sidewalks</span>
-        <span class="ident">Distance::meters</span>(<span class="number">3.0</span>),
-        <span class="ident">timer</span>,
+    <span class="kw">let </span>sidewalk_pts = match_points_to_lanes(
+        map,
+        query,
+        |l| l.is_walkable(),
+        <span class="comment">// Stops can be very close to intersections
+        </span>Distance::ZERO,
+        <span class="comment">// Stops shouldn&#39;t be far from sidewalks
+        </span>Distance::meters(<span class="number">3.0</span>),
+        timer,
     );
 
-    <span class="comment">// Create all stops</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gtfs_to_stop_id</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TransitStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="ident">raw</span>.<span class="ident">transit_stops</span>.<span class="ident">values</span>() {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">create_stop</span>(<span class="ident">stop</span>, <span class="kw-2">&amp;</span><span class="ident">sidewalk_pts</span>, <span class="kw-2">&amp;mut</span> <span class="ident">gtfs_to_stop_id</span>, <span class="ident">map</span>) {
-            <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t create stop {}: {}&quot;</span>, <span class="ident">stop</span>.<span class="ident">gtfs_id</span>, <span class="ident">err</span>);
+    <span class="comment">// Create all stops
+    </span><span class="kw">let </span><span class="kw-2">mut </span>gtfs_to_stop_id: HashMap&lt;String, TransitStopID&gt; = HashMap::new();
+    <span class="kw">for </span>stop <span class="kw">in </span>raw.transit_stops.values() {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = create_stop(stop, <span class="kw-2">&amp;</span>sidewalk_pts, <span class="kw-2">&amp;mut </span>gtfs_to_stop_id, map) {
+            <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t create stop {}: {}&quot;</span>, stop.gtfs_id, err);
         }
     }
 
-    <span class="kw">let</span> <span class="ident">snapper</span> <span class="op">=</span> <span class="ident">BorderSnapper::new</span>(<span class="ident">map</span>);
-    <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">raw</span>.<span class="ident">transit_routes</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">create_route</span>(<span class="ident">route</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">gtfs_to_stop_id</span>, <span class="kw-2">&amp;</span><span class="ident">snapper</span>) {
+    <span class="kw">let </span>snapper = BorderSnapper::new(map);
+    <span class="kw">for </span>route <span class="kw">in </span><span class="kw-2">&amp;</span>raw.transit_routes {
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = create_route(route, map, <span class="kw-2">&amp;</span>gtfs_to_stop_id, <span class="kw-2">&amp;</span>snapper) {
             <span class="macro">warn!</span>(
                 <span class="string">&quot;Couldn&#39;t snap route {} ({}): {}&quot;</span>,
-                <span class="ident">route</span>.<span class="ident">gtfs_id</span>, <span class="ident">route</span>.<span class="ident">short_name</span>, <span class="ident">err</span>
+                route.gtfs_id, route.short_name, err
             );
         }
     }
 
-    <span class="comment">// TODO Clean up unused stops; maybe one of the routes didn&#39;t work. Re-map IDs...</span>
-}
+    <span class="comment">// TODO Clean up unused stops; maybe one of the routes didn&#39;t work. Re-map IDs...
+</span>}
 
-<span class="kw">fn</span> <span class="ident">create_stop</span>(
-    <span class="ident">stop</span>: <span class="kw-2">&amp;</span><span class="ident">RawTransitStop</span>,
-    <span class="ident">sidewalk_pts</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">HashablePt2D</span>, <span class="ident">Position</span><span class="op">&gt;</span>,
-    <span class="ident">gtfs_to_stop_id</span>: <span class="kw-2">&amp;mut</span> <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TransitStopID</span><span class="op">&gt;</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Map</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// TODO We&#39;ll have to look up all routes referencing this stop and determine this</span>
-    <span class="kw">let</span> <span class="ident">vehicle</span> <span class="op">=</span> <span class="ident">PathConstraints::Bus</span>;
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sidewalk_pos</span>) <span class="op">=</span> <span class="ident">sidewalk_pts</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">stop</span>.<span class="ident">position</span>.<span class="ident">to_hashable</span>()) {
-        <span class="kw">let</span> <span class="ident">sidewalk_lane</span> <span class="op">=</span> <span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">driving_pos</span>) <span class="op">=</span> <span class="ident">map</span>
-            .<span class="ident">get_parent</span>(<span class="ident">sidewalk_lane</span>)
-            .<span class="ident">find_closest_lane</span>(<span class="ident">sidewalk_lane</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">vehicle</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>))
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">sidewalk_pos</span>.<span class="ident">equiv_pos</span>(<span class="ident">l</span>, <span class="ident">map</span>))
+<span class="kw">fn </span>create_stop(
+    stop: <span class="kw-2">&amp;</span>RawTransitStop,
+    sidewalk_pts: <span class="kw-2">&amp;</span>HashMap&lt;HashablePt2D, Position&gt;,
+    gtfs_to_stop_id: <span class="kw-2">&amp;mut </span>HashMap&lt;String, TransitStopID&gt;,
+    map: <span class="kw-2">&amp;mut </span>Map,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="comment">// TODO We&#39;ll have to look up all routes referencing this stop and determine this
+    </span><span class="kw">let </span>vehicle = PathConstraints::Bus;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(sidewalk_pos) = sidewalk_pts.get(<span class="kw-2">&amp;</span>stop.position.to_hashable()) {
+        <span class="kw">let </span>sidewalk_lane = sidewalk_pos.lane();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(driving_pos) = map
+            .get_parent(sidewalk_lane)
+            .find_closest_lane(sidewalk_lane, |l| vehicle.can_use(l, map))
+            .map(|l| sidewalk_pos.equiv_pos(l, map))
         {
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">sidewalk_lane</span>.<span class="ident">road</span>;
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">TransitStopID</span> {
-                <span class="ident">road</span>,
-                <span class="ident">idx</span>: <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">road</span>).<span class="ident">transit_stops</span>.<span class="ident">len</span>(),
+            <span class="kw">let </span>road = sidewalk_lane.road;
+            <span class="kw">let </span>id = TransitStopID {
+                road,
+                idx: map.get_r(road).transit_stops.len(),
             };
-            <span class="ident">map</span>.<span class="ident">mut_road</span>(<span class="ident">road</span>).<span class="ident">transit_stops</span>.<span class="ident">insert</span>(<span class="ident">id</span>);
-            <span class="ident">map</span>.<span class="ident">transit_stops</span>.<span class="ident">insert</span>(
-                <span class="ident">id</span>,
-                <span class="ident">TransitStop</span> {
-                    <span class="ident">id</span>,
-                    <span class="ident">name</span>: <span class="ident">stop</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
-                    <span class="ident">gtfs_id</span>: <span class="ident">stop</span>.<span class="ident">gtfs_id</span>.<span class="ident">clone</span>(),
-                    <span class="ident">driving_pos</span>,
-                    <span class="ident">sidewalk_pos</span>: <span class="kw-2">*</span><span class="ident">sidewalk_pos</span>,
-                    <span class="ident">is_train_stop</span>: <span class="ident">vehicle</span> <span class="op">==</span> <span class="ident">PathConstraints::Train</span>,
+            map.mut_road(road).transit_stops.insert(id);
+            map.transit_stops.insert(
+                id,
+                TransitStop {
+                    id,
+                    name: stop.name.clone(),
+                    gtfs_id: stop.gtfs_id.clone(),
+                    driving_pos,
+                    sidewalk_pos: <span class="kw-2">*</span>sidewalk_pos,
+                    is_train_stop: vehicle == PathConstraints::Train,
                 },
             );
-            <span class="ident">gtfs_to_stop_id</span>.<span class="ident">insert</span>(<span class="ident">stop</span>.<span class="ident">gtfs_id</span>.<span class="ident">clone</span>(), <span class="ident">id</span>);
+            gtfs_to_stop_id.insert(stop.gtfs_id.clone(), id);
             <span class="prelude-val">Ok</span>(())
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="macro">bail!</span>(
                 <span class="string">&quot;Couldn&#39;t find a lane for {:?} next to sidewalk {}&quot;</span>,
-                <span class="ident">vehicle</span>,
-                <span class="ident">sidewalk_lane</span>
+                vehicle,
+                sidewalk_lane
             );
         }
-    } <span class="kw">else</span> {
-        <span class="macro">bail!</span>(<span class="string">&quot;Stop position {} wasn&#39;t close to a sidewalk&quot;</span>, <span class="ident">stop</span>.<span class="ident">position</span>);
+    } <span class="kw">else </span>{
+        <span class="macro">bail!</span>(<span class="string">&quot;Stop position {} wasn&#39;t close to a sidewalk&quot;</span>, stop.position);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">BorderSnapper</span> {
-    <span class="ident">bus_incoming_borders</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    <span class="ident">bus_outgoing_borders</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    <span class="ident">train_incoming_borders</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    <span class="ident">train_outgoing_borders</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>BorderSnapper {
+    bus_incoming_borders: FindClosest&lt;LaneID&gt;,
+    bus_outgoing_borders: FindClosest&lt;LaneID&gt;,
+    train_incoming_borders: FindClosest&lt;LaneID&gt;,
+    train_outgoing_borders: FindClosest&lt;LaneID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">BorderSnapper</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">BorderSnapper</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snapper</span> <span class="op">=</span> <span class="ident">BorderSnapper</span> {
-            <span class="ident">bus_incoming_borders</span>: <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
-            <span class="ident">bus_outgoing_borders</span>: <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
-            <span class="ident">train_incoming_borders</span>: <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
-            <span class="ident">train_outgoing_borders</span>: <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>()),
+<span class="kw">impl </span>BorderSnapper {
+    <span class="kw">fn </span>new(map: <span class="kw-2">&amp;</span>Map) -&gt; BorderSnapper {
+        <span class="kw">let </span><span class="kw-2">mut </span>snapper = BorderSnapper {
+            bus_incoming_borders: FindClosest::new(map.get_bounds()),
+            bus_outgoing_borders: FindClosest::new(map.get_bounds()),
+            train_incoming_borders: FindClosest::new(map.get_bounds()),
+            train_outgoing_borders: FindClosest::new(map.get_bounds()),
         };
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_incoming_borders</span>() {
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">get_outgoing_lanes</span>(<span class="ident">map</span>, <span class="ident">PathConstraints::Bus</span>) {
-                <span class="comment">// TODO FindClosest doesn&#39;t handle single points as geometries, so use the lane</span>
-                <span class="comment">// polygon</span>
-                <span class="ident">snapper</span>
-                    .<span class="ident">bus_incoming_borders</span>
-                    .<span class="ident">add_polygon</span>(<span class="ident">l</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>());
+        <span class="kw">for </span>i <span class="kw">in </span>map.all_incoming_borders() {
+            <span class="kw">for </span>l <span class="kw">in </span>i.get_outgoing_lanes(map, PathConstraints::Bus) {
+                <span class="comment">// TODO FindClosest doesn&#39;t handle single points as geometries, so use the lane
+                // polygon
+                </span>snapper
+                    .bus_incoming_borders
+                    .add_polygon(l, <span class="kw-2">&amp;</span>map.get_l(l).get_thick_polygon());
             }
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">get_outgoing_lanes</span>(<span class="ident">map</span>, <span class="ident">PathConstraints::Train</span>) {
-                <span class="ident">snapper</span>
-                    .<span class="ident">train_incoming_borders</span>
-                    .<span class="ident">add_polygon</span>(<span class="ident">l</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>());
-            }
-        }
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_outgoing_borders</span>() {
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">get_incoming_lanes</span>(<span class="ident">map</span>, <span class="ident">PathConstraints::Bus</span>) {
-                <span class="ident">snapper</span>
-                    .<span class="ident">bus_outgoing_borders</span>
-                    .<span class="ident">add_polygon</span>(<span class="ident">l</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>());
-            }
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">get_incoming_lanes</span>(<span class="ident">map</span>, <span class="ident">PathConstraints::Train</span>) {
-                <span class="ident">snapper</span>
-                    .<span class="ident">train_outgoing_borders</span>
-                    .<span class="ident">add_polygon</span>(<span class="ident">l</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">get_thick_polygon</span>());
+            <span class="kw">for </span>l <span class="kw">in </span>i.get_outgoing_lanes(map, PathConstraints::Train) {
+                snapper
+                    .train_incoming_borders
+                    .add_polygon(l, <span class="kw-2">&amp;</span>map.get_l(l).get_thick_polygon());
             }
         }
-        <span class="ident">snapper</span>
+        <span class="kw">for </span>i <span class="kw">in </span>map.all_outgoing_borders() {
+            <span class="kw">for </span>l <span class="kw">in </span>i.get_incoming_lanes(map, PathConstraints::Bus) {
+                snapper
+                    .bus_outgoing_borders
+                    .add_polygon(l, <span class="kw-2">&amp;</span>map.get_l(l).get_thick_polygon());
+            }
+            <span class="kw">for </span>l <span class="kw">in </span>i.get_incoming_lanes(map, PathConstraints::Train) {
+                snapper
+                    .train_outgoing_borders
+                    .add_polygon(l, <span class="kw-2">&amp;</span>map.get_l(l).get_thick_polygon());
+            }
+        }
+        snapper
     }
 }
 
-<span class="kw">fn</span> <span class="ident">create_route</span>(
-    <span class="ident">route</span>: <span class="kw-2">&amp;</span><span class="ident">RawTransitRoute</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Map</span>,
-    <span class="ident">gtfs_to_stop_id</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">TransitStopID</span><span class="op">&gt;</span>,
-    <span class="ident">snapper</span>: <span class="kw-2">&amp;</span><span class="ident">BorderSnapper</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// TODO At least warn about stops that failed to snap</span>
-    <span class="kw">let</span> <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">route</span>
-        .<span class="ident">stops</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">gtfs_id</span><span class="op">|</span> <span class="ident">gtfs_to_stop_id</span>.<span class="ident">get</span>(<span class="ident">gtfs_id</span>).<span class="ident">cloned</span>())
-        .<span class="ident">collect</span>();
-    <span class="kw">if</span> <span class="ident">stops</span>.<span class="ident">is_empty</span>() {
+<span class="kw">fn </span>create_route(
+    route: <span class="kw-2">&amp;</span>RawTransitRoute,
+    map: <span class="kw-2">&amp;mut </span>Map,
+    gtfs_to_stop_id: <span class="kw-2">&amp;</span>HashMap&lt;String, TransitStopID&gt;,
+    snapper: <span class="kw-2">&amp;</span>BorderSnapper,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="comment">// TODO At least warn about stops that failed to snap
+    </span><span class="kw">let </span>stops: Vec&lt;TransitStopID&gt; = route
+        .stops
+        .iter()
+        .filter_map(|gtfs_id| gtfs_to_stop_id.get(gtfs_id).cloned())
+        .collect();
+    <span class="kw">if </span>stops.is_empty() {
         <span class="macro">bail!</span>(<span class="string">&quot;No valid stops&quot;</span>);
     }
-    <span class="kw">let</span> <span class="ident">border_snap_threshold</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>);
+    <span class="kw">let </span>border_snap_threshold = Distance::meters(<span class="number">30.0</span>);
 
-    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">boundary_polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">route</span>.<span class="ident">shape</span>.<span class="ident">first_pt</span>()) {
-        <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">stops</span>[<span class="number">0</span>]).<span class="ident">driving_pos</span>.<span class="ident">lane</span>()
-    } <span class="kw">else</span> {
-        <span class="comment">// Find the first time the route shape hits the map boundary</span>
-        <span class="kw">let</span> <span class="ident">entry_pt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">map</span>
-            .<span class="ident">boundary_polygon</span>
-            .<span class="ident">get_outer_ring</span>()
-            .<span class="ident">all_intersections</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">shape</span>)
-            .<span class="ident">get</span>(<span class="number">0</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;couldn&#39;t find where shape enters map&quot;</span>))<span class="question-mark">?</span>;
-        <span class="comment">// Snap that to a border</span>
-        <span class="kw">let</span> <span class="ident">borders</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">route</span>.<span class="ident">route_type</span> <span class="op">==</span> <span class="ident">RawTransitType::Bus</span> {
-            <span class="kw-2">&amp;</span><span class="ident">snapper</span>.<span class="ident">bus_incoming_borders</span>
-        } <span class="kw">else</span> {
-            <span class="kw-2">&amp;</span><span class="ident">snapper</span>.<span class="ident">train_incoming_borders</span>
+    <span class="kw">let </span>start = <span class="kw">if </span>map.boundary_polygon.contains_pt(route.shape.first_pt()) {
+        map.get_ts(stops[<span class="number">0</span>]).driving_pos.lane()
+    } <span class="kw">else </span>{
+        <span class="comment">// Find the first time the route shape hits the map boundary
+        </span><span class="kw">let </span>entry_pt = <span class="kw-2">*</span>map
+            .boundary_polygon
+            .get_outer_ring()
+            .all_intersections(<span class="kw-2">&amp;</span>route.shape)
+            .get(<span class="number">0</span>)
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;couldn&#39;t find where shape enters map&quot;</span>))<span class="question-mark">?</span>;
+        <span class="comment">// Snap that to a border
+        </span><span class="kw">let </span>borders = <span class="kw">if </span>route.route_type == RawTransitType::Bus {
+            <span class="kw-2">&amp;</span>snapper.bus_incoming_borders
+        } <span class="kw">else </span>{
+            <span class="kw-2">&amp;</span>snapper.train_incoming_borders
         };
-        <span class="kw">match</span> <span class="ident">borders</span>.<span class="ident">closest_pt</span>(<span class="ident">entry_pt</span>, <span class="ident">border_snap_threshold</span>) {
-            <span class="prelude-val">Some</span>((<span class="ident">l</span>, <span class="kw">_</span>)) =&gt; <span class="ident">l</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="macro">bail!</span>(
+        <span class="kw">match </span>borders.closest_pt(entry_pt, border_snap_threshold) {
+            <span class="prelude-val">Some</span>((l, <span class="kw">_</span>)) =&gt; l,
+            <span class="prelude-val">None </span>=&gt; <span class="macro">bail!</span>(
                 <span class="string">&quot;Couldn&#39;t find a {:?} border near start {}&quot;</span>,
-                <span class="ident">route</span>.<span class="ident">route_type</span>,
-                <span class="ident">entry_pt</span>
+                route.route_type,
+                entry_pt
             ),
         }
     };
 
-    <span class="kw">let</span> <span class="ident">end_border</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">boundary_polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">route</span>.<span class="ident">shape</span>.<span class="ident">last_pt</span>()) {
-        <span class="prelude-val">None</span>
-    } <span class="kw">else</span> {
-        <span class="comment">// Find the last time the route shape hits the map boundary</span>
-        <span class="kw">let</span> <span class="ident">exit_pt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">map</span>
-            .<span class="ident">boundary_polygon</span>
-            .<span class="ident">get_outer_ring</span>()
-            .<span class="ident">all_intersections</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">shape</span>)
-            .<span class="ident">last</span>()
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;couldn&#39;t find where shape leaves map&quot;</span>))<span class="question-mark">?</span>;
-        <span class="comment">// Snap that to a border</span>
-        <span class="kw">let</span> <span class="ident">borders</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">route</span>.<span class="ident">route_type</span> <span class="op">==</span> <span class="ident">RawTransitType::Bus</span> {
-            <span class="kw-2">&amp;</span><span class="ident">snapper</span>.<span class="ident">bus_outgoing_borders</span>
-        } <span class="kw">else</span> {
-            <span class="kw-2">&amp;</span><span class="ident">snapper</span>.<span class="ident">train_outgoing_borders</span>
+    <span class="kw">let </span>end_border = <span class="kw">if </span>map.boundary_polygon.contains_pt(route.shape.last_pt()) {
+        <span class="prelude-val">None
+    </span>} <span class="kw">else </span>{
+        <span class="comment">// Find the last time the route shape hits the map boundary
+        </span><span class="kw">let </span>exit_pt = <span class="kw-2">*</span>map
+            .boundary_polygon
+            .get_outer_ring()
+            .all_intersections(<span class="kw-2">&amp;</span>route.shape)
+            .last()
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;couldn&#39;t find where shape leaves map&quot;</span>))<span class="question-mark">?</span>;
+        <span class="comment">// Snap that to a border
+        </span><span class="kw">let </span>borders = <span class="kw">if </span>route.route_type == RawTransitType::Bus {
+            <span class="kw-2">&amp;</span>snapper.bus_outgoing_borders
+        } <span class="kw">else </span>{
+            <span class="kw-2">&amp;</span>snapper.train_outgoing_borders
         };
-        <span class="kw">match</span> <span class="ident">borders</span>.<span class="ident">closest_pt</span>(<span class="ident">exit_pt</span>, <span class="ident">border_snap_threshold</span>) {
-            <span class="prelude-val">Some</span>((<span class="ident">lane</span>, <span class="kw">_</span>)) =&gt; {
-                <span class="comment">// Edge case: the last stop is on the same road as the border. We can&#39;t lane-change</span>
-                <span class="comment">// suddenly, so match the lane in that case.</span>
-                <span class="kw">let</span> <span class="ident">last_stop_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">stops</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()).<span class="ident">driving_pos</span>.<span class="ident">lane</span>();
-                <span class="prelude-val">Some</span>(<span class="kw">if</span> <span class="ident">lane</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">last_stop_lane</span>.<span class="ident">road</span> {
-                    <span class="ident">last_stop_lane</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">lane</span>
+        <span class="kw">match </span>borders.closest_pt(exit_pt, border_snap_threshold) {
+            <span class="prelude-val">Some</span>((lane, <span class="kw">_</span>)) =&gt; {
+                <span class="comment">// Edge case: the last stop is on the same road as the border. We can&#39;t lane-change
+                // suddenly, so match the lane in that case.
+                </span><span class="kw">let </span>last_stop_lane = map.get_ts(<span class="kw-2">*</span>stops.last().unwrap()).driving_pos.lane();
+                <span class="prelude-val">Some</span>(<span class="kw">if </span>lane.road == last_stop_lane.road {
+                    last_stop_lane
+                } <span class="kw">else </span>{
+                    lane
                 })
             }
-            <span class="prelude-val">None</span> =&gt; <span class="macro">bail!</span>(
+            <span class="prelude-val">None </span>=&gt; <span class="macro">bail!</span>(
                 <span class="string">&quot;Couldn&#39;t find a {:?} border near end {}&quot;</span>,
-                <span class="ident">route</span>.<span class="ident">route_type</span>,
-                <span class="ident">exit_pt</span>
+                route.route_type,
+                exit_pt
             ),
         }
     };
 
-    <span class="comment">// TODO This&#39;ll come from the RawTransitRoute eventually. For now, every 30 minutes.</span>
-    <span class="kw">let</span> <span class="ident">spawn_times</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="number">48</span>)
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">Duration::minutes</span>(<span class="number">30</span>))
-        .<span class="ident">collect</span>();
+    <span class="comment">// TODO This&#39;ll come from the RawTransitRoute eventually. For now, every 30 minutes.
+    </span><span class="kw">let </span>spawn_times: Vec&lt;Time&gt; = (<span class="number">0</span>..<span class="number">48</span>)
+        .map(|i| Time::START_OF_DAY + (i <span class="kw">as </span>f64) * Duration::minutes(<span class="number">30</span>))
+        .collect();
 
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">TransitRoute</span> {
-        <span class="ident">id</span>: <span class="ident">TransitRouteID</span>(<span class="ident">map</span>.<span class="ident">transit_routes</span>.<span class="ident">len</span>()),
-        <span class="ident">long_name</span>: <span class="ident">route</span>.<span class="ident">long_name</span>.<span class="ident">clone</span>(),
-        <span class="ident">short_name</span>: <span class="ident">route</span>.<span class="ident">short_name</span>.<span class="ident">clone</span>(),
-        <span class="ident">gtfs_id</span>: <span class="ident">route</span>.<span class="ident">gtfs_id</span>.<span class="ident">clone</span>(),
-        <span class="ident">stops</span>,
-        <span class="ident">start</span>,
-        <span class="ident">end_border</span>,
-        <span class="ident">route_type</span>: <span class="kw">match</span> <span class="ident">route</span>.<span class="ident">route_type</span> {
-            <span class="ident">RawTransitType::Bus</span> =&gt; <span class="ident">PathConstraints::Bus</span>,
-            <span class="ident">RawTransitType::Train</span> =&gt; <span class="ident">PathConstraints::Train</span>,
+    <span class="kw">let </span>result = TransitRoute {
+        id: TransitRouteID(map.transit_routes.len()),
+        long_name: route.long_name.clone(),
+        short_name: route.short_name.clone(),
+        gtfs_id: route.gtfs_id.clone(),
+        stops,
+        start,
+        end_border,
+        route_type: <span class="kw">match </span>route.route_type {
+            RawTransitType::Bus =&gt; PathConstraints::Bus,
+            RawTransitType::Train =&gt; PathConstraints::Train,
         },
-        <span class="ident">spawn_times</span>: <span class="ident">spawn_times</span>.<span class="ident">clone</span>(),
-        <span class="ident">orig_spawn_times</span>: <span class="ident">spawn_times</span>,
+        spawn_times: spawn_times.clone(),
+        orig_spawn_times: spawn_times,
     };
 
-    <span class="comment">// Check that the paths are valid</span>
-    <span class="ident">result</span>.<span class="ident">all_paths</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
+    <span class="comment">// Check that the paths are valid
+    </span>result.all_paths(map)<span class="question-mark">?</span>;
 
-    <span class="ident">map</span>.<span class="ident">transit_routes</span>.<span class="ident">push</span>(<span class="ident">result</span>);
+    map.transit_routes.push(result);
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

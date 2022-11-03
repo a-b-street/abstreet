@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/edits.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>edits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/edits.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>edits.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -413,420 +413,420 @@
 <span id="413">413</span>
 <span id="414">414</span>
 <span id="415">415</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Duration</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::FilePicker</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">ControlStopSign</span>, <span class="ident">ControlTrafficSignal</span>, <span class="ident">EditCmd</span>, <span class="ident">EditIntersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">StageType</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>geom::Duration;
+<span class="kw">use </span>map_gui::tools::FilePicker;
+<span class="kw">use </span>map_model::{
+    ControlStopSign, ControlTrafficSignal, EditCmd, EditIntersection, IntersectionID, StageType,
 };
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Widget</span>,
+<span class="kw">use </span>widgetry::tools::{ChooseSomething, PopupMsg};
+<span class="kw">use </span>widgetry::{
+    Choice, DrawBaselayer, EventCtx, Key, Line, Panel, SimpleState, Spinner, State, Text, TextExt,
+    Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::traffic_signals</span>::{<span class="ident">BundleEdits</span>, <span class="ident">TrafficSignalEditor</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">check_sidewalk_connectivity</span>, <span class="ident">StopSignEditor</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::GameplayMode</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::edit::traffic_signals::{BundleEdits, TrafficSignalEditor};
+<span class="kw">use </span><span class="kw">crate</span>::edit::{apply_map_edits, check_sidewalk_connectivity, StopSignEditor};
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::GameplayMode;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChangeDuration</span> {
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
+<span class="kw">pub struct </span>ChangeDuration {
+    idx: usize,
 }
 
-<span class="kw">impl</span> <span class="ident">ChangeDuration</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">signal</span>: <span class="kw-2">&amp;</span><span class="ident">ControlTrafficSignal</span>,
-        <span class="ident">idx</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">signal</span>.<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;How long should this stage last?&quot;</span>)
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+<span class="kw">impl </span>ChangeDuration {
+    <span class="kw">pub fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        signal: <span class="kw-2">&amp;</span>ControlTrafficSignal,
+        idx: usize,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>i = app.primary.map.get_i(signal.id);
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;How long should this stage last?&quot;</span>)
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Duration:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner::widget</span>(
-                    <span class="ident">ctx</span>,
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;Duration:&quot;</span>.text_widget(ctx).centered_vert(),
+                Spinner::widget(
+                    ctx,
                     <span class="string">&quot;duration&quot;</span>,
-                    (<span class="ident">signal</span>.<span class="ident">get_min_crossing_time</span>(<span class="ident">idx</span>, <span class="ident">i</span>), <span class="ident">Duration::minutes</span>(<span class="number">5</span>)),
-                    <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span>.<span class="ident">simple_duration</span>(),
-                    <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
+                    (signal.get_min_crossing_time(idx, i), Duration::minutes(<span class="number">5</span>)),
+                    signal.stages[idx].stage_type.simple_duration(),
+                    Duration::seconds(<span class="number">1.0</span>),
                 ),
             ]),
-            <span class="ident">Line</span>(<span class="string">&quot;Minimum time is set by the time required for crosswalk&quot;</span>)
-                .<span class="ident">secondary</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Text::from_all</span>(<span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
-                    <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Fixed timing&quot;</span>).<span class="ident">small_heading</span>(),
-                        <span class="ident">Line</span>(<span class="string">&quot; (Adjust both values below to enable variable timing)&quot;</span>),
+            Line(<span class="string">&quot;Minimum time is set by the time required for crosswalk&quot;</span>)
+                .secondary()
+                .into_widget(ctx),
+            Widget::col(<span class="macro">vec!</span>[
+                Text::from_all(<span class="kw">match </span>signal.stages[idx].stage_type {
+                    StageType::Fixed(<span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;Fixed timing&quot;</span>).small_heading(),
+                        Line(<span class="string">&quot; (Adjust both values below to enable variable timing)&quot;</span>),
                     ],
-                    <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Variable timing&quot;</span>).<span class="ident">small_heading</span>(),
-                        <span class="ident">Line</span>(<span class="string">&quot; (Set either values below to 0 to use fixed timing.&quot;</span>),
+                    StageType::Variable(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;Variable timing&quot;</span>).small_heading(),
+                        Line(<span class="string">&quot; (Set either values below to 0 to use fixed timing.&quot;</span>),
                     ],
                 })
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">named</span>(<span class="string">&quot;timing type&quot;</span>),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="string">&quot;How much additional time can this stage last?&quot;</span>
-                        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">centered_vert</span>(),
-                    <span class="ident">Spinner::widget</span>(
-                        <span class="ident">ctx</span>,
+                .into_widget(ctx)
+                .named(<span class="string">&quot;timing type&quot;</span>),
+                Widget::row(<span class="macro">vec!</span>[
+                    <span class="string">&quot;How much additional time can this stage last?&quot;
+                        </span>.text_widget(ctx)
+                        .centered_vert(),
+                    Spinner::widget(
+                        ctx,
                         <span class="string">&quot;additional&quot;</span>,
-                        (<span class="ident">Duration::ZERO</span>, <span class="ident">Duration::minutes</span>(<span class="number">5</span>)),
-                        <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
-                            <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) =&gt; <span class="ident">Duration::ZERO</span>,
-                            <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">additional</span>) =&gt; <span class="ident">additional</span>,
+                        (Duration::ZERO, Duration::minutes(<span class="number">5</span>)),
+                        <span class="kw">match </span>signal.stages[idx].stage_type {
+                            StageType::Fixed(<span class="kw">_</span>) =&gt; Duration::ZERO,
+                            StageType::Variable(<span class="kw">_</span>, <span class="kw">_</span>, additional) =&gt; additional,
                         },
-                        <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
+                        Duration::seconds(<span class="number">1.0</span>),
                     ),
                 ]),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="string">&quot;How long with no demand before the stage ends?&quot;</span>
-                        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">centered_vert</span>(),
-                    <span class="ident">Spinner::widget</span>(
-                        <span class="ident">ctx</span>,
+                Widget::row(<span class="macro">vec!</span>[
+                    <span class="string">&quot;How long with no demand before the stage ends?&quot;
+                        </span>.text_widget(ctx)
+                        .centered_vert(),
+                    Spinner::widget(
+                        ctx,
                         <span class="string">&quot;delay&quot;</span>,
-                        (<span class="ident">Duration::ZERO</span>, <span class="ident">Duration::seconds</span>(<span class="number">300.0</span>)),
-                        <span class="kw">match</span> <span class="ident">signal</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> {
-                            <span class="ident">StageType::Fixed</span>(<span class="kw">_</span>) =&gt; <span class="ident">Duration::ZERO</span>,
-                            <span class="ident">StageType::Variable</span>(<span class="kw">_</span>, <span class="ident">delay</span>, <span class="kw">_</span>) =&gt; <span class="ident">delay</span>,
+                        (Duration::ZERO, Duration::seconds(<span class="number">300.0</span>)),
+                        <span class="kw">match </span>signal.stages[idx].stage_type {
+                            StageType::Fixed(<span class="kw">_</span>) =&gt; Duration::ZERO,
+                            StageType::Variable(<span class="kw">_</span>, delay, <span class="kw">_</span>) =&gt; delay,
                         },
-                        <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
+                        Duration::seconds(<span class="number">1.0</span>),
                     ),
                 ]),
             ])
-            .<span class="ident">padding</span>(<span class="number">10</span>)
-            .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-            .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Apply&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            .padding(<span class="number">10</span>)
+            .bg(app.cs.inner_panel_bg)
+            .outline(ctx.style().section_outline),
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Apply&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">ChangeDuration</span> { <span class="ident">idx</span> }))
+        .build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(panel, Box::new(ChangeDuration { idx }))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChangeDuration</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Apply&quot;</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;duration&quot;</span>);
-                <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;delay&quot;</span>);
-                <span class="kw">let</span> <span class="ident">additional</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;additional&quot;</span>);
-                <span class="kw">let</span> <span class="ident">new_type</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">delay</span> <span class="op">==</span> <span class="ident">Duration::ZERO</span> <span class="op">|</span><span class="op">|</span> <span class="ident">additional</span> <span class="op">==</span> <span class="ident">Duration::ZERO</span> {
-                    <span class="ident">StageType::Fixed</span>(<span class="ident">dt</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">StageType::Variable</span>(<span class="ident">dt</span>, <span class="ident">delay</span>, <span class="ident">additional</span>)
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>ChangeDuration {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;Apply&quot; </span>=&gt; {
+                <span class="kw">let </span>dt = panel.spinner(<span class="string">&quot;duration&quot;</span>);
+                <span class="kw">let </span>delay = panel.spinner(<span class="string">&quot;delay&quot;</span>);
+                <span class="kw">let </span>additional = panel.spinner(<span class="string">&quot;additional&quot;</span>);
+                <span class="kw">let </span>new_type = <span class="kw">if </span>delay == Duration::ZERO || additional == Duration::ZERO {
+                    StageType::Fixed(dt)
+                } <span class="kw">else </span>{
+                    StageType::Variable(dt, delay, additional)
                 };
-                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span>;
-                <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Pop</span>,
-                    <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                        <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">idx</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                            <span class="ident">ts</span>.<span class="ident">stages</span>[<span class="ident">idx</span>].<span class="ident">stage_type</span> <span class="op">=</span> <span class="ident">new_type</span>.<span class="ident">clone</span>();
+                <span class="kw">let </span>idx = <span class="self">self</span>.idx;
+                Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                        <span class="kw">let </span>editor = state.downcast_mut::&lt;TrafficSignalEditor&gt;().unwrap();
+                        editor.add_new_edit(ctx, app, idx, |ts| {
+                            ts.stages[idx].stage_type = new_type.clone();
                         });
                     })),
                 ])
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">panel_changed</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">new_label</span> <span class="op">=</span> <span class="ident">Text::from_all</span>(
-            <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>(<span class="string">&quot;delay&quot;</span>) <span class="op">==</span> <span class="ident">Duration::ZERO</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>(<span class="string">&quot;additional&quot;</span>) <span class="op">==</span> <span class="ident">Duration::ZERO</span>
+    <span class="kw">fn </span>panel_changed(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="kw">let </span>new_label = Text::from_all(
+            <span class="kw">if </span>panel.spinner::&lt;Duration&gt;(<span class="string">&quot;delay&quot;</span>) == Duration::ZERO
+                || panel.spinner::&lt;Duration&gt;(<span class="string">&quot;additional&quot;</span>) == Duration::ZERO
             {
                 <span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Fixed timing&quot;</span>).<span class="ident">small_heading</span>(),
-                    <span class="ident">Line</span>(<span class="string">&quot; (Adjust both values below to enable variable timing)&quot;</span>),
+                    Line(<span class="string">&quot;Fixed timing&quot;</span>).small_heading(),
+                    Line(<span class="string">&quot; (Adjust both values below to enable variable timing)&quot;</span>),
                 ]
-            } <span class="kw">else</span> {
+            } <span class="kw">else </span>{
                 <span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Variable timing&quot;</span>).<span class="ident">small_heading</span>(),
-                    <span class="ident">Line</span>(<span class="string">&quot; (Set either values below to 0 to use fixed timing.&quot;</span>),
+                    Line(<span class="string">&quot;Variable timing&quot;</span>).small_heading(),
+                    Line(<span class="string">&quot; (Set either values below to 0 to use fixed timing.&quot;</span>),
                 ]
             },
         )
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-        <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;timing type&quot;</span>, <span class="ident">new_label</span>);
-        <span class="prelude-val">None</span>
-    }
+        .into_widget(ctx);
+        panel.replace(ctx, <span class="string">&quot;timing type&quot;</span>, new_label);
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_screen_space</span>().<span class="ident">is_none</span>() {
-            <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+    <span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if </span>ctx.normal_left_click() &amp;&amp; ctx.canvas.get_cursor_in_screen_space().is_none() {
+            <span class="kw">return </span>Transition::Pop;
         }
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::PreviousState</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">edit_entire_signal</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    <span class="ident">original</span>: <span class="ident">BundleEdits</span>,
-) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">has_sidewalks</span> <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">primary</span>
-        .<span class="ident">map</span>
-        .<span class="ident">get_i</span>(<span class="ident">i</span>)
-        .<span class="ident">turns</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">any</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">between_sidewalks</span>());
+<span class="kw">pub fn </span>edit_entire_signal(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    i: IntersectionID,
+    mode: GameplayMode,
+    original: BundleEdits,
+) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+    <span class="kw">let </span>has_sidewalks = app
+        .primary
+        .map
+        .get_i(i)
+        .turns
+        .iter()
+        .any(|t| t.between_sidewalks());
 
-    <span class="kw">let</span> <span class="ident">use_template</span> <span class="op">=</span> <span class="string">&quot;use template&quot;</span>;
-    <span class="kw">let</span> <span class="ident">all_walk</span> <span class="op">=</span> <span class="string">&quot;add an all-walk stage at the end&quot;</span>;
-    <span class="kw">let</span> <span class="ident">major_minor_timing</span> <span class="op">=</span> <span class="string">&quot;use timing pattern for a major/minor intersection&quot;</span>;
-    <span class="kw">let</span> <span class="ident">stop_sign</span> <span class="op">=</span> <span class="string">&quot;convert to stop signs&quot;</span>;
-    <span class="kw">let</span> <span class="ident">close</span> <span class="op">=</span> <span class="string">&quot;close intersection for construction&quot;</span>;
-    <span class="kw">let</span> <span class="ident">reset</span> <span class="op">=</span> <span class="string">&quot;reset to default&quot;</span>;
-    <span class="kw">let</span> <span class="ident">gmns_picker</span> <span class="op">=</span> <span class="string">&quot;import from a new GMNS timing.csv&quot;</span>;
-    <span class="kw">let</span> <span class="ident">gmns_existing</span> <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">session</span>
-        .<span class="ident">last_gmns_timing_csv</span>
-        .<span class="ident">as_ref</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="macro">format!</span>(<span class="string">&quot;import from GMNS {}&quot;</span>, <span class="ident">x</span>));
-    <span class="kw">let</span> <span class="ident">gmns_all</span> <span class="op">=</span> <span class="string">&quot;import all traffic signals from a new GMNS timing.csv&quot;</span>;
+    <span class="kw">let </span>use_template = <span class="string">&quot;use template&quot;</span>;
+    <span class="kw">let </span>all_walk = <span class="string">&quot;add an all-walk stage at the end&quot;</span>;
+    <span class="kw">let </span>major_minor_timing = <span class="string">&quot;use timing pattern for a major/minor intersection&quot;</span>;
+    <span class="kw">let </span>stop_sign = <span class="string">&quot;convert to stop signs&quot;</span>;
+    <span class="kw">let </span>close = <span class="string">&quot;close intersection for construction&quot;</span>;
+    <span class="kw">let </span>reset = <span class="string">&quot;reset to default&quot;</span>;
+    <span class="kw">let </span>gmns_picker = <span class="string">&quot;import from a new GMNS timing.csv&quot;</span>;
+    <span class="kw">let </span>gmns_existing = app
+        .session
+        .last_gmns_timing_csv
+        .as_ref()
+        .map(|x| <span class="macro">format!</span>(<span class="string">&quot;import from GMNS {}&quot;</span>, x));
+    <span class="kw">let </span>gmns_all = <span class="string">&quot;import all traffic signals from a new GMNS timing.csv&quot;</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">use_template</span>.<span class="ident">to_string</span>()];
-    <span class="kw">if</span> <span class="ident">has_sidewalks</span> {
-        <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">all_walk</span>.<span class="ident">to_string</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[use_template.to_string()];
+    <span class="kw">if </span>has_sidewalks {
+        choices.push(all_walk.to_string());
     }
-    <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">major_minor_timing</span>.<span class="ident">to_string</span>());
-    <span class="comment">// TODO Conflating stop signs and construction here</span>
-    <span class="kw">if</span> <span class="ident">mode</span>.<span class="ident">can_edit_stop_signs</span>() {
-        <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">stop_sign</span>.<span class="ident">to_string</span>());
-        <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">close</span>.<span class="ident">to_string</span>());
+    choices.push(major_minor_timing.to_string());
+    <span class="comment">// TODO Conflating stop signs and construction here
+    </span><span class="kw">if </span>mode.can_edit_stop_signs() {
+        choices.push(stop_sign.to_string());
+        choices.push(close.to_string());
     }
-    <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">reset</span>.<span class="ident">to_string</span>());
-    <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">gmns_picker</span>.<span class="ident">to_string</span>());
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">gmns_existing</span>.<span class="ident">clone</span>() {
-        <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">x</span>);
+    choices.push(reset.to_string());
+    choices.push(gmns_picker.to_string());
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = gmns_existing.clone() {
+        choices.push(x);
     }
-    <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">gmns_all</span>.<span class="ident">to_string</span>());
+    choices.push(gmns_all.to_string());
 
-    <span class="ident">ChooseSomething::new_state</span>(
-        <span class="ident">ctx</span>,
+    ChooseSomething::new_state(
+        ctx,
         <span class="string">&quot;What do you want to change?&quot;</span>,
-        <span class="ident">Choice::strings</span>(<span class="ident">choices</span>),
-        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">x</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_str</span>() {
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">use_template</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">ChooseSomething::new_state</span>(
-                <span class="ident">ctx</span>,
+        Choice::strings(choices),
+        Box::new(<span class="kw">move </span>|x, ctx, app| <span class="kw">match </span>x.as_str() {
+            x <span class="kw">if </span>x == use_template =&gt; Transition::Replace(ChooseSomething::new_state(
+                ctx,
                 <span class="string">&quot;Use which preset for this intersection?&quot;</span>,
-                <span class="ident">Choice::from</span>(<span class="ident">ControlTrafficSignal::get_possible_policies</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                    <span class="ident">i</span>,
+                Choice::from(ControlTrafficSignal::get_possible_policies(
+                    <span class="kw-2">&amp;</span>app.primary.map,
+                    i,
                 )),
-                <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">new_signal</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Transition::Pop</span>,
-                        <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                            <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                                <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
+                Box::new(<span class="kw">move </span>|new_signal, <span class="kw">_</span>, <span class="kw">_</span>| {
+                    Transition::Multi(<span class="macro">vec!</span>[
+                        Transition::Pop,
+                        Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                            <span class="kw">let </span>editor = state.downcast_mut::&lt;TrafficSignalEditor&gt;().unwrap();
+                            editor.add_new_edit(ctx, app, <span class="number">0</span>, |ts| {
+                                <span class="kw-2">*</span>ts = new_signal.clone();
                             });
                         })),
                     ])
                 }),
             )),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">all_walk</span> =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                <span class="ident">Transition::Pop</span>,
-                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">clone</span>();
-                    <span class="kw">if</span> <span class="ident">new_signal</span>.<span class="ident">convert_to_ped_scramble</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>)) {
-                        <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                        <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                            <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
+            x <span class="kw">if </span>x == all_walk =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                Transition::Pop,
+                Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                    <span class="kw">let </span><span class="kw-2">mut </span>new_signal = app.primary.map.get_traffic_signal(i).clone();
+                    <span class="kw">if </span>new_signal.convert_to_ped_scramble(app.primary.map.get_i(i)) {
+                        <span class="kw">let </span>editor = state.downcast_mut::&lt;TrafficSignalEditor&gt;().unwrap();
+                        editor.add_new_edit(ctx, app, <span class="number">0</span>, |ts| {
+                            <span class="kw-2">*</span>ts = new_signal.clone();
                         });
                     }
                 })),
             ]),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">major_minor_timing</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">ChooseSomething::new_state</span>(
-                <span class="ident">ctx</span>,
+            x <span class="kw">if </span>x == major_minor_timing =&gt; Transition::Replace(ChooseSomething::new_state(
+                ctx,
                 <span class="string">&quot;Use what timing split?&quot;</span>,
                 <span class="macro">vec!</span>[
-                    <span class="ident">Choice::new</span>(
+                    Choice::new(
                         <span class="string">&quot;120s cycle: 96s major roads, 24s minor roads&quot;</span>,
-                        (<span class="ident">Duration::seconds</span>(<span class="number">96.0</span>), <span class="ident">Duration::seconds</span>(<span class="number">24.0</span>)),
+                        (Duration::seconds(<span class="number">96.0</span>), Duration::seconds(<span class="number">24.0</span>)),
                     ),
-                    <span class="ident">Choice::new</span>(
+                    Choice::new(
                         <span class="string">&quot;60s cycle: 36s major roads, 24s minor roads&quot;</span>,
-                        (<span class="ident">Duration::seconds</span>(<span class="number">36.0</span>), <span class="ident">Duration::seconds</span>(<span class="number">24.0</span>)),
+                        (Duration::seconds(<span class="number">36.0</span>), Duration::seconds(<span class="number">24.0</span>)),
                     ),
                 ],
-                <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">timing</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_signal</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i</span>).<span class="ident">clone</span>();
-                    <span class="kw">match</span> <span class="ident">new_signal</span>.<span class="ident">adjust_major_minor_timing</span>(<span class="ident">timing</span>.<span class="number">0</span>, <span class="ident">timing</span>.<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+                Box::new(<span class="kw">move </span>|timing, ctx, app| {
+                    <span class="kw">let </span><span class="kw-2">mut </span>new_signal = app.primary.map.get_traffic_signal(i).clone();
+                    <span class="kw">match </span>new_signal.adjust_major_minor_timing(timing.<span class="number">0</span>, timing.<span class="number">1</span>, <span class="kw-2">&amp;</span>app.primary.map)
                     {
-                        <span class="prelude-val">Ok</span>(()) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Transition::Pop</span>,
-                            <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                                <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                                    <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
+                        <span class="prelude-val">Ok</span>(()) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                            Transition::Pop,
+                            Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                                <span class="kw">let </span>editor = state.downcast_mut::&lt;TrafficSignalEditor&gt;().unwrap();
+                                editor.add_new_edit(ctx, app, <span class="number">0</span>, |ts| {
+                                    <span class="kw-2">*</span>ts = new_signal.clone();
                                 });
                             })),
                         ]),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
-                            <span class="ident">ctx</span>,
+                        <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
+                            ctx,
                             <span class="string">&quot;Error&quot;</span>,
-                            <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
+                            <span class="macro">vec!</span>[err.to_string()],
                         )),
                     }
                 }),
             )),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">stop_sign</span> =&gt; {
-                <span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
+            x <span class="kw">if </span>x == stop_sign =&gt; {
+                original.apply(app);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeIntersection</span> {
-                    <span class="ident">i</span>,
-                    <span class="ident">old</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="ident">i</span>),
-                    <span class="ident">new</span>: <span class="ident">EditIntersection::StopSign</span>(<span class="ident">ControlStopSign::new</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">i</span>)),
+                <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                edits.commands.push(EditCmd::ChangeIntersection {
+                    i,
+                    old: app.primary.map.get_i_edit(i),
+                    new: EditIntersection::StopSign(ControlStopSign::new(<span class="kw-2">&amp;</span>app.primary.map, i)),
                 });
-                <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Pop</span>,
-                    <span class="ident">Transition::Replace</span>(<span class="ident">StopSignEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">i</span>, <span class="ident">mode</span>)),
+                apply_map_edits(ctx, app, edits);
+                Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Pop,
+                    Transition::Replace(StopSignEditor::new_state(ctx, app, i, mode)),
                 ])
             }
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">close</span> =&gt; {
-                <span class="ident">original</span>.<span class="ident">apply</span>(<span class="ident">app</span>);
+            x <span class="kw">if </span>x == close =&gt; {
+                original.apply(app);
 
-                <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">EditCmd::ChangeIntersection</span> {
-                    <span class="ident">i</span>,
-                    <span class="ident">old</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i_edit</span>(<span class="ident">i</span>),
-                    <span class="ident">new</span>: <span class="ident">EditIntersection::Closed</span>,
+                <span class="kw">let </span>cmd = EditCmd::ChangeIntersection {
+                    i,
+                    old: app.primary.map.get_i_edit(i),
+                    new: EditIntersection::Closed,
                 };
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">check_sidewalk_connectivity</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">cmd</span>.<span class="ident">clone</span>()) {
-                    <span class="ident">Transition::Replace</span>(<span class="ident">err</span>)
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">cmd</span>);
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = check_sidewalk_connectivity(ctx, app, cmd.clone()) {
+                    Transition::Replace(err)
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    edits.commands.push(cmd);
+                    apply_map_edits(ctx, app, edits);
 
-                    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Pop</span>])
+                    Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop])
                 }
             }
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">reset</span> =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                <span class="ident">Transition::Pop</span>,
-                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">new_signal</span> <span class="op">=</span>
-                        <span class="ident">ControlTrafficSignal::get_possible_policies</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">i</span>)
-                            .<span class="ident">remove</span>(<span class="number">0</span>)
+            x <span class="kw">if </span>x == reset =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                Transition::Pop,
+                Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                    <span class="kw">let </span>editor = state.downcast_mut::&lt;TrafficSignalEditor&gt;().unwrap();
+                    <span class="kw">let </span>new_signal =
+                        ControlTrafficSignal::get_possible_policies(<span class="kw-2">&amp;</span>app.primary.map, i)
+                            .remove(<span class="number">0</span>)
                             .<span class="number">1</span>;
-                    <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                        <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
+                    editor.add_new_edit(ctx, app, <span class="number">0</span>, |ts| {
+                        <span class="kw-2">*</span>ts = new_signal.clone();
                     });
                 })),
             ]),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">gmns_picker</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">FilePicker::new_state</span>(
-                <span class="ident">ctx</span>,
+            x <span class="kw">if </span>x == gmns_picker =&gt; Transition::Replace(FilePicker::new_state(
+                ctx,
                 <span class="prelude-val">None</span>,
-                <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_path</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">path</span>)) <span class="op">=</span> <span class="ident">maybe_path</span> {
-                        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">last_gmns_timing_csv</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>.<span class="ident">clone</span>());
-                        <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::edit::traffic_signals::gmns::import</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>)
+                Box::new(<span class="kw">move </span>|ctx, app, maybe_path| {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(path)) = maybe_path {
+                        app.session.last_gmns_timing_csv = <span class="prelude-val">Some</span>(path.clone());
+                        <span class="kw">match </span><span class="kw">crate</span>::edit::traffic_signals::gmns::import(<span class="kw-2">&amp;</span>app.primary.map, i, <span class="kw-2">&amp;</span>path)
                         {
-                            <span class="prelude-val">Ok</span>(<span class="ident">new_signal</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                <span class="ident">Transition::Pop</span>,
-                                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                                    <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span>
-                                        <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                    <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                                        <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
+                            <span class="prelude-val">Ok</span>(new_signal) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                                Transition::Pop,
+                                Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                                    <span class="kw">let </span>editor =
+                                        state.downcast_mut::&lt;TrafficSignalEditor&gt;().unwrap();
+                                    editor.add_new_edit(ctx, app, <span class="number">0</span>, |ts| {
+                                        <span class="kw-2">*</span>ts = new_signal.clone();
                                     });
                                 })),
                             ]),
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
-                                <span class="ident">ctx</span>,
+                            <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
+                                ctx,
                                 <span class="string">&quot;Error&quot;</span>,
-                                <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
+                                <span class="macro">vec!</span>[err.to_string()],
                             )),
                         }
-                    } <span class="kw">else</span> {
-                        <span class="ident">Transition::Pop</span>
+                    } <span class="kw">else </span>{
+                        Transition::Pop
                     }
                 }),
             )),
-            <span class="ident">x</span> <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>.<span class="ident">to_string</span>()) <span class="op">==</span> <span class="ident">gmns_existing</span> =&gt; {
-                <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::edit::traffic_signals::gmns::import</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                    <span class="ident">i</span>,
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">last_gmns_timing_csv</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>(),
+            x <span class="kw">if </span><span class="prelude-val">Some</span>(x.to_string()) == gmns_existing =&gt; {
+                <span class="kw">match </span><span class="kw">crate</span>::edit::traffic_signals::gmns::import(
+                    <span class="kw-2">&amp;</span>app.primary.map,
+                    i,
+                    app.session.last_gmns_timing_csv.as_ref().unwrap(),
                 ) {
-                    <span class="prelude-val">Ok</span>(<span class="ident">new_signal</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Transition::Pop</span>,
-                        <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">TrafficSignalEditor</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                            <span class="ident">editor</span>.<span class="ident">add_new_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>, <span class="op">|</span><span class="ident">ts</span><span class="op">|</span> {
-                                <span class="kw-2">*</span><span class="ident">ts</span> <span class="op">=</span> <span class="ident">new_signal</span>.<span class="ident">clone</span>();
+                    <span class="prelude-val">Ok</span>(new_signal) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                        Transition::Pop,
+                        Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                            <span class="kw">let </span>editor = state.downcast_mut::&lt;TrafficSignalEditor&gt;().unwrap();
+                            editor.add_new_edit(ctx, app, <span class="number">0</span>, |ts| {
+                                <span class="kw-2">*</span>ts = new_signal.clone();
                             });
                         })),
                     ]),
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
-                        <span class="ident">ctx</span>,
+                    <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
+                        ctx,
                         <span class="string">&quot;Error&quot;</span>,
-                        <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
+                        <span class="macro">vec!</span>[err.to_string()],
                     )),
                 }
             }
-            <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">gmns_all</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">FilePicker::new_state</span>(
-                <span class="ident">ctx</span>,
+            x <span class="kw">if </span>x == gmns_all =&gt; Transition::Replace(FilePicker::new_state(
+                ctx,
                 <span class="prelude-val">None</span>,
-                <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_path</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">path</span>)) <span class="op">=</span> <span class="ident">maybe_path</span> {
-                        <span class="comment">// TODO This menu for a single intersection is a strange place to import for all</span>
-                        <span class="comment">// intersections, but I&#39;m not sure where else it should go. Also, this will</span>
-                        <span class="comment">// blindly overwrite changes for all intersections and quit the current editor.</span>
-                        <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Transition::Pop</span>,
-                            <span class="ident">Transition::Pop</span>,
-                            <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">crate</span>::edit::traffic_signals::gmns::import_all</span>(
-                                <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>,
+                Box::new(<span class="kw">move </span>|ctx, app, maybe_path| {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(path)) = maybe_path {
+                        <span class="comment">// TODO This menu for a single intersection is a strange place to import for all
+                        // intersections, but I&#39;m not sure where else it should go. Also, this will
+                        // blindly overwrite changes for all intersections and quit the current editor.
+                        </span>Transition::Multi(<span class="macro">vec!</span>[
+                            Transition::Pop,
+                            Transition::Pop,
+                            Transition::Push(<span class="kw">crate</span>::edit::traffic_signals::gmns::import_all(
+                                ctx, app, <span class="kw-2">&amp;</span>path,
                             )),
                         ])
-                    } <span class="kw">else</span> {
-                        <span class="ident">Transition::Pop</span>
+                    } <span class="kw">else </span>{
+                        Transition::Pop
                     }
                 }),
             )),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }),
     )
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

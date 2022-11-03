@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/building.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>building.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/building.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>building.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -161,168 +161,168 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{HashSet, VecDeque};
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>, <span class="ident">Tags</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>abstutil::{deserialize_usize, serialize_usize, Tags};
+<span class="kw">use </span>geom::{Distance, PolyLine, Polygon, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">Amenity</span>, <span class="ident">AmenityType</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">NamePerLanguage</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>};
+<span class="kw">use crate</span>::{osm, Amenity, AmenityType, LaneID, Map, NamePerLanguage, PathConstraints, Position};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BuildingID</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">usize</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>BuildingID(
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>usize,
 );
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">BuildingID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Building #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>BuildingID {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Building #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="doccomment">/// A building has connections to the road and sidewalk, may contain commercial amenities, and have</span>
-<span class="doccomment">/// off-street parking.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Building</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">BuildingID</span>,
-    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
-    <span class="kw">pub</span> <span class="ident">levels</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">address</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">NamePerLanguage</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="ident">osm::OsmID</span>,
-    <span class="doccomment">/// Where a text label should be centered to have the best chances of being contained within</span>
-    <span class="doccomment">/// the polygon.</span>
-    <span class="kw">pub</span> <span class="ident">label_center</span>: <span class="ident">Pt2D</span>,
-    <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Amenity</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">bldg_type</span>: <span class="ident">BuildingType</span>,
-    <span class="kw">pub</span> <span class="ident">parking</span>: <span class="ident">OffstreetParking</span>,
-    <span class="doccomment">/// Depending on options while importing, these might be empty, to save file space.</span>
-    <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
+<span class="doccomment">/// A building has connections to the road and sidewalk, may contain commercial amenities, and have
+/// off-street parking.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug)]
+</span><span class="kw">pub struct </span>Building {
+    <span class="kw">pub </span>id: BuildingID,
+    <span class="kw">pub </span>polygon: Polygon,
+    <span class="kw">pub </span>levels: f64,
+    <span class="kw">pub </span>address: String,
+    <span class="kw">pub </span>name: <span class="prelude-ty">Option</span>&lt;NamePerLanguage&gt;,
+    <span class="kw">pub </span>orig_id: osm::OsmID,
+    <span class="doccomment">/// Where a text label should be centered to have the best chances of being contained within
+    /// the polygon.
+    </span><span class="kw">pub </span>label_center: Pt2D,
+    <span class="kw">pub </span>amenities: Vec&lt;Amenity&gt;,
+    <span class="kw">pub </span>bldg_type: BuildingType,
+    <span class="kw">pub </span>parking: OffstreetParking,
+    <span class="doccomment">/// Depending on options while importing, these might be empty, to save file space.
+    </span><span class="kw">pub </span>osm_tags: Tags,
 
-    <span class="doccomment">/// The building&#39;s connection for any agent can change based on map edits. Just store the one</span>
-    <span class="doccomment">/// for pedestrians and lazily calculate the others.</span>
-    <span class="kw">pub</span> <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>,
-    <span class="doccomment">/// Goes from building to sidewalk</span>
-    <span class="kw">pub</span> <span class="ident">driveway_geom</span>: <span class="ident">PolyLine</span>,
+    <span class="doccomment">/// The building&#39;s connection for any agent can change based on map edits. Just store the one
+    /// for pedestrians and lazily calculate the others.
+    </span><span class="kw">pub </span>sidewalk_pos: Position,
+    <span class="doccomment">/// Goes from building to sidewalk
+    </span><span class="kw">pub </span>driveway_geom: PolyLine,
 }
 
-<span class="doccomment">/// Represent no parking as Private(0, false).</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">OffstreetParking</span> {
-    <span class="doccomment">/// (Name, spots)</span>
-    <span class="ident">PublicGarage</span>(<span class="ident">String</span>, <span class="ident">usize</span>),
-    <span class="doccomment">/// (Spots, explicitly tagged as a garage)</span>
-    <span class="ident">Private</span>(<span class="ident">usize</span>, <span class="ident">bool</span>),
+<span class="doccomment">/// Represent no parking as Private(0, false).
+</span><span class="attribute">#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+</span><span class="kw">pub enum </span>OffstreetParking {
+    <span class="doccomment">/// (Name, spots)
+    </span>PublicGarage(String, usize),
+    <span class="doccomment">/// (Spots, explicitly tagged as a garage)
+    </span>Private(usize, bool),
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BuildingType</span> {
-    <span class="ident">Residential</span> {
-        <span class="ident">num_residents</span>: <span class="ident">usize</span>,
-        <span class="ident">num_housing_units</span>: <span class="ident">usize</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug)]
+</span><span class="kw">pub enum </span>BuildingType {
+    Residential {
+        num_residents: usize,
+        num_housing_units: usize,
     },
-    <span class="doccomment">/// An estimated number of residents, workers</span>
-    <span class="ident">ResidentialCommercial</span>(<span class="ident">usize</span>, <span class="ident">usize</span>),
-    <span class="doccomment">/// An estimated number of workers</span>
-    <span class="ident">Commercial</span>(<span class="ident">usize</span>),
-    <span class="ident">Empty</span>,
+    <span class="doccomment">/// An estimated number of residents, workers
+    </span>ResidentialCommercial(usize, usize),
+    <span class="doccomment">/// An estimated number of workers
+    </span>Commercial(usize),
+    Empty,
 }
 
-<span class="kw">impl</span> <span class="ident">BuildingType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_residents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">BuildingType::Residential</span> { .. } <span class="op">|</span> <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-            <span class="ident">BuildingType::Commercial</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">BuildingType::Empty</span> =&gt; <span class="bool-val">false</span>,
+<span class="kw">impl </span>BuildingType {
+    <span class="kw">pub fn </span>has_residents(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            BuildingType::Residential { .. } | BuildingType::ResidentialCommercial(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+            BuildingType::Commercial(<span class="kw">_</span>) | BuildingType::Empty =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Building</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sidewalk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LaneID</span> {
-        <span class="self">self</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()
+<span class="kw">impl </span>Building {
+    <span class="kw">pub fn </span>sidewalk(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LaneID {
+        <span class="self">self</span>.sidewalk_pos.lane()
     }
 
-    <span class="doccomment">/// The polyline goes from the building to the driving position</span>
-    <span class="comment">// TODO Make this handle parking_blackhole</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">driving_connection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">PolyLine</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>
-            .<span class="ident">get_parent</span>(<span class="self">self</span>.<span class="ident">sidewalk</span>())
-            .<span class="ident">find_closest_lane</span>(<span class="self">self</span>.<span class="ident">sidewalk</span>(), <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">PathConstraints::Car</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>))<span class="question-mark">?</span>;
-        <span class="comment">// TODO Do we need to insist on this buffer, now that we can make cars gradually appear?</span>
-        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">sidewalk_pos</span>
-            .<span class="ident">equiv_pos</span>(<span class="ident">lane</span>, <span class="ident">map</span>)
-            .<span class="ident">buffer_dist</span>(<span class="ident">Distance::meters</span>(<span class="number">7.0</span>), <span class="ident">map</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="self">self</span>.<span class="ident">driveway_geom</span>.<span class="ident">clone</span>().<span class="ident">optionally_push</span>(<span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>))))
+    <span class="doccomment">/// The polyline goes from the building to the driving position
+    </span><span class="comment">// TODO Make this handle parking_blackhole
+    </span><span class="kw">pub fn </span>driving_connection(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;(Position, PolyLine)&gt; {
+        <span class="kw">let </span>lane = map
+            .get_parent(<span class="self">self</span>.sidewalk())
+            .find_closest_lane(<span class="self">self</span>.sidewalk(), |l| PathConstraints::Car.can_use(l, map))<span class="question-mark">?</span>;
+        <span class="comment">// TODO Do we need to insist on this buffer, now that we can make cars gradually appear?
+        </span><span class="kw">let </span>pos = <span class="self">self
+            </span>.sidewalk_pos
+            .equiv_pos(lane, map)
+            .buffer_dist(Distance::meters(<span class="number">7.0</span>), map)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>((pos, <span class="self">self</span>.driveway_geom.clone().optionally_push(pos.pt(map))))
     }
 
-    <span class="doccomment">/// Returns (biking position, sidewalk position). Could fail if the biking graph is</span>
-    <span class="doccomment">/// disconnected.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">biking_connection</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
-        <span class="comment">// Easy case: the building is directly next to a usable lane</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">sidewalk_to_bike</span>(<span class="self">self</span>.<span class="ident">sidewalk_pos</span>, <span class="ident">map</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>);
+    <span class="doccomment">/// Returns (biking position, sidewalk position). Could fail if the biking graph is
+    /// disconnected.
+    </span><span class="kw">pub fn </span>biking_connection(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;(Position, Position)&gt; {
+        <span class="comment">// Easy case: the building is directly next to a usable lane
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(pair) = sidewalk_to_bike(<span class="self">self</span>.sidewalk_pos, map) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(pair);
         }
 
-        <span class="comment">// Floodfill the sidewalk graph until we find a sidewalk&lt;-&gt;bike connection.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="self">self</span>.<span class="ident">sidewalk</span>());
+        <span class="comment">// Floodfill the sidewalk graph until we find a sidewalk&lt;-&gt;bike connection.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>queue: VecDeque&lt;LaneID&gt; = VecDeque::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>visited: HashSet&lt;LaneID&gt; = HashSet::new();
+        queue.push_back(<span class="self">self</span>.sidewalk());
 
-        <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="ident">queue</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">loop </span>{
+            <span class="kw">if </span>queue.is_empty() {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
-            <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">visited</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>) {
+            <span class="kw">let </span>l = queue.pop_front().unwrap();
+            <span class="kw">if </span>visited.contains(<span class="kw-2">&amp;</span>l) {
                 <span class="kw">continue</span>;
             }
-            <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">l</span>);
-            <span class="comment">// TODO Could search by sidewalk endpoint</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">sidewalk_to_bike</span>(<span class="ident">Position::new</span>(<span class="ident">l</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>), <span class="ident">map</span>)
+            visited.insert(l);
+            <span class="comment">// TODO Could search by sidewalk endpoint
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(pair) = sidewalk_to_bike(Position::new(l, map.get_l(l).length() / <span class="number">2.0</span>), map)
             {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>);
+                <span class="kw">return </span><span class="prelude-val">Some</span>(pair);
             }
-            <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">next</span>) <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_next_turns_and_lanes</span>(<span class="ident">l</span>) {
-                <span class="kw">if</span> <span class="ident">next</span>.<span class="ident">is_walkable</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">visited</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">next</span>.<span class="ident">id</span>) {
-                    <span class="ident">queue</span>.<span class="ident">push_back</span>(<span class="ident">next</span>.<span class="ident">id</span>);
+            <span class="kw">for </span>(<span class="kw">_</span>, next) <span class="kw">in </span>map.get_next_turns_and_lanes(l) {
+                <span class="kw">if </span>next.is_walkable() &amp;&amp; !visited.contains(<span class="kw-2">&amp;</span>next.id) {
+                    queue.push_back(next.id);
                 }
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">parking</span> {
-            <span class="ident">OffstreetParking::PublicGarage</span>(<span class="kw">_</span>, <span class="ident">n</span>) =&gt; <span class="ident">n</span>,
-            <span class="ident">OffstreetParking::Private</span>(<span class="ident">n</span>, <span class="kw">_</span>) =&gt; <span class="ident">n</span>,
+    <span class="kw">pub fn </span>num_parking_spots(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="kw">match </span><span class="self">self</span>.parking {
+            OffstreetParking::PublicGarage(<span class="kw">_</span>, n) =&gt; n,
+            OffstreetParking::Private(n, <span class="kw">_</span>) =&gt; n,
         }
     }
 
-    <span class="doccomment">/// Does this building contain any amenity matching the category?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_amenity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">category</span>: <span class="ident">AmenityType</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">amenities</span> {
-            <span class="kw">if</span> <span class="ident">AmenityType::categorize</span>(<span class="kw-2">&amp;</span><span class="ident">amenity</span>.<span class="ident">amenity_type</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">category</span>) {
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+    <span class="doccomment">/// Does this building contain any amenity matching the category?
+    </span><span class="kw">pub fn </span>has_amenity(<span class="kw-2">&amp;</span><span class="self">self</span>, category: AmenityType) -&gt; bool {
+        <span class="kw">for </span>amenity <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.amenities {
+            <span class="kw">if </span>AmenityType::categorize(<span class="kw-2">&amp;</span>amenity.amenity_type) == <span class="prelude-val">Some</span>(category) {
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
         }
-        <span class="bool-val">false</span>
-    }
+        <span class="bool-val">false
+    </span>}
 }
 
-<span class="kw">fn</span> <span class="ident">sidewalk_to_bike</span>(<span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">Position</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>
-        .<span class="ident">get_parent</span>(<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>())
-        .<span class="ident">find_closest_lane</span>(<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>(), <span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
-            <span class="op">!</span><span class="ident">l</span>.<span class="ident">biking_blackhole</span> <span class="op">&amp;&amp;</span> <span class="ident">PathConstraints::Bike</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>)
+<span class="kw">fn </span>sidewalk_to_bike(sidewalk_pos: Position, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;(Position, Position)&gt; {
+    <span class="kw">let </span>lane = map
+        .get_parent(sidewalk_pos.lane())
+        .find_closest_lane(sidewalk_pos.lane(), |l| {
+            !l.biking_blackhole &amp;&amp; PathConstraints::Bike.can_use(l, map)
         })<span class="question-mark">?</span>;
-    <span class="comment">// No buffer needed</span>
-    <span class="prelude-val">Some</span>((<span class="ident">sidewalk_pos</span>.<span class="ident">equiv_pos</span>(<span class="ident">lane</span>, <span class="ident">map</span>), <span class="ident">sidewalk_pos</span>))
+    <span class="comment">// No buffer needed
+    </span><span class="prelude-val">Some</span>((sidewalk_pos.equiv_pos(lane, map), sidewalk_pos))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/pick_geofabrik.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pick_geofabrik.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/pick_geofabrik.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pick_geofabrik.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -75,82 +75,82 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::convert::TryInto</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::convert::TryInto;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">Area</span>, <span class="ident">Contains</span>};
-<span class="kw">use</span> <span class="ident">geojson::GeoJson</span>;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>geo::{Area, Contains};
+<span class="kw">use </span>geojson::GeoJson;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom::LonLat</span>;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::LonLat;
 
-<span class="doccomment">/// Given the path to a GeoJSON boundary polygon, return the URL of a Geofabrik osm.pbf file that</span>
-<span class="doccomment">/// best covers the boundary.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If the boundary splits multiple Geofabrik files, the result may be any of the overlapping</span>
-<span class="doccomment">/// files.</span>
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">pick_geofabrik</span>(<span class="ident">input</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">boundary_pts</span> <span class="op">=</span> <span class="ident">LonLat::read_geojson_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>)<span class="question-mark">?</span>;
-    <span class="comment">// For now, just use the boundary&#39;s center. Some boundaries might cross multiple geofabrik</span>
-    <span class="comment">// regions; don&#39;t handle that yet.</span>
-    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">LonLat::center</span>(<span class="kw-2">&amp;</span><span class="ident">boundary_pts</span>);
+<span class="doccomment">/// Given the path to a GeoJSON boundary polygon, return the URL of a Geofabrik osm.pbf file that
+/// best covers the boundary.
+///
+/// If the boundary splits multiple Geofabrik files, the result may be any of the overlapping
+/// files.
+</span><span class="kw">pub async fn </span>pick_geofabrik(input: String) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">let </span>boundary_pts = LonLat::read_geojson_polygon(<span class="kw-2">&amp;</span>input)<span class="question-mark">?</span>;
+    <span class="comment">// For now, just use the boundary&#39;s center. Some boundaries might cross multiple geofabrik
+    // regions; don&#39;t handle that yet.
+    </span><span class="kw">let </span>center = LonLat::center(<span class="kw-2">&amp;</span>boundary_pts);
 
-    <span class="kw">let</span> <span class="ident">geofabrik_idx</span> <span class="op">=</span> <span class="ident">load_remote_geojson</span>(
-        <span class="ident">abstio::path_shared_input</span>(<span class="string">&quot;geofabrik-index.json&quot;</span>),
+    <span class="kw">let </span>geofabrik_idx = load_remote_geojson(
+        abstio::path_shared_input(<span class="string">&quot;geofabrik-index.json&quot;</span>),
         <span class="string">&quot;https://download.geofabrik.de/index-v1.json&quot;</span>,
     )
     .<span class="kw">await</span><span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">find_matching_regions</span>(<span class="ident">geofabrik_idx</span>, <span class="ident">center</span>);
+    <span class="kw">let </span>matches = find_matching_regions(geofabrik_idx, center);
     <span class="macro">info!</span>(
         <span class="string">&quot;{} regions contain boundary center {}&quot;</span>,
-        <span class="ident">matches</span>.<span class="ident">len</span>(),
-        <span class="ident">center</span>
+        matches.len(),
+        center
     );
-    <span class="comment">// Find the smallest matching region. Just round to the nearest square meter for comparison.</span>
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">url</span>) <span class="op">=</span> <span class="ident">matches</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="ident">mp</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">mp</span>.<span class="ident">unsigned_area</span>() <span class="kw">as</span> <span class="ident">usize</span>)
-        .<span class="ident">unwrap</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">url</span>)
+    <span class="comment">// Find the smallest matching region. Just round to the nearest square meter for comparison.
+    </span><span class="kw">let </span>(<span class="kw">_</span>, url) = matches
+        .into_iter()
+        .min_by_key(|(mp, <span class="kw">_</span>)| mp.unsigned_area() <span class="kw">as </span>usize)
+        .unwrap();
+    <span class="prelude-val">Ok</span>(url)
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">load_remote_geojson</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">url</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">GeoJson</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
-        <span class="macro">info!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
-        <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+<span class="kw">async fn </span>load_remote_geojson(path: String, url: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;GeoJson&gt; {
+    <span class="kw">if </span>!abstio::file_exists(<span class="kw-2">&amp;</span>path) {
+        <span class="macro">info!</span>(<span class="string">&quot;Downloading {}&quot;</span>, url);
+        abstio::download_to_file(url, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>path).<span class="kw">await</span><span class="question-mark">?</span>;
     }
-    <span class="ident">abstio::maybe_read_json</span>(<span class="ident">path</span>, <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
+    abstio::maybe_read_json(path, <span class="kw-2">&amp;mut </span>Timer::throwaway())
 }
 
-<span class="kw">fn</span> <span class="ident">find_matching_regions</span>(<span class="ident">geojson</span>: <span class="ident">GeoJson</span>, <span class="ident">center</span>: <span class="ident">LonLat</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">geo::MultiPolygon</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">center</span>: <span class="ident">geo::Point</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">into</span>();
+<span class="kw">fn </span>find_matching_regions(geojson: GeoJson, center: LonLat) -&gt; Vec&lt;(geo::MultiPolygon, String)&gt; {
+    <span class="kw">let </span>center: geo::Point = center.into();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>matches = Vec::new();
 
-    <span class="comment">// We&#39;re assuming some things about the geofabrik_idx index format -- it&#39;s a feature</span>
-    <span class="comment">// collection, every feature has a multipolygon geometry, the properties have a particular</span>
-    <span class="comment">// form.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GeoJson::FeatureCollection</span>(<span class="ident">fc</span>) <span class="op">=</span> <span class="ident">geojson</span> {
-        <span class="macro">info!</span>(<span class="string">&quot;Searching {} regions&quot;</span>, <span class="ident">fc</span>.<span class="ident">features</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">feature</span> <span class="kw">in</span> <span class="ident">fc</span>.<span class="ident">features</span> {
-            <span class="kw">let</span> <span class="ident">mp</span>: <span class="ident">geo::MultiPolygon</span> <span class="op">=</span> <span class="ident">feature</span>.<span class="ident">geometry</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>().<span class="ident">value</span>.<span class="ident">try_into</span>().<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">mp</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">center</span>) {
-                <span class="ident">matches</span>.<span class="ident">push</span>((
-                    <span class="ident">mp</span>,
-                    <span class="ident">feature</span>
-                        .<span class="ident">property</span>(<span class="string">&quot;urls&quot;</span>)
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">get</span>(<span class="string">&quot;pbf&quot;</span>)
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">as_str</span>()
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">to_string</span>(),
+    <span class="comment">// We&#39;re assuming some things about the geofabrik_idx index format -- it&#39;s a feature
+    // collection, every feature has a multipolygon geometry, the properties have a particular
+    // form.
+    </span><span class="kw">if let </span>GeoJson::FeatureCollection(fc) = geojson {
+        <span class="macro">info!</span>(<span class="string">&quot;Searching {} regions&quot;</span>, fc.features.len());
+        <span class="kw">for </span><span class="kw-2">mut </span>feature <span class="kw">in </span>fc.features {
+            <span class="kw">let </span>mp: geo::MultiPolygon = feature.geometry.take().unwrap().value.try_into().unwrap();
+            <span class="kw">if </span>mp.contains(<span class="kw-2">&amp;</span>center) {
+                matches.push((
+                    mp,
+                    feature
+                        .property(<span class="string">&quot;urls&quot;</span>)
+                        .unwrap()
+                        .get(<span class="string">&quot;pbf&quot;</span>)
+                        .unwrap()
+                        .as_str()
+                        .unwrap()
+                        .to_string(),
                 ));
             }
         }
     }
 
-    <span class="ident">matches</span>
+    matches
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

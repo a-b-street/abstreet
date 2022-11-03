@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/trip_problems.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trip_problems.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/trip_problems.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trip_problems.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -477,484 +477,484 @@
 <span id="477">477</span>
 <span id="478">478</span>
 <span id="479">479</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Display</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cmp::Ordering;
+<span class="kw">use </span>std::fmt::Display;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">abbreviated_format</span>, <span class="ident">prettyprint_usize</span>, <span class="ident">CloneableAny</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">ProblemType</span>, <span class="ident">TripID</span>};
-<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::ColorScale</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">ClickOutcome</span>, <span class="ident">Color</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">GeomBatch</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">StackAlignment</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::{abbreviated_format, prettyprint_usize, CloneableAny};
+<span class="kw">use </span>geom::{Angle, Distance, Duration, Line, Polygon, Pt2D};
+<span class="kw">use </span>sim::{ProblemType, TripID};
+<span class="kw">use </span>synthpop::TripMode;
+<span class="kw">use </span>widgetry::tools::ColorScale;
+<span class="kw">use </span>widgetry::{
+    ClickOutcome, Color, DrawWithTooltips, GeomBatch, GeomBatchStack, StackAlignment, Text, Widget,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">EventCtx</span>};
+<span class="kw">use crate</span>::{App, EventCtx};
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TripProblemFilter</span> {
-    <span class="kw">fn</span> <span class="ident">includes_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">TripMode</span>) -&gt; <span class="ident">bool</span>;
-    <span class="kw">fn</span> <span class="ident">include_no_changes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>;
+<span class="kw">pub trait </span>TripProblemFilter {
+    <span class="kw">fn </span>includes_mode(<span class="kw-2">&amp;</span><span class="self">self</span>, mode: <span class="kw-2">&amp;</span>TripMode) -&gt; bool;
+    <span class="kw">fn </span>include_no_changes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool;
 
-    <span class="comment">// Returns:</span>
-    <span class="comment">// 1) trip ID</span>
-    <span class="comment">// 2) trip duration after changes</span>
-    <span class="comment">// 3) difference in number of matching problems, where positive means MORE problems after</span>
-    <span class="comment">//    changes</span>
-    <span class="kw">fn</span> <span class="ident">trip_problems</span>(
+    <span class="comment">// Returns:
+    // 1) trip ID
+    // 2) trip duration after changes
+    // 3) difference in number of matching problems, where positive means MORE problems after
+    //    changes
+    </span><span class="kw">fn </span>trip_problems(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">problem_type</span>: <span class="ident">ProblemType</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">Duration</span>, <span class="ident">isize</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">prebaked</span>();
-        <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>();
-        <span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        app: <span class="kw-2">&amp;</span>App,
+        problem_type: ProblemType,
+    ) -&gt; Vec&lt;(TripID, Duration, isize)&gt; {
+        <span class="kw">let </span>before = app.prebaked();
+        <span class="kw">let </span>after = app.primary.sim.get_analytics();
+        <span class="kw">let </span>empty = Vec::new();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">time_after</span>, <span class="ident">mode</span>) <span class="kw">in</span> <span class="ident">after</span>.<span class="ident">both_finished_trips</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(), <span class="ident">before</span>) {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">includes_mode</span>(<span class="kw-2">&amp;</span><span class="ident">mode</span>) {
-                <span class="kw">let</span> <span class="ident">count_before</span> <span class="op">=</span> <span class="ident">problem_type</span>
-                    .<span class="ident">count</span>(<span class="ident">before</span>.<span class="ident">problems_per_trip</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">empty</span>))
-                    <span class="kw">as</span> <span class="ident">isize</span>;
-                <span class="kw">let</span> <span class="ident">count_after</span> <span class="op">=</span>
-                    <span class="ident">problem_type</span>.<span class="ident">count</span>(<span class="ident">after</span>.<span class="ident">problems_per_trip</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="ident">empty</span>)) <span class="kw">as</span> <span class="ident">isize</span>;
-                <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">include_no_changes</span>() <span class="op">&amp;&amp;</span> <span class="ident">count_after</span> <span class="op">==</span> <span class="ident">count_before</span> {
+        <span class="kw">let </span><span class="kw-2">mut </span>points = Vec::new();
+        <span class="kw">for </span>(id, <span class="kw">_</span>, time_after, mode) <span class="kw">in </span>after.both_finished_trips(app.primary.sim.time(), before) {
+            <span class="kw">if </span><span class="self">self</span>.includes_mode(<span class="kw-2">&amp;</span>mode) {
+                <span class="kw">let </span>count_before = problem_type
+                    .count(before.problems_per_trip.get(<span class="kw-2">&amp;</span>id).unwrap_or(<span class="kw-2">&amp;</span>empty))
+                    <span class="kw">as </span>isize;
+                <span class="kw">let </span>count_after =
+                    problem_type.count(after.problems_per_trip.get(<span class="kw-2">&amp;</span>id).unwrap_or(<span class="kw-2">&amp;</span>empty)) <span class="kw">as </span>isize;
+                <span class="kw">if </span>!<span class="self">self</span>.include_no_changes() &amp;&amp; count_after == count_before {
                     <span class="kw">continue</span>;
                 }
-                <span class="ident">points</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">time_after</span>, <span class="ident">count_after</span> <span class="op">-</span> <span class="ident">count_before</span>));
+                points.push((id, time_after, count_after - count_before));
             }
         }
-        <span class="ident">points</span>
+        points
     }
 
-    <span class="kw">fn</span> <span class="ident">finished_trip_count</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">prebaked</span>();
-        <span class="kw">let</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>();
+    <span class="kw">fn </span>finished_trip_count(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; usize {
+        <span class="kw">let </span>before = app.prebaked();
+        <span class="kw">let </span>after = app.primary.sim.get_analytics();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">mode</span>) <span class="kw">in</span> <span class="ident">after</span>.<span class="ident">both_finished_trips</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(), <span class="ident">before</span>) {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">includes_mode</span>(<span class="kw-2">&amp;</span><span class="ident">mode</span>) {
-                <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+        <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, mode) <span class="kw">in </span>after.both_finished_trips(app.primary.sim.time(), before) {
+            <span class="kw">if </span><span class="self">self</span>.includes_mode(<span class="kw-2">&amp;</span>mode) {
+                count += <span class="number">1</span>;
             }
         }
-        <span class="ident">count</span>
+        count
     }
 }
 
-<span class="macro">lazy_static::lazy_static!</span> {
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">CLEAR_COLOR_SCALE</span>: <span class="ident">ColorScale</span> <span class="op">=</span> <span class="ident">ColorScale</span>(<span class="macro">vec!</span>[<span class="ident">Color::CLEAR</span>, <span class="ident">Color::CLEAR</span>]);
+<span class="macro">lazy_static::lazy_static! </span>{
+    <span class="kw">static </span><span class="kw-2">ref </span>CLEAR_COLOR_SCALE: ColorScale = ColorScale(<span class="macro">vec!</span>[Color::CLEAR, Color::CLEAR]);
 }
 
-<span class="doccomment">/// The caller should handle Outcome::ClickCustom with Vec&lt;TripID&gt; for clicked cells.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">problem_matrix</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">Duration</span>, <span class="ident">isize</span>)<span class="op">&gt;</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">duration_buckets</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">Duration::ZERO</span>,
-        <span class="ident">Duration::minutes</span>(<span class="number">5</span>),
-        <span class="ident">Duration::minutes</span>(<span class="number">15</span>),
-        <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
-        <span class="ident">Duration::hours</span>(<span class="number">1</span>),
-        <span class="ident">Duration::hours</span>(<span class="number">2</span>),
+<span class="doccomment">/// The caller should handle Outcome::ClickCustom with Vec&lt;TripID&gt; for clicked cells.
+</span><span class="kw">pub fn </span>problem_matrix(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    trips: Vec&lt;(TripID, Duration, isize)&gt;,
+) -&gt; Widget {
+    <span class="kw">let </span>duration_buckets = <span class="macro">vec!</span>[
+        Duration::ZERO,
+        Duration::minutes(<span class="number">5</span>),
+        Duration::minutes(<span class="number">15</span>),
+        Duration::minutes(<span class="number">30</span>),
+        Duration::hours(<span class="number">1</span>),
+        Duration::hours(<span class="number">2</span>),
     ];
 
-    <span class="kw">let</span> <span class="ident">num_buckets</span> <span class="op">=</span> <span class="number">7</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matrix</span> <span class="op">=</span> <span class="ident">Matrix::new</span>(<span class="ident">duration_buckets</span>, <span class="ident">bucketize_isizes</span>(<span class="ident">num_buckets</span>, <span class="kw-2">&amp;</span><span class="ident">trips</span>));
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">x</span>, <span class="ident">y</span>) <span class="kw">in</span> <span class="ident">trips</span> {
-        <span class="ident">matrix</span>.<span class="ident">add_pt</span>(<span class="ident">id</span>, <span class="ident">x</span>, <span class="ident">y</span>);
+    <span class="kw">let </span>num_buckets = <span class="number">7</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>matrix = Matrix::new(duration_buckets, bucketize_isizes(num_buckets, <span class="kw-2">&amp;</span>trips));
+    <span class="kw">for </span>(id, x, y) <span class="kw">in </span>trips {
+        matrix.add_pt(id, x, y);
     }
-    <span class="ident">matrix</span>.<span class="ident">draw</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">app</span>,
-        <span class="ident">MatrixOptions</span> {
-            <span class="ident">total_width</span>: <span class="number">600.0</span>,
-            <span class="ident">total_height</span>: <span class="number">600.0</span>,
-            <span class="ident">color_scale_for_bucket</span>: <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">app</span>, <span class="kw">_</span>, <span class="ident">n</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">n</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="number">0</span>) {
-                <span class="ident">std::cmp::Ordering::Equal</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">CLEAR_COLOR_SCALE</span>,
-                <span class="ident">std::cmp::Ordering::Less</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_green</span>,
-                <span class="ident">std::cmp::Ordering::Greater</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>,
+    matrix.draw(
+        ctx,
+        app,
+        MatrixOptions {
+            total_width: <span class="number">600.0</span>,
+            total_height: <span class="number">600.0</span>,
+            color_scale_for_bucket: Box::new(|app, <span class="kw">_</span>, n| <span class="kw">match </span>n.cmp(<span class="kw-2">&amp;</span><span class="number">0</span>) {
+                std::cmp::Ordering::Equal =&gt; <span class="kw-2">&amp;</span>CLEAR_COLOR_SCALE,
+                std::cmp::Ordering::Less =&gt; <span class="kw-2">&amp;</span>app.cs.good_to_bad_green,
+                std::cmp::Ordering::Greater =&gt; <span class="kw-2">&amp;</span>app.cs.good_to_bad_red,
             }),
-            <span class="ident">fmt_y_axis</span>: <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">lower_bound</span>: <span class="ident">isize</span>, <span class="ident">upper_bound</span>: <span class="ident">isize</span><span class="op">|</span> -&gt; <span class="ident">Text</span> {
-                <span class="kw">if</span> <span class="ident">lower_bound</span> <span class="op">+</span> <span class="number">1</span> <span class="op">==</span> <span class="ident">upper_bound</span> {
-                    <span class="ident">Text::from</span>(<span class="ident">lower_bound</span>.<span class="ident">abs</span>().<span class="ident">to_string</span>())
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lower_bound</span>.<span class="ident">is_negative</span>() {
-                    <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, <span class="ident">upper_bound</span>.<span class="ident">abs</span>() <span class="op">+</span> <span class="number">1</span>, <span class="ident">lower_bound</span>.<span class="ident">abs</span>()))
-                } <span class="kw">else</span> {
-                    <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, <span class="ident">lower_bound</span>.<span class="ident">abs</span>(), <span class="ident">upper_bound</span>.<span class="ident">abs</span>() <span class="op">-</span> <span class="number">1</span>))
+            fmt_y_axis: Box::new(|lower_bound: isize, upper_bound: isize| -&gt; Text {
+                <span class="kw">if </span>lower_bound + <span class="number">1 </span>== upper_bound {
+                    Text::from(lower_bound.abs().to_string())
+                } <span class="kw">else if </span>lower_bound.is_negative() {
+                    Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, upper_bound.abs() + <span class="number">1</span>, lower_bound.abs()))
+                } <span class="kw">else </span>{
+                    Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}-{}&quot;</span>, lower_bound.abs(), upper_bound.abs() - <span class="number">1</span>))
                 }
             }),
-            <span class="ident">tooltip_for_bucket</span>: <span class="ident">Box::new</span>(<span class="op">|</span>(<span class="ident">t1</span>, <span class="ident">t2</span>), (<span class="ident">problems1</span>, <span class="ident">problems2</span>), <span class="ident">count</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">trip_string</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">1</span> {
-                    <span class="string">&quot;1 trip&quot;</span>.<span class="ident">to_string</span>()
-                } <span class="kw">else</span> {
-                    <span class="macro">format!</span>(<span class="string">&quot;{} trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>))
+            tooltip_for_bucket: Box::new(|(t1, t2), (problems1, problems2), count| {
+                <span class="kw">let </span>trip_string = <span class="kw">if </span>count == <span class="number">1 </span>{
+                    <span class="string">&quot;1 trip&quot;</span>.to_string()
+                } <span class="kw">else </span>{
+                    <span class="macro">format!</span>(<span class="string">&quot;{} trips&quot;</span>, prettyprint_usize(count))
                 };
-                <span class="kw">let</span> <span class="ident">duration_string</span> <span class="op">=</span> <span class="kw">match</span> (<span class="ident">t1</span>, <span class="ident">t2</span>) {
-                    (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">end</span>)) =&gt; <span class="macro">format!</span>(<span class="string">&quot;shorter than {}&quot;</span>, <span class="ident">end</span>),
-                    (<span class="prelude-val">Some</span>(<span class="ident">start</span>), <span class="prelude-val">None</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;longer than {}&quot;</span>, <span class="ident">start</span>),
-                    (<span class="prelude-val">Some</span>(<span class="ident">start</span>), <span class="prelude-val">Some</span>(<span class="ident">end</span>)) =&gt; <span class="macro">format!</span>(<span class="string">&quot;between {} and {}&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>),
+                <span class="kw">let </span>duration_string = <span class="kw">match </span>(t1, t2) {
+                    (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(end)) =&gt; <span class="macro">format!</span>(<span class="string">&quot;shorter than {}&quot;</span>, end),
+                    (<span class="prelude-val">Some</span>(start), <span class="prelude-val">None</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;longer than {}&quot;</span>, start),
+                    (<span class="prelude-val">Some</span>(start), <span class="prelude-val">Some</span>(end)) =&gt; <span class="macro">format!</span>(<span class="string">&quot;between {} and {}&quot;</span>, start, end),
                     (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
                         <span class="macro">unreachable!</span>(<span class="string">&quot;at least one end of the duration range must be specified&quot;</span>)
                     }
                 };
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, <span class="ident">trip_string</span>, <span class="ident">duration_string</span>));
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="kw">match</span> <span class="ident">problems1</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="number">0</span>) {
-                    <span class="ident">std::cmp::Ordering::Equal</span> =&gt; {
-                        <span class="string">&quot;had no change in the number of problems encountered.&quot;</span>.<span class="ident">to_string</span>()
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, trip_string, duration_string));
+                txt.add_line(<span class="kw">match </span>problems1.cmp(<span class="kw-2">&amp;</span><span class="number">0</span>) {
+                    std::cmp::Ordering::Equal =&gt; {
+                        <span class="string">&quot;had no change in the number of problems encountered.&quot;</span>.to_string()
                     }
-                    <span class="ident">std::cmp::Ordering::Less</span> =&gt; {
-                        <span class="kw">if</span> <span class="ident">problems1</span>.<span class="ident">abs</span>() <span class="op">==</span> <span class="ident">problems2</span>.<span class="ident">abs</span>() <span class="op">+</span> <span class="number">1</span> {
-                            <span class="kw">if</span> <span class="ident">problems1</span>.<span class="ident">abs</span>() <span class="op">==</span> <span class="number">1</span> {
-                                <span class="string">&quot;encountered 1 fewer problem.&quot;</span>.<span class="ident">to_string</span>()
-                            } <span class="kw">else</span> {
-                                <span class="macro">format!</span>(<span class="string">&quot;encountered {} fewer problems.&quot;</span>, <span class="ident">problems1</span>.<span class="ident">abs</span>())
+                    std::cmp::Ordering::Less =&gt; {
+                        <span class="kw">if </span>problems1.abs() == problems2.abs() + <span class="number">1 </span>{
+                            <span class="kw">if </span>problems1.abs() == <span class="number">1 </span>{
+                                <span class="string">&quot;encountered 1 fewer problem.&quot;</span>.to_string()
+                            } <span class="kw">else </span>{
+                                <span class="macro">format!</span>(<span class="string">&quot;encountered {} fewer problems.&quot;</span>, problems1.abs())
                             }
-                        } <span class="kw">else</span> {
+                        } <span class="kw">else </span>{
                             <span class="macro">format!</span>(
                                 <span class="string">&quot;encountered {}-{} fewer problems.&quot;</span>,
-                                <span class="ident">problems2</span>.<span class="ident">abs</span>() <span class="op">+</span> <span class="number">1</span>,
-                                <span class="ident">problems1</span>.<span class="ident">abs</span>()
+                                problems2.abs() + <span class="number">1</span>,
+                                problems1.abs()
                             )
                         }
                     }
-                    <span class="ident">std::cmp::Ordering::Greater</span> =&gt; {
-                        <span class="kw">if</span> <span class="ident">problems1</span> <span class="op">==</span> <span class="ident">problems2</span> <span class="op">-</span> <span class="number">1</span> {
-                            <span class="kw">if</span> <span class="ident">problems1</span> <span class="op">==</span> <span class="number">1</span> {
-                                <span class="string">&quot;encountered 1 more problems.&quot;</span>.<span class="ident">to_string</span>()
-                            } <span class="kw">else</span> {
-                                <span class="macro">format!</span>(<span class="string">&quot;encountered {} more problems.&quot;</span>, <span class="ident">problems1</span>,)
+                    std::cmp::Ordering::Greater =&gt; {
+                        <span class="kw">if </span>problems1 == problems2 - <span class="number">1 </span>{
+                            <span class="kw">if </span>problems1 == <span class="number">1 </span>{
+                                <span class="string">&quot;encountered 1 more problems.&quot;</span>.to_string()
+                            } <span class="kw">else </span>{
+                                <span class="macro">format!</span>(<span class="string">&quot;encountered {} more problems.&quot;</span>, problems1,)
                             }
-                        } <span class="kw">else</span> {
-                            <span class="macro">format!</span>(<span class="string">&quot;encountered {}-{} more problems.&quot;</span>, <span class="ident">problems1</span>, <span class="ident">problems2</span> <span class="op">-</span> <span class="number">1</span>)
+                        } <span class="kw">else </span>{
+                            <span class="macro">format!</span>(<span class="string">&quot;encountered {}-{} more problems.&quot;</span>, problems1, problems2 - <span class="number">1</span>)
                         }
                     }
                 });
-                <span class="ident">txt</span>
+                txt
             }),
         },
     )
 }
 
-<span class="doccomment">/// Aka a 2D histogram. Tracks matching IDs in each cell.</span>
-<span class="kw">struct</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">ID</span>, <span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
-    <span class="ident">entries</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">buckets_x</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>,
-    <span class="ident">buckets_y</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Aka a 2D histogram. Tracks matching IDs in each cell.
+</span><span class="kw">struct </span>Matrix&lt;ID, X, Y&gt; {
+    entries: Vec&lt;Vec&lt;ID&gt;&gt;,
+    buckets_x: Vec&lt;X&gt;,
+    buckets_y: Vec&lt;Y&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span>
-        <span class="ident">ID</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">CloneableAny</span> <span class="op">+</span> <span class="ident">Clone</span>,
-        <span class="ident">X</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">Display</span>,
-        <span class="ident">Y</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">PartialOrd</span> <span class="op">+</span> <span class="ident">Display</span>,
-    <span class="op">&gt;</span> <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">ID</span>, <span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span>
+<span class="kw">impl</span>&lt;
+        ID: <span class="lifetime">&#39;static </span>+ CloneableAny + Clone,
+        X: Copy + PartialOrd + Display,
+        Y: Copy + PartialOrd + Display,
+    &gt; Matrix&lt;ID, X, Y&gt;
 {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">buckets_x</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="ident">buckets_y</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Y</span><span class="op">&gt;</span>) -&gt; <span class="ident">Matrix</span><span class="op">&lt;</span><span class="ident">ID</span>, <span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
-        <span class="ident">Matrix</span> {
-            <span class="ident">entries</span>: <span class="ident">std::iter::repeat_with</span>(<span class="ident">Vec::new</span>)
-                .<span class="ident">take</span>(<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="op">*</span> <span class="ident">buckets_y</span>.<span class="ident">len</span>())
-                .<span class="ident">collect</span>(),
-            <span class="ident">buckets_x</span>,
-            <span class="ident">buckets_y</span>,
+    <span class="kw">fn </span>new(buckets_x: Vec&lt;X&gt;, buckets_y: Vec&lt;Y&gt;) -&gt; Matrix&lt;ID, X, Y&gt; {
+        Matrix {
+            entries: std::iter::repeat_with(Vec::new)
+                .take(buckets_x.len() * buckets_y.len())
+                .collect(),
+            buckets_x,
+            buckets_y,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">add_pt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">ID</span>, <span class="ident">x</span>: <span class="ident">X</span>, <span class="ident">y</span>: <span class="ident">Y</span>) {
-        <span class="comment">// Find its bucket</span>
-        <span class="comment">// TODO Unit test this</span>
-        <span class="kw">let</span> <span class="ident">x_idx</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">buckets_x</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">min</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">min</span> <span class="op">&gt;</span> <span class="ident">x</span>)
-            .<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>())
-            <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">y_idx</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">buckets_y</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">min</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">min</span> <span class="op">&gt;</span> <span class="ident">y</span>)
-            .<span class="ident">unwrap_or</span>(<span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>())
-            <span class="op">-</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span>(<span class="ident">x_idx</span>, <span class="ident">y_idx</span>);
-        <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">idx</span>].<span class="ident">push</span>(<span class="ident">id</span>);
+    <span class="kw">fn </span>add_pt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: ID, x: X, y: Y) {
+        <span class="comment">// Find its bucket
+        // TODO Unit test this
+        </span><span class="kw">let </span>x_idx = <span class="self">self
+            </span>.buckets_x
+            .iter()
+            .position(|min| <span class="kw-2">*</span>min &gt; x)
+            .unwrap_or(<span class="self">self</span>.buckets_x.len())
+            - <span class="number">1</span>;
+        <span class="kw">let </span>y_idx = <span class="self">self
+            </span>.buckets_y
+            .iter()
+            .position(|min| <span class="kw-2">*</span>min &gt; y)
+            .unwrap_or(<span class="self">self</span>.buckets_y.len())
+            - <span class="number">1</span>;
+        <span class="kw">let </span>idx = <span class="self">self</span>.idx(x_idx, y_idx);
+        <span class="self">self</span>.entries[idx].push(id);
     }
 
-    <span class="kw">fn</span> <span class="ident">idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">usize</span>, <span class="ident">y</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-        <span class="comment">// Row-major</span>
-        <span class="ident">y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">x</span>
+    <span class="kw">fn </span>idx(<span class="kw-2">&amp;</span><span class="self">self</span>, x: usize, y: usize) -&gt; usize {
+        <span class="comment">// Row-major
+        </span>y * <span class="self">self</span>.buckets_x.len() + x
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="ident">MatrixOptions</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">grid_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="ident">cell_width</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">total_width</span> <span class="op">/</span> (<span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>);
-        <span class="kw">let</span> <span class="ident">cell_height</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">total_height</span> <span class="op">/</span> (<span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>);
-        <span class="kw">let</span> <span class="ident">cell</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">cell_width</span>, <span class="ident">cell_height</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, opts: MatrixOptions&lt;X, Y&gt;) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>grid_batch = GeomBatch::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>tooltips = Vec::new();
+        <span class="kw">let </span>cell_width = opts.total_width / (<span class="self">self</span>.buckets_x.len() <span class="kw">as </span>f64);
+        <span class="kw">let </span>cell_height = opts.total_height / (<span class="self">self</span>.buckets_y.len() <span class="kw">as </span>f64);
+        <span class="kw">let </span>cell = Polygon::rectangle(cell_width, cell_height);
 
-        <span class="kw">let</span> <span class="ident">max_count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">list</span><span class="op">|</span> <span class="ident">list</span>.<span class="ident">len</span>()).<span class="ident">max</span>().<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">f64</span>;
+        <span class="kw">let </span>max_count = <span class="self">self</span>.entries.iter().map(|list| list.len()).max().unwrap() <span class="kw">as </span>f64;
 
-        <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-            <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                <span class="kw">let</span> <span class="ident">is_first_xbucket</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">==</span> <span class="number">0</span>;
-                <span class="kw">let</span> <span class="ident">is_last_xbucket</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>;
-                <span class="kw">let</span> <span class="ident">is_middle_ybucket</span> <span class="op">=</span> <span class="ident">y</span> <span class="op">+</span> <span class="number">1</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">2</span>;
-                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">idx</span>(<span class="ident">x</span>, <span class="ident">y</span>);
-                <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">idx</span>].<span class="ident">len</span>();
-                <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="ident">widgetry::Color::CLEAR</span>
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="ident">density_pct</span> <span class="op">=</span> (<span class="ident">count</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">max_count</span>;
-                    (<span class="ident">opts</span>.<span class="ident">color_scale_for_bucket</span>)(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">buckets_x</span>[<span class="ident">x</span>], <span class="self">self</span>.<span class="ident">buckets_y</span>[<span class="ident">y</span>])
-                        .<span class="ident">eval</span>(<span class="ident">density_pct</span>)
+        <span class="kw">for </span>x <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.buckets_x.len() - <span class="number">1 </span>{
+            <span class="kw">for </span>y <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.buckets_y.len() - <span class="number">1 </span>{
+                <span class="kw">let </span>is_first_xbucket = x == <span class="number">0</span>;
+                <span class="kw">let </span>is_last_xbucket = x == <span class="self">self</span>.buckets_x.len() - <span class="number">2</span>;
+                <span class="kw">let </span>is_middle_ybucket = y + <span class="number">1 </span>== <span class="self">self</span>.buckets_y.len() / <span class="number">2</span>;
+                <span class="kw">let </span>idx = <span class="self">self</span>.idx(x, y);
+                <span class="kw">let </span>count = <span class="self">self</span>.entries[idx].len();
+                <span class="kw">let </span>color = <span class="kw">if </span>count == <span class="number">0 </span>{
+                    widgetry::Color::CLEAR
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>density_pct = (count <span class="kw">as </span>f64) / max_count;
+                    (opts.color_scale_for_bucket)(app, <span class="self">self</span>.buckets_x[x], <span class="self">self</span>.buckets_y[y])
+                        .eval(density_pct)
                 };
-                <span class="kw">let</span> <span class="ident">x1</span> <span class="op">=</span> <span class="ident">cell_width</span> <span class="op">*</span> (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>);
-                <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="ident">cell_height</span> <span class="op">*</span> (<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f64</span>);
-                <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="ident">cell</span>.<span class="ident">clone</span>().<span class="ident">translate</span>(<span class="ident">x1</span>, <span class="ident">y1</span>);
-                <span class="ident">grid_batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>());
-                <span class="ident">grid_batch</span>.<span class="ident">append</span>(
-                    <span class="ident">Text::from</span>(<span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">is_middle_ybucket</span> {
-                        <span class="string">&quot;-&quot;</span>.<span class="ident">to_string</span>()
-                    } <span class="kw">else</span> {
-                        <span class="ident">abbreviated_format</span>(<span class="ident">count</span>)
+                <span class="kw">let </span>x1 = cell_width * (x <span class="kw">as </span>f64);
+                <span class="kw">let </span>y1 = cell_height * (y <span class="kw">as </span>f64);
+                <span class="kw">let </span>rect = cell.clone().translate(x1, y1);
+                grid_batch.push(color, rect.clone());
+                grid_batch.append(
+                    Text::from(<span class="kw">if </span>count == <span class="number">0 </span>&amp;&amp; is_middle_ybucket {
+                        <span class="string">&quot;-&quot;</span>.to_string()
+                    } <span class="kw">else </span>{
+                        abbreviated_format(count)
                     })
-                    .<span class="ident">change_fg</span>(<span class="kw">if</span> <span class="ident">count</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">is_middle_ybucket</span> {
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_primary_color</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">Color::WHITE</span>
+                    .change_fg(<span class="kw">if </span>count == <span class="number">0 </span>|| is_middle_ybucket {
+                        ctx.style().text_primary_color
+                    } <span class="kw">else </span>{
+                        Color::WHITE
                     })
-                    .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x1</span> <span class="op">+</span> <span class="ident">cell_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">y1</span> <span class="op">+</span> <span class="ident">cell_height</span> <span class="op">/</span> <span class="number">2.0</span>)),
+                    .render(ctx)
+                    .centered_on(Pt2D::new(x1 + cell_width / <span class="number">2.0</span>, y1 + cell_height / <span class="number">2.0</span>)),
                 );
 
-                <span class="kw">if</span> <span class="ident">count</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">is_middle_ybucket</span> {
-                    <span class="ident">tooltips</span>.<span class="ident">push</span>((
-                        <span class="ident">rect</span>,
-                        (<span class="ident">opts</span>.<span class="ident">tooltip_for_bucket</span>)(
+                <span class="kw">if </span>count != <span class="number">0 </span>|| !is_middle_ybucket {
+                    tooltips.push((
+                        rect,
+                        (opts.tooltip_for_bucket)(
                             (
-                                <span class="kw">if</span> <span class="ident">is_first_xbucket</span> {
-                                    <span class="prelude-val">None</span>
-                                } <span class="kw">else</span> {
-                                    <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">buckets_x</span>[<span class="ident">x</span>])
+                                <span class="kw">if </span>is_first_xbucket {
+                                    <span class="prelude-val">None
+                                </span>} <span class="kw">else </span>{
+                                    <span class="prelude-val">Some</span>(<span class="self">self</span>.buckets_x[x])
                                 },
-                                <span class="kw">if</span> <span class="ident">is_last_xbucket</span> {
-                                    <span class="prelude-val">None</span>
-                                } <span class="kw">else</span> {
-                                    <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">buckets_x</span>[<span class="ident">x</span> <span class="op">+</span> <span class="number">1</span>])
+                                <span class="kw">if </span>is_last_xbucket {
+                                    <span class="prelude-val">None
+                                </span>} <span class="kw">else </span>{
+                                    <span class="prelude-val">Some</span>(<span class="self">self</span>.buckets_x[x + <span class="number">1</span>])
                                 },
                             ),
-                            (<span class="self">self</span>.<span class="ident">buckets_y</span>[<span class="ident">y</span>], <span class="self">self</span>.<span class="ident">buckets_y</span>[<span class="ident">y</span> <span class="op">+</span> <span class="number">1</span>]),
-                            <span class="ident">count</span>,
+                            (<span class="self">self</span>.buckets_y[y], <span class="self">self</span>.buckets_y[y + <span class="number">1</span>]),
+                            count,
                         ),
-                        <span class="kw">if</span> <span class="ident">count</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">ClickOutcome::Custom</span>(<span class="ident">Box::new</span>(<span class="ident">std::mem::take</span>(
-                                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">entries</span>[<span class="ident">idx</span>],
+                        <span class="kw">if </span>count != <span class="number">0 </span>{
+                            <span class="prelude-val">Some</span>(ClickOutcome::Custom(Box::new(std::mem::take(
+                                <span class="kw-2">&amp;mut </span><span class="self">self</span>.entries[idx],
                             ))))
-                        } <span class="kw">else</span> {
-                            <span class="prelude-val">None</span>
-                        },
+                        } <span class="kw">else </span>{
+                            <span class="prelude-val">None
+                        </span>},
                     ));
                 }
             }
         }
         {
-            <span class="kw">let</span> <span class="ident">bottom</span> <span class="op">=</span> <span class="ident">cell_height</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>;
-            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">cell_width</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>;
+            <span class="kw">let </span>bottom = cell_height * (<span class="self">self</span>.buckets_y.len() - <span class="number">1</span>) <span class="kw">as </span>f64;
+            <span class="kw">let </span>right = cell_width * (<span class="self">self</span>.buckets_x.len() - <span class="number">1</span>) <span class="kw">as </span>f64;
 
-            <span class="kw">let</span> <span class="ident">border_lines</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::zero</span>(), <span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="number">0.0</span>)),
-                <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="ident">bottom</span>)),
-                <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">right</span>, <span class="ident">bottom</span>), <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">bottom</span>)),
-                <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">bottom</span>), <span class="ident">Pt2D::zero</span>()),
+            <span class="kw">let </span>border_lines = <span class="macro">vec!</span>[
+                Line::must_new(Pt2D::zero(), Pt2D::new(right, <span class="number">0.0</span>)),
+                Line::must_new(Pt2D::new(right, <span class="number">0.0</span>), Pt2D::new(right, bottom)),
+                Line::must_new(Pt2D::new(right, bottom), Pt2D::new(<span class="number">0.0</span>, bottom)),
+                Line::must_new(Pt2D::new(<span class="number">0.0</span>, bottom), Pt2D::zero()),
             ];
-            <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">border_lines</span> {
-                <span class="kw">let</span> <span class="ident">border_poly</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">3.0</span>));
-                <span class="ident">grid_batch</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>, <span class="ident">border_poly</span>);
+            <span class="kw">for </span>line <span class="kw">in </span>border_lines {
+                <span class="kw">let </span>border_poly = line.make_polygons(Distance::meters(<span class="number">3.0</span>));
+                grid_batch.push(ctx.style().text_secondary_color, border_poly);
             }
         }
 
-        <span class="comment">// Draw the axes</span>
-        <span class="kw">let</span> <span class="ident">y_axis_batch</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_axis_scale</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                <span class="kw">let</span> <span class="ident">x1</span> <span class="op">=</span> <span class="number">0.0</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y1</span> <span class="op">=</span> <span class="ident">cell_height</span> <span class="op">*</span> <span class="ident">y</span> <span class="kw">as</span> <span class="ident">f64</span>;
+        <span class="comment">// Draw the axes
+        </span><span class="kw">let </span>y_axis_batch = {
+            <span class="kw">let </span><span class="kw-2">mut </span>y_axis_scale = GeomBatch::new();
+            <span class="kw">for </span>y <span class="kw">in </span><span class="number">0</span>..<span class="self">self</span>.buckets_y.len() - <span class="number">1 </span>{
+                <span class="kw">let </span>x1 = <span class="number">0.0</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>y1 = cell_height * y <span class="kw">as </span>f64;
 
-                <span class="kw">let</span> <span class="ident">middle_bucket</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="op">/</span> <span class="number">2</span> <span class="op">-</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="ident">y_offset</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">y</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">middle_bucket</span>) {
-                    <span class="ident">Ordering::Less</span> =&gt; <span class="ident">cell_height</span>,
-                    <span class="ident">Ordering::Greater</span> =&gt; <span class="number">0.0</span>,
-                    <span class="ident">Ordering::Equal</span> =&gt; <span class="ident">cell_height</span> <span class="op">/</span> <span class="number">2.0</span>,
+                <span class="kw">let </span>middle_bucket = <span class="self">self</span>.buckets_y.len() / <span class="number">2 </span>- <span class="number">1</span>;
+                <span class="kw">let </span>y_offset = <span class="kw">match </span>y.cmp(<span class="kw-2">&amp;</span>middle_bucket) {
+                    Ordering::Less =&gt; cell_height,
+                    Ordering::Greater =&gt; <span class="number">0.0</span>,
+                    Ordering::Equal =&gt; cell_height / <span class="number">2.0</span>,
                 };
 
-                <span class="kw">let</span> <span class="ident">y_label</span> <span class="op">=</span> (<span class="ident">opts</span>.<span class="ident">fmt_y_axis</span>)(<span class="self">self</span>.<span class="ident">buckets_y</span>[<span class="ident">y</span>], <span class="self">self</span>.<span class="ident">buckets_y</span>[<span class="ident">y</span> <span class="op">+</span> <span class="number">1</span>])
-                    .<span class="ident">change_fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>)
-                    .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x1</span> <span class="op">+</span> <span class="ident">cell_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">y1</span> <span class="op">+</span> <span class="number">0.5</span> <span class="op">*</span> <span class="ident">cell_height</span>));
-                <span class="ident">y_axis_scale</span>.<span class="ident">append</span>(<span class="ident">y_label</span>);
+                <span class="kw">let </span>y_label = (opts.fmt_y_axis)(<span class="self">self</span>.buckets_y[y], <span class="self">self</span>.buckets_y[y + <span class="number">1</span>])
+                    .change_fg(ctx.style().text_secondary_color)
+                    .render(ctx)
+                    .centered_on(Pt2D::new(x1 + cell_width / <span class="number">2.0</span>, y1 + <span class="number">0.5 </span>* cell_height));
+                y_axis_scale.append(y_label);
 
-                <span class="kw">if</span> <span class="ident">y</span> <span class="op">!</span><span class="op">=</span> <span class="ident">middle_bucket</span> {
-                    <span class="ident">y1</span> <span class="op">+</span><span class="op">=</span> <span class="ident">y_offset</span>;
-                    <span class="kw">let</span> <span class="ident">tick_length</span> <span class="op">=</span> <span class="number">8.0</span>;
-                    <span class="kw">let</span> <span class="ident">tick_thickness</span> <span class="op">=</span> <span class="number">2.0</span>;
-                    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">x1</span> <span class="op">+</span> <span class="ident">cell_width</span> <span class="op">-</span> <span class="ident">tick_length</span>, <span class="ident">y1</span> <span class="op">-</span> <span class="ident">tick_thickness</span> <span class="op">/</span> <span class="number">2.0</span>);
-                    <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="ident">tick_length</span>, <span class="number">0.0</span>))
-                        .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="ident">tick_thickness</span>));
-                    <span class="ident">y_axis_scale</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>, <span class="ident">line</span>);
+                <span class="kw">if </span>y != middle_bucket {
+                    y1 += y_offset;
+                    <span class="kw">let </span>tick_length = <span class="number">8.0</span>;
+                    <span class="kw">let </span>tick_thickness = <span class="number">2.0</span>;
+                    <span class="kw">let </span>start = Pt2D::new(x1 + cell_width - tick_length, y1 - tick_thickness / <span class="number">2.0</span>);
+                    <span class="kw">let </span>line = Line::must_new(start, start.offset(tick_length, <span class="number">0.0</span>))
+                        .make_polygons(Distance::meters(tick_thickness));
+                    y_axis_scale.push(ctx.style().text_secondary_color, line);
                 }
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y_axis_label</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;More Problems &lt;--------&gt; Fewer Problems&quot;</span>)
-                .<span class="ident">change_fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>)
-                .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                .<span class="ident">rotate</span>(<span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">90.0</span>));
+            <span class="kw">let </span><span class="kw-2">mut </span>y_axis_label = Text::from(<span class="string">&quot;More Problems &lt;--------&gt; Fewer Problems&quot;</span>)
+                .change_fg(ctx.style().text_secondary_color)
+                .render(ctx)
+                .rotate(Angle::degrees(-<span class="number">90.0</span>));
 
-            <span class="ident">y_axis_label</span>.<span class="ident">autocrop_dims</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">y_axis_label</span> <span class="op">=</span> <span class="ident">y_axis_label</span>.<span class="ident">autocrop</span>();
+            y_axis_label.autocrop_dims = <span class="bool-val">true</span>;
+            y_axis_label = y_axis_label.autocrop();
 
-            <span class="ident">y_axis_label</span> <span class="op">=</span> <span class="ident">y_axis_label</span>.<span class="ident">centered_on</span>(<span class="ident">Pt2D::new</span>(
+            y_axis_label = y_axis_label.centered_on(Pt2D::new(
                 <span class="number">8.0</span>,
-                <span class="ident">cell_height</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">buckets_y</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">-</span> <span class="number">1.0</span>),
+                cell_height * (<span class="self">self</span>.buckets_y.len() <span class="kw">as </span>f64 / <span class="number">2.0 </span>- <span class="number">1.0</span>),
             ));
 
-            <span class="ident">GeomBatchStack::horizontal</span>(<span class="macro">vec!</span>[<span class="ident">y_axis_label</span>, <span class="ident">y_axis_scale</span>]).<span class="ident">batch</span>()
+            GeomBatchStack::horizontal(<span class="macro">vec!</span>[y_axis_label, y_axis_scale]).batch()
         };
 
-        <span class="kw">let</span> <span class="ident">x_axis_batch</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x_axis_scale</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                <span class="kw">let</span> <span class="ident">x1</span> <span class="op">=</span> <span class="ident">cell_width</span> <span class="op">*</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>;
-                <span class="kw">let</span> <span class="ident">y1</span> <span class="op">=</span> <span class="number">0.0</span>;
+        <span class="kw">let </span>x_axis_batch = {
+            <span class="kw">let </span><span class="kw-2">mut </span>x_axis_scale = GeomBatch::new();
+            <span class="kw">for </span>x <span class="kw">in </span><span class="number">1</span>..<span class="self">self</span>.buckets_x.len() - <span class="number">1 </span>{
+                <span class="kw">let </span>x1 = cell_width * x <span class="kw">as </span>f64;
+                <span class="kw">let </span>y1 = <span class="number">0.0</span>;
 
-                <span class="ident">x_axis_scale</span>.<span class="ident">append</span>(
-                    <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">buckets_x</span>[<span class="ident">x</span>]))
-                        .<span class="ident">change_fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>)
-                        .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">Pt2D::new</span>(<span class="ident">x1</span>, <span class="ident">y1</span> <span class="op">+</span> <span class="ident">cell_height</span> <span class="op">/</span> <span class="number">2.0</span>)),
+                x_axis_scale.append(
+                    Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.buckets_x[x]))
+                        .change_fg(ctx.style().text_secondary_color)
+                        .render(ctx)
+                        .centered_on(Pt2D::new(x1, y1 + cell_height / <span class="number">2.0</span>)),
                 );
-                <span class="kw">let</span> <span class="ident">tick_length</span> <span class="op">=</span> <span class="number">8.0</span>;
-                <span class="kw">let</span> <span class="ident">tick_thickness</span> <span class="op">=</span> <span class="number">2.0</span>;
-                <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">x1</span>, <span class="ident">y1</span> <span class="op">-</span> <span class="number">2.0</span>);
-                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">Line::must_new</span>(<span class="ident">start</span>, <span class="ident">start</span>.<span class="ident">offset</span>(<span class="number">0.0</span>, <span class="ident">tick_length</span>))
-                    .<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="ident">tick_thickness</span>));
-                <span class="ident">x_axis_scale</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>, <span class="ident">line</span>);
+                <span class="kw">let </span>tick_length = <span class="number">8.0</span>;
+                <span class="kw">let </span>tick_thickness = <span class="number">2.0</span>;
+                <span class="kw">let </span>start = Pt2D::new(x1, y1 - <span class="number">2.0</span>);
+                <span class="kw">let </span>line = Line::must_new(start, start.offset(<span class="number">0.0</span>, tick_length))
+                    .make_polygons(Distance::meters(tick_thickness));
+                x_axis_scale.push(ctx.style().text_secondary_color, line);
             }
-            <span class="kw">let</span> <span class="ident">x_axis_label</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Short Trips &lt;--------&gt; Long Trips&quot;</span>)
-                .<span class="ident">change_fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_secondary_color</span>)
-                .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_on</span>(<span class="ident">Pt2D::new</span>(
-                    <span class="ident">cell_width</span> <span class="op">*</span> ((<span class="self">self</span>.<span class="ident">buckets_x</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">2.0</span> <span class="op">-</span> <span class="number">0.5</span>),
-                    <span class="ident">cell_height</span>,
+            <span class="kw">let </span>x_axis_label = Text::from(<span class="string">&quot;Short Trips &lt;--------&gt; Long Trips&quot;</span>)
+                .change_fg(ctx.style().text_secondary_color)
+                .render(ctx)
+                .centered_on(Pt2D::new(
+                    cell_width * ((<span class="self">self</span>.buckets_x.len() <span class="kw">as </span>f64) / <span class="number">2.0 </span>- <span class="number">0.5</span>),
+                    cell_height,
                 ));
 
-            <span class="ident">x_axis_scale</span>.<span class="ident">append</span>(<span class="ident">x_axis_label</span>);
+            x_axis_scale.append(x_axis_label);
 
-            <span class="ident">x_axis_scale</span>
+            x_axis_scale
         };
 
-        <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">tooltips</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">translated</span> <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">translate</span>(<span class="ident">y_axis_batch</span>.<span class="ident">get_bounds</span>().<span class="ident">width</span>(), <span class="number">0.0</span>);
-            <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="ident">translated</span>, <span class="ident">polygon</span>);
+        <span class="kw">for </span>(polygon, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;mut </span>tooltips {
+            <span class="kw">let </span><span class="kw-2">mut </span>translated = polygon.translate(y_axis_batch.get_bounds().width(), <span class="number">0.0</span>);
+            std::mem::swap(<span class="kw-2">&amp;mut </span>translated, polygon);
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">GeomBatchStack::vertical</span>(<span class="macro">vec!</span>[<span class="ident">grid_batch</span>, <span class="ident">x_axis_batch</span>]);
-        <span class="ident">col</span>.<span class="ident">set_alignment</span>(<span class="ident">StackAlignment::Left</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>col = GeomBatchStack::vertical(<span class="macro">vec!</span>[grid_batch, x_axis_batch]);
+        col.set_alignment(StackAlignment::Left);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chart</span> <span class="op">=</span> <span class="ident">GeomBatchStack::horizontal</span>(<span class="macro">vec!</span>[<span class="ident">y_axis_batch</span>, <span class="ident">col</span>.<span class="ident">batch</span>()]);
-        <span class="ident">chart</span>.<span class="ident">set_alignment</span>(<span class="ident">StackAlignment::Top</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>chart = GeomBatchStack::horizontal(<span class="macro">vec!</span>[y_axis_batch, col.batch()]);
+        chart.set_alignment(StackAlignment::Top);
 
-        <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">chart</span>.<span class="ident">batch</span>(), <span class="ident">tooltips</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>()))
+        DrawWithTooltips::new_widget(ctx, chart.batch(), tooltips, Box::new(|<span class="kw">_</span>| GeomBatch::new()))
     }
 }
 
-<span class="kw">struct</span> <span class="ident">MatrixOptions</span><span class="op">&lt;</span><span class="ident">X</span>, <span class="ident">Y</span><span class="op">&gt;</span> {
-    <span class="ident">total_width</span>: <span class="ident">f64</span>,
-    <span class="ident">total_height</span>: <span class="ident">f64</span>,
-    <span class="comment">// (lower_bound, upper_bound) -&gt; Cell Label</span>
-    <span class="ident">fmt_y_axis</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Y</span>, <span class="ident">Y</span>) -&gt; <span class="ident">Text</span><span class="op">&gt;</span>,
-    <span class="ident">color_scale_for_bucket</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">X</span>, <span class="ident">Y</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">ColorScale</span><span class="op">&gt;</span>,
-    <span class="ident">tooltip_for_bucket</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>((<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span>), (<span class="ident">Y</span>, <span class="ident">Y</span>), <span class="ident">usize</span>) -&gt; <span class="ident">Text</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>MatrixOptions&lt;X, Y&gt; {
+    total_width: f64,
+    total_height: f64,
+    <span class="comment">// (lower_bound, upper_bound) -&gt; Cell Label
+    </span>fmt_y_axis: Box&lt;<span class="kw">dyn </span>Fn(Y, Y) -&gt; Text&gt;,
+    color_scale_for_bucket: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>App, X, Y) -&gt; <span class="kw-2">&amp;</span>ColorScale&gt;,
+    tooltip_for_bucket: Box&lt;<span class="kw">dyn </span>Fn((<span class="prelude-ty">Option</span>&lt;X&gt;, <span class="prelude-ty">Option</span>&lt;X&gt;), (Y, Y), usize) -&gt; Text&gt;,
 }
 
-<span class="kw">fn</span> <span class="ident">bucketize_isizes</span>(<span class="ident">max_buckets</span>: <span class="ident">usize</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[(<span class="ident">TripID</span>, <span class="ident">Duration</span>, <span class="ident">isize</span>)]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span> {
+<span class="kw">fn </span>bucketize_isizes(max_buckets: usize, pts: <span class="kw-2">&amp;</span>[(TripID, Duration, isize)]) -&gt; Vec&lt;isize&gt; {
     <span class="macro">debug_assert!</span>(
-        <span class="ident">max_buckets</span> <span class="op">%</span> <span class="number">2</span> <span class="op">==</span> <span class="number">1</span>,
-        <span class="string">&quot;num_buckets must be odd to have a symmetrical number of buckets around axis&quot;</span>
-    );
-    <span class="macro">debug_assert!</span>(<span class="ident">max_buckets</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">3</span>, <span class="string">&quot;num_buckets must be at least 3&quot;</span>);
+        max_buckets % <span class="number">2 </span>== <span class="number">1</span>,
+        <span class="string">&quot;num_buckets must be odd to have a symmetrical number of buckets around axis&quot;
+    </span>);
+    <span class="macro">debug_assert!</span>(max_buckets &gt;= <span class="number">3</span>, <span class="string">&quot;num_buckets must be at least 3&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">positive_buckets</span> <span class="op">=</span> (<span class="ident">max_buckets</span> <span class="op">-</span> <span class="number">1</span>) <span class="op">/</span> <span class="number">2</span>;
-    <span class="comment">// uniformly sized integer buckets</span>
-    <span class="kw">let</span> <span class="ident">max</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">max_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">cnt</span>)<span class="op">|</span> <span class="ident">cnt</span>.<span class="ident">abs</span>()) {
-        <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="kw">if</span> (<span class="ident">t</span>.<span class="number">2</span>.<span class="ident">abs</span>() <span class="kw">as</span> <span class="ident">usize</span>) <span class="op">&gt;</span><span class="op">=</span> <span class="ident">positive_buckets</span> =&gt; <span class="ident">t</span>.<span class="number">2</span>.<span class="ident">abs</span>(),
-        <span class="kw">_</span> =&gt; {
-            <span class="comment">// Enforce a bucket width of at least 1.</span>
-            <span class="kw">let</span> <span class="ident">negative_buckets</span> <span class="op">=</span> <span class="op">-</span>(<span class="ident">positive_buckets</span> <span class="kw">as</span> <span class="ident">isize</span>);
-            <span class="kw">return</span> (<span class="ident">negative_buckets</span>..<span class="op">=</span>(<span class="ident">positive_buckets</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="number">1</span>)).<span class="ident">collect</span>();
+    <span class="kw">let </span>positive_buckets = (max_buckets - <span class="number">1</span>) / <span class="number">2</span>;
+    <span class="comment">// uniformly sized integer buckets
+    </span><span class="kw">let </span>max = <span class="kw">match </span>pts.iter().max_by_key(|(<span class="kw">_</span>, <span class="kw">_</span>, cnt)| cnt.abs()) {
+        <span class="prelude-val">Some</span>(t) <span class="kw">if </span>(t.<span class="number">2</span>.abs() <span class="kw">as </span>usize) &gt;= positive_buckets =&gt; t.<span class="number">2</span>.abs(),
+        <span class="kw">_ </span>=&gt; {
+            <span class="comment">// Enforce a bucket width of at least 1.
+            </span><span class="kw">let </span>negative_buckets = -(positive_buckets <span class="kw">as </span>isize);
+            <span class="kw">return </span>(negative_buckets..=(positive_buckets <span class="kw">as </span>isize + <span class="number">1</span>)).collect();
         }
     };
 
-    <span class="kw">let</span> <span class="ident">bucket_size</span> <span class="op">=</span> (<span class="ident">max</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">positive_buckets</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">isize</span>;
+    <span class="kw">let </span>bucket_size = (max <span class="kw">as </span>f64 / positive_buckets <span class="kw">as </span>f64).ceil() <span class="kw">as </span>isize;
 
-    <span class="comment">// we start with a 0-based bucket, and build the other buckets out from that.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>];
+    <span class="comment">// we start with a 0-based bucket, and build the other buckets out from that.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>buckets = <span class="macro">vec!</span>[<span class="number">0</span>];
 
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">positive_buckets</span> {
-        <span class="comment">// the first positive bucket starts at `1`, to ensure that the 0 bucket stands alone</span>
-        <span class="ident">buckets</span>.<span class="ident">push</span>(<span class="number">1</span> <span class="op">+</span> (<span class="ident">i</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">*</span> <span class="ident">bucket_size</span>);
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..=positive_buckets {
+        <span class="comment">// the first positive bucket starts at `1`, to ensure that the 0 bucket stands alone
+        </span>buckets.push(<span class="number">1 </span>+ (i <span class="kw">as </span>isize) * bucket_size);
     }
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="op">=</span><span class="ident">positive_buckets</span> {
-        <span class="ident">buckets</span>.<span class="ident">push</span>(<span class="op">-</span>(<span class="ident">i</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">*</span> <span class="ident">bucket_size</span>);
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..=positive_buckets {
+        buckets.push(-(i <span class="kw">as </span>isize) * bucket_size);
     }
-    <span class="ident">buckets</span>.<span class="ident">sort_unstable</span>();
-    <span class="macro">debug!</span>(<span class="string">&quot;buckets: {:?}&quot;</span>, <span class="ident">buckets</span>);
+    buckets.sort_unstable();
+    <span class="macro">debug!</span>(<span class="string">&quot;buckets: {:?}&quot;</span>, buckets);
 
-    <span class="ident">buckets</span>
+    buckets
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">const</span> <span class="ident">TRIP</span>: <span class="ident">TripID</span> <span class="op">=</span> <span class="ident">TripID</span>(<span class="number">42</span>);
+    <span class="kw">const </span>TRIP: TripID = TripID(<span class="number">42</span>);
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bucketize_isizes</span>() {
-        <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bucketize_isizes() {
+        <span class="kw">let </span>buckets = bucketize_isizes(
             <span class="number">7</span>,
             <span class="kw-2">&amp;</span><span class="macro">vec!</span>[
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">3</span>),
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">2</span>),
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">5</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), -<span class="number">3</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), -<span class="number">3</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), -<span class="number">1</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), <span class="number">2</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), <span class="number">5</span>),
             ],
         );
-        <span class="comment">// there should be an even number of buckets on either side of zero so as to center</span>
-        <span class="comment">// our x-axis.</span>
-        <span class="comment">//</span>
-        <span class="comment">// there should always be a 0-1 bucket, ensuring that only &#39;0&#39; falls into the zero-bucket.</span>
-        <span class="comment">//</span>
-        <span class="comment">// all other buckets edges should be evenly spaced from the zero bucket</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">6</span>, <span class="op">-</span><span class="number">4</span>, <span class="op">-</span><span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>])
+        <span class="comment">// there should be an even number of buckets on either side of zero so as to center
+        // our x-axis.
+        //
+        // there should always be a 0-1 bucket, ensuring that only &#39;0&#39; falls into the zero-bucket.
+        //
+        // all other buckets edges should be evenly spaced from the zero bucket
+        </span><span class="macro">assert_eq!</span>(buckets, <span class="macro">vec!</span>[-<span class="number">6</span>, -<span class="number">4</span>, -<span class="number">2</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>])
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bucketize_empty_isizes</span>() {
-        <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(<span class="number">7</span>, <span class="kw-2">&amp;</span><span class="macro">vec!</span>[]);
-        <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bucketize_empty_isizes() {
+        <span class="kw">let </span>buckets = bucketize_isizes(<span class="number">7</span>, <span class="kw-2">&amp;</span><span class="macro">vec!</span>[]);
+        <span class="macro">assert_eq!</span>(buckets, <span class="macro">vec!</span>[-<span class="number">3</span>, -<span class="number">2</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bucketize_small_isizes</span>() {
-        <span class="kw">let</span> <span class="ident">buckets</span> <span class="op">=</span> <span class="ident">bucketize_isizes</span>(
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_bucketize_small_isizes() {
+        <span class="kw">let </span>buckets = bucketize_isizes(
             <span class="number">7</span>,
             <span class="kw-2">&amp;</span><span class="macro">vec!</span>[
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="op">-</span><span class="number">1</span>),
-                (<span class="ident">TRIP</span>, <span class="ident">Duration::minutes</span>(<span class="number">3</span>), <span class="number">0</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), -<span class="number">1</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), -<span class="number">1</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), <span class="number">0</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), -<span class="number">1</span>),
+                (TRIP, Duration::minutes(<span class="number">3</span>), <span class="number">0</span>),
             ],
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">buckets</span>, <span class="macro">vec!</span>[<span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
+        <span class="macro">assert_eq!</span>(buckets, <span class="macro">vec!</span>[-<span class="number">3</span>, -<span class="number">2</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

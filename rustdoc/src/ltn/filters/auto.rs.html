@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/filters/auto.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>auto.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/filters/auto.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>auto.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -224,203 +224,203 @@
 <span id="224">224</span>
 <span id="225">225</span>
 <span id="226">226</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Experiments to make a neighbourhood be low-traffic by automatically placing filters to prevent</span>
-<span class="doccomment">//! all shortcuts.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Experiments to make a neighbourhood be low-traffic by automatically placing filters to prevent
+//! all shortcuts.
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+</span><span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_model::RoadID</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>map_model::RoadID;
+<span class="kw">use </span>widgetry::{Choice, EventCtx};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">mut_edits</span>, <span class="ident">redraw_all_filters</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>};
+<span class="kw">use crate</span>::{mut_edits, redraw_all_filters, App, Neighbourhood, RoadFilter};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Heuristic</span> {
-    <span class="doccomment">/// Find the road with the most shortcuts that can be closed without creating a disconnected</span>
-    <span class="doccomment">/// cell, and filter it.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// There&#39;s a vague intuition or observation that the &quot;bottleneck&quot; will have the most shortcuts</span>
-    <span class="doccomment">/// going through it, so tackle the worst problem first.</span>
-    <span class="ident">Greedy</span>,
-    <span class="doccomment">/// Try adding one filter to every possible road, counting the shortcuts after. Choose the next</span>
-    <span class="doccomment">/// step by the least resulting shortcuts.</span>
-    <span class="ident">BruteForce</span>,
-    <span class="doccomment">/// Find one filter that splits a cell, maximizing the number of streets in each new cell.</span>
-    <span class="ident">SplitCells</span>,
-    <span class="doccomment">/// Per cell, close all borders except for one. This doesn&#39;t affect design_ltn, but prevents</span>
-    <span class="doccomment">/// all shortcuts.</span>
-    <span class="ident">OnlyOneBorder</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">pub enum </span>Heuristic {
+    <span class="doccomment">/// Find the road with the most shortcuts that can be closed without creating a disconnected
+    /// cell, and filter it.
+    ///
+    /// There&#39;s a vague intuition or observation that the &quot;bottleneck&quot; will have the most shortcuts
+    /// going through it, so tackle the worst problem first.
+    </span>Greedy,
+    <span class="doccomment">/// Try adding one filter to every possible road, counting the shortcuts after. Choose the next
+    /// step by the least resulting shortcuts.
+    </span>BruteForce,
+    <span class="doccomment">/// Find one filter that splits a cell, maximizing the number of streets in each new cell.
+    </span>SplitCells,
+    <span class="doccomment">/// Per cell, close all borders except for one. This doesn&#39;t affect design_ltn, but prevents
+    /// all shortcuts.
+    </span>OnlyOneBorder,
 }
 
-<span class="kw">impl</span> <span class="ident">Heuristic</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choices</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Heuristic</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Heuristic {
+    <span class="kw">pub fn </span>choices() -&gt; Vec&lt;Choice&lt;Heuristic&gt;&gt; {
         <span class="macro">vec!</span>[
-            <span class="ident">Choice::new</span>(
+            Choice::new(
                 <span class="string">&quot;filter the road with the most shortcuts (greedy)&quot;</span>,
-                <span class="ident">Heuristic::Greedy</span>,
+                Heuristic::Greedy,
             ),
-            <span class="ident">Choice::new</span>(
+            Choice::new(
                 <span class="string">&quot;stop the most shortcuts (brute-force)&quot;</span>,
-                <span class="ident">Heuristic::BruteForce</span>,
+                Heuristic::BruteForce,
             ),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;split large cells&quot;</span>, <span class="ident">Heuristic::SplitCells</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;only one entrance per cell&quot;</span>, <span class="ident">Heuristic::OnlyOneBorder</span>),
+            Choice::new(<span class="string">&quot;split large cells&quot;</span>, Heuristic::SplitCells),
+            Choice::new(<span class="string">&quot;only one entrance per cell&quot;</span>, Heuristic::OnlyOneBorder),
         ]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply</span>(
+    <span class="kw">pub fn </span>apply(
         <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">neighbourhood</span>
-            .<span class="ident">cells</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_disconnected</span>())
-            .<span class="ident">count</span>()
-            <span class="op">!</span><span class="op">=</span> <span class="number">0</span>
-        {
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span>neighbourhood
+            .cells
+            .iter()
+            .filter(|c| c.is_disconnected())
+            .count()
+            != <span class="number">0
+        </span>{
             <span class="macro">bail!</span>(<span class="string">&quot;This neighbourhood has a disconnected cell; fix that first&quot;</span>);
         }
 
-        <span class="comment">// TODO If we already have no shortcuts, stop</span>
+        <span class="comment">// TODO If we already have no shortcuts, stop
 
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">before_edit</span>();
+        </span>app.per_map.proposals.before_edit();
 
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Heuristic::Greedy</span> =&gt; <span class="ident">greedy</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>),
-            <span class="ident">Heuristic::BruteForce</span> =&gt; <span class="ident">brute_force</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">timer</span>),
-            <span class="ident">Heuristic::SplitCells</span> =&gt; <span class="ident">split_cells</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">timer</span>),
-            <span class="ident">Heuristic::OnlyOneBorder</span> =&gt; <span class="ident">only_one_border</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>),
+        <span class="kw">match </span><span class="self">self </span>{
+            Heuristic::Greedy =&gt; greedy(app, neighbourhood),
+            Heuristic::BruteForce =&gt; brute_force(app, neighbourhood, timer),
+            Heuristic::SplitCells =&gt; split_cells(app, neighbourhood, timer),
+            Heuristic::OnlyOneBorder =&gt; only_one_border(app, neighbourhood),
         }
 
-        <span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">cancel_empty_edit</span>();
-        <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="kw">if</span> <span class="ident">empty</span> {
+        <span class="kw">let </span>empty = app.per_map.proposals.cancel_empty_edit();
+        redraw_all_filters(ctx, app);
+        <span class="kw">if </span>empty {
             <span class="macro">bail!</span>(<span class="string">&quot;No new filters created&quot;</span>);
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="prelude-val">Ok</span>(())
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">greedy</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) {
-    <span class="comment">// TODO How should we break ties? Some shortcuts are worse than others; use that weight?</span>
-    <span class="comment">// TODO Should this operation be per cell instead? We could hover on a road belonging to that</span>
-    <span class="comment">// cell to select it</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">r</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">neighbourhood</span>
-        .<span class="ident">shortcuts</span>
-        .<span class="ident">count_per_road</span>
-        .<span class="ident">borrow</span>()
-        .<span class="ident">iter</span>()
-        .<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>)
+<span class="kw">fn </span>greedy(app: <span class="kw-2">&amp;mut </span>App, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood) {
+    <span class="comment">// TODO How should we break ties? Some shortcuts are worse than others; use that weight?
+    // TODO Should this operation be per cell instead? We could hover on a road belonging to that
+    // cell to select it
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>((r, <span class="kw">_</span>)) = neighbourhood
+        .shortcuts
+        .count_per_road
+        .borrow()
+        .iter()
+        .max_by_key(|pair| pair.<span class="number">1</span>)
     {
-        <span class="kw">if</span> <span class="ident">try_to_filter_road</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_none</span>() {
-            <span class="macro">warn!</span>(<span class="string">&quot;Filtering {} disconnects a cell, never mind&quot;</span>, <span class="ident">r</span>);
-            <span class="comment">// TODO Try the next choice</span>
-        }
+        <span class="kw">if </span>try_to_filter_road(app, neighbourhood, <span class="kw-2">*</span>r).is_none() {
+            <span class="macro">warn!</span>(<span class="string">&quot;Filtering {} disconnects a cell, never mind&quot;</span>, r);
+            <span class="comment">// TODO Try the next choice
+        </span>}
     }
 }
 
-<span class="kw">fn</span> <span class="ident">brute_force</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="comment">// Which road leads to the fewest shortcuts?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>brute_force(app: <span class="kw-2">&amp;mut </span>App, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="comment">// Which road leads to the fewest shortcuts?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>best: <span class="prelude-ty">Option</span>&lt;(RoadID, usize)&gt; = <span class="prelude-val">None</span>;
 
-    <span class="kw">let</span> <span class="ident">orig_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">len</span>();
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(
+    <span class="kw">let </span>orig_filters = app.edits().roads.len();
+    timer.start_iter(
         <span class="string">&quot;evaluate candidate filters&quot;</span>,
-        <span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">len</span>(),
+        neighbourhood.orig_perimeter.interior.len(),
     );
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
+    <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>neighbourhood.orig_perimeter.interior {
+        timer.next();
+        <span class="kw">if </span>app.edits().roads.contains_key(r) {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new</span>) <span class="op">=</span> <span class="ident">try_to_filter_road</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="kw-2">*</span><span class="ident">r</span>) {
-            <span class="kw">let</span> <span class="ident">num_shortcuts</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">shortcuts</span>.<span class="ident">paths</span>.<span class="ident">len</span>();
-            <span class="comment">// TODO Again, break ties. Just the number of paths is kind of a weak metric.</span>
-            <span class="kw">if</span> <span class="ident">best</span>.<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">score</span>)<span class="op">|</span> <span class="ident">num_shortcuts</span> <span class="op">&lt;</span> <span class="ident">score</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>) {
-                <span class="ident">best</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">num_shortcuts</span>));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(new) = try_to_filter_road(app, neighbourhood, <span class="kw-2">*</span>r) {
+            <span class="kw">let </span>num_shortcuts = new.shortcuts.paths.len();
+            <span class="comment">// TODO Again, break ties. Just the number of paths is kind of a weak metric.
+            </span><span class="kw">if </span>best.map(|(<span class="kw">_</span>, score)| num_shortcuts &lt; score).unwrap_or(<span class="bool-val">true</span>) {
+                best = <span class="prelude-val">Some</span>((<span class="kw-2">*</span>r, num_shortcuts));
             }
-            <span class="comment">// Always undo the new filter between each test</span>
-            <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="ident">r</span>).<span class="ident">unwrap</span>();
+            <span class="comment">// Always undo the new filter between each test
+            </span><span class="macro">mut_edits!</span>(app).roads.remove(r).unwrap();
         }
 
-        <span class="macro">assert_eq!</span>(<span class="ident">orig_filters</span>, <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(orig_filters, app.edits().roads.len());
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">r</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">best</span> {
-        <span class="ident">try_to_filter_road</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>((r, <span class="kw">_</span>)) = best {
+        try_to_filter_road(app, neighbourhood, r).unwrap();
     }
 }
 
-<span class="kw">fn</span> <span class="ident">split_cells</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="comment">// Filtering which road leads to new cells with the MOST streets in the smaller cell?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>split_cells(app: <span class="kw-2">&amp;mut </span>App, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="comment">// Filtering which road leads to new cells with the MOST streets in the smaller cell?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>best: <span class="prelude-ty">Option</span>&lt;(RoadID, usize)&gt; = <span class="prelude-val">None</span>;
 
-    <span class="kw">let</span> <span class="ident">orig_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">len</span>();
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(
+    <span class="kw">let </span>orig_filters = app.edits().roads.len();
+    timer.start_iter(
         <span class="string">&quot;evaluate candidate filters&quot;</span>,
-        <span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">len</span>(),
+        neighbourhood.orig_perimeter.interior.len(),
     );
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
+    <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>neighbourhood.orig_perimeter.interior {
+        timer.next();
+        <span class="kw">if </span>app.edits().roads.contains_key(r) {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new</span>) <span class="op">=</span> <span class="ident">try_to_filter_road</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="kw-2">*</span><span class="ident">r</span>) {
-            <span class="comment">// Did we split the cell?</span>
-            <span class="kw">if</span> <span class="ident">new</span>.<span class="ident">cells</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="ident">neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">len</span>() {
-                <span class="comment">// Find the two new cells</span>
-                <span class="kw">let</span> <span class="ident">split_cells</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">new</span>
-                    .<span class="ident">cells</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">cell</span><span class="op">|</span> <span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>))
-                    .<span class="ident">collect</span>();
-                <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">split_cells</span>.<span class="ident">len</span>());
-                <span class="comment">// We want cells to be roughly evenly-sized. Just count the number of road segments</span>
-                <span class="comment">// as a proxy for that.</span>
-                <span class="kw">let</span> <span class="ident">new_score</span> <span class="op">=</span> <span class="ident">split_cells</span>[<span class="number">0</span>].<span class="ident">roads</span>.<span class="ident">len</span>().<span class="ident">min</span>(<span class="ident">split_cells</span>[<span class="number">1</span>].<span class="ident">roads</span>.<span class="ident">len</span>());
-                <span class="kw">if</span> <span class="ident">best</span>
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">old_score</span>)<span class="op">|</span> <span class="ident">new_score</span> <span class="op">&gt;</span> <span class="ident">old_score</span>)
-                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(new) = try_to_filter_road(app, neighbourhood, <span class="kw-2">*</span>r) {
+            <span class="comment">// Did we split the cell?
+            </span><span class="kw">if </span>new.cells.len() &gt; neighbourhood.cells.len() {
+                <span class="comment">// Find the two new cells
+                </span><span class="kw">let </span>split_cells: Vec&lt;<span class="kw">_</span>&gt; = new
+                    .cells
+                    .iter()
+                    .filter(|cell| cell.roads.contains_key(r))
+                    .collect();
+                <span class="macro">assert_eq!</span>(<span class="number">2</span>, split_cells.len());
+                <span class="comment">// We want cells to be roughly evenly-sized. Just count the number of road segments
+                // as a proxy for that.
+                </span><span class="kw">let </span>new_score = split_cells[<span class="number">0</span>].roads.len().min(split_cells[<span class="number">1</span>].roads.len());
+                <span class="kw">if </span>best
+                    .map(|(<span class="kw">_</span>, old_score)| new_score &gt; old_score)
+                    .unwrap_or(<span class="bool-val">true</span>)
                 {
-                    <span class="ident">best</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">new_score</span>));
+                    best = <span class="prelude-val">Some</span>((<span class="kw-2">*</span>r, new_score));
                 }
             }
-            <span class="comment">// Always undo the new filter between each test</span>
-            <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="ident">r</span>).<span class="ident">unwrap</span>();
+            <span class="comment">// Always undo the new filter between each test
+            </span><span class="macro">mut_edits!</span>(app).roads.remove(r).unwrap();
         }
 
-        <span class="macro">assert_eq!</span>(<span class="ident">orig_filters</span>, <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">len</span>());
+        <span class="macro">assert_eq!</span>(orig_filters, app.edits().roads.len());
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">r</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">best</span> {
-        <span class="ident">try_to_filter_road</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">r</span>).<span class="ident">unwrap</span>();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>((r, <span class="kw">_</span>)) = best {
+        try_to_filter_road(app, neighbourhood, r).unwrap();
     }
 }
 
-<span class="kw">fn</span> <span class="ident">only_one_border</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) {
-    <span class="kw">for</span> <span class="ident">cell</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">cells</span> {
-        <span class="kw">if</span> <span class="ident">cell</span>.<span class="ident">borders</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-            <span class="comment">// TODO How to pick which one to leave open?</span>
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">borders</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
-                <span class="comment">// Find the road in this cell connected to this border</span>
-                <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">keys</span>() {
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-                    <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
-                        <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">insert</span>(
-                            <span class="ident">road</span>.<span class="ident">id</span>,
-                            <span class="ident">RoadFilter::new_by_user</span>(<span class="number">0.1</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>(), <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>),
+<span class="kw">fn </span>only_one_border(app: <span class="kw-2">&amp;mut </span>App, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood) {
+    <span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;</span>neighbourhood.cells {
+        <span class="kw">if </span>cell.borders.len() &gt; <span class="number">1 </span>{
+            <span class="comment">// TODO How to pick which one to leave open?
+            </span><span class="kw">for </span>i <span class="kw">in </span>cell.borders.iter().skip(<span class="number">1</span>) {
+                <span class="comment">// Find the road in this cell connected to this border
+                </span><span class="kw">for </span>r <span class="kw">in </span>cell.roads.keys() {
+                    <span class="kw">let </span>road = app.per_map.map.get_r(<span class="kw-2">*</span>r);
+                    <span class="kw">if </span>road.src_i == <span class="kw-2">*</span>i {
+                        <span class="macro">mut_edits!</span>(app).roads.insert(
+                            road.id,
+                            RoadFilter::new_by_user(<span class="number">0.1 </span>* road.length(), app.session.filter_type),
                         );
                         <span class="kw">break</span>;
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">dst_i</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">i</span> {
-                        <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">insert</span>(
-                            <span class="ident">road</span>.<span class="ident">id</span>,
-                            <span class="ident">RoadFilter::new_by_user</span>(<span class="number">0.9</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">length</span>(), <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>),
+                    } <span class="kw">else if </span>road.dst_i == <span class="kw-2">*</span>i {
+                        <span class="macro">mut_edits!</span>(app).roads.insert(
+                            road.id,
+                            RoadFilter::new_by_user(<span class="number">0.9 </span>* road.length(), app.session.filter_type),
                         );
                         <span class="kw">break</span>;
                     }
@@ -430,25 +430,25 @@
     }
 }
 
-<span class="comment">// If successful, returns a Neighbourhood and leaves the new filter in place. If it disconncts a</span>
-<span class="comment">// cell, reverts the change and returns None</span>
-<span class="kw">fn</span> <span class="ident">try_to_filter_road</span>(
-    <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-    <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-    <span class="ident">r</span>: <span class="ident">RoadID</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Neighbourhood</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-    <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">insert</span>(
-        <span class="ident">r</span>,
-        <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">road</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>),
+<span class="comment">// If successful, returns a Neighbourhood and leaves the new filter in place. If it disconncts a
+// cell, reverts the change and returns None
+</span><span class="kw">fn </span>try_to_filter_road(
+    app: <span class="kw-2">&amp;mut </span>App,
+    neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood,
+    r: RoadID,
+) -&gt; <span class="prelude-ty">Option</span>&lt;Neighbourhood&gt; {
+    <span class="kw">let </span>road = app.per_map.map.get_r(r);
+    <span class="macro">mut_edits!</span>(app).roads.insert(
+        r,
+        RoadFilter::new_by_user(road.length() / <span class="number">2.0</span>, app.session.filter_type),
     );
-    <span class="kw">let</span> <span class="ident">new_neighbourhood</span> <span class="op">=</span> <span class="ident">Neighbourhood::new</span>(<span class="ident">app</span>, <span class="ident">neighbourhood</span>.<span class="ident">id</span>);
-    <span class="kw">if</span> <span class="ident">new_neighbourhood</span>.<span class="ident">cells</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_disconnected</span>()) {
-        <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">unwrap</span>();
-        <span class="prelude-val">None</span>
-    } <span class="kw">else</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">new_neighbourhood</span>)
+    <span class="kw">let </span>new_neighbourhood = Neighbourhood::new(app, neighbourhood.id);
+    <span class="kw">if </span>new_neighbourhood.cells.iter().any(|c| c.is_disconnected()) {
+        <span class="macro">mut_edits!</span>(app).roads.remove(<span class="kw-2">&amp;</span>r).unwrap();
+        <span class="prelude-val">None
+    </span>} <span class="kw">else </span>{
+        <span class="prelude-val">Some</span>(new_neighbourhood)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

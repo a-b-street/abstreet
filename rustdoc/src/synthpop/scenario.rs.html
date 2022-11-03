@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/scenario.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/scenario.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -207,208 +207,208 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom::Time</span>;
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
+<span class="kw">use </span>abstio::{CityName, MapName};
+<span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>geom::Time;
+<span class="kw">use </span>map_model::Map;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">OrigPersonID</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
+<span class="kw">use crate</span>::{OrigPersonID, TripEndpoint, TripMode};
 
-<span class="doccomment">/// A Scenario describes all the input to a simulation. Usually a scenario covers one day.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Scenario</span> {
-    <span class="kw">pub</span> <span class="ident">scenario_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">map_name</span>: <span class="ident">MapName</span>,
+<span class="doccomment">/// A Scenario describes all the input to a simulation. Usually a scenario covers one day.
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize, Debug)]
+</span><span class="kw">pub struct </span>Scenario {
+    <span class="kw">pub </span>scenario_name: String,
+    <span class="kw">pub </span>map_name: MapName,
 
-    <span class="kw">pub</span> <span class="ident">people</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// None means seed all buses. Otherwise the route name must be present here.</span>
-    <span class="kw">pub</span> <span class="ident">only_seed_buses</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub </span>people: Vec&lt;PersonSpec&gt;,
+    <span class="doccomment">/// None means seed all buses. Otherwise the route name must be present here.
+    </span><span class="kw">pub </span>only_seed_buses: <span class="prelude-ty">Option</span>&lt;BTreeSet&lt;String&gt;&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PersonSpec</span> {
-    <span class="doccomment">/// Just used for debugging</span>
-    <span class="kw">pub</span> <span class="ident">orig_id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OrigPersonID</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// There must be continuity between trips: each trip starts at the destination of the previous</span>
-    <span class="doccomment">/// trip. In the case of borders, the outbound and inbound border may be different. This means</span>
-    <span class="doccomment">/// that there was some sort of &quot;remote&quot; trip happening outside the map that we don&#39;t simulate.</span>
-    <span class="kw">pub</span> <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, Serialize, Deserialize, Debug)]
+</span><span class="kw">pub struct </span>PersonSpec {
+    <span class="doccomment">/// Just used for debugging
+    </span><span class="kw">pub </span>orig_id: <span class="prelude-ty">Option</span>&lt;OrigPersonID&gt;,
+    <span class="doccomment">/// There must be continuity between trips: each trip starts at the destination of the previous
+    /// trip. In the case of borders, the outbound and inbound border may be different. This means
+    /// that there was some sort of &quot;remote&quot; trip happening outside the map that we don&#39;t simulate.
+    </span><span class="kw">pub </span>trips: Vec&lt;IndividTrip&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IndividTrip</span> {
-    <span class="kw">pub</span> <span class="ident">depart</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>,
-    <span class="kw">pub</span> <span class="ident">destination</span>: <span class="ident">TripEndpoint</span>,
-    <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-    <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
-    <span class="kw">pub</span> <span class="ident">cancelled</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// Did a ScenarioModifier affect this?</span>
-    <span class="kw">pub</span> <span class="ident">modified</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Clone, Serialize, Deserialize, Debug)]
+</span><span class="kw">pub struct </span>IndividTrip {
+    <span class="kw">pub </span>depart: Time,
+    <span class="kw">pub </span>origin: TripEndpoint,
+    <span class="kw">pub </span>destination: TripEndpoint,
+    <span class="kw">pub </span>mode: TripMode,
+    <span class="kw">pub </span>purpose: TripPurpose,
+    <span class="kw">pub </span>cancelled: bool,
+    <span class="doccomment">/// Did a ScenarioModifier affect this?
+    </span><span class="kw">pub </span>modified: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">IndividTrip</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">depart</span>: <span class="ident">Time</span>,
-        <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
-        <span class="ident">origin</span>: <span class="ident">TripEndpoint</span>,
-        <span class="ident">destination</span>: <span class="ident">TripEndpoint</span>,
-        <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-    ) -&gt; <span class="ident">IndividTrip</span> {
-        <span class="ident">IndividTrip</span> {
-            <span class="ident">depart</span>,
-            <span class="ident">origin</span>,
-            <span class="ident">destination</span>,
-            <span class="ident">mode</span>,
-            <span class="ident">purpose</span>,
-            <span class="ident">cancelled</span>: <span class="bool-val">false</span>,
-            <span class="ident">modified</span>: <span class="bool-val">false</span>,
+<span class="kw">impl </span>IndividTrip {
+    <span class="kw">pub fn </span>new(
+        depart: Time,
+        purpose: TripPurpose,
+        origin: TripEndpoint,
+        destination: TripEndpoint,
+        mode: TripMode,
+    ) -&gt; IndividTrip {
+        IndividTrip {
+            depart,
+            origin,
+            destination,
+            mode,
+            purpose,
+            cancelled: <span class="bool-val">false</span>,
+            modified: <span class="bool-val">false</span>,
         }
     }
 }
 
-<span class="doccomment">/// Lifted from Seattle&#39;s Soundcast model, but seems general enough to use anyhere.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">TripPurpose</span> {
-    <span class="ident">Home</span>,
-    <span class="ident">Work</span>,
-    <span class="ident">School</span>,
-    <span class="ident">Escort</span>,
-    <span class="ident">PersonalBusiness</span>,
-    <span class="ident">Shopping</span>,
-    <span class="ident">Meal</span>,
-    <span class="ident">Social</span>,
-    <span class="ident">Recreation</span>,
-    <span class="ident">Medical</span>,
-    <span class="ident">ParkAndRideTransfer</span>,
+<span class="doccomment">/// Lifted from Seattle&#39;s Soundcast model, but seems general enough to use anyhere.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+</span><span class="kw">pub enum </span>TripPurpose {
+    Home,
+    Work,
+    School,
+    Escort,
+    PersonalBusiness,
+    Shopping,
+    Meal,
+    Social,
+    Recreation,
+    Medical,
+    ParkAndRideTransfer,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">TripPurpose</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>TripPurpose {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;{}&quot;</span>,
-            <span class="kw">match</span> <span class="self">self</span> {
-                <span class="ident">TripPurpose::Home</span> =&gt; <span class="string">&quot;home&quot;</span>,
-                <span class="ident">TripPurpose::Work</span> =&gt; <span class="string">&quot;work&quot;</span>,
-                <span class="ident">TripPurpose::School</span> =&gt; <span class="string">&quot;school&quot;</span>,
-                <span class="comment">// Is this like a parent escorting a child to school?</span>
-                <span class="ident">TripPurpose::Escort</span> =&gt; <span class="string">&quot;escort&quot;</span>,
-                <span class="ident">TripPurpose::PersonalBusiness</span> =&gt; <span class="string">&quot;personal business&quot;</span>,
-                <span class="ident">TripPurpose::Shopping</span> =&gt; <span class="string">&quot;shopping&quot;</span>,
-                <span class="ident">TripPurpose::Meal</span> =&gt; <span class="string">&quot;eating&quot;</span>,
-                <span class="ident">TripPurpose::Social</span> =&gt; <span class="string">&quot;social&quot;</span>,
-                <span class="ident">TripPurpose::Recreation</span> =&gt; <span class="string">&quot;recreation&quot;</span>,
-                <span class="ident">TripPurpose::Medical</span> =&gt; <span class="string">&quot;medical&quot;</span>,
-                <span class="ident">TripPurpose::ParkAndRideTransfer</span> =&gt; <span class="string">&quot;park-and-ride transfer&quot;</span>,
+            <span class="kw">match </span><span class="self">self </span>{
+                TripPurpose::Home =&gt; <span class="string">&quot;home&quot;</span>,
+                TripPurpose::Work =&gt; <span class="string">&quot;work&quot;</span>,
+                TripPurpose::School =&gt; <span class="string">&quot;school&quot;</span>,
+                <span class="comment">// Is this like a parent escorting a child to school?
+                </span>TripPurpose::Escort =&gt; <span class="string">&quot;escort&quot;</span>,
+                TripPurpose::PersonalBusiness =&gt; <span class="string">&quot;personal business&quot;</span>,
+                TripPurpose::Shopping =&gt; <span class="string">&quot;shopping&quot;</span>,
+                TripPurpose::Meal =&gt; <span class="string">&quot;eating&quot;</span>,
+                TripPurpose::Social =&gt; <span class="string">&quot;social&quot;</span>,
+                TripPurpose::Recreation =&gt; <span class="string">&quot;recreation&quot;</span>,
+                TripPurpose::Medical =&gt; <span class="string">&quot;medical&quot;</span>,
+                TripPurpose::ParkAndRideTransfer =&gt; <span class="string">&quot;park-and-ride transfer&quot;</span>,
             }
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Scenario</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="ident">abstio::write_binary</span>(
-            <span class="ident">abstio::path_scenario</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map_name</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>),
+<span class="kw">impl </span>Scenario {
+    <span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        abstio::write_binary(
+            abstio::path_scenario(<span class="kw-2">&amp;</span><span class="self">self</span>.map_name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenario_name),
             <span class="self">self</span>,
         );
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Scenario</span> {
-        <span class="ident">Scenario</span> {
-            <span class="ident">scenario_name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
-            <span class="ident">map_name</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-            <span class="ident">people</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">only_seed_buses</span>: <span class="prelude-val">Some</span>(<span class="ident">BTreeSet::new</span>()),
+    <span class="kw">pub fn </span>empty(map: <span class="kw-2">&amp;</span>Map, name: <span class="kw-2">&amp;</span>str) -&gt; Scenario {
+        Scenario {
+            scenario_name: name.to_string(),
+            map_name: map.get_name().clone(),
+            people: Vec::new(),
+            only_seed_buses: <span class="prelude-val">Some</span>(BTreeSet::new()),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_weird_schedules</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">verbose</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Scenario</span> {
-        <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">people</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">people</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">person</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">person</span>.<span class="ident">check_schedule</span>() {
+    <span class="kw">pub fn </span>remove_weird_schedules(<span class="kw-2">mut </span><span class="self">self</span>, verbose: bool) -&gt; Scenario {
+        <span class="kw">let </span>orig = <span class="self">self</span>.people.len();
+        <span class="self">self</span>.people.retain(|person| <span class="kw">match </span>person.check_schedule() {
             <span class="prelude-val">Ok</span>(()) =&gt; <span class="bool-val">true</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">verbose</span> {
-                    <span class="macro">warn!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>);
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="kw">if </span>verbose {
+                    <span class="macro">warn!</span>(<span class="string">&quot;{}&quot;</span>, err);
                 }
-                <span class="bool-val">false</span>
-            }
+                <span class="bool-val">false
+            </span>}
         });
         <span class="macro">warn!</span>(
             <span class="string">&quot;{} of {} people have nonsense schedules&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">orig</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">orig</span>)
+            prettyprint_usize(orig - <span class="self">self</span>.people.len()),
+            prettyprint_usize(orig)
         );
-        <span class="self">self</span>
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>all_trips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span>IndividTrip&gt; {
+        <span class="self">self</span>.people.iter().flat_map(|p| p.trips.iter())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw">impl</span> <span class="ident">Iterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">people</span>.<span class="ident">iter</span>().<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">trips</span>.<span class="ident">iter</span>())
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_scenario_for_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::seattle</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_scenario</span>(<span class="ident">name</span>, <span class="string">&quot;weekday&quot;</span>))
+    <span class="kw">pub fn </span>default_scenario_for_map(name: <span class="kw-2">&amp;</span>MapName) -&gt; String {
+        <span class="kw">if </span>name.city == CityName::seattle()
+            &amp;&amp; abstio::file_exists(abstio::path_scenario(name, <span class="string">&quot;weekday&quot;</span>))
         {
-            <span class="kw">return</span> <span class="string">&quot;weekday&quot;</span>.<span class="ident">to_string</span>();
+            <span class="kw">return </span><span class="string">&quot;weekday&quot;</span>.to_string();
         }
-        <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;gb&quot;</span> {
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> [<span class="string">&quot;background&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>] {
-                <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="ident">abstio::path_scenario</span>(<span class="ident">name</span>, <span class="ident">x</span>)) {
-                    <span class="kw">return</span> <span class="ident">x</span>.<span class="ident">to_string</span>();
+        <span class="kw">if </span>name.city.country == <span class="string">&quot;gb&quot; </span>{
+            <span class="kw">for </span>x <span class="kw">in </span>[<span class="string">&quot;background&quot;</span>, <span class="string">&quot;base_with_bg&quot;</span>] {
+                <span class="kw">if </span>abstio::file_exists(abstio::path_scenario(name, x)) {
+                    <span class="kw">return </span>x.to_string();
                 }
             }
         }
-        <span class="comment">// Dynamically generated -- arguably this is an absence of a default scenario</span>
-        <span class="string">&quot;home_to_work&quot;</span>.<span class="ident">to_string</span>()
+        <span class="comment">// Dynamically generated -- arguably this is an absence of a default scenario
+        </span><span class="string">&quot;home_to_work&quot;</span>.to_string()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PersonSpec</span> {
-    <span class="doccomment">/// Verify that a person&#39;s trips make sense</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">check_schedule</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">bail!</span>(<span class="string">&quot;Person ({:?}) has no trips at all&quot;</span>, <span class="self">self</span>.<span class="ident">orig_id</span>);
+<span class="kw">impl </span>PersonSpec {
+    <span class="doccomment">/// Verify that a person&#39;s trips make sense
+    </span><span class="kw">pub fn </span>check_schedule(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">if </span><span class="self">self</span>.trips.is_empty() {
+            <span class="macro">bail!</span>(<span class="string">&quot;Person ({:?}) has no trips at all&quot;</span>, <span class="self">self</span>.orig_id);
         }
 
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span> {
+        <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.trips.windows(<span class="number">2</span>) {
+            <span class="kw">if </span>pair[<span class="number">0</span>].depart &gt;= pair[<span class="number">1</span>].depart {
                 <span class="macro">bail!</span>(
                     <span class="string">&quot;Person ({:?}) starts two trips in the wrong order: {} then {}&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">orig_id</span>,
-                    <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">depart</span>,
-                    <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">depart</span>
+                    <span class="self">self</span>.orig_id,
+                    pair[<span class="number">0</span>].depart,
+                    pair[<span class="number">1</span>].depart
                 );
             }
 
-            <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span> {
-                <span class="comment">// Exiting one border and re-entering another is fine</span>
-                <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span>, <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>))
-                    <span class="op">&amp;&amp;</span> <span class="macro">matches!</span>(<span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span>, <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>))
+            <span class="kw">if </span>pair[<span class="number">0</span>].destination != pair[<span class="number">1</span>].origin {
+                <span class="comment">// Exiting one border and re-entering another is fine
+                </span><span class="kw">if </span><span class="macro">matches!</span>(pair[<span class="number">0</span>].destination, TripEndpoint::Border(<span class="kw">_</span>))
+                    &amp;&amp; <span class="macro">matches!</span>(pair[<span class="number">1</span>].origin, TripEndpoint::Border(<span class="kw">_</span>))
                 {
                     <span class="kw">continue</span>;
                 }
                 <span class="macro">bail!</span>(
                     <span class="string">&quot;Person ({:?}) warps from {:?} to {:?} during adjacent trips&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">orig_id</span>,
-                    <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">destination</span>,
-                    <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">origin</span>
+                    <span class="self">self</span>.orig_id,
+                    pair[<span class="number">0</span>].destination,
+                    pair[<span class="number">1</span>].origin
                 );
             }
         }
 
-        <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span> {
-            <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">origin</span> <span class="op">==</span> <span class="ident">trip</span>.<span class="ident">destination</span> {
+        <span class="kw">for </span>trip <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.trips {
+            <span class="kw">if </span>trip.origin == trip.destination {
                 <span class="macro">bail!</span>(
                     <span class="string">&quot;Person ({:?}) has a trip from/to the same place: {:?}&quot;</span>,
-                    <span class="self">self</span>.<span class="ident">orig_id</span>,
-                    <span class="ident">trip</span>.<span class="ident">origin</span>
+                    <span class="self">self</span>.orig_id,
+                    trip.origin
                 );
             }
         }
@@ -417,4 +417,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

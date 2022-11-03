@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/layers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>layers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/ungap/layers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>layers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -460,467 +460,467 @@
 <span id="460">460</span>
 <span id="461">461</span>
 <span id="462">462</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">DrawRoadLabels</span>, <span class="ident">Navigator</span>};
-<span class="kw">use</span> <span class="ident">map_model::osm::RoadRank</span>;
-<span class="kw">use</span> <span class="ident">map_model::LaneType</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">Toggle</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>geom::Distance;
+<span class="kw">use </span>map_gui::tools::{DrawRoadLabels, Navigator};
+<span class="kw">use </span>map_model::osm::RoadRank;
+<span class="kw">use </span>map_model::LaneType;
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{
+    ButtonBuilder, Color, ControlState, Drawable, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Image, Key, Line, Outcome, Panel, ScreenPt, Text, Toggle,
+    VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap::bike_network</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap::bike_network::DrawNetworkLayer</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::ungap::bike_network;
+<span class="kw">use </span><span class="kw">crate</span>::ungap::bike_network::DrawNetworkLayer;
 
-<span class="doccomment">/// A bottom-right panel for managing a bunch of toggleable layers in the &quot;ungap the map&quot; tool.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Layers</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">minimized</span>: <span class="ident">bool</span>,
-    <span class="ident">bike_network</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawNetworkLayer</span><span class="op">&gt;</span>,
-    <span class="ident">labels</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawRoadLabels</span><span class="op">&gt;</span>,
-    <span class="ident">elevation</span>: <span class="ident">bool</span>,
-    <span class="ident">steep_streets</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>,
-    <span class="comment">// TODO Once widgetry buttons can take custom enums, that&#39;d be perfect here</span>
-    <span class="ident">road_types</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Drawable</span><span class="op">&gt;</span>,
-    <span class="ident">fade_map</span>: <span class="ident">Drawable</span>,
+<span class="doccomment">/// A bottom-right panel for managing a bunch of toggleable layers in the &quot;ungap the map&quot; tool.
+</span><span class="kw">pub struct </span>Layers {
+    panel: Panel,
+    minimized: bool,
+    bike_network: <span class="prelude-ty">Option</span>&lt;DrawNetworkLayer&gt;,
+    labels: <span class="prelude-ty">Option</span>&lt;DrawRoadLabels&gt;,
+    elevation: bool,
+    steep_streets: <span class="prelude-ty">Option</span>&lt;Drawable&gt;,
+    <span class="comment">// TODO Once widgetry buttons can take custom enums, that&#39;d be perfect here
+    </span>road_types: HashMap&lt;String, Drawable&gt;,
+    fade_map: Drawable,
 
-    <span class="ident">zoom_enabled_cache_key</span>: (<span class="ident">bool</span>, <span class="ident">bool</span>),
-    <span class="ident">map_edit_key</span>: <span class="ident">usize</span>,
+    zoom_enabled_cache_key: (bool, bool),
+    map_edit_key: usize,
 }
 
-<span class="kw">impl</span> <span class="ident">Layers</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Layers</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">Layers</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">minimized</span>: <span class="bool-val">true</span>,
-            <span class="ident">bike_network</span>: <span class="prelude-val">Some</span>(<span class="ident">DrawNetworkLayer::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="ident">labels</span>: <span class="prelude-val">Some</span>(<span class="ident">DrawRoadLabels::only_major_roads</span>()),
-            <span class="ident">elevation</span>: <span class="bool-val">false</span>,
-            <span class="ident">steep_streets</span>: <span class="prelude-val">None</span>,
-            <span class="ident">road_types</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">fade_map</span>: <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-                <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.4</span>),
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
+<span class="kw">impl </span>Layers {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Layers {
+        <span class="kw">let </span><span class="kw-2">mut </span>l = Layers {
+            panel: Panel::empty(ctx),
+            minimized: <span class="bool-val">true</span>,
+            bike_network: <span class="prelude-val">Some</span>(DrawNetworkLayer::new(ctx, app)),
+            labels: <span class="prelude-val">Some</span>(DrawRoadLabels::only_major_roads()),
+            elevation: <span class="bool-val">false</span>,
+            steep_streets: <span class="prelude-val">None</span>,
+            road_types: HashMap::new(),
+            fade_map: GeomBatch::from(<span class="macro">vec!</span>[(
+                Color::BLACK.alpha(<span class="number">0.4</span>),
+                app.primary.map.get_boundary_polygon().clone(),
             )])
-            .<span class="ident">upload</span>(<span class="ident">ctx</span>),
-            <span class="ident">zoom_enabled_cache_key</span>: <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>),
-            <span class="ident">map_edit_key</span>: <span class="ident">usize::MAX</span>,
+            .upload(ctx),
+            zoom_enabled_cache_key: zoom_enabled_cache_key(ctx),
+            map_edit_key: usize::MAX,
         };
 
-        <span class="ident">l</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">l</span>
+        l.update_panel(ctx, app);
+        l
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits_change_key</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">key</span> {
-            <span class="self">self</span>.<span class="ident">map_edit_key</span> <span class="op">=</span> <span class="ident">key</span>;
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bike_network</span>.<span class="ident">is_some</span>() {
-                <span class="self">self</span>.<span class="ident">bike_network</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawNetworkLayer::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+    <span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="kw">let </span>key = app.primary.map.get_edits_change_key();
+        <span class="kw">if </span><span class="self">self</span>.map_edit_key != key {
+            <span class="self">self</span>.map_edit_key = key;
+            <span class="kw">if </span><span class="self">self</span>.bike_network.is_some() {
+                <span class="self">self</span>.bike_network = <span class="prelude-val">Some</span>(DrawNetworkLayer::new(ctx, app));
             }
-            <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">clear</span>();
+            <span class="self">self</span>.road_types.clear();
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">elevation</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">minimized</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
+        <span class="kw">if </span>ctx.redo_mouseover() &amp;&amp; <span class="self">self</span>.elevation &amp;&amp; !<span class="self">self</span>.minimized {
+            <span class="kw">let </span><span class="kw-2">mut </span>label = Text::new().into_widget(ctx);
 
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">elevation</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">app</span>
-                        .<span class="ident">session</span>
-                        .<span class="ident">elevation_contours</span>
-                        .<span class="ident">value</span>()
-                        .<span class="ident">unwrap</span>()
-                        .<span class="number">0</span>
-                        .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">300.0</span>))
+            <span class="kw">if </span>ctx.canvas.is_unzoomed() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>((elevation, <span class="kw">_</span>)) = app
+                        .session
+                        .elevation_contours
+                        .value()
+                        .unwrap()
+                        .<span class="number">0
+                        </span>.closest_pt(pt, Distance::meters(<span class="number">300.0</span>))
                     {
-                        <span class="ident">label</span> <span class="op">=</span>
-                            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} ft&quot;</span>, <span class="ident">elevation</span>.<span class="ident">to_feet</span>().<span class="ident">round</span>())).<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
+                        label =
+                            Line(<span class="macro">format!</span>(<span class="string">&quot;{} ft&quot;</span>, elevation.to_feet().round())).into_widget(ctx);
                     }
                 }
             }
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current elevation&quot;</span>, <span class="ident">label</span>);
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;current elevation&quot;</span>, label);
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                    <span class="comment">// TODO Add physical picture examples</span>
-                    <span class="string">&quot;highway&quot;</span> =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Highways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Unless there&#39;s a separate trail (like on the 520 or I90 bridge), highways aren&#39;t accessible to biking&quot;</span>]),
-                    <span class="string">&quot;major street&quot;</span> =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Major streets&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Arterials have more traffic, but are often where businesses are located&quot;</span>]),
-                    <span class="string">&quot;minor street&quot;</span> =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Minor streets&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Local streets have a low volume of traffic and are usually comfortable for biking, even without dedicated infrastructure&quot;</span>]),
-                    <span class="string">&quot;trail&quot;</span> =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Trails&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Trails like the Burke Gilman are usually well-separated from vehicle traffic. The space is usually shared between people walking, cycling, and rolling.&quot;</span>]),
-                    <span class="string">&quot;protected bike lane&quot;</span> =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Protected bike lanes&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Bike lanes separated from vehicle traffic by physical barriers or a few feet of striping&quot;</span>]),
-                    <span class="string">&quot;painted bike lane&quot;</span> =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Painted bike lanes&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Bike lanes without any separation from vehicle traffic. Often uncomfortably close to the \&quot;door zone\&quot; of parked cars.&quot;</span>]),
-                    <span class="string">&quot;greenway&quot;</span> =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Stay Healthy Streets and neighborhood greenways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking.&quot;</span>]),
-                    <span class="comment">// TODO Add URLs</span>
-                    <span class="string">&quot;about the elevation data&quot;</span> =&gt; <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;About the elevation data&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Biking uphill next to traffic without any dedicated space isn&#39;t fun.&quot;</span>, <span class="string">&quot;Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle&#39;s bumpy roads... is downright terrifying.&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;Note the elevation data is incorrect near bridges.&quot;</span>, <span class="string">&quot;Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it.&quot;</span>]),
-                   <span class="string">&quot;zoom map out&quot;</span> =&gt; {
-                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_zoom</span>(<span class="op">-</span><span class="number">8.0</span>);
-                        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(<span class="kw">match </span>x.as_ref() {
+                    <span class="comment">// TODO Add physical picture examples
+                    </span><span class="string">&quot;highway&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Highways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Unless there&#39;s a separate trail (like on the 520 or I90 bridge), highways aren&#39;t accessible to biking&quot;</span>]),
+                    <span class="string">&quot;major street&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Major streets&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Arterials have more traffic, but are often where businesses are located&quot;</span>]),
+                    <span class="string">&quot;minor street&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Minor streets&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Local streets have a low volume of traffic and are usually comfortable for biking, even without dedicated infrastructure&quot;</span>]),
+                    <span class="string">&quot;trail&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Trails&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Trails like the Burke Gilman are usually well-separated from vehicle traffic. The space is usually shared between people walking, cycling, and rolling.&quot;</span>]),
+                    <span class="string">&quot;protected bike lane&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Protected bike lanes&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Bike lanes separated from vehicle traffic by physical barriers or a few feet of striping&quot;</span>]),
+                    <span class="string">&quot;painted bike lane&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Painted bike lanes&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Bike lanes without any separation from vehicle traffic. Often uncomfortably close to the \&quot;door zone\&quot; of parked cars.&quot;</span>]),
+                    <span class="string">&quot;greenway&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;Stay Healthy Streets and neighborhood greenways&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Residential streets with additional signage and light barriers. These are intended to be low traffic, dedicated for people walking and biking.&quot;</span>]),
+                    <span class="comment">// TODO Add URLs
+                    </span><span class="string">&quot;about the elevation data&quot; </span>=&gt; PopupMsg::new_state(ctx, <span class="string">&quot;About the elevation data&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Biking uphill next to traffic without any dedicated space isn&#39;t fun.&quot;</span>, <span class="string">&quot;Biking downhill next to traffic, especially in the door-zone of parked cars, and especially on Seattle&#39;s bumpy roads... is downright terrifying.&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;Note the elevation data is incorrect near bridges.&quot;</span>, <span class="string">&quot;Thanks to King County LIDAR for the data, and Eldan Goldenberg for processing it.&quot;</span>]),
+                   <span class="string">&quot;zoom map out&quot; </span>=&gt; {
+                        ctx.canvas.center_zoom(-<span class="number">8.0</span>);
+                        <span class="self">self</span>.update_panel(ctx, app);
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                     },
-                    <span class="string">&quot;zoom map in&quot;</span> =&gt; {
-                        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_zoom</span>(<span class="number">8.0</span>);
-                        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
+                    <span class="string">&quot;zoom map in&quot; </span>=&gt; {
+                        ctx.canvas.center_zoom(<span class="number">8.0</span>);
+                        <span class="self">self</span>.update_panel(ctx, app);
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                     },
-                    <span class="string">&quot;search&quot;</span> =&gt; {
-                        <span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
+                    <span class="string">&quot;search&quot; </span>=&gt; {
+                        Navigator::new_state(ctx, app)
                     }
-                    <span class="string">&quot;hide panel&quot;</span> =&gt; {
-                        <span class="self">self</span>.<span class="ident">minimized</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
+                    <span class="string">&quot;hide panel&quot; </span>=&gt; {
+                        <span class="self">self</span>.minimized = <span class="bool-val">true</span>;
+                        <span class="self">self</span>.update_panel(ctx, app);
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                     }
-                    <span class="string">&quot;show panel&quot;</span> =&gt; {
-                        <span class="self">self</span>.<span class="ident">minimized</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>);
+                    <span class="string">&quot;show panel&quot; </span>=&gt; {
+                        <span class="self">self</span>.minimized = <span class="bool-val">false</span>;
+                        <span class="self">self</span>.update_panel(ctx, app);
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Keep);
                     }
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }));
             }
-            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;bike network&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;bike network&quot;</span>) {
-                        <span class="self">self</span>.<span class="ident">bike_network</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawNetworkLayer::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
-                    } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">bike_network</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+            Outcome::Changed(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;bike network&quot; </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;bike network&quot;</span>) {
+                        <span class="self">self</span>.bike_network = <span class="prelude-val">Some</span>(DrawNetworkLayer::new(ctx, app));
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.bike_network = <span class="prelude-val">None</span>;
                     }
-                    <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="self">self</span>.update_panel(ctx, app);
                 }
-                <span class="string">&quot;road labels&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;road labels&quot;</span>) {
-                        <span class="self">self</span>.<span class="ident">labels</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawRoadLabels::only_major_roads</span>());
-                    } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">labels</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="string">&quot;road labels&quot; </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;road labels&quot;</span>) {
+                        <span class="self">self</span>.labels = <span class="prelude-val">Some</span>(DrawRoadLabels::only_major_roads());
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.labels = <span class="prelude-val">None</span>;
                     }
                 }
-                <span class="string">&quot;elevation&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">elevation</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;elevation&quot;</span>);
-                    <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elevation</span> {
-                        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>();
-                        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">elevation_contours</span>.<span class="ident">key</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>.<span class="ident">clone</span>()) {
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-                            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-                                <span class="ident">low</span> <span class="op">=</span> <span class="ident">low</span>.<span class="ident">min</span>(<span class="ident">i</span>.<span class="ident">elevation</span>);
-                                <span class="ident">high</span> <span class="op">=</span> <span class="ident">high</span>.<span class="ident">max</span>(<span class="ident">i</span>.<span class="ident">elevation</span>);
+                <span class="string">&quot;elevation&quot; </span>=&gt; {
+                    <span class="self">self</span>.elevation = <span class="self">self</span>.panel.is_checked(<span class="string">&quot;elevation&quot;</span>);
+                    <span class="self">self</span>.update_panel(ctx, app);
+                    <span class="kw">if </span><span class="self">self</span>.elevation {
+                        <span class="kw">let </span>name = app.primary.map.get_name().clone();
+                        <span class="kw">if </span>app.session.elevation_contours.key() != <span class="prelude-val">Some</span>(name.clone()) {
+                            <span class="kw">let </span><span class="kw-2">mut </span>low = Distance::ZERO;
+                            <span class="kw">let </span><span class="kw-2">mut </span>high = Distance::ZERO;
+                            <span class="kw">for </span>i <span class="kw">in </span>app.primary.map.all_intersections() {
+                                low = low.min(i.elevation);
+                                high = high.max(i.elevation);
                             }
-                            <span class="comment">// TODO Maybe also draw the uphill arrows on the steepest streets?</span>
-                            <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::layer::elevation::ElevationContours::make_contours</span>(
-                                <span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">low</span>, <span class="ident">high</span>,
+                            <span class="comment">// TODO Maybe also draw the uphill arrows on the steepest streets?
+                            </span><span class="kw">let </span>value = <span class="kw">crate</span>::layer::elevation::ElevationContours::make_contours(
+                                ctx, app, low, high,
                             );
-                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">elevation_contours</span>.<span class="ident">set</span>(<span class="ident">name</span>, <span class="ident">value</span>);
+                            app.session.elevation_contours.set(name, value);
                         }
                     }
                 }
-                <span class="string">&quot;steep streets&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;steep streets&quot;</span>) {
-                        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">colorer</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span>
-                            <span class="ident"><span class="kw">crate</span>::layer::elevation::SteepStreets::make_colorer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                        <span class="comment">// The Colorer fades the map as the very first thing in the batch, but we</span>
-                        <span class="comment">// don&#39;t want to do that twice.</span>
-                        <span class="comment">// TODO Can&#39;t use no_fading without complicating make_colorer...</span>
-                        <span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">shift</span>();
-                        <span class="self">self</span>.<span class="ident">steep_streets</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">upload</span>(<span class="ident">ctx</span>));
-                    } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">steep_streets</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="string">&quot;steep streets&quot; </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;steep streets&quot;</span>) {
+                        <span class="kw">let </span>(<span class="kw-2">mut </span>colorer, <span class="kw">_</span>, <span class="kw">_</span>) =
+                            <span class="kw">crate</span>::layer::elevation::SteepStreets::make_colorer(ctx, app);
+                        <span class="comment">// The Colorer fades the map as the very first thing in the batch, but we
+                        // don&#39;t want to do that twice.
+                        // TODO Can&#39;t use no_fading without complicating make_colorer...
+                        </span>colorer.draw.unzoomed.shift();
+                        <span class="self">self</span>.steep_streets = <span class="prelude-val">Some</span>(colorer.draw.unzoomed.upload(ctx));
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.steep_streets = <span class="prelude-val">None</span>;
                     }
-                    <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="self">self</span>.update_panel(ctx, app);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">currently_hovering</span>().<span class="ident">cloned</span>() {
-            <span class="self">self</span>.<span class="ident">highlight_road_type</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>);
-        }
-
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_enabled_cache_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>) {
-            <span class="comment">// appropriately disable/enable zoom buttons in case user scroll-zoomed</span>
-            <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">zoom_enabled_cache_key</span> <span class="op">=</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.panel.currently_hovering().cloned() {
+            <span class="self">self</span>.highlight_road_type(ctx, app, <span class="kw-2">&amp;</span>name);
         }
 
-        <span class="prelude-val">None</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fade_map</span>);
-
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_bike_layer</span> <span class="op">=</span> <span class="bool-val">true</span>;
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">currently_hovering</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">draw</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">get</span>(<span class="ident">name</span>) {
-                    <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
-                }
-                <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;trail&quot;</span>
-                    <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;protected bike lane&quot;</span>
-                    <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;painted bike lane&quot;</span>
-                    <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;greenway&quot;</span>
-                {
-                    <span class="ident">draw_bike_layer</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                }
-            }
-            <span class="kw">if</span> <span class="ident">draw_bike_layer</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">n</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bike_network</span> {
-                    <span class="ident">n</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-                }
-            }
-
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">l</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">labels</span> {
-                <span class="ident">l</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-            }
-
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">elevation</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">draw</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">elevation_contours</span>.<span class="ident">value</span>() {
-                    <span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-                }
-            }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">draw</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steep_streets</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
-            }
+        <span class="kw">if </span><span class="self">self</span>.zoom_enabled_cache_key != zoom_enabled_cache_key(ctx) {
+            <span class="comment">// appropriately disable/enable zoom buttons in case user scroll-zoomed
+            </span><span class="self">self</span>.update_panel(ctx, app);
+            <span class="self">self</span>.zoom_enabled_cache_key = zoom_enabled_cache_key(ctx);
         }
-    }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">layer_icon_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenPt</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">minimized</span> {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;show panel&quot;</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">center_of</span>(<span class="string">&quot;layer icon&quot;</span>)
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="kw">if </span>g.canvas.is_unzoomed() {
+            g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.fade_map);
+
+            <span class="kw">let </span><span class="kw-2">mut </span>draw_bike_layer = <span class="bool-val">true</span>;
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = <span class="self">self</span>.panel.currently_hovering() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(draw) = <span class="self">self</span>.road_types.get(name) {
+                    g.redraw(draw);
+                }
+                <span class="kw">if </span>name == <span class="string">&quot;trail&quot;
+                    </span>|| name == <span class="string">&quot;protected bike lane&quot;
+                    </span>|| name == <span class="string">&quot;painted bike lane&quot;
+                    </span>|| name == <span class="string">&quot;greenway&quot;
+                </span>{
+                    draw_bike_layer = <span class="bool-val">false</span>;
+                }
+            }
+            <span class="kw">if </span>draw_bike_layer {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>n) = <span class="self">self</span>.bike_network {
+                    n.draw(g);
+                }
+            }
+
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>l) = <span class="self">self</span>.labels {
+                l.draw(g, app);
+            }
+
+            <span class="kw">if </span><span class="self">self</span>.elevation {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref </span>draw)) = app.session.elevation_contours.value() {
+                    draw.draw(g);
+                }
+            }
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>draw) = <span class="self">self</span>.steep_streets {
+                g.redraw(draw);
+            }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">show_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">minimized</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="self">self</span>.<span class="ident">update_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="kw">pub fn </span>layer_icon_pos(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenPt {
+        <span class="kw">if </span><span class="self">self</span>.minimized {
+            <span class="self">self</span>.panel.center_of(<span class="string">&quot;show panel&quot;</span>)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.panel.center_of(<span class="string">&quot;layer icon&quot;</span>)
+        }
     }
 
-    <span class="kw">fn</span> <span class="ident">update_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">make_zoom_controls</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>().<span class="ident">padding_right</span>(<span class="number">16</span>),
-            <span class="self">self</span>.<span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
-                .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">panel_bg</span>),
+    <span class="kw">pub fn </span>show_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.minimized = <span class="bool-val">false</span>;
+        <span class="self">self</span>.update_panel(ctx, app);
+    }
+
+    <span class="kw">fn </span>update_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            make_zoom_controls(ctx).align_right().padding_right(<span class="number">16</span>),
+            <span class="self">self</span>.make_legend(ctx, app)
+                .padding(<span class="number">16</span>)
+                .bg(ctx.style().panel_bg),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Bottom</span>)
-        .<span class="ident">build_custom</span>(<span class="ident">ctx</span>);
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Bottom)
+        .build_custom(ctx);
     }
 
-    <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">minimized</span> {
-            <span class="kw">return</span> <span class="ident">ctx</span>
-                .<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::L</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;show panel&quot;</span>);
+    <span class="kw">fn </span>make_legend(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">if </span><span class="self">self</span>.minimized {
+            <span class="kw">return </span>ctx
+                .style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
+                .hotkey(Key::L)
+                .build_widget(ctx, <span class="string">&quot;show panel&quot;</span>);
         }
 
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
-                    .<span class="ident">dims</span>(<span class="number">30.0</span>)
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_vert</span>()
-                    .<span class="ident">named</span>(<span class="string">&quot;layer icon&quot;</span>),
-                <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-                    <span class="comment">// TODO Looks too close to access restrictions</span>
-                    <span class="ident">legend_btn</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>, <span class="string">&quot;highway&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">legend_btn</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span>, <span class="string">&quot;major street&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">legend_btn</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_residential</span>, <span class="string">&quot;minor street&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Image::from_path(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
+                    .dims(<span class="number">30.0</span>)
+                    .into_widget(ctx)
+                    .centered_vert()
+                    .named(<span class="string">&quot;layer icon&quot;</span>),
+                Widget::custom_row(<span class="macro">vec!</span>[
+                    <span class="comment">// TODO Looks too close to access restrictions
+                    </span>legend_btn(app.cs.unzoomed_highway, <span class="string">&quot;highway&quot;</span>).build_def(ctx),
+                    legend_btn(app.cs.unzoomed_arterial, <span class="string">&quot;major street&quot;</span>).build_def(ctx),
+                    legend_btn(app.cs.unzoomed_residential, <span class="string">&quot;minor street&quot;</span>).build_def(ctx),
                 ]),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::K</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/minimize.svg&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::L</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;hide panel&quot;</span>)
-                    .<span class="ident">align_right</span>(),
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+                    .hotkey(Key::K)
+                    .build_widget(ctx, <span class="string">&quot;search&quot;</span>),
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/minimize.svg&quot;</span>)
+                    .hotkey(Key::L)
+                    .build_widget(ctx, <span class="string">&quot;hide panel&quot;</span>)
+                    .align_right(),
             ]),
-            <span class="ident">Widget::custom_row</span>({
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Toggle::checkbox</span>(
-                    <span class="ident">ctx</span>,
+            Widget::custom_row({
+                <span class="kw">let </span><span class="kw-2">mut </span>row = <span class="macro">vec!</span>[Toggle::checkbox(
+                    ctx,
                     <span class="string">&quot;bike network&quot;</span>,
-                    <span class="ident">Key::B</span>,
-                    <span class="self">self</span>.<span class="ident">bike_network</span>.<span class="ident">is_some</span>(),
+                    Key::B,
+                    <span class="self">self</span>.bike_network.is_some(),
                 )];
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bike_network</span>.<span class="ident">is_some</span>() {
-                    <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">legend_btn</span>(<span class="kw-2">*</span><span class="ident">bike_network::DEDICATED_TRAIL</span>, <span class="string">&quot;trail&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>));
-                    <span class="ident">row</span>.<span class="ident">push</span>(
-                        <span class="ident">legend_btn</span>(<span class="kw-2">*</span><span class="ident">bike_network::PROTECTED_BIKE_LANE</span>, <span class="string">&quot;protected bike lane&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="kw">if </span><span class="self">self</span>.bike_network.is_some() {
+                    row.push(legend_btn(<span class="kw-2">*</span>bike_network::DEDICATED_TRAIL, <span class="string">&quot;trail&quot;</span>).build_def(ctx));
+                    row.push(
+                        legend_btn(<span class="kw-2">*</span>bike_network::PROTECTED_BIKE_LANE, <span class="string">&quot;protected bike lane&quot;</span>)
+                            .build_def(ctx),
                     );
-                    <span class="ident">row</span>.<span class="ident">push</span>(
-                        <span class="ident">legend_btn</span>(<span class="kw-2">*</span><span class="ident">bike_network::PAINTED_BIKE_LANE</span>, <span class="string">&quot;painted bike lane&quot;</span>)
-                            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                    row.push(
+                        legend_btn(<span class="kw-2">*</span>bike_network::PAINTED_BIKE_LANE, <span class="string">&quot;painted bike lane&quot;</span>)
+                            .build_def(ctx),
                     );
-                    <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">legend_btn</span>(<span class="kw-2">*</span><span class="ident">bike_network::GREENWAY</span>, <span class="string">&quot;greenway&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>));
+                    row.push(legend_btn(<span class="kw-2">*</span>bike_network::GREENWAY, <span class="string">&quot;greenway&quot;</span>).build_def(ctx));
                 }
-                <span class="ident">row</span>
+                row
             }),
-            <span class="comment">// TODO Distinguish door-zone bike lanes?</span>
-            <span class="comment">// TODO Call out bike turning boxes?</span>
-            <span class="comment">// TODO Call out bike signals?</span>
-            <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;road labels&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.<span class="ident">labels</span>.<span class="ident">is_some</span>()),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Toggle::checkbox</span>(<span class="ident">ctx</span>, <span class="string">&quot;elevation&quot;</span>, <span class="ident">Key::E</span>, <span class="self">self</span>.<span class="ident">elevation</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;about the elevation data&quot;</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">Text::new</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;current elevation&quot;</span>)
-                    .<span class="ident">centered_vert</span>(),
+            <span class="comment">// TODO Distinguish door-zone bike lanes?
+            // TODO Call out bike turning boxes?
+            // TODO Call out bike signals?
+            </span>Toggle::checkbox(ctx, <span class="string">&quot;road labels&quot;</span>, <span class="prelude-val">None</span>, <span class="self">self</span>.labels.is_some()),
+            Widget::row(<span class="macro">vec!</span>[
+                Toggle::checkbox(ctx, <span class="string">&quot;elevation&quot;</span>, Key::E, <span class="self">self</span>.elevation),
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;about the elevation data&quot;</span>)
+                    .centered_vert(),
+                Text::new()
+                    .into_widget(ctx)
+                    .named(<span class="string">&quot;current elevation&quot;</span>)
+                    .centered_vert(),
             ]),
-            <span class="ident">Widget::row</span>({
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Toggle::checkbox</span>(
-                    <span class="ident">ctx</span>,
+            Widget::row({
+                <span class="kw">let </span><span class="kw-2">mut </span>row = <span class="macro">vec!</span>[Toggle::checkbox(
+                    ctx,
                     <span class="string">&quot;steep streets&quot;</span>,
-                    <span class="ident">Key::S</span>,
-                    <span class="self">self</span>.<span class="ident">steep_streets</span>.<span class="ident">is_some</span>(),
+                    Key::S,
+                    <span class="self">self</span>.steep_streets.is_some(),
                 )];
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">steep_streets</span>.<span class="ident">is_some</span>() {
-                    <span class="kw">let</span> (<span class="ident">categories</span>, <span class="ident">uphill_legend</span>) <span class="op">=</span>
-                        <span class="ident"><span class="kw">crate</span>::layer::elevation::SteepStreets::make_legend</span>(<span class="ident">ctx</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">legend</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">categories</span>
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">label</span>, <span class="ident">color</span>)<span class="op">|</span> {
-                            <span class="ident">legend_btn</span>(<span class="ident">color</span>, <span class="ident">label</span>)
-                                .<span class="ident">label_color</span>(<span class="ident">Color::WHITE</span>, <span class="ident">ControlState::Default</span>)
-                                .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+                <span class="kw">if </span><span class="self">self</span>.steep_streets.is_some() {
+                    <span class="kw">let </span>(categories, uphill_legend) =
+                        <span class="kw">crate</span>::layer::elevation::SteepStreets::make_legend(ctx);
+                    <span class="kw">let </span><span class="kw-2">mut </span>legend: Vec&lt;Widget&gt; = categories
+                        .into_iter()
+                        .map(|(label, color)| {
+                            legend_btn(color, label)
+                                .label_color(Color::WHITE, ControlState::Default)
+                                .disabled(<span class="bool-val">true</span>)
+                                .build_def(ctx)
                         })
-                        .<span class="ident">collect</span>();
-                    <span class="ident">legend</span>.<span class="ident">push</span>(<span class="ident">uphill_legend</span>);
-                    <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">Widget::custom_row</span>(<span class="ident">legend</span>));
+                        .collect();
+                    legend.push(uphill_legend);
+                    row.push(Widget::custom_row(legend));
                 }
-                <span class="ident">row</span>
+                row
             }),
-            <span class="comment">// TODO Probably a collisions layer</span>
-        ])
+            <span class="comment">// TODO Probably a collisions layer
+        </span>])
     }
 
-    <span class="kw">fn</span> <span class="ident">highlight_road_type</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="comment">// TODO Button enums would rock</span>
-        <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;bike network&quot;</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;road labels&quot;</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;elevation&quot;</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;steep streets&quot;</span>
-            <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">starts_with</span>(<span class="string">&quot;about &quot;</span>)
+    <span class="kw">fn </span>highlight_road_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, name: <span class="kw-2">&amp;</span>str) {
+        <span class="comment">// TODO Button enums would rock
+        </span><span class="kw">if </span>name == <span class="string">&quot;bike network&quot;
+            </span>|| name == <span class="string">&quot;road labels&quot;
+            </span>|| name == <span class="string">&quot;elevation&quot;
+            </span>|| name == <span class="string">&quot;steep streets&quot;
+            </span>|| name.starts_with(<span class="string">&quot;about &quot;</span>)
         {
             <span class="kw">return</span>;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">contains_key</span>(<span class="ident">name</span>) {
+        <span class="kw">if </span><span class="self">self</span>.road_types.contains_key(name) {
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">let</span> <span class="ident">rank</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">get_rank</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bike_lane</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lanes</span> {
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span> {
-                    <span class="ident">bike_lane</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">l</span>.<span class="ident">lane_type</span>, <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>)) {
-                    <span class="ident">buffer</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>r <span class="kw">in </span>app.primary.map.all_roads() {
+            <span class="kw">let </span>rank = r.get_rank();
+            <span class="kw">let </span><span class="kw-2">mut </span>bike_lane = <span class="bool-val">false</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>buffer = <span class="bool-val">false</span>;
+            <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span>r.lanes {
+                <span class="kw">if </span>l.lane_type == LaneType::Biking {
+                    bike_lane = <span class="bool-val">true</span>;
+                } <span class="kw">else if </span><span class="macro">matches!</span>(l.lane_type, LaneType::Buffer(<span class="kw">_</span>)) {
+                    buffer = <span class="bool-val">true</span>;
                 }
             }
 
-            <span class="kw">let</span> <span class="ident">show</span> <span class="op">=</span> (<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;highway&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">rank</span> <span class="op">==</span> <span class="ident">RoadRank::Highway</span>)
-                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;major street&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">rank</span> <span class="op">==</span> <span class="ident">RoadRank::Arterial</span>)
-                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;minor street&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">rank</span> <span class="op">==</span> <span class="ident">RoadRank::Local</span>)
-                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;trail&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">r</span>.<span class="ident">is_cycleway</span>())
-                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;protected bike lane&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">bike_lane</span> <span class="op">&amp;&amp;</span> <span class="ident">buffer</span>)
-                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;painted bike lane&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">bike_lane</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">buffer</span>)
-                <span class="op">|</span><span class="op">|</span> (<span class="ident">name</span> <span class="op">==</span> <span class="string">&quot;greenway&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">bike_network::is_greenway</span>(<span class="ident">r</span>));
-            <span class="kw">if</span> <span class="ident">show</span> {
-                <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">name</span> {
-                    <span class="string">&quot;highway&quot;</span> =&gt; <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_highway</span>,
-                    <span class="string">&quot;major street&quot;</span> =&gt; <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_arterial</span>,
-                    <span class="string">&quot;minor street&quot;</span> =&gt; <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_residential</span>,
-                    <span class="comment">// Some of the bike layers are too faded, so always use a louder green.</span>
-                    <span class="kw">_</span> =&gt; <span class="ident">Color::GREEN</span>,
+            <span class="kw">let </span>show = (name == <span class="string">&quot;highway&quot; </span>&amp;&amp; rank == RoadRank::Highway)
+                || (name == <span class="string">&quot;major street&quot; </span>&amp;&amp; rank == RoadRank::Arterial)
+                || (name == <span class="string">&quot;minor street&quot; </span>&amp;&amp; rank == RoadRank::Local)
+                || (name == <span class="string">&quot;trail&quot; </span>&amp;&amp; r.is_cycleway())
+                || (name == <span class="string">&quot;protected bike lane&quot; </span>&amp;&amp; bike_lane &amp;&amp; buffer)
+                || (name == <span class="string">&quot;painted bike lane&quot; </span>&amp;&amp; bike_lane &amp;&amp; !buffer)
+                || (name == <span class="string">&quot;greenway&quot; </span>&amp;&amp; bike_network::is_greenway(r));
+            <span class="kw">if </span>show {
+                <span class="kw">let </span>color = <span class="kw">match </span>name {
+                    <span class="string">&quot;highway&quot; </span>=&gt; app.cs.unzoomed_highway,
+                    <span class="string">&quot;major street&quot; </span>=&gt; app.cs.unzoomed_arterial,
+                    <span class="string">&quot;minor street&quot; </span>=&gt; app.cs.unzoomed_residential,
+                    <span class="comment">// Some of the bike layers are too faded, so always use a louder green.
+                    </span><span class="kw">_ </span>=&gt; Color::GREEN,
                 };
-                <span class="comment">// TODO If it&#39;s a bike element, should probably thicken for the unzoomed scale...</span>
-                <span class="comment">// the maximum amount?</span>
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>());
+                <span class="comment">// TODO If it&#39;s a bike element, should probably thicken for the unzoomed scale...
+                // the maximum amount?
+                </span>batch.push(color, r.get_thick_polygon());
             }
         }
 
-        <span class="self">self</span>.<span class="ident">road_types</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
+        <span class="self">self</span>.road_types.insert(name.to_string(), ctx.upload(batch));
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_zoom_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">builder</span> <span class="op">=</span> <span class="ident">ctx</span>
-        .<span class="ident">style</span>()
-        .<span class="ident">btn_floating</span>
-        .<span class="ident">btn</span>()
-        .<span class="ident">image_dims</span>(<span class="number">30.0</span>)
-        .<span class="ident">outline</span>((<span class="number">1.0</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">fg</span>), <span class="ident">ControlState::Default</span>)
-        .<span class="ident">padding</span>(<span class="number">12.0</span>);
+<span class="kw">fn </span>make_zoom_controls(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
+    <span class="kw">let </span>builder = ctx
+        .style()
+        .btn_floating
+        .btn()
+        .image_dims(<span class="number">30.0</span>)
+        .outline((<span class="number">1.0</span>, ctx.style().btn_plain.fg), ControlState::Default)
+        .padding(<span class="number">12.0</span>);
 
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">builder</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
-            .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
-                <span class="ident">top_left</span>: <span class="number">16.0</span>,
-                <span class="ident">top_right</span>: <span class="number">16.0</span>,
-                <span class="ident">bottom_right</span>: <span class="number">0.0</span>,
-                <span class="ident">bottom_left</span>: <span class="number">0.0</span>,
+    Widget::custom_col(<span class="macro">vec!</span>[
+        builder
+            .clone()
+            .image_path(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
+            .corner_rounding(geom::CornerRadii {
+                top_left: <span class="number">16.0</span>,
+                top_right: <span class="number">16.0</span>,
+                bottom_right: <span class="number">0.0</span>,
+                bottom_left: <span class="number">0.0</span>,
             })
-            .<span class="ident">disabled</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_max_zoom</span>())
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom map in&quot;</span>),
-        <span class="ident">builder</span>
-            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
-            .<span class="ident">image_dims</span>(<span class="number">30.0</span>)
-            .<span class="ident">padding</span>(<span class="number">12.0</span>)
-            .<span class="ident">corner_rounding</span>(<span class="ident">geom::CornerRadii</span> {
-                <span class="ident">top_left</span>: <span class="number">0.0</span>,
-                <span class="ident">top_right</span>: <span class="number">0.0</span>,
-                <span class="ident">bottom_right</span>: <span class="number">16.0</span>,
-                <span class="ident">bottom_left</span>: <span class="number">16.0</span>,
+            .disabled(ctx.canvas.is_max_zoom())
+            .build_widget(ctx, <span class="string">&quot;zoom map in&quot;</span>),
+        builder
+            .image_path(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
+            .image_dims(<span class="number">30.0</span>)
+            .padding(<span class="number">12.0</span>)
+            .corner_rounding(geom::CornerRadii {
+                top_left: <span class="number">0.0</span>,
+                top_right: <span class="number">0.0</span>,
+                bottom_right: <span class="number">16.0</span>,
+                bottom_left: <span class="number">16.0</span>,
             })
-            .<span class="ident">disabled</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_min_zoom</span>())
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom map out&quot;</span>),
+            .disabled(ctx.canvas.is_min_zoom())
+            .build_widget(ctx, <span class="string">&quot;zoom map out&quot;</span>),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">legend_btn</span>(<span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">ButtonBuilder</span> {
-    <span class="ident">ButtonBuilder::new</span>()
-        .<span class="ident">label_text</span>(<span class="ident">label</span>)
-        .<span class="ident">bg_color</span>(<span class="ident">color</span>, <span class="ident">ControlState::Default</span>)
-        .<span class="ident">bg_color</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>), <span class="ident">ControlState::Hovered</span>)
-        .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
-            <span class="ident">top</span>: <span class="number">10.0</span>,
-            <span class="ident">bottom</span>: <span class="number">10.0</span>,
-            <span class="ident">left</span>: <span class="number">20.0</span>,
-            <span class="ident">right</span>: <span class="number">20.0</span>,
+<span class="kw">fn </span>legend_btn(color: Color, label: <span class="kw-2">&amp;</span>str) -&gt; ButtonBuilder {
+    ButtonBuilder::new()
+        .label_text(label)
+        .bg_color(color, ControlState::Default)
+        .bg_color(color.alpha(<span class="number">0.6</span>), ControlState::Hovered)
+        .padding(EdgeInsets {
+            top: <span class="number">10.0</span>,
+            bottom: <span class="number">10.0</span>,
+            left: <span class="number">20.0</span>,
+            right: <span class="number">20.0</span>,
         })
-        .<span class="ident">corner_rounding</span>(<span class="number">0.0</span>)
+        .corner_rounding(<span class="number">0.0</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">zoom_enabled_cache_key</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; (<span class="ident">bool</span>, <span class="ident">bool</span>) {
-    (<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_max_zoom</span>(), <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_min_zoom</span>())
+<span class="kw">fn </span>zoom_enabled_cache_key(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; (bool, bool) {
+    (ctx.canvas.is_max_zoom(), ctx.canvas.is_min_zoom())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

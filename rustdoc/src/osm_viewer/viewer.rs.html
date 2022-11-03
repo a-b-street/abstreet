@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/osm_viewer/src/viewer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>viewer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../osm_viewer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../osm_viewer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../osm_viewer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/osm_viewer/src/viewer.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>viewer.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../osm_viewer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../osm_viewer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../osm_viewer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -467,298 +467,298 @@
 <span id="467">467</span>
 <span id="468">468</span>
 <span id="469">469</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
-<span class="kw">use</span> <span class="ident">geom::ArrowCap</span>;
-<span class="kw">use</span> <span class="ident">map_gui::options::OptionsPanel</span>;
-<span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">BIG_ARROW_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">CityPicker</span>, <span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>, <span class="ident">Navigator</span>, <span class="ident">TurnExplorer</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">SimpleApp</span>, <span class="ident">ID</span>};
-<span class="kw">use</span> <span class="ident">map_model::osm</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>,
-    <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
+<span class="kw">use </span>geom::ArrowCap;
+<span class="kw">use </span>map_gui::options::OptionsPanel;
+<span class="kw">use </span>map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
+<span class="kw">use </span>map_gui::tools::{CityPicker, Minimap, MinimapControls, Navigator, TurnExplorer};
+<span class="kw">use </span>map_gui::{SimpleApp, ID};
+<span class="kw">use </span>map_model::osm;
+<span class="kw">use </span>widgetry::tools::{open_browser, PopupMsg, URLManager};
+<span class="kw">use </span>widgetry::{
+    lctrl, Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key,
+    Line, Outcome, Panel, State, Text, TextExt, Toggle, Transition, VerticalAlignment, Widget,
 };
 
-<span class="kw">type</span> <span class="ident">App</span> <span class="op">=</span> <span class="ident">SimpleApp</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+<span class="kw">type </span>App = SimpleApp&lt;()&gt;;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Viewer</span> {
-    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">fixed_object_outline</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>,
-    <span class="ident">minimap</span>: <span class="ident">Minimap</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">MinimapController</span><span class="op">&gt;</span>,
-    <span class="ident">businesses</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BusinessSearch</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Viewer {
+    top_panel: Panel,
+    fixed_object_outline: <span class="prelude-ty">Option</span>&lt;Drawable&gt;,
+    minimap: Minimap&lt;App, MinimapController&gt;,
+    businesses: <span class="prelude-ty">Option</span>&lt;BusinessSearch&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Viewer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">map_gui::tools::update_url_map_name</span>(<span class="ident">app</span>);
+<span class="kw">impl </span>Viewer {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        map_gui::tools::update_url_map_name(app);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">viewer</span> <span class="op">=</span> <span class="ident">Viewer</span> {
-            <span class="ident">fixed_object_outline</span>: <span class="prelude-val">None</span>,
-            <span class="ident">minimap</span>: <span class="ident">Minimap::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MinimapController</span>),
-            <span class="ident">businesses</span>: <span class="prelude-val">None</span>,
-            <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>viewer = Viewer {
+            fixed_object_outline: <span class="prelude-val">None</span>,
+            minimap: Minimap::new(ctx, app, MinimapController),
+            businesses: <span class="prelude-val">None</span>,
+            top_panel: Panel::empty(ctx),
         };
-        <span class="ident">viewer</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>);
-        <span class="ident">Box::new</span>(<span class="ident">viewer</span>)
+        viewer.recalculate_top_panel(ctx, app, <span class="prelude-val">None</span>);
+        Box::new(viewer)
     }
 
-    <span class="comment">// widgetry panels have a bug currently and don&#39;t detect changes to the dimensions of contents,</span>
-    <span class="comment">// so we can&#39;t use replace() without messing up scrollbars.</span>
-    <span class="kw">fn</span> <span class="ident">recalculate_top_panel</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">biz_search_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>,
+    <span class="comment">// widgetry panels have a bug currently and don&#39;t detect changes to the dimensions of contents,
+    // so we can&#39;t use replace() without messing up scrollbars.
+    </span><span class="kw">fn </span>recalculate_top_panel(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        biz_search_panel: <span class="prelude-ty">Option</span>&lt;Widget&gt;,
     ) {
-        <span class="kw">let</span> <span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">map_gui::tools::app_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="string">&quot;OpenStreetMap viewer&quot;</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;settings&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::F</span>))
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;About&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>top_panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            map_gui::tools::app_header(ctx, app, <span class="string">&quot;OpenStreetMap viewer&quot;</span>),
+            Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/settings.svg&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;settings&quot;</span>),
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+                    .hotkey(lctrl(Key::F))
+                    .build_widget(ctx, <span class="string">&quot;search&quot;</span>),
+                ctx.style().btn_plain.text(<span class="string">&quot;About&quot;</span>).build_def(ctx),
             ]),
-            <span class="ident">Widget::horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
-            <span class="self">self</span>.<span class="ident">calculate_tags</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">Widget::horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span> {
-                <span class="ident">biz_search_panel</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">render</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;Search for businesses&quot;</span>))
-            } <span class="kw">else</span> {
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Search for businesses&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Tab</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
+            Widget::horiz_separator(ctx, <span class="number">1.0</span>),
+            <span class="self">self</span>.calculate_tags(ctx, app),
+            Widget::horiz_separator(ctx, <span class="number">1.0</span>),
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>b) = <span class="self">self</span>.businesses {
+                biz_search_panel.unwrap_or_else(|| b.render(ctx).named(<span class="string">&quot;Search for businesses&quot;</span>))
+            } <span class="kw">else </span>{
+                ctx.style()
+                    .btn_outline
+                    .text(<span class="string">&quot;Search for businesses&quot;</span>)
+                    .hotkey(Key::Tab)
+                    .build_def(ctx)
             },
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">top_panel</span>;
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top)
+        .build(ctx);
+        <span class="self">self</span>.top_panel = top_panel;
     }
 
-    <span class="kw">fn</span> <span class="ident">calculate_tags</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_some</span>() {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click something else to examine it&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
-        } <span class="kw">else</span> {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Click to examine&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+    <span class="kw">fn </span>calculate_tags(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
+        <span class="kw">if </span><span class="self">self</span>.fixed_object_outline.is_some() {
+            col.push(<span class="string">&quot;Click something else to examine it&quot;</span>.text_widget(ctx));
+        } <span class="kw">else </span>{
+            col.push(<span class="string">&quot;Click to examine&quot;</span>.text_widget(ctx));
         }
 
-        <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">current_selection</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
-                <span class="ident">col</span>.<span class="ident">push</span>(
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_outline</span>
-                            .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Open OSM way {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>))
-                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Edit OSM way&quot;</span>).<span class="ident">build_widget</span>(
-                            <span class="ident">ctx</span>,
+        <span class="kw">match </span>app.current_selection {
+            <span class="prelude-val">Some</span>(ID::Lane(l)) =&gt; {
+                <span class="kw">let </span>r = app.map.get_parent(l);
+                col.push(
+                    Widget::row(<span class="macro">vec!</span>[
+                        ctx.style()
+                            .btn_outline
+                            .text(<span class="macro">format!</span>(<span class="string">&quot;Open OSM way {}&quot;</span>, r.orig_id.osm_way_id.<span class="number">0</span>))
+                            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, r.orig_id.osm_way_id)),
+                        ctx.style().btn_outline.text(<span class="string">&quot;Edit OSM way&quot;</span>).build_widget(
+                            ctx,
                             <span class="macro">format!</span>(
                                 <span class="string">&quot;open https://www.openstreetmap.org/edit?way={}&quot;</span>,
-                                <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>
-                            ),
+                                r.orig_id.osm_way_id.<span class="number">0
+                            </span>),
                         ),
                     ])
-                    .<span class="ident">evenly_spaced</span>(),
+                    .evenly_spaced(),
                 );
 
-                <span class="kw">let</span> <span class="ident">tags</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">osm_tags</span>;
-                <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">tags</span>.<span class="ident">inner</span>() {
-                    <span class="kw">if</span> <span class="ident">k</span>.<span class="ident">starts_with</span>(<span class="string">&quot;abst:&quot;</span>) {
+                <span class="kw">let </span>tags = <span class="kw-2">&amp;</span>r.osm_tags;
+                <span class="kw">for </span>(k, v) <span class="kw">in </span>tags.inner() {
+                    <span class="kw">if </span>k.starts_with(<span class="string">&quot;abst:&quot;</span>) {
                         <span class="kw">continue</span>;
                     }
-                    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;abst:parking_source&quot;</span>)
-                        <span class="op">&amp;&amp;</span> (<span class="ident">k</span> <span class="op">==</span> <span class="ident">osm::PARKING_RIGHT</span>
-                            <span class="op">|</span><span class="op">|</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">osm::PARKING_LEFT</span>
-                            <span class="op">|</span><span class="op">|</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">osm::PARKING_BOTH</span>)
+                    <span class="kw">if </span>tags.contains_key(<span class="string">&quot;abst:parking_source&quot;</span>)
+                        &amp;&amp; (k == osm::PARKING_RIGHT
+                            || k == osm::PARKING_LEFT
+                            || k == osm::PARKING_BOTH)
                     {
                         <span class="kw">continue</span>;
                     }
-                    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="ident">k</span>).<span class="ident">build_widget</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="macro">format!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, <span class="ident">k</span>),
+                    col.push(Widget::row(<span class="macro">vec!</span>[
+                        ctx.style().btn_plain.text(k).build_widget(
+                            ctx,
+                            <span class="macro">format!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, k),
                         ),
-                        <span class="ident">Line</span>(<span class="ident">v</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
+                        Line(v).into_widget(ctx).align_right(),
                     ]));
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
-                <span class="ident">col</span>.<span class="ident">push</span>(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>))
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>)),
+            <span class="prelude-val">Some</span>(ID::Intersection(i)) =&gt; {
+                <span class="kw">let </span>i = app.map.get_i(i);
+                col.push(
+                    ctx.style()
+                        .btn_outline
+                        .text(<span class="macro">format!</span>(<span class="string">&quot;Open OSM node {}&quot;</span>, i.orig_id.<span class="number">0</span>))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, i.orig_id)),
                 );
             }
-            <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
-                <span class="ident">col</span>.<span class="ident">push</span>(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>.<span class="ident">inner</span>()))
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>)),
+            <span class="prelude-val">Some</span>(ID::Building(b)) =&gt; {
+                <span class="kw">let </span>b = app.map.get_b(b);
+                col.push(
+                    ctx.style()
+                        .btn_outline
+                        .text(<span class="macro">format!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, b.orig_id.inner()))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, b.orig_id)),
                 );
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Address: {}&quot;</span>, <span class="ident">b</span>.<span class="ident">address</span>));
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">names</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">name</span> {
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Address: {}&quot;</span>, b.address));
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>names) = b.name {
+                    txt.add_line(<span class="macro">format!</span>(
                         <span class="string">&quot;Name: {}&quot;</span>,
-                        <span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()).<span class="ident">to_string</span>()
+                        names.get(app.opts.language.as_ref()).to_string()
                     ));
                 }
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-                    <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;1 amenity:&quot;</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} amenities:&quot;</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>()));
+                <span class="kw">if </span>!b.amenities.is_empty() {
+                    txt.add_line(<span class="string">&quot;&quot;</span>);
+                    <span class="kw">if </span>b.amenities.len() == <span class="number">1 </span>{
+                        txt.add_line(<span class="string">&quot;1 amenity:&quot;</span>);
+                    } <span class="kw">else </span>{
+                        txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{} amenities:&quot;</span>, b.amenities.len()));
                     }
-                    <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+                    <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span>b.amenities {
+                        txt.add_line(<span class="macro">format!</span>(
                             <span class="string">&quot;  {} ({})&quot;</span>,
-                            <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()),
-                            <span class="ident">a</span>.<span class="ident">amenity_type</span>
+                            a.names.get(app.opts.language.as_ref()),
+                            a.amenity_type
                         ));
                     }
                 }
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+                col.push(txt.into_widget(ctx));
 
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">inner</span>() {
-                        <span class="kw">if</span> <span class="ident">k</span>.<span class="ident">starts_with</span>(<span class="string">&quot;abst:&quot;</span>) {
+                <span class="kw">if </span>!b.osm_tags.is_empty() {
+                    <span class="kw">for </span>(k, v) <span class="kw">in </span>b.osm_tags.inner() {
+                        <span class="kw">if </span>k.starts_with(<span class="string">&quot;abst:&quot;</span>) {
                             <span class="kw">continue</span>;
                         }
-                        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="ident">k</span>).<span class="ident">build_widget</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="macro">format!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, <span class="ident">k</span>),
+                        col.push(Widget::row(<span class="macro">vec!</span>[
+                            ctx.style().btn_plain.text(k).build_widget(
+                                ctx,
+                                <span class="macro">format!</span>(<span class="string">&quot;open https://wiki.openstreetmap.org/wiki/Key:{}&quot;</span>, k),
                             ),
-                            <span class="ident">Line</span>(<span class="ident">v</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
+                            Line(v).into_widget(ctx).align_right(),
                         ]));
                     }
                 }
             }
-            <span class="prelude-val">Some</span>(<span class="ident">ID::ParkingLot</span>(<span class="ident">pl</span>)) =&gt; {
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>);
-                <span class="ident">col</span>.<span class="ident">push</span>(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>.<span class="ident">inner</span>()))
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>)),
+            <span class="prelude-val">Some</span>(ID::ParkingLot(pl)) =&gt; {
+                <span class="kw">let </span>pl = app.map.get_pl(pl);
+                col.push(
+                    ctx.style()
+                        .btn_outline
+                        .text(<span class="macro">format!</span>(<span class="string">&quot;Open OSM ID {}&quot;</span>, pl.osm_id.inner()))
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, pl.osm_id)),
                 );
 
-                <span class="ident">col</span>.<span class="ident">push</span>(
+                col.push(
                     <span class="macro">format!</span>(
                         <span class="string">&quot;Estimated parking spots: {}&quot;</span>,
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">pl</span>.<span class="ident">capacity</span>())
+                        prettyprint_usize(pl.capacity())
                     )
-                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                    .text_widget(ctx),
                 );
             }
-            <span class="kw">_</span> =&gt; {
-                <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;Zoom in and select something to begin&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>)];
+            <span class="kw">_ </span>=&gt; {
+                col = <span class="macro">vec!</span>[<span class="string">&quot;Zoom in and select something to begin&quot;</span>.text_widget(ctx)];
             }
         }
-        <span class="ident">Widget::col</span>(<span class="ident">col</span>)
+        Widget::col(col)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Viewer</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>() {
-            <span class="ident">URLManager::update_url_cam</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>Viewer {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition&lt;App&gt; {
+        <span class="kw">if </span>ctx.canvas_movement() {
+            URLManager::update_url_cam(ctx, app.map.get_gps_bounds());
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">let</span> <span class="ident">old_id</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>();
-            <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="kw">let </span>old_id = app.current_selection.clone();
+            app.recalculate_current_selection(ctx);
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">old_id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">current_selection</span> {
-                <span class="kw">let</span> <span class="ident">biz_search</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">take</span>(<span class="string">&quot;Search for businesses&quot;</span>);
-                <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">biz_search</span>));
+            <span class="kw">if </span><span class="self">self</span>.fixed_object_outline.is_none() &amp;&amp; old_id != app.current_selection {
+                <span class="kw">let </span>biz_search = <span class="self">self</span>.top_panel.take(<span class="string">&quot;Search for businesses&quot;</span>);
+                <span class="self">self</span>.recalculate_top_panel(ctx, app, <span class="prelude-val">Some</span>(biz_search));
             }
 
-            <span class="kw">let</span> <span class="ident">maybe_amenity</span> <span class="op">=</span> <span class="ident">ctx</span>
-                .<span class="ident">canvas</span>
-                .<span class="ident">get_cursor_in_screen_space</span>()
-                .<span class="ident">and_then</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">currently_hovering</span>().<span class="ident">cloned</span>());
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span> {
-                <span class="ident">b</span>.<span class="ident">hovering_on_amenity</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_amenity</span>);
+            <span class="kw">let </span>maybe_amenity = ctx
+                .canvas
+                .get_cursor_in_screen_space()
+                .and_then(|<span class="kw">_</span>| <span class="self">self</span>.top_panel.currently_hovering().cloned());
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>b) = <span class="self">self</span>.businesses {
+                b.hovering_on_amenity(ctx, app, maybe_amenity);
             }
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">current_selection</span>.<span class="ident">clone</span>() {
-                <span class="comment">// get_obj must succeed, because we can only click static map elements.</span>
-                <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">draw_map</span>
-                    .<span class="ident">get_obj</span>(<span class="ident">ctx</span>, <span class="ident">id</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">map_gui::render::AgentCache::new</span>())
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">perma_selected_object</span>, <span class="ident">outline</span>)]);
+        <span class="kw">if </span>ctx.canvas.get_cursor_in_map_space().is_some() &amp;&amp; ctx.normal_left_click() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = app.current_selection.clone() {
+                <span class="comment">// get_obj must succeed, because we can only click static map elements.
+                </span><span class="kw">let </span>outline = app
+                    .draw_map
+                    .get_obj(ctx, id, app, <span class="kw-2">&amp;mut </span>map_gui::render::AgentCache::new())
+                    .unwrap()
+                    .get_outline(<span class="kw-2">&amp;</span>app.map);
+                <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::from(<span class="macro">vec!</span>[(app.cs.perma_selected_object, outline)]);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">current_selection</span> {
-                    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_turns_from_lane</span>(<span class="ident">l</span>) {
-                        <span class="ident">batch</span>.<span class="ident">push</span>(
-                            <span class="ident">TurnExplorer::color_turn_type</span>(<span class="ident">turn</span>.<span class="ident">turn_type</span>),
-                            <span class="ident">turn</span>.<span class="ident">geom</span>
-                                .<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span>, <span class="ident">ArrowCap::Triangle</span>),
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Lane(l)) = app.current_selection {
+                    <span class="kw">for </span>turn <span class="kw">in </span>app.map.get_turns_from_lane(l) {
+                        batch.push(
+                            TurnExplorer::color_turn_type(turn.turn_type),
+                            turn.geom
+                                .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
                         );
                     }
                 }
 
-                <span class="self">self</span>.<span class="ident">fixed_object_outline</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">fixed_object_outline</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+                <span class="self">self</span>.fixed_object_outline = <span class="prelude-val">Some</span>(ctx.upload(batch));
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.fixed_object_outline = <span class="prelude-val">None</span>;
             }
-            <span class="kw">let</span> <span class="ident">biz_search</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">take</span>(<span class="string">&quot;Search for businesses&quot;</span>);
-            <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">biz_search</span>));
+            <span class="kw">let </span>biz_search = <span class="self">self</span>.top_panel.take(<span class="string">&quot;Search for businesses&quot;</span>);
+            <span class="self">self</span>.recalculate_top_panel(ctx, app, <span class="prelude-val">Some</span>(biz_search));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">minimap</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-            <span class="kw">return</span> <span class="ident">t</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = <span class="self">self</span>.minimap.event(ctx, app) {
+            <span class="kw">return </span>t;
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Home&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">match </span><span class="self">self</span>.top_panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;Home&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;change map&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">CityPicker::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                <span class="ident">Transition::Pop</span>,
-                                <span class="ident">Transition::Replace</span>(<span class="ident">Viewer::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                <span class="string">&quot;change map&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Push(CityPicker::new_state(
+                        ctx,
+                        app,
+                        Box::new(|ctx, app| {
+                            Transition::Multi(<span class="macro">vec!</span>[
+                                Transition::Pop,
+                                Transition::Replace(Viewer::new_state(ctx, app)),
                             ])
                         }),
                     ));
                 }
-                <span class="string">&quot;settings&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">OptionsPanel::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                <span class="string">&quot;settings&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Push(OptionsPanel::new_state(ctx, app));
                 }
-                <span class="string">&quot;search&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                <span class="string">&quot;search&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Push(Navigator::new_state(ctx, app));
                 }
-                <span class="string">&quot;About&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                        <span class="ident">ctx</span>,
+                <span class="string">&quot;About&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
+                        ctx,
                         <span class="string">&quot;About this OSM viewer&quot;</span>,
                         <span class="macro">vec!</span>[
                             <span class="string">&quot;If you have an idea about what this viewer should do, get in touch \
@@ -770,171 +770,171 @@
                         ],
                     ));
                 }
-                <span class="string">&quot;Search for businesses&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">businesses</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BusinessSearch::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
-                    <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>);
+                <span class="string">&quot;Search for businesses&quot; </span>=&gt; {
+                    <span class="self">self</span>.businesses = <span class="prelude-val">Some</span>(BusinessSearch::new(ctx, app));
+                    <span class="self">self</span>.recalculate_top_panel(ctx, app, <span class="prelude-val">None</span>);
                 }
-                <span class="string">&quot;Hide business search&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">businesses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">recalculate_top_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>);
+                <span class="string">&quot;Hide business search&quot; </span>=&gt; {
+                    <span class="self">self</span>.businesses = <span class="prelude-val">None</span>;
+                    <span class="self">self</span>.recalculate_top_panel(ctx, app, <span class="prelude-val">None</span>);
                 }
-                <span class="ident">x</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">url</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;open &quot;</span>) {
-                        <span class="ident">open_browser</span>(<span class="ident">url</span>);
-                    } <span class="kw">else</span> {
+                x =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(url) = x.strip_prefix(<span class="string">&quot;open &quot;</span>) {
+                        open_browser(url);
+                    } <span class="kw">else </span>{
                         <span class="macro">unreachable!</span>()
                     }
                 }
             },
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
-                <span class="comment">// Update state from checkboxes</span>
-                <span class="ident">b</span>.<span class="ident">show</span>.<span class="ident">clear</span>();
-                <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="ident">b</span>.<span class="ident">counts</span>.<span class="ident">borrow</span>().<span class="ident">keys</span>() {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">is_checked</span>(<span class="ident">amenity</span>) {
-                        <span class="ident">b</span>.<span class="ident">show</span>.<span class="ident">insert</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>());
+            Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>b = <span class="self">self</span>.businesses.as_mut().unwrap();
+                <span class="comment">// Update state from checkboxes
+                </span>b.show.clear();
+                <span class="kw">for </span>amenity <span class="kw">in </span>b.counts.borrow().keys() {
+                    <span class="kw">if </span><span class="self">self</span>.top_panel.is_checked(amenity) {
+                        b.show.insert(amenity.clone());
                     }
                 }
-                <span class="ident">b</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                b.update(ctx, app);
 
-                <span class="kw">return</span> <span class="ident">Transition::KeepWithMouseover</span>;
+                <span class="kw">return </span>Transition::KeepWithMouseover;
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::Custom</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-            <span class="ident">app</span>.<span class="ident">draw_unzoomed</span>(<span class="ident">g</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">app</span>.<span class="ident">draw_zoomed</span>(<span class="ident">g</span>, <span class="ident">DrawOptions::new</span>());
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if </span>g.canvas.is_unzoomed() {
+            app.draw_unzoomed(g);
+        } <span class="kw">else </span>{
+            app.draw_zoomed(g, DrawOptions::new());
         }
 
-        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">minimap</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">d</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">fixed_object_outline</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">d</span>);
+        <span class="self">self</span>.top_panel.draw(g);
+        <span class="self">self</span>.minimap.draw(g, app);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>d) = <span class="self">self</span>.fixed_object_outline {
+            g.redraw(d);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">b</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">businesses</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">highlight</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">d</span>)) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">hovering_on_amenity</span> {
-                <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">d</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>b) = <span class="self">self</span>.businesses {
+            g.redraw(<span class="kw-2">&amp;</span>b.highlight);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="kw-2">ref </span>d)) = b.hovering_on_amenity {
+                g.redraw(d);
             }
         }
     }
 }
 
-<span class="kw">struct</span> <span class="ident">BusinessSearch</span> {
-    <span class="ident">counts</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">show</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">highlight</span>: <span class="ident">Drawable</span>,
-    <span class="ident">hovering_on_amenity</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
+<span class="kw">struct </span>BusinessSearch {
+    counts: Counter&lt;String&gt;,
+    show: BTreeSet&lt;String&gt;,
+    highlight: Drawable,
+    hovering_on_amenity: <span class="prelude-ty">Option</span>&lt;(String, Drawable)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">BusinessSearch</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">BusinessSearch</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counts</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                <span class="ident">counts</span>.<span class="ident">inc</span>(<span class="ident">a</span>.<span class="ident">amenity_type</span>.<span class="ident">clone</span>());
+<span class="kw">impl </span>BusinessSearch {
+    <span class="kw">fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; BusinessSearch {
+        <span class="kw">let </span><span class="kw-2">mut </span>counts = Counter::new();
+        <span class="kw">for </span>b <span class="kw">in </span>app.map.all_buildings() {
+            <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span>b.amenities {
+                counts.inc(a.amenity_type.clone());
             }
         }
-        <span class="kw">let</span> <span class="ident">show</span> <span class="op">=</span> <span class="ident">counts</span>.<span class="ident">borrow</span>().<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">BusinessSearch</span> {
-            <span class="ident">counts</span>,
-            <span class="ident">show</span>,
-            <span class="ident">highlight</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">hovering_on_amenity</span>: <span class="prelude-val">None</span>,
+        <span class="kw">let </span>show = counts.borrow().keys().cloned().collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>s = BusinessSearch {
+            counts,
+            show,
+            highlight: Drawable::empty(ctx),
+            hovering_on_amenity: <span class="prelude-val">None</span>,
         };
 
-        <span class="comment">// Initialize highlight</span>
-        <span class="ident">s</span>.<span class="ident">update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="comment">// Initialize highlight
+        </span>s.update(ctx, app);
 
-        <span class="ident">s</span>
+        s
     }
 
-    <span class="comment">// Updates the highlighted buildings</span>
-    <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">show</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">amenity_type</span>))
+    <span class="comment">// Updates the highlighted buildings
+    </span><span class="kw">fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>b <span class="kw">in </span>app.map.all_buildings() {
+            <span class="kw">if </span>b.amenities
+                .iter()
+                .any(|a| <span class="self">self</span>.show.contains(<span class="kw-2">&amp;</span>a.amenity_type))
             {
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                batch.push(Color::RED, b.polygon.clone());
             }
         }
-        <span class="self">self</span>.<span class="ident">highlight</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+        <span class="self">self</span>.highlight = ctx.upload(batch);
     }
 
-    <span class="kw">fn</span> <span class="ident">hovering_on_amenity</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">amenity</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>) {
-        <span class="kw">if</span> <span class="ident">amenity</span>.<span class="ident">is_none</span>() {
-            <span class="self">self</span>.<span class="ident">hovering_on_amenity</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">fn </span>hovering_on_amenity(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, amenity: <span class="prelude-ty">Option</span>&lt;String&gt;) {
+        <span class="kw">if </span>amenity.is_none() {
+            <span class="self">self</span>.hovering_on_amenity = <span class="prelude-val">None</span>;
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">amenity</span> <span class="op">=</span> <span class="ident">amenity</span>.<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="self">self</span>
-            .<span class="ident">hovering_on_amenity</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">current</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">current</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">amenity</span>)
-            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+        <span class="kw">let </span>amenity = amenity.unwrap();
+        <span class="kw">if </span><span class="self">self
+            </span>.hovering_on_amenity
+            .as_ref()
+            .map(|(current, <span class="kw">_</span>)| current == <span class="kw-2">&amp;</span>amenity)
+            .unwrap_or(<span class="bool-val">false</span>)
         {
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">get</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>()) <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-                <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">amenity_type</span> <span class="op">==</span> <span class="ident">amenity</span>) {
-                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">if </span><span class="self">self</span>.counts.get(amenity.clone()) &gt; <span class="number">0 </span>{
+            <span class="kw">for </span>b <span class="kw">in </span>app.map.all_buildings() {
+                <span class="kw">if </span>b.amenities.iter().any(|a| a.amenity_type == amenity) {
+                    batch.push(Color::BLUE, b.polygon.clone());
                 }
             }
         }
-        <span class="self">self</span>.<span class="ident">hovering_on_amenity</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">amenity</span>, <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)));
+        <span class="self">self</span>.hovering_on_amenity = <span class="prelude-val">Some</span>((amenity, ctx.upload(batch)));
     }
 
-    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Hide business search&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Tab</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    <span class="kw">fn </span>render(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
+        col.push(
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Hide business search&quot;</span>)
+                .hotkey(Key::Tab)
+                .build_def(ctx),
         );
-        <span class="ident">col</span>.<span class="ident">push</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;{} businesses total&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">sum</span>())).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        col.push(
+            <span class="macro">format!</span>(<span class="string">&quot;{} businesses total&quot;</span>, prettyprint_usize(<span class="self">self</span>.counts.sum())).text_widget(ctx),
         );
-        <span class="kw">for</span> (<span class="ident">amenity</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">counts</span>.<span class="ident">borrow</span>() {
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Toggle::custom_checkbox</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">amenity</span>,
-                <span class="macro">vec!</span>[<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">amenity</span>, <span class="ident">prettyprint_usize</span>(<span class="kw-2">*</span><span class="ident">cnt</span>)))],
+        <span class="kw">for </span>(amenity, cnt) <span class="kw">in </span><span class="self">self</span>.counts.borrow() {
+            col.push(Toggle::custom_checkbox(
+                ctx,
+                amenity,
+                <span class="macro">vec!</span>[Line(<span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, amenity, prettyprint_usize(<span class="kw-2">*</span>cnt)))],
                 <span class="prelude-val">None</span>,
-                <span class="self">self</span>.<span class="ident">show</span>.<span class="ident">contains</span>(<span class="ident">amenity</span>),
+                <span class="self">self</span>.show.contains(amenity),
             ));
         }
-        <span class="ident">Widget::col</span>(<span class="ident">col</span>)
+        Widget::col(col)
     }
 }
 
-<span class="kw">struct</span> <span class="ident">MinimapController</span>;
+<span class="kw">struct </span>MinimapController;
 
-<span class="kw">impl</span> <span class="ident">MinimapControls</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MinimapController</span> {
-    <span class="kw">fn</span> <span class="ident">has_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">true</span>
-    }
+<span class="kw">impl </span>MinimapControls&lt;App&gt; <span class="kw">for </span>MinimapController {
+    <span class="kw">fn </span>has_zorder(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) -&gt; bool {
+        <span class="bool-val">true
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Widget::nothing</span>()
+    <span class="kw">fn </span>make_legend(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        Widget::nothing()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="osm_viewer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="osm_viewer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

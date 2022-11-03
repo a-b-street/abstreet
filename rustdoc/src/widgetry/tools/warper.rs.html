@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/warper.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>warper.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/warper.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>warper.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -66,73 +66,73 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">instant::Instant</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>instant::Instant;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Line</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>geom::{Line, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">EventCtx</span>, <span class="ident">UpdateType</span>};
+<span class="kw">use crate</span>::{EventCtx, UpdateType};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Warper</span> {
-    <span class="ident">started</span>: <span class="ident">Instant</span>,
-    <span class="ident">line</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Line</span><span class="op">&gt;</span>,
-    <span class="ident">cam_zoom</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>),
+<span class="kw">pub struct </span>Warper {
+    started: Instant,
+    line: <span class="prelude-ty">Option</span>&lt;Line&gt;,
+    cam_zoom: (f64, f64),
 }
 
-<span class="kw">impl</span> <span class="ident">Warper</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="ident">target_cam_zoom</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="ident">Warper</span> {
-        <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>;
-        <span class="ident">Warper</span> {
-            <span class="ident">started</span>: <span class="ident">Instant::now</span>(),
-            <span class="ident">line</span>: <span class="ident">Line::new</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>(), <span class="ident">pt</span>).<span class="ident">ok</span>(),
-            <span class="ident">cam_zoom</span>: (<span class="ident">z</span>, <span class="ident">target_cam_zoom</span>.<span class="ident">unwrap_or</span>(<span class="ident">z</span>)),
+<span class="kw">impl </span>Warper {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;</span>EventCtx, pt: Pt2D, target_cam_zoom: <span class="prelude-ty">Option</span>&lt;f64&gt;) -&gt; Warper {
+        <span class="kw">let </span>z = ctx.canvas.cam_zoom;
+        Warper {
+            started: Instant::now(),
+            line: Line::new(ctx.canvas.center_to_map_pt(), pt).ok(),
+            cam_zoom: (z, target_cam_zoom.unwrap_or(z)),
         }
     }
 
-    <span class="comment">// false means done</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// Actually nothing for us to do</span>
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::float_cmp</span>)]</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">line</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>.<span class="number">0</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>.<span class="number">1</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="comment">// false means done
+    </span><span class="kw">pub fn </span>event(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; bool {
+        <span class="comment">// Actually nothing for us to do
+        </span><span class="attribute">#[allow(clippy::float_cmp)]
+        </span><span class="kw">if </span><span class="self">self</span>.line.is_none() &amp;&amp; <span class="self">self</span>.cam_zoom.<span class="number">0 </span>== <span class="self">self</span>.cam_zoom.<span class="number">1 </span>{
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="comment">// Weird to do stuff for any event?</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>().<span class="ident">is_none</span>() {
-            <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType::Game</span>);
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="comment">// Weird to do stuff for any event?
+        </span><span class="kw">if </span>ctx.input.nonblocking_is_update_event().is_none() {
+            ctx.request_update(UpdateType::Game);
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">use_update_event</span>();
+        ctx.input.use_update_event();
 
-        <span class="kw">const</span> <span class="ident">MAX_ANIMATION_TIME_S</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">0.5</span>;
-        <span class="kw">const</span> <span class="ident">ANIMATION_SPEED</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">200.0</span>;
-        <span class="kw">let</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">line</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line</span> {
-            (<span class="ident">line</span>.<span class="ident">length</span>().<span class="ident">inner_meters</span>() <span class="op">/</span> <span class="ident">ANIMATION_SPEED</span>).<span class="ident">min</span>(<span class="ident">MAX_ANIMATION_TIME_S</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">MAX_ANIMATION_TIME_S</span>
+        <span class="kw">const </span>MAX_ANIMATION_TIME_S: f64 = <span class="number">0.5</span>;
+        <span class="kw">const </span>ANIMATION_SPEED: f64 = <span class="number">200.0</span>;
+        <span class="kw">let </span>total_time = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>line) = <span class="self">self</span>.line {
+            (line.length().inner_meters() / ANIMATION_SPEED).min(MAX_ANIMATION_TIME_S)
+        } <span class="kw">else </span>{
+            MAX_ANIMATION_TIME_S
         };
-        <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> <span class="ident">abstutil::elapsed_seconds</span>(<span class="self">self</span>.<span class="ident">started</span>) <span class="op">/</span> <span class="ident">total_time</span>;
+        <span class="kw">let </span>percent = abstutil::elapsed_seconds(<span class="self">self</span>.started) / total_time;
 
-        <span class="kw">let</span> <span class="ident">orig_center</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>();
-        <span class="kw">if</span> <span class="ident">percent</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">any_pressed</span>().<span class="ident">is_some</span>() {
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>.<span class="number">1</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">line</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line</span> {
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">line</span>.<span class="ident">pt2</span>());
-            } <span class="kw">else</span> {
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">orig_center</span>);
+        <span class="kw">let </span>orig_center = ctx.canvas.center_to_map_pt();
+        <span class="kw">if </span>percent &gt;= <span class="number">1.0 </span>|| ctx.input.any_pressed().is_some() {
+            ctx.canvas.cam_zoom = <span class="self">self</span>.cam_zoom.<span class="number">1</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>line) = <span class="self">self</span>.line {
+                ctx.canvas.center_on_map_pt(line.pt2());
+            } <span class="kw">else </span>{
+                ctx.canvas.center_on_map_pt(orig_center);
             }
-            <span class="bool-val">false</span>
-        } <span class="kw">else</span> {
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">percent</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">cam_zoom</span>.<span class="number">1</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">cam_zoom</span>.<span class="number">0</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">line</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line</span> {
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>
-                    .<span class="ident">center_on_map_pt</span>(<span class="ident">line</span>.<span class="ident">percent_along</span>(<span class="ident">percent</span>).<span class="ident">unwrap</span>());
-            } <span class="kw">else</span> {
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">orig_center</span>);
+            <span class="bool-val">false
+        </span>} <span class="kw">else </span>{
+            ctx.canvas.cam_zoom = <span class="self">self</span>.cam_zoom.<span class="number">0 </span>+ percent * (<span class="self">self</span>.cam_zoom.<span class="number">1 </span>- <span class="self">self</span>.cam_zoom.<span class="number">0</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>line) = <span class="self">self</span>.line {
+                ctx.canvas
+                    .center_on_map_pt(line.percent_along(percent).unwrap());
+            } <span class="kw">else </span>{
+                ctx.canvas.center_on_map_pt(orig_center);
             }
-            <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType::Game</span>);
-            <span class="bool-val">true</span>
-        }
+            ctx.request_update(UpdateType::Game);
+            <span class="bool-val">true
+        </span>}
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

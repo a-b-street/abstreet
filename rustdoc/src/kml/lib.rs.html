@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `kml/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../kml/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../kml/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../kml/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `kml/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../kml/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../kml/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../kml/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -222,229 +222,229 @@
 <span id="222">222</span>
 <span id="223">223</span>
 <span id="224">224</span>
-</pre><pre class="rust"><code><span class="comment">// TODO Time to rename this crate</span>
+</pre><pre class="rust"><code><span class="comment">// TODO Time to rename this crate
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+</span><span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>anyhow;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+<span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::{GPSBounds, LonLat, PolyLine, Polygon};
 
-<span class="doccomment">/// Some dataset imported from KML, CSV, or something else. If the dataset is large, converting to</span>
-<span class="doccomment">/// this format and serializing is faster than parsing the original again.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExtraShapes</span> {
-    <span class="kw">pub</span> <span class="ident">shapes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExtraShape</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Some dataset imported from KML, CSV, or something else. If the dataset is large, converting to
+/// this format and serializing is faster than parsing the original again.
+</span><span class="attribute">#[derive(Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>ExtraShapes {
+    <span class="kw">pub </span>shapes: Vec&lt;ExtraShape&gt;,
 }
 
-<span class="doccomment">/// A single object in the dataset.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExtraShape</span> {
-    <span class="doccomment">/// The object has a different inferred shape depending on the points:</span>
-    <span class="doccomment">/// - a single point just represents a position</span>
-    <span class="doccomment">/// - a ring of points (with the first and last matching) is interpreted as a polygon</span>
-    <span class="doccomment">/// - multiple points are interpreted as a PolyLine</span>
-    <span class="kw">pub</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Arbitrary key/value pairs associated with this object; no known schema.</span>
-    <span class="kw">pub</span> <span class="ident">attributes</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A single object in the dataset.
+</span><span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>ExtraShape {
+    <span class="doccomment">/// The object has a different inferred shape depending on the points:
+    /// - a single point just represents a position
+    /// - a ring of points (with the first and last matching) is interpreted as a polygon
+    /// - multiple points are interpreted as a PolyLine
+    </span><span class="kw">pub </span>points: Vec&lt;LonLat&gt;,
+    <span class="doccomment">/// Arbitrary key/value pairs associated with this object; no known schema.
+    </span><span class="kw">pub </span>attributes: BTreeMap&lt;String, String&gt;,
 }
 
-<span class="doccomment">/// Parses a .kml file and returns ExtraShapes. Objects will be clipped to the given gps_bounds. If</span>
-<span class="doccomment">/// require_all_pts_in_bounds is true, objects that&#39;re partly out-of-bounds will be skipped.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>(
-    <span class="ident">path</span>: <span class="ident">String</span>,
-    <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
-    <span class="ident">require_all_pts_in_bounds</span>: <span class="ident">bool</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span> {
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
-    <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::slurp_file</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">raw_string</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">roxmltree::Document::parse</span>(<span class="ident">raw_string</span>)<span class="question-mark">?</span>;
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
+<span class="doccomment">/// Parses a .kml file and returns ExtraShapes. Objects will be clipped to the given gps_bounds. If
+/// require_all_pts_in_bounds is true, objects that&#39;re partly out-of-bounds will be skipped.
+</span><span class="kw">pub fn </span>load(
+    path: String,
+    gps_bounds: <span class="kw-2">&amp;</span>GPSBounds,
+    require_all_pts_in_bounds: bool,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; <span class="prelude-ty">Result</span>&lt;ExtraShapes&gt; {
+    timer.start(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
+    <span class="kw">let </span>bytes = abstio::slurp_file(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>;
+    <span class="kw">let </span>raw_string = std::str::from_utf8(<span class="kw-2">&amp;</span>bytes)<span class="question-mark">?</span>;
+    <span class="kw">let </span>tree = roxmltree::Document::parse(raw_string)<span class="question-mark">?</span>;
+    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skipped_count</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kv</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>shapes = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>skipped_count = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>kv = BTreeMap::new();
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;scrape objects&quot;</span>);
-    <span class="ident">recurse</span>(
-        <span class="ident">tree</span>.<span class="ident">root</span>(),
-        <span class="kw-2">&amp;mut</span> <span class="ident">shapes</span>,
-        <span class="kw-2">&amp;mut</span> <span class="ident">skipped_count</span>,
-        <span class="kw-2">&amp;mut</span> <span class="ident">kv</span>,
-        <span class="ident">gps_bounds</span>,
-        <span class="ident">require_all_pts_in_bounds</span>,
+    timer.start(<span class="string">&quot;scrape objects&quot;</span>);
+    recurse(
+        tree.root(),
+        <span class="kw-2">&amp;mut </span>shapes,
+        <span class="kw-2">&amp;mut </span>skipped_count,
+        <span class="kw-2">&amp;mut </span>kv,
+        gps_bounds,
+        require_all_pts_in_bounds,
     )<span class="question-mark">?</span>;
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;scrape objects&quot;</span>);
+    timer.stop(<span class="string">&quot;scrape objects&quot;</span>);
 
     <span class="macro">info!</span>(
         <span class="string">&quot;Got {} shapes from {} and skipped {} shapes&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">shapes</span>.<span class="ident">len</span>()),
-        <span class="ident">path</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">skipped_count</span>)
+        prettyprint_usize(shapes.len()),
+        path,
+        prettyprint_usize(skipped_count)
     );
 
-    <span class="prelude-val">Ok</span>(<span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> })
+    <span class="prelude-val">Ok</span>(ExtraShapes { shapes })
 }
 
-<span class="kw">fn</span> <span class="ident">recurse</span>(
-    <span class="ident">node</span>: <span class="ident">roxmltree::Node</span>,
-    <span class="ident">shapes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExtraShape</span><span class="op">&gt;</span>,
-    <span class="ident">skipped_count</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
-    <span class="ident">kv</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
-    <span class="ident">require_all_pts_in_bounds</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">for</span> <span class="ident">child</span> <span class="kw">in</span> <span class="ident">node</span>.<span class="ident">children</span>() {
-        <span class="ident">recurse</span>(
-            <span class="ident">child</span>,
-            <span class="ident">shapes</span>,
-            <span class="ident">skipped_count</span>,
-            <span class="ident">kv</span>,
-            <span class="ident">gps_bounds</span>,
-            <span class="ident">require_all_pts_in_bounds</span>,
+<span class="kw">fn </span>recurse(
+    node: roxmltree::Node,
+    shapes: <span class="kw-2">&amp;mut </span>Vec&lt;ExtraShape&gt;,
+    skipped_count: <span class="kw-2">&amp;mut </span>usize,
+    kv: <span class="kw-2">&amp;mut </span>BTreeMap&lt;String, String&gt;,
+    gps_bounds: <span class="kw-2">&amp;</span>GPSBounds,
+    require_all_pts_in_bounds: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">for </span>child <span class="kw">in </span>node.children() {
+        recurse(
+            child,
+            shapes,
+            skipped_count,
+            kv,
+            gps_bounds,
+            require_all_pts_in_bounds,
         )<span class="question-mark">?</span>;
     }
-    <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">tag_name</span>().<span class="ident">name</span>() <span class="op">==</span> <span class="string">&quot;SimpleData&quot;</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">attribute</span>(<span class="string">&quot;name&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">to_string</span>();
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">node</span>
-            .<span class="ident">text</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
-            .<span class="ident">unwrap_or_else</span>(<span class="ident">String::new</span>);
-        <span class="ident">kv</span>.<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">value</span>);
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">tag_name</span>().<span class="ident">name</span>() <span class="op">==</span> <span class="string">&quot;coordinates&quot;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_oob</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>) <span class="op">=</span> <span class="ident">node</span>.<span class="ident">text</span>() {
-            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">txt</span>.<span class="ident">trim</span>().<span class="ident">split</span>(<span class="string">&#39; &#39;</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">parse_pt</span>(<span class="ident">pair</span>) {
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
-                    <span class="kw">if</span> <span class="ident">gps_bounds</span>.<span class="ident">contains</span>(<span class="ident">pt</span>) {
-                        <span class="ident">any_ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">any_oob</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">if </span>node.tag_name().name() == <span class="string">&quot;SimpleData&quot; </span>{
+        <span class="kw">let </span>key = node.attribute(<span class="string">&quot;name&quot;</span>).unwrap().to_string();
+        <span class="kw">let </span>value = node
+            .text()
+            .map(|x| x.to_string())
+            .unwrap_or_else(String::new);
+        kv.insert(key, value);
+    } <span class="kw">else if </span>node.tag_name().name() == <span class="string">&quot;coordinates&quot; </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>any_oob = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>any_ok = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>pts: Vec&lt;LonLat&gt; = Vec::new();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(txt) = node.text() {
+            <span class="kw">for </span>pair <span class="kw">in </span>txt.trim().split(<span class="string">&#39; &#39;</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = parse_pt(pair) {
+                    pts.push(pt);
+                    <span class="kw">if </span>gps_bounds.contains(pt) {
+                        any_ok = <span class="bool-val">true</span>;
+                    } <span class="kw">else </span>{
+                        any_oob = <span class="bool-val">true</span>;
                     }
-                } <span class="kw">else</span> {
-                    <span class="macro">bail!</span>(<span class="string">&quot;Malformed coordinates: {}&quot;</span>, <span class="ident">pair</span>);
+                } <span class="kw">else </span>{
+                    <span class="macro">bail!</span>(<span class="string">&quot;Malformed coordinates: {}&quot;</span>, pair);
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">any_ok</span> <span class="op">&amp;&amp;</span> (<span class="op">!</span><span class="ident">any_oob</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">require_all_pts_in_bounds</span>) {
-            <span class="kw">let</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="ident">kv</span>);
-            <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
-                <span class="ident">points</span>: <span class="ident">pts</span>,
-                <span class="ident">attributes</span>,
+        <span class="kw">if </span>any_ok &amp;&amp; (!any_oob || !require_all_pts_in_bounds) {
+            <span class="kw">let </span>attributes = std::mem::take(kv);
+            shapes.push(ExtraShape {
+                points: pts,
+                attributes,
             });
-        } <span class="kw">else</span> {
-            <span class="kw-2">*</span><span class="ident">skipped_count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        } <span class="kw">else </span>{
+            <span class="kw-2">*</span>skipped_count += <span class="number">1</span>;
         }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">parse_pt</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">coords</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">split</span>(<span class="string">&#39;,&#39;</span>).<span class="ident">collect</span>();
-    <span class="comment">// Normally each coordinate is just (X, Y), but for census tract files, there&#39;s a third Z</span>
-    <span class="comment">// component that&#39;s always 0. Just ignore it.</span>
-    <span class="kw">if</span> <span class="ident">coords</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>parse_pt(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;LonLat&gt; {
+    <span class="kw">let </span>coords: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = input.split(<span class="string">&#39;,&#39;</span>).collect();
+    <span class="comment">// Normally each coordinate is just (X, Y), but for census tract files, there&#39;s a third Z
+    // component that&#39;s always 0. Just ignore it.
+    </span><span class="kw">if </span>coords.len() &lt; <span class="number">2 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="kw">match</span> (<span class="ident">coords</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>(), <span class="ident">coords</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()) {
-        (<span class="prelude-val">Ok</span>(<span class="ident">lon</span>), <span class="prelude-val">Ok</span>(<span class="ident">lat</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">LonLat::new</span>(<span class="ident">lon</span>, <span class="ident">lat</span>)),
-        <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">match </span>(coords[<span class="number">0</span>].parse::&lt;f64&gt;(), coords[<span class="number">1</span>].parse::&lt;f64&gt;()) {
+        (<span class="prelude-val">Ok</span>(lon), <span class="prelude-val">Ok</span>(lat)) =&gt; <span class="prelude-val">Some</span>(LonLat::new(lon, lat)),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ExtraShapes</span> {
-    <span class="doccomment">/// Parses a .csv file and returns ExtraShapes. Each record must EITHER have a column called</span>
-    <span class="doccomment">/// &#39;Longitude&#39; and &#39;Latitude&#39;, representing a single point, OR a column called &#39;geometry&#39; with</span>
-    <span class="doccomment">/// a WKT-style linestring. All other columns will just be attributes. Objects that&#39;re partly</span>
-    <span class="doccomment">/// out-of-bounds will be excluded.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_csv</span>(
-        <span class="ident">path</span>: <span class="ident">String</span>,
-        <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span> {
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_path</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)<span class="question-mark">?</span>.<span class="ident">deserialize</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rec</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-            <span class="kw">match</span> (
-                <span class="ident">rec</span>.<span class="ident">remove</span>(<span class="string">&quot;Longitude&quot;</span>),
-                <span class="ident">rec</span>.<span class="ident">remove</span>(<span class="string">&quot;Latitude&quot;</span>),
-                <span class="ident">rec</span>.<span class="ident">remove</span>(<span class="string">&quot;geometry&quot;</span>),
+<span class="kw">impl </span>ExtraShapes {
+    <span class="doccomment">/// Parses a .csv file and returns ExtraShapes. Each record must EITHER have a column called
+    /// &#39;Longitude&#39; and &#39;Latitude&#39;, representing a single point, OR a column called &#39;geometry&#39; with
+    /// a WKT-style linestring. All other columns will just be attributes. Objects that&#39;re partly
+    /// out-of-bounds will be excluded.
+    </span><span class="kw">pub fn </span>load_csv(
+        path: String,
+        gps_bounds: <span class="kw-2">&amp;</span>GPSBounds,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ExtraShapes&gt; {
+        timer.start(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
+        <span class="kw">let </span><span class="kw-2">mut </span>shapes = Vec::new();
+        <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_path(<span class="kw-2">&amp;</span>path)<span class="question-mark">?</span>.deserialize() {
+            <span class="kw">let </span><span class="kw-2">mut </span>rec: BTreeMap&lt;String, String&gt; = rec<span class="question-mark">?</span>;
+            <span class="kw">match </span>(
+                rec.remove(<span class="string">&quot;Longitude&quot;</span>),
+                rec.remove(<span class="string">&quot;Latitude&quot;</span>),
+                rec.remove(<span class="string">&quot;geometry&quot;</span>),
             ) {
-                (<span class="prelude-val">Some</span>(<span class="ident">lon</span>), <span class="prelude-val">Some</span>(<span class="ident">lat</span>), <span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Ok</span>(<span class="ident">lon</span>), <span class="prelude-val">Ok</span>(<span class="ident">lat</span>)) <span class="op">=</span> (<span class="ident">lon</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>(), <span class="ident">lat</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()) {
-                        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="ident">lon</span>, <span class="ident">lat</span>);
-                        <span class="kw">if</span> <span class="ident">gps_bounds</span>.<span class="ident">contains</span>(<span class="ident">pt</span>) {
-                            <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
-                                <span class="ident">points</span>: <span class="macro">vec!</span>[<span class="ident">pt</span>],
-                                <span class="ident">attributes</span>: <span class="ident">rec</span>,
+                (<span class="prelude-val">Some</span>(lon), <span class="prelude-val">Some</span>(lat), <span class="kw">_</span>) =&gt; {
+                    <span class="kw">if let </span>(<span class="prelude-val">Ok</span>(lon), <span class="prelude-val">Ok</span>(lat)) = (lon.parse::&lt;f64&gt;(), lat.parse::&lt;f64&gt;()) {
+                        <span class="kw">let </span>pt = LonLat::new(lon, lat);
+                        <span class="kw">if </span>gps_bounds.contains(pt) {
+                            shapes.push(ExtraShape {
+                                points: <span class="macro">vec!</span>[pt],
+                                attributes: rec,
                             });
                         }
                     }
                 }
-                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="ident">raw</span>)) =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">points</span>) <span class="op">=</span> <span class="ident">LonLat::parse_wkt_linestring</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>) {
-                        <span class="kw">if</span> <span class="ident">gps_bounds</span>.<span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="ident">points</span>).<span class="ident">is_some</span>() {
-                            <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
-                                <span class="ident">points</span>,
-                                <span class="ident">attributes</span>: <span class="ident">rec</span>,
+                (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(raw)) =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(points) = LonLat::parse_wkt_linestring(<span class="kw-2">&amp;</span>raw) {
+                        <span class="kw">if </span>gps_bounds.try_convert(<span class="kw-2">&amp;</span>points).is_some() {
+                            shapes.push(ExtraShape {
+                                points,
+                                attributes: rec,
                             });
                         }
                     }
                 }
-                <span class="kw">_</span> =&gt; {
-                    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
+                <span class="kw">_ </span>=&gt; {
+                    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
                     <span class="macro">bail!</span>(
                         <span class="string">&quot;{} doesn&#39;t have a column called Longitude, Latitude, or geometry&quot;</span>,
-                        <span class="ident">path</span>
+                        path
                     )
                 }
             }
         }
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, <span class="ident">path</span>));
-        <span class="prelude-val">Ok</span>(<span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> })
+        timer.stop(<span class="macro">format!</span>(<span class="string">&quot;read {}&quot;</span>, path));
+        <span class="prelude-val">Ok</span>(ExtraShapes { shapes })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ExtraShapes</span> {
-    <span class="doccomment">/// Parses a .geojson file and returns ExtraShapes</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_geojson_no_clipping</span>(
-        <span class="ident">path</span>: <span class="ident">String</span>,
-        <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>,
-        <span class="ident">require_in_bounds</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">impl </span>ExtraShapes {
+    <span class="doccomment">/// Parses a .geojson file and returns ExtraShapes
+    </span><span class="kw">pub fn </span>load_geojson_no_clipping(
+        path: String,
+        gps_bounds: <span class="kw-2">&amp;</span>GPSBounds,
+        require_in_bounds: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;ExtraShapes&gt; {
+        <span class="kw">let </span>bytes = abstio::slurp_file(path)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>shapes = Vec::new();
 
-        <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="ident">tags</span>) <span class="kw">in</span> <span class="ident">Polygon::from_geojson_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="ident">gps_bounds</span>, <span class="ident">require_in_bounds</span>)<span class="question-mark">?</span> {
-            <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
-                <span class="comment">// Awkward, but we have to convert back</span>
-                <span class="ident">points</span>: <span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">points</span>()),
-                <span class="ident">attributes</span>: <span class="ident">tags</span>.<span class="ident">into_inner</span>(),
+        <span class="kw">for </span>(polygon, tags) <span class="kw">in </span>Polygon::from_geojson_bytes(<span class="kw-2">&amp;</span>bytes, gps_bounds, require_in_bounds)<span class="question-mark">? </span>{
+            shapes.push(ExtraShape {
+                <span class="comment">// Awkward, but we have to convert back
+                </span>points: gps_bounds.convert_back(polygon.get_outer_ring().points()),
+                attributes: tags.into_inner(),
             });
         }
-        <span class="kw">for</span> (<span class="ident">pl</span>, <span class="ident">tags</span>) <span class="kw">in</span> <span class="ident">PolyLine::from_geojson_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>, <span class="ident">gps_bounds</span>, <span class="ident">require_in_bounds</span>)<span class="question-mark">?</span> {
-            <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> {
-                <span class="comment">// Awkward, but we have to convert back</span>
-                <span class="ident">points</span>: <span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">pl</span>.<span class="ident">points</span>()),
-                <span class="ident">attributes</span>: <span class="ident">tags</span>.<span class="ident">into_inner</span>(),
+        <span class="kw">for </span>(pl, tags) <span class="kw">in </span>PolyLine::from_geojson_bytes(<span class="kw-2">&amp;</span>bytes, gps_bounds, require_in_bounds)<span class="question-mark">? </span>{
+            shapes.push(ExtraShape {
+                <span class="comment">// Awkward, but we have to convert back
+                </span>points: gps_bounds.convert_back(pl.points()),
+                attributes: tags.into_inner(),
             });
         }
 
-        <span class="prelude-val">Ok</span>(<span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> })
+        <span class="prelude-val">Ok</span>(ExtraShapes { shapes })
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="kml" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="kml" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

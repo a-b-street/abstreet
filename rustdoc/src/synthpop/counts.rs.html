@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/counts.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>counts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/counts.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>counts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -137,144 +137,144 @@
 <span id="137">137</span>
 <span id="138">138</span>
 <span id="139">139</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>, <span class="ident">Pathfinder</span>, <span class="ident">RoadID</span>};
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter, Timer};
+<span class="kw">use </span>geom::Distance;
+<span class="kw">use </span>map_model::{IntersectionID, Map, PathRequest, PathStepV2, PathV2, Pathfinder, RoadID};
 
-<span class="doccomment">/// This represents the number of vehicles (or trips, or something else) crossing roads and</span>
-<span class="doccomment">/// intersections over some span of time. The data could represent real observations or something</span>
-<span class="doccomment">/// from a simulation.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// There&#39;s some nice UIs in other crates to compare counts.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TrafficCounts</span> {
-    <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">MapName</span>,
-    <span class="comment">// TODO For now, squeeze everything into this -- mode, weekday/weekend, time of day, data</span>
-    <span class="comment">// source, etc</span>
-    <span class="kw">pub</span> <span class="ident">description</span>: <span class="ident">String</span>,
-    <span class="comment">// TODO Maybe per direction, movement</span>
-    <span class="kw">pub</span> <span class="ident">per_road</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">per_intersection</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
+<span class="doccomment">/// This represents the number of vehicles (or trips, or something else) crossing roads and
+/// intersections over some span of time. The data could represent real observations or something
+/// from a simulation.
+///
+/// There&#39;s some nice UIs in other crates to compare counts.
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>TrafficCounts {
+    <span class="kw">pub </span>map: MapName,
+    <span class="comment">// TODO For now, squeeze everything into this -- mode, weekday/weekend, time of day, data
+    // source, etc
+    </span><span class="kw">pub </span>description: String,
+    <span class="comment">// TODO Maybe per direction, movement
+    </span><span class="kw">pub </span>per_road: Counter&lt;RoadID&gt;,
+    <span class="kw">pub </span>per_intersection: Counter&lt;IntersectionID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TrafficCounts</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">map</span>: <span class="ident">MapName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;place&quot;</span>, <span class="string">&quot;holder&quot;</span>),
-            <span class="ident">description</span>: <span class="ident">String::new</span>(),
-            <span class="ident">per_road</span>: <span class="ident">Counter::new</span>(),
-            <span class="ident">per_intersection</span>: <span class="ident">Counter::new</span>(),
+<span class="kw">impl </span>Default <span class="kw">for </span>TrafficCounts {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            map: MapName::new(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;place&quot;</span>, <span class="string">&quot;holder&quot;</span>),
+            description: String::new(),
+            per_road: Counter::new(),
+            per_intersection: Counter::new(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TrafficCounts</span> {
-    <span class="doccomment">/// Run pathfinding on all of the requests, then count the throughput on every road and</span>
-    <span class="doccomment">/// intersection. Each request has the count it should contribute -- use</span>
-    <span class="doccomment">/// `PathRequest::deduplicate` to easily generate this.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path_requests</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">description</span>: <span class="ident">String</span>,
-        <span class="ident">requests</span>: <span class="kw-2">&amp;</span>[(<span class="ident">PathRequest</span>, <span class="ident">usize</span>)],
-        <span class="ident">pathfinder</span>: <span class="kw-2">&amp;</span><span class="ident">Pathfinder</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counts</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">map</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-            <span class="ident">description</span>,
-            <span class="ident">per_road</span>: <span class="ident">Counter::new</span>(),
-            <span class="ident">per_intersection</span>: <span class="ident">Counter::new</span>(),
+<span class="kw">impl </span>TrafficCounts {
+    <span class="doccomment">/// Run pathfinding on all of the requests, then count the throughput on every road and
+    /// intersection. Each request has the count it should contribute -- use
+    /// `PathRequest::deduplicate` to easily generate this.
+    </span><span class="kw">pub fn </span>from_path_requests(
+        map: <span class="kw-2">&amp;</span>Map,
+        description: String,
+        requests: <span class="kw-2">&amp;</span>[(PathRequest, usize)],
+        pathfinder: <span class="kw-2">&amp;</span>Pathfinder,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>counts = <span class="self">Self </span>{
+            map: map.get_name().clone(),
+            description,
+            per_road: Counter::new(),
+            per_intersection: Counter::new(),
         };
 
-        <span class="comment">// Statistic::Min will be wrong later for roads that&#39;re 0. So explicitly start with 0 for every</span>
-        <span class="comment">// road/intersection.</span>
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="ident">counts</span>.<span class="ident">per_road</span>.<span class="ident">add</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="number">0</span>);
+        <span class="comment">// Statistic::Min will be wrong later for roads that&#39;re 0. So explicitly start with 0 for every
+        // road/intersection.
+        </span><span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+            counts.per_road.add(r.id, <span class="number">0</span>);
         }
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-            <span class="ident">counts</span>.<span class="ident">per_intersection</span>.<span class="ident">add</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="number">0</span>);
+        <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
+            counts.per_intersection.add(i.id, <span class="number">0</span>);
         }
 
-        <span class="comment">// It&#39;s very memory intensive to calculate all of the paths in one chunk, then process them to</span>
-        <span class="comment">// get counts. Increment the counters as we go.</span>
-        <span class="comment">//</span>
-        <span class="comment">// TODO But that makes it hard to use timer.parallelize for this. We could make a thread-local</span>
-        <span class="comment">// Counter and aggregte them at the end, but the way timer.parallelize uses scoped_threadpool</span>
-        <span class="comment">// right now won&#39;t let that work. Stick to single-threaded for now.</span>
+        <span class="comment">// It&#39;s very memory intensive to calculate all of the paths in one chunk, then process them to
+        // get counts. Increment the counters as we go.
+        //
+        // TODO But that makes it hard to use timer.parallelize for this. We could make a thread-local
+        // Counter and aggregte them at the end, but the way timer.parallelize uses scoped_threadpool
+        // right now won&#39;t let that work. Stick to single-threaded for now.
 
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;calculate routes&quot;</span>, <span class="ident">requests</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> (<span class="ident">req</span>, <span class="ident">count</span>) <span class="kw">in</span> <span class="ident">requests</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">pathfinder</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>) {
-                <span class="ident">counts</span>.<span class="ident">update_with_path</span>(<span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">count</span>, <span class="ident">map</span>);
+        </span>timer.start_iter(<span class="string">&quot;calculate routes&quot;</span>, requests.len());
+        <span class="kw">for </span>(req, count) <span class="kw">in </span>requests {
+            timer.next();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = pathfinder.pathfind_v2(req.clone(), map) {
+                counts.update_with_path(path, <span class="kw-2">*</span>count, map);
             }
         }
-        <span class="ident">counts</span>
+        counts
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_with_path</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="ident">PathV2</span>, <span class="ident">count</span>: <span class="ident">usize</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
-            <span class="kw">match</span> <span class="ident">step</span> {
-                <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) <span class="op">|</span> <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">dr</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">per_road</span>.<span class="ident">add</span>(<span class="ident">dr</span>.<span class="ident">road</span>, <span class="ident">count</span>);
+    <span class="kw">pub fn </span>update_with_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: PathV2, count: usize, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="kw">for </span>step <span class="kw">in </span>path.get_steps() {
+            <span class="kw">match </span>step {
+                PathStepV2::Along(dr) | PathStepV2::Contraflow(dr) =&gt; {
+                    <span class="self">self</span>.per_road.add(dr.road, count);
                 }
-                <span class="ident">PathStepV2::Movement</span>(<span class="ident">m</span>) <span class="op">|</span> <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">m</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">per_intersection</span>.<span class="ident">add</span>(<span class="ident">m</span>.<span class="ident">parent</span>, <span class="ident">count</span>);
+                PathStepV2::Movement(m) | PathStepV2::ContraflowMovement(m) =&gt; {
+                    <span class="self">self</span>.per_intersection.add(m.parent, count);
                 }
             }
         }
 
-        <span class="comment">// If we&#39;re starting or ending at a border, count it</span>
-        <span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_req</span>();
-        <span class="kw">if</span> <span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
-            <span class="comment">// TODO src_i and dst_i may not work for pedestrians on contraflow sidewalks</span>
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">src_i</span>;
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_border</span>() {
-                <span class="self">self</span>.<span class="ident">per_intersection</span>.<span class="ident">add</span>(<span class="ident">i</span>, <span class="ident">count</span>);
+        <span class="comment">// If we&#39;re starting or ending at a border, count it
+        </span><span class="kw">let </span>req = path.get_req();
+        <span class="kw">if </span>req.start.dist_along() == Distance::ZERO {
+            <span class="comment">// TODO src_i and dst_i may not work for pedestrians on contraflow sidewalks
+            </span><span class="kw">let </span>i = map.get_l(req.start.lane()).src_i;
+            <span class="kw">if </span>map.get_i(i).is_border() {
+                <span class="self">self</span>.per_intersection.add(i, count);
             }
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">dst_i</span>;
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_border</span>() {
-                <span class="self">self</span>.<span class="ident">per_intersection</span>.<span class="ident">add</span>(<span class="ident">i</span>, <span class="ident">count</span>);
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>i = map.get_l(req.end.lane()).dst_i;
+            <span class="kw">if </span>map.get_i(i).is_border() {
+                <span class="self">self</span>.per_intersection.add(i, count);
             }
         }
     }
 
-    <span class="doccomment">/// Print a comparison of counts. Only look at roads/intersections in `self`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quickly_compare</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">TrafficCounts</span>) {
-        <span class="comment">// TODO Easy ASCII art table without huge dependencies?</span>
-        <span class="macro">println!</span>(<span class="string">&quot;{} vs {}&quot;</span>, <span class="self">self</span>.<span class="ident">description</span>, <span class="ident">other</span>.<span class="ident">description</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">cnt1</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">per_road</span>.<span class="ident">borrow</span>() {
-            <span class="kw">let</span> <span class="ident">cnt1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">cnt1</span>;
-            <span class="kw">let</span> <span class="ident">cnt2</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+    <span class="doccomment">/// Print a comparison of counts. Only look at roads/intersections in `self`.
+    </span><span class="kw">pub fn </span>quickly_compare(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>TrafficCounts) {
+        <span class="comment">// TODO Easy ASCII art table without huge dependencies?
+        </span><span class="macro">println!</span>(<span class="string">&quot;{} vs {}&quot;</span>, <span class="self">self</span>.description, other.description);
+        <span class="kw">let </span><span class="kw-2">mut </span>sum = <span class="number">0.0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>n = <span class="number">0</span>;
+        <span class="kw">for </span>(r, cnt1) <span class="kw">in </span><span class="self">self</span>.per_road.borrow() {
+            <span class="kw">let </span>cnt1 = <span class="kw-2">*</span>cnt1;
+            <span class="kw">let </span>cnt2 = other.per_road.get(<span class="kw-2">*</span>r);
             <span class="macro">println!</span>(
                 <span class="string">&quot;{}: {} vs {}&quot;</span>,
-                <span class="ident">r</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">cnt1</span>),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">cnt2</span>)
+                r,
+                prettyprint_usize(cnt1),
+                prettyprint_usize(cnt2)
             );
-            <span class="ident">sum</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">cnt1</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">-</span> <span class="ident">cnt2</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">powi</span>(<span class="number">2</span>);
-            <span class="ident">n</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            sum += (cnt1 <span class="kw">as </span>f64 - cnt2 <span class="kw">as </span>f64).powi(<span class="number">2</span>);
+            n += <span class="number">1</span>;
         }
-        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">cnt1</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">per_intersection</span>.<span class="ident">borrow</span>() {
-            <span class="kw">let</span> <span class="ident">cnt1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">cnt1</span>;
-            <span class="kw">let</span> <span class="ident">cnt2</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">per_intersection</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="ident">i</span>);
+        <span class="kw">for </span>(i, cnt1) <span class="kw">in </span><span class="self">self</span>.per_intersection.borrow() {
+            <span class="kw">let </span>cnt1 = <span class="kw-2">*</span>cnt1;
+            <span class="kw">let </span>cnt2 = other.per_intersection.get(<span class="kw-2">*</span>i);
             <span class="macro">println!</span>(
                 <span class="string">&quot;{}: {} vs {}&quot;</span>,
-                <span class="ident">i</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">cnt1</span>),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">cnt2</span>)
+                i,
+                prettyprint_usize(cnt1),
+                prettyprint_usize(cnt2)
             );
-            <span class="ident">sum</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">cnt1</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">-</span> <span class="ident">cnt2</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">powi</span>(<span class="number">2</span>);
-            <span class="ident">n</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            sum += (cnt1 <span class="kw">as </span>f64 - cnt2 <span class="kw">as </span>f64).powi(<span class="number">2</span>);
+            n += <span class="number">1</span>;
         }
-        <span class="macro">println!</span>(<span class="string">&quot;RMSE = {:.2}&quot;</span>, (<span class="ident">sum</span> <span class="op">/</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">sqrt</span>());
+        <span class="macro">println!</span>(<span class="string">&quot;RMSE = {:.2}&quot;</span>, (sum / n <span class="kw">as </span>f64).sqrt());
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/make_person.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>make_person.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../popdat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/make_person.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>make_person.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../popdat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -291,78 +291,78 @@
 <span id="291">291</span>
 <span id="292">292</span>
 <span id="293">293</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand::Rng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use </span>rand::seq::SliceRandom;
+<span class="kw">use </span>rand::Rng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>map_model::{BuildingID, IntersectionID, Map, PathConstraints, PathRequest};
+<span class="kw">use </span>synthpop::{IndividTrip, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Activity</span>, <span class="ident">CensusPerson</span>, <span class="ident">Config</span>};
+<span class="kw">use crate</span>::{Activity, CensusPerson, Config};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_people</span>(
-    <span class="ident">people</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CensusPerson</span><span class="op">&gt;</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">Config</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span> {
-    <span class="comment">// Only consider two-way intersections, so the agent can return the same way</span>
-    <span class="comment">// they came.</span>
-    <span class="comment">// TODO: instead, if it&#39;s not a two-way border, we should find an intersection</span>
-    <span class="comment">// an incoming border &quot;near&quot; the outgoing border, to allow a broader set of</span>
-    <span class="comment">// realistic options.</span>
-    <span class="comment">// TODO: prefer larger thoroughfares to better reflect reality.</span>
-    <span class="kw">let</span> <span class="ident">commuter_borders</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map</span>
-        .<span class="ident">all_outgoing_borders</span>()
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">is_incoming_border</span>())
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">id</span>)
-        .<span class="ident">collect</span>();
+<span class="kw">pub fn </span>make_people(
+    people: Vec&lt;CensusPerson&gt;,
+    map: <span class="kw-2">&amp;</span>Map,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    config: <span class="kw-2">&amp;</span>Config,
+) -&gt; Vec&lt;PersonSpec&gt; {
+    <span class="comment">// Only consider two-way intersections, so the agent can return the same way
+    // they came.
+    // TODO: instead, if it&#39;s not a two-way border, we should find an intersection
+    // an incoming border &quot;near&quot; the outgoing border, to allow a broader set of
+    // realistic options.
+    // TODO: prefer larger thoroughfares to better reflect reality.
+    </span><span class="kw">let </span>commuter_borders: Vec&lt;IntersectionID&gt; = map
+        .all_outgoing_borders()
+        .into_iter()
+        .filter(|b| b.is_incoming_border())
+        .map(|b| b.id)
+        .collect();
 
-    <span class="comment">// TODO Where should we validate that at least one border exists? Probably in</span>
-    <span class="comment">// generate_scenario, at minimum.</span>
+    <span class="comment">// TODO Where should we validate that at least one border exists? Probably in
+    // generate_scenario, at minimum.
 
-    <span class="kw">let</span> <span class="ident">person_factory</span> <span class="op">=</span> <span class="ident">PersonFactory::new</span>(<span class="ident">map</span>);
-    <span class="kw">let</span> <span class="ident">make_person_inputs</span> <span class="op">=</span> <span class="ident">people</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">person</span><span class="op">|</span> (<span class="ident">person</span>, <span class="ident">sim::fork_rng</span>(<span class="ident">rng</span>)))
-        .<span class="ident">collect</span>();
-    <span class="ident">timer</span>.<span class="ident">parallelize</span>(
+    </span><span class="kw">let </span>person_factory = PersonFactory::new(map);
+    <span class="kw">let </span>make_person_inputs = people
+        .into_iter()
+        .map(|person| (person, sim::fork_rng(rng)))
+        .collect();
+    timer.parallelize(
         <span class="string">&quot;making people in parallel&quot;</span>,
-        <span class="ident">make_person_inputs</span>,
-        <span class="op">|</span>(<span class="ident">person</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>)<span class="op">|</span> {
-            <span class="ident">person_factory</span>.<span class="ident">make_person</span>(<span class="ident">person</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">commuter_borders</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">config</span>)
+        make_person_inputs,
+        |(person, <span class="kw-2">mut </span>rng)| {
+            person_factory.make_person(person, map, <span class="kw-2">&amp;</span>commuter_borders, <span class="kw-2">&amp;mut </span>rng, config)
         },
     )
 }
 
-<span class="kw">struct</span> <span class="ident">PersonFactory</span> {
-    <span class="ident">activity_to_buildings</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Activity</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>PersonFactory {
+    activity_to_buildings: HashMap&lt;Activity, Vec&lt;BuildingID&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PersonFactory</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">activity_to_buildings</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::activity_to_buildings</span>(<span class="ident">map</span>);
-        <span class="self">Self</span> {
-            <span class="ident">activity_to_buildings</span>,
+<span class="kw">impl </span>PersonFactory {
+    <span class="kw">fn </span>new(map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>activity_to_buildings = <span class="self">Self</span>::activity_to_buildings(map);
+        <span class="self">Self </span>{
+            activity_to_buildings,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">activity_to_buildings</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Activity</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// What types of OpenStreetMap amenities will satisfy each activity?</span>
-        <span class="kw">let</span> <span class="ident">categories</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            (<span class="ident">Activity::Breakfast</span>, <span class="macro">vec!</span>[<span class="string">&quot;cafe&quot;</span>]),
-            (<span class="ident">Activity::Lunch</span>, <span class="macro">vec!</span>[<span class="string">&quot;pub&quot;</span>, <span class="string">&quot;food_court&quot;</span>, <span class="string">&quot;fast_food&quot;</span>]),
+    <span class="kw">fn </span>activity_to_buildings(map: <span class="kw-2">&amp;</span>Map) -&gt; HashMap&lt;Activity, Vec&lt;BuildingID&gt;&gt; {
+        <span class="comment">// What types of OpenStreetMap amenities will satisfy each activity?
+        </span><span class="kw">let </span>categories = <span class="macro">vec!</span>[
+            (Activity::Breakfast, <span class="macro">vec!</span>[<span class="string">&quot;cafe&quot;</span>]),
+            (Activity::Lunch, <span class="macro">vec!</span>[<span class="string">&quot;pub&quot;</span>, <span class="string">&quot;food_court&quot;</span>, <span class="string">&quot;fast_food&quot;</span>]),
             (
-                <span class="ident">Activity::Dinner</span>,
+                Activity::Dinner,
                 <span class="macro">vec!</span>[<span class="string">&quot;restaurant&quot;</span>, <span class="string">&quot;theatre&quot;</span>, <span class="string">&quot;biergarten&quot;</span>],
             ),
             (
-                <span class="ident">Activity::School</span>,
+                Activity::School,
                 <span class="macro">vec!</span>[
                     <span class="string">&quot;college&quot;</span>,
                     <span class="string">&quot;kindergarten&quot;</span>,
@@ -373,7 +373,7 @@
                 ],
             ),
             (
-                <span class="ident">Activity::Entertainment</span>,
+                Activity::Entertainment,
                 <span class="macro">vec!</span>[
                     <span class="string">&quot;arts_centre&quot;</span>,
                     <span class="string">&quot;casino&quot;</span>,
@@ -400,7 +400,7 @@
                 ],
             ),
             (
-                <span class="ident">Activity::Errands</span>,
+                Activity::Errands,
                 <span class="macro">vec!</span>[
                     <span class="string">&quot;marketplace&quot;</span>,
                     <span class="string">&quot;post_box&quot;</span>,
@@ -409,9 +409,9 @@
                     <span class="string">&quot;townhall&quot;</span>,
                 ],
             ),
-            (<span class="ident">Activity::Financial</span>, <span class="macro">vec!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;atm&quot;</span>, <span class="string">&quot;bureau_de_change&quot;</span>]),
+            (Activity::Financial, <span class="macro">vec!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;atm&quot;</span>, <span class="string">&quot;bureau_de_change&quot;</span>]),
             (
-                <span class="ident">Activity::Healthcare</span>,
+                Activity::Healthcare,
                 <span class="macro">vec!</span>[
                     <span class="string">&quot;baby_hatch&quot;</span>,
                     <span class="string">&quot;clinic&quot;</span>,
@@ -425,164 +425,164 @@
                     <span class="string">&quot;childcare&quot;</span>,
                 ],
             ),
-            (<span class="ident">Activity::Work</span>, <span class="macro">vec!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;clinic&quot;</span>]),
+            (Activity::Work, <span class="macro">vec!</span>[<span class="string">&quot;bank&quot;</span>, <span class="string">&quot;clinic&quot;</span>]),
         ];
 
-        <span class="comment">// Find all buildings with a matching amenity</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">candidates</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Activity</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="kw">for</span> (<span class="ident">activity</span>, <span class="ident">categories</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">categories</span> {
-                <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-                    <span class="kw">if</span> <span class="ident">categories</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">amenity</span>.<span class="ident">amenity_type</span>.<span class="ident">as_str</span>()) {
-                        <span class="ident">candidates</span>
-                            .<span class="ident">entry</span>(<span class="kw-2">*</span><span class="ident">activity</span>)
-                            .<span class="ident">and_modify</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="ident">v</span>.<span class="ident">push</span>(<span class="ident">b</span>.<span class="ident">id</span>))
-                            .<span class="ident">or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">vec!</span>[<span class="ident">b</span>.<span class="ident">id</span>]);
+        <span class="comment">// Find all buildings with a matching amenity
+        </span><span class="kw">let </span><span class="kw-2">mut </span>candidates: HashMap&lt;Activity, Vec&lt;BuildingID&gt;&gt; = HashMap::new();
+        <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+            <span class="kw">for </span>(activity, categories) <span class="kw">in </span><span class="kw-2">&amp;</span>categories {
+                <span class="kw">for </span>amenity <span class="kw">in </span><span class="kw-2">&amp;</span>b.amenities {
+                    <span class="kw">if </span>categories.contains(<span class="kw-2">&amp;</span>amenity.amenity_type.as_str()) {
+                        candidates
+                            .entry(<span class="kw-2">*</span>activity)
+                            .and_modify(|v| v.push(b.id))
+                            .or_insert_with(|| <span class="macro">vec!</span>[b.id]);
                     }
                 }
             }
         }
-        <span class="ident">candidates</span>
+        candidates
     }
 
-    <span class="kw">fn</span> <span class="ident">find_building_for_activity</span>(
+    <span class="kw">fn </span>find_building_for_activity(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">activity</span>: <span class="ident">Activity</span>,
-        <span class="ident">_start</span>: <span class="ident">TripEndpoint</span>,
-        <span class="ident">_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO If there are several choices of building that satisfy an activity, which one will</span>
-        <span class="comment">// someone choose? One simple approach could just calculate the difficulty of going from the</span>
-        <span class="comment">// previous location (starting from home) to that place, using some mode of travel. Then</span>
-        <span class="comment">// either pick the closest choice, or even better, randomize, but weight based on</span>
-        <span class="comment">// the cost of getting there. map.pathfind() may be helpful.</span>
+        activity: Activity,
+        _start: TripEndpoint,
+        _map: <span class="kw-2">&amp;</span>Map,
+        rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;BuildingID&gt; {
+        <span class="comment">// TODO If there are several choices of building that satisfy an activity, which one will
+        // someone choose? One simple approach could just calculate the difficulty of going from the
+        // previous location (starting from home) to that place, using some mode of travel. Then
+        // either pick the closest choice, or even better, randomize, but weight based on
+        // the cost of getting there. map.pathfind() may be helpful.
 
-        <span class="comment">// For now, just pick a random one</span>
-        <span class="self">self</span>.<span class="ident">activity_to_buildings</span>
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">activity</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">buildings</span><span class="op">|</span> <span class="ident">buildings</span>.<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">cloned</span>())
+        // For now, just pick a random one
+        </span><span class="self">self</span>.activity_to_buildings
+            .get(<span class="kw-2">&amp;</span>activity)
+            .and_then(|buildings| buildings.choose(rng).cloned())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_person</span>(
+    <span class="kw">pub fn </span>make_person(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">person</span>: <span class="ident">CensusPerson</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">commuter_borders</span>: <span class="kw-2">&amp;</span>[<span class="ident">IntersectionID</span>],
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-        <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">Config</span>,
-    ) -&gt; <span class="ident">PersonSpec</span> {
-        <span class="kw">let</span> <span class="ident">schedule</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">generate_schedule</span>(<span class="ident">config</span>, <span class="ident">rng</span>);
+        person: CensusPerson,
+        map: <span class="kw-2">&amp;</span>Map,
+        commuter_borders: <span class="kw-2">&amp;</span>[IntersectionID],
+        rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+        config: <span class="kw-2">&amp;</span>Config,
+    ) -&gt; PersonSpec {
+        <span class="kw">let </span>schedule = person.generate_schedule(config, rng);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">PersonSpec</span> {
-            <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">trips</span>: <span class="ident">Vec::new</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>output = PersonSpec {
+            orig_id: <span class="prelude-val">None</span>,
+            trips: Vec::new(),
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_location</span> <span class="op">=</span> <span class="ident">TripEndpoint::Building</span>(<span class="ident">person</span>.<span class="ident">home</span>);
-        <span class="kw">for</span> (<span class="ident">departure_time</span>, <span class="ident">activity</span>) <span class="kw">in</span> <span class="ident">schedule</span>.<span class="ident">activities</span> {
-            <span class="comment">// TODO This field isn&#39;t that important; later we could map Activity to a TripPurpose</span>
-            <span class="comment">// better.</span>
-            <span class="kw">let</span> <span class="ident">purpose</span> <span class="op">=</span> <span class="ident">TripPurpose::Shopping</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>current_location = TripEndpoint::Building(person.home);
+        <span class="kw">for </span>(departure_time, activity) <span class="kw">in </span>schedule.activities {
+            <span class="comment">// TODO This field isn&#39;t that important; later we could map Activity to a TripPurpose
+            // better.
+            </span><span class="kw">let </span>purpose = TripPurpose::Shopping;
 
-            <span class="kw">let</span> <span class="ident">goto</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">destination</span>) <span class="op">=</span>
-                <span class="self">self</span>.<span class="ident">find_building_for_activity</span>(<span class="ident">activity</span>, <span class="ident">current_location</span>, <span class="ident">map</span>, <span class="ident">rng</span>)
+            <span class="kw">let </span>goto = <span class="kw">if let </span><span class="prelude-val">Some</span>(destination) =
+                <span class="self">self</span>.find_building_for_activity(activity, current_location, map, rng)
             {
-                <span class="ident">TripEndpoint::Building</span>(<span class="ident">destination</span>)
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">commuter_borders</span>.<span class="ident">choose</span>(<span class="ident">rng</span>) {
-                <span class="comment">// No buildings satisfy the activity. Just go somewhere off-map.</span>
-                <span class="ident">TripEndpoint::Border</span>(<span class="kw-2">*</span><span class="ident">i</span>)
-            } <span class="kw">else</span> {
-                <span class="comment">// Broken map without borders. Don&#39;t crash, just skip the person</span>
-                <span class="kw">continue</span>;
+                TripEndpoint::Building(destination)
+            } <span class="kw">else if let </span><span class="prelude-val">Some</span>(i) = commuter_borders.choose(rng) {
+                <span class="comment">// No buildings satisfy the activity. Just go somewhere off-map.
+                </span>TripEndpoint::Border(<span class="kw-2">*</span>i)
+            } <span class="kw">else </span>{
+                <span class="comment">// Broken map without borders. Don&#39;t crash, just skip the person
+                </span><span class="kw">continue</span>;
             };
 
-            <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">pick_mode</span>(<span class="ident">current_location</span>, <span class="ident">goto</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="ident">config</span>);
-            <span class="ident">output</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip::new</span>(
-                <span class="ident">departure_time</span>,
-                <span class="ident">purpose</span>,
-                <span class="ident">current_location</span>,
-                <span class="ident">goto</span>,
-                <span class="ident">mode</span>,
+            <span class="kw">let </span>mode = pick_mode(current_location, goto, map, rng, config);
+            output.trips.push(IndividTrip::new(
+                departure_time,
+                purpose,
+                current_location,
+                goto,
+                mode,
             ));
 
-            <span class="ident">current_location</span> <span class="op">=</span> <span class="ident">goto</span>;
+            current_location = goto;
         }
 
-        <span class="ident">output</span>
+        output
     }
 }
 
-<span class="kw">fn</span> <span class="ident">pick_mode</span>(
-    <span class="ident">from</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">to</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">Config</span>,
-) -&gt; <span class="ident">TripMode</span> {
-    <span class="kw">let</span> (<span class="ident">b1</span>, <span class="ident">b2</span>) <span class="op">=</span> <span class="kw">match</span> (<span class="ident">from</span>, <span class="ident">to</span>) {
-        (<span class="ident">TripEndpoint::Building</span>(<span class="ident">b1</span>), <span class="ident">TripEndpoint::Building</span>(<span class="ident">b2</span>)) =&gt; (<span class="ident">b1</span>, <span class="ident">b2</span>),
-        <span class="comment">// TODO Always drive when going on or off-map?</span>
-        <span class="kw">_</span> =&gt; {
-            <span class="kw">return</span> <span class="ident">TripMode::Drive</span>;
+<span class="kw">fn </span>pick_mode(
+    from: TripEndpoint,
+    to: TripEndpoint,
+    map: <span class="kw-2">&amp;</span>Map,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    config: <span class="kw-2">&amp;</span>Config,
+) -&gt; TripMode {
+    <span class="kw">let </span>(b1, b2) = <span class="kw">match </span>(from, to) {
+        (TripEndpoint::Building(b1), TripEndpoint::Building(b2)) =&gt; (b1, b2),
+        <span class="comment">// TODO Always drive when going on or off-map?
+        </span><span class="kw">_ </span>=&gt; {
+            <span class="kw">return </span>TripMode::Drive;
         }
     };
 
-    <span class="comment">// Decide mode based on walking distance</span>
-    <span class="kw">let</span> <span class="ident">distance</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span>
-        <span class="ident">PathRequest::between_buildings</span>(<span class="ident">map</span>, <span class="ident">b1</span>, <span class="ident">b2</span>, <span class="ident">PathConstraints::Pedestrian</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>())
+    <span class="comment">// Decide mode based on walking distance
+    </span><span class="kw">let </span>distance = <span class="kw">if let </span><span class="prelude-val">Some</span>(path) =
+        PathRequest::between_buildings(map, b1, b2, PathConstraints::Pedestrian)
+            .and_then(|req| map.pathfind(req).ok())
     {
-        <span class="ident">path</span>.<span class="ident">total_length</span>()
-    } <span class="kw">else</span> {
-        <span class="comment">// If the buildings aren&#39;t connected, there was probably a bug importing the map. Just</span>
-        <span class="comment">// fallback to driving. If the trip can&#39;t be started in the simulation, it&#39;ll show up as</span>
-        <span class="comment">// cancelled with more details about the problem.</span>
-        <span class="kw">return</span> <span class="ident">TripMode::Drive</span>;
+        path.total_length()
+    } <span class="kw">else </span>{
+        <span class="comment">// If the buildings aren&#39;t connected, there was probably a bug importing the map. Just
+        // fallback to driving. If the trip can&#39;t be started in the simulation, it&#39;ll show up as
+        // cancelled with more details about the problem.
+        </span><span class="kw">return </span>TripMode::Drive;
     };
 
-    <span class="comment">// TODO If either endpoint is in an access-restricted zone (like a living street), then</span>
-    <span class="comment">// probably don&#39;t drive there. Actually, it depends on the specific tagging; access=no in the</span>
-    <span class="comment">// US usually means a gated community.</span>
+    <span class="comment">// TODO If either endpoint is in an access-restricted zone (like a living street), then
+    // probably don&#39;t drive there. Actually, it depends on the specific tagging; access=no in the
+    // US usually means a gated community.
 
-    <span class="comment">// TODO Make this probabilistic</span>
-    <span class="comment">// for example probability of walking currently has massive differences</span>
-    <span class="comment">// at thresholds, it would be nicer to change this gradually</span>
-    <span class="comment">// TODO - do not select based on distance but select one that is fastest/best in the</span>
-    <span class="comment">// given situation excellent bus connection / plenty of parking /</span>
-    <span class="comment">// cycleways / suitable rail connection all strongly influence</span>
-    <span class="comment">// selected mode of transport, distance is not the sole influence</span>
-    <span class="comment">// in some cities there may case where driving is only possible method</span>
-    <span class="comment">// to get somewhere, even at a short distance</span>
+    // TODO Make this probabilistic
+    // for example probability of walking currently has massive differences
+    // at thresholds, it would be nicer to change this gradually
+    // TODO - do not select based on distance but select one that is fastest/best in the
+    // given situation excellent bus connection / plenty of parking /
+    // cycleways / suitable rail connection all strongly influence
+    // selected mode of transport, distance is not the sole influence
+    // in some cities there may case where driving is only possible method
+    // to get somewhere, even at a short distance
 
-    <span class="comment">// Always walk for really short trips</span>
-    <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span> <span class="ident">config</span>.<span class="ident">walk_for_distances_shorter_than</span> {
-        <span class="kw">return</span> <span class="ident">TripMode::Walk</span>;
+    // Always walk for really short trips
+    </span><span class="kw">if </span>distance &lt; config.walk_for_distances_shorter_than {
+        <span class="kw">return </span>TripMode::Walk;
     }
 
-    <span class="comment">// Sometimes bike or walk for moderate trips</span>
-    <span class="kw">if</span> <span class="ident">distance</span> <span class="op">&lt;</span> <span class="ident">config</span>.<span class="ident">walk_or_bike_for_distances_shorter_than</span> {
-        <span class="comment">// TODO We could move all of these params to Config, but I&#39;m not sure if the overall flow</span>
-        <span class="comment">// of logic in this function is what we want yet.</span>
-        <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.15</span>) {
-            <span class="kw">return</span> <span class="ident">TripMode::Bike</span>;
+    <span class="comment">// Sometimes bike or walk for moderate trips
+    </span><span class="kw">if </span>distance &lt; config.walk_or_bike_for_distances_shorter_than {
+        <span class="comment">// TODO We could move all of these params to Config, but I&#39;m not sure if the overall flow
+        // of logic in this function is what we want yet.
+        </span><span class="kw">if </span>rng.gen_bool(<span class="number">0.15</span>) {
+            <span class="kw">return </span>TripMode::Bike;
         }
-        <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.05</span>) {
-            <span class="kw">return</span> <span class="ident">TripMode::Walk</span>;
+        <span class="kw">if </span>rng.gen_bool(<span class="number">0.05</span>) {
+            <span class="kw">return </span>TripMode::Walk;
         }
     }
 
-    <span class="comment">// For longer trips, maybe bike for dedicated cyclists</span>
-    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.005</span>) {
-        <span class="kw">return</span> <span class="ident">TripMode::Bike</span>;
+    <span class="comment">// For longer trips, maybe bike for dedicated cyclists
+    </span><span class="kw">if </span>rng.gen_bool(<span class="number">0.005</span>) {
+        <span class="kw">return </span>TripMode::Bike;
     }
-    <span class="comment">// Try transit if available, or fallback to walking</span>
-    <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="number">0.3</span>) {
-        <span class="kw">return</span> <span class="ident">TripMode::Transit</span>;
+    <span class="comment">// Try transit if available, or fallback to walking
+    </span><span class="kw">if </span>rng.gen_bool(<span class="number">0.3</span>) {
+        <span class="kw">return </span>TripMode::Transit;
     }
 
-    <span class="comment">// Most of the time, just drive</span>
-    <span class="ident">TripMode::Drive</span>
+    <span class="comment">// Most of the time, just drive
+    </span>TripMode::Drive
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

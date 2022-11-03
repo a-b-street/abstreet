@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/url.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>url.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/url.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>url.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -252,259 +252,259 @@
 <span id="252">252</span>
 <span id="253">253</span>
 <span id="254">254</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::EventCtx</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span><span class="kw">crate</span>::EventCtx;
+<span class="kw">use </span>geom::{GPSBounds, LonLat, Pt2D};
 
-<span class="doccomment">/// Utilities for reflecting the current map and viewport in the URL on the web. No effect on</span>
-<span class="doccomment">/// native.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">URLManager</span>;
+<span class="doccomment">/// Utilities for reflecting the current map and viewport in the URL on the web. No effect on
+/// native.
+</span><span class="kw">pub struct </span>URLManager;
 
-<span class="kw">impl</span> <span class="ident">URLManager</span> {
-    <span class="doccomment">/// Modify the current URL to change the first free parameter in the HTTP GET params to the</span>
-    <span class="doccomment">/// specified value, adding it if needed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url_free_param</span>(<span class="ident">free_param</span>: <span class="ident">String</span>) {
-        <span class="ident">must_update_url</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">change_url_free_param</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">free_param</span>)))
+<span class="kw">impl </span>URLManager {
+    <span class="doccomment">/// Modify the current URL to change the first free parameter in the HTTP GET params to the
+    /// specified value, adding it if needed.
+    </span><span class="kw">pub fn </span>update_url_free_param(free_param: String) {
+        must_update_url(Box::new(<span class="kw">move </span>|url| change_url_free_param(url, <span class="kw-2">&amp;</span>free_param)))
     }
 
-    <span class="doccomment">/// Modify the current URL to change the first named parameter in the HTTP GET params to the</span>
-    <span class="doccomment">/// specified value, adding it if needed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url_param</span>(<span class="ident">key</span>: <span class="ident">String</span>, <span class="ident">value</span>: <span class="ident">String</span>) {
-        <span class="ident">must_update_url</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">change_url_param</span>(<span class="ident">url</span>, <span class="kw-2">&amp;</span><span class="ident">key</span>, <span class="kw-2">&amp;</span><span class="ident">value</span>)))
+    <span class="doccomment">/// Modify the current URL to change the first named parameter in the HTTP GET params to the
+    /// specified value, adding it if needed.
+    </span><span class="kw">pub fn </span>update_url_param(key: String, value: String) {
+        must_update_url(Box::new(<span class="kw">move </span>|url| change_url_param(url, <span class="kw-2">&amp;</span>key, <span class="kw-2">&amp;</span>value)))
     }
 
-    <span class="doccomment">/// Get an OSM-style `zoom/lat/lon` string</span>
-    <span class="doccomment">/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current</span>
-    <span class="doccomment">/// viewport.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cam_param</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>().<span class="ident">to_gps</span>(<span class="ident">gps_bounds</span>);
+    <span class="doccomment">/// Get an OSM-style `zoom/lat/lon` string
+    /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current
+    /// viewport.
+    </span><span class="kw">pub fn </span>get_cam_param(ctx: <span class="kw-2">&amp;</span>EventCtx, gps_bounds: <span class="kw-2">&amp;</span>GPSBounds) -&gt; String {
+        <span class="kw">let </span>center = ctx.canvas.center_to_map_pt().to_gps(gps_bounds);
 
-        <span class="comment">// To calculate zoom, just solve for the inverse of the code in parse_center_camera.</span>
-        <span class="kw">let</span> <span class="ident">earth_circumference_equator</span> <span class="op">=</span> <span class="number">40_075_016.686</span>;
-        <span class="kw">let</span> <span class="ident">log_arg</span> <span class="op">=</span>
-            <span class="ident">earth_circumference_equator</span> <span class="op">*</span> <span class="ident">center</span>.<span class="ident">y</span>().<span class="ident">to_radians</span>().<span class="ident">cos</span>() <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>;
-        <span class="kw">let</span> <span class="ident">zoom_lvl</span> <span class="op">=</span> <span class="ident">log_arg</span>.<span class="ident">log2</span>() <span class="op">-</span> <span class="number">8.0</span>;
+        <span class="comment">// To calculate zoom, just solve for the inverse of the code in parse_center_camera.
+        </span><span class="kw">let </span>earth_circumference_equator = <span class="number">40_075_016.686</span>;
+        <span class="kw">let </span>log_arg =
+            earth_circumference_equator * center.y().to_radians().cos() * ctx.canvas.cam_zoom;
+        <span class="kw">let </span>zoom_lvl = log_arg.log2() - <span class="number">8.0</span>;
 
-        <span class="comment">// Trim precision</span>
-        <span class="macro">format!</span>(<span class="string">&quot;{:.2}/{:.5}/{:.5}&quot;</span>, <span class="ident">zoom_lvl</span>, <span class="ident">center</span>.<span class="ident">y</span>(), <span class="ident">center</span>.<span class="ident">x</span>())
+        <span class="comment">// Trim precision
+        </span><span class="macro">format!</span>(<span class="string">&quot;{:.2}/{:.5}/{:.5}&quot;</span>, zoom_lvl, center.y(), center.x())
     }
 
-    <span class="doccomment">/// Modify the current URL to set --cam to an OSM-style `zoom/lat/lon` string</span>
-    <span class="doccomment">/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current</span>
-    <span class="doccomment">/// viewport.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url_cam</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) {
-        <span class="kw">let</span> <span class="ident">cam</span> <span class="op">=</span> <span class="ident">URLManager::get_cam_param</span>(<span class="ident">ctx</span>, <span class="ident">gps_bounds</span>);
-        <span class="ident">must_update_url</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">url</span><span class="op">|</span> <span class="ident">change_url_param</span>(<span class="ident">url</span>, <span class="string">&quot;--cam&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">cam</span>)))
+    <span class="doccomment">/// Modify the current URL to set --cam to an OSM-style `zoom/lat/lon` string
+    /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks) based on the current
+    /// viewport.
+    </span><span class="kw">pub fn </span>update_url_cam(ctx: <span class="kw-2">&amp;</span>EventCtx, gps_bounds: <span class="kw-2">&amp;</span>GPSBounds) {
+        <span class="kw">let </span>cam = URLManager::get_cam_param(ctx, gps_bounds);
+        must_update_url(Box::new(<span class="kw">move </span>|url| change_url_param(url, <span class="string">&quot;--cam&quot;</span>, <span class="kw-2">&amp;</span>cam)))
     }
 
-    <span class="doccomment">/// Parse an OSM-style `zoom/lat/lon` string</span>
-    <span class="doccomment">/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), changing the canvas</span>
-    <span class="doccomment">/// appropriately. Returns true upon success.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_camera</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">raw</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">zoom</span>)) <span class="op">=</span>
-            <span class="ident">raw</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">raw</span><span class="op">|</span> <span class="ident">URLManager::parse_center_camera</span>(<span class="ident">raw</span>, <span class="ident">gps_bounds</span>))
+    <span class="doccomment">/// Parse an OSM-style `zoom/lat/lon` string
+    /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), changing the canvas
+    /// appropriately. Returns true upon success.
+    </span><span class="kw">pub fn </span>change_camera(ctx: <span class="kw-2">&amp;mut </span>EventCtx, raw: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt;, gps_bounds: <span class="kw-2">&amp;</span>GPSBounds) -&gt; bool {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((pt, zoom)) =
+            raw.and_then(|raw| URLManager::parse_center_camera(raw, gps_bounds))
         {
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">=</span> <span class="ident">zoom</span>;
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">pt</span>);
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+            ctx.canvas.cam_zoom = zoom;
+            ctx.canvas.center_on_map_pt(pt);
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     }
 
-    <span class="doccomment">/// Parse an OSM-style `zoom/lat/lon` string</span>
-    <span class="doccomment">/// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to</span>
-    <span class="doccomment">/// center on and the camera zoom.</span>
-    <span class="kw">fn</span> <span class="ident">parse_center_camera</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">raw</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="doccomment">/// Parse an OSM-style `zoom/lat/lon` string
+    /// (https://wiki.openstreetmap.org/wiki/Browsing#Other_URL_tricks), returning the map point to
+    /// center on and the camera zoom.
+    </span><span class="kw">fn </span>parse_center_camera(raw: <span class="kw-2">&amp;</span>str, gps_bounds: <span class="kw-2">&amp;</span>GPSBounds) -&gt; <span class="prelude-ty">Option</span>&lt;(Pt2D, f64)&gt; {
+        <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = raw.split(<span class="string">&#39;/&#39;</span>).collect();
+        <span class="kw">if </span>parts.len() != <span class="number">3 </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="ident">zoom_lvl</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">lat</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">lon</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="number">2</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">gps</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="ident">lon</span>, <span class="ident">lat</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">gps_bounds</span>.<span class="ident">contains</span>(<span class="ident">gps</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span>zoom_lvl = parts[<span class="number">0</span>].parse::&lt;f64&gt;().ok()<span class="question-mark">?</span>;
+        <span class="kw">let </span>lat = parts[<span class="number">1</span>].parse::&lt;f64&gt;().ok()<span class="question-mark">?</span>;
+        <span class="kw">let </span>lon = parts[<span class="number">2</span>].parse::&lt;f64&gt;().ok()<span class="question-mark">?</span>;
+        <span class="kw">let </span>gps = LonLat::new(lon, lat);
+        <span class="kw">if </span>!gps_bounds.contains(gps) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">gps_bounds</span>);
+        <span class="kw">let </span>pt = gps.to_pt(gps_bounds);
 
-        <span class="comment">// To figure out zoom, first calculate horizontal meters per pixel, using the formula from</span>
-        <span class="comment">// https://wiki.openstreetmap.org/wiki/Zoom_levels.</span>
-        <span class="kw">let</span> <span class="ident">earth_circumference_equator</span> <span class="op">=</span> <span class="number">40_075_016.686</span>;
-        <span class="kw">let</span> <span class="ident">horiz_meters_per_pixel</span> <span class="op">=</span>
-            <span class="ident">earth_circumference_equator</span> <span class="op">*</span> <span class="ident">gps</span>.<span class="ident">y</span>().<span class="ident">to_radians</span>().<span class="ident">cos</span>() <span class="op">/</span> <span class="number">2.0_f64</span>.<span class="ident">powf</span>(<span class="ident">zoom_lvl</span> <span class="op">+</span> <span class="number">8.0</span>);
+        <span class="comment">// To figure out zoom, first calculate horizontal meters per pixel, using the formula from
+        // https://wiki.openstreetmap.org/wiki/Zoom_levels.
+        </span><span class="kw">let </span>earth_circumference_equator = <span class="number">40_075_016.686</span>;
+        <span class="kw">let </span>horiz_meters_per_pixel =
+            earth_circumference_equator * gps.y().to_radians().cos() / <span class="number">2.0_f64</span>.powf(zoom_lvl + <span class="number">8.0</span>);
 
-        <span class="comment">// So this is the width in meters that should cover our screen</span>
-        <span class="comment">// let horiz_meters_per_screen = ctx.canvas.window_width * horiz_meters_per_pixel;</span>
-        <span class="comment">// Now we want to make screen_to_map(the top-right corner of the screen) =</span>
-        <span class="comment">// horiz_meters_per_screen. Easy algebra:</span>
-        <span class="comment">// let cam_zoom = ctx.canvas.window_width / horiz_meters_per_screen;</span>
+        <span class="comment">// So this is the width in meters that should cover our screen
+        // let horiz_meters_per_screen = ctx.canvas.window_width * horiz_meters_per_pixel;
+        // Now we want to make screen_to_map(the top-right corner of the screen) =
+        // horiz_meters_per_screen. Easy algebra:
+        // let cam_zoom = ctx.canvas.window_width / horiz_meters_per_screen;
 
-        <span class="comment">// But actually, the algebra shows we don&#39;t even need window_width. Easy!</span>
-        <span class="kw">let</span> <span class="ident">cam_zoom</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> <span class="ident">horiz_meters_per_pixel</span>;
+        // But actually, the algebra shows we don&#39;t even need window_width. Easy!
+        </span><span class="kw">let </span>cam_zoom = <span class="number">1.0 </span>/ horiz_meters_per_pixel;
 
-        <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="ident">cam_zoom</span>))
-    }
-}
-
-<span class="kw">fn</span> <span class="ident">must_update_url</span>(<span class="ident">transform</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">String</span>) -&gt; <span class="ident">String</span><span class="op">&gt;</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">update_url</span>(<span class="ident">transform</span>) {
-        <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t update URL: {}&quot;</span>, <span class="ident">err</span>);
+        <span class="prelude-val">Some</span>((pt, cam_zoom))
     }
 }
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">fn</span> <span class="ident">update_url</span>(<span class="ident">transform</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">String</span>) -&gt; <span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-    {
-        <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">web_sys::window</span>().<span class="ident">ok_or</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">location</span>().<span class="ident">href</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-            <span class="macro">anyhow!</span>(<span class="ident">err</span>
-                .<span class="ident">as_string</span>()
-                .<span class="ident">unwrap_or</span>(<span class="string">&quot;window.location.href failed&quot;</span>.<span class="ident">to_string</span>()))
-        })<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">new_url</span> <span class="op">=</span> (<span class="ident">transform</span>)(<span class="ident">url</span>);
+<span class="kw">fn </span>must_update_url(transform: Box&lt;<span class="kw">dyn </span>Fn(String) -&gt; String&gt;) {
+    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = update_url(transform) {
+        <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t update URL: {}&quot;</span>, err);
+    }
+}
 
-        <span class="comment">// Setting window.location.href may seem like the obvious thing to do, but that actually</span>
-        <span class="comment">// refreshes the page. This method just changes the URL and doesn&#39;t mess up history. See</span>
-        <span class="comment">// https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API.</span>
-        <span class="kw">let</span> <span class="ident">history</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">history</span>().<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-            <span class="macro">anyhow!</span>(<span class="ident">err</span>
-                .<span class="ident">as_string</span>()
-                .<span class="ident">unwrap_or</span>(<span class="string">&quot;window.history failed&quot;</span>.<span class="ident">to_string</span>()))
+<span class="attribute">#[allow(unused_variables)]
+</span><span class="kw">fn </span>update_url(transform: Box&lt;<span class="kw">dyn </span>Fn(String) -&gt; String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    </span>{
+        <span class="kw">let </span>window = web_sys::window().ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no window?&quot;</span>))<span class="question-mark">?</span>;
+        <span class="kw">let </span>url = window.location().href().map_err(|err| {
+            <span class="macro">anyhow!</span>(err
+                .as_string()
+                .unwrap_or(<span class="string">&quot;window.location.href failed&quot;</span>.to_string()))
         })<span class="question-mark">?</span>;
-        <span class="ident">history</span>
-            .<span class="ident">replace_state_with_url</span>(<span class="kw-2">&amp;</span><span class="ident">wasm_bindgen::JsValue::NULL</span>, <span class="string">&quot;&quot;</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">new_url</span>))
-            .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-                <span class="macro">anyhow!</span>(<span class="ident">err</span>
-                    .<span class="ident">as_string</span>()
-                    .<span class="ident">unwrap_or</span>(<span class="string">&quot;window.history.replace_state failed&quot;</span>.<span class="ident">to_string</span>()))
+        <span class="kw">let </span>new_url = (transform)(url);
+
+        <span class="comment">// Setting window.location.href may seem like the obvious thing to do, but that actually
+        // refreshes the page. This method just changes the URL and doesn&#39;t mess up history. See
+        // https://developer.mozilla.org/en-US/docs/Web/API/History_API/Working_with_the_History_API.
+        </span><span class="kw">let </span>history = window.history().map_err(|err| {
+            <span class="macro">anyhow!</span>(err
+                .as_string()
+                .unwrap_or(<span class="string">&quot;window.history failed&quot;</span>.to_string()))
+        })<span class="question-mark">?</span>;
+        history
+            .replace_state_with_url(<span class="kw-2">&amp;</span>wasm_bindgen::JsValue::NULL, <span class="string">&quot;&quot;</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>new_url))
+            .map_err(|err| {
+                <span class="macro">anyhow!</span>(err
+                    .as_string()
+                    .unwrap_or(<span class="string">&quot;window.history.replace_state failed&quot;</span>.to_string()))
             })<span class="question-mark">?</span>;
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">change_url_free_param</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">free_param</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn&#39;t even expose such a nice</span>
-    <span class="comment">// API for doing this anyway.</span>
-    <span class="kw">let</span> <span class="ident">url_parts</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">split</span>(<span class="string">&#39;?&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="ident">url_parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-        <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">url</span>, <span class="ident">free_param</span>);
+<span class="kw">fn </span>change_url_free_param(url: String, free_param: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn&#39;t even expose such a nice
+    // API for doing this anyway.
+    </span><span class="kw">let </span>url_parts = url.split(<span class="string">&#39;?&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">if </span>url_parts.len() == <span class="number">1 </span>{
+        <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, url, free_param);
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query_params</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_free</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">url_parts</span>[<span class="number">1</span>].<span class="ident">split</span>(<span class="string">&#39;&amp;&#39;</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
-            <span class="ident">query_params</span>.<span class="ident">push</span>(<span class="string">&#39;&amp;&#39;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>query_params = String::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>found_free = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
+    <span class="kw">for </span>x <span class="kw">in </span>url_parts[<span class="number">1</span>].split(<span class="string">&#39;&amp;&#39;</span>) {
+        <span class="kw">if </span>!first {
+            query_params.push(<span class="string">&#39;&amp;&#39;</span>);
         }
-        <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        first = <span class="bool-val">false</span>;
 
-        <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;--&quot;</span>) {
-            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">x</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">found_free</span> {
-            <span class="comment">// Replace the first free parameter</span>
-            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">free_param</span>);
-            <span class="ident">found_free</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">x</span>);
+        <span class="kw">if </span>x.starts_with(<span class="string">&quot;--&quot;</span>) {
+            query_params.push_str(x);
+        } <span class="kw">else if </span>!found_free {
+            <span class="comment">// Replace the first free parameter
+            </span>query_params.push_str(free_param);
+            found_free = <span class="bool-val">true</span>;
+        } <span class="kw">else </span>{
+            query_params.push_str(x);
         }
     }
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">found_free</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
-            <span class="ident">query_params</span>.<span class="ident">push</span>(<span class="string">&#39;&amp;&#39;</span>);
+    <span class="kw">if </span>!found_free {
+        <span class="kw">if </span>!first {
+            query_params.push(<span class="string">&#39;&amp;&#39;</span>);
         }
-        <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">free_param</span>);
+        query_params.push_str(free_param);
     }
 
-    <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">url_parts</span>[<span class="number">0</span>], <span class="ident">query_params</span>)
+    <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, url_parts[<span class="number">0</span>], query_params)
 }
 
-<span class="kw">fn</span> <span class="ident">change_url_param</span>(<span class="ident">url</span>: <span class="ident">String</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn&#39;t even expose such a nice</span>
-    <span class="comment">// API for doing this anyway.</span>
-    <span class="kw">let</span> <span class="ident">url_parts</span> <span class="op">=</span> <span class="ident">url</span>.<span class="ident">split</span>(<span class="string">&#39;?&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">if</span> <span class="ident">url_parts</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-        <span class="kw">return</span> <span class="macro">format!</span>(<span class="string">&quot;{}?{}={}&quot;</span>, <span class="ident">url</span>, <span class="ident">key</span>, <span class="ident">value</span>);
+<span class="kw">fn </span>change_url_param(url: String, key: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="comment">// The URL parsing crates I checked had lots of dependencies and didn&#39;t even expose such a nice
+    // API for doing this anyway.
+    </span><span class="kw">let </span>url_parts = url.split(<span class="string">&#39;?&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">if </span>url_parts.len() == <span class="number">1 </span>{
+        <span class="kw">return </span><span class="macro">format!</span>(<span class="string">&quot;{}?{}={}&quot;</span>, url, key, value);
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">query_params</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found_key</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">url_parts</span>[<span class="number">1</span>].<span class="ident">split</span>(<span class="string">&#39;&amp;&#39;</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
-            <span class="ident">query_params</span>.<span class="ident">push</span>(<span class="string">&#39;&amp;&#39;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>query_params = String::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>found_key = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
+    <span class="kw">for </span>x <span class="kw">in </span>url_parts[<span class="number">1</span>].split(<span class="string">&#39;&amp;&#39;</span>) {
+        <span class="kw">if </span>!first {
+            query_params.push(<span class="string">&#39;&amp;&#39;</span>);
         }
-        <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        first = <span class="bool-val">false</span>;
 
-        <span class="kw">if</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="ident">key</span>) {
-            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">key</span>, <span class="ident">value</span>));
-            <span class="ident">found_key</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="ident">x</span>);
+        <span class="kw">if </span>x.starts_with(key) {
+            query_params.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, key, value));
+            found_key = <span class="bool-val">true</span>;
+        } <span class="kw">else </span>{
+            query_params.push_str(x);
         }
     }
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">found_key</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
-            <span class="ident">query_params</span>.<span class="ident">push</span>(<span class="string">&#39;&amp;&#39;</span>);
+    <span class="kw">if </span>!found_key {
+        <span class="kw">if </span>!first {
+            query_params.push(<span class="string">&#39;&amp;&#39;</span>);
         }
-        <span class="ident">query_params</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, <span class="ident">key</span>, <span class="ident">value</span>));
+        query_params.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}={}&quot;</span>, key, value));
     }
 
-    <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, <span class="ident">url_parts</span>[<span class="number">0</span>], <span class="ident">query_params</span>)
+    <span class="macro">format!</span>(<span class="string">&quot;{}?{}&quot;</span>, url_parts[<span class="number">0</span>], query_params)
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_change_url_free_param</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::change_url_free_param</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_change_url_free_param() {
+        <span class="kw">use </span><span class="kw">super</span>::change_url_free_param;
 
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>,
-            <span class="ident">change_url_free_param</span>(
-                <span class="string">&quot;http://0.0.0.0:8000/?--dev&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;seattle/maps/montlake.bin&quot;</span>
-            )
+            change_url_free_param(
+                <span class="string">&quot;http://0.0.0.0:8000/?--dev&quot;</span>.to_string(),
+                <span class="string">&quot;seattle/maps/montlake.bin&quot;
+            </span>)
         );
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/qa.bin&quot;</span>,
-            <span class="ident">change_url_free_param</span>(
-                <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;seattle/maps/qa.bin&quot;</span>
-            )
+            change_url_free_param(
+                <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>.to_string(),
+                <span class="string">&quot;seattle/maps/qa.bin&quot;
+            </span>)
         );
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;http://0.0.0.0:8000?seattle/maps/montlake.bin&quot;</span>,
-            <span class="ident">change_url_free_param</span>(
-                <span class="string">&quot;http://0.0.0.0:8000&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="string">&quot;seattle/maps/montlake.bin&quot;</span>
-            )
+            change_url_free_param(
+                <span class="string">&quot;http://0.0.0.0:8000&quot;</span>.to_string(),
+                <span class="string">&quot;seattle/maps/montlake.bin&quot;
+            </span>)
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_change_url_param</span>() {
-        <span class="kw">use</span> <span class="ident"><span class="kw">super</span>::change_url_param</span>;
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_change_url_param() {
+        <span class="kw">use </span><span class="kw">super</span>::change_url_param;
 
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&amp;--cam=16.6/53.78449/-1.70701&quot;</span>,
-            <span class="ident">change_url_param</span>(
-                <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>.<span class="ident">to_string</span>(),
+            change_url_param(
+                <span class="string">&quot;http://0.0.0.0:8000/?--dev&amp;seattle/maps/montlake.bin&quot;</span>.to_string(),
                 <span class="string">&quot;--cam&quot;</span>,
-                <span class="string">&quot;16.6/53.78449/-1.70701&quot;</span>
-            )
+                <span class="string">&quot;16.6/53.78449/-1.70701&quot;
+            </span>)
         );
         <span class="macro">assert_eq!</span>(
             <span class="string">&quot;http://0.0.0.0:8000?--cam=16.6/53.78449/-1.70701&quot;</span>,
-            <span class="ident">change_url_param</span>(
-                <span class="string">&quot;http://0.0.0.0:8000&quot;</span>.<span class="ident">to_string</span>(),
+            change_url_param(
+                <span class="string">&quot;http://0.0.0.0:8000&quot;</span>.to_string(),
                 <span class="string">&quot;--cam&quot;</span>,
-                <span class="string">&quot;16.6/53.78449/-1.70701&quot;</span>
-            )
+                <span class="string">&quot;16.6/53.78449/-1.70701&quot;
+            </span>)
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

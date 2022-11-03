@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -289,273 +289,273 @@
 <span id="289">289</span>
 <span id="290">290</span>
 <span id="291">291</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Percent</span>};
-<span class="kw">use</span> <span class="ident">synthpop::OrigPersonID</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use </span>geom::{Duration, Percent};
+<span class="kw">use </span>synthpop::OrigPersonID;
+<span class="kw">use </span>widgetry::{EventCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::Transition</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::gameplay::Tutorial</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::app::Transition;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::gameplay::Tutorial;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::{GameplayMode, SandboxMode};
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">cutscene</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prebake</span>;
+<span class="kw">pub mod </span>cutscene;
+<span class="kw">pub mod </span>prebake;
 
-<span class="comment">// TODO Also have some kind of screenshot to display for each challenge</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Challenge</span> {
-    <span class="ident">title</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">description</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">alias</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">gameplay</span>: <span class="ident">GameplayMode</span>,
-    <span class="kw">pub</span> <span class="ident">cutscene</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="comment">// TODO Also have some kind of screenshot to display for each challenge
+</span><span class="kw">pub struct </span>Challenge {
+    title: String,
+    <span class="kw">pub </span>description: Vec&lt;String&gt;,
+    <span class="kw">pub </span>alias: String,
+    <span class="kw">pub </span>gameplay: GameplayMode,
+    <span class="kw">pub </span>cutscene: <span class="prelude-ty">Option</span>&lt;<span class="kw">fn</span>(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;</span>App, <span class="kw-2">&amp;</span>GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt;&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HighScore</span> {
-    <span class="comment">// TODO This should be tied to the GameplayMode</span>
-    <span class="kw">pub</span> <span class="ident">goal</span>: <span class="ident">String</span>,
-    <span class="comment">// TODO Assuming we always want to maximize the score</span>
-    <span class="kw">pub</span> <span class="ident">score</span>: <span class="ident">Duration</span>,
-    <span class="kw">pub</span> <span class="ident">edits_name</span>: <span class="ident">String</span>,
+<span class="kw">pub struct </span>HighScore {
+    <span class="comment">// TODO This should be tied to the GameplayMode
+    </span><span class="kw">pub </span>goal: String,
+    <span class="comment">// TODO Assuming we always want to maximize the score
+    </span><span class="kw">pub </span>score: Duration,
+    <span class="kw">pub </span>edits_name: String,
 }
 
-<span class="kw">impl</span> <span class="ident">HighScore</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">record</span>(<span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) {
-        <span class="comment">// TODO dedupe</span>
-        <span class="comment">// TODO mention placement</span>
-        <span class="comment">// TODO show all of em</span>
-        <span class="kw">let</span> <span class="ident">scores</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">high_scores</span>.<span class="ident">entry</span>(<span class="ident">mode</span>).<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>);
-        <span class="ident">scores</span>.<span class="ident">push</span>(<span class="self">self</span>);
-        <span class="ident">scores</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">score</span>);
-        <span class="ident">scores</span>.<span class="ident">reverse</span>();
+<span class="kw">impl </span>HighScore {
+    <span class="kw">pub fn </span>record(<span class="self">self</span>, app: <span class="kw-2">&amp;mut </span>App, mode: GameplayMode) {
+        <span class="comment">// TODO dedupe
+        // TODO mention placement
+        // TODO show all of em
+        </span><span class="kw">let </span>scores = app.session.high_scores.entry(mode).or_insert_with(Vec::new);
+        scores.push(<span class="self">self</span>);
+        scores.sort_by_key(|s| s.score);
+        scores.reverse();
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Challenge</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() -&gt; <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Challenge</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tree</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="ident">tree</span>.<span class="ident">insert</span>(
-            <span class="string">&quot;Optimize one commute&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="comment">// TODO Need to tune both people and goals again.</span>
-            <span class="macro">vec!</span>[
-                <span class="ident">Challenge</span> {
-                    <span class="ident">title</span>: <span class="string">&quot;Part 1&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">description</span>: <span class="macro">vec!</span>[<span class="string">&quot;Speed up one VIP&#39;s daily commute, at any cost!&quot;</span>.<span class="ident">to_string</span>()],
-                    <span class="ident">alias</span>: <span class="string">&quot;commute/pt1&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">gameplay</span>: <span class="ident">GameplayMode::OptimizeCommute</span>(
-                        <span class="ident">OrigPersonID</span>(<span class="number">140824</span>, <span class="number">2</span>),
-                        <span class="ident">Duration::minutes</span>(<span class="number">2</span>) <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">30.0</span>),
+<span class="kw">impl </span>Challenge {
+    <span class="kw">pub fn </span>all() -&gt; BTreeMap&lt;String, Vec&lt;Challenge&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>tree = BTreeMap::new();
+        tree.insert(
+            <span class="string">&quot;Optimize one commute&quot;</span>.to_string(),
+            <span class="comment">// TODO Need to tune both people and goals again.
+            </span><span class="macro">vec!</span>[
+                Challenge {
+                    title: <span class="string">&quot;Part 1&quot;</span>.to_string(),
+                    description: <span class="macro">vec!</span>[<span class="string">&quot;Speed up one VIP&#39;s daily commute, at any cost!&quot;</span>.to_string()],
+                    alias: <span class="string">&quot;commute/pt1&quot;</span>.to_string(),
+                    gameplay: GameplayMode::OptimizeCommute(
+                        OrigPersonID(<span class="number">140824</span>, <span class="number">2</span>),
+                        Duration::minutes(<span class="number">2</span>) + Duration::seconds(<span class="number">30.0</span>),
                     ),
-                    <span class="ident">cutscene</span>: <span class="prelude-val">Some</span>(
-                        <span class="ident"><span class="kw">crate</span>::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt1</span>,
+                    cutscene: <span class="prelude-val">Some</span>(
+                        <span class="kw">crate</span>::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt1,
                     ),
                 },
-                <span class="ident">Challenge</span> {
-                    <span class="ident">title</span>: <span class="string">&quot;Part 2&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">description</span>: <span class="macro">vec!</span>[<span class="string">&quot;Speed up another VIP&#39;s commute&quot;</span>.<span class="ident">to_string</span>()],
-                    <span class="ident">alias</span>: <span class="string">&quot;commute/pt2&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">gameplay</span>: <span class="ident">GameplayMode::OptimizeCommute</span>(
-                        <span class="ident">OrigPersonID</span>(<span class="number">141039</span>, <span class="number">2</span>),
-                        <span class="ident">Duration::minutes</span>(<span class="number">5</span>),
+                Challenge {
+                    title: <span class="string">&quot;Part 2&quot;</span>.to_string(),
+                    description: <span class="macro">vec!</span>[<span class="string">&quot;Speed up another VIP&#39;s commute&quot;</span>.to_string()],
+                    alias: <span class="string">&quot;commute/pt2&quot;</span>.to_string(),
+                    gameplay: GameplayMode::OptimizeCommute(
+                        OrigPersonID(<span class="number">141039</span>, <span class="number">2</span>),
+                        Duration::minutes(<span class="number">5</span>),
                     ),
-                    <span class="ident">cutscene</span>: <span class="prelude-val">Some</span>(
-                        <span class="ident"><span class="kw">crate</span>::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt2</span>,
+                    cutscene: <span class="prelude-val">Some</span>(
+                        <span class="kw">crate</span>::sandbox::gameplay::commute::OptimizeCommute::cutscene_pt2,
                     ),
                 },
             ],
         );
-        <span class="ident">tree</span>.<span class="ident">insert</span>(
-            <span class="string">&quot;Traffic signal survivor&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="macro">vec!</span>[<span class="ident">Challenge</span> {
-                <span class="ident">title</span>: <span class="string">&quot;Traffic signal survivor&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">description</span>: <span class="macro">vec!</span>[<span class="string">&quot;Fix traffic signal timing and unblock vehicles&quot;</span>.<span class="ident">to_string</span>()],
-                <span class="ident">alias</span>: <span class="string">&quot;trafficsig/pt1&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">gameplay</span>: <span class="ident">GameplayMode::FixTrafficSignals</span>,
-                <span class="ident">cutscene</span>: <span class="prelude-val">Some</span>(
-                    <span class="ident"><span class="kw">crate</span>::sandbox::gameplay::fix_traffic_signals::FixTrafficSignals::cutscene_pt1</span>,
+        tree.insert(
+            <span class="string">&quot;Traffic signal survivor&quot;</span>.to_string(),
+            <span class="macro">vec!</span>[Challenge {
+                title: <span class="string">&quot;Traffic signal survivor&quot;</span>.to_string(),
+                description: <span class="macro">vec!</span>[<span class="string">&quot;Fix traffic signal timing and unblock vehicles&quot;</span>.to_string()],
+                alias: <span class="string">&quot;trafficsig/pt1&quot;</span>.to_string(),
+                gameplay: GameplayMode::FixTrafficSignals,
+                cutscene: <span class="prelude-val">Some</span>(
+                    <span class="kw">crate</span>::sandbox::gameplay::fix_traffic_signals::FixTrafficSignals::cutscene_pt1,
                 ),
             }],
         );
 
-        <span class="ident">tree</span>
+        tree
     }
 
-    <span class="comment">// Also returns the next stage, if there is one</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find</span>(<span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; (<span class="ident">Challenge</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Challenge</span><span class="op">&gt;</span>) {
-        <span class="comment">// Find the next stage</span>
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">stages</span>) <span class="kw">in</span> <span class="ident">Challenge::all</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">for</span> <span class="ident">challenge</span> <span class="kw">in</span> <span class="ident">stages</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">current</span> {
-                    <span class="kw">return</span> (<span class="ident">c</span>, <span class="prelude-val">Some</span>(<span class="ident">challenge</span>));
+    <span class="comment">// Also returns the next stage, if there is one
+    </span><span class="kw">pub fn </span>find(mode: <span class="kw-2">&amp;</span>GameplayMode) -&gt; (Challenge, <span class="prelude-ty">Option</span>&lt;Challenge&gt;) {
+        <span class="comment">// Find the next stage
+        </span><span class="kw">for </span>(<span class="kw">_</span>, stages) <span class="kw">in </span>Challenge::all() {
+            <span class="kw">let </span><span class="kw-2">mut </span>current = <span class="prelude-val">None</span>;
+            <span class="kw">for </span>challenge <span class="kw">in </span>stages {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = current {
+                    <span class="kw">return </span>(c, <span class="prelude-val">Some</span>(challenge));
                 }
-                <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">challenge</span>.<span class="ident">gameplay</span> <span class="op">==</span> <span class="ident">mode</span> {
-                    <span class="ident">current</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">challenge</span>);
+                <span class="kw">if </span><span class="kw-2">&amp;</span>challenge.gameplay == mode {
+                    current = <span class="prelude-val">Some</span>(challenge);
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">current</span> {
-                <span class="kw">return</span> (<span class="ident">c</span>, <span class="prelude-val">None</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = current {
+                <span class="kw">return </span>(c, <span class="prelude-val">None</span>);
             }
         }
         <span class="macro">unreachable!</span>()
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChallengesPicker</span> {
-    <span class="ident">links</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">String</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    <span class="ident">challenge</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Challenge</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ChallengesPicker {
+    links: BTreeMap&lt;String, (String, usize)&gt;,
+    challenge: <span class="prelude-ty">Option</span>&lt;Challenge&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ChallengesPicker</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">ChallengesPicker::make</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>)
+<span class="kw">impl </span>ChallengesPicker {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        ChallengesPicker::make(ctx, app, <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">make</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">challenge_and_stage</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">links</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">master_col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Challenges&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+    <span class="kw">fn </span>make(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        challenge_and_stage: <span class="prelude-ty">Option</span>&lt;(String, usize)&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>links = BTreeMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>master_col = <span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Challenges&quot;</span>).small_heading().into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Introduction and tutorial&quot;</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                .<span class="ident">container</span>()
-                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Introduction and tutorial&quot;</span>)
+                .build_def(ctx)
+                .container()
+                .section(ctx),
         ];
 
-        <span class="comment">// First list challenges</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flex_row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">name</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="ident">Challenge::all</span>().<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">is_current_stage</span> <span class="op">=</span> <span class="ident">challenge_and_stage</span>
-                .<span class="ident">as_ref</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">n</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">n</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">name</span>)
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>);
-            <span class="ident">flex_row</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)
-                    .<span class="ident">disabled</span>(<span class="ident">is_current_stage</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::NUM_KEYS</span>[<span class="ident">idx</span>])
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        <span class="comment">// First list challenges
+        </span><span class="kw">let </span><span class="kw-2">mut </span>flex_row = Vec::new();
+        <span class="kw">for </span>(idx, (name, <span class="kw">_</span>)) <span class="kw">in </span>Challenge::all().into_iter().enumerate() {
+            <span class="kw">let </span>is_current_stage = challenge_and_stage
+                .as_ref()
+                .map(|(n, <span class="kw">_</span>)| n == <span class="kw-2">&amp;</span>name)
+                .unwrap_or(<span class="bool-val">false</span>);
+            flex_row.push(
+                ctx.style()
+                    .btn_outline
+                    .text(<span class="kw-2">&amp;</span>name)
+                    .disabled(is_current_stage)
+                    .hotkey(Key::NUM_KEYS[idx])
+                    .build_def(ctx),
             );
-            <span class="ident">links</span>.<span class="ident">insert</span>(<span class="ident">name</span>.<span class="ident">clone</span>(), (<span class="ident">name</span>, <span class="number">0</span>));
+            links.insert(name.clone(), (name, <span class="number">0</span>));
         }
-        <span class="ident">master_col</span>.<span class="ident">push</span>(
-            <span class="ident">Widget::custom_row</span>(<span class="ident">flex_row</span>)
-                .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent::int</span>(<span class="number">80</span>))
-                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+        master_col.push(
+            Widget::custom_row(flex_row)
+                .flex_wrap(ctx, Percent::int(<span class="number">80</span>))
+                .section(ctx),
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">main_row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>main_row = Vec::new();
 
-        <span class="comment">// List stages</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">name</span>, <span class="ident">current</span>)) <span class="op">=</span> <span class="ident">challenge_and_stage</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">stage</span>) <span class="kw">in</span> <span class="ident">Challenge::all</span>()
-                .<span class="ident">remove</span>(<span class="ident">name</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">enumerate</span>()
+        <span class="comment">// List stages
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw-2">ref </span>name, current)) = challenge_and_stage {
+            <span class="kw">let </span><span class="kw-2">mut </span>col = Vec::new();
+            <span class="kw">for </span>(idx, stage) <span class="kw">in </span>Challenge::all()
+                .remove(name)
+                .unwrap()
+                .into_iter()
+                .enumerate()
             {
-                <span class="ident">col</span>.<span class="ident">push</span>(
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_outline</span>
-                        .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">stage</span>.<span class="ident">title</span>)
-                        .<span class="ident">disabled</span>(<span class="ident">current</span> <span class="op">==</span> <span class="ident">idx</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                col.push(
+                    ctx.style()
+                        .btn_outline
+                        .text(<span class="kw-2">&amp;</span>stage.title)
+                        .disabled(current == idx)
+                        .build_def(ctx),
                 );
-                <span class="ident">links</span>.<span class="ident">insert</span>(<span class="ident">stage</span>.<span class="ident">title</span>, (<span class="ident">name</span>.<span class="ident">to_string</span>(), <span class="ident">idx</span>));
+                links.insert(stage.title, (name.to_string(), idx));
             }
-            <span class="ident">main_row</span>.<span class="ident">push</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>).<span class="ident">section</span>(<span class="ident">ctx</span>));
+            main_row.push(Widget::col(col).section(ctx));
         }
 
-        <span class="comment">// Describe the specific stage</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_challenge</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">ref</span> <span class="ident">name</span>, <span class="ident">current</span>)) <span class="op">=</span> <span class="ident">challenge_and_stage</span> {
-            <span class="kw">let</span> <span class="ident">challenge</span> <span class="op">=</span> <span class="ident">Challenge::all</span>().<span class="ident">remove</span>(<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">remove</span>(<span class="ident">current</span>);
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">challenge</span>.<span class="ident">description</span> {
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
+        <span class="comment">// Describe the specific stage
+        </span><span class="kw">let </span><span class="kw-2">mut </span>current_challenge = <span class="prelude-val">None</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw-2">ref </span>name, current)) = challenge_and_stage {
+            <span class="kw">let </span>challenge = Challenge::all().remove(name).unwrap().remove(current);
+            <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+            <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span>challenge.description {
+                txt.add_line(l);
             }
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inner_col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Start!&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="kw">let </span><span class="kw-2">mut </span>inner_col = <span class="macro">vec!</span>[
+                txt.into_widget(ctx),
+                ctx.style()
+                    .btn_outline
+                    .text(<span class="string">&quot;Start!&quot;</span>)
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
             ];
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">scores</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">high_scores</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">challenge</span>.<span class="ident">gameplay</span>) {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{} high scores:&quot;</span>, <span class="ident">scores</span>.<span class="ident">len</span>()));
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Goal: {}&quot;</span>, <span class="ident">scores</span>[<span class="number">0</span>].<span class="ident">goal</span>));
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">for</span> <span class="ident">score</span> <span class="kw">in</span> <span class="ident">scores</span> {
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(scores) = app.session.high_scores.get(<span class="kw-2">&amp;</span>challenge.gameplay) {
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;{} high scores:&quot;</span>, scores.len()));
+                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Goal: {}&quot;</span>, scores[<span class="number">0</span>].goal));
+                <span class="kw">let </span><span class="kw-2">mut </span>idx = <span class="number">1</span>;
+                <span class="kw">for </span>score <span class="kw">in </span>scores {
+                    txt.add_line(<span class="macro">format!</span>(
                         <span class="string">&quot;{}) {}, using proposal: {}&quot;</span>,
-                        <span class="ident">idx</span>, <span class="ident">score</span>.<span class="ident">score</span>, <span class="ident">score</span>.<span class="ident">edits_name</span>
+                        idx, score.score, score.edits_name
                     ));
-                    <span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    idx += <span class="number">1</span>;
                 }
-                <span class="ident">inner_col</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">inner_col</span>.<span class="ident">push</span>(<span class="string">&quot;No attempts yet&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+                inner_col.push(txt.into_widget(ctx));
+            } <span class="kw">else </span>{
+                inner_col.push(<span class="string">&quot;No attempts yet&quot;</span>.text_widget(ctx));
             }
 
-            <span class="ident">main_row</span>.<span class="ident">push</span>(<span class="ident">Widget::col</span>(<span class="ident">inner_col</span>).<span class="ident">section</span>(<span class="ident">ctx</span>));
-            <span class="ident">current_challenge</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">challenge</span>);
+            main_row.push(Widget::col(inner_col).section(ctx));
+            current_challenge = <span class="prelude-val">Some</span>(challenge);
         }
 
-        <span class="ident">master_col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="ident">main_row</span>));
+        master_col.push(Widget::row(main_row));
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">master_col</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-            <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">ChallengesPicker</span> {
-                <span class="ident">links</span>,
-                <span class="ident">challenge</span>: <span class="ident">current_challenge</span>,
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(master_col)).build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
+            panel,
+            Box::new(ChallengesPicker {
+                links,
+                challenge: current_challenge,
             }),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChallengesPicker</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Introduction and tutorial&quot;</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">Tutorial::start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="string">&quot;Start!&quot;</span> =&gt; {
-                <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-                {
-                    <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="self">self</span>
-                        .<span class="ident">challenge</span>
-                        .<span class="ident">as_ref</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">gameplay</span>.<span class="ident">map_name</span>())
-                        .<span class="ident">unwrap</span>();
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="ident">map_name</span>.<span class="ident">path</span>()) {
-                        <span class="comment">// Be lazy here and just tell the user what to do, instead of running the</span>
-                        <span class="comment">// code below. This is a rare case anyway.</span>
-                        <span class="kw">return</span> <span class="ident">map_gui::tools::prompt_to_download_missing_data</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">map_name</span>,
-                            <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
-                                <span class="ident">Transition::Replace</span>(<span class="ident">widgetry::tools::PopupMsg::new_state</span>(
-                                    <span class="ident">ctx</span>,
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>ChallengesPicker {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;Introduction and tutorial&quot; </span>=&gt; Transition::Replace(Tutorial::start(ctx, app)),
+            <span class="string">&quot;Start!&quot; </span>=&gt; {
+                <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+                </span>{
+                    <span class="kw">let </span>map_name = <span class="self">self
+                        </span>.challenge
+                        .as_ref()
+                        .map(|c| c.gameplay.map_name())
+                        .unwrap();
+                    <span class="kw">if </span>!abstio::file_exists(map_name.path()) {
+                        <span class="comment">// Be lazy here and just tell the user what to do, instead of running the
+                        // code below. This is a rare case anyway.
+                        </span><span class="kw">return </span>map_gui::tools::prompt_to_download_missing_data(
+                            ctx,
+                            map_name,
+                            Box::new(|ctx, <span class="kw">_</span>| {
+                                Transition::Replace(widgetry::tools::PopupMsg::new_state(
+                                    ctx,
                                     <span class="string">&quot;Download complete&quot;</span>,
                                     <span class="macro">vec!</span>[<span class="string">&quot;Download complete. Click &#39;Start!&#39; again&quot;</span>],
                                 ))
@@ -564,21 +564,21 @@
                     }
                 }
 
-                <span class="kw">let</span> <span class="ident">challenge</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">challenge</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                <span class="comment">// Constructing the cutscene doesn&#39;t require the map/scenario to be loaded</span>
-                <span class="kw">let</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">SandboxMode::simple_new</span>(<span class="ident">app</span>, <span class="ident">challenge</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>());
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cutscene</span>) <span class="op">=</span> <span class="ident">challenge</span>.<span class="ident">cutscene</span> {
-                    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Transition::Replace</span>(<span class="ident">sandbox</span>),
-                        <span class="ident">Transition::Push</span>(<span class="ident">cutscene</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">challenge</span>.<span class="ident">gameplay</span>)),
+                <span class="kw">let </span>challenge = <span class="self">self</span>.challenge.take().unwrap();
+                <span class="comment">// Constructing the cutscene doesn&#39;t require the map/scenario to be loaded
+                </span><span class="kw">let </span>sandbox = SandboxMode::simple_new(app, challenge.gameplay.clone());
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(cutscene) = challenge.cutscene {
+                    Transition::Multi(<span class="macro">vec!</span>[
+                        Transition::Replace(sandbox),
+                        Transition::Push(cutscene(ctx, app, <span class="kw-2">&amp;</span>challenge.gameplay)),
                     ])
-                } <span class="kw">else</span> {
-                    <span class="ident">Transition::Replace</span>(<span class="ident">sandbox</span>)
+                } <span class="kw">else </span>{
+                    Transition::Replace(sandbox)
                 }
             }
-            <span class="ident">x</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">ChallengesPicker::make</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">links</span>.<span class="ident">remove</span>(<span class="ident">x</span>))),
+            x =&gt; Transition::Replace(ChallengesPicker::make(ctx, app, <span class="self">self</span>.links.remove(x))),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

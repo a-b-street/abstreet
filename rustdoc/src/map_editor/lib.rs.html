@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/map_editor/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_editor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_editor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_editor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/map_editor/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_editor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_editor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_editor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -74,81 +74,81 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
-</pre><pre class="rust"><code><span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the</span>
-<span class="doccomment">//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for</span>
-<span class="doccomment">//! testing.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The map_editor renders and lets you edit RawMaps, which are a format in between OSM and the
+//! full Map. It&#39;s useful for debugging maps imported from OSM, and for drawing synthetic maps for
+//! testing.
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+</span><span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
+<span class="kw">use </span>structopt::StructOpt;
 
-<span class="kw">use</span> <span class="ident">widgetry::Settings</span>;
+<span class="kw">use </span>widgetry::Settings;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
 
-<span class="kw">mod</span> <span class="ident">app</span>;
-<span class="kw">mod</span> <span class="ident">camera</span>;
-<span class="kw">mod</span> <span class="ident">edit</span>;
-<span class="kw">mod</span> <span class="ident">load</span>;
-<span class="kw">mod</span> <span class="ident">model</span>;
+<span class="kw">mod </span>app;
+<span class="kw">mod </span>camera;
+<span class="kw">mod </span>edit;
+<span class="kw">mod </span>load;
+<span class="kw">mod </span>model;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;RawMap editor&quot;</span>);
-    <span class="ident">run</span>(<span class="ident">settings</span>);
+<span class="kw">pub fn </span>main() {
+    <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;RawMap editor&quot;</span>);
+    run(settings);
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
-<span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;run_scenario&quot;</span>, <span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Simulates a scenario&quot;</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Args</span> {
-    <span class="doccomment">/// The path to a RawMap to load. If omitted, start with a blank map.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-    <span class="ident">load</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Import buildings from the RawMap. Slow.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="ident">include_buildings</span>: <span class="ident">bool</span>,
-    <span class="doccomment">/// The initial camera state</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="ident">cam</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(StructOpt)]
+#[structopt(name = <span class="string">&quot;run_scenario&quot;</span>, about = <span class="string">&quot;Simulates a scenario&quot;</span>)]
+</span><span class="kw">struct </span>Args {
+    <span class="doccomment">/// The path to a RawMap to load. If omitted, start with a blank map.
+    </span><span class="attribute">#[structopt()]
+    </span>load: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Import buildings from the RawMap. Slow.
+    </span><span class="attribute">#[structopt(long)]
+    </span>include_buildings: bool,
+    <span class="doccomment">/// The initial camera state
+    </span><span class="attribute">#[structopt(long)]
+    </span>cam: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
-    <span class="ident">abstutil::logger::setup</span>();
+<span class="kw">fn </span>run(<span class="kw-2">mut </span>settings: Settings) {
+    abstutil::logger::setup();
 
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>
-        .<span class="ident">read_svg</span>(<span class="ident">Box::new</span>(<span class="ident">abstio::slurp_bytes</span>))
-        .<span class="ident">window_icon</span>(<span class="ident">abstio::path</span>(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>));
-    <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">app</span> <span class="op">=</span> <span class="ident">App</span> {
-            <span class="ident">model</span>: <span class="ident">model::Model::blank</span>(<span class="ident">ctx</span>),
+    settings = settings
+        .read_svg(Box::new(abstio::slurp_bytes))
+        .window_icon(abstio::path(<span class="string">&quot;system/assets/pregame/icon.png&quot;</span>));
+    widgetry::run(settings, |ctx| {
+        <span class="kw">let </span>args = Args::from_iter(abstutil::cli_args());
+        <span class="kw">let </span><span class="kw-2">mut </span>app = App {
+            model: model::Model::blank(ctx),
         };
-        <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">include_bldgs</span> <span class="op">=</span> <span class="ident">args</span>.<span class="ident">include_buildings</span>;
+        app.model.include_bldgs = args.include_buildings;
 
-        <span class="kw">let</span> <span class="ident">states</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">load</span> {
-            <span class="comment">// In case the initial load fails, stick a blank state at the bottom</span>
-            <span class="macro">vec!</span>[
-                <span class="ident">app::MainState::new_state</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>),
-                <span class="ident">load::load_map</span>(<span class="ident">ctx</span>, <span class="ident">path</span>, <span class="ident">args</span>.<span class="ident">include_buildings</span>, <span class="ident">args</span>.<span class="ident">cam</span>),
+        <span class="kw">let </span>states = <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = args.load {
+            <span class="comment">// In case the initial load fails, stick a blank state at the bottom
+            </span><span class="macro">vec!</span>[
+                app::MainState::new_state(ctx, <span class="kw-2">&amp;</span>app),
+                load::load_map(ctx, path, args.include_buildings, args.cam),
             ]
-        } <span class="kw">else</span> {
-            <span class="macro">vec!</span>[<span class="ident">app::MainState::new_state</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>)]
+        } <span class="kw">else </span>{
+            <span class="macro">vec!</span>[app::MainState::new_state(ctx, <span class="kw-2">&amp;</span>app)]
         };
-        (<span class="ident">app</span>, <span class="ident">states</span>)
+        (app, states)
     });
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">wasm_bindgen::prelude</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+</span><span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">js_name</span> <span class="op">=</span> <span class="string">&quot;run&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_wasm</span>(<span class="ident">root_dom_id</span>: <span class="ident">String</span>, <span class="ident">assets_base_url</span>: <span class="ident">String</span>, <span class="ident">assets_are_gzipped</span>: <span class="ident">bool</span>) {
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;RawMap editor&quot;</span>)
-        .<span class="ident">root_dom_element_id</span>(<span class="ident">root_dom_id</span>)
-        .<span class="ident">assets_base_url</span>(<span class="ident">assets_base_url</span>)
-        .<span class="ident">assets_are_gzipped</span>(<span class="ident">assets_are_gzipped</span>);
-    <span class="ident">run</span>(<span class="ident">settings</span>);
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+#[wasm_bindgen(js_name = <span class="string">&quot;run&quot;</span>)]
+</span><span class="kw">pub fn </span>run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
+    <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;RawMap editor&quot;</span>)
+        .root_dom_element_id(root_dom_id)
+        .assets_base_url(assets_base_url)
+        .assets_are_gzipped(assets_are_gzipped);
+    run(settings);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_editor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_editor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

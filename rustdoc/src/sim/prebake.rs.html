@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/prebake.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>prebake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/prebake.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>prebake.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -85,92 +85,92 @@
 <span id="85">85</span>
 <span id="86">86</span>
 <span id="87">87</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::Serialize</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>serde::Serialize;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AlertHandler</span>, <span class="ident">Sim</span>, <span class="ident">SimFlags</span>, <span class="ident">SimOptions</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
-<span class="kw">use</span> <span class="ident">synthpop::Scenario</span>;
+<span class="kw">use crate</span>::{AlertHandler, Sim, SimFlags, SimOptions};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::{Duration, Time};
+<span class="kw">use </span>map_model::Map;
+<span class="kw">use </span>synthpop::Scenario;
 
-<span class="doccomment">/// Simulate a curated list of scenarios to completion, and save the analytics as &quot;prebaked</span>
-<span class="doccomment">/// results,&quot; to later compare simulation metrics against the baseline without map edits.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prebake</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">scenario</span>: <span class="ident">Scenario</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">PrebakeSummary</span> {
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(
+<span class="doccomment">/// Simulate a curated list of scenarios to completion, and save the analytics as &quot;prebaked
+/// results,&quot; to later compare simulation metrics against the baseline without map edits.
+</span><span class="kw">pub fn </span>prebake(map: <span class="kw-2">&amp;</span>Map, scenario: Scenario, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; PrebakeSummary {
+    timer.start(<span class="macro">format!</span>(
         <span class="string">&quot;prebake for {} / {}&quot;</span>,
-        <span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">describe</span>(),
-        <span class="ident">scenario</span>.<span class="ident">scenario_name</span>
+        scenario.map_name.describe(),
+        scenario.scenario_name
     ));
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">SimOptions::new</span>(<span class="string">&quot;prebaked&quot;</span>);
-    <span class="ident">opts</span>.<span class="ident">alerts</span> <span class="op">=</span> <span class="ident">AlertHandler::Silence</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="ident">map</span>, <span class="ident">opts</span>);
-    <span class="comment">// Bit of an abuse of this, but just need to fix the rng seed.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">SimFlags::for_test</span>(<span class="string">&quot;prebaked&quot;</span>).<span class="ident">make_rng</span>();
-    <span class="ident">sim</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>opts = SimOptions::new(<span class="string">&quot;prebaked&quot;</span>);
+    opts.alerts = AlertHandler::Silence;
+    <span class="kw">let </span><span class="kw-2">mut </span>sim = Sim::new(map, opts);
+    <span class="comment">// Bit of an abuse of this, but just need to fix the rng seed.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = SimFlags::for_test(<span class="string">&quot;prebaked&quot;</span>).make_rng();
+    sim.instantiate(<span class="kw-2">&amp;</span>scenario, map, <span class="kw-2">&amp;mut </span>rng, timer);
 
-    <span class="comment">// Run until a few hours after the end of the day. Some trips start close to midnight, and we</span>
-    <span class="comment">// want prebaked data for them too.</span>
-    <span class="ident">sim</span>.<span class="ident">timed_step</span>(
-        <span class="ident">map</span>,
-        <span class="ident">sim</span>.<span class="ident">get_end_of_day</span>() <span class="op">-</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">3</span>),
-        <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>,
-        <span class="ident">timer</span>,
+    <span class="comment">// Run until a few hours after the end of the day. Some trips start close to midnight, and we
+    // want prebaked data for them too.
+    </span>sim.timed_step(
+        map,
+        sim.get_end_of_day() - Time::START_OF_DAY + Duration::hours(<span class="number">3</span>),
+        <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>,
+        timer,
     );
-    <span class="ident">abstio::write_binary</span>(
-        <span class="ident">abstio::path_prebaked_results</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>.<span class="ident">map_name</span>, <span class="kw-2">&amp;</span><span class="ident">scenario</span>.<span class="ident">scenario_name</span>),
-        <span class="ident">sim</span>.<span class="ident">get_analytics</span>(),
+    abstio::write_binary(
+        abstio::path_prebaked_results(<span class="kw-2">&amp;</span>scenario.map_name, <span class="kw-2">&amp;</span>scenario.scenario_name),
+        sim.get_analytics(),
     );
-    <span class="comment">// TODO Remove the num_agents check once transit isn&#39;t as broken. In sao_miguel_paulista,</span>
-    <span class="comment">// people wait for a bus that stops running at midnight.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">sim</span>.<span class="ident">is_done</span>() <span class="op">&amp;&amp;</span> <span class="ident">sim</span>.<span class="ident">num_agents</span>().<span class="ident">sum</span>() <span class="op">&gt;</span> <span class="number">200</span> {
+    <span class="comment">// TODO Remove the num_agents check once transit isn&#39;t as broken. In sao_miguel_paulista,
+    // people wait for a bus that stops running at midnight.
+    </span><span class="kw">if </span>!sim.is_done() &amp;&amp; sim.num_agents().sum() &gt; <span class="number">200 </span>{
         <span class="macro">panic!</span>(
             <span class="string">&quot;It&#39;s {} and there are still {} agents left in {}. Gridlock likely...&quot;</span>,
-            <span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">sim</span>.<span class="ident">num_agents</span>().<span class="ident">sum</span>()),
-            <span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">describe</span>()
+            sim.time(),
+            prettyprint_usize(sim.num_agents().sum()),
+            scenario.map_name.describe()
         );
     }
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(
+    timer.stop(<span class="macro">format!</span>(
         <span class="string">&quot;prebake for {} / {}&quot;</span>,
-        <span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">describe</span>(),
-        <span class="ident">scenario</span>.<span class="ident">scenario_name</span>
+        scenario.map_name.describe(),
+        scenario.scenario_name
     ));
 
-    <span class="ident">PrebakeSummary::new</span>(<span class="kw-2">&amp;</span><span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="ident">scenario</span>)
+    PrebakeSummary::new(<span class="kw-2">&amp;</span>sim, <span class="kw-2">&amp;</span>scenario)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrebakeSummary</span> {
-    <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">scenario</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">finished_trips</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">cancelled_trips</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">total_trip_duration_seconds</span>: <span class="ident">f64</span>,
+<span class="attribute">#[derive(Debug, Serialize)]
+</span><span class="kw">pub struct </span>PrebakeSummary {
+    <span class="kw">pub </span>map: String,
+    <span class="kw">pub </span>scenario: String,
+    <span class="kw">pub </span>finished_trips: usize,
+    <span class="kw">pub </span>cancelled_trips: usize,
+    <span class="kw">pub </span>total_trip_duration_seconds: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">PrebakeSummary</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>, <span class="ident">scenario</span>: <span class="kw-2">&amp;</span><span class="ident">Scenario</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished_trips</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cancelled_trips</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="comment">// Use f64 seconds, since a serialized Duration has a low cap.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_trip_duration_seconds</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">maybe_duration</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">maybe_duration</span> {
-                <span class="ident">finished_trips</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">total_trip_duration_seconds</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dt</span>.<span class="ident">inner_seconds</span>();
-            } <span class="kw">else</span> {
-                <span class="ident">cancelled_trips</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+<span class="kw">impl </span>PrebakeSummary {
+    <span class="kw">pub fn </span>new(sim: <span class="kw-2">&amp;</span>Sim, scenario: <span class="kw-2">&amp;</span>Scenario) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>finished_trips = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>cancelled_trips = <span class="number">0</span>;
+        <span class="comment">// Use f64 seconds, since a serialized Duration has a low cap.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>total_trip_duration_seconds = <span class="number">0.0</span>;
+        <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, maybe_duration) <span class="kw">in </span><span class="kw-2">&amp;</span>sim.get_analytics().finished_trips {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(dt) = maybe_duration {
+                finished_trips += <span class="number">1</span>;
+                total_trip_duration_seconds += dt.inner_seconds();
+            } <span class="kw">else </span>{
+                cancelled_trips += <span class="number">1</span>;
             }
         }
-        <span class="self">Self</span> {
-            <span class="ident">map</span>: <span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">describe</span>(),
-            <span class="ident">scenario</span>: <span class="ident">scenario</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>(),
-            <span class="ident">finished_trips</span>,
-            <span class="ident">cancelled_trips</span>,
-            <span class="ident">total_trip_duration_seconds</span>,
+        <span class="self">Self </span>{
+            map: scenario.map_name.describe(),
+            scenario: scenario.scenario_name.clone(),
+            finished_trips,
+            cancelled_trips,
+            total_trip_duration_seconds,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

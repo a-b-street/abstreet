@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/drawing.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>drawing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/drawing.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>drawing.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -321,328 +321,328 @@
 <span id="321">321</span>
 <span id="322">322</span>
 <span id="323">323</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::Cell;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
+<span class="kw">use </span>geom::{Bounds, Polygon, Pt2D, Tessellation};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::assets::Assets</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend</span>::{<span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Key</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">ScreenRectangle</span>,
-    <span class="ident">Style</span>, <span class="ident">Text</span>,
+<span class="kw">use </span><span class="kw">crate</span>::assets::Assets;
+<span class="kw">use </span><span class="kw">crate</span>::backend::{GfxCtxInnards, PrerenderInnards};
+<span class="kw">use crate</span>::{
+    Canvas, Color, Drawable, EventCtx, GeomBatch, Key, ScreenDims, ScreenPt, ScreenRectangle,
+    Style, Text,
 };
 
-<span class="comment">// We organize major layers of the app with whole number z values, with lower values being more on</span>
-<span class="comment">// top.</span>
-<span class="comment">//</span>
-<span class="comment">// Within each layer, we must only adjust the z-offset of individual polygons within (-1, 0] to</span>
-<span class="comment">// avoid traversing layers.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">MAPSPACE_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">1.0</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">SCREENSPACE_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">0.0</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">MENU_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="op">-</span><span class="number">1.0</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">TOOLTIP_Z</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="op">-</span><span class="number">2.0</span>;
+<span class="comment">// We organize major layers of the app with whole number z values, with lower values being more on
+// top.
+//
+// Within each layer, we must only adjust the z-offset of individual polygons within (-1, 0] to
+// avoid traversing layers.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>MAPSPACE_Z: f32 = <span class="number">1.0</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>SCREENSPACE_Z: f32 = <span class="number">0.0</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>MENU_Z: f32 = -<span class="number">1.0</span>;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>TOOLTIP_Z: f32 = -<span class="number">2.0</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Uniforms</span> {
-    <span class="doccomment">/// (cam_x, cam_y, cam_zoom)</span>
-    <span class="kw">pub</span> <span class="ident">transform</span>: [<span class="ident">f32</span>; <span class="number">3</span>],
-    <span class="doccomment">/// (window_width, window_height, Z values)</span>
-    <span class="kw">pub</span> <span class="ident">window</span>: [<span class="ident">f32</span>; <span class="number">3</span>],
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>Uniforms {
+    <span class="doccomment">/// (cam_x, cam_y, cam_zoom)
+    </span><span class="kw">pub </span>transform: [f32; <span class="number">3</span>],
+    <span class="doccomment">/// (window_width, window_height, Z values)
+    </span><span class="kw">pub </span>window: [f32; <span class="number">3</span>],
 }
 
-<span class="kw">impl</span> <span class="ident">Uniforms</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) -&gt; <span class="ident">Uniforms</span> {
-        <span class="ident">Uniforms</span> {
-            <span class="ident">transform</span>: [
-                <span class="ident">canvas</span>.<span class="ident">cam_x</span> <span class="kw">as</span> <span class="ident">f32</span>,
-                <span class="ident">canvas</span>.<span class="ident">cam_y</span> <span class="kw">as</span> <span class="ident">f32</span>,
-                <span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="kw">as</span> <span class="ident">f32</span>,
+<span class="kw">impl </span>Uniforms {
+    <span class="kw">pub fn </span>new(canvas: <span class="kw-2">&amp;</span>Canvas) -&gt; Uniforms {
+        Uniforms {
+            transform: [
+                canvas.cam_x <span class="kw">as </span>f32,
+                canvas.cam_y <span class="kw">as </span>f32,
+                canvas.cam_zoom <span class="kw">as </span>f32,
             ],
-            <span class="ident">window</span>: [
-                <span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="kw">as</span> <span class="ident">f32</span>,
-                <span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="kw">as</span> <span class="ident">f32</span>,
-                <span class="ident">MAPSPACE_Z</span>,
+            window: [
+                canvas.window_width <span class="kw">as </span>f32,
+                canvas.window_height <span class="kw">as </span>f32,
+                MAPSPACE_Z,
             ],
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GfxCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">inner</span>: <span class="ident">GfxCtxInnards</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">uniforms</span>: <span class="ident">Uniforms</span>,
+<span class="kw">pub struct </span>GfxCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) inner: GfxCtxInnards&lt;<span class="lifetime">&#39;a</span>&gt;,
+    uniforms: Uniforms,
 
-    <span class="ident">screencap_mode</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">naming_hint</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+    screencap_mode: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) naming_hint: <span class="prelude-ty">Option</span>&lt;String&gt;,
 
-    <span class="comment">// TODO Don&#39;t be pub. Delegate everything.</span>
-    <span class="kw">pub</span> <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Canvas</span>,
-    <span class="kw">pub</span> <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Prerender</span>,
-    <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Style</span>,
+    <span class="comment">// TODO Don&#39;t be pub. Delegate everything.
+    </span><span class="kw">pub </span>canvas: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Canvas,
+    <span class="kw">pub </span>prerender: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Prerender,
+    style: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Style,
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">num_draw_calls</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">num_forks</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) num_draw_calls: usize,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) num_forks: usize,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">GfxCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Prerender</span>,
-        <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Canvas</span>,
-        <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Style</span>,
-        <span class="ident">screencap_mode</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">GfxCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">uniforms</span> <span class="op">=</span> <span class="ident">Uniforms::new</span>(<span class="ident">canvas</span>);
-        <span class="ident">GfxCtx</span> {
-            <span class="ident">inner</span>: <span class="ident">prerender</span>.<span class="ident">inner</span>.<span class="ident">draw_new_frame</span>(),
-            <span class="ident">uniforms</span>,
-            <span class="ident">canvas</span>,
-            <span class="ident">style</span>,
-            <span class="ident">prerender</span>,
-            <span class="ident">num_draw_calls</span>: <span class="number">0</span>,
-            <span class="ident">num_forks</span>: <span class="number">0</span>,
-            <span class="ident">screencap_mode</span>,
-            <span class="ident">naming_hint</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; GfxCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        prerender: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Prerender,
+        canvas: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Canvas,
+        style: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Style,
+        screencap_mode: bool,
+    ) -&gt; GfxCtx&lt;<span class="lifetime">&#39;a</span>&gt; {
+        <span class="kw">let </span>uniforms = Uniforms::new(canvas);
+        GfxCtx {
+            inner: prerender.inner.draw_new_frame(),
+            uniforms,
+            canvas,
+            style,
+            prerender,
+            num_draw_calls: <span class="number">0</span>,
+            num_forks: <span class="number">0</span>,
+            screencap_mode,
+            naming_hint: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="comment">// Up to the caller to call unfork()!</span>
-    <span class="comment">// TODO Canvas doesn&#39;t understand this change, so things like text drawing that use</span>
-    <span class="comment">// map_to_screen will just be confusing.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fork</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">top_left_map</span>: <span class="ident">Pt2D</span>,
-        <span class="ident">top_left_screen</span>: <span class="ident">ScreenPt</span>,
-        <span class="ident">zoom</span>: <span class="ident">f64</span>,
-        <span class="ident">z</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>,
+    <span class="comment">// Up to the caller to call unfork()!
+    // TODO Canvas doesn&#39;t understand this change, so things like text drawing that use
+    // map_to_screen will just be confusing.
+    </span><span class="kw">pub fn </span>fork(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        top_left_map: Pt2D,
+        top_left_screen: ScreenPt,
+        zoom: f64,
+        z: <span class="prelude-ty">Option</span>&lt;f32&gt;,
     ) {
-        <span class="comment">// map_to_screen of top_left_map should be top_left_screen</span>
-        <span class="kw">let</span> <span class="ident">cam_x</span> <span class="op">=</span> (<span class="ident">top_left_map</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="ident">zoom</span>) <span class="op">-</span> <span class="ident">top_left_screen</span>.<span class="ident">x</span>;
-        <span class="kw">let</span> <span class="ident">cam_y</span> <span class="op">=</span> (<span class="ident">top_left_map</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="ident">zoom</span>) <span class="op">-</span> <span class="ident">top_left_screen</span>.<span class="ident">y</span>;
+        <span class="comment">// map_to_screen of top_left_map should be top_left_screen
+        </span><span class="kw">let </span>cam_x = (top_left_map.x() * zoom) - top_left_screen.x;
+        <span class="kw">let </span>cam_y = (top_left_map.y() * zoom) - top_left_screen.y;
 
-        <span class="self">self</span>.<span class="ident">uniforms</span>.<span class="ident">transform</span> <span class="op">=</span> [<span class="ident">cam_x</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="ident">cam_y</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="ident">zoom</span> <span class="kw">as</span> <span class="ident">f32</span>];
-        <span class="self">self</span>.<span class="ident">uniforms</span>.<span class="ident">window</span> <span class="op">=</span> [
-            <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">z</span>.<span class="ident">unwrap_or</span>(<span class="ident">SCREENSPACE_Z</span>),
+        <span class="self">self</span>.uniforms.transform = [cam_x <span class="kw">as </span>f32, cam_y <span class="kw">as </span>f32, zoom <span class="kw">as </span>f32];
+        <span class="self">self</span>.uniforms.window = [
+            <span class="self">self</span>.canvas.window_width <span class="kw">as </span>f32,
+            <span class="self">self</span>.canvas.window_height <span class="kw">as </span>f32,
+            z.unwrap_or(SCREENSPACE_Z),
         ];
-        <span class="self">self</span>.<span class="ident">num_forks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="self">self</span>.num_forks += <span class="number">1</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fork_screenspace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">uniforms</span>.<span class="ident">transform</span> <span class="op">=</span> [<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>];
-        <span class="self">self</span>.<span class="ident">uniforms</span>.<span class="ident">window</span> <span class="op">=</span> [
-            <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">SCREENSPACE_Z</span>,
+    <span class="kw">pub fn </span>fork_screenspace(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.uniforms.transform = [<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>];
+        <span class="self">self</span>.uniforms.window = [
+            <span class="self">self</span>.canvas.window_width <span class="kw">as </span>f32,
+            <span class="self">self</span>.canvas.window_height <span class="kw">as </span>f32,
+            SCREENSPACE_Z,
         ];
-        <span class="self">self</span>.<span class="ident">num_forks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="self">self</span>.num_forks += <span class="number">1</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unfork</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">uniforms</span> <span class="op">=</span> <span class="ident">Uniforms::new</span>(<span class="self">self</span>.<span class="ident">canvas</span>);
-        <span class="self">self</span>.<span class="ident">num_forks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">pub fn </span>unfork(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.uniforms = Uniforms::new(<span class="self">self</span>.canvas);
+        <span class="self">self</span>.num_forks += <span class="number">1</span>;
 
-        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());</span>
+        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());
+    </span>}
+
+    <span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>, color: Color) {
+        <span class="self">self</span>.inner.clear(color);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clear</span>(<span class="ident">color</span>);
+    <span class="comment">// Doesn&#39;t take &amp;Polygon, because this is inherently inefficient. If performance matters,
+    // upload, cache, and redraw.
+    </span><span class="kw">pub fn </span>draw_polygon&lt;T: Into&lt;Tessellation&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, color: Color, poly: T) {
+        GeomBatch::from(<span class="macro">vec!</span>[(color, poly)]).draw(<span class="self">self</span>);
     }
 
-    <span class="comment">// Doesn&#39;t take &amp;Polygon, because this is inherently inefficient. If performance matters,</span>
-    <span class="comment">// upload, cache, and redraw.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_polygon</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">poly</span>: <span class="ident">T</span>) {
-        <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">color</span>, <span class="ident">poly</span>)]).<span class="ident">draw</span>(<span class="self">self</span>);
+    <span class="kw">pub fn </span>redraw(<span class="kw-2">&amp;mut </span><span class="self">self</span>, obj: <span class="kw-2">&amp;</span>Drawable) {
+        <span class="self">self</span>.inner
+            .redraw(obj, <span class="kw-2">&amp;</span><span class="self">self</span>.uniforms, <span class="kw-2">&amp;</span><span class="self">self</span>.prerender.inner);
+        <span class="self">self</span>.num_draw_calls += <span class="number">1</span>;
+
+        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());
+    </span>}
+
+    <span class="kw">pub fn </span>redraw_at(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt, obj: <span class="kw-2">&amp;</span>Drawable) {
+        <span class="self">self</span>.fork(Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>), top_left, <span class="number">1.0</span>, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.redraw(obj);
+        <span class="self">self</span>.unfork();
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redraw</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">Drawable</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>
-            .<span class="ident">redraw</span>(<span class="ident">obj</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">uniforms</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">inner</span>);
-        <span class="self">self</span>.<span class="ident">num_draw_calls</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-
-        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());</span>
+    <span class="comment">// TODO Stateful API :(
+    </span><span class="kw">pub fn </span>enable_clipping(<span class="kw-2">&amp;mut </span><span class="self">self</span>, rect: ScreenRectangle) {
+        <span class="kw">let </span>scale_factor = <span class="self">self</span>.prerender.get_scale_factor();
+        <span class="self">self</span>.inner.enable_clipping(rect, scale_factor, <span class="self">self</span>.canvas);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redraw_at</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>, <span class="ident">obj</span>: <span class="kw-2">&amp;</span><span class="ident">Drawable</span>) {
-        <span class="self">self</span>.<span class="ident">fork</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">top_left</span>, <span class="number">1.0</span>, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">redraw</span>(<span class="ident">obj</span>);
-        <span class="self">self</span>.<span class="ident">unfork</span>();
+    <span class="kw">pub fn </span>disable_clipping(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>scale_factor = <span class="self">self</span>.prerender.get_scale_factor();
+        <span class="self">self</span>.inner.disable_clipping(scale_factor, <span class="self">self</span>.canvas);
     }
 
-    <span class="comment">// TODO Stateful API :(</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">enable_clipping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rect</span>: <span class="ident">ScreenRectangle</span>) {
-        <span class="kw">let</span> <span class="ident">scale_factor</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">get_scale_factor</span>();
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">enable_clipping</span>(<span class="ident">rect</span>, <span class="ident">scale_factor</span>, <span class="self">self</span>.<span class="ident">canvas</span>);
-    }
+    <span class="comment">// Canvas stuff.
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disable_clipping</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">scale_factor</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">get_scale_factor</span>();
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">disable_clipping</span>(<span class="ident">scale_factor</span>, <span class="self">self</span>.<span class="ident">canvas</span>);
-    }
-
-    <span class="comment">// Canvas stuff.</span>
-
-    <span class="doccomment">/// Draw a tooltip where the mouse is</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_mouse_tooltip</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>) {
-        <span class="self">self</span>.<span class="ident">draw_tooltip_at</span>(
-            <span class="ident">txt</span>,
-            <span class="ident">ScreenPt::new</span>(<span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cursor</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">cursor</span>.<span class="ident">y</span> <span class="op">+</span> <span class="number">20.0</span>),
+    </span><span class="doccomment">/// Draw a tooltip where the mouse is
+    </span><span class="kw">pub fn </span>draw_mouse_tooltip(<span class="kw-2">&amp;mut </span><span class="self">self</span>, txt: Text) {
+        <span class="self">self</span>.draw_tooltip_at(
+            txt,
+            ScreenPt::new(<span class="self">self</span>.canvas.cursor.x, <span class="self">self</span>.canvas.cursor.y + <span class="number">20.0</span>),
         )
     }
 
-    <span class="doccomment">/// Draw a tooltip somewhere on the screen</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_tooltip_at</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">txt</span>: <span class="ident">Text</span>, <span class="ident">center</span>: <span class="ident">ScreenPt</span>) {
-        <span class="kw">if</span> <span class="ident">txt</span>.<span class="ident">is_empty</span>() {
+    <span class="doccomment">/// Draw a tooltip somewhere on the screen
+    </span><span class="kw">pub fn </span>draw_tooltip_at(<span class="kw-2">&amp;mut </span><span class="self">self</span>, txt: Text, center: ScreenPt) {
+        <span class="kw">if </span>txt.is_empty() {
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// Add some padding</span>
-        <span class="kw">let</span> <span class="ident">pad</span> <span class="op">=</span> <span class="number">5.0</span>;
-        <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">default_fg</span>(<span class="self">self</span>.<span class="ident">style</span>.<span class="ident">text_tooltip_color</span>);
-        <span class="kw">let</span> <span class="ident">txt_batch</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">render</span>(<span class="self">self</span>);
-        <span class="kw">let</span> <span class="ident">raw_dims</span> <span class="op">=</span> <span class="ident">txt_batch</span>.<span class="ident">get_dims</span>();
-        <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">ScreenDims::new</span>(<span class="ident">raw_dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>, <span class="ident">raw_dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">pad</span>);
+        <span class="comment">// Add some padding
+        </span><span class="kw">let </span>pad = <span class="number">5.0</span>;
+        <span class="kw">let </span>txt = txt.default_fg(<span class="self">self</span>.style.text_tooltip_color);
+        <span class="kw">let </span>txt_batch = txt.render(<span class="self">self</span>);
+        <span class="kw">let </span>raw_dims = txt_batch.get_dims();
+        <span class="kw">let </span>dims = ScreenDims::new(raw_dims.width + <span class="number">2.0 </span>* pad, raw_dims.height + <span class="number">2.0 </span>* pad);
 
-        <span class="comment">// TODO Maybe also consider the cursor as a valid center</span>
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">dims</span>.<span class="ident">top_left_for_corner</span>(<span class="ident">center</span>, <span class="self">self</span>.<span class="ident">canvas</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="comment">// TODO Outline?</span>
-        <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="ident">Color::BLACK</span>,
-            <span class="ident">Polygon::rectangle</span>(<span class="ident">dims</span>.<span class="ident">width</span>, <span class="ident">dims</span>.<span class="ident">height</span>).<span class="ident">translate</span>(<span class="ident">pt</span>.<span class="ident">x</span>, <span class="ident">pt</span>.<span class="ident">y</span>),
+        <span class="comment">// TODO Maybe also consider the cursor as a valid center
+        </span><span class="kw">let </span>pt = dims.top_left_for_corner(center, <span class="self">self</span>.canvas);
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="comment">// TODO Outline?
+        </span>batch.push(
+            Color::BLACK,
+            Polygon::rectangle(dims.width, dims.height).translate(pt.x, pt.y),
         );
-        <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">txt_batch</span>.<span class="ident">translate</span>(<span class="ident">pt</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">pad</span>, <span class="ident">pt</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">pad</span>));
+        batch.append(txt_batch.translate(pt.x + pad, pt.y + pad));
 
-        <span class="comment">// fork_screenspace, but with an even more prominent Z</span>
-        <span class="self">self</span>.<span class="ident">uniforms</span>.<span class="ident">transform</span> <span class="op">=</span> [<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>];
-        <span class="self">self</span>.<span class="ident">uniforms</span>.<span class="ident">window</span> <span class="op">=</span> [
-            <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="kw">as</span> <span class="ident">f32</span>,
-            <span class="ident">TOOLTIP_Z</span>,
+        <span class="comment">// fork_screenspace, but with an even more prominent Z
+        </span><span class="self">self</span>.uniforms.transform = [<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>];
+        <span class="self">self</span>.uniforms.window = [
+            <span class="self">self</span>.canvas.window_width <span class="kw">as </span>f32,
+            <span class="self">self</span>.canvas.window_height <span class="kw">as </span>f32,
+            TOOLTIP_Z,
         ];
-        <span class="self">self</span>.<span class="ident">num_forks</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="comment">// Temporarily disable clipping if needed.</span>
-        <span class="kw">let</span> <span class="ident">clip</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">inner</span>
-            .<span class="ident">take_clip</span>(<span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">get_scale_factor</span>(), <span class="self">self</span>.<span class="ident">canvas</span>);
-        <span class="ident">batch</span>.<span class="ident">draw</span>(<span class="self">self</span>);
-        <span class="self">self</span>.<span class="ident">unfork</span>();
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">restore_clip</span>(<span class="ident">clip</span>);
+        <span class="self">self</span>.num_forks += <span class="number">1</span>;
+        <span class="comment">// Temporarily disable clipping if needed.
+        </span><span class="kw">let </span>clip = <span class="self">self
+            </span>.inner
+            .take_clip(<span class="self">self</span>.prerender.get_scale_factor(), <span class="self">self</span>.canvas);
+        batch.draw(<span class="self">self</span>);
+        <span class="self">self</span>.unfork();
+        <span class="self">self</span>.inner.restore_clip(clip);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_screen_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bounds</span> {
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">get_screen_bounds</span>()
+    <span class="kw">pub fn </span>get_screen_bounds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bounds {
+        <span class="self">self</span>.canvas.get_screen_bounds()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">screen_to_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">screen_to_map</span>(<span class="ident">pt</span>)
+    <span class="kw">pub fn </span>screen_to_map(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: ScreenPt) -&gt; Pt2D {
+        <span class="self">self</span>.canvas.screen_to_map(pt)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cursor_in_map_space</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>()
+    <span class="kw">pub fn </span>get_cursor_in_map_space(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Pt2D&gt; {
+        <span class="self">self</span>.canvas.get_cursor_in_map_space()
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">get_num_uploads</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">num_uploads</span>.<span class="ident">get</span>()
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>get_num_uploads(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.prerender.num_uploads.get()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_screencap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">screencap_mode</span>
+    <span class="kw">pub fn </span>is_screencap(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.screencap_mode
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_screencap_naming_hint</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">hint</span>: <span class="ident">String</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">screencap_mode</span>);
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">naming_hint</span>.<span class="ident">is_none</span>());
-        <span class="self">self</span>.<span class="ident">naming_hint</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">hint</span>);
+    <span class="kw">pub fn </span>set_screencap_naming_hint(<span class="kw-2">&amp;mut </span><span class="self">self</span>, hint: String) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.screencap_mode);
+        <span class="macro">assert!</span>(<span class="self">self</span>.naming_hint.is_none());
+        <span class="self">self</span>.naming_hint = <span class="prelude-val">Some</span>(hint);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
+    <span class="kw">pub fn </span>upload(<span class="kw-2">&amp;mut </span><span class="self">self</span>, batch: GeomBatch) -&gt; Drawable {
+        <span class="self">self</span>.prerender.upload(batch)
     }
 
-    <span class="comment">// Delegation to assets</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>.<span class="ident">default_line_height</span>.<span class="ident">borrow</span>()
+    <span class="comment">// Delegation to assets
+    </span><span class="kw">pub fn </span>default_line_height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="kw-2">*</span><span class="self">self</span>.prerender.assets.default_line_height.borrow()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Style</span> {
-        <span class="self">self</span>.<span class="ident">style</span>
+    <span class="kw">pub fn </span>style(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Style {
+        <span class="self">self</span>.style
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_key_down</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">keys_held</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>)
-    }
-}
-
-<span class="comment">// TODO Don&#39;t expose this directly</span>
-<span class="comment">// TODO Rename or something maybe. This actually owns all the permanent state of everything.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Prerender</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">inner</span>: <span class="ident">PrerenderInnards</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">assets</span>: <span class="ident">Assets</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">num_uploads</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">scale_factor</span>: <span class="ident">Cell</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Prerender</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="self">self</span>.<span class="ident">actually_upload</span>(<span class="bool-val">true</span>, <span class="ident">batch</span>)
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">upload_temporary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="self">self</span>.<span class="ident">actually_upload</span>(<span class="bool-val">false</span>, <span class="ident">batch</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_total_bytes_uploaded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">total_bytes_uploaded</span>.<span class="ident">get</span>()
-    }
-
-    <span class="kw">fn</span> <span class="ident">actually_upload</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">permanent</span>: <span class="ident">bool</span>, <span class="ident">batch</span>: <span class="ident">GeomBatch</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="self">self</span>.<span class="ident">num_uploads</span>.<span class="ident">set</span>(<span class="self">self</span>.<span class="ident">num_uploads</span>.<span class="ident">get</span>() <span class="op">+</span> <span class="number">1</span>);
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">actually_upload</span>(<span class="ident">permanent</span>, <span class="ident">batch</span>)
-
-        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());</span>
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">request_redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">request_redraw</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_scale_factor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">scale_factor</span>.<span class="ident">get</span>()
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">window_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">window_size</span>(<span class="self">self</span>.<span class="ident">get_scale_factor</span>())
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">window_resized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">ScreenDims</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">window_resized</span>(<span class="ident">new_size</span>, <span class="self">self</span>.<span class="ident">get_scale_factor</span>())
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assets_base_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">assets</span>.<span class="ident">base_url</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">assets_are_gzipped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">assets</span>.<span class="ident">are_gzipped</span>()
+    <span class="kw">pub fn </span>is_key_down(<span class="kw-2">&amp;</span><span class="self">self</span>, key: Key) -&gt; bool {
+        <span class="self">self</span>.canvas.keys_held.contains(<span class="kw-2">&amp;</span>key)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GfxCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Prerender</span> {
-        <span class="self">self</span>.<span class="ident">prerender</span>
+<span class="comment">// TODO Don&#39;t expose this directly
+// TODO Rename or something maybe. This actually owns all the permanent state of everything.
+</span><span class="kw">pub struct </span>Prerender {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) inner: PrerenderInnards,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) assets: Assets,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) num_uploads: Cell&lt;usize&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) scale_factor: Cell&lt;f64&gt;,
+}
+
+<span class="kw">impl </span>Prerender {
+    <span class="kw">pub fn </span>upload(<span class="kw-2">&amp;</span><span class="self">self</span>, batch: GeomBatch) -&gt; Drawable {
+        <span class="self">self</span>.actually_upload(<span class="bool-val">true</span>, batch)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>upload_temporary(<span class="kw-2">&amp;</span><span class="self">self</span>, batch: GeomBatch) -&gt; Drawable {
+        <span class="self">self</span>.actually_upload(<span class="bool-val">false</span>, batch)
+    }
+
+    <span class="kw">pub fn </span>get_total_bytes_uploaded(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.inner.total_bytes_uploaded.get()
+    }
+
+    <span class="kw">fn </span>actually_upload(<span class="kw-2">&amp;</span><span class="self">self</span>, permanent: bool, batch: GeomBatch) -&gt; Drawable {
+        <span class="self">self</span>.num_uploads.set(<span class="self">self</span>.num_uploads.get() + <span class="number">1</span>);
+        <span class="self">self</span>.inner.actually_upload(permanent, batch)
+
+        <span class="comment">// println!(&quot;{:?}&quot;, backtrace::Backtrace::new());
+    </span>}
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>request_redraw(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.inner.request_redraw()
+    }
+
+    <span class="kw">pub fn </span>get_scale_factor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.scale_factor.get()
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>window_size(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="self">self</span>.inner.window_size(<span class="self">self</span>.get_scale_factor())
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>window_resized(<span class="kw-2">&amp;</span><span class="self">self</span>, new_size: ScreenDims) {
+        <span class="self">self</span>.inner.window_resized(new_size, <span class="self">self</span>.get_scale_factor())
+    }
+
+    <span class="kw">pub fn </span>assets_base_url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.assets.base_url()
+    }
+
+    <span class="kw">pub fn </span>assets_are_gzipped(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.assets.are_gzipped()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EventCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Prerender</span> {
-        <span class="self">self</span>.<span class="ident">prerender</span>
+<span class="kw">impl </span>std::convert::AsRef&lt;Prerender&gt; <span class="kw">for </span>GfxCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Prerender {
+        <span class="self">self</span>.prerender
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Prerender</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Prerender</span> {
-        <span class="self">self</span>
+<span class="kw">impl </span>std::convert::AsRef&lt;Prerender&gt; <span class="kw">for </span>EventCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Prerender {
+        <span class="self">self</span>.prerender
     }
+}
+
+<span class="kw">impl </span>std::convert::AsRef&lt;Prerender&gt; <span class="kw">for </span>Prerender {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Prerender {
+        <span class="self">self
+    </span>}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

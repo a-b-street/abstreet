@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/commuter.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>commuter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/commuter.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>commuter.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -736,743 +736,743 @@
 <span id="736">736</span>
 <span id="737">737</span>
 <span id="738">738</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeSet, HashMap, HashSet};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">maplit::hashset</span>;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>maplit::hashset;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::checkbox_per_mode</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">TurnType</span>};
-<span class="kw">use</span> <span class="ident">sim::TripInfo</span>;
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ColorLegend</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">RewriteColor</span>, <span class="ident">Slider</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter, MultiMap, Timer};
+<span class="kw">use </span>geom::{Distance, PolyLine, Polygon, Time};
+<span class="kw">use </span>map_gui::tools::checkbox_per_mode;
+<span class="kw">use </span>map_model::{osm, BuildingID, BuildingType, IntersectionID, LaneID, Map, RoadID, TurnType};
+<span class="kw">use </span>sim::TripInfo;
+<span class="kw">use </span>synthpop::{TripEndpoint, TripMode};
+<span class="kw">use </span>widgetry::tools::{ColorLegend, PopupMsg};
+<span class="kw">use </span>widgetry::{
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel,
+    RewriteColor, Slider, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::CommonState</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::dashboards::DashTab</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::CommonState;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::dashboards::DashTab;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CommuterPatterns</span> {
-    <span class="ident">bldg_to_block</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">BlockID</span><span class="op">&gt;</span>,
-    <span class="ident">border_to_block</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">BlockID</span><span class="op">&gt;</span>,
-    <span class="ident">blocks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span>,
-    <span class="ident">current_block</span>: (<span class="ident">BlockSelection</span>, <span class="ident">Drawable</span>),
-    <span class="ident">filter</span>: <span class="ident">Filter</span>,
+<span class="kw">pub struct </span>CommuterPatterns {
+    bldg_to_block: HashMap&lt;BuildingID, BlockID&gt;,
+    border_to_block: HashMap&lt;IntersectionID, BlockID&gt;,
+    blocks: Vec&lt;Block&gt;,
+    current_block: (BlockSelection, Drawable),
+    filter: Filter,
 
-    <span class="comment">// Indexed by BlockID</span>
-    <span class="ident">trips_from_block</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripInfo</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">trips_to_block</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripInfo</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// Indexed by BlockID
+    </span>trips_from_block: Vec&lt;Vec&lt;TripInfo&gt;&gt;,
+    trips_to_block: Vec&lt;Vec&lt;TripInfo&gt;&gt;,
 
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">draw_all_blocks</span>: <span class="ident">Drawable</span>,
+    panel: Panel,
+    draw_all_blocks: Drawable,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">enum</span> <span class="ident">BlockSelection</span> {
-    <span class="ident">NothingSelected</span>,
-    <span class="ident">Unlocked</span>(<span class="ident">BlockID</span>),
-    <span class="ident">Locked</span> {
-        <span class="ident">base</span>: <span class="ident">BlockID</span>,
-        <span class="ident">compare_to</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(PartialEq, Clone, Copy)]
+</span><span class="kw">enum </span>BlockSelection {
+    NothingSelected,
+    Unlocked(BlockID),
+    Locked {
+        base: BlockID,
+        compare_to: <span class="prelude-ty">Option</span>&lt;BlockID&gt;,
     },
 }
 
-<span class="kw">struct</span> <span class="ident">PanelState</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">building_counts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">u32</span>)<span class="op">&gt;</span>,
-    <span class="ident">max_count</span>: <span class="ident">usize</span>,
-    <span class="ident">total_trips</span>: <span class="ident">usize</span>,
+<span class="kw">struct </span>PanelState&lt;<span class="lifetime">&#39;a</span>&gt; {
+    building_counts: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, u32)&gt;,
+    max_count: usize,
+    total_trips: usize,
 }
 
-<span class="comment">// Group many buildings into a single block</span>
-<span class="kw">struct</span> <span class="ident">Block</span> {
-    <span class="ident">id</span>: <span class="ident">BlockID</span>,
-    <span class="comment">// A block is either some buildings or a single border. Might be worth expressing that more</span>
-    <span class="comment">// clearly.</span>
-    <span class="ident">bldgs</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    <span class="ident">borders</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">shape</span>: <span class="ident">Polygon</span>,
+<span class="comment">// Group many buildings into a single block
+</span><span class="kw">struct </span>Block {
+    id: BlockID,
+    <span class="comment">// A block is either some buildings or a single border. Might be worth expressing that more
+    // clearly.
+    </span>bldgs: HashSet&lt;BuildingID&gt;,
+    borders: HashSet&lt;IntersectionID&gt;,
+    shape: Polygon,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Filter</span> {
-    <span class="comment">// If false, then trips to this block</span>
-    <span class="ident">from_block</span>: <span class="ident">bool</span>,
-    <span class="ident">include_borders</span>: <span class="ident">bool</span>,
-    <span class="ident">depart_from</span>: <span class="ident">Time</span>,
-    <span class="ident">depart_until</span>: <span class="ident">Time</span>,
-    <span class="ident">modes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">struct </span>Filter {
+    <span class="comment">// If false, then trips to this block
+    </span>from_block: bool,
+    include_borders: bool,
+    depart_from: Time,
+    depart_until: Time,
+    modes: BTreeSet&lt;TripMode&gt;,
 }
 
-<span class="kw">type</span> <span class="ident">BlockID</span> <span class="op">=</span> <span class="ident">usize</span>;
+<span class="kw">type </span>BlockID = usize;
 
-<span class="kw">impl</span> <span class="ident">CommuterPatterns</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">maybe_groups</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;group buildings into blocks&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">group_bldgs</span>(<span class="ident">app</span>, <span class="ident">timer</span>)
+<span class="kw">impl </span>CommuterPatterns {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>maybe_groups = ctx.loading_screen(<span class="string">&quot;group buildings into blocks&quot;</span>, |<span class="kw">_</span>, timer| {
+            group_bldgs(app, timer)
         });
-        <span class="kw">let</span> (<span class="ident">bldg_to_block</span>, <span class="ident">border_to_block</span>, <span class="ident">blocks</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">maybe_groups</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">result</span>) =&gt; <span class="ident">result</span>,
+        <span class="kw">let </span>(bldg_to_block, border_to_block, blocks) = <span class="kw">match </span>maybe_groups {
+            <span class="prelude-val">Ok</span>(result) =&gt; result,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                <span class="comment">// TODO If concave hull fails anywhere, give up on this tool entirely. This is</span>
-                <span class="comment">// pretty harsh. Revisit this tool anyway and consider 2 bigger changes -- using</span>
-                <span class="comment">// the LTN-style blockfinding and using World. Find a way to create simpler</span>
-                <span class="comment">// fallback geometry that&#39;s still selectable.</span>
-                <span class="kw">return</span> <span class="ident">PopupMsg::new_state</span>(
-                    <span class="ident">ctx</span>,
+                <span class="comment">// TODO If concave hull fails anywhere, give up on this tool entirely. This is
+                // pretty harsh. Revisit this tool anyway and consider 2 bigger changes -- using
+                // the LTN-style blockfinding and using World. Find a way to create simpler
+                // fallback geometry that&#39;s still selectable.
+                </span><span class="kw">return </span>PopupMsg::new_state(
+                    ctx,
                     <span class="string">&quot;Error&quot;</span>,
                     <span class="macro">vec!</span>[<span class="string">&quot;Problem rendering the grouped buildings; this tool won&#39;t work&quot;</span>],
                 );
             }
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_from_block</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::iter::repeat_with</span>(<span class="ident">Vec::new</span>)
-            .<span class="ident">take</span>(<span class="ident">blocks</span>.<span class="ident">len</span>())
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips_to_block</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripInfo</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">trips_from_block</span>.<span class="ident">clone</span>();
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">trip</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">all_trip_info</span>() {
-            <span class="kw">let</span> <span class="ident">block1</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-                <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>],
-                <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; <span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>],
-                <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>trips_from_block: Vec&lt;Vec&lt;TripInfo&gt;&gt; = std::iter::repeat_with(Vec::new)
+            .take(blocks.len())
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>trips_to_block: Vec&lt;Vec&lt;TripInfo&gt;&gt; = trips_from_block.clone();
+        <span class="kw">for </span>(<span class="kw">_</span>, trip) <span class="kw">in </span>app.primary.sim.all_trip_info() {
+            <span class="kw">let </span>block1 = <span class="kw">match </span>trip.start {
+                TripEndpoint::Building(b) =&gt; bldg_to_block[<span class="kw-2">&amp;</span>b],
+                TripEndpoint::Border(i) =&gt; border_to_block[<span class="kw-2">&amp;</span>i],
+                TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
             };
-            <span class="kw">let</span> <span class="ident">block2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
-                <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>],
-                <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; <span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>],
-                <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
+            <span class="kw">let </span>block2 = <span class="kw">match </span>trip.end {
+                TripEndpoint::Building(b) =&gt; bldg_to_block[<span class="kw-2">&amp;</span>b],
+                TripEndpoint::Border(i) =&gt; border_to_block[<span class="kw-2">&amp;</span>i],
+                TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
             };
-            <span class="comment">// Totally ignore trips within the same block</span>
-            <span class="kw">if</span> <span class="ident">block1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">block2</span> {
-                <span class="ident">trips_from_block</span>[<span class="ident">block1</span>].<span class="ident">push</span>(<span class="ident">trip</span>.<span class="ident">clone</span>());
-                <span class="ident">trips_to_block</span>[<span class="ident">block2</span>].<span class="ident">push</span>(<span class="ident">trip</span>);
+            <span class="comment">// Totally ignore trips within the same block
+            </span><span class="kw">if </span>block1 != block2 {
+                trips_from_block[block1].push(trip.clone());
+                trips_to_block[block2].push(trip);
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_blocks</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">block</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">blocks</span> {
-            <span class="ident">all_blocks</span>.<span class="ident">push</span>(<span class="ident">Color::YELLOW</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">block</span>.<span class="ident">shape</span>.<span class="ident">clone</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>all_blocks = GeomBatch::new();
+        <span class="kw">for </span>block <span class="kw">in </span><span class="kw-2">&amp;</span>blocks {
+            all_blocks.push(Color::YELLOW.alpha(<span class="number">0.5</span>), block.shape.clone());
         }
 
-        <span class="kw">let</span> <span class="ident">depart_until</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>();
+        <span class="kw">let </span>depart_until = app.primary.sim.get_end_of_day();
 
-        <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">is_none</span>());
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>());
+        <span class="macro">assert!</span>(app.primary.suspended_sim.is_none());
+        app.primary.suspended_sim = <span class="prelude-val">Some</span>(app.primary.clear_sim());
 
-        <span class="ident">Box::new</span>(<span class="ident">CommuterPatterns</span> {
-            <span class="ident">bldg_to_block</span>,
-            <span class="ident">border_to_block</span>,
-            <span class="ident">blocks</span>,
-            <span class="ident">current_block</span>: (<span class="ident">BlockSelection::NothingSelected</span>, <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>)),
-            <span class="ident">trips_from_block</span>,
-            <span class="ident">trips_to_block</span>,
-            <span class="ident">filter</span>: <span class="ident">Filter</span> {
-                <span class="ident">from_block</span>: <span class="bool-val">true</span>,
-                <span class="ident">include_borders</span>: <span class="bool-val">true</span>,
-                <span class="ident">depart_from</span>: <span class="ident">Time::START_OF_DAY</span>,
-                <span class="ident">depart_until</span>,
-                <span class="ident">modes</span>: <span class="ident">TripMode::all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
+        Box::new(CommuterPatterns {
+            bldg_to_block,
+            border_to_block,
+            blocks,
+            current_block: (BlockSelection::NothingSelected, Drawable::empty(ctx)),
+            trips_from_block,
+            trips_to_block,
+            filter: Filter {
+                from_block: <span class="bool-val">true</span>,
+                include_borders: <span class="bool-val">true</span>,
+                depart_from: Time::START_OF_DAY,
+                depart_until,
+                modes: TripMode::all().into_iter().collect(),
             },
 
-            <span class="ident">draw_all_blocks</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">all_blocks</span>),
-            <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            draw_all_blocks: ctx.upload(all_blocks),
+            panel: make_panel(ctx, app),
         })
     }
 
-    <span class="comment">// For all trips from (or to) the base block, how many of them go to all other blocks?</span>
-    <span class="kw">fn</span> <span class="ident">count_per_block</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">base</span>: <span class="kw-2">&amp;</span><span class="ident">Block</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="ident">Block</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">from_block</span> {
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips_from_block</span>[<span class="ident">base</span>.<span class="ident">id</span>]
-        } <span class="kw">else</span> {
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips_to_block</span>[<span class="ident">base</span>.<span class="ident">id</span>]
+    <span class="comment">// For all trips from (or to) the base block, how many of them go to all other blocks?
+    </span><span class="kw">fn </span>count_per_block(<span class="kw-2">&amp;</span><span class="self">self</span>, base: <span class="kw-2">&amp;</span>Block) -&gt; Vec&lt;(<span class="kw-2">&amp;</span>Block, usize)&gt; {
+        <span class="kw">let </span>candidates = <span class="kw">if </span><span class="self">self</span>.filter.from_block {
+            <span class="kw-2">&amp;</span><span class="self">self</span>.trips_from_block[base.id]
+        } <span class="kw">else </span>{
+            <span class="kw-2">&amp;</span><span class="self">self</span>.trips_to_block[base.id]
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">candidates</span> {
-            <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">departure</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">depart_from</span> <span class="op">|</span><span class="op">|</span> <span class="ident">trip</span>.<span class="ident">departure</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">depart_until</span>
+        <span class="kw">let </span><span class="kw-2">mut </span>count: Counter&lt;BlockID&gt; = Counter::new();
+        <span class="kw">for </span>trip <span class="kw">in </span>candidates {
+            <span class="kw">if </span>trip.departure &lt; <span class="self">self</span>.filter.depart_from || trip.departure &gt; <span class="self">self</span>.filter.depart_until
             {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">modes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">trip</span>.<span class="ident">mode</span>) {
+            <span class="kw">if </span>!<span class="self">self</span>.filter.modes.contains(<span class="kw-2">&amp;</span>trip.mode) {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">from_block</span> {
-                <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">end</span> {
-                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
-                        <span class="ident">count</span>.<span class="ident">inc</span>(<span class="self">self</span>.<span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>]);
+            <span class="kw">if </span><span class="self">self</span>.filter.from_block {
+                <span class="kw">match </span>trip.end {
+                    TripEndpoint::Building(b) =&gt; {
+                        count.inc(<span class="self">self</span>.bldg_to_block[<span class="kw-2">&amp;</span>b]);
                     }
-                    <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; {
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">include_borders</span> {
-                            <span class="ident">count</span>.<span class="ident">inc</span>(<span class="self">self</span>.<span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>]);
+                    TripEndpoint::Border(i) =&gt; {
+                        <span class="kw">if </span><span class="self">self</span>.filter.include_borders {
+                            count.inc(<span class="self">self</span>.border_to_block[<span class="kw-2">&amp;</span>i]);
                         }
                     }
-                    <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; {}
+                    TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; {}
                 }
-            } <span class="kw">else</span> {
-                <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
-                        <span class="ident">count</span>.<span class="ident">inc</span>(<span class="self">self</span>.<span class="ident">bldg_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">b</span>]);
+            } <span class="kw">else </span>{
+                <span class="kw">match </span>trip.start {
+                    TripEndpoint::Building(b) =&gt; {
+                        count.inc(<span class="self">self</span>.bldg_to_block[<span class="kw-2">&amp;</span>b]);
                     }
-                    <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; {
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">include_borders</span> {
-                            <span class="ident">count</span>.<span class="ident">inc</span>(<span class="self">self</span>.<span class="ident">border_to_block</span>[<span class="kw-2">&amp;</span><span class="ident">i</span>]);
+                    TripEndpoint::Border(i) =&gt; {
+                        <span class="kw">if </span><span class="self">self</span>.filter.include_borders {
+                            count.inc(<span class="self">self</span>.border_to_block[<span class="kw-2">&amp;</span>i]);
                         }
                     }
-                    <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; {}
+                    TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; {}
                 }
             }
         }
 
-        <span class="ident">count</span>
-            .<span class="ident">consume</span>()
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="ident">cnt</span>)<span class="op">|</span> (<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>[<span class="ident">id</span>], <span class="ident">cnt</span>))
-            .<span class="ident">collect</span>()
+        count
+            .consume()
+            .into_iter()
+            .map(|(id, cnt)| (<span class="kw-2">&amp;</span><span class="self">self</span>.blocks[id], cnt))
+            .collect()
     }
 
-    <span class="kw">fn</span> <span class="ident">build_block_drawable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+    <span class="kw">fn </span>build_block_drawable&lt;<span class="lifetime">&#39;a</span>&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">block_selection</span>: <span class="ident">BlockSelection</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    ) -&gt; (<span class="ident">Drawable</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PanelState</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        block_selection: BlockSelection,
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+    ) -&gt; (Drawable, <span class="prelude-ty">Option</span>&lt;PanelState&lt;<span class="lifetime">&#39;a</span>&gt;&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
 
-        <span class="kw">let</span> <span class="ident">base_block_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">block_selection</span> {
-            <span class="ident">BlockSelection::Unlocked</span>(<span class="ident">id</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">id</span>),
-            <span class="ident">BlockSelection::Locked</span> { <span class="ident">base</span>, .. } =&gt; <span class="prelude-val">Some</span>(<span class="ident">base</span>),
-            <span class="ident">BlockSelection::NothingSelected</span> =&gt; <span class="prelude-val">None</span>,
+        <span class="kw">let </span>base_block_id = <span class="kw">match </span>block_selection {
+            BlockSelection::Unlocked(id) =&gt; <span class="prelude-val">Some</span>(id),
+            BlockSelection::Locked { base, .. } =&gt; <span class="prelude-val">Some</span>(base),
+            BlockSelection::NothingSelected =&gt; <span class="prelude-val">None</span>,
         };
 
-        <span class="kw">match</span> <span class="ident">base_block_id</span> {
-            <span class="prelude-val">None</span> =&gt; (<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>), <span class="prelude-val">None</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">base_block_id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">base_block</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>[<span class="ident">base_block_id</span>];
+        <span class="kw">match </span>base_block_id {
+            <span class="prelude-val">None </span>=&gt; (ctx.upload(batch), <span class="prelude-val">None</span>),
+            <span class="prelude-val">Some</span>(base_block_id) =&gt; {
+                <span class="kw">let </span>base_block = <span class="kw-2">&amp;</span><span class="self">self</span>.blocks[base_block_id];
 
-                <span class="comment">// Show the members of this block</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">building_counts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">u32</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+                <span class="comment">// Show the members of this block
+                </span><span class="kw">let </span><span class="kw-2">mut </span>building_counts: Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, u32)&gt; = <span class="macro">vec!</span>[
                     (<span class="string">&quot;Residential&quot;</span>, <span class="number">0</span>),
                     (<span class="string">&quot;Residential/Commercial&quot;</span>, <span class="number">0</span>),
                     (<span class="string">&quot;Commercial&quot;</span>, <span class="number">0</span>),
                     (<span class="string">&quot;Empty&quot;</span>, <span class="number">0</span>),
                 ];
-                <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">base_block</span>.<span class="ident">bldgs</span> {
-                    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>);
-                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::PURPLE</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-                    <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">bldg_type</span> {
-                        <span class="ident">BuildingType::Residential</span> { .. } =&gt; <span class="ident">building_counts</span>[<span class="number">0</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>,
-                        <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">building_counts</span>[<span class="number">1</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>,
-                        <span class="ident">BuildingType::Commercial</span>(<span class="kw">_</span>) =&gt; <span class="ident">building_counts</span>[<span class="number">2</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>,
-                        <span class="ident">BuildingType::Empty</span> =&gt; <span class="ident">building_counts</span>[<span class="number">3</span>].<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>,
+                <span class="kw">for </span>b <span class="kw">in </span><span class="kw-2">&amp;</span>base_block.bldgs {
+                    <span class="kw">let </span>b = app.primary.map.get_b(<span class="kw-2">*</span>b);
+                    batch.push(Color::PURPLE, b.polygon.clone());
+                    <span class="kw">match </span>b.bldg_type {
+                        BuildingType::Residential { .. } =&gt; building_counts[<span class="number">0</span>].<span class="number">1 </span>+= <span class="number">1</span>,
+                        BuildingType::ResidentialCommercial(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; building_counts[<span class="number">1</span>].<span class="number">1 </span>+= <span class="number">1</span>,
+                        BuildingType::Commercial(<span class="kw">_</span>) =&gt; building_counts[<span class="number">2</span>].<span class="number">1 </span>+= <span class="number">1</span>,
+                        BuildingType::Empty =&gt; building_counts[<span class="number">3</span>].<span class="number">1 </span>+= <span class="number">1</span>,
                     }
                 }
-                <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">base_block</span>.<span class="ident">borders</span> {
-                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::PURPLE</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>base_block.borders {
+                    batch.push(Color::PURPLE, app.primary.map.get_i(<span class="kw-2">*</span>i).polygon.clone());
                 }
 
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">base_block</span>.<span class="ident">shape</span>.<span class="ident">clone</span>());
+                batch.push(Color::BLACK.alpha(<span class="number">0.5</span>), base_block.shape.clone());
 
-                <span class="comment">// Draw outline for Locked Selection</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BlockSelection::Locked</span> { .. } <span class="op">=</span> <span class="ident">block_selection</span> {
-                    <span class="ident">batch</span>.<span class="ident">push</span>(
-                        <span class="ident">Color::BLACK</span>,
-                        <span class="ident">base_block</span>.<span class="ident">shape</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>)),
+                <span class="comment">// Draw outline for Locked Selection
+                </span><span class="kw">if let </span>BlockSelection::Locked { .. } = block_selection {
+                    batch.push(
+                        Color::BLACK,
+                        base_block.shape.to_outline(Distance::meters(<span class="number">10.0</span>)),
                     );
                 }
 
                 {
-                    <span class="comment">// Indicate direction over current block</span>
-                    <span class="kw">let</span> (<span class="ident">icon_name</span>, <span class="ident">icon_scale</span>) <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">filter</span>.<span class="ident">from_block</span> {
+                    <span class="comment">// Indicate direction over current block
+                    </span><span class="kw">let </span>(icon_name, icon_scale) = <span class="kw">if </span><span class="self">self</span>.filter.from_block {
                         (<span class="string">&quot;outward.svg&quot;</span>, <span class="number">1.2</span>)
-                    } <span class="kw">else</span> {
+                    } <span class="kw">else </span>{
                         (<span class="string">&quot;inward.svg&quot;</span>, <span class="number">1.0</span>)
                     };
 
-                    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">base_block</span>.<span class="ident">shape</span>.<span class="ident">polylabel</span>();
-                    <span class="kw">let</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg</span>(
-                        <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-                        <span class="macro">format!</span>(<span class="string">&quot;system/assets/tools/{}&quot;</span>, <span class="ident">icon_name</span>),
+                    <span class="kw">let </span>center = base_block.shape.polylabel();
+                    <span class="kw">let </span>icon = GeomBatch::load_svg(
+                        ctx.prerender,
+                        <span class="macro">format!</span>(<span class="string">&quot;system/assets/tools/{}&quot;</span>, icon_name),
                     )
-                    .<span class="ident">scale</span>(<span class="ident">icon_scale</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">center</span>)
-                    .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAll</span>(<span class="ident">Color::WHITE</span>));
+                    .scale(icon_scale)
+                    .centered_on(center)
+                    .color(RewriteColor::ChangeAll(Color::WHITE));
 
-                    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">icon</span>);
+                    batch.append(icon);
                 }
 
-                <span class="kw">let</span> <span class="ident">others</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">count_per_block</span>(<span class="ident">base_block</span>);
+                <span class="kw">let </span>others = <span class="self">self</span>.count_per_block(base_block);
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_trips</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="kw">let</span> <span class="ident">max_count</span> <span class="op">=</span> <span class="ident">others</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">cnt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cnt</span>).<span class="ident">max</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>);
-                <span class="kw">for</span> (<span class="ident">other</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">others</span> {
-                    <span class="ident">total_trips</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cnt</span>;
-                    <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">cnt</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">max_count</span> <span class="kw">as</span> <span class="ident">f64</span>);
-                    <span class="ident">batch</span>.<span class="ident">push</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>.<span class="ident">eval</span>(<span class="ident">pct</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                        <span class="ident">other</span>.<span class="ident">shape</span>.<span class="ident">clone</span>(),
+                <span class="kw">let </span><span class="kw-2">mut </span>total_trips = <span class="number">0</span>;
+                <span class="kw">let </span>max_count = others.iter().map(|(<span class="kw">_</span>, cnt)| <span class="kw-2">*</span>cnt).max().unwrap_or(<span class="number">0</span>);
+                <span class="kw">for </span>(other, cnt) <span class="kw">in </span><span class="kw-2">&amp;</span>others {
+                    total_trips += cnt;
+                    <span class="kw">let </span>pct = (<span class="kw-2">*</span>cnt <span class="kw">as </span>f64) / (max_count <span class="kw">as </span>f64);
+                    batch.push(
+                        app.cs.good_to_bad_red.eval(pct).alpha(<span class="number">0.8</span>),
+                        other.shape.clone(),
                     );
                 }
 
-                <span class="comment">// While selection is locked, draw an overlay with compare_to information for the</span>
-                <span class="comment">// hovered block</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BlockSelection::Locked</span> {
-                    <span class="ident">base</span>: <span class="kw">_</span>,
-                    <span class="ident">compare_to</span>: <span class="prelude-val">Some</span>(<span class="ident">compare_to</span>),
-                } <span class="op">=</span> <span class="ident">block_selection</span>
+                <span class="comment">// While selection is locked, draw an overlay with compare_to information for the
+                // hovered block
+                </span><span class="kw">if let </span>BlockSelection::Locked {
+                    base: <span class="kw">_</span>,
+                    compare_to: <span class="prelude-val">Some</span>(compare_to),
+                } = block_selection
                 {
-                    <span class="kw">let</span> <span class="ident">compare_to_block</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">blocks</span>[<span class="ident">compare_to</span>];
+                    <span class="kw">let </span>compare_to_block = <span class="kw-2">&amp;</span><span class="self">self</span>.blocks[compare_to];
 
-                    <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> <span class="ident">compare_to_block</span>.<span class="ident">shape</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>));
-                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">border</span>);
+                    <span class="kw">let </span>border = compare_to_block.shape.to_outline(Distance::meters(<span class="number">10.0</span>));
+                    batch.push(Color::WHITE.alpha(<span class="number">0.8</span>), border);
 
-                    <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">others</span>
-                        .<span class="ident">into_iter</span>()
-                        .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">b</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">compare_to</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">count</span>)<span class="op">|</span> <span class="ident">count</span>)
-                        .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
-                    <span class="kw">let</span> <span class="ident">label_text</span> <span class="op">=</span> <span class="ident">abstutil::prettyprint_usize</span>(<span class="ident">count</span>);
-                    <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">label_text</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>))
-                        .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">scale</span>(<span class="number">2.0</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">compare_to_block</span>.<span class="ident">shape</span>.<span class="ident">polylabel</span>());
+                    <span class="kw">let </span>count = others
+                        .into_iter()
+                        .find(|(b, <span class="kw">_</span>)| b.id == compare_to)
+                        .map(|(<span class="kw">_</span>, count)| count)
+                        .unwrap_or(<span class="number">0</span>);
+                    <span class="kw">let </span>label_text = abstutil::prettyprint_usize(count);
+                    <span class="kw">let </span>label = Text::from(Line(label_text).fg(Color::BLACK))
+                        .render_autocropped(ctx)
+                        .scale(<span class="number">2.0</span>)
+                        .centered_on(compare_to_block.shape.polylabel());
 
-                    <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">label</span>.<span class="ident">get_dims</span>();
-                    <span class="kw">let</span> <span class="ident">label_bg</span> <span class="op">=</span> <span class="ident">Polygon::pill</span>(<span class="ident">dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="number">70.0</span>, <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">+</span> <span class="number">20.0</span>);
-                    <span class="kw">let</span> <span class="ident">bg</span> <span class="op">=</span> <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::WHITE</span>, <span class="ident">label_bg</span>)])
-                        .<span class="ident">centered_on</span>(<span class="ident">compare_to_block</span>.<span class="ident">shape</span>.<span class="ident">polylabel</span>());
-                    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">bg</span>);
-                    <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">label</span>);
+                    <span class="kw">let </span>dims = label.get_dims();
+                    <span class="kw">let </span>label_bg = Polygon::pill(dims.width + <span class="number">70.0</span>, dims.height + <span class="number">20.0</span>);
+                    <span class="kw">let </span>bg = GeomBatch::from(<span class="macro">vec!</span>[(Color::WHITE, label_bg)])
+                        .centered_on(compare_to_block.shape.polylabel());
+                    batch.append(bg);
+                    batch.append(label);
                 };
-                <span class="kw">let</span> <span class="ident">panel_data</span> <span class="op">=</span> <span class="ident">PanelState</span> {
-                    <span class="ident">building_counts</span>,
-                    <span class="ident">max_count</span>,
-                    <span class="ident">total_trips</span>,
+                <span class="kw">let </span>panel_data = PanelState {
+                    building_counts,
+                    max_count,
+                    total_trips,
                 };
-                (<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>), <span class="prelude-val">Some</span>(<span class="ident">panel_data</span>))
+                (ctx.upload(batch), <span class="prelude-val">Some</span>(panel_data))
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">redraw_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PanelState</span><span class="op">&gt;</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">state</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+    <span class="kw">fn </span>redraw_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, state: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>PanelState&gt;, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = state {
+            <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+            txt.add_line(<span class="macro">format!</span>(
                 <span class="string">&quot;Total: {} trips&quot;</span>,
-                <span class="ident">abstutil::prettyprint_usize</span>(<span class="ident">state</span>.<span class="ident">total_trips</span>)
+                abstutil::prettyprint_usize(state.total_trips)
             ));
 
-            <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">state</span>.<span class="ident">building_counts</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">cnt</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, <span class="ident">name</span>, <span class="ident">cnt</span>));
+            <span class="kw">for </span>(name, cnt) <span class="kw">in </span><span class="kw-2">&amp;</span>state.building_counts {
+                <span class="kw">if </span><span class="kw-2">*</span>cnt != <span class="number">0 </span>{
+                    txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{}: {}&quot;</span>, name, cnt));
                 }
             }
 
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current&quot;</span>, <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;current&quot;</span>, txt.into_widget(ctx));
 
-            <span class="kw">let</span> <span class="ident">new_scale</span> <span class="op">=</span> <span class="ident">ColorLegend::gradient</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>,
+            <span class="kw">let </span>new_scale = ColorLegend::gradient(
+                ctx,
+                <span class="kw-2">&amp;</span>app.cs.good_to_bad_red,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="macro">format!</span>(<span class="string">&quot;{} trips&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">state</span>.<span class="ident">max_count</span>)),
+                    <span class="string">&quot;0&quot;</span>.to_string(),
+                    <span class="macro">format!</span>(<span class="string">&quot;{} trips&quot;</span>, prettyprint_usize(state.max_count)),
                 ],
             );
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;scale&quot;</span>, <span class="ident">new_scale</span>);
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">panel</span>
-                .<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;current&quot;</span>, <span class="string">&quot;None selected&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;scale&quot;</span>, new_scale);
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.panel
+                .replace(ctx, <span class="string">&quot;current&quot;</span>, <span class="string">&quot;None selected&quot;</span>.text_widget(ctx));
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CommuterPatterns</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>CommuterPatterns {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    app.primary.sim = app.primary.suspended_sim.take().unwrap();
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">tab</span>) <span class="op">=</span> <span class="ident">DashTab::CommuterPatterns</span>.<span class="ident">tab_changed</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>) {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">suspended_sim</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">tab</span>.<span class="ident">launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+            Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(tab) = DashTab::CommuterPatterns.tab_changed(app, <span class="kw-2">&amp;</span><span class="self">self</span>.panel) {
+                    app.primary.sim = app.primary.suspended_sim.take().unwrap();
+                    <span class="kw">return </span>Transition::Replace(tab.launch(ctx, app));
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="kw">let</span> <span class="ident">block_selection</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(<span class="ident">b</span>)) <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">canvas</span>
-            .<span class="ident">get_cursor_in_map_space</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">blocks</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">shape</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)))
+        <span class="kw">let </span>block_selection = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="prelude-val">Some</span>(b)) = ctx
+            .canvas
+            .get_cursor_in_map_space()
+            .map(|pt| <span class="self">self</span>.blocks.iter().find(|b| b.shape.contains_pt(pt)))
         {
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;clicked block&quot;</span>) {
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">current_block</span>.<span class="number">0</span> {
-                    <span class="ident">BlockSelection::Locked</span> { <span class="ident">base</span>: <span class="ident">old_base</span>, .. } =&gt; {
-                        <span class="kw">if</span> <span class="ident">old_base</span> <span class="op">==</span> <span class="ident">b</span>.<span class="ident">id</span> {
-                            <span class="ident">BlockSelection::Unlocked</span>(<span class="ident">b</span>.<span class="ident">id</span>)
-                        } <span class="kw">else</span> {
-                            <span class="ident">BlockSelection::Locked</span> {
-                                <span class="ident">base</span>: <span class="ident">b</span>.<span class="ident">id</span>,
-                                <span class="ident">compare_to</span>: <span class="prelude-val">None</span>,
+            <span class="kw">if </span>app.per_obj.left_click(ctx, <span class="string">&quot;clicked block&quot;</span>) {
+                <span class="kw">match </span><span class="self">self</span>.current_block.<span class="number">0 </span>{
+                    BlockSelection::Locked { base: old_base, .. } =&gt; {
+                        <span class="kw">if </span>old_base == b.id {
+                            BlockSelection::Unlocked(b.id)
+                        } <span class="kw">else </span>{
+                            BlockSelection::Locked {
+                                base: b.id,
+                                compare_to: <span class="prelude-val">None</span>,
                             }
                         }
                     }
-                    <span class="kw">_</span> =&gt; <span class="ident">BlockSelection::Locked</span> {
-                        <span class="ident">base</span>: <span class="ident">b</span>.<span class="ident">id</span>,
-                        <span class="ident">compare_to</span>: <span class="prelude-val">None</span>,
+                    <span class="kw">_ </span>=&gt; BlockSelection::Locked {
+                        base: b.id,
+                        compare_to: <span class="prelude-val">None</span>,
                     },
                 }
-            } <span class="kw">else</span> {
-                <span class="comment">// Hovering over block</span>
-                <span class="kw">match</span> <span class="self">self</span>.<span class="ident">current_block</span>.<span class="number">0</span> {
-                    <span class="ident">BlockSelection::Locked</span> { <span class="ident">base</span>, .. } =&gt; {
-                        <span class="kw">if</span> <span class="ident">base</span> <span class="op">==</span> <span class="ident">b</span>.<span class="ident">id</span> {
-                            <span class="ident">BlockSelection::Locked</span> {
-                                <span class="ident">base</span>,
-                                <span class="ident">compare_to</span>: <span class="prelude-val">None</span>,
+            } <span class="kw">else </span>{
+                <span class="comment">// Hovering over block
+                </span><span class="kw">match </span><span class="self">self</span>.current_block.<span class="number">0 </span>{
+                    BlockSelection::Locked { base, .. } =&gt; {
+                        <span class="kw">if </span>base == b.id {
+                            BlockSelection::Locked {
+                                base,
+                                compare_to: <span class="prelude-val">None</span>,
                             }
-                        } <span class="kw">else</span> {
-                            <span class="ident">BlockSelection::Locked</span> {
-                                <span class="ident">base</span>,
-                                <span class="ident">compare_to</span>: <span class="prelude-val">Some</span>(<span class="ident">b</span>.<span class="ident">id</span>),
+                        } <span class="kw">else </span>{
+                            BlockSelection::Locked {
+                                base,
+                                compare_to: <span class="prelude-val">Some</span>(b.id),
                             }
                         }
                     }
-                    <span class="ident">BlockSelection::Unlocked</span>(<span class="kw">_</span>) =&gt; <span class="ident">BlockSelection::Unlocked</span>(<span class="ident">b</span>.<span class="ident">id</span>),
-                    <span class="ident">BlockSelection::NothingSelected</span> =&gt; <span class="ident">BlockSelection::Unlocked</span>(<span class="ident">b</span>.<span class="ident">id</span>),
+                    BlockSelection::Unlocked(<span class="kw">_</span>) =&gt; BlockSelection::Unlocked(b.id),
+                    BlockSelection::NothingSelected =&gt; BlockSelection::Unlocked(b.id),
                 }
             }
-        } <span class="kw">else</span> {
-            <span class="comment">// cursor not over any block</span>
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">current_block</span>.<span class="number">0</span> {
-                <span class="ident">BlockSelection::NothingSelected</span> <span class="op">|</span> <span class="ident">BlockSelection::Unlocked</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="ident">BlockSelection::NothingSelected</span>
+        } <span class="kw">else </span>{
+            <span class="comment">// cursor not over any block
+            </span><span class="kw">match </span><span class="self">self</span>.current_block.<span class="number">0 </span>{
+                BlockSelection::NothingSelected | BlockSelection::Unlocked(<span class="kw">_</span>) =&gt; {
+                    BlockSelection::NothingSelected
                 }
-                <span class="ident">BlockSelection::Locked</span> { <span class="ident">base</span>, .. } =&gt; <span class="ident">BlockSelection::Locked</span> {
-                    <span class="ident">base</span>,
-                    <span class="ident">compare_to</span>: <span class="prelude-val">None</span>,
+                BlockSelection::Locked { base, .. } =&gt; BlockSelection::Locked {
+                    base,
+                    compare_to: <span class="prelude-val">None</span>,
                 },
             }
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filter</span> <span class="op">=</span> <span class="ident">Filter</span> {
-            <span class="ident">from_block</span>: <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;from / to this block&quot;</span>),
-            <span class="ident">include_borders</span>: <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;include borders&quot;</span>),
-            <span class="ident">depart_from</span>: <span class="ident">app</span>
-                .<span class="ident">primary</span>
-                .<span class="ident">sim</span>
-                .<span class="ident">get_end_of_day</span>()
-                .<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;depart from&quot;</span>).<span class="ident">get_percent</span>()),
-            <span class="ident">depart_until</span>: <span class="ident">app</span>
-                .<span class="ident">primary</span>
-                .<span class="ident">sim</span>
-                .<span class="ident">get_end_of_day</span>()
-                .<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;depart until&quot;</span>).<span class="ident">get_percent</span>()),
-            <span class="ident">modes</span>: <span class="ident">BTreeSet::new</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>filter = Filter {
+            from_block: <span class="self">self</span>.panel.is_checked(<span class="string">&quot;from / to this block&quot;</span>),
+            include_borders: <span class="self">self</span>.panel.is_checked(<span class="string">&quot;include borders&quot;</span>),
+            depart_from: app
+                .primary
+                .sim
+                .get_end_of_day()
+                .percent_of(<span class="self">self</span>.panel.slider(<span class="string">&quot;depart from&quot;</span>).get_percent()),
+            depart_until: app
+                .primary
+                .sim
+                .get_end_of_day()
+                .percent_of(<span class="self">self</span>.panel.slider(<span class="string">&quot;depart until&quot;</span>).get_percent()),
+            modes: BTreeSet::new(),
         };
-        <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">TripMode::all</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="ident">m</span>.<span class="ident">ongoing_verb</span>()) {
-                <span class="ident">filter</span>.<span class="ident">modes</span>.<span class="ident">insert</span>(<span class="ident">m</span>);
+        <span class="kw">for </span>m <span class="kw">in </span>TripMode::all() {
+            <span class="kw">if </span><span class="self">self</span>.panel.is_checked(m.ongoing_verb()) {
+                filter.modes.insert(m);
             }
         }
 
-        <span class="kw">if</span> <span class="ident">filter</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">filter</span> <span class="op">|</span><span class="op">|</span> <span class="ident">block_selection</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_block</span>.<span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">filter</span> <span class="op">=</span> <span class="ident">filter</span>;
-            <span class="kw">let</span> (<span class="ident">drawable</span>, <span class="ident">per_block_counts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">build_block_drawable</span>(<span class="ident">block_selection</span>, <span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">redraw_panel</span>(<span class="ident">per_block_counts</span>.<span class="ident">as_ref</span>(), <span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">current_block</span> <span class="op">=</span> (<span class="ident">block_selection</span>, <span class="ident">drawable</span>);
+        <span class="kw">if </span>filter != <span class="self">self</span>.filter || block_selection != <span class="self">self</span>.current_block.<span class="number">0 </span>{
+            <span class="self">self</span>.filter = filter;
+            <span class="kw">let </span>(drawable, per_block_counts) = <span class="self">self</span>.build_block_drawable(block_selection, ctx, app);
+            <span class="self">self</span>.redraw_panel(per_block_counts.as_ref(), ctx, app);
+            <span class="self">self</span>.current_block = (block_selection, drawable);
         }
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_all_blocks</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current_block</span>.<span class="number">1</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_all_blocks);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.current_block.<span class="number">1</span>);
 
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.panel.draw(g);
+        CommonState::draw_osd(g, app);
     }
 }
 
-<span class="comment">// This tries to group buildings into neighborhood &quot;blocks&quot;. Much of the time, that&#39;s a smallish</span>
-<span class="comment">// region bounded by 4 roads. But there are plenty of places with stranger shapes, or buildings</span>
-<span class="comment">// near the border of the map. The fallback is currently to just group those buildings that share</span>
-<span class="comment">// the same sidewalk.</span>
-<span class="kw">fn</span> <span class="ident">group_bldgs</span>(
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(
-    <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">BlockID</span><span class="op">&gt;</span>,
-    <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">BlockID</span><span class="op">&gt;</span>,
-    <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span>,
-)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bldg_to_block</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="comment">// This tries to group buildings into neighborhood &quot;blocks&quot;. Much of the time, that&#39;s a smallish
+// region bounded by 4 roads. But there are plenty of places with stranger shapes, or buildings
+// near the border of the map. The fallback is currently to just group those buildings that share
+// the same sidewalk.
+</span><span class="kw">fn </span>group_bldgs(
+    app: <span class="kw-2">&amp;</span>App,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; <span class="prelude-ty">Result</span>&lt;(
+    HashMap&lt;BuildingID, BlockID&gt;,
+    HashMap&lt;IntersectionID, BlockID&gt;,
+    Vec&lt;Block&gt;,
+)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>bldg_to_block = HashMap::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>blocks = Vec::new();
 
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">for</span> <span class="ident">maybe_block</span> <span class="kw">in</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">for </span>maybe_block <span class="kw">in </span>timer.parallelize(
         <span class="string">&quot;draw neighborhoods&quot;</span>,
-        <span class="ident">partition_sidewalk_loops</span>(<span class="ident">app</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">enumerate</span>()
-            .<span class="ident">collect</span>(),
-        <span class="op">|</span>(<span class="ident">block_id</span>, <span class="ident">group</span>)<span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hull_points</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-            <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">group</span>.<span class="ident">bldgs</span> {
-                <span class="kw">let</span> <span class="ident">bldg</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>);
-                <span class="kw">if</span> <span class="ident">group</span>.<span class="ident">proper</span> {
-                    <span class="ident">lanes</span>.<span class="ident">insert</span>(<span class="ident">bldg</span>.<span class="ident">sidewalk</span>());
+        partition_sidewalk_loops(app)
+            .into_iter()
+            .enumerate()
+            .collect(),
+        |(block_id, group)| {
+            <span class="kw">let </span><span class="kw-2">mut </span>hull_points = Vec::new();
+            <span class="kw">let </span><span class="kw-2">mut </span>lanes = HashSet::new();
+            <span class="kw">for </span>b <span class="kw">in </span><span class="kw-2">&amp;</span>group.bldgs {
+                <span class="kw">let </span>bldg = map.get_b(<span class="kw-2">*</span>b);
+                <span class="kw">if </span>group.proper {
+                    lanes.insert(bldg.sidewalk());
                 }
-                <span class="ident">hull_points</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">clone</span>().<span class="ident">into_points</span>());
+                hull_points.append(<span class="kw-2">&amp;mut </span>bldg.polygon.get_outer_ring().clone().into_points());
             }
-            <span class="kw">if</span> <span class="ident">group</span>.<span class="ident">proper</span> {
-                <span class="comment">// TODO Even better, glue the loop of sidewalks together and fill that area.</span>
-                <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lanes</span> {
-                    <span class="kw">let</span> <span class="ident">lane_line</span> <span class="op">=</span> <span class="ident">map</span>
-                        .<span class="ident">get_l</span>(<span class="ident">l</span>)
-                        .<span class="ident">lane_center_pts</span>
-                        .<span class="ident">interpolate_points</span>(<span class="ident">Distance::meters</span>(<span class="number">20.0</span>));
-                    <span class="ident">hull_points</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">lane_line</span>.<span class="ident">points</span>().<span class="ident">clone</span>());
+            <span class="kw">if </span>group.proper {
+                <span class="comment">// TODO Even better, glue the loop of sidewalks together and fill that area.
+                </span><span class="kw">for </span>l <span class="kw">in </span>lanes {
+                    <span class="kw">let </span>lane_line = map
+                        .get_l(l)
+                        .lane_center_pts
+                        .interpolate_points(Distance::meters(<span class="number">20.0</span>));
+                    hull_points.append(<span class="kw-2">&amp;mut </span>lane_line.points().clone());
                 }
             }
-            <span class="ident">Polygon::concave_hull</span>(<span class="ident">hull_points</span>, <span class="number">10</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">shape</span><span class="op">|</span> <span class="ident">Block</span> {
-                <span class="ident">id</span>: <span class="ident">block_id</span>,
-                <span class="ident">bldgs</span>: <span class="ident">group</span>.<span class="ident">bldgs</span>,
-                <span class="ident">borders</span>: <span class="ident">HashSet::new</span>(),
-                <span class="ident">shape</span>,
+            Polygon::concave_hull(hull_points, <span class="number">10</span>).map(|shape| Block {
+                id: block_id,
+                bldgs: group.bldgs,
+                borders: HashSet::new(),
+                shape,
             })
         },
     ) {
-        <span class="kw">let</span> <span class="ident">block</span> <span class="op">=</span> <span class="ident">maybe_block</span><span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">bldgs</span> {
-            <span class="ident">bldg_to_block</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">block</span>.<span class="ident">id</span>);
+        <span class="kw">let </span>block = maybe_block<span class="question-mark">?</span>;
+        <span class="kw">for </span>b <span class="kw">in </span><span class="kw-2">&amp;</span>block.bldgs {
+            bldg_to_block.insert(<span class="kw-2">*</span>b, block.id);
         }
-        <span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">block</span>);
+        blocks.push(block);
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">border_to_block</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_incoming_borders</span>() {
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">blocks</span>.<span class="ident">len</span>();
-        <span class="ident">border_to_block</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">id</span>);
-        <span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">Block</span> {
-            <span class="ident">id</span>,
-            <span class="ident">bldgs</span>: <span class="ident">HashSet::new</span>(),
-            <span class="ident">borders</span>: <span class="macro">hashset!</span> { <span class="ident">i</span>.<span class="ident">id</span> },
-            <span class="ident">shape</span>: <span class="ident">build_shape_for_border</span>(<span class="ident">i</span>, <span class="ident">BorderType::Incoming</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>border_to_block = HashMap::new();
+    <span class="kw">for </span>i <span class="kw">in </span>app.primary.map.all_incoming_borders() {
+        <span class="kw">let </span>id = blocks.len();
+        border_to_block.insert(i.id, id);
+        blocks.push(Block {
+            id,
+            bldgs: HashSet::new(),
+            borders: <span class="macro">hashset! </span>{ i.id },
+            shape: build_shape_for_border(i, BorderType::Incoming, <span class="kw-2">&amp;</span>app.primary.map),
         });
     }
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_outgoing_borders</span>() {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">incoming_border_id</span>) <span class="op">=</span> <span class="ident">border_to_block</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">id</span>) {
-            <span class="kw">let</span> <span class="ident">two_way_border</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">blocks</span>[<span class="kw-2">*</span><span class="ident">incoming_border_id</span>];
-            <span class="ident">two_way_border</span>.<span class="ident">shape</span> <span class="op">=</span> <span class="ident">build_shape_for_border</span>(<span class="ident">i</span>, <span class="ident">BorderType::Both</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
+    <span class="kw">for </span>i <span class="kw">in </span>app.primary.map.all_outgoing_borders() {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(incoming_border_id) = border_to_block.get(<span class="kw-2">&amp;</span>i.id) {
+            <span class="kw">let </span>two_way_border = <span class="kw-2">&amp;mut </span>blocks[<span class="kw-2">*</span>incoming_border_id];
+            two_way_border.shape = build_shape_for_border(i, BorderType::Both, <span class="kw-2">&amp;</span>app.primary.map);
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">blocks</span>.<span class="ident">len</span>();
-        <span class="ident">border_to_block</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">id</span>);
+        <span class="kw">let </span>id = blocks.len();
+        border_to_block.insert(i.id, id);
 
-        <span class="ident">blocks</span>.<span class="ident">push</span>(<span class="ident">Block</span> {
-            <span class="ident">id</span>,
-            <span class="ident">bldgs</span>: <span class="ident">HashSet::new</span>(),
-            <span class="ident">borders</span>: <span class="macro">hashset!</span> { <span class="ident">i</span>.<span class="ident">id</span> },
-            <span class="ident">shape</span>: <span class="ident">build_shape_for_border</span>(<span class="ident">i</span>, <span class="ident">BorderType::Outgoing</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>),
+        blocks.push(Block {
+            id,
+            bldgs: HashSet::new(),
+            borders: <span class="macro">hashset! </span>{ i.id },
+            shape: build_shape_for_border(i, BorderType::Outgoing, <span class="kw-2">&amp;</span>app.primary.map),
         });
     }
 
-    <span class="prelude-val">Ok</span>((<span class="ident">bldg_to_block</span>, <span class="ident">border_to_block</span>, <span class="ident">blocks</span>))
+    <span class="prelude-val">Ok</span>((bldg_to_block, border_to_block, blocks))
 }
 
-<span class="kw">enum</span> <span class="ident">BorderType</span> {
-    <span class="ident">Incoming</span>,
-    <span class="ident">Outgoing</span>,
-    <span class="ident">Both</span>,
+<span class="kw">enum </span>BorderType {
+    Incoming,
+    Outgoing,
+    Both,
 }
 
-<span class="kw">fn</span> <span class="ident">build_shape_for_border</span>(
-    <span class="ident">border</span>: <span class="kw-2">&amp;</span><span class="ident">map_model::Intersection</span>,
-    <span class="ident">border_type</span>: <span class="ident">BorderType</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-) -&gt; <span class="ident">Polygon</span> {
-    <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">border</span>.<span class="ident">polygon</span>.<span class="ident">center</span>();
+<span class="kw">fn </span>build_shape_for_border(
+    border: <span class="kw-2">&amp;</span>map_model::Intersection,
+    border_type: BorderType,
+    map: <span class="kw-2">&amp;</span>Map,
+) -&gt; Polygon {
+    <span class="kw">let </span>start = border.polygon.center();
 
-    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">border</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>());
-    <span class="kw">let</span> <span class="ident">center_line</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_dir_change_pl</span>(<span class="ident">map</span>);
-    <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">border</span>.<span class="ident">id</span> {
-        <span class="ident">center_line</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>().<span class="ident">opposite</span>()
-    } <span class="kw">else</span> {
-        <span class="ident">center_line</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>()
+    <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>border.roads.iter().next().unwrap());
+    <span class="kw">let </span>center_line = road.get_dir_change_pl(map);
+    <span class="kw">let </span>angle = <span class="kw">if </span>road.src_i == border.id {
+        center_line.first_line().angle().opposite()
+    } <span class="kw">else </span>{
+        center_line.first_line().angle()
     };
 
-    <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">150.0</span>);
-    <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>);
-    <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">project_away</span>(<span class="ident">length</span>, <span class="ident">angle</span>);
+    <span class="kw">let </span>length = Distance::meters(<span class="number">150.0</span>);
+    <span class="kw">let </span>thickness = Distance::meters(<span class="number">30.0</span>);
+    <span class="kw">let </span>end = start.project_away(length, angle);
 
-    <span class="kw">match</span> <span class="ident">border_type</span> {
-        <span class="ident">BorderType::Incoming</span> =&gt; {
-            <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">end</span>, <span class="ident">start</span>]).<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">geom::ArrowCap::Triangle</span>)
+    <span class="kw">match </span>border_type {
+        BorderType::Incoming =&gt; {
+            PolyLine::must_new(<span class="macro">vec!</span>[end, start]).make_arrow(thickness, geom::ArrowCap::Triangle)
         }
-        <span class="ident">BorderType::Outgoing</span> =&gt; {
-            <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">start</span>, <span class="ident">end</span>]).<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">geom::ArrowCap::Triangle</span>)
+        BorderType::Outgoing =&gt; {
+            PolyLine::must_new(<span class="macro">vec!</span>[start, end]).make_arrow(thickness, geom::ArrowCap::Triangle)
         }
-        <span class="ident">BorderType::Both</span> =&gt; <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[<span class="ident">start</span>, <span class="ident">end</span>])
-            .<span class="ident">make_double_arrow</span>(<span class="ident">thickness</span>, <span class="ident">geom::ArrowCap::Triangle</span>),
+        BorderType::Both =&gt; PolyLine::must_new(<span class="macro">vec!</span>[start, end])
+            .make_double_arrow(thickness, geom::ArrowCap::Triangle),
     }
 }
 
-<span class="kw">struct</span> <span class="ident">Loop</span> {
-    <span class="ident">bldgs</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    <span class="comment">// True if it&#39;s a &quot;proper&quot; block, false if it&#39;s a hack.</span>
-    <span class="ident">proper</span>: <span class="ident">bool</span>,
-    <span class="ident">roads</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>Loop {
+    bldgs: HashSet&lt;BuildingID&gt;,
+    <span class="comment">// True if it&#39;s a &quot;proper&quot; block, false if it&#39;s a hack.
+    </span>proper: bool,
+    roads: HashSet&lt;RoadID&gt;,
 }
 
-<span class="kw">fn</span> <span class="ident">partition_sidewalk_loops</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Loop</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+<span class="kw">fn </span>partition_sidewalk_loops(app: <span class="kw-2">&amp;</span>App) -&gt; Vec&lt;Loop&gt; {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">groups</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">todo_bldgs</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span>.<span class="ident">id</span>).<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remainder</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>groups = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>todo_bldgs: BTreeSet&lt;BuildingID&gt; = map.all_buildings().iter().map(|b| b.id).collect();
+    <span class="kw">let </span><span class="kw-2">mut </span>remainder = HashSet::new();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sidewalk_to_bldgs</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="ident">sidewalk_to_bldgs</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">sidewalk</span>(), <span class="ident">b</span>.<span class="ident">id</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>sidewalk_to_bldgs = MultiMap::new();
+    <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+        sidewalk_to_bldgs.insert(b.sidewalk(), b.id);
     }
 
-    <span class="kw">while</span> <span class="op">!</span><span class="ident">todo_bldgs</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sidewalks</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bldgs</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">todo_bldgs</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>()).<span class="ident">sidewalk</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current_l</span>).<span class="ident">src_i</span>;
+    <span class="kw">while </span>!todo_bldgs.is_empty() {
+        <span class="kw">let </span><span class="kw-2">mut </span>sidewalks = HashSet::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>bldgs = HashSet::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>current_l = map.get_b(<span class="kw-2">*</span>todo_bldgs.iter().next().unwrap()).sidewalk();
+        <span class="kw">let </span><span class="kw-2">mut </span>current_i = map.get_l(current_l).src_i;
 
-        <span class="kw">let</span> <span class="ident">ok</span> <span class="op">=</span> <span class="kw">loop</span> {
-            <span class="ident">sidewalks</span>.<span class="ident">insert</span>(<span class="ident">current_l</span>);
-            <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">sidewalk_to_bldgs</span>.<span class="ident">get</span>(<span class="ident">current_l</span>) {
-                <span class="ident">bldgs</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">b</span>);
-                <span class="comment">// TODO I wanted to assert that we haven&#39;t assigned this one yet, but...</span>
-                <span class="ident">todo_bldgs</span>.<span class="ident">remove</span>(<span class="ident">b</span>);
+        <span class="kw">let </span>ok = <span class="kw">loop </span>{
+            sidewalks.insert(current_l);
+            <span class="kw">for </span>b <span class="kw">in </span>sidewalk_to_bldgs.get(current_l) {
+                bldgs.insert(<span class="kw-2">*</span>b);
+                <span class="comment">// TODO I wanted to assert that we haven&#39;t assigned this one yet, but...
+                </span>todo_bldgs.remove(b);
             }
 
-            <span class="comment">// Chase SharedSidewalkCorners. There should be zero or one new options for corners.</span>
-            <span class="kw">let</span> <span class="ident">turns</span> <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">get_next_turns_and_lanes</span>(<span class="ident">current_l</span>)
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">t</span>)
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
-                    <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::SharedSidewalkCorner</span> <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">parent</span> <span class="op">!</span><span class="op">=</span> <span class="ident">current_i</span>
+            <span class="comment">// Chase SharedSidewalkCorners. There should be zero or one new options for corners.
+            </span><span class="kw">let </span>turns = map
+                .get_next_turns_and_lanes(current_l)
+                .into_iter()
+                .map(|(t, <span class="kw">_</span>)| t)
+                .filter(|t| {
+                    t.turn_type == TurnType::SharedSidewalkCorner &amp;&amp; t.id.parent != current_i
                 })
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-            <span class="kw">if</span> <span class="ident">turns</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// TODO If we&#39;re not a loop, maybe toss this out. It&#39;s arbitrary that we didn&#39;t go</span>
-                <span class="comment">// look the other way.</span>
-                <span class="kw">break</span> <span class="bool-val">false</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">turns</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-                <span class="ident">current_l</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">turns</span>[<span class="number">0</span>].<span class="ident">id</span>.<span class="ident">dst</span> <span class="op">!</span><span class="op">=</span> <span class="ident">current_l</span> {
-                    <span class="ident">turns</span>[<span class="number">0</span>].<span class="ident">id</span>.<span class="ident">dst</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">turns</span>[<span class="number">0</span>].<span class="ident">id</span>.<span class="ident">src</span>
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+            <span class="kw">if </span>turns.is_empty() {
+                <span class="comment">// TODO If we&#39;re not a loop, maybe toss this out. It&#39;s arbitrary that we didn&#39;t go
+                // look the other way.
+                </span><span class="kw">break </span><span class="bool-val">false</span>;
+            } <span class="kw">else if </span>turns.len() == <span class="number">1 </span>{
+                current_l = <span class="kw">if </span>turns[<span class="number">0</span>].id.dst != current_l {
+                    turns[<span class="number">0</span>].id.dst
+                } <span class="kw">else </span>{
+                    turns[<span class="number">0</span>].id.src
                 };
-                <span class="ident">current_i</span> <span class="op">=</span> <span class="ident">turns</span>[<span class="number">0</span>].<span class="ident">id</span>.<span class="ident">parent</span>;
-                <span class="kw">if</span> <span class="ident">sidewalks</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current_l</span>) {
-                    <span class="comment">// Loop closed!</span>
-                    <span class="kw">break</span> <span class="bool-val">true</span>;
+                current_i = turns[<span class="number">0</span>].id.parent;
+                <span class="kw">if </span>sidewalks.contains(<span class="kw-2">&amp;</span>current_l) {
+                    <span class="comment">// Loop closed!
+                    </span><span class="kw">break </span><span class="bool-val">true</span>;
                 }
-            } <span class="kw">else</span> {
-                <span class="comment">// Around pedestrian-only roads, there&#39;ll be many SharedSidewalkCorners. Just give</span>
-                <span class="comment">// up.</span>
-                <span class="kw">break</span> <span class="bool-val">false</span>;
+            } <span class="kw">else </span>{
+                <span class="comment">// Around pedestrian-only roads, there&#39;ll be many SharedSidewalkCorners. Just give
+                // up.
+                </span><span class="kw">break </span><span class="bool-val">false</span>;
             };
         };
 
-        <span class="kw">if</span> <span class="ident">ok</span> {
-            <span class="ident">groups</span>.<span class="ident">push</span>(<span class="ident">Loop</span> {
-                <span class="ident">bldgs</span>,
-                <span class="ident">proper</span>: <span class="bool-val">true</span>,
-                <span class="ident">roads</span>: <span class="ident">sidewalks</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">road</span>).<span class="ident">collect</span>(),
+        <span class="kw">if </span>ok {
+            groups.push(Loop {
+                bldgs,
+                proper: <span class="bool-val">true</span>,
+                roads: sidewalks.into_iter().map(|l| l.road).collect(),
             });
-        } <span class="kw">else</span> {
-            <span class="ident">remainder</span>.<span class="ident">extend</span>(<span class="ident">bldgs</span>);
+        } <span class="kw">else </span>{
+            remainder.extend(bldgs);
         }
     }
 
-    <span class="comment">// Merge adjacent residential blocks</span>
-    <span class="kw">loop</span> {
-        <span class="comment">// Find a pair of blocks that have at least one residential road in common.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">idx1</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">groups</span>.<span class="ident">len</span>() {
-            <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">idx2</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">groups</span>.<span class="ident">len</span>() {
-                <span class="comment">// This is O(n^3) on original groups.len(). In practice, it&#39;s fine, as long as we</span>
-                <span class="comment">// don&#39;t start the search over from scratch after making a single merge. Starting</span>
-                <span class="comment">// over is really wasteful, because it&#39;s guaranteed that nothing there has changed.</span>
-                <span class="kw">if</span> <span class="ident">idx1</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">groups</span>.<span class="ident">len</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">idx2</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">groups</span>.<span class="ident">len</span>() {
+    <span class="comment">// Merge adjacent residential blocks
+    </span><span class="kw">loop </span>{
+        <span class="comment">// Find a pair of blocks that have at least one residential road in common.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>any = <span class="bool-val">false</span>;
+        <span class="kw">for </span><span class="kw-2">mut </span>idx1 <span class="kw">in </span><span class="number">0</span>..groups.len() {
+            <span class="kw">for </span><span class="kw-2">mut </span>idx2 <span class="kw">in </span><span class="number">0</span>..groups.len() {
+                <span class="comment">// This is O(n^3) on original groups.len(). In practice, it&#39;s fine, as long as we
+                // don&#39;t start the search over from scratch after making a single merge. Starting
+                // over is really wasteful, because it&#39;s guaranteed that nothing there has changed.
+                </span><span class="kw">if </span>idx1 &gt;= groups.len() || idx2 &gt;= groups.len() {
                     <span class="kw">break</span>;
                 }
 
-                <span class="kw">if</span> <span class="ident">idx1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">idx2</span>
-                    <span class="op">&amp;&amp;</span> <span class="ident">groups</span>[<span class="ident">idx1</span>]
-                        .<span class="ident">roads</span>
-                        .<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">groups</span>[<span class="ident">idx2</span>].<span class="ident">roads</span>)
-                        .<span class="ident">any</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_rank</span>() <span class="op">==</span> <span class="ident">osm::RoadRank::Local</span>)
+                <span class="kw">if </span>idx1 != idx2
+                    &amp;&amp; groups[idx1]
+                        .roads
+                        .intersection(<span class="kw-2">&amp;</span>groups[idx2].roads)
+                        .any(|r| map.get_r(<span class="kw-2">*</span>r).get_rank() == osm::RoadRank::Local)
                 {
-                    <span class="comment">// Indexing gets messed up, so remove the larger one</span>
-                    <span class="kw">if</span> <span class="ident">idx1</span> <span class="op">&gt;</span> <span class="ident">idx2</span> {
-                        <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="ident">idx1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">idx2</span>);
+                    <span class="comment">// Indexing gets messed up, so remove the larger one
+                    </span><span class="kw">if </span>idx1 &gt; idx2 {
+                        std::mem::swap(<span class="kw-2">&amp;mut </span>idx1, <span class="kw-2">&amp;mut </span>idx2);
                     }
-                    <span class="kw">let</span> <span class="ident">merge</span> <span class="op">=</span> <span class="ident">groups</span>.<span class="ident">remove</span>(<span class="ident">idx2</span>);
-                    <span class="ident">groups</span>[<span class="ident">idx1</span>].<span class="ident">bldgs</span>.<span class="ident">extend</span>(<span class="ident">merge</span>.<span class="ident">bldgs</span>);
-                    <span class="ident">groups</span>[<span class="ident">idx1</span>].<span class="ident">roads</span>.<span class="ident">extend</span>(<span class="ident">merge</span>.<span class="ident">roads</span>);
-                    <span class="ident">any</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="kw">let </span>merge = groups.remove(idx2);
+                    groups[idx1].bldgs.extend(merge.bldgs);
+                    groups[idx1].roads.extend(merge.roads);
+                    any = <span class="bool-val">true</span>;
                 }
             }
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">any</span> {
+        <span class="kw">if </span>!any {
             <span class="kw">break</span>;
         }
     }
 
-    <span class="comment">// For all the weird remainders, just group them based on sidewalk.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_sidewalk</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">remainder</span> {
-        <span class="ident">per_sidewalk</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk</span>(), <span class="ident">b</span>);
+    <span class="comment">// For all the weird remainders, just group them based on sidewalk.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>per_sidewalk: MultiMap&lt;LaneID, BuildingID&gt; = MultiMap::new();
+    <span class="kw">for </span>b <span class="kw">in </span>remainder {
+        per_sidewalk.insert(map.get_b(b).sidewalk(), b);
     }
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">bldgs</span>) <span class="kw">in</span> <span class="ident">per_sidewalk</span>.<span class="ident">consume</span>() {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">bldgs</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>()).<span class="ident">sidewalk</span>().<span class="ident">road</span>;
-        <span class="ident">groups</span>.<span class="ident">push</span>(<span class="ident">Loop</span> {
-            <span class="ident">bldgs</span>: <span class="ident">bldgs</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-            <span class="ident">proper</span>: <span class="bool-val">false</span>,
-            <span class="ident">roads</span>: <span class="macro">hashset!</span> { <span class="ident">r</span> },
+    <span class="kw">for </span>(<span class="kw">_</span>, bldgs) <span class="kw">in </span>per_sidewalk.consume() {
+        <span class="kw">let </span>r = map.get_b(<span class="kw-2">*</span>bldgs.iter().next().unwrap()).sidewalk().road;
+        groups.push(Loop {
+            bldgs: bldgs.into_iter().collect(),
+            proper: <span class="bool-val">false</span>,
+            roads: <span class="macro">hashset! </span>{ r },
         });
     }
 
-    <span class="ident">groups</span>
+    groups
 }
 
-<span class="kw">fn</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">DashTab::CommuterPatterns</span>.<span class="ident">picker</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-        <span class="ident">Toggle::choice</span>(<span class="ident">ctx</span>, <span class="string">&quot;from / to this block&quot;</span>, <span class="string">&quot;from&quot;</span>, <span class="string">&quot;to&quot;</span>, <span class="ident">Key::Space</span>, <span class="bool-val">true</span>),
-        <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;include borders&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Departing from:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-            <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="number">0.15</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.0</span>, <span class="string">&quot;depart from&quot;</span>),
+<span class="kw">fn </span>make_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Panel {
+    Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+        DashTab::CommuterPatterns.picker(ctx, app),
+        Toggle::choice(ctx, <span class="string">&quot;from / to this block&quot;</span>, <span class="string">&quot;from&quot;</span>, <span class="string">&quot;to&quot;</span>, Key::Space, <span class="bool-val">true</span>),
+        Toggle::switch(ctx, <span class="string">&quot;include borders&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">true</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            <span class="string">&quot;Departing from:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+            Slider::area(ctx, <span class="number">0.15 </span>* ctx.canvas.window_width, <span class="number">0.0</span>, <span class="string">&quot;depart from&quot;</span>),
         ]),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Departing until:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-            <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="number">0.15</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">1.0</span>, <span class="string">&quot;depart until&quot;</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            <span class="string">&quot;Departing until:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+            Slider::area(ctx, <span class="number">0.15 </span>* ctx.canvas.window_width, <span class="number">1.0</span>, <span class="string">&quot;depart until&quot;</span>),
         ]),
-        <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">TripMode::all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>()),
-        <span class="ident">ColorLegend::gradient</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>, <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;0&quot;</span>]).<span class="ident">named</span>(<span class="string">&quot;scale&quot;</span>),
-        <span class="string">&quot;None selected&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;current&quot;</span>),
+        checkbox_per_mode(ctx, app, <span class="kw-2">&amp;</span>TripMode::all().into_iter().collect()),
+        ColorLegend::gradient(ctx, <span class="kw-2">&amp;</span>app.cs.good_to_bad_red, <span class="macro">vec!</span>[<span class="string">&quot;0&quot;</span>, <span class="string">&quot;0&quot;</span>]).named(<span class="string">&quot;scale&quot;</span>),
+        <span class="string">&quot;None selected&quot;</span>.text_widget(ctx).named(<span class="string">&quot;current&quot;</span>),
     ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+    .build(ctx)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/zones.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>zones.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/zones.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>zones.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -204,211 +204,211 @@
 <span id="204">204</span>
 <span id="205">205</span>
 <span id="206">206</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">enumset::EnumSet</span>;
-<span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
+<span class="kw">use </span>enumset::EnumSet;
+<span class="kw">use </span>maplit::btreeset;
 
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">intersections_from_roads</span>, <span class="ident">ColorDiscrete</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AccessRestrictions</span>, <span class="ident">CommonEndpoint</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>map_gui::tools::{checkbox_per_mode, intersections_from_roads, ColorDiscrete};
+<span class="kw">use </span>map_model::{AccessRestrictions, CommonEndpoint, PathConstraints, RoadID};
+<span class="kw">use </span>synthpop::TripMode;
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::{
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, Text,
+    VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::CommonState</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::RoadSelector</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::apply_map_edits</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::CommonState;
+<span class="kw">use </span><span class="kw">crate</span>::common::RoadSelector;
+<span class="kw">use </span><span class="kw">crate</span>::edit::apply_map_edits;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZoneEditor</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">selector</span>: <span class="ident">RoadSelector</span>,
-    <span class="ident">allow_through_traffic</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
+<span class="kw">pub struct </span>ZoneEditor {
+    panel: Panel,
+    selector: RoadSelector,
+    allow_through_traffic: BTreeSet&lt;TripMode&gt;,
+    draw: ToggleZoomed,
 
-    <span class="ident">orig_members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+    orig_members: BTreeSet&lt;RoadID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ZoneEditor</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">start</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>);
-        <span class="kw">let</span> <span class="ident">members</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">z</span>) <span class="op">=</span> <span class="ident">start</span>.<span class="ident">get_zone</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-            <span class="ident">z</span>.<span class="ident">members</span>.<span class="ident">clone</span>()
-        } <span class="kw">else</span> {
-            <span class="comment">// Starting a new zone</span>
-            <span class="macro">btreeset!</span> { <span class="ident">start</span>.<span class="ident">id</span> }
+<span class="kw">impl </span>ZoneEditor {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, start: RoadID) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>start = app.primary.map.get_r(start);
+        <span class="kw">let </span>members = <span class="kw">if let </span><span class="prelude-val">Some</span>(z) = start.get_zone(<span class="kw-2">&amp;</span>app.primary.map) {
+            z.members.clone()
+        } <span class="kw">else </span>{
+            <span class="comment">// Starting a new zone
+            </span><span class="macro">btreeset! </span>{ start.id }
         };
-        <span class="kw">let</span> <span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="ident">start</span>
-            .<span class="ident">access_restrictions</span>
-            .<span class="ident">allow_through_traffic</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="ident">TripMode::from_constraints</span>)
-            .<span class="ident">collect</span>();
+        <span class="kw">let </span>allow_through_traffic = start
+            .access_restrictions
+            .allow_through_traffic
+            .into_iter()
+            .map(TripMode::from_constraints)
+            .collect();
 
-        <span class="kw">let</span> (<span class="ident">draw</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
-        <span class="kw">let</span> <span class="ident">orig_members</span> <span class="op">=</span> <span class="ident">members</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">selector</span> <span class="op">=</span> <span class="ident">RoadSelector::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">members</span>);
+        <span class="kw">let </span>(draw, legend) = draw_zone(ctx, app, <span class="kw-2">&amp;</span>members);
+        <span class="kw">let </span>orig_members = members.clone();
+        <span class="kw">let </span>selector = RoadSelector::new(ctx, app, members);
 
-        <span class="ident">Box::new</span>(<span class="ident">ZoneEditor</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Editing restricted access zone&quot;</span>)
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;selector&quot;</span>),
-                <span class="ident">legend</span>,
-                <span class="ident">make_instructions</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">allow_through_traffic</span>).<span class="ident">named</span>(<span class="string">&quot;instructions&quot;</span>),
-                <span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">allow_through_traffic</span>),
-                <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Apply&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_destructive</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        Box::new(ZoneEditor {
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Editing restricted access zone&quot;</span>)
+                    .small_heading()
+                    .into_widget(ctx),
+                selector.make_controls(ctx).named(<span class="string">&quot;selector&quot;</span>),
+                legend,
+                make_instructions(ctx, <span class="kw-2">&amp;</span>allow_through_traffic).named(<span class="string">&quot;instructions&quot;</span>),
+                checkbox_per_mode(ctx, app, <span class="kw-2">&amp;</span>allow_through_traffic),
+                Widget::custom_row(<span class="macro">vec!</span>[
+                    ctx.style()
+                        .btn_solid_primary
+                        .text(<span class="string">&quot;Apply&quot;</span>)
+                        .hotkey(Key::Enter)
+                        .build_def(ctx),
+                    ctx.style()
+                        .btn_solid_destructive
+                        .text(<span class="string">&quot;Cancel&quot;</span>)
+                        .hotkey(Key::Escape)
+                        .build_def(ctx),
                 ])
-                .<span class="ident">evenly_spaced</span>(),
+                .evenly_spaced(),
             ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">orig_members</span>,
-            <span class="ident">selector</span>,
-            <span class="ident">allow_through_traffic</span>,
-            <span class="ident">draw</span>,
+            .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+            .build(ctx),
+            orig_members,
+            selector,
+            allow_through_traffic,
+            draw,
         })
     }
 }
 
-<span class="comment">// TODO Handle splitting/merging zones.</span>
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ZoneEditor</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Apply&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
+<span class="comment">// TODO Handle splitting/merging zones.
+</span><span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>ZoneEditor {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;Apply&quot; </span>=&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
 
-                    <span class="comment">// Roads deleted from the zone</span>
-                    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">orig_members</span>.<span class="ident">difference</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>) {
-                        <span class="ident">edits</span>
-                            .<span class="ident">commands</span>
-                            .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                                <span class="ident">new</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">AccessRestrictions::new</span>();
+                    <span class="comment">// Roads deleted from the zone
+                    </span><span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.orig_members.difference(<span class="kw-2">&amp;</span><span class="self">self</span>.selector.roads) {
+                        edits
+                            .commands
+                            .push(app.primary.map.edit_road_cmd(<span class="kw-2">*</span>r, |new| {
+                                new.access_restrictions = AccessRestrictions::new();
                             }));
                     }
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="self">self</span>
-                        .<span class="ident">allow_through_traffic</span>
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">to_constraints</span>())
-                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">EnumSet</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                    <span class="comment">// The original allow_through_traffic always includes this, and there&#39;s no way</span>
-                    <span class="comment">// to exclude it, so stay consistent.</span>
-                    <span class="ident">allow_through_traffic</span>.<span class="ident">insert</span>(<span class="ident">PathConstraints::Train</span>);
-                    <span class="kw">let</span> <span class="ident">new_access_restrictions</span> <span class="op">=</span> <span class="ident">AccessRestrictions</span> {
-                        <span class="ident">allow_through_traffic</span>,
+                    <span class="kw">let </span><span class="kw-2">mut </span>allow_through_traffic = <span class="self">self
+                        </span>.allow_through_traffic
+                        .iter()
+                        .map(|m| m.to_constraints())
+                        .collect::&lt;EnumSet&lt;<span class="kw">_</span>&gt;&gt;();
+                    <span class="comment">// The original allow_through_traffic always includes this, and there&#39;s no way
+                    // to exclude it, so stay consistent.
+                    </span>allow_through_traffic.insert(PathConstraints::Train);
+                    <span class="kw">let </span>new_access_restrictions = AccessRestrictions {
+                        allow_through_traffic,
                     };
-                    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span> {
-                        <span class="kw">let</span> <span class="ident">old_access_restrictions</span> <span class="op">=</span>
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
-                        <span class="kw">if</span> <span class="ident">old_access_restrictions</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_access_restrictions</span> {
-                            <span class="ident">edits</span>
-                                .<span class="ident">commands</span>
-                                .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                                    <span class="ident">new</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">new_access_restrictions</span>.<span class="ident">clone</span>();
+                    <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.selector.roads {
+                        <span class="kw">let </span>old_access_restrictions =
+                            app.primary.map.get_r(<span class="kw-2">*</span>r).access_restrictions.clone();
+                        <span class="kw">if </span>old_access_restrictions != new_access_restrictions {
+                            edits
+                                .commands
+                                .push(app.primary.map.edit_road_cmd(<span class="kw-2">*</span>r, |new| {
+                                    new.access_restrictions = new_access_restrictions.clone();
                                 }));
                         }
                     }
 
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                    apply_map_edits(ctx, app, edits);
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Cancel&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                <span class="string">&quot;Cancel&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="ident">x</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">x</span>)) {
-                        <span class="kw">let</span> <span class="ident">new_controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;selector&quot;</span>, <span class="ident">new_controls</span>);
-                        <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>).<span class="number">0</span>;
+                x =&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.selector.event(ctx, app, <span class="prelude-val">Some</span>(x)) {
+                        <span class="kw">let </span>new_controls = <span class="self">self</span>.selector.make_controls(ctx);
+                        <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;selector&quot;</span>, new_controls);
+                        <span class="self">self</span>.draw = draw_zone(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.selector.roads).<span class="number">0</span>;
                     }
                 }
             },
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_allow_through_traffic</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-                <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">TripMode::all</span>() {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="ident">m</span>.<span class="ident">ongoing_verb</span>()) {
-                        <span class="ident">new_allow_through_traffic</span>.<span class="ident">insert</span>(<span class="ident">m</span>);
+            Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>new_allow_through_traffic = BTreeSet::new();
+                <span class="kw">for </span>m <span class="kw">in </span>TripMode::all() {
+                    <span class="kw">if </span><span class="self">self</span>.panel.is_checked(m.ongoing_verb()) {
+                        new_allow_through_traffic.insert(m);
                     }
                 }
-                <span class="kw">let</span> <span class="ident">instructions</span> <span class="op">=</span> <span class="ident">make_instructions</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">new_allow_through_traffic</span>);
-                <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;instructions&quot;</span>, <span class="ident">instructions</span>);
-                <span class="self">self</span>.<span class="ident">allow_through_traffic</span> <span class="op">=</span> <span class="ident">new_allow_through_traffic</span>;
+                <span class="kw">let </span>instructions = make_instructions(ctx, <span class="kw-2">&amp;</span>new_allow_through_traffic);
+                <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;instructions&quot;</span>, instructions);
+                <span class="self">self</span>.allow_through_traffic = new_allow_through_traffic;
             }
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>) {
-                    <span class="kw">let</span> <span class="ident">new_controls</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">make_controls</span>(<span class="ident">ctx</span>);
-                    <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;selector&quot;</span>, <span class="ident">new_controls</span>);
-                    <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">roads</span>).<span class="number">0</span>;
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">if </span><span class="self">self</span>.selector.event(ctx, app, <span class="prelude-val">None</span>) {
+                    <span class="kw">let </span>new_controls = <span class="self">self</span>.selector.make_controls(ctx);
+                    <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;selector&quot;</span>, new_controls);
+                    <span class="self">self</span>.draw = draw_zone(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.selector.roads).<span class="number">0</span>;
                 }
             }
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="comment">// TODO The currently selected road is covered up pretty badly</span>
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">selector</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="bool-val">false</span>);
-        <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="comment">// TODO The currently selected road is covered up pretty badly
+        </span><span class="self">self</span>.draw.draw(g);
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.selector.draw(g, app, <span class="bool-val">false</span>);
+        CommonState::draw_osd(g, app);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">draw_zone</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) -&gt; (<span class="ident">ToggleZoomed</span>, <span class="ident">Widget</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(
-        <span class="ident">app</span>,
+<span class="kw">fn </span>draw_zone(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, members: <span class="kw-2">&amp;</span>BTreeSet&lt;RoadID&gt;) -&gt; (ToggleZoomed, Widget) {
+    <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorDiscrete::new(
+        app,
         <span class="macro">vec!</span>[
-            (<span class="string">&quot;restricted road&quot;</span>, <span class="ident">Color::CYAN</span>),
-            (<span class="string">&quot;entrance/exit&quot;</span>, <span class="ident">Color::BLUE</span>),
+            (<span class="string">&quot;restricted road&quot;</span>, Color::CYAN),
+            (<span class="string">&quot;entrance/exit&quot;</span>, Color::BLUE),
         ],
     );
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">members</span> {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-        <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="string">&quot;restricted road&quot;</span>);
-        <span class="kw">for</span> <span class="ident">next</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_next_roads</span>(<span class="ident">r</span>.<span class="ident">id</span>) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">next</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">CommonEndpoint::One</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">common_endpoint</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">next</span>)) {
-                    <span class="ident">colorer</span>.<span class="ident">add_i</span>(<span class="ident">i</span>, <span class="string">&quot;entrance/exit&quot;</span>);
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">for </span>r <span class="kw">in </span>members {
+        <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>r);
+        colorer.add_r(r.id, <span class="string">&quot;restricted road&quot;</span>);
+        <span class="kw">for </span>next <span class="kw">in </span>map.get_next_roads(r.id) {
+            <span class="kw">if </span>!members.contains(<span class="kw-2">&amp;</span>next) {
+                <span class="kw">if let </span>CommonEndpoint::One(i) = r.common_endpoint(map.get_r(next)) {
+                    colorer.add_i(i, <span class="string">&quot;entrance/exit&quot;</span>);
                 }
             }
         }
     }
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">intersections_from_roads</span>(<span class="ident">members</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-        <span class="ident">colorer</span>.<span class="ident">add_i</span>(<span class="ident">i</span>, <span class="string">&quot;restricted road&quot;</span>);
+    <span class="kw">for </span>i <span class="kw">in </span>intersections_from_roads(members, <span class="kw-2">&amp;</span>app.primary.map) {
+        colorer.add_i(i, <span class="string">&quot;restricted road&quot;</span>);
     }
-    <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>)
+    colorer.build(ctx)
 }
 
-<span class="kw">fn</span> <span class="ident">make_instructions</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">allow_through_traffic</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">if</span> <span class="ident">allow_through_traffic</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">TripMode::all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>() {
-        <span class="ident">Text::from</span>(
+<span class="kw">fn </span>make_instructions(ctx: <span class="kw-2">&amp;mut </span>EventCtx, allow_through_traffic: <span class="kw-2">&amp;</span>BTreeSet&lt;TripMode&gt;) -&gt; Widget {
+    <span class="kw">if </span>allow_through_traffic == <span class="kw-2">&amp;</span>TripMode::all().into_iter().collect() {
+        Text::from(
             <span class="string">&quot;Through-traffic is allowed for everyone, meaning this is just a normal public road. \
              Would you like to restrict it?&quot;</span>,
         )
-        .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>)
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">Line</span>(<span class="string">&quot;Trips may start or end in this zone, but through-traffic is only allowed for:&quot;</span>)
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+        .wrap_to_pct(ctx, <span class="number">30</span>)
+        .into_widget(ctx)
+    } <span class="kw">else </span>{
+        Line(<span class="string">&quot;Trips may start or end in this zone, but through-traffic is only allowed for:&quot;</span>)
+            .into_widget(ctx)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

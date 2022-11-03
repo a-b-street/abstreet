@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/import_grid2demand.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>import_grid2demand.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/import_grid2demand.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>import_grid2demand.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -91,98 +91,98 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow</span>::{<span class="ident">anyhow</span>, <span class="ident">bail</span>, <span class="prelude-ty">Result</span>};
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::{anyhow, bail, <span class="prelude-ty">Result</span>};
+<span class="kw">use </span>serde::Deserialize;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
-<span class="kw">use</span> <span class="ident">synthpop</span>::{
-    <span class="ident">ExternalPerson</span>, <span class="ident">ExternalTrip</span>, <span class="ident">ExternalTripEndpoint</span>, <span class="ident">Scenario</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>,
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::{Duration, LonLat, Time};
+<span class="kw">use </span>map_model::Map;
+<span class="kw">use </span>synthpop::{
+    ExternalPerson, ExternalTrip, ExternalTripEndpoint, Scenario, TripMode, TripPurpose,
 };
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">csv_path</span>: <span class="ident">String</span>, <span class="ident">map</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import grid2demand&quot;</span>);
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;parse CSV&quot;</span>);
-    <span class="kw">let</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">parse_trips</span>(<span class="ident">csv_path</span>)<span class="question-mark">?</span>;
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;parse CSV&quot;</span>);
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+<span class="kw">pub fn </span>run(csv_path: String, map: String) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;import grid2demand&quot;</span>);
+    timer.start(<span class="string">&quot;parse CSV&quot;</span>);
+    <span class="kw">let </span>people = parse_trips(csv_path)<span class="question-mark">?</span>;
+    timer.stop(<span class="string">&quot;parse CSV&quot;</span>);
+    <span class="kw">let </span>map = Map::load_synchronously(map, <span class="kw-2">&amp;mut </span>timer);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="string">&quot;grid2demand&quot;</span>);
-    <span class="comment">// Include all buses/trains</span>
-    <span class="ident">s</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="ident">orig_num</span> <span class="op">=</span> <span class="ident">people</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="ident">skip_problems</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="ident">s</span>.<span class="ident">people</span> <span class="op">=</span> <span class="ident">ExternalPerson::import</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">people</span>, <span class="ident">skip_problems</span>)<span class="question-mark">?</span>;
-    <span class="comment">// Always clean up people with no-op trips (going between the same buildings)</span>
-    <span class="ident">s</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">remove_weird_schedules</span>(<span class="bool-val">true</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(<span class="kw-2">&amp;</span>map, <span class="string">&quot;grid2demand&quot;</span>);
+    <span class="comment">// Include all buses/trains
+    </span>s.only_seed_buses = <span class="prelude-val">None</span>;
+    <span class="kw">let </span>orig_num = people.len();
+    <span class="kw">let </span>skip_problems = <span class="bool-val">true</span>;
+    s.people = ExternalPerson::import(<span class="kw-2">&amp;</span>map, people, skip_problems)<span class="question-mark">?</span>;
+    <span class="comment">// Always clean up people with no-op trips (going between the same buildings)
+    </span>s = s.remove_weird_schedules(<span class="bool-val">true</span>);
     <span class="macro">println!</span>(
         <span class="string">&quot;Imported {}/{} people&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
-        <span class="ident">prettyprint_usize</span>(<span class="ident">orig_num</span>)
+        prettyprint_usize(s.people.len()),
+        prettyprint_usize(orig_num)
     );
-    <span class="ident">s</span>.<span class="ident">save</span>();
+    s.save();
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">parse_trips</span>(<span class="ident">csv_path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">fs_err::File::open</span>(<span class="ident">csv_path</span>)<span class="question-mark">?</span>).<span class="ident">deserialize</span>() {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rec</span>.<span class="ident">agent_type</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;v&quot;</span> =&gt; <span class="ident">TripMode::Drive</span>,
-            <span class="string">&quot;b&quot;</span> =&gt; <span class="ident">TripMode::Bike</span>,
-            <span class="string">&quot;p&quot;</span> =&gt; <span class="ident">TripMode::Walk</span>,
-            <span class="string">&quot;t&quot;</span> =&gt; <span class="ident">TripMode::Transit</span>,
-            <span class="ident">x</span> =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Unknown agent_type {}&quot;</span>, <span class="ident">x</span>),
+<span class="kw">fn </span>parse_trips(csv_path: String) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;ExternalPerson&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>people = Vec::new();
+    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(fs_err::File::open(csv_path)<span class="question-mark">?</span>).deserialize() {
+        <span class="kw">let </span>rec: Record = rec<span class="question-mark">?</span>;
+        <span class="kw">let </span>mode = <span class="kw">match </span>rec.agent_type.as_ref() {
+            <span class="string">&quot;v&quot; </span>=&gt; TripMode::Drive,
+            <span class="string">&quot;b&quot; </span>=&gt; TripMode::Bike,
+            <span class="string">&quot;p&quot; </span>=&gt; TripMode::Walk,
+            <span class="string">&quot;t&quot; </span>=&gt; TripMode::Transit,
+            x =&gt; <span class="macro">bail!</span>(<span class="string">&quot;Unknown agent_type {}&quot;</span>, x),
         };
-        <span class="kw">let</span> (<span class="ident">origin</span>, <span class="ident">destination</span>) <span class="op">=</span> <span class="ident">parse_linestring</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">geometry</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;didn&#39;t parse geometry {}&quot;</span>, <span class="ident">rec</span>.<span class="ident">geometry</span>))<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">departure</span> <span class="op">=</span> <span class="ident">parse_time</span>(<span class="ident">rec</span>.<span class="ident">departure_time</span>)<span class="question-mark">?</span>;
-        <span class="comment">// For each row in the CSV file, create a person who takes a single trip from the origin to</span>
-        <span class="comment">// the destination. They do not take a later trip to return home.</span>
-        <span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">ExternalPerson</span> {
-            <span class="ident">trips</span>: <span class="macro">vec!</span>[<span class="ident">ExternalTrip</span> {
-                <span class="ident">departure</span>,
-                <span class="ident">origin</span>: <span class="ident">ExternalTripEndpoint::Position</span>(<span class="ident">origin</span>),
-                <span class="ident">destination</span>: <span class="ident">ExternalTripEndpoint::Position</span>(<span class="ident">destination</span>),
-                <span class="ident">mode</span>,
-                <span class="ident">purpose</span>: <span class="ident">TripPurpose::Work</span>,
+        <span class="kw">let </span>(origin, destination) = parse_linestring(<span class="kw-2">&amp;</span>rec.geometry)
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;didn&#39;t parse geometry {}&quot;</span>, rec.geometry))<span class="question-mark">?</span>;
+        <span class="kw">let </span>departure = parse_time(rec.departure_time)<span class="question-mark">?</span>;
+        <span class="comment">// For each row in the CSV file, create a person who takes a single trip from the origin to
+        // the destination. They do not take a later trip to return home.
+        </span>people.push(ExternalPerson {
+            trips: <span class="macro">vec!</span>[ExternalTrip {
+                departure,
+                origin: ExternalTripEndpoint::Position(origin),
+                destination: ExternalTripEndpoint::Position(destination),
+                mode,
+                purpose: TripPurpose::Work,
             }],
         });
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">people</span>)
+    <span class="prelude-val">Ok</span>(people)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_linestring</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">LonLat</span>, <span class="ident">LonLat</span>)<span class="op">&gt;</span> {
-    <span class="comment">// Input is something like LINESTRING(-122.3245062 47.6456213,-122.3142029 47.6675654)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nums</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">input</span>
-        .<span class="ident">strip_prefix</span>(<span class="string">&quot;LINESTRING(&quot;</span>)<span class="question-mark">?</span>
-        .<span class="ident">strip_suffix</span>(<span class="string">&#39;)&#39;</span>)<span class="question-mark">?</span>
-        .<span class="ident">split</span>(<span class="kw-2">&amp;</span>[<span class="string">&#39; &#39;</span>, <span class="string">&#39;,&#39;</span>][..])
+<span class="kw">fn </span>parse_linestring(input: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;(LonLat, LonLat)&gt; {
+    <span class="comment">// Input is something like LINESTRING(-122.3245062 47.6456213,-122.3142029 47.6675654)
+    </span><span class="kw">let </span><span class="kw-2">mut </span>nums = Vec::new();
+    <span class="kw">for </span>x <span class="kw">in </span>input
+        .strip_prefix(<span class="string">&quot;LINESTRING(&quot;</span>)<span class="question-mark">?
+        </span>.strip_suffix(<span class="string">&#39;)&#39;</span>)<span class="question-mark">?
+        </span>.split(<span class="kw-2">&amp;</span>[<span class="string">&#39; &#39;</span>, <span class="string">&#39;,&#39;</span>][..])
     {
-        <span class="ident">nums</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">ok</span>()<span class="question-mark">?</span>);
+        nums.push(x.parse::&lt;f64&gt;().ok()<span class="question-mark">?</span>);
     }
-    <span class="kw">if</span> <span class="ident">nums</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">if </span>nums.len() != <span class="number">4 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="prelude-val">Some</span>((<span class="ident">LonLat::new</span>(<span class="ident">nums</span>[<span class="number">0</span>], <span class="ident">nums</span>[<span class="number">1</span>]), <span class="ident">LonLat::new</span>(<span class="ident">nums</span>[<span class="number">2</span>], <span class="ident">nums</span>[<span class="number">3</span>])))
+    <span class="prelude-val">Some</span>((LonLat::new(nums[<span class="number">0</span>], nums[<span class="number">1</span>]), LonLat::new(nums[<span class="number">2</span>], nums[<span class="number">3</span>])))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_time</span>(<span class="ident">input</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
-    <span class="comment">// Input is HHMM, like 0730</span>
-    <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> <span class="ident">input</span>[<span class="number">0</span>..<span class="number">2</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">mins</span> <span class="op">=</span> <span class="ident">input</span>[<span class="number">2</span>..].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>()<span class="question-mark">?</span>;
-    <span class="prelude-val">Ok</span>(<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="ident">hours</span>) <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="ident">mins</span>))
+<span class="kw">fn </span>parse_time(input: String) -&gt; <span class="prelude-ty">Result</span>&lt;Time&gt; {
+    <span class="comment">// Input is HHMM, like 0730
+    </span><span class="kw">let </span>hours = input[<span class="number">0</span>..<span class="number">2</span>].parse::&lt;usize&gt;()<span class="question-mark">?</span>;
+    <span class="kw">let </span>mins = input[<span class="number">2</span>..].parse::&lt;usize&gt;()<span class="question-mark">?</span>;
+    <span class="prelude-val">Ok</span>(Time::START_OF_DAY + Duration::hours(hours) + Duration::minutes(mins))
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Record</span> {
-    <span class="ident">agent_type</span>: <span class="ident">String</span>,
-    <span class="ident">geometry</span>: <span class="ident">String</span>,
-    <span class="ident">departure_time</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>Record {
+    agent_type: String,
+    geometry: String,
+    departure_time: String,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

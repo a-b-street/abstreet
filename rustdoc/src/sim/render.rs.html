@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/render.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>render.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/render.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>render.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -73,80 +73,80 @@
 <span id="73">73</span>
 <span id="74">74</span>
 <span id="75">75</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Intermediate structures so that sim and game crates don&#39;t have a cyclic dependency.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Intermediate structures so that sim and game crates don&#39;t have a cyclic dependency.
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>};
+</span><span class="kw">use </span>geom::{Angle, Distance, PolyLine, Pt2D};
+<span class="kw">use </span>map_model::{BuildingID, ParkingLotID, Traversable, TurnID};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>};
+<span class="kw">use crate</span>::{AgentID, CarID, PedestrianID, PersonID};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawPedestrianInput</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">PedestrianID</span>,
-    <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">Pt2D</span>,
-    <span class="kw">pub</span> <span class="ident">facing</span>: <span class="ident">Angle</span>,
-    <span class="kw">pub</span> <span class="ident">waiting_for_turn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">intent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Intent</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">preparing_bike</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">waiting_for_bus</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">on</span>: <span class="ident">Traversable</span>,
-    <span class="kw">pub</span> <span class="ident">person</span>: <span class="ident">PersonID</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>DrawPedestrianInput {
+    <span class="kw">pub </span>id: PedestrianID,
+    <span class="kw">pub </span>pos: Pt2D,
+    <span class="kw">pub </span>facing: Angle,
+    <span class="kw">pub </span>waiting_for_turn: <span class="prelude-ty">Option</span>&lt;TurnID&gt;,
+    <span class="kw">pub </span>intent: <span class="prelude-ty">Option</span>&lt;Intent&gt;,
+    <span class="kw">pub </span>preparing_bike: bool,
+    <span class="kw">pub </span>waiting_for_bus: bool,
+    <span class="kw">pub </span>on: Traversable,
+    <span class="kw">pub </span>person: PersonID,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawPedCrowdInput</span> {
-    <span class="kw">pub</span> <span class="ident">low</span>: <span class="ident">Distance</span>,
-    <span class="kw">pub</span> <span class="ident">high</span>: <span class="ident">Distance</span>,
-    <span class="kw">pub</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PedestrianID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">location</span>: <span class="ident">PedCrowdLocation</span>,
+<span class="kw">pub struct </span>DrawPedCrowdInput {
+    <span class="kw">pub </span>low: Distance,
+    <span class="kw">pub </span>high: Distance,
+    <span class="kw">pub </span>members: Vec&lt;PedestrianID&gt;,
+    <span class="kw">pub </span>location: PedCrowdLocation,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PedCrowdLocation</span> {
-    <span class="doccomment">/// bool is contraflow</span>
-    <span class="ident">Sidewalk</span>(<span class="ident">Traversable</span>, <span class="ident">bool</span>),
-    <span class="ident">BldgDriveway</span>(<span class="ident">BuildingID</span>),
-    <span class="ident">LotDriveway</span>(<span class="ident">ParkingLotID</span>),
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub enum </span>PedCrowdLocation {
+    <span class="doccomment">/// bool is contraflow
+    </span>Sidewalk(Traversable, bool),
+    BldgDriveway(BuildingID),
+    LotDriveway(ParkingLotID),
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawCarInput</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">CarID</span>,
-    <span class="kw">pub</span> <span class="ident">waiting_for_turn</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">status</span>: <span class="ident">CarStatus</span>,
-    <span class="kw">pub</span> <span class="ident">intent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Intent</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Front of the car</span>
-    <span class="kw">pub</span> <span class="ident">on</span>: <span class="ident">Traversable</span>,
-    <span class="doccomment">/// Possibly the rest</span>
-    <span class="kw">pub</span> <span class="ident">partly_on</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Traversable</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">label</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// None means a bus or parked car. Note parked cars do NOT express their owner here!</span>
-    <span class="kw">pub</span> <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>DrawCarInput {
+    <span class="kw">pub </span>id: CarID,
+    <span class="kw">pub </span>waiting_for_turn: <span class="prelude-ty">Option</span>&lt;TurnID&gt;,
+    <span class="kw">pub </span>status: CarStatus,
+    <span class="kw">pub </span>intent: <span class="prelude-ty">Option</span>&lt;Intent&gt;,
+    <span class="doccomment">/// Front of the car
+    </span><span class="kw">pub </span>on: Traversable,
+    <span class="doccomment">/// Possibly the rest
+    </span><span class="kw">pub </span>partly_on: Vec&lt;Traversable&gt;,
+    <span class="kw">pub </span>label: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// None means a bus or parked car. Note parked cars do NOT express their owner here!
+    </span><span class="kw">pub </span>person: <span class="prelude-ty">Option</span>&lt;PersonID&gt;,
 
-    <span class="comment">// Starts at the BACK of the car.</span>
-    <span class="kw">pub</span> <span class="ident">body</span>: <span class="ident">PolyLine</span>,
+    <span class="comment">// Starts at the BACK of the car.
+    </span><span class="kw">pub </span>body: PolyLine,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CarStatus</span> {
-    <span class="ident">Moving</span>,
-    <span class="ident">Parked</span>,
+<span class="attribute">#[derive(Clone, Copy, PartialEq, Eq)]
+</span><span class="kw">pub enum </span>CarStatus {
+    Moving,
+    Parked,
 }
 
-<span class="doccomment">/// Shows an agent&#39;s current inner intention or thoughts.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Intent</span> {
-    <span class="ident">Parking</span>,
-    <span class="ident">SteepUphill</span>,
+<span class="doccomment">/// Shows an agent&#39;s current inner intention or thoughts.
+</span><span class="attribute">#[derive(Clone, PartialEq)]
+</span><span class="kw">pub enum </span>Intent {
+    Parking,
+    SteepUphill,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnzoomedAgent</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">AgentID</span>,
-    <span class="kw">pub</span> <span class="ident">pos</span>: <span class="ident">Pt2D</span>,
-    <span class="doccomment">/// None means a bus.</span>
-    <span class="kw">pub</span> <span class="ident">person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// True only for cars currently looking for parking. I don&#39;t want this struct to grow, but</span>
-    <span class="doccomment">/// this is important enough to call out here.</span>
-    <span class="kw">pub</span> <span class="ident">parking</span>: <span class="ident">bool</span>,
+<span class="kw">pub struct </span>UnzoomedAgent {
+    <span class="kw">pub </span>id: AgentID,
+    <span class="kw">pub </span>pos: Pt2D,
+    <span class="doccomment">/// None means a bus.
+    </span><span class="kw">pub </span>person: <span class="prelude-ty">Option</span>&lt;PersonID&gt;,
+    <span class="doccomment">/// True only for cars currently looking for parking. I don&#39;t want this struct to grow, but
+    /// this is important enough to call out here.
+    </span><span class="kw">pub </span>parking: bool,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

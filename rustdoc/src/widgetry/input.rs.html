@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/input.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>input.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/input.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>input.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -141,148 +141,148 @@
 <span id="141">141</span>
 <span id="142">142</span>
 <span id="143">143</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Duration</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>geom::Duration;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">Event</span>, <span class="ident">Key</span>, <span class="ident">MultiKey</span>, <span class="ident">ScreenPt</span>};
+<span class="kw">use crate</span>::{Canvas, Event, Key, MultiKey, ScreenPt};
 
-<span class="comment">// As we check for user input, record the input and the thing that would happen. This will let us</span>
-<span class="comment">// build up some kind of OSD of possible actions.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UserInput</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">event</span>: <span class="ident">Event</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">event_consumed</span>: <span class="ident">bool</span>,
+<span class="comment">// As we check for user input, record the input and the thing that would happen. This will let us
+// build up some kind of OSD of possible actions.
+</span><span class="kw">pub struct </span>UserInput {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) event: Event,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) event_consumed: bool,
 
-    <span class="ident">lctrl_held</span>: <span class="ident">bool</span>,
+    lctrl_held: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">UserInput</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">event</span>: <span class="ident">Event</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) -&gt; <span class="ident">UserInput</span> {
-        <span class="ident">UserInput</span> {
-            <span class="ident">event</span>,
-            <span class="ident">event_consumed</span>: <span class="bool-val">false</span>,
-            <span class="ident">lctrl_held</span>: <span class="ident">canvas</span>.<span class="ident">keys_held</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">Key::LeftControl</span>),
+<span class="kw">impl </span>UserInput {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(event: Event, canvas: <span class="kw-2">&amp;</span>Canvas) -&gt; UserInput {
+        UserInput {
+            event,
+            event_consumed: <span class="bool-val">false</span>,
+            lctrl_held: canvas.keys_held.contains(<span class="kw-2">&amp;</span>Key::LeftControl),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pressed</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">multikey</span>: <span class="ident">MK</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">mk</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mk</span>) <span class="op">=</span> <span class="ident">multikey</span>.<span class="ident">into</span>() {
-            <span class="ident">mk</span>
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">pub fn </span>pressed&lt;MK: Into&lt;<span class="prelude-ty">Option</span>&lt;MultiKey&gt;&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, multikey: MK) -&gt; bool {
+        <span class="kw">let </span>mk = <span class="kw">if let </span><span class="prelude-val">Some</span>(mk) = multikey.into() {
+            mk
+        } <span class="kw">else </span>{
+            <span class="kw">return </span><span class="bool-val">false</span>;
         };
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">event_consumed</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+        <span class="kw">if </span><span class="self">self</span>.event_consumed {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::KeyPress</span>(<span class="ident">pressed</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">event</span> {
-            <span class="kw">let</span> <span class="ident">same</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mk</span> {
-                <span class="ident">MultiKey::Normal</span>(<span class="ident">key</span>) =&gt; <span class="ident">pressed</span> <span class="op">==</span> <span class="ident">key</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">lctrl_held</span>,
-                <span class="ident">MultiKey::LCtrl</span>(<span class="ident">key</span>) =&gt; <span class="ident">pressed</span> <span class="op">==</span> <span class="ident">key</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">lctrl_held</span>,
-                <span class="ident">MultiKey::Any</span>(<span class="ident">keys</span>) =&gt; <span class="op">!</span><span class="self">self</span>.<span class="ident">lctrl_held</span> <span class="op">&amp;&amp;</span> <span class="ident">keys</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pressed</span>),
+        <span class="kw">if let </span>Event::KeyPress(pressed) = <span class="self">self</span>.event {
+            <span class="kw">let </span>same = <span class="kw">match </span>mk {
+                MultiKey::Normal(key) =&gt; pressed == key &amp;&amp; !<span class="self">self</span>.lctrl_held,
+                MultiKey::LCtrl(key) =&gt; pressed == key &amp;&amp; <span class="self">self</span>.lctrl_held,
+                MultiKey::Any(keys) =&gt; !<span class="self">self</span>.lctrl_held &amp;&amp; keys.contains(<span class="kw-2">&amp;</span>pressed),
             };
-            <span class="kw">if</span> <span class="ident">same</span> {
-                <span class="self">self</span>.<span class="ident">consume_event</span>();
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+            <span class="kw">if </span>same {
+                <span class="self">self</span>.consume_event();
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
         }
-        <span class="bool-val">false</span>
-    }
+        <span class="bool-val">false
+    </span>}
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">any_pressed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Key</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">event_consumed</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>any_pressed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Key&gt; {
+        <span class="kw">if </span><span class="self">self</span>.event_consumed {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::KeyPress</span>(<span class="ident">key</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">event</span> {
-            <span class="self">self</span>.<span class="ident">consume_event</span>();
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">key</span>);
+        <span class="kw">if let </span>Event::KeyPress(key) = <span class="self">self</span>.event {
+            <span class="self">self</span>.consume_event();
+            <span class="kw">return </span><span class="prelude-val">Some</span>(key);
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key_released</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">Key</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">event_consumed</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">pub fn </span>key_released(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: Key) -&gt; bool {
+        <span class="kw">if </span><span class="self">self</span>.event_consumed {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">event</span> <span class="op">==</span> <span class="ident">Event::KeyRelease</span>(<span class="ident">key</span>) {
-            <span class="self">self</span>.<span class="ident">consume_event</span>();
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="kw">if </span><span class="self">self</span>.event == Event::KeyRelease(key) {
+            <span class="self">self</span>.consume_event();
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="bool-val">false</span>
+        <span class="bool-val">false
+    </span>}
+
+    <span class="comment">// No consuming for these?
+    // Only places looking at special drag behavior should use these two, otherwise prefer
+    // normal_left_click in EventCtx
+    </span><span class="kw">pub fn </span>left_mouse_button_pressed(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.event == Event::LeftMouseButtonDown
+    }
+    <span class="kw">pub fn </span>left_mouse_button_released(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.event, Event::LeftMouseButtonUp { .. })
     }
 
-    <span class="comment">// No consuming for these?</span>
-    <span class="comment">// Only places looking at special drag behavior should use these two, otherwise prefer</span>
-    <span class="comment">// normal_left_click in EventCtx</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_mouse_button_pressed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">event</span> <span class="op">==</span> <span class="ident">Event::LeftMouseButtonDown</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_mouse_button_released</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">event</span>, <span class="ident">Event::LeftMouseButtonUp</span> { .. })
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">left_mouse_double_clicked</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub fn </span>left_mouse_double_clicked(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; bool {
         <span class="macro">matches!</span>(
-            <span class="self">self</span>.<span class="ident">event</span>,
-            <span class="ident">Event::LeftMouseButtonUp</span> {
-                <span class="ident">is_double_click</span>: <span class="bool-val">true</span>
-            }
+            <span class="self">self</span>.event,
+            Event::LeftMouseButtonUp {
+                is_double_click: <span class="bool-val">true
+            </span>}
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_lost_cursor</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">event</span> <span class="op">==</span> <span class="ident">Event::WindowLostCursor</span>
+    <span class="kw">pub fn </span>window_lost_cursor(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.event == Event::WindowLostCursor
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_moved_mouse</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ScreenPt</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::MouseMovedTo</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">event</span> {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>);
+    <span class="kw">pub fn </span>get_moved_mouse(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;ScreenPt&gt; {
+        <span class="kw">if let </span>Event::MouseMovedTo(pt) = <span class="self">self</span>.event {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(pt);
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mouse_scroll</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::MouseWheelScroll</span>(<span class="ident">dx</span>, <span class="ident">dy</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">event</span> {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">dx</span>, <span class="ident">dy</span>));
+    <span class="kw">pub fn </span>get_mouse_scroll(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(f64, f64)&gt; {
+        <span class="kw">if let </span>Event::MouseWheelScroll(dx, dy) = <span class="self">self</span>.event {
+            <span class="kw">return </span><span class="prelude-val">Some</span>((dx, dy));
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">pub fn </span>is_window_resized(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>.event, Event::WindowResized(<span class="kw">_</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_window_resized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">event</span>, <span class="ident">Event::WindowResized</span>(<span class="kw">_</span>))
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nonblocking_is_update_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">event_consumed</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>nonblocking_is_update_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
+        <span class="kw">if </span><span class="self">self</span>.event_consumed {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::Update</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">event</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">dt</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+        <span class="kw">if let </span>Event::Update(dt) = <span class="self">self</span>.event {
+            <span class="prelude-val">Some</span>(dt)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">use_update_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">consume_event</span>();
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">event</span> {
-            <span class="ident">Event::Update</span>(<span class="kw">_</span>) =&gt; {}
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Not an update event&quot;</span>),
+    <span class="kw">pub fn </span>use_update_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.consume_event();
+        <span class="kw">match </span><span class="self">self</span>.event {
+            Event::Update(<span class="kw">_</span>) =&gt; {}
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Not an update event&quot;</span>),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">consume_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">event_consumed</span>);
-        <span class="self">self</span>.<span class="ident">event_consumed</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>consume_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.event_consumed);
+        <span class="self">self</span>.event_consumed = <span class="bool-val">true</span>;
     }
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">unconsume_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">event_consumed</span>);
-        <span class="self">self</span>.<span class="ident">event_consumed</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>unconsume_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.event_consumed);
+        <span class="self">self</span>.event_consumed = <span class="bool-val">false</span>;
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">has_been_consumed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">event_consumed</span>
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>has_been_consumed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.event_consumed
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

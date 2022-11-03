@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/minimap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>minimap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/minimap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>minimap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -486,493 +486,493 @@
 <span id="486">486</span>
 <span id="487">487</span>
 <span id="488">488</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::marker::PhantomData;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">ControlState</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Filler</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Spinner</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>geom::{Distance, Pt2D, Ring, Time};
+<span class="kw">use </span>widgetry::{
+    ControlState, Drawable, EventCtx, Filler, GfxCtx, HorizontalAlignment, Line, Outcome, Panel,
+    ScreenDims, ScreenPt, Spinner, Transition, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="kw">static</span> <span class="ident">MINIMAP_WIDTH</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">400.0</span>;
-<span class="kw">static</span> <span class="ident">MINIMAP_HEIGHT</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">300.0</span>;
+<span class="kw">static </span>MINIMAP_WIDTH: f64 = <span class="number">400.0</span>;
+<span class="kw">static </span>MINIMAP_HEIGHT: f64 = <span class="number">300.0</span>;
 
-<span class="comment">// TODO Some of the math in here might assume map bound minimums start at (0, 0).</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Minimap</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span>, <span class="ident">T</span>: <span class="ident">MinimapControls</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">controls</span>: <span class="ident">T</span>,
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">app_type</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
+<span class="comment">// TODO Some of the math in here might assume map bound minimums start at (0, 0).
+</span><span class="kw">pub struct </span>Minimap&lt;A: AppLike, T: MinimapControls&lt;A&gt;&gt; {
+    controls: T,
+    time: Time,
+    app_type: PhantomData&lt;A&gt;,
 
-    <span class="ident">dragging</span>: <span class="ident">bool</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="comment">// Update panel when other things change</span>
-    <span class="ident">zoomed</span>: <span class="ident">bool</span>,
-    <span class="ident">layer</span>: <span class="ident">bool</span>,
+    dragging: bool,
+    panel: Panel,
+    <span class="comment">// Update panel when other things change
+    </span>zoomed: bool,
+    layer: bool,
 
-    <span class="comment">// [0, 3], with 0 meaning the most unzoomed</span>
-    <span class="ident">zoom_lvl</span>: <span class="ident">usize</span>,
-    <span class="ident">base_zoom</span>: <span class="ident">f64</span>,
-    <span class="ident">zoom</span>: <span class="ident">f64</span>,
-    <span class="ident">offset_x</span>: <span class="ident">f64</span>,
-    <span class="ident">offset_y</span>: <span class="ident">f64</span>,
+    <span class="comment">// [0, 3], with 0 meaning the most unzoomed
+    </span>zoom_lvl: usize,
+    base_zoom: f64,
+    zoom: f64,
+    offset_x: f64,
+    offset_y: f64,
 }
 
-<span class="doccomment">/// Customize the appearance and behavior of a minimap.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">MinimapControls</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// Should the user be able to control the z-order visible? The control is only present when</span>
-    <span class="doccomment">/// zoomed in, placed beneath the zoom column.</span>
-    <span class="kw">fn</span> <span class="ident">has_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">bool</span>;
-    <span class="doccomment">/// Is there some additional layer displayed on the minimap? If this changes, the panel gets</span>
-    <span class="doccomment">/// recalculated.</span>
-    <span class="kw">fn</span> <span class="ident">has_layer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">bool</span> {
-        <span class="bool-val">false</span>
+<span class="doccomment">/// Customize the appearance and behavior of a minimap.
+</span><span class="kw">pub trait </span>MinimapControls&lt;A: AppLike&gt; {
+    <span class="doccomment">/// Should the user be able to control the z-order visible? The control is only present when
+    /// zoomed in, placed beneath the zoom column.
+    </span><span class="kw">fn </span>has_zorder(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>A) -&gt; bool;
+    <span class="doccomment">/// Is there some additional layer displayed on the minimap? If this changes, the panel gets
+    /// recalculated.
+    </span><span class="kw">fn </span>has_layer(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span>A) -&gt; bool {
+        <span class="bool-val">false
+    </span>}
+
+    <span class="doccomment">/// Draw extra stuff on the minimap, just pulling from the app.
+    </span><span class="kw">fn </span>draw_extra(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>A) {}
+
+    <span class="doccomment">/// When unzoomed, display this panel. By default, no controls when unzoomed.
+    </span><span class="kw">fn </span>make_unzoomed_panel(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>A) -&gt; Panel {
+        Panel::empty(ctx)
+    }
+    <span class="doccomment">/// A row beneath the minimap in the zoomed view, usually used as a legend for things on the
+    /// minimap.
+    </span><span class="kw">fn </span>make_legend(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>A) -&gt; Widget {
+        Widget::nothing()
+    }
+    <span class="doccomment">/// Controls to be placed to the left to the zoomed-in panel
+    </span><span class="kw">fn </span>make_zoomed_side_panel(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>A) -&gt; Widget {
+        Widget::nothing()
     }
 
-    <span class="doccomment">/// Draw extra stuff on the minimap, just pulling from the app.</span>
-    <span class="kw">fn</span> <span class="ident">draw_extra</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {}
-
-    <span class="doccomment">/// When unzoomed, display this panel. By default, no controls when unzoomed.</span>
-    <span class="kw">fn</span> <span class="ident">make_unzoomed_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Panel</span> {
-        <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>)
-    }
-    <span class="doccomment">/// A row beneath the minimap in the zoomed view, usually used as a legend for things on the</span>
-    <span class="doccomment">/// minimap.</span>
-    <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Widget::nothing</span>()
-    }
-    <span class="doccomment">/// Controls to be placed to the left to the zoomed-in panel</span>
-    <span class="kw">fn</span> <span class="ident">make_zoomed_side_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Widget::nothing</span>()
-    }
-
-    <span class="doccomment">/// If a button is clicked that was produced by some method in this trait, respond to it here.</span>
-    <span class="kw">fn</span> <span class="ident">panel_clicked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// If a button is clicked that was produced by some method in this trait, respond to it here.
+    </span><span class="kw">fn </span>panel_clicked(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A, <span class="kw">_</span>: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&lt;A&gt;&gt; {
         <span class="macro">unreachable!</span>()
     }
-    <span class="doccomment">/// Called for `Outcome::Changed` on the panel.</span>
-    <span class="kw">fn</span> <span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {}
+    <span class="doccomment">/// Called for `Outcome::Changed` on the panel.
+    </span><span class="kw">fn </span>panel_changed(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Panel) {}
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">T</span>: <span class="ident">MinimapControls</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">Minimap</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>, <span class="ident">controls</span>: <span class="ident">T</span>) -&gt; <span class="ident">Minimap</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="comment">// Initially pick a zoom to fit the smaller of the entire map&#39;s width or height in the</span>
-        <span class="comment">// minimap. Arbitrary and probably pretty weird.</span>
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>();
-        <span class="kw">let</span> <span class="ident">base_zoom</span> <span class="op">=</span> <span class="number">0.15</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">width</span>().<span class="ident">min</span>(<span class="ident">bounds</span>.<span class="ident">height</span>());
-        <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="ident">controls</span>.<span class="ident">has_layer</span>(<span class="ident">app</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">Minimap</span> {
-            <span class="ident">controls</span>,
-            <span class="ident">time</span>: <span class="ident">Time::START_OF_DAY</span>,
-            <span class="ident">app_type</span>: <span class="ident">PhantomData</span>,
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>, T: MinimapControls&lt;A&gt;&gt; Minimap&lt;A, T&gt; {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>A, controls: T) -&gt; Minimap&lt;A, T&gt; {
+        <span class="comment">// Initially pick a zoom to fit the smaller of the entire map&#39;s width or height in the
+        // minimap. Arbitrary and probably pretty weird.
+        </span><span class="kw">let </span>bounds = app.map().get_bounds();
+        <span class="kw">let </span>base_zoom = <span class="number">0.15 </span>* ctx.canvas.window_width / bounds.width().min(bounds.height());
+        <span class="kw">let </span>layer = controls.has_layer(app);
+        <span class="kw">let </span><span class="kw-2">mut </span>m = Minimap {
+            controls,
+            time: Time::START_OF_DAY,
+            app_type: PhantomData,
 
-            <span class="ident">dragging</span>: <span class="bool-val">false</span>,
-            <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">zoomed</span>: <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_zoomed</span>(),
-            <span class="ident">layer</span>,
+            dragging: <span class="bool-val">false</span>,
+            panel: Panel::empty(ctx),
+            zoomed: ctx.canvas.is_zoomed(),
+            layer,
 
-            <span class="ident">zoom_lvl</span>: <span class="number">0</span>,
-            <span class="ident">base_zoom</span>,
-            <span class="ident">zoom</span>: <span class="ident">base_zoom</span>,
-            <span class="ident">offset_x</span>: <span class="number">0.0</span>,
-            <span class="ident">offset_y</span>: <span class="number">0.0</span>,
+            zoom_lvl: <span class="number">0</span>,
+            base_zoom,
+            zoom: base_zoom,
+            offset_x: <span class="number">0.0</span>,
+            offset_y: <span class="number">0.0</span>,
         };
-        <span class="ident">m</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="kw">if</span> <span class="ident">m</span>.<span class="ident">zoomed</span> {
-            <span class="ident">m</span>.<span class="ident">recenter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        m.recreate_panel(ctx, app);
+        <span class="kw">if </span>m.zoomed {
+            m.recenter(ctx, app);
         }
-        <span class="ident">m</span>
+        m
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-            <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">make_unzoomed_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="kw">pub fn </span>recreate_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>A) {
+        <span class="kw">if </span>ctx.canvas.is_unzoomed() {
+            <span class="self">self</span>.panel = <span class="self">self</span>.controls.make_unzoomed_panel(ctx, app);
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">zoom_col</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">ctx</span>
-                .<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom in&quot;</span>)
-                .<span class="ident">centered_horiz</span>()
-                .<span class="ident">margin_below</span>(<span class="number">10</span>)];
+        <span class="kw">let </span>zoom_col = {
+            <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[ctx
+                .style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
+                .build_widget(ctx, <span class="string">&quot;zoom in&quot;</span>)
+                .centered_horiz()
+                .margin_below(<span class="number">10</span>)];
 
-            <span class="kw">let</span> <span class="ident">level_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
-                .<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/zoom_level_rect.svg&quot;</span>)
-                .<span class="ident">padding_top</span>(<span class="number">0.0</span>)
-                .<span class="ident">padding_bottom</span>(<span class="number">0.0</span>);
+            <span class="kw">let </span>level_btn = ctx
+                .style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/speed/zoom_level_rect.svg&quot;</span>)
+                .padding_top(<span class="number">0.0</span>)
+                .padding_bottom(<span class="number">0.0</span>);
 
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> (<span class="number">0</span>..<span class="op">=</span><span class="number">3</span>).<span class="ident">rev</span>() {
-                <span class="kw">let</span> <span class="ident">level_btn</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">&lt;</span> <span class="ident">i</span> {
-                    <span class="ident">level_btn</span>
-                        .<span class="ident">clone</span>()
-                        .<span class="ident">image_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState::Default</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">level_btn</span>.<span class="ident">clone</span>()
+            <span class="kw">for </span>i <span class="kw">in </span>(<span class="number">0</span>..=<span class="number">3</span>).rev() {
+                <span class="kw">let </span>level_btn = <span class="kw">if </span><span class="self">self</span>.zoom_lvl &lt; i {
+                    level_btn
+                        .clone()
+                        .image_color(ctx.style().btn_outline.fg_disabled, ControlState::Default)
+                } <span class="kw">else </span>{
+                    level_btn.clone()
                 };
-                <span class="ident">col</span>.<span class="ident">push</span>(
-                    <span class="ident">level_btn</span>
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;zoom to level {}&quot;</span>, <span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>))
-                        .<span class="ident">centered_horiz</span>()
-                        .<span class="ident">margin_below</span>(<span class="number">10</span>),
+                col.push(
+                    level_btn
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;zoom to level {}&quot;</span>, i + <span class="number">1</span>))
+                        .centered_horiz()
+                        .margin_below(<span class="number">10</span>),
                 );
             }
-            <span class="ident">col</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom out&quot;</span>)
-                    .<span class="ident">centered_horiz</span>(),
+            col.push(
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/speed/minus.svg&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;zoom out&quot;</span>)
+                    .centered_horiz(),
             );
-            <span class="comment">// The zoom column should start below the &quot;pan up&quot; arrow. But if we put it on the row</span>
-            <span class="comment">// with &lt;, minimap, and &gt; then it messes up the horizontal alignment of the</span>
-            <span class="comment">// pan up arrow. Also, double column to avoid the background color</span>
-            <span class="comment">// stretching to the bottom of the row.</span>
-            <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::custom_col</span>(<span class="ident">col</span>)
-                    .<span class="ident">padding</span>(<span class="number">10</span>)
-                    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">inner_panel_bg</span>),
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">has_zorder</span>(<span class="ident">app</span>) {
-                    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Z-order:&quot;</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Spinner::widget</span>(
-                            <span class="ident">ctx</span>,
+            <span class="comment">// The zoom column should start below the &quot;pan up&quot; arrow. But if we put it on the row
+            // with &lt;, minimap, and &gt; then it messes up the horizontal alignment of the
+            // pan up arrow. Also, double column to avoid the background color
+            // stretching to the bottom of the row.
+            </span>Widget::custom_col(<span class="macro">vec!</span>[
+                Widget::custom_col(col)
+                    .padding(<span class="number">10</span>)
+                    .bg(app.cs().inner_panel_bg),
+                <span class="kw">if </span><span class="self">self</span>.controls.has_zorder(app) {
+                    Widget::col(<span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;Z-order:&quot;</span>).small().into_widget(ctx),
+                        Spinner::widget(
+                            ctx,
                             <span class="string">&quot;zorder&quot;</span>,
-                            <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">zorder_range</span>,
-                            <span class="ident">app</span>.<span class="ident">draw_map</span>().<span class="ident">show_zorder</span>,
+                            app.draw_map().zorder_range,
+                            app.draw_map().show_zorder,
                             <span class="number">1</span>,
                         ),
                     ])
-                    .<span class="ident">margin_above</span>(<span class="number">10</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">Widget::nothing</span>()
+                    .margin_above(<span class="number">10</span>)
+                } <span class="kw">else </span>{
+                    Widget::nothing()
                 },
             ])
-            .<span class="ident">margin_above</span>(<span class="number">26</span>)
+            .margin_above(<span class="number">26</span>)
         };
 
-        <span class="kw">let</span> <span class="ident">minimap_widget</span> <span class="op">=</span>
-            <span class="ident">Filler::fixed_dims</span>(<span class="ident">ScreenDims::new</span>(<span class="ident">MINIMAP_WIDTH</span>, <span class="ident">MINIMAP_HEIGHT</span>)).<span class="ident">named</span>(<span class="string">&quot;minimap&quot;</span>);
+        <span class="kw">let </span>minimap_widget =
+            Filler::fixed_dims(ScreenDims::new(MINIMAP_WIDTH, MINIMAP_HEIGHT)).named(<span class="string">&quot;minimap&quot;</span>);
 
-        <span class="kw">let</span> <span class="ident">minimap_controls</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">btn</span>().<span class="ident">padding</span>(<span class="number">4</span>);
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">buttons</span>
-                    .<span class="ident">clone</span>()
-                    .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/up.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan up&quot;</span>)
-                    .<span class="ident">centered_horiz</span>(),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">buttons</span>
-                        .<span class="ident">clone</span>()
-                        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/left.svg&quot;</span>)
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan left&quot;</span>)
-                        .<span class="ident">centered_vert</span>(),
-                    <span class="ident">minimap_widget</span>,
-                    <span class="ident">buttons</span>
-                        .<span class="ident">clone</span>()
-                        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/right.svg&quot;</span>)
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan right&quot;</span>)
-                        .<span class="ident">centered_vert</span>(),
+        <span class="kw">let </span>minimap_controls = {
+            <span class="kw">let </span>buttons = ctx.style().btn_plain.btn().padding(<span class="number">4</span>);
+            Widget::col(<span class="macro">vec!</span>[
+                buttons
+                    .clone()
+                    .image_path(<span class="string">&quot;system/assets/minimap/up.svg&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;pan up&quot;</span>)
+                    .centered_horiz(),
+                Widget::row(<span class="macro">vec!</span>[
+                    buttons
+                        .clone()
+                        .image_path(<span class="string">&quot;system/assets/minimap/left.svg&quot;</span>)
+                        .build_widget(ctx, <span class="string">&quot;pan left&quot;</span>)
+                        .centered_vert(),
+                    minimap_widget,
+                    buttons
+                        .clone()
+                        .image_path(<span class="string">&quot;system/assets/minimap/right.svg&quot;</span>)
+                        .build_widget(ctx, <span class="string">&quot;pan right&quot;</span>)
+                        .centered_vert(),
                 ]),
-                <span class="ident">buttons</span>
-                    .<span class="ident">clone</span>()
-                    .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/down.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pan down&quot;</span>)
-                    .<span class="ident">centered_horiz</span>(),
+                buttons
+                    .clone()
+                    .image_path(<span class="string">&quot;system/assets/minimap/down.svg&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;pan down&quot;</span>)
+                    .centered_horiz(),
             ])
         };
 
-        <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">minimal_controls</span> {
-            <span class="ident">minimap_controls</span>.<span class="ident">padding</span>(<span class="number">16</span>).<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">panel_bg</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">make_zoomed_side_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[<span class="ident">minimap_controls</span>, <span class="ident">zoom_col</span>]),
-                    <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">make_legend</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        <span class="kw">let </span>controls = <span class="kw">if </span>app.opts().minimal_controls {
+            minimap_controls.padding(<span class="number">16</span>).bg(app.cs().panel_bg)
+        } <span class="kw">else </span>{
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="self">self</span>.controls.make_zoomed_side_panel(ctx, app),
+                Widget::col(<span class="macro">vec!</span>[
+                    Widget::row(<span class="macro">vec!</span>[minimap_controls, zoom_col]),
+                    <span class="self">self</span>.controls.make_legend(ctx, app),
                 ])
-                .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">panel_bg</span>),
+                .padding(<span class="number">16</span>)
+                .bg(app.cs().panel_bg),
             ])
         };
 
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">controls</span>)
-            .<span class="ident">aligned</span>(
-                <span class="ident">HorizontalAlignment::Right</span>,
-                <span class="ident">VerticalAlignment::BottomAboveOSD</span>,
+        <span class="self">self</span>.panel = Panel::new_builder(controls)
+            .aligned(
+                HorizontalAlignment::Right,
+                VerticalAlignment::BottomAboveOSD,
             )
-            .<span class="ident">build_custom</span>(<span class="ident">ctx</span>);
+            .build_custom(ctx);
     }
 
-    <span class="kw">fn</span> <span class="ident">map_to_minimap_pct</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; (<span class="ident">f64</span>, <span class="ident">f64</span>) {
-        <span class="kw">let</span> <span class="ident">inner_rect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;minimap&quot;</span>);
-        <span class="kw">let</span> <span class="ident">pct_x</span> <span class="op">=</span> (<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">offset_x</span>) <span class="op">/</span> <span class="ident">inner_rect</span>.<span class="ident">width</span>();
-        <span class="kw">let</span> <span class="ident">pct_y</span> <span class="op">=</span> (<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">offset_y</span>) <span class="op">/</span> <span class="ident">inner_rect</span>.<span class="ident">height</span>();
-        (<span class="ident">pct_x</span>, <span class="ident">pct_y</span>)
+    <span class="kw">fn </span>map_to_minimap_pct(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D) -&gt; (f64, f64) {
+        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>);
+        <span class="kw">let </span>pct_x = (pt.x() * <span class="self">self</span>.zoom - <span class="self">self</span>.offset_x) / inner_rect.width();
+        <span class="kw">let </span>pct_y = (pt.y() * <span class="self">self</span>.zoom - <span class="self">self</span>.offset_y) / inner_rect.height();
+        (pct_x, pct_y)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_zoom</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>, <span class="ident">zoom_lvl</span>: <span class="ident">usize</span>) {
-        <span class="comment">// Make the frame wind up in the same relative position on the minimap</span>
-        <span class="kw">let</span> (<span class="ident">pct_x</span>, <span class="ident">pct_y</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">map_to_minimap_pct</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>());
+    <span class="kw">pub fn </span>set_zoom(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>A, zoom_lvl: usize) {
+        <span class="comment">// Make the frame wind up in the same relative position on the minimap
+        </span><span class="kw">let </span>(pct_x, pct_y) = <span class="self">self</span>.map_to_minimap_pct(ctx.canvas.center_to_map_pt());
 
-        <span class="kw">let</span> <span class="ident">zoom_speed</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
-        <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">=</span> <span class="ident">zoom_lvl</span>;
-        <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_zoom</span> <span class="op">*</span> <span class="ident">zoom_speed</span>.<span class="ident">powi</span>(<span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="kw">as</span> <span class="ident">i32</span>);
-        <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let </span>zoom_speed: f64 = <span class="number">2.0</span>;
+        <span class="self">self</span>.zoom_lvl = zoom_lvl;
+        <span class="self">self</span>.zoom = <span class="self">self</span>.base_zoom * zoom_speed.powi(<span class="self">self</span>.zoom_lvl <span class="kw">as </span>i32);
+        <span class="self">self</span>.recreate_panel(ctx, app);
 
-        <span class="comment">// Find the new offset</span>
-        <span class="kw">let</span> <span class="ident">map_center</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>();
-        <span class="kw">let</span> <span class="ident">inner_rect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;minimap&quot;</span>);
-        <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">=</span> <span class="ident">map_center</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">pct_x</span> <span class="op">*</span> <span class="ident">inner_rect</span>.<span class="ident">width</span>();
-        <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">=</span> <span class="ident">map_center</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">pct_y</span> <span class="op">*</span> <span class="ident">inner_rect</span>.<span class="ident">height</span>();
+        <span class="comment">// Find the new offset
+        </span><span class="kw">let </span>map_center = ctx.canvas.center_to_map_pt();
+        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>);
+        <span class="self">self</span>.offset_x = map_center.x() * <span class="self">self</span>.zoom - pct_x * inner_rect.width();
+        <span class="self">self</span>.offset_y = map_center.y() * <span class="self">self</span>.zoom - pct_y * inner_rect.height();
     }
 
-    <span class="kw">fn</span> <span class="ident">recenter</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="comment">// Recenter the minimap on the screen bounds</span>
-        <span class="kw">let</span> <span class="ident">map_center</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>();
-        <span class="kw">let</span> <span class="ident">rect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;minimap&quot;</span>);
-        <span class="kw">let</span> <span class="ident">off_x</span> <span class="op">=</span> <span class="ident">map_center</span>.<span class="ident">x</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="kw">let</span> <span class="ident">off_y</span> <span class="op">=</span> <span class="ident">map_center</span>.<span class="ident">y</span>() <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="number">2.0</span>;
+    <span class="kw">fn </span>recenter(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>A) {
+        <span class="comment">// Recenter the minimap on the screen bounds
+        </span><span class="kw">let </span>map_center = ctx.canvas.center_to_map_pt();
+        <span class="kw">let </span>rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>);
+        <span class="kw">let </span>off_x = map_center.x() * <span class="self">self</span>.zoom - rect.width() / <span class="number">2.0</span>;
+        <span class="kw">let </span>off_y = map_center.y() * <span class="self">self</span>.zoom - rect.height() / <span class="number">2.0</span>;
 
-        <span class="comment">// Don&#39;t go out of bounds.</span>
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>();
-        <span class="comment">// TODO For boundaries without rectangular shapes, it&#39;d be even nicer to clamp to the</span>
-        <span class="comment">// boundary.</span>
-        <span class="comment">// clamp crashes if min &gt; max; if that happens, just don&#39;t do anything.</span>
-        <span class="kw">let</span> <span class="ident">max_x</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">max_x</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">width</span>();
-        <span class="kw">let</span> <span class="ident">max_y</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">max_y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">-</span> <span class="ident">rect</span>.<span class="ident">height</span>();
-        <span class="kw">if</span> <span class="ident">max_x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.0</span> <span class="op">&amp;&amp;</span> <span class="ident">max_y</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.0</span> {
-            <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">=</span> <span class="ident">off_x</span>.<span class="ident">clamp</span>(<span class="number">0.0</span>, <span class="ident">max_x</span>);
-            <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">=</span> <span class="ident">off_y</span>.<span class="ident">clamp</span>(<span class="number">0.0</span>, <span class="ident">max_y</span>);
+        <span class="comment">// Don&#39;t go out of bounds.
+        </span><span class="kw">let </span>bounds = app.map().get_bounds();
+        <span class="comment">// TODO For boundaries without rectangular shapes, it&#39;d be even nicer to clamp to the
+        // boundary.
+        // clamp crashes if min &gt; max; if that happens, just don&#39;t do anything.
+        </span><span class="kw">let </span>max_x = bounds.max_x * <span class="self">self</span>.zoom - rect.width();
+        <span class="kw">let </span>max_y = bounds.max_y * <span class="self">self</span>.zoom - rect.height();
+        <span class="kw">if </span>max_x &gt;= <span class="number">0.0 </span>&amp;&amp; max_y &gt;= <span class="number">0.0 </span>{
+            <span class="self">self</span>.offset_x = off_x.clamp(<span class="number">0.0</span>, max_x);
+            <span class="self">self</span>.offset_y = off_y.clamp(<span class="number">0.0</span>, max_y);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">sim_time</span>() {
-            <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">sim_time</span>();
-            <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&lt;A&gt;&gt; {
+        <span class="kw">if </span><span class="self">self</span>.time != app.sim_time() {
+            <span class="self">self</span>.time = app.sim_time();
+            <span class="self">self</span>.recreate_panel(ctx, app);
         }
 
-        <span class="kw">let</span> <span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_zoomed</span>();
-        <span class="kw">let</span> <span class="ident">layer</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">has_layer</span>(<span class="ident">app</span>);
-        <span class="kw">if</span> <span class="ident">zoomed</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">|</span><span class="op">|</span> <span class="ident">layer</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">layer</span> {
-            <span class="kw">let</span> <span class="ident">just_zoomed_in</span> <span class="op">=</span> <span class="ident">zoomed</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">zoomed</span>;
+        <span class="kw">let </span>zoomed = ctx.canvas.is_zoomed();
+        <span class="kw">let </span>layer = <span class="self">self</span>.controls.has_layer(app);
+        <span class="kw">if </span>zoomed != <span class="self">self</span>.zoomed || layer != <span class="self">self</span>.layer {
+            <span class="kw">let </span>just_zoomed_in = zoomed &amp;&amp; !<span class="self">self</span>.zoomed;
 
-            <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">=</span> <span class="ident">zoomed</span>;
-            <span class="self">self</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="ident">layer</span>;
-            <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="self">self</span>.zoomed = zoomed;
+            <span class="self">self</span>.layer = layer;
+            <span class="self">self</span>.recreate_panel(ctx, app);
 
-            <span class="kw">if</span> <span class="ident">just_zoomed_in</span> {
-                <span class="self">self</span>.<span class="ident">recenter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="kw">if </span>just_zoomed_in {
+                <span class="self">self</span>.recenter(ctx, app);
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoomed</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">dragging</span> {
-            <span class="comment">// If either corner of the cursor is out of bounds on the minimap, recenter.</span>
-            <span class="comment">// TODO This means clicking the pan buttons while along the boundary won&#39;t work.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> [
-                <span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-                <span class="ident">ScreenPt::new</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
+        } <span class="kw">else if </span><span class="self">self</span>.zoomed &amp;&amp; !<span class="self">self</span>.dragging {
+            <span class="comment">// If either corner of the cursor is out of bounds on the minimap, recenter.
+            // TODO This means clicking the pan buttons while along the boundary won&#39;t work.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
+            <span class="kw">for </span>pt <span class="kw">in </span>[
+                ScreenPt::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+                ScreenPt::new(ctx.canvas.window_width, ctx.canvas.window_height),
             ] {
-                <span class="kw">let</span> (<span class="ident">pct_x</span>, <span class="ident">pct_y</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">map_to_minimap_pct</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">screen_to_map</span>(<span class="ident">pt</span>));
-                <span class="kw">if</span> <span class="op">!</span>(<span class="number">0.0</span>..<span class="op">=</span><span class="number">1.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pct_x</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">pct_y</span> <span class="op">&lt;</span> <span class="number">0.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">pct_y</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
-                    <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                <span class="kw">let </span>(pct_x, pct_y) = <span class="self">self</span>.map_to_minimap_pct(ctx.canvas.screen_to_map(pt));
+                <span class="kw">if </span>!(<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>pct_x) || pct_y &lt; <span class="number">0.0 </span>|| pct_y &gt; <span class="number">1.0 </span>{
+                    ok = <span class="bool-val">false</span>;
                     <span class="kw">break</span>;
                 }
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">ok</span> {
-                <span class="self">self</span>.<span class="ident">recenter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="kw">if </span>!ok {
+                <span class="self">self</span>.recenter(ctx, app);
             }
         }
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">is_window_resized</span>() {
-            <span class="comment">// When the window is resized, just reset completely. This is important when the window</span>
-            <span class="comment">// size at startup is incorrect and immediately corrected by the window manager after</span>
-            <span class="comment">// Minimap::new happens.</span>
-            <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>();
-            <span class="comment">// scale minimap to cover area</span>
-            <span class="self">self</span>.<span class="ident">base_zoom</span> <span class="op">=</span> (<span class="ident">MINIMAP_WIDTH</span> <span class="op">/</span> <span class="ident">map_bounds</span>.<span class="ident">width</span>())
-                .<span class="ident">max</span>(<span class="ident">MINIMAP_HEIGHT</span> <span class="op">/</span> <span class="ident">map_bounds</span>.<span class="ident">height</span>())
-                .<span class="ident">max</span>(<span class="number">0.001</span>);
-            <span class="self">self</span>.<span class="ident">zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">base_zoom</span>;
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoomed</span> {
-                <span class="self">self</span>.<span class="ident">recenter</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if </span>ctx.input.is_window_resized() {
+            <span class="comment">// When the window is resized, just reset completely. This is important when the window
+            // size at startup is incorrect and immediately corrected by the window manager after
+            // Minimap::new happens.
+            </span><span class="kw">let </span>map_bounds = app.map().get_bounds();
+            <span class="comment">// scale minimap to cover area
+            </span><span class="self">self</span>.base_zoom = (MINIMAP_WIDTH / map_bounds.width())
+                .max(MINIMAP_HEIGHT / map_bounds.height())
+                .max(<span class="number">0.001</span>);
+            <span class="self">self</span>.zoom = <span class="self">self</span>.base_zoom;
+            <span class="kw">if </span><span class="self">self</span>.zoomed {
+                <span class="self">self</span>.recenter(ctx, app);
             }
         }
 
-        <span class="kw">let</span> <span class="ident">pan_speed</span> <span class="op">=</span> <span class="number">100.0</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span> {
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;pan up&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">-</span><span class="op">=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::KeepWithMouseover</span>);
+        <span class="kw">let </span>pan_speed = <span class="number">100.0</span>;
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x {
+                x <span class="kw">if </span>x == <span class="string">&quot;pan up&quot; </span>=&gt; {
+                    <span class="self">self</span>.offset_y -= pan_speed * <span class="self">self</span>.zoom;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;pan down&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::KeepWithMouseover</span>);
+                x <span class="kw">if </span>x == <span class="string">&quot;pan down&quot; </span>=&gt; {
+                    <span class="self">self</span>.offset_y += pan_speed * <span class="self">self</span>.zoom;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;pan left&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">-</span><span class="op">=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::KeepWithMouseover</span>);
+                x <span class="kw">if </span>x == <span class="string">&quot;pan left&quot; </span>=&gt; {
+                    <span class="self">self</span>.offset_x -= pan_speed * <span class="self">self</span>.zoom;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;pan right&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">pan_speed</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">zoom</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::KeepWithMouseover</span>);
+                x <span class="kw">if </span>x == <span class="string">&quot;pan right&quot; </span>=&gt; {
+                    <span class="self">self</span>.offset_x += pan_speed * <span class="self">self</span>.zoom;
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                 }
-                <span class="comment">// TODO Make the center of the cursor still point to the same thing. Same math as</span>
-                <span class="comment">// Canvas.</span>
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom in&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
-                        <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">+</span> <span class="number">1</span>);
+                <span class="comment">// TODO Make the center of the cursor still point to the same thing. Same math as
+                // Canvas.
+                </span>x <span class="kw">if </span>x == <span class="string">&quot;zoom in&quot; </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.zoom_lvl != <span class="number">3 </span>{
+                        <span class="self">self</span>.set_zoom(ctx, app, <span class="self">self</span>.zoom_lvl + <span class="number">1</span>);
                     }
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom out&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">!</span><span class="op">=</span> <span class="number">0</span> {
-                        <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">zoom_lvl</span> <span class="op">-</span> <span class="number">1</span>);
+                x <span class="kw">if </span>x == <span class="string">&quot;zoom out&quot; </span>=&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.zoom_lvl != <span class="number">0 </span>{
+                        <span class="self">self</span>.set_zoom(ctx, app, <span class="self">self</span>.zoom_lvl - <span class="number">1</span>);
                     }
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom to level 1&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">0</span>);
+                x <span class="kw">if </span>x == <span class="string">&quot;zoom to level 1&quot; </span>=&gt; {
+                    <span class="self">self</span>.set_zoom(ctx, app, <span class="number">0</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom to level 2&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">1</span>);
+                x <span class="kw">if </span>x == <span class="string">&quot;zoom to level 2&quot; </span>=&gt; {
+                    <span class="self">self</span>.set_zoom(ctx, app, <span class="number">1</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom to level 3&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">2</span>);
+                x <span class="kw">if </span>x == <span class="string">&quot;zoom to level 3&quot; </span>=&gt; {
+                    <span class="self">self</span>.set_zoom(ctx, app, <span class="number">2</span>);
                 }
-                <span class="ident">x</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;zoom to level 4&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">set_zoom</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="number">3</span>);
+                x <span class="kw">if </span>x == <span class="string">&quot;zoom to level 4&quot; </span>=&gt; {
+                    <span class="self">self</span>.set_zoom(ctx, app, <span class="number">3</span>);
                 }
-                <span class="ident">x</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">panel_clicked</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">x</span>) {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">transition</span>);
+                x =&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(transition) = <span class="self">self</span>.controls.panel_clicked(ctx, app, <span class="kw-2">&amp;</span>x) {
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(transition);
                     }
                 }
             },
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">panel_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">has_widget</span>(<span class="string">&quot;zorder&quot;</span>) {
-                    <span class="ident">app</span>.<span class="ident">mut_draw_map</span>().<span class="ident">show_zorder</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;zorder&quot;</span>);
+            Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.controls.panel_changed(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.panel);
+                <span class="kw">if </span><span class="self">self</span>.panel.has_widget(<span class="string">&quot;zorder&quot;</span>) {
+                    app.mut_draw_map().show_zorder = <span class="self">self</span>.panel.spinner(<span class="string">&quot;zorder&quot;</span>);
                 }
-                <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.recreate_panel(ctx, app);
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">zoomed</span> {
-            <span class="kw">let</span> <span class="ident">inner_rect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;minimap&quot;</span>);
+        <span class="kw">if </span><span class="self">self</span>.zoomed {
+            <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>);
 
-            <span class="comment">// TODO Not happy about reaching in like this. The minimap logic should be an widgetry</span>
-            <span class="comment">// Widget eventually, a generalization of Canvas.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>();
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dragging</span> {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_released</span>() {
-                    <span class="self">self</span>.<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            <span class="comment">// TODO Not happy about reaching in like this. The minimap logic should be an widgetry
+            // Widget eventually, a generalization of Canvas.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>pt = ctx.canvas.get_cursor();
+            <span class="kw">if </span><span class="self">self</span>.dragging {
+                <span class="kw">if </span>ctx.input.left_mouse_button_released() {
+                    <span class="self">self</span>.dragging = <span class="bool-val">false</span>;
                 }
-                <span class="comment">// Don&#39;t drag out of inner_rect</span>
-                <span class="ident">pt</span>.<span class="ident">x</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">x</span>.<span class="ident">clamp</span>(<span class="ident">inner_rect</span>.<span class="ident">x1</span>, <span class="ident">inner_rect</span>.<span class="ident">x2</span>);
-                <span class="ident">pt</span>.<span class="ident">y</span> <span class="op">=</span> <span class="ident">pt</span>.<span class="ident">y</span>.<span class="ident">clamp</span>(<span class="ident">inner_rect</span>.<span class="ident">y1</span>, <span class="ident">inner_rect</span>.<span class="ident">y2</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">inner_rect</span>.<span class="ident">contains</span>(<span class="ident">pt</span>) <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">left_mouse_button_pressed</span>() {
-                <span class="self">self</span>.<span class="ident">dragging</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="comment">// Don&#39;t drag out of inner_rect
+                </span>pt.x = pt.x.clamp(inner_rect.x1, inner_rect.x2);
+                pt.y = pt.y.clamp(inner_rect.y1, inner_rect.y2);
+            } <span class="kw">else if </span>inner_rect.contains(pt) &amp;&amp; ctx.input.left_mouse_button_pressed() {
+                <span class="self">self</span>.dragging = <span class="bool-val">true</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">percent_x</span> <span class="op">=</span> (<span class="ident">pt</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">inner_rect</span>.<span class="ident">x1</span>) <span class="op">/</span> <span class="ident">inner_rect</span>.<span class="ident">width</span>();
-            <span class="kw">let</span> <span class="ident">percent_y</span> <span class="op">=</span> (<span class="ident">pt</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">inner_rect</span>.<span class="ident">y1</span>) <span class="op">/</span> <span class="ident">inner_rect</span>.<span class="ident">height</span>();
+            <span class="kw">let </span>percent_x = (pt.x - inner_rect.x1) / inner_rect.width();
+            <span class="kw">let </span>percent_y = (pt.y - inner_rect.y1) / inner_rect.height();
 
-            <span class="kw">let</span> <span class="ident">map_pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(
-                (<span class="self">self</span>.<span class="ident">offset_x</span> <span class="op">+</span> <span class="ident">percent_x</span> <span class="op">*</span> <span class="ident">inner_rect</span>.<span class="ident">width</span>()) <span class="op">/</span> <span class="self">self</span>.<span class="ident">zoom</span>,
-                (<span class="self">self</span>.<span class="ident">offset_y</span> <span class="op">+</span> <span class="ident">percent_y</span> <span class="op">*</span> <span class="ident">inner_rect</span>.<span class="ident">height</span>()) <span class="op">/</span> <span class="self">self</span>.<span class="ident">zoom</span>,
+            <span class="kw">let </span>map_pt = Pt2D::new(
+                (<span class="self">self</span>.offset_x + percent_x * inner_rect.width()) / <span class="self">self</span>.zoom,
+                (<span class="self">self</span>.offset_y + percent_y * inner_rect.height()) / <span class="self">self</span>.zoom,
             );
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">map_pt</span>);
+            ctx.canvas.center_on_map_pt(map_pt);
         }
 
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>A) {
+        <span class="self">self</span>.draw_with_extra_layers(g, app, Vec::new());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="self">self</span>.<span class="ident">draw_with_extra_layers</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">Vec::new</span>());
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_with_extra_layers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>, <span class="ident">extra</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Drawable</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">zoomed</span> {
+    <span class="kw">pub fn </span>draw_with_extra_layers(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>A, extra: Vec&lt;<span class="kw-2">&amp;</span>Drawable&gt;) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="kw">if </span>!<span class="self">self</span>.zoomed {
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">inner_rect</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">rect_of</span>(<span class="string">&quot;minimap&quot;</span>).<span class="ident">clone</span>();
+        <span class="kw">let </span>inner_rect = <span class="self">self</span>.panel.rect_of(<span class="string">&quot;minimap&quot;</span>).clone();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>();
-        <span class="comment">// Adjust bounds to account for the current pan and zoom</span>
-        <span class="ident">map_bounds</span>.<span class="ident">min_x</span> <span class="op">=</span> (<span class="ident">map_bounds</span>.<span class="ident">min_x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">offset_x</span>) <span class="op">/</span> <span class="self">self</span>.<span class="ident">zoom</span>;
-        <span class="ident">map_bounds</span>.<span class="ident">min_y</span> <span class="op">=</span> (<span class="ident">map_bounds</span>.<span class="ident">min_y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">offset_y</span>) <span class="op">/</span> <span class="self">self</span>.<span class="ident">zoom</span>;
-        <span class="ident">map_bounds</span>.<span class="ident">max_x</span> <span class="op">=</span> <span class="ident">map_bounds</span>.<span class="ident">min_x</span> <span class="op">+</span> <span class="ident">inner_rect</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">zoom</span>;
-        <span class="ident">map_bounds</span>.<span class="ident">max_y</span> <span class="op">=</span> <span class="ident">map_bounds</span>.<span class="ident">min_y</span> <span class="op">+</span> <span class="ident">inner_rect</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">zoom</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>map_bounds = <span class="kw-2">*</span>app.map().get_bounds();
+        <span class="comment">// Adjust bounds to account for the current pan and zoom
+        </span>map_bounds.min_x = (map_bounds.min_x + <span class="self">self</span>.offset_x) / <span class="self">self</span>.zoom;
+        map_bounds.min_y = (map_bounds.min_y + <span class="self">self</span>.offset_y) / <span class="self">self</span>.zoom;
+        map_bounds.max_x = map_bounds.min_x + inner_rect.width() / <span class="self">self</span>.zoom;
+        map_bounds.max_y = map_bounds.min_y + inner_rect.height() / <span class="self">self</span>.zoom;
 
-        <span class="ident">g</span>.<span class="ident">fork</span>(
-            <span class="ident">Pt2D::new</span>(<span class="ident">map_bounds</span>.<span class="ident">min_x</span>, <span class="ident">map_bounds</span>.<span class="ident">min_y</span>),
-            <span class="ident">ScreenPt::new</span>(<span class="ident">inner_rect</span>.<span class="ident">x1</span>, <span class="ident">inner_rect</span>.<span class="ident">y1</span>),
-            <span class="self">self</span>.<span class="ident">zoom</span>,
+        g.fork(
+            Pt2D::new(map_bounds.min_x, map_bounds.min_y),
+            ScreenPt::new(inner_rect.x1, inner_rect.y1),
+            <span class="self">self</span>.zoom,
             <span class="prelude-val">None</span>,
         );
-        <span class="ident">g</span>.<span class="ident">enable_clipping</span>(<span class="ident">inner_rect</span>);
-        <span class="kw">let</span> <span class="ident">draw_map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">draw_map</span>();
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">boundary_polygon</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_areas</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_parking_lots</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_unzoomed_roads_and_intersections</span>);
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">show_buildings_in_minimap</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw_map</span>.<span class="ident">draw_all_buildings</span>);
+        g.enable_clipping(inner_rect);
+        <span class="kw">let </span>draw_map = app.draw_map();
+        g.redraw(<span class="kw-2">&amp;</span>draw_map.boundary_polygon);
+        g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_areas);
+        g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_unzoomed_parking_lots);
+        g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_unzoomed_roads_and_intersections);
+        <span class="kw">if </span>app.cs().show_buildings_in_minimap {
+            g.redraw(<span class="kw-2">&amp;</span>draw_map.draw_all_buildings);
         }
-        <span class="kw">for</span> <span class="ident">draw</span> <span class="kw">in</span> <span class="ident">extra</span> {
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>);
+        <span class="kw">for </span>draw <span class="kw">in </span>extra {
+            g.redraw(draw);
         }
-        <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">draw_extra</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.controls.draw_extra(g, app);
 
-        <span class="comment">// The cursor</span>
-        <span class="kw">let</span> (<span class="ident">x1</span>, <span class="ident">y1</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">screen_to_map</span>(<span class="ident">ScreenPt::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>));
-            (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+        <span class="comment">// The cursor
+        </span><span class="kw">let </span>(x1, y1) = {
+            <span class="kw">let </span>pt = g.canvas.screen_to_map(ScreenPt::new(<span class="number">0.0</span>, <span class="number">0.0</span>));
+            (pt.x(), pt.y())
         };
-        <span class="kw">let</span> (<span class="ident">x2</span>, <span class="ident">y2</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">g</span>
-                .<span class="ident">canvas</span>
-                .<span class="ident">screen_to_map</span>(<span class="ident">ScreenPt::new</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>));
-            (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+        <span class="kw">let </span>(x2, y2) = {
+            <span class="kw">let </span>pt = g
+                .canvas
+                .screen_to_map(ScreenPt::new(g.canvas.window_width, g.canvas.window_height));
+            (pt.x(), pt.y())
         };
-        <span class="comment">// On some platforms, minimized windows wind up with 0 width/height and this rectangle</span>
-        <span class="comment">// collapses</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">rect</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="macro">vec!</span>[
-            <span class="ident">Pt2D::new</span>(<span class="ident">x1</span>, <span class="ident">y1</span>),
-            <span class="ident">Pt2D::new</span>(<span class="ident">x2</span>, <span class="ident">y1</span>),
-            <span class="ident">Pt2D::new</span>(<span class="ident">x2</span>, <span class="ident">y2</span>),
-            <span class="ident">Pt2D::new</span>(<span class="ident">x1</span>, <span class="ident">y2</span>),
-            <span class="ident">Pt2D::new</span>(<span class="ident">x1</span>, <span class="ident">y1</span>),
+        <span class="comment">// On some platforms, minimized windows wind up with 0 width/height and this rectangle
+        // collapses
+        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(rect) = Ring::new(<span class="macro">vec!</span>[
+            Pt2D::new(x1, y1),
+            Pt2D::new(x2, y1),
+            Pt2D::new(x2, y2),
+            Pt2D::new(x1, y2),
+            Pt2D::new(x1, y1),
         ]) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_cursor_bg</span> {
-                <span class="ident">g</span>.<span class="ident">draw_polygon</span>(<span class="ident">color</span>, <span class="ident">rect</span>.<span class="ident">clone</span>().<span class="ident">into_polygon</span>());
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(color) = app.cs().minimap_cursor_bg {
+                g.draw_polygon(color, rect.clone().into_polygon());
             }
-            <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-                <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">minimap_cursor_border</span>,
-                <span class="ident">rect</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>)),
+            g.draw_polygon(
+                app.cs().minimap_cursor_border,
+                rect.to_outline(Distance::meters(<span class="number">10.0</span>)),
             );
         }
-        <span class="ident">g</span>.<span class="ident">disable_clipping</span>();
-        <span class="ident">g</span>.<span class="ident">unfork</span>();
+        g.disable_clipping();
+        g.unfork();
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Panel</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>
+    <span class="kw">pub fn </span>get_panel(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Panel {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.panel
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mut_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">panel</span>
+    <span class="kw">pub fn </span>mut_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>Panel {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/labels.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>labels.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/labels.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>labels.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -360,367 +360,367 @@
 <span id="360">360</span>
 <span id="361">361</span>
 <span id="362">362</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
-<span class="kw">use</span> <span class="ident">lazy_static::lazy_static</span>;
-<span class="kw">use</span> <span class="ident">regex::Regex</span>;
+<span class="kw">use </span>aabb_quadtree::QuadTree;
+<span class="kw">use </span>lazy_static::lazy_static;
+<span class="kw">use </span>regex::Regex;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">osm</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::PerZoom</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{Angle, Bounds, Distance, Polygon, Pt2D};
+<span class="kw">use </span>map_model::{osm, Road, RoadID};
+<span class="kw">use </span>widgetry::mapspace::PerZoom;
+<span class="kw">use </span>widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="doccomment">/// Labels roads when unzoomed. Label size and frequency depends on the zoom level.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// By default, the text is white; it works well on dark backgrounds.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawRoadLabels</span> {
-    <span class="ident">per_zoom</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PerZoom</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">include_roads</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>,
-    <span class="ident">fg_color</span>: <span class="ident">Color</span>,
-    <span class="ident">outline_color</span>: <span class="ident">Color</span>,
+<span class="doccomment">/// Labels roads when unzoomed. Label size and frequency depends on the zoom level.
+///
+/// By default, the text is white; it works well on dark backgrounds.
+</span><span class="kw">pub struct </span>DrawRoadLabels {
+    per_zoom: RefCell&lt;<span class="prelude-ty">Option</span>&lt;PerZoom&gt;&gt;,
+    include_roads: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>Road) -&gt; bool&gt;,
+    fg_color: Color,
+    outline_color: Color,
 }
 
-<span class="kw">impl</span> <span class="ident">DrawRoadLabels</span> {
-    <span class="doccomment">/// Label roads that the predicate approves</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">include_roads</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">per_zoom</span>: <span class="ident">Default::default</span>(),
-            <span class="ident">include_roads</span>,
-            <span class="ident">fg_color</span>: <span class="ident">Color::WHITE</span>,
-            <span class="ident">outline_color</span>: <span class="ident">Color::BLACK</span>,
+<span class="kw">impl </span>DrawRoadLabels {
+    <span class="doccomment">/// Label roads that the predicate approves
+    </span><span class="kw">pub fn </span>new(include_roads: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>Road) -&gt; bool&gt;) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            per_zoom: Default::default(),
+            include_roads,
+            fg_color: Color::WHITE,
+            outline_color: Color::BLACK,
         }
     }
 
-    <span class="doccomment">/// Only label major roads</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">only_major_roads</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> {
-            <span class="ident">r</span>.<span class="ident">get_rank</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">osm::RoadRank::Local</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">is_light_rail</span>()
+    <span class="doccomment">/// Only label major roads
+    </span><span class="kw">pub fn </span>only_major_roads() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(Box::new(|r| {
+            r.get_rank() != osm::RoadRank::Local &amp;&amp; !r.is_light_rail()
         }))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">light_background</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">Color::BLACK</span>;
-        <span class="self">self</span>.<span class="ident">outline_color</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
-        <span class="self">self</span>
+    <span class="kw">pub fn </span>light_background(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.fg_color = Color::BLACK;
+        <span class="self">self</span>.outline_color = Color::WHITE;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
+        <span class="kw">let </span><span class="kw-2">mut </span>per_zoom = <span class="self">self</span>.per_zoom.borrow_mut();
+        <span class="kw">if </span>per_zoom.is_none() {
+            <span class="kw-2">*</span>per_zoom = <span class="prelude-val">Some</span>(PerZoom::new(g.canvas.settings.min_zoom_for_detail, <span class="number">0.1</span>));
+        }
+        <span class="kw">let </span>per_zoom = per_zoom.as_mut().unwrap();
+
+        <span class="kw">let </span>(zoom, idx) = per_zoom.discretize_zoom(g.canvas.cam_zoom);
+        <span class="kw">let </span>draw = <span class="kw-2">&amp;mut </span>per_zoom.draw_per_zoom[idx];
+        <span class="kw">if </span>draw.is_none() {
+            <span class="kw-2">*</span>draw = <span class="prelude-val">Some</span>(<span class="self">self</span>.render(g, app, zoom));
+        }
+        g.redraw(draw.as_ref().unwrap());
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">per_zoom</span>.<span class="ident">borrow_mut</span>();
-        <span class="kw">if</span> <span class="ident">per_zoom</span>.<span class="ident">is_none</span>() {
-            <span class="kw-2">*</span><span class="ident">per_zoom</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">PerZoom::new</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">settings</span>.<span class="ident">min_zoom_for_detail</span>, <span class="number">0.1</span>));
-        }
-        <span class="kw">let</span> <span class="ident">per_zoom</span> <span class="op">=</span> <span class="ident">per_zoom</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
+    <span class="kw">fn </span>render(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, zoom: f64) -&gt; Drawable {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">let </span>map = app.map();
 
-        <span class="kw">let</span> (<span class="ident">zoom</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident">per_zoom</span>.<span class="ident">discretize_zoom</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">per_zoom</span>.<span class="ident">draw_per_zoom</span>[<span class="ident">idx</span>];
-        <span class="kw">if</span> <span class="ident">draw</span>.<span class="ident">is_none</span>() {
-            <span class="kw-2">*</span><span class="ident">draw</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">g</span>, <span class="ident">app</span>, <span class="ident">zoom</span>));
-        }
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">draw</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
-    }
+        <span class="comment">// We want the effective size of the text to stay around 1
+        // effective = zoom * text_scale
+        </span><span class="kw">let </span>text_scale = <span class="number">1.0 </span>/ zoom;
 
-    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">zoom</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>quadtree = QuadTree::default(map.get_bounds().as_bbox());
 
-        <span class="comment">// We want the effective size of the text to stay around 1</span>
-        <span class="comment">// effective = zoom * text_scale</span>
-        <span class="kw">let</span> <span class="ident">text_scale</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> <span class="ident">zoom</span>;
-
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-
-        <span class="lifetime">&#39;ROAD</span>: <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">if</span> <span class="op">!</span>(<span class="self">self</span>.<span class="ident">include_roads</span>)(<span class="ident">r</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>) {
+        <span class="lifetime">&#39;ROAD</span>: <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+            <span class="kw">if </span>!(<span class="self">self</span>.include_roads)(r) || r.length() &lt; Distance::meters(<span class="number">30.0</span>) {
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">simplify_name</span>(<span class="ident">r</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>())) {
-                <span class="ident">x</span>
-            } <span class="kw">else</span> {
+            <span class="kw">let </span>name = <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = simplify_name(r.get_name(app.opts().language.as_ref())) {
+                x
+            } <span class="kw">else </span>{
                 <span class="kw">continue</span>;
             };
-            <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">must_dist_along</span>(<span class="ident">r</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>);
+            <span class="kw">let </span>(pt, angle) = r.center_pts.must_dist_along(r.length() / <span class="number">2.0</span>);
 
-            <span class="comment">// Don&#39;t get too close to other labels.</span>
-            <span class="kw">let</span> <span class="ident">big_bounds</span> <span class="op">=</span> <span class="ident">cheaply_overestimate_bounds</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>, <span class="ident">text_scale</span>, <span class="ident">pt</span>, <span class="ident">angle</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">quadtree</span>.<span class="ident">query</span>(<span class="ident">big_bounds</span>.<span class="ident">as_bbox</span>()).<span class="ident">is_empty</span>() {
-                <span class="kw">continue</span> <span class="lifetime">&#39;ROAD</span>;
+            <span class="comment">// Don&#39;t get too close to other labels.
+            </span><span class="kw">let </span>big_bounds = cheaply_overestimate_bounds(<span class="kw-2">&amp;</span>name, text_scale, pt, angle);
+            <span class="kw">if </span>!quadtree.query(big_bounds.as_bbox()).is_empty() {
+                <span class="kw">continue </span><span class="lifetime">&#39;ROAD</span>;
             }
-            <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>((), <span class="ident">big_bounds</span>.<span class="ident">as_bbox</span>());
+            quadtree.insert_with_box((), big_bounds.as_bbox());
 
-            <span class="comment">// No other labels too close - proceed to render text.</span>
-            <span class="kw">let</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(
-                <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)
-                    .<span class="ident">big_heading_plain</span>()
-                    .<span class="ident">fg</span>(<span class="self">self</span>.<span class="ident">fg_color</span>)
-                    .<span class="ident">outlined</span>(<span class="self">self</span>.<span class="ident">outline_color</span>),
+            <span class="comment">// No other labels too close - proceed to render text.
+            </span><span class="kw">let </span>txt = Text::from(
+                Line(<span class="kw-2">&amp;</span>name)
+                    .big_heading_plain()
+                    .fg(<span class="self">self</span>.fg_color)
+                    .outlined(<span class="self">self</span>.outline_color),
             );
-            <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">txt</span>.<span class="ident">render_autocropped</span>(<span class="ident">g</span>).<span class="ident">multi_transform</span>(
-                <span class="ident">text_scale</span>,
-                <span class="ident">pt</span>,
-                <span class="ident">angle</span>.<span class="ident">reorient</span>(),
+            batch.append(txt.render_autocropped(g).multi_transform(
+                text_scale,
+                pt,
+                angle.reorient(),
             ));
         }
 
-        <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
+        g.upload(batch)
     }
 }
 
-<span class="comment">// TODO Surely somebody has written one of these.</span>
-<span class="kw">fn</span> <span class="ident">simplify_name</span>(<span class="kw-2">mut</span> <span class="ident">x</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="comment">// Skip unnamed roads and highway exits</span>
-    <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;???&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;Exit for &quot;</span>) {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="comment">// TODO Surely somebody has written one of these.
+</span><span class="kw">fn </span>simplify_name(<span class="kw-2">mut </span>x: String) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="comment">// Skip unnamed roads and highway exits
+    </span><span class="kw">if </span>x == <span class="string">&quot;???&quot; </span>|| x.starts_with(<span class="string">&quot;Exit for &quot;</span>) {
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="macro">lazy_static!</span> {
-        <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">SIMPLIFY_PATTERNS</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Regex</span>, <span class="ident">String</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">simplify_patterns</span>();
+    <span class="macro">lazy_static! </span>{
+        <span class="kw">static </span><span class="kw-2">ref </span>SIMPLIFY_PATTERNS: Vec&lt;(Regex, String)&gt; = simplify_patterns();
     }
 
-    <span class="kw">for</span> (<span class="ident">search</span>, <span class="ident">replace_with</span>) <span class="kw">in</span> <span class="ident">SIMPLIFY_PATTERNS</span>.<span class="ident">iter</span>() {
-        <span class="comment">// TODO The string copies are probably avoidable...</span>
-        <span class="ident">x</span> <span class="op">=</span> <span class="ident">search</span>.<span class="ident">replace</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>, <span class="ident">replace_with</span>).<span class="ident">to_string</span>();
+    <span class="kw">for </span>(search, replace_with) <span class="kw">in </span>SIMPLIFY_PATTERNS.iter() {
+        <span class="comment">// TODO The string copies are probably avoidable...
+        </span>x = search.replace(<span class="kw-2">&amp;</span>x, replace_with).to_string();
     }
 
-    <span class="prelude-val">Some</span>(<span class="ident">x</span>)
+    <span class="prelude-val">Some</span>(x)
 }
 
-<span class="kw">fn</span> <span class="ident">simplify_patterns</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Regex</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">replace</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">fn </span>simplify_patterns() -&gt; Vec&lt;(Regex, String)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>replace = Vec::new();
 
-    <span class="kw">for</span> (<span class="ident">long</span>, <span class="ident">short</span>) <span class="kw">in</span> [
+    <span class="kw">for </span>(long, short) <span class="kw">in </span>[
         (<span class="string">&quot;Northeast&quot;</span>, <span class="string">&quot;NE&quot;</span>),
         (<span class="string">&quot;Northwest&quot;</span>, <span class="string">&quot;NW&quot;</span>),
         (<span class="string">&quot;Southeast&quot;</span>, <span class="string">&quot;SE&quot;</span>),
         (<span class="string">&quot;Southwest&quot;</span>, <span class="string">&quot;SW&quot;</span>),
-        <span class="comment">// Order matters -- do the longer patterns first</span>
-        (<span class="string">&quot;North&quot;</span>, <span class="string">&quot;N&quot;</span>),
+        <span class="comment">// Order matters -- do the longer patterns first
+        </span>(<span class="string">&quot;North&quot;</span>, <span class="string">&quot;N&quot;</span>),
         (<span class="string">&quot;South&quot;</span>, <span class="string">&quot;S&quot;</span>),
         (<span class="string">&quot;East&quot;</span>, <span class="string">&quot;E&quot;</span>),
         (<span class="string">&quot;West&quot;</span>, <span class="string">&quot;W&quot;</span>),
     ] {
-        <span class="comment">// Only replace directions at the start or end of the string</span>
-        <span class="ident">replace</span>.<span class="ident">push</span>((
-            <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;^{long} &quot;</span>)).<span class="ident">unwrap</span>(),
+        <span class="comment">// Only replace directions at the start or end of the string
+        </span>replace.push((
+            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;^{long} &quot;</span>)).unwrap(),
             <span class="macro">format!</span>(<span class="string">&quot;{short} &quot;</span>),
         ));
-        <span class="ident">replace</span>.<span class="ident">push</span>((
-            <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {long}$&quot;</span>)).<span class="ident">unwrap</span>(),
+        replace.push((
+            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {long}$&quot;</span>)).unwrap(),
             <span class="macro">format!</span>(<span class="string">&quot; {short}&quot;</span>),
         ));
     }
 
-    <span class="kw">for</span> (<span class="ident">long</span>, <span class="ident">short</span>) <span class="kw">in</span> [
+    <span class="kw">for </span>(long, short) <span class="kw">in </span>[
         (<span class="string">&quot;Street&quot;</span>, <span class="string">&quot;St&quot;</span>),
         (<span class="string">&quot;Boulevard&quot;</span>, <span class="string">&quot;Blvd&quot;</span>),
         (<span class="string">&quot;Avenue&quot;</span>, <span class="string">&quot;Ave&quot;</span>),
         (<span class="string">&quot;Place&quot;</span>, <span class="string">&quot;Pl&quot;</span>),
     ] {
-        <span class="comment">// At the end is reasonable</span>
-        <span class="ident">replace</span>.<span class="ident">push</span>((
-            <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}$&quot;</span>, <span class="ident">long</span>)).<span class="ident">unwrap</span>(),
-            <span class="ident">short</span>.<span class="ident">to_string</span>(),
+        <span class="comment">// At the end is reasonable
+        </span>replace.push((
+            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{}$&quot;</span>, long)).unwrap(),
+            short.to_string(),
         ));
-        <span class="comment">// In the middle, surrounded by spaces</span>
-        <span class="ident">replace</span>.<span class="ident">push</span>((
-            <span class="ident">Regex::new</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {} &quot;</span>, <span class="ident">long</span>)).<span class="ident">unwrap</span>(),
-            <span class="macro">format!</span>(<span class="string">&quot; {} &quot;</span>, <span class="ident">short</span>),
+        <span class="comment">// In the middle, surrounded by spaces
+        </span>replace.push((
+            Regex::new(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot; {} &quot;</span>, long)).unwrap(),
+            <span class="macro">format!</span>(<span class="string">&quot; {} &quot;</span>, short),
         ));
     }
 
-    <span class="ident">replace</span>
+    replace
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_simplify_name</span>() {
-        <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">want</span>) <span class="kw">in</span> [
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_simplify_name() {
+        <span class="kw">for </span>(input, want) <span class="kw">in </span>[
             (<span class="string">&quot;Northeast Northgate Way&quot;</span>, <span class="string">&quot;NE Northgate Way&quot;</span>),
             (<span class="string">&quot;South 42nd Street&quot;</span>, <span class="string">&quot;S 42nd St&quot;</span>),
             (<span class="string">&quot;Northcote Road&quot;</span>, <span class="string">&quot;Northcote Road&quot;</span>),
         ] {
-            <span class="kw">let</span> <span class="ident">got</span> <span class="op">=</span> <span class="ident">simplify_name</span>(<span class="ident">input</span>.<span class="ident">to_string</span>()).<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">got</span> <span class="op">!</span><span class="op">=</span> <span class="ident">want</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;simplify_name({}) = {}; expected {}&quot;</span>, <span class="ident">input</span>, <span class="ident">got</span>, <span class="ident">want</span>);
+            <span class="kw">let </span>got = simplify_name(input.to_string()).unwrap();
+            <span class="kw">if </span>got != want {
+                <span class="macro">panic!</span>(<span class="string">&quot;simplify_name({}) = {}; expected {}&quot;</span>, input, got, want);
             }
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">cheaply_overestimate_bounds</span>(<span class="ident">text</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">text_scale</span>: <span class="ident">f64</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">Bounds</span> {
-    <span class="comment">// assume all chars are bigger than largest possible char</span>
-    <span class="kw">let</span> <span class="ident">letter_width</span> <span class="op">=</span> <span class="number">30.0</span> <span class="op">*</span> <span class="ident">text_scale</span>;
-    <span class="kw">let</span> <span class="ident">letter_height</span> <span class="op">=</span> <span class="number">30.0</span> <span class="op">*</span> <span class="ident">text_scale</span>;
+<span class="kw">fn </span>cheaply_overestimate_bounds(text: <span class="kw-2">&amp;</span>str, text_scale: f64, center: Pt2D, angle: Angle) -&gt; Bounds {
+    <span class="comment">// assume all chars are bigger than largest possible char
+    </span><span class="kw">let </span>letter_width = <span class="number">30.0 </span>* text_scale;
+    <span class="kw">let </span>letter_height = <span class="number">30.0 </span>* text_scale;
 
-    <span class="ident">Polygon::rectangle_centered</span>(
-        <span class="ident">center</span>,
-        <span class="ident">Distance::meters</span>(<span class="ident">letter_width</span> <span class="op">*</span> <span class="ident">text</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>),
-        <span class="ident">Distance::meters</span>(<span class="ident">letter_height</span>),
+    Polygon::rectangle_centered(
+        center,
+        Distance::meters(letter_width * text.len() <span class="kw">as </span>f64),
+        Distance::meters(letter_height),
     )
-    .<span class="ident">rotate</span>(<span class="ident">angle</span>.<span class="ident">reorient</span>())
-    .<span class="ident">get_bounds</span>()
+    .rotate(angle.reorient())
+    .get_bounds()
 }
 
-<span class="doccomment">/// Draws labels in map-space that roughly fit on the roads. Don&#39;t change behavior during zooming;</span>
-<span class="doccomment">/// labels are only meant to be legible when zoomed in.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawSimpleRoadLabels</span> {
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
-    <span class="ident">include_roads</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>,
-    <span class="ident">fg_color</span>: <span class="ident">Color</span>,
+<span class="doccomment">/// Draws labels in map-space that roughly fit on the roads. Don&#39;t change behavior during zooming;
+/// labels are only meant to be legible when zoomed in.
+</span><span class="kw">pub struct </span>DrawSimpleRoadLabels {
+    draw: Drawable,
+    include_roads: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>Road) -&gt; bool&gt;,
+    fg_color: Color,
 
-    <span class="kw">pub</span> <span class="ident">label_covers_road</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, (<span class="ident">Distance</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub </span>label_covers_road: HashMap&lt;RoadID, (Distance, Distance)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">DrawSimpleRoadLabels</span> {
-    <span class="doccomment">/// Label roads that the predicate approves</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
-        <span class="ident">fg_color</span>: <span class="ident">Color</span>,
-        <span class="ident">include_roads</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">labels</span> <span class="op">=</span> <span class="self">Self</span> {
-            <span class="ident">draw</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">include_roads</span>,
-            <span class="ident">fg_color</span>,
-            <span class="ident">label_covers_road</span>: <span class="ident">HashMap::new</span>(),
+<span class="kw">impl </span>DrawSimpleRoadLabels {
+    <span class="doccomment">/// Label roads that the predicate approves
+    </span><span class="kw">pub fn </span>new(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike,
+        fg_color: Color,
+        include_roads: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>Road) -&gt; bool&gt;,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>labels = <span class="self">Self </span>{
+            draw: Drawable::empty(ctx),
+            include_roads,
+            fg_color,
+            label_covers_road: HashMap::new(),
         };
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;label roads&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">labels</span>.<span class="ident">render</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
+        ctx.loading_screen(<span class="string">&quot;label roads&quot;</span>, |ctx, timer| {
+            labels.render(ctx, app, timer);
         });
-        <span class="ident">labels</span>
+        labels
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">draw</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">include_roads</span>: <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">false</span>),
-            <span class="ident">fg_color</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">label_covers_road</span>: <span class="ident">HashMap::new</span>(),
+    <span class="kw">pub fn </span>empty(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            draw: Drawable::empty(ctx),
+            include_roads: Box::new(|<span class="kw">_</span>| <span class="bool-val">false</span>),
+            fg_color: Color::CLEAR,
+            label_covers_road: HashMap::new(),
         }
     }
 
-    <span class="doccomment">/// Only label major roads</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">only_major_roads</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">fg_color</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">fg_color</span>,
-            <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">get_rank</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">osm::RoadRank::Local</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">is_light_rail</span>()),
+    <span class="doccomment">/// Only label major roads
+    </span><span class="kw">pub fn </span>only_major_roads(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, fg_color: Color) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(
+            ctx,
+            app,
+            fg_color,
+            Box::new(|r| r.get_rank() != osm::RoadRank::Local &amp;&amp; !r.is_light_rail()),
         )
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_roads</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">fg_color</span>: <span class="ident">Color</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">fg_color</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="bool-val">true</span>))
+    <span class="kw">pub fn </span>all_roads(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, fg_color: Color) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(ctx, app, fg_color, Box::new(|<span class="kw">_</span>| <span class="bool-val">true</span>))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw);
     }
 
-    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
+    <span class="kw">fn </span>render(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">let </span>map = app.map();
 
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;render roads&quot;</span>, <span class="ident">map</span>.<span class="ident">all_roads</span>().<span class="ident">len</span>());
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="comment">// Skip very short roads and tunnels</span>
-            <span class="kw">if</span> <span class="op">!</span>(<span class="self">self</span>.<span class="ident">include_roads</span>)(<span class="ident">r</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&lt;</span> <span class="ident">Distance::meters</span>(<span class="number">30.0</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">zorder</span> <span class="op">&lt;</span> <span class="number">0</span> {
+        timer.start_iter(<span class="string">&quot;render roads&quot;</span>, map.all_roads().len());
+        <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+            timer.next();
+            <span class="comment">// Skip very short roads and tunnels
+            </span><span class="kw">if </span>!(<span class="self">self</span>.include_roads)(r) || r.length() &lt; Distance::meters(<span class="number">30.0</span>) || r.zorder &lt; <span class="number">0 </span>{
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">simplify_name</span>(<span class="ident">r</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>())) {
-                <span class="ident">x</span>
-            } <span class="kw">else</span> {
+            <span class="kw">let </span>name = <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = simplify_name(r.get_name(app.opts().language.as_ref())) {
+                x
+            } <span class="kw">else </span>{
                 <span class="kw">continue</span>;
             };
 
-            <span class="kw">let</span> <span class="ident">txt_batch</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)).<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>);
-            <span class="kw">if</span> <span class="ident">txt_batch</span>.<span class="ident">is_empty</span>() {
-                <span class="comment">// This happens when we don&#39;t have a font loaded with the right characters</span>
-                <span class="kw">continue</span>;
+            <span class="kw">let </span>txt_batch = Text::from(Line(<span class="kw-2">&amp;</span>name)).render_autocropped(ctx);
+            <span class="kw">if </span>txt_batch.is_empty() {
+                <span class="comment">// This happens when we don&#39;t have a font loaded with the right characters
+                </span><span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">txt_bounds</span> <span class="op">=</span> <span class="ident">txt_batch</span>.<span class="ident">get_bounds</span>();
+            <span class="kw">let </span>txt_bounds = txt_batch.get_bounds();
 
-            <span class="comment">// The approach, part 1:</span>
-            <span class="comment">//</span>
-            <span class="comment">// We need to make the text fit in the road polygon. road_width gives us the height of</span>
-            <span class="comment">// the text, accounting for the outline around the road polygon and a buffer. If the</span>
-            <span class="comment">// road&#39;s length is short, the text could overflow into the intersections, so scale it</span>
-            <span class="comment">// down further.</span>
-            <span class="comment">//</span>
-            <span class="comment">// Since the text fits inside the road polygon, we don&#39;t need to do any kind of hitbox</span>
-            <span class="comment">// testing and make sure multiple labels don&#39;t overlap!</span>
+            <span class="comment">// The approach, part 1:
+            //
+            // We need to make the text fit in the road polygon. road_width gives us the height of
+            // the text, accounting for the outline around the road polygon and a buffer. If the
+            // road&#39;s length is short, the text could overflow into the intersections, so scale it
+            // down further.
+            //
+            // Since the text fits inside the road polygon, we don&#39;t need to do any kind of hitbox
+            // testing and make sure multiple labels don&#39;t overlap!
 
-            <span class="comment">// The road has an outline of 1m, but also leave a slight buffer</span>
-            <span class="kw">let</span> <span class="ident">outline_thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
-            <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> (<span class="ident">r</span>.<span class="ident">get_width</span>() <span class="op">-</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">outline_thickness</span>).<span class="ident">inner_meters</span>();
-            <span class="comment">// Also a buffer from both ends of the road</span>
-            <span class="kw">let</span> <span class="ident">road_length</span> <span class="op">=</span> (<span class="number">0.9</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">length</span>()).<span class="ident">inner_meters</span>();
+            // The road has an outline of 1m, but also leave a slight buffer
+            </span><span class="kw">let </span>outline_thickness = Distance::meters(<span class="number">2.0</span>);
+            <span class="kw">let </span>road_width = (r.get_width() - <span class="number">2.0 </span>* outline_thickness).inner_meters();
+            <span class="comment">// Also a buffer from both ends of the road
+            </span><span class="kw">let </span>road_length = (<span class="number">0.9 </span>* r.length()).inner_meters();
 
-            <span class="comment">// Fit the text height in the road width perfectly</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">road_width</span> <span class="op">/</span> <span class="ident">txt_bounds</span>.<span class="ident">height</span>();
+            <span class="comment">// Fit the text height in the road width perfectly
+            </span><span class="kw">let </span><span class="kw-2">mut </span>scale = road_width / txt_bounds.height();
 
-            <span class="comment">// If the road is short and we&#39;ll overflow, then scale down even more.</span>
-            <span class="kw">if</span> <span class="ident">txt_bounds</span>.<span class="ident">width</span>() <span class="op">*</span> <span class="ident">scale</span> <span class="op">&gt;</span> <span class="ident">road_length</span> {
-                <span class="ident">scale</span> <span class="op">=</span> <span class="ident">road_length</span> <span class="op">/</span> <span class="ident">txt_bounds</span>.<span class="ident">width</span>();
-                <span class="comment">// TODO In this case, the vertical centering in the road polygon is wrong</span>
+            <span class="comment">// If the road is short and we&#39;ll overflow, then scale down even more.
+            </span><span class="kw">if </span>txt_bounds.width() * scale &gt; road_length {
+                scale = road_length / txt_bounds.width();
+                <span class="comment">// TODO In this case, the vertical centering in the road polygon is wrong
+            </span>}
+
+            <span class="comment">// Record where the label would cover at this scale, if it was perfectly spaced out
+            // without curves
+            </span><span class="kw">let </span>center = r.length() / <span class="number">2.0</span>;
+            <span class="kw">let </span>half_width = Distance::meters(scale * txt_bounds.width() / <span class="number">2.0</span>);
+            <span class="self">self</span>.label_covers_road
+                .insert(r.id, (center - half_width, center + half_width));
+
+            <span class="comment">// The approach, part 2:
+            //
+            // But many roads are curved. We can use the SVG renderer to make text follow a curve.
+            // But use the scale / text size calculated assuming rectangles.
+            //
+            // Note we render the text twice here, and once again in render_curvey. This seems
+            // cheap enough so far. There&#39;s internal SVG caching in widgetry, but we could also
+            // consider caching a &quot;road name -&gt; txt_bounds&quot; mapping through the whole app.
+
+            // The orientation of the text and the direction we vertically center depends on the
+            // direction the road points
+            </span><span class="kw">let </span>quadrant = r.center_pts.quadrant();
+            <span class="kw">let </span>shift_dir = <span class="kw">if </span>quadrant == <span class="number">2 </span>|| quadrant == <span class="number">3 </span>{
+                -<span class="number">1.0
+            </span>} <span class="kw">else </span>{
+                <span class="number">1.0
+            </span>};
+            <span class="comment">// The polyline passed to render_curvey will be used as the bottom of the text
+            // (glossing over whether or not this is a &quot;baseline&quot; or something else). We want to
+            // vertically center. SVG 1.1 has alignment-baseline, but usvg doesn&#39;t support this. So
+            // shift the road polyline.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>curve = r
+                .center_pts
+                .shift_either_direction(Distance::meters(shift_dir * road_width / <span class="number">2.0</span>))
+                .unwrap();
+            <span class="kw">if </span>quadrant == <span class="number">2 </span>|| quadrant == <span class="number">3 </span>{
+                curve = curve.reversed();
             }
 
-            <span class="comment">// Record where the label would cover at this scale, if it was perfectly spaced out</span>
-            <span class="comment">// without curves</span>
-            <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>;
-            <span class="kw">let</span> <span class="ident">half_width</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="ident">scale</span> <span class="op">*</span> <span class="ident">txt_bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>);
-            <span class="self">self</span>.<span class="ident">label_covers_road</span>
-                .<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>, (<span class="ident">center</span> <span class="op">-</span> <span class="ident">half_width</span>, <span class="ident">center</span> <span class="op">+</span> <span class="ident">half_width</span>));
-
-            <span class="comment">// The approach, part 2:</span>
-            <span class="comment">//</span>
-            <span class="comment">// But many roads are curved. We can use the SVG renderer to make text follow a curve.</span>
-            <span class="comment">// But use the scale / text size calculated assuming rectangles.</span>
-            <span class="comment">//</span>
-            <span class="comment">// Note we render the text twice here, and once again in render_curvey. This seems</span>
-            <span class="comment">// cheap enough so far. There&#39;s internal SVG caching in widgetry, but we could also</span>
-            <span class="comment">// consider caching a &quot;road name -&gt; txt_bounds&quot; mapping through the whole app.</span>
-
-            <span class="comment">// The orientation of the text and the direction we vertically center depends on the</span>
-            <span class="comment">// direction the road points</span>
-            <span class="kw">let</span> <span class="ident">quadrant</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">quadrant</span>();
-            <span class="kw">let</span> <span class="ident">shift_dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">quadrant</span> <span class="op">==</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">quadrant</span> <span class="op">==</span> <span class="number">3</span> {
-                <span class="op">-</span><span class="number">1.0</span>
-            } <span class="kw">else</span> {
-                <span class="number">1.0</span>
-            };
-            <span class="comment">// The polyline passed to render_curvey will be used as the bottom of the text</span>
-            <span class="comment">// (glossing over whether or not this is a &quot;baseline&quot; or something else). We want to</span>
-            <span class="comment">// vertically center. SVG 1.1 has alignment-baseline, but usvg doesn&#39;t support this. So</span>
-            <span class="comment">// shift the road polyline.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">curve</span> <span class="op">=</span> <span class="ident">r</span>
-                .<span class="ident">center_pts</span>
-                .<span class="ident">shift_either_direction</span>(<span class="ident">Distance::meters</span>(<span class="ident">shift_dir</span> <span class="op">*</span> <span class="ident">road_width</span> <span class="op">/</span> <span class="number">2.0</span>))
-                .<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">quadrant</span> <span class="op">==</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">quadrant</span> <span class="op">==</span> <span class="number">3</span> {
-                <span class="ident">curve</span> <span class="op">=</span> <span class="ident">curve</span>.<span class="ident">reversed</span>();
-            }
-
-            <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)
-                    .<span class="ident">fg</span>(<span class="self">self</span>.<span class="ident">fg_color</span>)
-                    .<span class="ident">render_curvey</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">curve</span>, <span class="ident">scale</span>),
+            batch.append(
+                Line(<span class="kw-2">&amp;</span>name)
+                    .fg(<span class="self">self</span>.fg_color)
+                    .render_curvey(ctx, <span class="kw-2">&amp;</span>curve, scale),
             );
         }
 
-        <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+        <span class="self">self</span>.draw = ctx.upload(batch);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

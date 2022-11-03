@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/toggle.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>toggle.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/toggle.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>toggle.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -284,291 +284,291 @@
 <span id="284">284</span>
 <span id="285">285</span>
 <span id="286">286</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::svg::load_svg_bytes</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">include_labeled_bytes</span>, <span class="ident">Button</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">MultiKey</span>,
-    <span class="ident">Outcome</span>, <span class="ident">RewriteColor</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Text</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::svg::load_svg_bytes;
+<span class="kw">use crate</span>::{
+    include_labeled_bytes, Button, Color, ControlState, EdgeInsets, EventCtx, GfxCtx, MultiKey,
+    Outcome, RewriteColor, ScreenDims, ScreenPt, Text, TextSpan, Widget, WidgetImpl, WidgetOutput,
 };
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Toggle</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">enabled</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">btn</span>: <span class="ident">Button</span>,
-    <span class="ident">other_btn</span>: <span class="ident">Button</span>,
+<span class="kw">pub struct </span>Toggle {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) enabled: bool,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) btn: Button,
+    other_btn: Button,
 }
 
-<span class="kw">impl</span> <span class="ident">Toggle</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_widget</span>(<span class="ident">enabled</span>: <span class="ident">bool</span>, <span class="ident">false_btn</span>: <span class="ident">Button</span>, <span class="ident">true_btn</span>: <span class="ident">Button</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">if</span> <span class="ident">enabled</span> {
-            <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">Toggle</span> {
-                <span class="ident">enabled</span>,
-                <span class="ident">btn</span>: <span class="ident">true_btn</span>,
-                <span class="ident">other_btn</span>: <span class="ident">false_btn</span>,
+<span class="kw">impl </span>Toggle {
+    <span class="kw">pub fn </span>new_widget(enabled: bool, false_btn: Button, true_btn: Button) -&gt; Widget {
+        <span class="kw">if </span>enabled {
+            Widget::new(Box::new(Toggle {
+                enabled,
+                btn: true_btn,
+                other_btn: false_btn,
             }))
-        } <span class="kw">else</span> {
-            <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">Toggle</span> {
-                <span class="ident">enabled</span>,
-                <span class="ident">btn</span>: <span class="ident">false_btn</span>,
-                <span class="ident">other_btn</span>: <span class="ident">true_btn</span>,
+        } <span class="kw">else </span>{
+            Widget::new(Box::new(Toggle {
+                enabled,
+                btn: false_btn,
+                other_btn: true_btn,
             }))
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">switch</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">hotkey</span>: <span class="ident">MK</span>,
-        <span class="ident">enabled</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">text</span>(<span class="ident">label</span>)
-            <span class="comment">// we don&#39;t want the default coloring, because we do custom coloring below</span>
-            .<span class="ident">image_color</span>(<span class="ident">RewriteColor::NoOp</span>, <span class="ident">ControlState::Default</span>);
+    <span class="kw">pub fn </span>switch&lt;MK: Into&lt;<span class="prelude-ty">Option</span>&lt;MultiKey&gt;&gt;&gt;(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        label: <span class="kw-2">&amp;</span>str,
+        hotkey: MK,
+        enabled: bool,
+    ) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>buttons = ctx
+            .style()
+            .btn_plain
+            .text(label)
+            <span class="comment">// we don&#39;t want the default coloring, because we do custom coloring below
+            </span>.image_color(RewriteColor::NoOp, ControlState::Default);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hotkey</span>) <span class="op">=</span> <span class="ident">hotkey</span>.<span class="ident">into</span>() {
-            <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">buttons</span>.<span class="ident">hotkey</span>(<span class="ident">hotkey</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(hotkey) = hotkey.into() {
+            buttons = buttons.hotkey(hotkey);
         }
 
-        <span class="kw">let</span> (<span class="ident">off_batch</span>, <span class="ident">off_bounds</span>) <span class="op">=</span> {
-            <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/switch_off.svg&quot;</span>);
-            <span class="kw">let</span> (<span class="ident">batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">load_svg_bytes</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="ident">label</span>, <span class="ident">bytes</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid SVG&quot;</span>);
-            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::WHITE</span>, <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>))
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>));
-            (<span class="ident">batch</span>, <span class="ident">bounds</span>)
+        <span class="kw">let </span>(off_batch, off_bounds) = {
+            <span class="kw">let </span>(label, bytes) = <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/switch_off.svg&quot;</span>);
+            <span class="kw">let </span>(batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect(<span class="string">&quot;invalid SVG&quot;</span>);
+            <span class="kw">let </span>batch = batch
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+            (batch, bounds)
         };
-        <span class="kw">let</span> (<span class="ident">on_batch</span>, <span class="ident">on_bounds</span>) <span class="op">=</span> {
-            <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/switch_on.svg&quot;</span>);
-            <span class="kw">let</span> (<span class="ident">batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">load_svg_bytes</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="ident">label</span>, <span class="ident">bytes</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid SVG&quot;</span>);
-            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::WHITE</span>, <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>))
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>));
-            (<span class="ident">batch</span>, <span class="ident">bounds</span>)
+        <span class="kw">let </span>(on_batch, on_bounds) = {
+            <span class="kw">let </span>(label, bytes) = <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/switch_on.svg&quot;</span>);
+            <span class="kw">let </span>(batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect(<span class="string">&quot;invalid SVG&quot;</span>);
+            <span class="kw">let </span>batch = batch
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+            (batch, bounds)
         };
 
-        <span class="kw">let</span> <span class="ident">off_button</span> <span class="op">=</span> <span class="ident">buttons</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_batch</span>(<span class="ident">off_batch</span>, <span class="ident">off_bounds</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
+        <span class="kw">let </span>off_button = buttons
+            .clone()
+            .image_batch(off_batch, off_bounds)
+            .build(ctx, label);
 
-        <span class="kw">let</span> <span class="ident">on_button</span> <span class="op">=</span> <span class="ident">buttons</span>.<span class="ident">image_batch</span>(<span class="ident">on_batch</span>, <span class="ident">on_bounds</span>).<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
+        <span class="kw">let </span>on_button = buttons.image_batch(on_batch, on_bounds).build(ctx, label);
 
-        <span class="ident">Toggle::new_widget</span>(<span class="ident">enabled</span>, <span class="ident">off_button</span>, <span class="ident">on_button</span>).<span class="ident">named</span>(<span class="ident">label</span>)
+        Toggle::new_widget(enabled, off_button, on_button).named(label)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">checkbox</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">hotkey</span>: <span class="ident">MK</span>,
-        <span class="ident">enabled</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">false_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/checkbox_unchecked.svg&quot;</span>))
-            .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>),
-                <span class="ident">ControlState::Default</span>,
+    <span class="kw">pub fn </span>checkbox&lt;MK: Into&lt;<span class="prelude-ty">Option</span>&lt;MultiKey&gt;&gt;&gt;(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        label: <span class="kw-2">&amp;</span>str,
+        hotkey: MK,
+        enabled: bool,
+    ) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>false_btn = ctx
+            .style()
+            .btn_plain
+            .icon_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/checkbox_unchecked.svg&quot;</span>))
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
+                ControlState::Default,
             )
-            .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>),
-                <span class="ident">ControlState::Hovered</span>,
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
+                ControlState::Hovered,
             )
-            .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>),
-                <span class="ident">ControlState::Disabled</span>,
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
+                ControlState::Disabled,
             )
-            .<span class="ident">label_text</span>(<span class="ident">label</span>);
+            .label_text(label);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hotkey</span>) <span class="op">=</span> <span class="ident">hotkey</span>.<span class="ident">into</span>() {
-            <span class="ident">false_btn</span> <span class="op">=</span> <span class="ident">false_btn</span>.<span class="ident">hotkey</span>(<span class="ident">hotkey</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(hotkey) = hotkey.into() {
+            false_btn = false_btn.hotkey(hotkey);
         }
 
-        <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span> <span class="ident">false_btn</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/checkbox_checked.svg&quot;</span>));
+        <span class="kw">let </span>true_btn = false_btn
+            .clone()
+            .image_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/checkbox_checked.svg&quot;</span>));
 
-        <span class="ident">Toggle::new_widget</span>(
-            <span class="ident">enabled</span>,
-            <span class="ident">false_btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>),
-            <span class="ident">true_btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>),
+        Toggle::new_widget(
+            enabled,
+            false_btn.build(ctx, label),
+            true_btn.build(ctx, label),
         )
-        .<span class="ident">named</span>(<span class="ident">label</span>)
+        .named(label)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">custom_checkbox</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">spans</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>,
-        <span class="ident">hotkey</span>: <span class="ident">MK</span>,
-        <span class="ident">enabled</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">false_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">icon_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/checkbox_unchecked.svg&quot;</span>))
-            .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>),
-                <span class="ident">ControlState::Default</span>,
+    <span class="kw">pub fn </span>custom_checkbox&lt;MK: Into&lt;<span class="prelude-ty">Option</span>&lt;MultiKey&gt;&gt;&gt;(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        action: <span class="kw-2">&amp;</span>str,
+        spans: Vec&lt;TextSpan&gt;,
+        hotkey: MK,
+        enabled: bool,
+    ) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>false_btn = ctx
+            .style()
+            .btn_plain
+            .icon_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/checkbox_unchecked.svg&quot;</span>))
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
+                ControlState::Default,
             )
-            .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>),
-                <span class="ident">ControlState::Hovered</span>,
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
+                ControlState::Hovered,
             )
-            .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">icon_fg</span>),
-                <span class="ident">ControlState::Disabled</span>,
+            .image_color(
+                RewriteColor::Change(Color::BLACK, ctx.style().icon_fg),
+                ControlState::Disabled,
             )
-            .<span class="ident">label_styled_text</span>(<span class="ident">Text::from_all</span>(<span class="ident">spans</span>), <span class="ident">ControlState::Default</span>);
+            .label_styled_text(Text::from_all(spans), ControlState::Default);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hotkey</span>) <span class="op">=</span> <span class="ident">hotkey</span>.<span class="ident">into</span>() {
-            <span class="ident">false_btn</span> <span class="op">=</span> <span class="ident">false_btn</span>.<span class="ident">hotkey</span>(<span class="ident">hotkey</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(hotkey) = hotkey.into() {
+            false_btn = false_btn.hotkey(hotkey);
         }
 
-        <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span> <span class="ident">false_btn</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/checkbox_checked.svg&quot;</span>));
+        <span class="kw">let </span>true_btn = false_btn
+            .clone()
+            .image_bytes(<span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/checkbox_checked.svg&quot;</span>));
 
-        <span class="ident">Toggle::new_widget</span>(
-            <span class="ident">enabled</span>,
-            <span class="ident">false_btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>),
-            <span class="ident">true_btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>),
+        Toggle::new_widget(
+            enabled,
+            false_btn.build(ctx, action),
+            true_btn.build(ctx, action),
         )
-        .<span class="ident">named</span>(<span class="ident">action</span>)
+        .named(action)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">colored_checkbox</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">enabled</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">btn</span>().<span class="ident">label_text</span>(<span class="ident">label</span>).<span class="ident">padding</span>(<span class="number">4.0</span>);
+    <span class="kw">pub fn </span>colored_checkbox(ctx: <span class="kw-2">&amp;</span>EventCtx, label: <span class="kw-2">&amp;</span>str, color: Color, enabled: bool) -&gt; Widget {
+        <span class="kw">let </span>buttons = ctx.style().btn_plain.btn().label_text(label).padding(<span class="number">4.0</span>);
 
-        <span class="kw">let</span> <span class="ident">false_btn</span> <span class="op">=</span> <span class="ident">buttons</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes!</span>(
-                <span class="string">&quot;../../icons/checkbox_no_border_unchecked.svg&quot;</span>
-            ))
-            .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>)),
-                <span class="ident">ControlState::Default</span>,
+        <span class="kw">let </span>false_btn = buttons
+            .clone()
+            .image_bytes(<span class="macro">include_labeled_bytes!</span>(
+                <span class="string">&quot;../../icons/checkbox_no_border_unchecked.svg&quot;
+            </span>))
+            .image_color(
+                RewriteColor::Change(Color::BLACK, color.alpha(<span class="number">0.3</span>)),
+                ControlState::Default,
             );
 
-        <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span> <span class="ident">buttons</span>
-            .<span class="ident">image_bytes</span>(<span class="macro">include_labeled_bytes!</span>(
-                <span class="string">&quot;../../icons/checkbox_no_border_checked.svg&quot;</span>
-            ))
-            .<span class="ident">image_color</span>(
-                <span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">color</span>),
-                <span class="ident">ControlState::Default</span>,
+        <span class="kw">let </span>true_btn = buttons
+            .image_bytes(<span class="macro">include_labeled_bytes!</span>(
+                <span class="string">&quot;../../icons/checkbox_no_border_checked.svg&quot;
+            </span>))
+            .image_color(
+                RewriteColor::Change(Color::BLACK, color),
+                ControlState::Default,
             );
 
-        <span class="ident">Toggle::new_widget</span>(
-            <span class="ident">enabled</span>,
-            <span class="ident">false_btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>),
-            <span class="ident">true_btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>),
+        Toggle::new_widget(
+            enabled,
+            false_btn.build(ctx, label),
+            true_btn.build(ctx, label),
         )
-        .<span class="ident">named</span>(<span class="ident">label</span>)
+        .named(label)
     }
 
-    <span class="comment">// TODO These should actually be radio buttons</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">choice</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">left_label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">right_label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">hotkey</span>: <span class="ident">MK</span>,
-        <span class="ident">enabled</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">toggle_left_button</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">btn</span>()
-            .<span class="ident">image_dims</span>(<span class="ident">ScreenDims::new</span>(<span class="number">40.0</span>, <span class="number">40.0</span>))
-            .<span class="ident">padding</span>(<span class="number">4</span>)
-            <span class="comment">// we don&#39;t want the default coloring, because we do custom coloring below</span>
-            .<span class="ident">image_color</span>(<span class="ident">RewriteColor::NoOp</span>, <span class="ident">ControlState::Default</span>);
+    <span class="comment">// TODO These should actually be radio buttons
+    </span><span class="kw">pub fn </span>choice&lt;MK: Into&lt;<span class="prelude-ty">Option</span>&lt;MultiKey&gt;&gt;&gt;(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        action: <span class="kw-2">&amp;</span>str,
+        left_label: <span class="kw-2">&amp;</span>str,
+        right_label: <span class="kw-2">&amp;</span>str,
+        hotkey: MK,
+        enabled: bool,
+    ) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>toggle_left_button = ctx
+            .style()
+            .btn_plain
+            .btn()
+            .image_dims(ScreenDims::new(<span class="number">40.0</span>, <span class="number">40.0</span>))
+            .padding(<span class="number">4</span>)
+            <span class="comment">// we don&#39;t want the default coloring, because we do custom coloring below
+            </span>.image_color(RewriteColor::NoOp, ControlState::Default);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hotkey</span>) <span class="op">=</span> <span class="ident">hotkey</span>.<span class="ident">into</span>() {
-            <span class="ident">toggle_left_button</span> <span class="op">=</span> <span class="ident">toggle_left_button</span>.<span class="ident">hotkey</span>(<span class="ident">hotkey</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(hotkey) = hotkey.into() {
+            toggle_left_button = toggle_left_button.hotkey(hotkey);
         }
 
-        <span class="kw">let</span> (<span class="ident">left_batch</span>, <span class="ident">left_bounds</span>) <span class="op">=</span> {
-            <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/toggle_left.svg&quot;</span>);
-            <span class="kw">let</span> (<span class="ident">batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">load_svg_bytes</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="ident">label</span>, <span class="ident">bytes</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid SVG&quot;</span>);
-            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::WHITE</span>, <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>))
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>));
-            (<span class="ident">batch</span>, <span class="ident">bounds</span>)
+        <span class="kw">let </span>(left_batch, left_bounds) = {
+            <span class="kw">let </span>(label, bytes) = <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/toggle_left.svg&quot;</span>);
+            <span class="kw">let </span>(batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect(<span class="string">&quot;invalid SVG&quot;</span>);
+            <span class="kw">let </span>batch = batch
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+            (batch, bounds)
         };
-        <span class="kw">let</span> (<span class="ident">right_batch</span>, <span class="ident">right_bounds</span>) <span class="op">=</span> {
-            <span class="kw">let</span> (<span class="ident">label</span>, <span class="ident">bytes</span>) <span class="op">=</span> <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/toggle_right.svg&quot;</span>);
-            <span class="kw">let</span> (<span class="ident">batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">load_svg_bytes</span>(<span class="ident">ctx</span>.<span class="ident">prerender</span>, <span class="ident">label</span>, <span class="ident">bytes</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid SVG&quot;</span>);
-            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::WHITE</span>, <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">bg</span>))
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">ctx</span>.<span class="ident">style</span>.<span class="ident">btn_solid</span>.<span class="ident">fg</span>));
-            (<span class="ident">batch</span>, <span class="ident">bounds</span>)
+        <span class="kw">let </span>(right_batch, right_bounds) = {
+            <span class="kw">let </span>(label, bytes) = <span class="macro">include_labeled_bytes!</span>(<span class="string">&quot;../../icons/toggle_right.svg&quot;</span>);
+            <span class="kw">let </span>(batch, bounds) = load_svg_bytes(ctx.prerender, label, bytes).expect(<span class="string">&quot;invalid SVG&quot;</span>);
+            <span class="kw">let </span>batch = batch
+                .color(RewriteColor::Change(Color::WHITE, ctx.style.btn_solid.bg))
+                .color(RewriteColor::Change(Color::BLACK, ctx.style.btn_solid.fg));
+            (batch, bounds)
         };
 
-        <span class="kw">let</span> <span class="ident">toggle_right_button</span> <span class="op">=</span> <span class="ident">toggle_left_button</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_batch</span>(<span class="ident">right_batch</span>, <span class="ident">right_bounds</span>);
+        <span class="kw">let </span>toggle_right_button = toggle_left_button
+            .clone()
+            .image_batch(right_batch, right_bounds);
 
-        <span class="kw">let</span> <span class="ident">toggle_left_button</span> <span class="op">=</span> <span class="ident">toggle_left_button</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_batch</span>(<span class="ident">left_batch</span>, <span class="ident">left_bounds</span>);
+        <span class="kw">let </span>toggle_left_button = toggle_left_button
+            .clone()
+            .image_batch(left_batch, left_bounds);
 
-        <span class="kw">let</span> <span class="ident">left_text_button</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">text</span>(<span class="ident">left_label</span>)
-            <span class="comment">// Cheat vertical padding to align with switch</span>
-            .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
-                <span class="ident">left</span>: <span class="number">2.0</span>,
-                <span class="ident">right</span>: <span class="number">2.0</span>,
-                <span class="ident">top</span>: <span class="number">8.0</span>,
-                <span class="ident">bottom</span>: <span class="number">14.0</span>,
+        <span class="kw">let </span>left_text_button = ctx
+            .style()
+            .btn_plain
+            .text(left_label)
+            <span class="comment">// Cheat vertical padding to align with switch
+            </span>.padding(EdgeInsets {
+                left: <span class="number">2.0</span>,
+                right: <span class="number">2.0</span>,
+                top: <span class="number">8.0</span>,
+                bottom: <span class="number">14.0</span>,
             })
-            <span class="comment">// TODO: make these clickable. Currently they would explode due to re-use of an action</span>
-            .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-            .<span class="ident">label_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg</span>, <span class="ident">ControlState::Disabled</span>)
-            .<span class="ident">bg_color</span>(<span class="ident">Color::CLEAR</span>, <span class="ident">ControlState::Disabled</span>);
-        <span class="kw">let</span> <span class="ident">right_text_button</span> <span class="op">=</span> <span class="ident">left_text_button</span>.<span class="ident">clone</span>().<span class="ident">label_text</span>(<span class="ident">right_label</span>);
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">left_text_button</span>.<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-            <span class="ident">Toggle::new_widget</span>(
-                <span class="ident">enabled</span>,
-                <span class="ident">toggle_right_button</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">right_label</span>),
-                <span class="ident">toggle_left_button</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">left_label</span>),
+            <span class="comment">// TODO: make these clickable. Currently they would explode due to re-use of an action
+            </span>.disabled(<span class="bool-val">true</span>)
+            .label_color(ctx.style().btn_outline.fg, ControlState::Disabled)
+            .bg_color(Color::CLEAR, ControlState::Disabled);
+        <span class="kw">let </span>right_text_button = left_text_button.clone().label_text(right_label);
+        Widget::row(<span class="macro">vec!</span>[
+            left_text_button.build_def(ctx).centered_vert(),
+            Toggle::new_widget(
+                enabled,
+                toggle_right_button.build(ctx, right_label),
+                toggle_left_button.build(ctx, left_label),
             )
-            .<span class="ident">named</span>(<span class="ident">action</span>)
-            .<span class="ident">centered_vert</span>(),
-            <span class="ident">right_text_button</span>.<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+            .named(action)
+            .centered_vert(),
+            right_text_button.build_def(ctx).centered_vert(),
         ])
     }
 }
 
-<span class="kw">impl</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Toggle</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">get_dims</span>()
+<span class="kw">impl </span>WidgetImpl <span class="kw">for </span>Toggle {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="self">self</span>.btn.get_dims()
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">set_pos</span>(<span class="ident">top_left</span>);
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+        <span class="self">self</span>.btn.set_pos(top_left);
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">output</span>.<span class="ident">outcome</span> {
-            <span class="comment">// Both buttons have the same label</span>
-            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
-            <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">btn</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">other_btn</span>);
-            <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">set_pos</span>(<span class="self">self</span>.<span class="ident">other_btn</span>.<span class="ident">top_left</span>);
-            <span class="self">self</span>.<span class="ident">enabled</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">enabled</span>;
-            <span class="ident">output</span>.<span class="ident">redo_layout</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, output: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="self">self</span>.btn.event(ctx, output);
+        <span class="kw">if let </span>Outcome::Clicked(<span class="kw">_</span>) = output.outcome {
+            <span class="comment">// Both buttons have the same label
+            </span>output.outcome = Outcome::Changed(<span class="self">self</span>.btn.action.clone());
+            std::mem::swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>.btn, <span class="kw-2">&amp;mut </span><span class="self">self</span>.other_btn);
+            <span class="self">self</span>.btn.set_pos(<span class="self">self</span>.other_btn.top_left);
+            <span class="self">self</span>.enabled = !<span class="self">self</span>.enabled;
+            output.redo_layout = <span class="bool-val">true</span>;
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="self">self</span>.btn.draw(g);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

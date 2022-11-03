@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/lane.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lane.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/lane.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lane.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -328,335 +328,335 @@
 <span id="328">328</span>
 <span id="329">329</span>
 <span id="330">330</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">PathConstraints</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>map_model::{LaneID, PathConstraints};
+<span class="kw">use </span>widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, Text, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info</span>::{
-    <span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">make_tabs</span>, <span class="ident">problem_count</span>, <span class="ident">throughput</span>, <span class="ident">DataOptions</span>, <span class="ident">Details</span>,
-    <span class="ident">ProblemOptions</span>, <span class="ident">Tab</span>,
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::info::{
+    header_btns, make_table, make_tabs, problem_count, throughput, DataOptions, Details,
+    ProblemOptions, Tab,
 };
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">info</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::LaneInfo</span>(<span class="ident">id</span>)),
-        <span class="ident">info_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>info(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: LaneID) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, app, details, id, Tab::LaneInfo(id)),
+        info_body(ctx, app, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">info_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>info_body(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App, id: LaneID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>.<span class="ident">road</span>);
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>l = map.get_l(id);
+    <span class="kw">let </span>r = map.get_r(id.road);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kv</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>kv = Vec::new();
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">l</span>.<span class="ident">is_walkable</span>() {
-        <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;Type&quot;</span>, <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">describe</span>().<span class="ident">to_string</span>()));
+    <span class="kw">if </span>!l.is_walkable() {
+        kv.push((<span class="string">&quot;Type&quot;</span>, l.lane_type.describe().to_string()));
     }
-    <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ban</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">PathConstraints::all</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">r</span>.<span class="ident">access_restrictions</span>.<span class="ident">allow_through_traffic</span>.<span class="ident">contains</span>(<span class="ident">p</span>) {
-                <span class="ident">ban</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">p</span>).<span class="ident">to_ascii_lowercase</span>());
+    <span class="kw">if </span>r.is_private() {
+        <span class="kw">let </span><span class="kw-2">mut </span>ban = Vec::new();
+        <span class="kw">for </span>p <span class="kw">in </span>PathConstraints::all() {
+            <span class="kw">if </span>!r.access_restrictions.allow_through_traffic.contains(p) {
+                ban.push(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, p).to_ascii_lowercase());
             }
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ban</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;No through-traffic for&quot;</span>, <span class="ident">ban</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)));
+        <span class="kw">if </span>!ban.is_empty() {
+            kv.push((<span class="string">&quot;No through-traffic for&quot;</span>, ban.join(<span class="string">&quot;, &quot;</span>)));
         }
     }
 
-    <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_parking</span>() {
-        <span class="ident">kv</span>.<span class="ident">push</span>((
+    <span class="kw">if </span>l.is_parking() {
+        kv.push((
             <span class="string">&quot;Parking&quot;</span>,
             <span class="macro">format!</span>(
                 <span class="string">&quot;{} / {} spots available&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_free_onstreet_spots</span>(<span class="ident">l</span>.<span class="ident">id</span>).<span class="ident">len</span>(),
-                <span class="ident">l</span>.<span class="ident">number_parking_spots</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>())
+                app.primary.sim.get_free_onstreet_spots(l.id).len(),
+                l.number_parking_spots(app.primary.map.get_config())
             ),
         ));
-    } <span class="kw">else</span> {
-        <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;Speed limit&quot;</span>, <span class="ident">r</span>.<span class="ident">speed_limit</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)));
+    } <span class="kw">else </span>{
+        kv.push((<span class="string">&quot;Speed limit&quot;</span>, r.speed_limit.to_string(<span class="kw-2">&amp;</span>app.opts.units)));
     }
 
-    <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;Length&quot;</span>, <span class="ident">l</span>.<span class="ident">length</span>().<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)));
+    kv.push((<span class="string">&quot;Length&quot;</span>, l.length().to_string(<span class="kw-2">&amp;</span>app.opts.units)));
 
-    <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">kv</span>));
+    rows.extend(make_table(ctx, kv));
 
-    <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_parking</span>() {
-        <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">number_parking_spots</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">series</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Series</span> {
-            <span class="ident">label</span>: <span class="macro">format!</span>(<span class="string">&quot;After \&quot;{}\&quot;&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>),
-            <span class="ident">color</span>: <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">after_changes</span>,
-            <span class="ident">pts</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">parking_lane_availability</span>(
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-                <span class="ident">l</span>.<span class="ident">id</span>,
-                <span class="ident">capacity</span>,
+    <span class="kw">if </span>l.is_parking() {
+        <span class="kw">let </span>capacity = l.number_parking_spots(app.primary.map.get_config());
+        <span class="kw">let </span><span class="kw-2">mut </span>series = <span class="macro">vec!</span>[Series {
+            label: <span class="macro">format!</span>(<span class="string">&quot;After \&quot;{}\&quot;&quot;</span>, app.primary.map.get_edits().edits_name),
+            color: app.cs.after_changes,
+            pts: app.primary.sim.get_analytics().parking_lane_availability(
+                app.primary.sim.time(),
+                l.id,
+                capacity,
             ),
         }];
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
-            <span class="ident">series</span>.<span class="ident">push</span>(<span class="ident">Series</span> {
-                <span class="ident">label</span>: <span class="macro">format!</span>(<span class="string">&quot;Before \&quot;{}\&quot;&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>),
-                <span class="ident">color</span>: <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">before_changes</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                <span class="ident">pts</span>: <span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">parking_lane_availability</span>(
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>(),
-                    <span class="ident">l</span>.<span class="ident">id</span>,
-                    <span class="ident">capacity</span>,
+        <span class="kw">if </span>app.has_prebaked().is_some() {
+            series.push(Series {
+                label: <span class="macro">format!</span>(<span class="string">&quot;Before \&quot;{}\&quot;&quot;</span>, app.primary.map.get_edits().edits_name),
+                color: app.cs.before_changes.alpha(<span class="number">0.5</span>),
+                pts: app.prebaked().parking_lane_availability(
+                    app.primary.sim.get_end_of_day(),
+                    l.id,
+                    capacity,
                 ),
             });
         }
-        <span class="kw">let</span> <span class="ident">section</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Parking spots available&quot;</span>)
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">LinePlot::new_widget</span>(
-                <span class="ident">ctx</span>,
+        <span class="kw">let </span>section = Widget::col(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Parking spots available&quot;</span>)
+                .small_heading()
+                .into_widget(ctx),
+            LinePlot::new_widget(
+                ctx,
                 <span class="string">&quot;parking availability&quot;</span>,
-                <span class="ident">series</span>,
-                <span class="ident">PlotOptions</span> {
-                    <span class="ident">max_y</span>: <span class="prelude-val">Some</span>(<span class="ident">capacity</span>),
-                    ..<span class="ident">Default::default</span>()
+                series,
+                PlotOptions {
+                    max_y: <span class="prelude-val">Some</span>(capacity),
+                    ..Default::default()
                 },
-                <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>,
+                app.opts.units,
             ),
         ])
-        .<span class="ident">padding</span>(<span class="number">10</span>)
-        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-        .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>);
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">section</span>);
+        .padding(<span class="number">10</span>)
+        .bg(app.cs.inner_panel_bg)
+        .outline(ctx.style().section_outline);
+        rows.push(section);
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::LaneDebug</span>(<span class="ident">id</span>)),
-        <span class="ident">debug_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>debug(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: LaneID) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, app, details, id, Tab::LaneDebug(id)),
+        debug_body(ctx, app, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">debug_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>debug_body(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App, id: LaneID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>.<span class="ident">road</span>);
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>l = map.get_l(id);
+    <span class="kw">let </span>r = map.get_r(id.road);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kv</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="string">&quot;Parent&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">to_string</span>())];
+    <span class="kw">let </span><span class="kw-2">mut </span>kv = <span class="macro">vec!</span>[(<span class="string">&quot;Parent&quot;</span>.to_string(), r.id.to_string())];
 
-    <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_for_moving_vehicles</span>() {
-        <span class="ident">kv</span>.<span class="ident">push</span>((
-            <span class="string">&quot;Driving blackhole&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">l</span>.<span class="ident">driving_blackhole</span>.<span class="ident">to_string</span>(),
+    <span class="kw">if </span>l.lane_type.is_for_moving_vehicles() {
+        kv.push((
+            <span class="string">&quot;Driving blackhole&quot;</span>.to_string(),
+            l.driving_blackhole.to_string(),
         ));
-        <span class="ident">kv</span>.<span class="ident">push</span>((
-            <span class="string">&quot;Biking blackhole&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">l</span>.<span class="ident">biking_blackhole</span>.<span class="ident">to_string</span>(),
-        ));
-    }
-
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">types</span>) <span class="op">=</span> <span class="ident">l</span>.<span class="ident">get_lane_level_turn_restrictions</span>(<span class="ident">r</span>, <span class="bool-val">false</span>) {
-        <span class="ident">kv</span>.<span class="ident">push</span>((
-            <span class="string">&quot;Turn restrictions&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">types</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()),
-        ));
-    }
-    <span class="kw">for</span> (<span class="ident">restriction</span>, <span class="ident">to</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">turn_restrictions</span> {
-        <span class="ident">kv</span>.<span class="ident">push</span>((
-            <span class="macro">format!</span>(<span class="string">&quot;Restriction from this road to {}&quot;</span>, <span class="ident">to</span>),
-            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">restriction</span>),
+        kv.push((
+            <span class="string">&quot;Biking blackhole&quot;</span>.to_string(),
+            l.biking_blackhole.to_string(),
         ));
     }
 
-    <span class="comment">// TODO Simplify and expose everywhere after there&#39;s better data</span>
-    <span class="ident">kv</span>.<span class="ident">push</span>((
-        <span class="string">&quot;Elevation change&quot;</span>.<span class="ident">to_string</span>(),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(types) = l.get_lane_level_turn_restrictions(r, <span class="bool-val">false</span>) {
+        kv.push((
+            <span class="string">&quot;Turn restrictions&quot;</span>.to_string(),
+            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, types.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()),
+        ));
+    }
+    <span class="kw">for </span>(restriction, to) <span class="kw">in </span><span class="kw-2">&amp;</span>r.turn_restrictions {
+        kv.push((
+            <span class="macro">format!</span>(<span class="string">&quot;Restriction from this road to {}&quot;</span>, to),
+            <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, restriction),
+        ));
+    }
+
+    <span class="comment">// TODO Simplify and expose everywhere after there&#39;s better data
+    </span>kv.push((
+        <span class="string">&quot;Elevation change&quot;</span>.to_string(),
         <span class="macro">format!</span>(
             <span class="string">&quot;{} to {}&quot;</span>,
-            <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">src_i</span>).<span class="ident">elevation</span>,
-            <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>).<span class="ident">elevation</span>
+            map.get_i(l.src_i).elevation,
+            map.get_i(l.dst_i).elevation
         ),
     ));
-    <span class="ident">kv</span>.<span class="ident">push</span>((
-        <span class="string">&quot;Incline / grade&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="macro">format!</span>(<span class="string">&quot;{:.1}%&quot;</span>, <span class="ident">r</span>.<span class="ident">percent_incline</span> <span class="op">*</span> <span class="number">100.0</span>),
+    kv.push((
+        <span class="string">&quot;Incline / grade&quot;</span>.to_string(),
+        <span class="macro">format!</span>(<span class="string">&quot;{:.1}%&quot;</span>, r.percent_incline * <span class="number">100.0</span>),
     ));
-    <span class="ident">kv</span>.<span class="ident">push</span>((
-        <span class="string">&quot;Elevation details&quot;</span>.<span class="ident">to_string</span>(),
+    kv.push((
+        <span class="string">&quot;Elevation details&quot;</span>.to_string(),
         <span class="macro">format!</span>(
             <span class="string">&quot;{} over {}&quot;</span>,
-            <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">dst_i</span>).<span class="ident">elevation</span> <span class="op">-</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">l</span>.<span class="ident">src_i</span>).<span class="ident">elevation</span>,
-            <span class="ident">l</span>.<span class="ident">length</span>()
+            map.get_i(l.dst_i).elevation - map.get_i(l.src_i).elevation,
+            l.length()
         ),
     ));
-    <span class="ident">kv</span>.<span class="ident">push</span>((
-        <span class="string">&quot;Dir, side, offset&quot;</span>.<span class="ident">to_string</span>(),
+    kv.push((
+        <span class="string">&quot;Dir, side, offset&quot;</span>.to_string(),
         <span class="macro">format!</span>(
             <span class="string">&quot;{}, {:?}, {}&quot;</span>,
-            <span class="ident">l</span>.<span class="ident">dir</span>,
-            <span class="ident">l</span>.<span class="ident">get_nearest_side_of_road</span>(<span class="ident">map</span>).<span class="ident">side</span>,
-            <span class="ident">l</span>.<span class="ident">id</span>.<span class="ident">offset</span>
+            l.dir,
+            l.get_nearest_side_of_road(map).side,
+            l.id.offset
         ),
     ));
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">reserved</span>, <span class="ident">total</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">debug_queue_lengths</span>(<span class="ident">l</span>.<span class="ident">id</span>) {
-        <span class="ident">kv</span>.<span class="ident">push</span>((
-            <span class="string">&quot;Queue (reserved, total) length&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="macro">format!</span>(<span class="string">&quot;{}, {}&quot;</span>, <span class="ident">reserved</span>, <span class="ident">total</span>),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>((reserved, total)) = app.primary.sim.debug_queue_lengths(l.id) {
+        kv.push((
+            <span class="string">&quot;Queue (reserved, total) length&quot;</span>.to_string(),
+            <span class="macro">format!</span>(<span class="string">&quot;{}, {}&quot;</span>, reserved, total),
         ));
     }
 
-    <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">kv</span>));
+    rows.extend(make_table(ctx, kv));
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Open OSM way&quot;</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>.<span class="ident">osm_way_id</span>)),
+    rows.push(
+        ctx.style()
+            .btn_outline
+            .text(<span class="string">&quot;Open OSM way&quot;</span>)
+            .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, r.orig_id.osm_way_id)),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;&quot;</span>);
-    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>);
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;&quot;</span>);
+    txt.add_line(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>);
+    rows.push(txt.into_widget(ctx));
 
-    <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">r</span>.<span class="ident">osm_tags</span>
-            .<span class="ident">inner</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">to_string</span>()))
-            .<span class="ident">collect</span>(),
+    rows.extend(make_table(
+        ctx,
+        r.osm_tags
+            .inner()
+            .iter()
+            .map(|(k, v)| (k, v.to_string()))
+            .collect(),
     ));
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">traffic</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">id</span>: <span class="ident">LaneID</span>,
-    <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::LaneTraffic</span>(<span class="ident">id</span>, <span class="ident">opts</span>.<span class="ident">clone</span>())),
-        <span class="ident">traffic_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">opts</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>traffic(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    id: LaneID,
+    opts: <span class="kw-2">&amp;</span>DataOptions,
+) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, app, details, id, Tab::LaneTraffic(id, opts.clone())),
+        traffic_body(ctx, app, id, opts).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">traffic_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DataOptions</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>traffic_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, id: LaneID, opts: <span class="kw-2">&amp;</span>DataOptions) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">road</span>;
+    <span class="kw">let </span>r = id.road;
 
-    <span class="comment">// Since this applies to the entire road, ignore lane type.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Traffic over entire road, not just this lane&quot;</span>);
-    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+    <span class="comment">// Since this applies to the entire road, ignore lane type.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;Traffic over entire road, not just this lane&quot;</span>);
+    txt.add_line(<span class="macro">format!</span>(
         <span class="string">&quot;Since midnight: {} commuters and vehicles crossed&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">road_thruput</span>.<span class="ident">total_for</span>(<span class="ident">r</span>))
+        prettyprint_usize(app.primary.sim.get_analytics().road_thruput.total_for(r))
     ));
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+    rows.push(txt.into_widget(ctx));
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">opts</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+    rows.push(opts.to_controls(ctx, app));
 
-    <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show_end_of_day</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>()
-    } <span class="kw">else</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>()
+    <span class="kw">let </span>time = <span class="kw">if </span>opts.show_end_of_day {
+        app.primary.sim.get_end_of_day()
+    } <span class="kw">else </span>{
+        app.primary.sim.time()
     };
-    <span class="comment">// TODO This conflates commuters and vehicles, so we should maybe split it into different plots.</span>
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">throughput</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">app</span>,
+    <span class="comment">// TODO This conflates commuters and vehicles, so we should maybe split it into different plots.
+    </span>rows.push(throughput(
+        ctx,
+        app,
         <span class="string">&quot;Number of commuters and vehicles per hour&quot;</span>,
-        <span class="kw">move</span> <span class="op">|</span><span class="ident">a</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">road_thruput</span>.<span class="ident">raw</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">a</span>.<span class="ident">road_thruput</span>.<span class="ident">count_per_hour</span>(<span class="ident">r</span>, <span class="ident">time</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">a</span>.<span class="ident">road_thruput</span>.<span class="ident">raw_throughput</span>(<span class="ident">time</span>, <span class="ident">r</span>)
+        <span class="kw">move </span>|a| {
+            <span class="kw">if </span>a.road_thruput.raw.is_empty() {
+                a.road_thruput.count_per_hour(r, time)
+            } <span class="kw">else </span>{
+                a.road_thruput.raw_throughput(time, r)
             }
         },
-        <span class="ident">opts</span>,
+        opts,
     ));
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">problems</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">id</span>: <span class="ident">LaneID</span>,
-    <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">ProblemOptions</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::LaneProblems</span>(<span class="ident">id</span>, <span class="ident">opts</span>.<span class="ident">clone</span>())),
-        <span class="ident">problems_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">opts</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>problems(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    id: LaneID,
+    opts: <span class="kw-2">&amp;</span>ProblemOptions,
+) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, app, details, id, Tab::LaneProblems(id, opts.clone())),
+        problems_body(ctx, app, id, opts).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">problems_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">ProblemOptions</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>problems_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, id: LaneID, opts: <span class="kw-2">&amp;</span>ProblemOptions) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">opts</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+    rows.push(opts.to_controls(ctx, app));
 
-    <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show_end_of_day</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>()
-    } <span class="kw">else</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>()
+    <span class="kw">let </span>time = <span class="kw">if </span>opts.show_end_of_day {
+        app.primary.sim.get_end_of_day()
+    } <span class="kw">else </span>{
+        app.primary.sim.time()
     };
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">problem_count</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">app</span>,
+    rows.push(problem_count(
+        ctx,
+        app,
         <span class="string">&quot;Number of problems per 15 minutes&quot;</span>,
-        <span class="kw">move</span> <span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">problems_per_lane</span>(<span class="ident">time</span>, <span class="ident">id</span>),
-        <span class="ident">opts</span>,
+        <span class="kw">move </span>|a| a.problems_per_lane(time, id),
+        opts,
     ));
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">fn</span> <span class="ident">header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">LaneID</span>, <span class="ident">tab</span>: <span class="ident">Tab</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>header(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: LaneID, tab: Tab) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">id</span>.<span class="ident">road</span>);
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>l = map.get_l(id);
+    <span class="kw">let </span>r = map.get_r(id.road);
 
-    <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_shoulder</span>() {
-        <span class="string">&quot;Shoulder&quot;</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_sidewalk</span>() {
-        <span class="string">&quot;Sidewalk&quot;</span>
-    } <span class="kw">else</span> {
-        <span class="string">&quot;Lane&quot;</span>
-    };
+    <span class="kw">let </span>label = <span class="kw">if </span>l.is_shoulder() {
+        <span class="string">&quot;Shoulder&quot;
+    </span>} <span class="kw">else if </span>l.is_sidewalk() {
+        <span class="string">&quot;Sidewalk&quot;
+    </span>} <span class="kw">else </span>{
+        <span class="string">&quot;Lane&quot;
+    </span>};
 
-    <span class="comment">// Navbar</span>
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} #{}&quot;</span>, <span class="ident">label</span>, <span class="ident">id</span>.<span class="ident">encode_u32</span>()))
-            .<span class="ident">small_heading</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+    <span class="comment">// Navbar
+    </span>rows.push(Widget::row(<span class="macro">vec!</span>[
+        Line(<span class="macro">format!</span>(<span class="string">&quot;{} #{}&quot;</span>, label, id.encode_u32()))
+            .small_heading()
+            .into_widget(ctx),
+        header_btns(ctx),
     ]));
 
-    <span class="comment">// subtitle</span>
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;@ {}&quot;</span>, <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>())).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+    <span class="comment">// subtitle
+    </span>rows.push(<span class="macro">format!</span>(<span class="string">&quot;@ {}&quot;</span>, r.get_name(app.opts.language.as_ref())).text_widget(ctx));
 
-    <span class="comment">// tabs</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="string">&quot;Info&quot;</span>, <span class="ident">Tab::LaneInfo</span>(<span class="ident">id</span>))];
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">l</span>.<span class="ident">is_parking</span>() {
-        <span class="ident">tabs</span>.<span class="ident">push</span>((<span class="string">&quot;Traffic&quot;</span>, <span class="ident">Tab::LaneTraffic</span>(<span class="ident">id</span>, <span class="ident">DataOptions::new</span>())));
-        <span class="ident">tabs</span>.<span class="ident">push</span>((<span class="string">&quot;Problems&quot;</span>, <span class="ident">Tab::LaneProblems</span>(<span class="ident">id</span>, <span class="ident">ProblemOptions::new</span>())));
+    <span class="comment">// tabs
+    </span><span class="kw">let </span><span class="kw-2">mut </span>tabs = <span class="macro">vec!</span>[(<span class="string">&quot;Info&quot;</span>, Tab::LaneInfo(id))];
+    <span class="kw">if </span>!l.is_parking() {
+        tabs.push((<span class="string">&quot;Traffic&quot;</span>, Tab::LaneTraffic(id, DataOptions::new())));
+        tabs.push((<span class="string">&quot;Problems&quot;</span>, Tab::LaneProblems(id, ProblemOptions::new())));
     }
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="ident">tabs</span>.<span class="ident">push</span>((<span class="string">&quot;Debug&quot;</span>, <span class="ident">Tab::LaneDebug</span>(<span class="ident">id</span>)));
+    <span class="kw">if </span>app.opts.dev {
+        tabs.push((<span class="string">&quot;Debug&quot;</span>, Tab::LaneDebug(id)));
     }
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">make_tabs</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>.<span class="ident">hyperlinks</span>, <span class="ident">tab</span>, <span class="ident">tabs</span>));
+    rows.push(make_tabs(ctx, <span class="kw-2">&amp;mut </span>details.hyperlinks, tab, tabs));
 
-    <span class="ident">Widget::custom_col</span>(<span class="ident">rows</span>)
+    Widget::custom_col(rows)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

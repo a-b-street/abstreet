@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/commute.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>commute.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/commute.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>commute.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -343,350 +343,350 @@
 <span id="343">343</span>
 <span id="344">344</span>
 <span id="345">345</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">PersonID</span>, <span class="ident">TripID</span>};
-<span class="kw">use</span> <span class="ident">synthpop::OrigPersonID</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>geom::{Duration, Time};
+<span class="kw">use </span>sim::{PersonID, TripID};
+<span class="kw">use </span>synthpop::OrigPersonID;
+<span class="kw">use </span>widgetry::{
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Image, Line, Outcome, Panel, State, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::Transition</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::challenges::cutscene</span>::{<span class="ident">CutsceneBuilder</span>, <span class="ident">ShowMessage</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::challenges</span>::{<span class="ident">Challenge</span>, <span class="ident">HighScore</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::cmp_duration_shorter</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info::Tab</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::gameplay</span>::{<span class="ident">challenge_header</span>, <span class="ident">FinalScore</span>, <span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::app::Transition;
+<span class="kw">use </span><span class="kw">crate</span>::challenges::cutscene::{CutsceneBuilder, ShowMessage};
+<span class="kw">use </span><span class="kw">crate</span>::challenges::{Challenge, HighScore};
+<span class="kw">use </span><span class="kw">crate</span>::common::cmp_duration_shorter;
+<span class="kw">use </span><span class="kw">crate</span>::edit::EditMode;
+<span class="kw">use </span><span class="kw">crate</span>::info::Tab;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::{Actions, SandboxControls};
 
-<span class="comment">// TODO A nice level to unlock: specifying your own commute, getting to work on it</span>
+<span class="comment">// TODO A nice level to unlock: specifying your own commute, getting to work on it
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">OptimizeCommute</span> {
-    <span class="ident">top_right</span>: <span class="ident">Panel</span>,
-    <span class="ident">person</span>: <span class="ident">PersonID</span>,
-    <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    <span class="ident">goal</span>: <span class="ident">Duration</span>,
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">done</span>: <span class="ident">bool</span>,
+</span><span class="kw">pub struct </span>OptimizeCommute {
+    top_right: Panel,
+    person: PersonID,
+    mode: GameplayMode,
+    goal: Duration,
+    time: Time,
+    done: bool,
 
-    <span class="comment">// Cache here for convenience</span>
-    <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span>,
+    <span class="comment">// Cache here for convenience
+    </span>trips: Vec&lt;TripID&gt;,
 
-    <span class="ident">once</span>: <span class="ident">bool</span>,
+    once: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">OptimizeCommute</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">orig_person</span>: <span class="ident">OrigPersonID</span>,
-        <span class="ident">goal</span>: <span class="ident">Duration</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">find_person_by_orig_id</span>(<span class="ident">orig_person</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">person</span>).<span class="ident">trips</span>.<span class="ident">clone</span>();
-        <span class="ident">Box::new</span>(<span class="ident">OptimizeCommute</span> {
-            <span class="ident">top_right</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">person</span>,
-            <span class="ident">mode</span>: <span class="ident">GameplayMode::OptimizeCommute</span>(<span class="ident">orig_person</span>, <span class="ident">goal</span>),
-            <span class="ident">goal</span>,
-            <span class="ident">time</span>: <span class="ident">Time::START_OF_DAY</span>,
-            <span class="ident">done</span>: <span class="bool-val">false</span>,
-            <span class="ident">trips</span>,
-            <span class="ident">once</span>: <span class="bool-val">true</span>,
+<span class="kw">impl </span>OptimizeCommute {
+    <span class="kw">pub fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        orig_person: OrigPersonID,
+        goal: Duration,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>GameplayState&gt; {
+        <span class="kw">let </span>person = app.primary.sim.find_person_by_orig_id(orig_person).unwrap();
+        <span class="kw">let </span>trips = app.primary.sim.get_person(person).trips.clone();
+        Box::new(OptimizeCommute {
+            top_right: Panel::empty(ctx),
+            person,
+            mode: GameplayMode::OptimizeCommute(orig_person, goal),
+            goal,
+            time: Time::START_OF_DAY,
+            done: <span class="bool-val">false</span>,
+            trips,
+            once: <span class="bool-val">true</span>,
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">CutsceneBuilder::new</span>(<span class="string">&quot;Optimize one commute: part 1&quot;</span>)
-            .<span class="ident">boss</span>(<span class="string">&quot;Listen up, I&#39;ve got a special job for you today.&quot;</span>)
-            .<span class="ident">player</span>(<span class="string">&quot;What is it? The scooter coalition back with demands for more valet parking?&quot;</span>)
-            .<span class="ident">boss</span>(<span class="string">&quot;No, all the tax-funded valets are still busy with the kayakers.&quot;</span>)
-            .<span class="ident">boss</span>(
+    <span class="kw">pub fn </span>cutscene_pt1(ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App, mode: <span class="kw-2">&amp;</span>GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        CutsceneBuilder::new(<span class="string">&quot;Optimize one commute: part 1&quot;</span>)
+            .boss(<span class="string">&quot;Listen up, I&#39;ve got a special job for you today.&quot;</span>)
+            .player(<span class="string">&quot;What is it? The scooter coalition back with demands for more valet parking?&quot;</span>)
+            .boss(<span class="string">&quot;No, all the tax-funded valets are still busy with the kayakers.&quot;</span>)
+            .boss(
                 <span class="string">&quot;I&#39;ve got a... friend who&#39;s tired of getting stuck in traffic. You&#39;ve got to make \
                  their commute as fast as possible.&quot;</span>,
             )
-            .<span class="ident">player</span>(<span class="string">&quot;Uh, what&#39;s so special about them?&quot;</span>)
-            .<span class="ident">boss</span>(
+            .player(<span class="string">&quot;Uh, what&#39;s so special about them?&quot;</span>)
+            .boss(
                 <span class="string">&quot;That&#39;s none of your concern! I&#39;ve anonymized their name, so don&#39;t even bother \
                  digging into what happened in Ballard --&quot;</span>,
             )
-            .<span class="ident">boss</span>(<span class="string">&quot;JUST GET TO WORK, KID!&quot;</span>)
-            .<span class="ident">player</span>(
+            .boss(<span class="string">&quot;JUST GET TO WORK, KID!&quot;</span>)
+            .player(
                 <span class="string">&quot;(Somebody&#39;s blackmailing the boss. Guess it&#39;s time to help this Very Impatient \
                  Person.)&quot;</span>,
             )
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">cutscene_task</span>(<span class="ident">mode</span>))
+            .build(ctx, cutscene_task(mode))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt2</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO The person chosen for this currently has more of an issue needing PBLs, actually.</span>
-        <span class="ident">CutsceneBuilder::new</span>(<span class="string">&quot;Optimize one commute: part 2&quot;</span>)
-            .<span class="ident">boss</span>(<span class="string">&quot;I&#39;ve got another, er, friend who&#39;s sick of this parking situation.&quot;</span>)
-            .<span class="ident">player</span>(
+    <span class="kw">pub fn </span>cutscene_pt2(ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App, mode: <span class="kw-2">&amp;</span>GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="comment">// TODO The person chosen for this currently has more of an issue needing PBLs, actually.
+        </span>CutsceneBuilder::new(<span class="string">&quot;Optimize one commute: part 2&quot;</span>)
+            .boss(<span class="string">&quot;I&#39;ve got another, er, friend who&#39;s sick of this parking situation.&quot;</span>)
+            .player(
                 <span class="string">&quot;Yeah, why do we dedicate so much valuable land to storing unused cars? It&#39;s \
                  ridiculous!&quot;</span>,
             )
-            .<span class="ident">boss</span>(
+            .boss(
                 <span class="string">&quot;No, I mean, they&#39;re tired of having to hunt for parking. You need to make it \
                  easier.&quot;</span>,
             )
-            .<span class="ident">player</span>(
+            .player(
                 <span class="string">&quot;What? We&#39;re trying to encourage people to be less car-dependent. Why&#39;s this \
                  \&quot;friend\&quot; more important than the city&#39;s carbon-neutral goals?&quot;</span>,
             )
-            .<span class="ident">boss</span>(<span class="string">&quot;Everyone&#39;s calling in favors these days. Just make it happen!&quot;</span>)
-            .<span class="ident">player</span>(<span class="string">&quot;(Too many people have dirt on the boss. Guess we have another VIP to help.)&quot;</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">cutscene_task</span>(<span class="ident">mode</span>))
+            .boss(<span class="string">&quot;Everyone&#39;s calling in favors these days. Just make it happen!&quot;</span>)
+            .player(<span class="string">&quot;(Too many people have dirt on the boss. Guess we have another VIP to help.)&quot;</span>)
+            .build(ctx, cutscene_task(mode))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">GameplayState</span> <span class="kw">for</span> <span class="ident">OptimizeCommute</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">controls</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SandboxControls</span>,
-        <span class="ident">actions</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Actions</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">once</span> {
-            <span class="self">self</span>.<span class="ident">once</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="ident">Tab::PersonTrips</span>(<span class="self">self</span>.<span class="ident">person</span>, <span class="ident">BTreeMap::new</span>()),
-                <span class="ident">actions</span>,
+<span class="kw">impl </span>GameplayState <span class="kw">for </span>OptimizeCommute {
+    <span class="kw">fn </span>event(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        controls: <span class="kw-2">&amp;mut </span>SandboxControls,
+        actions: <span class="kw-2">&amp;mut </span>Actions,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="kw">if </span><span class="self">self</span>.once {
+            <span class="self">self</span>.once = <span class="bool-val">false</span>;
+            controls.common.as_mut().unwrap().launch_info_panel(
+                ctx,
+                app,
+                Tab::PersonTrips(<span class="self">self</span>.person, BTreeMap::new()),
+                actions,
             );
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">done</span> {
-            <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>();
-            <span class="self">self</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if </span><span class="self">self</span>.time != app.primary.sim.time() &amp;&amp; !<span class="self">self</span>.done {
+            <span class="self">self</span>.time = app.primary.sim.time();
+            <span class="self">self</span>.recreate_panels(ctx, app);
 
-            <span class="kw">let</span> (<span class="ident">before</span>, <span class="ident">after</span>, <span class="ident">done</span>) <span class="op">=</span> <span class="ident">get_score</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span>);
-            <span class="kw">if</span> <span class="ident">done</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>() {
-                <span class="self">self</span>.<span class="ident">done</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">final_score</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
-                    <span class="ident">before</span>,
-                    <span class="ident">after</span>,
-                    <span class="self">self</span>.<span class="ident">goal</span>,
+            <span class="kw">let </span>(before, after, done) = get_score(app, <span class="kw-2">&amp;</span><span class="self">self</span>.trips);
+            <span class="kw">if </span>done == <span class="self">self</span>.trips.len() {
+                <span class="self">self</span>.done = <span class="bool-val">true</span>;
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(final_score(
+                    ctx,
+                    app,
+                    <span class="self">self</span>.mode.clone(),
+                    before,
+                    after,
+                    <span class="self">self</span>.goal,
                 )));
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;edit map&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">EditMode::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_right.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;edit map&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(EditMode::new_state(
+                        ctx,
+                        app,
+                        <span class="self">self</span>.mode.clone(),
                     )));
                 }
-                <span class="string">&quot;instructions&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> (<span class="ident">cutscene_task</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">mode</span>))(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ShowMessage::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">contents</span>,
-                        <span class="ident">Color::WHITE</span>,
+                <span class="string">&quot;instructions&quot; </span>=&gt; {
+                    <span class="kw">let </span>contents = (cutscene_task(<span class="kw-2">&amp;</span><span class="self">self</span>.mode))(ctx);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
+                        ctx,
+                        contents,
+                        Color::WHITE,
                     )));
                 }
-                <span class="string">&quot;hint&quot;</span> =&gt; {
-                    <span class="comment">// TODO Multiple hints. Point to follow button.</span>
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Hints&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Use the locator at the top right to find the VIP.&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;You can wait for one of their trips to begin or end.&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Focus on trips spent mostly waiting&quot;</span>);
-                    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ShowMessage::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">contents</span>,
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>,
+                <span class="string">&quot;hint&quot; </span>=&gt; {
+                    <span class="comment">// TODO Multiple hints. Point to follow button.
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;Hints&quot;</span>);
+                    txt.add_line(<span class="string">&quot;&quot;</span>);
+                    txt.add_line(<span class="string">&quot;Use the locator at the top right to find the VIP.&quot;</span>);
+                    txt.add_line(<span class="string">&quot;You can wait for one of their trips to begin or end.&quot;</span>);
+                    txt.add_line(<span class="string">&quot;Focus on trips spent mostly waiting&quot;</span>);
+                    <span class="kw">let </span>contents = txt.into_widget(ctx);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
+                        ctx,
+                        contents,
+                        app.cs.panel_bg,
                     )));
                 }
-                <span class="string">&quot;locate VIP&quot;</span> =&gt; {
-                    <span class="ident">controls</span>.<span class="ident">common</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">launch_info_panel</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">Tab::PersonTrips</span>(<span class="self">self</span>.<span class="ident">person</span>, <span class="ident">BTreeMap::new</span>()),
-                        <span class="ident">actions</span>,
+                <span class="string">&quot;locate VIP&quot; </span>=&gt; {
+                    controls.common.as_mut().unwrap().launch_info_panel(
+                        ctx,
+                        app,
+                        Tab::PersonTrips(<span class="self">self</span>.person, BTreeMap::new()),
+                        actions,
                     );
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.top_right.draw(g);
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    }
+    <span class="kw">fn </span>recreate_panels(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span>(before, after, done) = get_score(app, <span class="kw-2">&amp;</span><span class="self">self</span>.trips);
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="macro">format!</span>(<span class="string">&quot;Total time: {} (&quot;</span>, after));
+        txt.append_all(cmp_duration_shorter(app, after, before));
+        txt.append(Line(<span class="string">&quot;)&quot;</span>));
 
-    <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> (<span class="ident">before</span>, <span class="ident">after</span>, <span class="ident">done</span>) <span class="op">=</span> <span class="ident">get_score</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trips</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;Total time: {} (&quot;</span>, <span class="ident">after</span>));
-        <span class="ident">txt</span>.<span class="ident">append_all</span>(<span class="ident">cmp_duration_shorter</span>(<span class="ident">app</span>, <span class="ident">after</span>, <span class="ident">before</span>));
-        <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="string">&quot;)&quot;</span>));
-
-        <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Optimize the VIP&#39;s commute&quot;</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="macro">format!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by {}&quot;</span>, <span class="self">self</span>.<span class="ident">goal</span>)
-                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;hint&quot;</span>)
-                    .<span class="ident">align_right</span>(),
+        <span class="self">self</span>.top_right = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            challenge_header(ctx, <span class="string">&quot;Optimize the VIP&#39;s commute&quot;</span>),
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="macro">format!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by {}&quot;</span>, <span class="self">self</span>.goal)
+                    .text_widget(ctx)
+                    .centered_vert(),
+                ctx.style()
+                    .btn_plain
+                    .icon_text(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;hint&quot;</span>)
+                    .align_right(),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;locate VIP&quot;</span>),
-                <span class="macro">format!</span>(<span class="string">&quot;{}/{} trips done&quot;</span>, <span class="ident">done</span>, <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;locate VIP&quot;</span>),
+                <span class="macro">format!</span>(<span class="string">&quot;{}/{} trips done&quot;</span>, done, <span class="self">self</span>.trips.len()).text_widget(ctx),
+                txt.into_widget(ctx),
             ])
-            .<span class="ident">centered</span>(),
+            .centered(),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+        .build(ctx);
     }
 }
 
-<span class="comment">// Returns (before, after, number of trips done)</span>
-<span class="kw">fn</span> <span class="ident">get_score</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">trips</span>: <span class="kw-2">&amp;</span>[<span class="ident">TripID</span>]) -&gt; (<span class="ident">Duration</span>, <span class="ident">Duration</span>, <span class="ident">usize</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">done</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">trips</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">total</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">finished_trip_details</span>(<span class="kw-2">*</span><span class="ident">t</span>) {
-            <span class="ident">done</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">after</span> <span class="op">+</span><span class="op">=</span> <span class="ident">total</span>;
-            <span class="comment">// Assume all trips completed before changes</span>
-            <span class="ident">before</span> <span class="op">+</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trip_time</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">unwrap</span>();
+<span class="comment">// Returns (before, after, number of trips done)
+</span><span class="kw">fn </span>get_score(app: <span class="kw-2">&amp;</span>App, trips: <span class="kw-2">&amp;</span>[TripID]) -&gt; (Duration, Duration, usize) {
+    <span class="kw">let </span><span class="kw-2">mut </span>done = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>before = Duration::ZERO;
+    <span class="kw">let </span><span class="kw-2">mut </span>after = Duration::ZERO;
+    <span class="kw">for </span>t <span class="kw">in </span>trips {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((total, <span class="kw">_</span>, <span class="kw">_</span>)) = app.primary.sim.finished_trip_details(<span class="kw-2">*</span>t) {
+            done += <span class="number">1</span>;
+            after += total;
+            <span class="comment">// Assume all trips completed before changes
+            </span>before += app.prebaked().finished_trip_time(<span class="kw-2">*</span>t).unwrap();
         }
     }
-    (<span class="ident">before</span>, <span class="ident">after</span>, <span class="ident">done</span>)
+    (before, after, done)
 }
 
-<span class="kw">fn</span> <span class="ident">final_score</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-    <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    <span class="ident">before</span>: <span class="ident">Duration</span>,
-    <span class="ident">after</span>: <span class="ident">Duration</span>,
-    <span class="ident">goal</span>: <span class="ident">Duration</span>,
-) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>final_score(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;mut </span>App,
+    mode: GameplayMode,
+    before: Duration,
+    after: Duration,
+    goal: Duration,
+) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>next_mode: <span class="prelude-ty">Option</span>&lt;GameplayMode&gt; = <span class="prelude-val">None</span>;
 
-    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">==</span> <span class="ident">after</span> {
+    <span class="kw">let </span>msg = <span class="kw">if </span>before == after {
         <span class="macro">format!</span>(
             <span class="string">&quot;The VIP&#39;s commute still takes a total of {}. Were you asleep on the job? Try \
              changing something!&quot;</span>,
-            <span class="ident">before</span>
+            before
         )
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">after</span> <span class="op">&gt;</span> <span class="ident">before</span> {
-        <span class="comment">// TODO mad lib insults</span>
-        <span class="macro">format!</span>(
+    } <span class="kw">else if </span>after &gt; before {
+        <span class="comment">// TODO mad lib insults
+        </span><span class="macro">format!</span>(
             <span class="string">&quot;The VIP&#39;s commute went from {} total to {}. You utter dunce! Are you trying to screw \
              me over?!&quot;</span>,
-            <span class="ident">before</span>, <span class="ident">after</span>
+            before, after
         )
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span> <span class="op">&lt;</span> <span class="ident">goal</span> {
+    } <span class="kw">else if </span>before - after &lt; goal {
         <span class="macro">format!</span>(
             <span class="string">&quot;The VIP&#39;s commute went from {} total to {}. Hmm... that&#39;s {} faster. But didn&#39;t I \
              tell you to speed things up by {} at least?&quot;</span>,
-            <span class="ident">before</span>,
-            <span class="ident">after</span>,
-            <span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span>,
-            <span class="ident">goal</span>
+            before,
+            after,
+            before - after,
+            goal
         )
-    } <span class="kw">else</span> {
-        <span class="ident">HighScore</span> {
-            <span class="ident">goal</span>: <span class="macro">format!</span>(<span class="string">&quot;make VIP&#39;s commute at least {} faster&quot;</span>, <span class="ident">goal</span>),
-            <span class="ident">score</span>: <span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span>,
-            <span class="ident">edits_name</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>.<span class="ident">clone</span>(),
+    } <span class="kw">else </span>{
+        HighScore {
+            goal: <span class="macro">format!</span>(<span class="string">&quot;make VIP&#39;s commute at least {} faster&quot;</span>, goal),
+            score: before - after,
+            edits_name: app.primary.map.get_edits().edits_name.clone(),
         }
-        .<span class="ident">record</span>(<span class="ident">app</span>, <span class="ident">mode</span>.<span class="ident">clone</span>());
+        .record(app, mode.clone());
 
-        <span class="ident">next_mode</span> <span class="op">=</span> <span class="ident">Challenge::find</span>(<span class="kw-2">&amp;</span><span class="ident">mode</span>).<span class="number">1</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">gameplay</span>);
+        next_mode = Challenge::find(<span class="kw-2">&amp;</span>mode).<span class="number">1</span>.map(|c| c.gameplay);
 
         <span class="macro">format!</span>(
             <span class="string">&quot;Alright, you somehow managed to shave {} down from the VIP&#39;s original commute of {}. \
              I guess that&#39;ll do. Maybe you&#39;re not totally useless after all.&quot;</span>,
-            <span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span>,
-            <span class="ident">before</span>
+            before - after,
+            before
         )
     };
 
-    <span class="ident">FinalScore::new_state</span>(<span class="ident">ctx</span>, <span class="ident">msg</span>, <span class="ident">mode</span>, <span class="ident">next_mode</span>)
+    FinalScore::new_state(ctx, msg, mode, next_mode)
 }
 
-<span class="kw">fn</span> <span class="ident">cutscene_task</span>(<span class="ident">mode</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">mode</span> {
-        <span class="ident">GameplayMode::OptimizeCommute</span>(<span class="kw">_</span>, <span class="ident">d</span>) =&gt; <span class="kw-2">*</span><span class="ident">d</span>,
-        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">fn </span>cutscene_task(mode: <span class="kw-2">&amp;</span>GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget&gt; {
+    <span class="kw">let </span>goal = <span class="kw">match </span>mode {
+        GameplayMode::OptimizeCommute(<span class="kw">_</span>, d) =&gt; <span class="kw-2">*</span>d,
+        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
     };
 
-    <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="kw">let</span> <span class="ident">icon_builder</span> <span class="op">=</span> <span class="ident">Image::empty</span>().<span class="ident">color</span>(<span class="ident">Color::BLACK</span>).<span class="ident">dims</span>(<span class="number">50.0</span>);
-        <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by a total of {}&quot;</span>, <span class="ident">goal</span>)).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;Ignore the damage done to everyone else.&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
+    Box::new(<span class="kw">move </span>|ctx| {
+        <span class="kw">let </span>icon_builder = Image::empty().color(Color::BLACK).dims(<span class="number">50.0</span>);
+        Widget::custom_col(<span class="macro">vec!</span>[
+            Text::from_multiline(<span class="macro">vec!</span>[
+                Line(<span class="macro">format!</span>(<span class="string">&quot;Speed up the VIP&#39;s trips by a total of {}&quot;</span>, goal)).fg(Color::BLACK),
+                Line(<span class="string">&quot;Ignore the damage done to everyone else.&quot;</span>).fg(Color::BLACK),
             ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-            .<span class="ident">margin_below</span>(<span class="number">30</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">icon_builder</span>
-                        .<span class="ident">clone</span>()
-                        .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Until the VIP&#39;s&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
-                        <span class="ident">Line</span>(<span class="string">&quot;last trip is done&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
+            .into_widget(ctx)
+            .margin_below(<span class="number">30</span>),
+            Widget::row(<span class="macro">vec!</span>[
+                Widget::col(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Time&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                    icon_builder
+                        .clone()
+                        .source_path(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
+                        .into_widget(ctx),
+                    Text::from_multiline(<span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;Until the VIP&#39;s&quot;</span>).fg(Color::BLACK),
+                        Line(<span class="string">&quot;last trip is done&quot;</span>).fg(Color::BLACK),
                     ])
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    .into_widget(ctx),
                 ]),
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">icon_builder</span>
-                        .<span class="ident">clone</span>()
-                        .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Speed up the VIP&#39;s trips&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
-                        <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;by at least {}&quot;</span>, <span class="ident">goal</span>)).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
+                Widget::col(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Goal&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                    icon_builder
+                        .clone()
+                        .source_path(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                        .into_widget(ctx),
+                    Text::from_multiline(<span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;Speed up the VIP&#39;s trips&quot;</span>).fg(Color::BLACK),
+                        Line(<span class="macro">format!</span>(<span class="string">&quot;by at least {}&quot;</span>, goal)).fg(Color::BLACK),
                     ])
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    .into_widget(ctx),
                 ]),
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">icon_builder</span>
-                        .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;How much time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
-                        <span class="ident">Line</span>(<span class="string">&quot;the VIP saves&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
+                Widget::col(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Score&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                    icon_builder
+                        .source_path(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+                        .into_widget(ctx),
+                    Text::from_multiline(<span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;How much time&quot;</span>).fg(Color::BLACK),
+                        Line(<span class="string">&quot;the VIP saves&quot;</span>).fg(Color::BLACK),
                     ])
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    .into_widget(ctx),
                 ]),
             ])
-            .<span class="ident">evenly_spaced</span>(),
+            .evenly_spaced(),
         ])
     })
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/objects.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>objects.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/objects.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>objects.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -142,149 +142,149 @@
 <span id="142">142</span>
 <span id="143">143</span>
 <span id="144">144</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">Position</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Sim</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Text</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::{Map, Position};
+<span class="kw">use </span>sim::{AgentID, Sim};
+<span class="kw">use </span>widgetry::{GfxCtx, Key, Text};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ObjectDebugger</span>;
+<span class="kw">pub struct </span>ObjectDebugger;
 
-<span class="kw">impl</span> <span class="ident">ObjectDebugger</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">is_key_down</span>(<span class="ident">Key::LeftControl</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">pt</span>.<span class="ident">to_string</span>());
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">pt</span>.<span class="ident">to_gps</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()).<span class="ident">to_string</span>());
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor</span>()));
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;zoom: {}&quot;</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>));
-                <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+<span class="kw">impl </span>ObjectDebugger {
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if </span>g.is_key_down(Key::LeftControl) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = g.canvas.get_cursor_in_map_space() {
+                <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+                txt.add_line(pt.to_string());
+                txt.add_line(pt.to_gps(app.primary.map.get_gps_bounds()).to_string());
+                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, g.canvas.get_cursor()));
+                txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;zoom: {}&quot;</span>, g.canvas.cam_zoom));
+                txt.add_line(<span class="macro">format!</span>(
                     <span class="string">&quot;cam_x = {}, cam_y = {}&quot;</span>,
-                    <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_x</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_y</span>
+                    g.canvas.cam_x, g.canvas.cam_y
                 ));
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                    <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-                    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">lane</span>.<span class="ident">lane_center_pts</span>;
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">dist</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along_of_point</span>(<span class="ident">pl</span>.<span class="ident">project_pt</span>(<span class="ident">pt</span>)) {
-                        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Position::new</span>(<span class="ident">l</span>, <span class="ident">dist</span>).<span class="ident">to_string</span>());
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Lane(l)) = app.primary.current_selection {
+                    <span class="kw">let </span>lane = app.primary.map.get_l(l);
+                    <span class="kw">let </span>pl = <span class="kw-2">&amp;</span>lane.lane_center_pts;
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>((dist, <span class="kw">_</span>)) = pl.dist_along_of_point(pl.project_pt(pt)) {
+                        txt.add_line(Position::new(l, dist).to_string());
                     }
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+                    txt.add_line(<span class="macro">format!</span>(
                         <span class="string">&quot;{:?}&quot;</span>,
-                        <span class="ident">lane</span>.<span class="ident">get_nearest_side_of_road</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+                        lane.get_nearest_side_of_road(<span class="kw-2">&amp;</span>app.primary.map)
                     ));
                 }
-                <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>);
+                g.draw_mouse_tooltip(txt);
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dump_debug</span>(<span class="ident">id</span>: <span class="ident">ID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>) {
-        <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">ID::Lane</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">l</span>));
+    <span class="kw">pub fn </span>dump_debug(id: ID, map: <span class="kw-2">&amp;</span>Map, sim: <span class="kw-2">&amp;</span>Sim) {
+        <span class="kw">match </span>id {
+            ID::Lane(id) =&gt; {
+                <span class="kw">let </span>l = map.get_l(id);
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(l));
 
-                <span class="ident">sim</span>.<span class="ident">debug_lane</span>(<span class="ident">id</span>);
+                sim.debug_lane(id);
 
-                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">id</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;Parent {} ({}) points to {}&quot;</span>, <span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">r</span>.<span class="ident">orig_id</span>, <span class="ident">r</span>.<span class="ident">dst_i</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">r</span>));
+                <span class="kw">let </span>r = map.get_parent(id);
+                <span class="macro">println!</span>(<span class="string">&quot;Parent {} ({}) points to {}&quot;</span>, r.id, r.orig_id, r.dst_i);
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(r));
             }
-            <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">i</span>));
+            ID::Intersection(id) =&gt; {
+                <span class="kw">let </span>i = map.get_i(id);
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(i));
 
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">sim</span>.<span class="ident">debug_intersection_json</span>(<span class="ident">id</span>, <span class="ident">map</span>));
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, sim.debug_intersection_json(id, map));
 
-                <span class="macro">println!</span>(<span class="string">&quot;{} connecting:&quot;</span>, <span class="ident">i</span>.<span class="ident">orig_id</span>);
-                <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-                    <span class="macro">println!</span>(<span class="string">&quot;- {} = {}&quot;</span>, <span class="ident">road</span>.<span class="ident">id</span>, <span class="ident">road</span>.<span class="ident">orig_id</span>);
+                <span class="macro">println!</span>(<span class="string">&quot;{} connecting:&quot;</span>, i.orig_id);
+                <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>i.roads {
+                    <span class="kw">let </span>road = map.get_r(<span class="kw-2">*</span>r);
+                    <span class="macro">println!</span>(<span class="string">&quot;- {} = {}&quot;</span>, road.id, road.orig_id);
                 }
             }
-            <span class="ident">ID::Building</span>(<span class="ident">id</span>) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">id</span>)));
+            ID::Building(id) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(map.get_b(id)));
             }
-            <span class="ident">ID::ParkingLot</span>(<span class="ident">id</span>) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>)));
+            ID::ParkingLot(id) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(map.get_pl(id)));
             }
-            <span class="ident">ID::Car</span>(<span class="ident">id</span>) =&gt; {
-                <span class="ident">sim</span>.<span class="ident">debug_car</span>(<span class="ident">id</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">agent_to_trip</span>(<span class="ident">AgentID::Car</span>(<span class="ident">id</span>)) {
-                    <span class="macro">println!</span>(<span class="string">&quot;Trip log for {}&quot;</span>, <span class="ident">t</span>);
-                    <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">get_trip_phases</span>(<span class="ident">t</span>, <span class="ident">map</span>) {
-                        <span class="macro">println!</span>(<span class="string">&quot;- {:?}&quot;</span>, <span class="ident">p</span>);
+            ID::Car(id) =&gt; {
+                sim.debug_car(id);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = sim.agent_to_trip(AgentID::Car(id)) {
+                    <span class="macro">println!</span>(<span class="string">&quot;Trip log for {}&quot;</span>, t);
+                    <span class="kw">for </span>p <span class="kw">in </span>sim.get_analytics().get_trip_phases(t, map) {
+                        <span class="macro">println!</span>(<span class="string">&quot;- {:?}&quot;</span>, p);
                     }
                 }
             }
-            <span class="ident">ID::Pedestrian</span>(<span class="ident">id</span>) =&gt; {
-                <span class="ident">sim</span>.<span class="ident">debug_ped</span>(<span class="ident">id</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">agent_to_trip</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>)) {
-                    <span class="macro">println!</span>(<span class="string">&quot;Trip log for {}&quot;</span>, <span class="ident">t</span>);
-                    <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">get_trip_phases</span>(<span class="ident">t</span>, <span class="ident">map</span>) {
-                        <span class="macro">println!</span>(<span class="string">&quot;- {:?}&quot;</span>, <span class="ident">p</span>);
+            ID::Pedestrian(id) =&gt; {
+                sim.debug_ped(id);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = sim.agent_to_trip(AgentID::Pedestrian(id)) {
+                    <span class="macro">println!</span>(<span class="string">&quot;Trip log for {}&quot;</span>, t);
+                    <span class="kw">for </span>p <span class="kw">in </span>sim.get_analytics().get_trip_phases(t, map) {
+                        <span class="macro">println!</span>(<span class="string">&quot;- {:?}&quot;</span>, p);
                     }
                 }
             }
-            <span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;Crowd with {} members&quot;</span>, <span class="ident">members</span>.<span class="ident">len</span>());
-                <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">members</span> {
-                    <span class="ident">sim</span>.<span class="ident">debug_ped</span>(<span class="ident">p</span>);
+            ID::PedCrowd(members) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;Crowd with {} members&quot;</span>, members.len());
+                <span class="kw">for </span>p <span class="kw">in </span>members {
+                    sim.debug_ped(p);
                 }
             }
-            <span class="ident">ID::TransitStop</span>(<span class="ident">id</span>) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">id</span>)));
+            ID::TransitStop(id) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(map.get_ts(id)));
             }
-            <span class="ident">ID::Area</span>(<span class="ident">id</span>) =&gt; {
-                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_a</span>(<span class="ident">id</span>)));
+            ID::Area(id) =&gt; {
+                <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, abstutil::to_json(map.get_a(id)));
             }
-            <span class="ident">ID::Road</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            ID::Road(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_json</span>(<span class="ident">id</span>: <span class="ident">ID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>) {
-        <span class="kw">let</span> <span class="ident">json_string</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
-            <span class="ident">ID::Lane</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>)),
-            <span class="ident">ID::Intersection</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">json1</span> <span class="op">=</span> <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>));
-                <span class="kw">let</span> <span class="ident">json2</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">debug_intersection_json</span>(<span class="ident">id</span>, <span class="ident">map</span>);
+    <span class="kw">pub fn </span>debug_json(id: ID, map: <span class="kw-2">&amp;</span>Map, sim: <span class="kw-2">&amp;</span>Sim) {
+        <span class="kw">let </span>json_string = <span class="kw">match </span>id {
+            ID::Lane(id) =&gt; abstutil::to_json(map.get_l(id)),
+            ID::Intersection(id) =&gt; {
+                <span class="kw">let </span>json1 = abstutil::to_json(map.get_i(id));
+                <span class="kw">let </span>json2 = sim.debug_intersection_json(id, map);
                 <span class="macro">format!</span>(<span class="string">&quot;[{json1}, {json2}]&quot;</span>)
             }
-            <span class="ident">ID::Building</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">id</span>)),
-            <span class="ident">ID::ParkingLot</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>)),
-            <span class="ident">ID::Car</span>(<span class="ident">id</span>) =&gt; <span class="ident">sim</span>.<span class="ident">debug_agent_json</span>(<span class="ident">AgentID::Car</span>(<span class="ident">id</span>)),
-            <span class="ident">ID::Pedestrian</span>(<span class="ident">id</span>) =&gt; <span class="ident">sim</span>.<span class="ident">debug_agent_json</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>)),
-            <span class="comment">// Just show the first...</span>
-            <span class="ident">ID::PedCrowd</span>(<span class="ident">members</span>) =&gt; <span class="ident">sim</span>.<span class="ident">debug_agent_json</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">members</span>[<span class="number">0</span>])),
-            <span class="ident">ID::TransitStop</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">id</span>)),
-            <span class="ident">ID::Area</span>(<span class="ident">id</span>) =&gt; <span class="ident">abstutil::to_json</span>(<span class="ident">map</span>.<span class="ident">get_a</span>(<span class="ident">id</span>)),
-            <span class="ident">ID::Road</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            ID::Building(id) =&gt; abstutil::to_json(map.get_b(id)),
+            ID::ParkingLot(id) =&gt; abstutil::to_json(map.get_pl(id)),
+            ID::Car(id) =&gt; sim.debug_agent_json(AgentID::Car(id)),
+            ID::Pedestrian(id) =&gt; sim.debug_agent_json(AgentID::Pedestrian(id)),
+            <span class="comment">// Just show the first...
+            </span>ID::PedCrowd(members) =&gt; sim.debug_agent_json(AgentID::Pedestrian(members[<span class="number">0</span>])),
+            ID::TransitStop(id) =&gt; abstutil::to_json(map.get_ts(id)),
+            ID::Area(id) =&gt; abstutil::to_json(map.get_a(id)),
+            ID::Road(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-        {
-            <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">json_string</span>);
+        <span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+        </span>{
+            <span class="macro">info!</span>(<span class="string">&quot;{}&quot;</span>, json_string);
         }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-        {
-            <span class="kw">use</span> <span class="ident">std::io::Write</span>;
+        <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+        </span>{
+            <span class="kw">use </span>std::io::Write;
 
-            <span class="comment">// The tempfile crate doesn&#39;t actually have a way to get the path... so just do this.</span>
-            <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/abst_obj.json&quot;</span>, <span class="ident">std::env::temp_dir</span>().<span class="ident">display</span>());
+            <span class="comment">// The tempfile crate doesn&#39;t actually have a way to get the path... so just do this.
+            </span><span class="kw">let </span>path = <span class="macro">format!</span>(<span class="string">&quot;{}/abst_obj.json&quot;</span>, std::env::temp_dir().display());
             {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">fs_err::File::create</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">unwrap</span>();
-                <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;{}&quot;</span>, <span class="ident">json_string</span>).<span class="ident">unwrap</span>();
+                <span class="kw">let </span><span class="kw-2">mut </span>f = fs_err::File::create(<span class="kw-2">&amp;</span>path).unwrap();
+                <span class="macro">writeln!</span>(f, <span class="string">&quot;{}&quot;</span>, json_string).unwrap();
             }
-            <span class="comment">// Don&#39;t wait for the command to complete.</span>
-            <span class="comment">// Also, https://dadroit.com/ is the best viewer I&#39;ve found so far, but we can change</span>
-            <span class="comment">// this to another or make it configurable with an environment variable or something</span>
-            <span class="comment">// once other people use this.</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">std::process::Command::new</span>(<span class="string">&quot;dadroit&quot;</span>).<span class="ident">arg</span>(<span class="ident">path</span>).<span class="ident">spawn</span>() {
-                <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t launch dadroit: {}&quot;</span>, <span class="ident">err</span>);
+            <span class="comment">// Don&#39;t wait for the command to complete.
+            // Also, https://dadroit.com/ is the best viewer I&#39;ve found so far, but we can change
+            // this to another or make it configurable with an environment variable or something
+            // once other people use this.
+            </span><span class="kw">if let </span><span class="prelude-val">Err</span>(err) = std::process::Command::new(<span class="string">&quot;dadroit&quot;</span>).arg(path).spawn() {
+                <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t launch dadroit: {}&quot;</span>, err);
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

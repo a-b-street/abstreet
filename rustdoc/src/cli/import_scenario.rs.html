@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/import_scenario.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>import_scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/import_scenario.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>import_scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -29,36 +29,36 @@
 <span id="29">29</span>
 <span id="30">30</span>
 <span id="31">31</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>serde::Deserialize;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">Scenario</span>};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>map_model::Map;
+<span class="kw">use </span>synthpop::{ExternalPerson, Scenario};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">input</span>: <span class="ident">String</span>, <span class="ident">map</span>: <span class="ident">String</span>, <span class="ident">skip_problems</span>: <span class="ident">bool</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;import traffic demand data&quot;</span>);
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-    <span class="kw">let</span> <span class="ident">input</span>: <span class="ident">Input</span> <span class="op">=</span> <span class="ident">abstio::read_json</span>(<span class="ident">input</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+<span class="kw">pub fn </span>run(input: String, map: String, skip_problems: bool) {
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;import traffic demand data&quot;</span>);
+    <span class="kw">let </span>map = Map::load_synchronously(map, <span class="kw-2">&amp;mut </span>timer);
+    <span class="kw">let </span>input: Input = abstio::read_json(input, <span class="kw-2">&amp;mut </span>timer);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">scenario_name</span>);
-    <span class="comment">// Include all buses/trains</span>
-    <span class="ident">s</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="kw">let</span> <span class="ident">orig_num</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">people</span>.<span class="ident">len</span>();
-    <span class="ident">s</span>.<span class="ident">people</span> <span class="op">=</span> <span class="ident">ExternalPerson::import</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">input</span>.<span class="ident">people</span>, <span class="ident">skip_problems</span>).<span class="ident">unwrap</span>();
-    <span class="comment">// Always clean up people with no-op trips (going between the same buildings)</span>
-    <span class="ident">s</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">remove_weird_schedules</span>(<span class="bool-val">true</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(<span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;</span>input.scenario_name);
+    <span class="comment">// Include all buses/trains
+    </span>s.only_seed_buses = <span class="prelude-val">None</span>;
+    <span class="kw">let </span>orig_num = input.people.len();
+    s.people = ExternalPerson::import(<span class="kw-2">&amp;</span>map, input.people, skip_problems).unwrap();
+    <span class="comment">// Always clean up people with no-op trips (going between the same buildings)
+    </span>s = s.remove_weird_schedules(<span class="bool-val">true</span>);
     <span class="macro">println!</span>(
         <span class="string">&quot;Imported {}/{} people&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">len</span>()),
-        <span class="ident">prettyprint_usize</span>(<span class="ident">orig_num</span>)
+        prettyprint_usize(s.people.len()),
+        prettyprint_usize(orig_num)
     );
-    <span class="ident">s</span>.<span class="ident">save</span>();
+    s.save();
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Input</span> {
-    <span class="ident">scenario_name</span>: <span class="ident">String</span>,
-    <span class="ident">people</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">struct </span>Input {
+    scenario_name: String,
+    people: Vec&lt;ExternalPerson&gt;,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

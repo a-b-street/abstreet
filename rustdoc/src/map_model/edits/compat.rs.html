@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/compat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/edits/compat.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compat.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -498,505 +498,505 @@
 <span id="498">498</span>
 <span id="499">499</span>
 <span id="500">500</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
-<span class="kw">use</span> <span class="ident">serde_json::Value</span>;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::Deserialize;
+<span class="kw">use </span>serde_json::Value;
 
-<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">geom::Speed</span>;
+<span class="kw">use </span>abstio::{CityName, MapName};
+<span class="kw">use </span>geom::Speed;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">AccessRestrictions</span>, <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">OriginalRoad</span>,
-    <span class="ident">PermanentMapEdits</span>, <span class="ident">RoadID</span>,
+<span class="kw">use crate</span>::{
+    osm, AccessRestrictions, Direction, EditCmd, EditRoad, LaneSpec, LaneType, Map, OriginalRoad,
+    PermanentMapEdits, RoadID,
 };
 
-<span class="doccomment">/// When the PermanentMapEdits format changes, add a transformation here to automatically convert</span>
-<span class="doccomment">/// edits written with the old format.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// This problem is often solved with something like protocol buffers, but the resulting proto</span>
-<span class="doccomment">/// usually winds up with permanent legacy fields, unless the changes are purely additive. For</span>
-<span class="doccomment">/// example, protobufs wouldn&#39;t have helped with the fix_intersection_ids problem. Explicit</span>
-<span class="doccomment">/// transformation is easier!</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upgrade</span>(<span class="kw-2">mut</span> <span class="ident">value</span>: <span class="ident">Value</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PermanentMapEdits</span><span class="op">&gt;</span> {
-    <span class="comment">// c46a74f10f4f1976a48aa8642ac11717d74b262c added an explicit version field. There are a few</span>
-    <span class="comment">// changes before that.</span>
-    <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">get</span>(<span class="string">&quot;version&quot;</span>).<span class="ident">is_none</span>() {
-        <span class="comment">// I don&#39;t remember the previous schema change before this. If someone files a bug and has</span>
-        <span class="comment">// an older file, can add support for it then.</span>
-        <span class="ident">fix_offset</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">fix_intersection_ids</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
+<span class="doccomment">/// When the PermanentMapEdits format changes, add a transformation here to automatically convert
+/// edits written with the old format.
+///
+/// This problem is often solved with something like protocol buffers, but the resulting proto
+/// usually winds up with permanent legacy fields, unless the changes are purely additive. For
+/// example, protobufs wouldn&#39;t have helped with the fix_intersection_ids problem. Explicit
+/// transformation is easier!
+</span><span class="kw">pub fn </span>upgrade(<span class="kw-2">mut </span>value: Value, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;PermanentMapEdits&gt; {
+    <span class="comment">// c46a74f10f4f1976a48aa8642ac11717d74b262c added an explicit version field. There are a few
+    // changes before that.
+    </span><span class="kw">if </span>value.get(<span class="string">&quot;version&quot;</span>).is_none() {
+        <span class="comment">// I don&#39;t remember the previous schema change before this. If someone files a bug and has
+        // an older file, can add support for it then.
+        </span>fix_offset(<span class="kw-2">&amp;mut </span>value);
+        fix_intersection_ids(<span class="kw-2">&amp;mut </span>value);
 
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">0</span>.<span class="ident">into</span>()));
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">0</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">0</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_road_direction</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">1</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">0</span>.into()) {
+        fix_road_direction(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">1</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">1</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_old_lane_cmds</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">2</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">1</span>.into()) {
+        fix_old_lane_cmds(<span class="kw-2">&amp;mut </span>value, map)<span class="question-mark">?</span>;
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">2</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">2</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_merge_zones</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">3</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">2</span>.into()) {
+        fix_merge_zones(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">3</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">3</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_map_name</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">4</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">3</span>.into()) {
+        fix_map_name(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">4</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">4</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_phase_to_stage</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">5</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">4</span>.into()) {
+        fix_phase_to_stage(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">5</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">5</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_adaptive_stages</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">6</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">5</span>.into()) {
+        fix_adaptive_stages(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">6</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">6</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_plans</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">7</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">6</span>.into()) {
+        fix_plans(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">7</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">7</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_city_name</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">8</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">7</span>.into()) {
+        fix_city_name(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">8</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">8</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_lane_widths</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">9</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">8</span>.into()) {
+        fix_lane_widths(<span class="kw-2">&amp;mut </span>value, map)<span class="question-mark">?</span>;
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">9</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">9</span>.<span class="ident">into</span>()) {
-        <span class="ident">fix_f64s</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">10</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">9</span>.into()) {
+        fix_f64s(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">10</span>.into()));
     }
-    <span class="kw">if</span> <span class="ident">value</span>[<span class="string">&quot;version&quot;</span>] <span class="op">==</span> <span class="ident">Value::Number</span>(<span class="number">10</span>.<span class="ident">into</span>()) {
-        <span class="ident">remove_vehicle_caps</span>(<span class="kw-2">&amp;mut</span> <span class="ident">value</span>);
-        <span class="ident">value</span>
-            .<span class="ident">as_object_mut</span>()
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">insert</span>(<span class="string">&quot;version&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">11</span>.<span class="ident">into</span>()));
+    <span class="kw">if </span>value[<span class="string">&quot;version&quot;</span>] == Value::Number(<span class="number">10</span>.into()) {
+        remove_vehicle_caps(<span class="kw-2">&amp;mut </span>value);
+        value
+            .as_object_mut()
+            .unwrap()
+            .insert(<span class="string">&quot;version&quot;</span>.to_string(), Value::Number(<span class="number">11</span>.into()));
     }
 
-    <span class="ident">abstutil::from_json</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>())
+    abstutil::from_json(<span class="kw-2">&amp;</span>value.to_string().into_bytes())
 }
 
-<span class="comment">// Recursively walks the entire JSON object. Will call transform on all of the map objects. If the</span>
-<span class="comment">// callback returns true, won&#39;t recurse into that map.</span>
-<span class="kw">fn</span> <span class="ident">walk</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">serde_json::Map</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Value</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>, <span class="ident">transform</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>) {
-    <span class="kw">match</span> <span class="ident">value</span> {
-        <span class="ident">Value::Array</span>(<span class="ident">list</span>) =&gt; {
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">list</span> {
-                <span class="ident">walk</span>(<span class="ident">x</span>, <span class="ident">transform</span>);
+<span class="comment">// Recursively walks the entire JSON object. Will call transform on all of the map objects. If the
+// callback returns true, won&#39;t recurse into that map.
+</span><span class="kw">fn </span>walk&lt;F: Fn(<span class="kw-2">&amp;mut </span>serde_json::Map&lt;String, Value&gt;) -&gt; bool&gt;(value: <span class="kw-2">&amp;mut </span>Value, transform: <span class="kw-2">&amp;</span>F) {
+    <span class="kw">match </span>value {
+        Value::Array(list) =&gt; {
+            <span class="kw">for </span>x <span class="kw">in </span>list {
+                walk(x, transform);
             }
         }
-        <span class="ident">Value::Object</span>(<span class="ident">map</span>) =&gt; {
-            <span class="kw">if</span> <span class="op">!</span>(<span class="ident">transform</span>)(<span class="ident">map</span>) {
-                <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">values_mut</span>() {
-                    <span class="ident">walk</span>(<span class="ident">x</span>, <span class="ident">transform</span>);
+        Value::Object(map) =&gt; {
+            <span class="kw">if </span>!(transform)(map) {
+                <span class="kw">for </span>x <span class="kw">in </span>map.values_mut() {
+                    walk(x, transform);
                 }
             }
         }
-        <span class="kw">_</span> =&gt; {}
+        <span class="kw">_ </span>=&gt; {}
     }
 }
 
-<span class="comment">// eee179ce8a6c1e6133dc212b73c3f79b11603e82 added an offset_seconds field</span>
-<span class="kw">fn</span> <span class="ident">fix_offset</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;TrafficSignal&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">get_mut</span>(<span class="string">&quot;TrafficSignal&quot;</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">as_object_mut</span>()
-                .<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">ts</span>.<span class="ident">get</span>(<span class="string">&quot;offset_seconds&quot;</span>).<span class="ident">is_none</span>() {
-                <span class="ident">ts</span>.<span class="ident">insert</span>(<span class="string">&quot;offset_seconds&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">0</span>.<span class="ident">into</span>()));
+<span class="comment">// eee179ce8a6c1e6133dc212b73c3f79b11603e82 added an offset_seconds field
+</span><span class="kw">fn </span>fix_offset(value: <span class="kw-2">&amp;mut </span>Value) {
+    walk(value, <span class="kw-2">&amp;</span>|map| {
+        <span class="kw">if </span>map.len() == <span class="number">1 </span>&amp;&amp; map.contains_key(<span class="string">&quot;TrafficSignal&quot;</span>) {
+            <span class="kw">let </span>ts = map
+                .get_mut(<span class="string">&quot;TrafficSignal&quot;</span>)
+                .unwrap()
+                .as_object_mut()
+                .unwrap();
+            <span class="kw">if </span>ts.get(<span class="string">&quot;offset_seconds&quot;</span>).is_none() {
+                ts.insert(<span class="string">&quot;offset_seconds&quot;</span>.to_string(), Value::Number(<span class="number">0</span>.into()));
             }
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     })
 }
 
-<span class="comment">// 11cefb118ab353d2e7fa5dceaab614a9b775e6ec changed { &quot;osm_node_id&quot;: 123 } to just 123</span>
-<span class="kw">fn</span> <span class="ident">fix_intersection_ids</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="kw">match</span> <span class="ident">value</span> {
-        <span class="ident">Value::Array</span>(<span class="ident">list</span>) =&gt; {
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">list</span> {
-                <span class="ident">fix_intersection_ids</span>(<span class="ident">x</span>);
+<span class="comment">// 11cefb118ab353d2e7fa5dceaab614a9b775e6ec changed { &quot;osm_node_id&quot;: 123 } to just 123
+</span><span class="kw">fn </span>fix_intersection_ids(value: <span class="kw-2">&amp;mut </span>Value) {
+    <span class="kw">match </span>value {
+        Value::Array(list) =&gt; {
+            <span class="kw">for </span>x <span class="kw">in </span>list {
+                fix_intersection_ids(x);
             }
         }
-        <span class="ident">Value::Object</span>(<span class="ident">map</span>) =&gt; {
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;osm_node_id&quot;</span>) {
-                <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="ident">Value::Number</span>(<span class="ident">map</span>[<span class="string">&quot;osm_node_id&quot;</span>].<span class="ident">as_i64</span>().<span class="ident">unwrap</span>().<span class="ident">into</span>());
-            } <span class="kw">else</span> {
-                <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">values_mut</span>() {
-                    <span class="ident">fix_intersection_ids</span>(<span class="ident">x</span>);
+        Value::Object(map) =&gt; {
+            <span class="kw">if </span>map.len() == <span class="number">1 </span>&amp;&amp; map.contains_key(<span class="string">&quot;osm_node_id&quot;</span>) {
+                <span class="kw-2">*</span>value = Value::Number(map[<span class="string">&quot;osm_node_id&quot;</span>].as_i64().unwrap().into());
+            } <span class="kw">else </span>{
+                <span class="kw">for </span>x <span class="kw">in </span>map.values_mut() {
+                    fix_intersection_ids(x);
                 }
             }
         }
-        <span class="kw">_</span> =&gt; {}
+        <span class="kw">_ </span>=&gt; {}
     }
 }
 
-<span class="comment">// b137735e019adbe0f2a7372a579aa987f8496e19 changed direction from a boolean to an enum.</span>
-<span class="kw">fn</span> <span class="ident">fix_road_direction</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;num_fwd&quot;</span>) {
-            <span class="ident">map</span>.<span class="ident">insert</span>(
-                <span class="string">&quot;dir&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="kw">if</span> <span class="ident">map</span>[<span class="string">&quot;fwd&quot;</span>].<span class="ident">as_bool</span>().<span class="ident">unwrap</span>() {
-                    <span class="string">&quot;Fwd&quot;</span>.<span class="ident">into</span>()
-                } <span class="kw">else</span> {
-                    <span class="string">&quot;Back&quot;</span>.<span class="ident">into</span>()
+<span class="comment">// b137735e019adbe0f2a7372a579aa987f8496e19 changed direction from a boolean to an enum.
+</span><span class="kw">fn </span>fix_road_direction(value: <span class="kw-2">&amp;mut </span>Value) {
+    walk(value, <span class="kw-2">&amp;</span>|map| {
+        <span class="kw">if </span>map.contains_key(<span class="string">&quot;num_fwd&quot;</span>) {
+            map.insert(
+                <span class="string">&quot;dir&quot;</span>.to_string(),
+                <span class="kw">if </span>map[<span class="string">&quot;fwd&quot;</span>].as_bool().unwrap() {
+                    <span class="string">&quot;Fwd&quot;</span>.into()
+                } <span class="kw">else </span>{
+                    <span class="string">&quot;Back&quot;</span>.into()
                 },
             );
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     });
 }
 
-<span class="comment">// b6ab06d51a3b22702b66db296ed4dfd27e8403a0 (and adjacent commits) removed some commands that</span>
-<span class="comment">// target a single lane in favor of a consolidated ChangeRoad.</span>
-<span class="kw">fn</span> <span class="ident">fix_old_lane_cmds</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// TODO Can we assume map is in its original state? I don&#39;t think so... it may have edits</span>
-    <span class="comment">// applied, right?</span>
+<span class="comment">// b6ab06d51a3b22702b66db296ed4dfd27e8403a0 (and adjacent commits) removed some commands that
+// target a single lane in favor of a consolidated ChangeRoad.
+</span><span class="kw">fn </span>fix_old_lane_cmds(value: <span class="kw-2">&amp;mut </span>Value, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="comment">// TODO Can we assume map is in its original state? I don&#39;t think so... it may have edits
+    // applied, right?
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modified</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">EditRoad</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">commands</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">orig</span> <span class="kw">in</span> <span class="ident">value</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>()[<span class="string">&quot;commands&quot;</span>]
-        .<span class="ident">as_array_mut</span>()
-        .<span class="ident">unwrap</span>()
-        .<span class="ident">drain</span>(..)
+    </span><span class="kw">let </span><span class="kw-2">mut </span>modified: BTreeMap&lt;RoadID, EditRoad&gt; = BTreeMap::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>commands = Vec::new();
+    <span class="kw">for </span><span class="kw-2">mut </span>orig <span class="kw">in </span>value.as_object_mut().unwrap()[<span class="string">&quot;commands&quot;</span>]
+        .as_array_mut()
+        .unwrap()
+        .drain(..)
     {
-        <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">orig</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">remove</span>(<span class="string">&quot;ChangeLaneType&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">obj</span>: <span class="ident">ChangeLaneType</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">obj</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">id</span>.<span class="ident">lookup</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">modified</span>.<span class="ident">entry</span>(<span class="ident">r</span>).<span class="ident">or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>));
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">obj</span>.<span class="ident">orig_lt</span> {
-                <span class="macro">bail!</span>(<span class="string">&quot;{:?} lane type has changed&quot;</span>, <span class="ident">obj</span>);
+        <span class="kw">let </span>cmd = orig.as_object_mut().unwrap();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(obj) = cmd.remove(<span class="string">&quot;ChangeLaneType&quot;</span>) {
+            <span class="kw">let </span>obj: ChangeLaneType = serde_json::from_value(obj).unwrap();
+            <span class="kw">let </span>(r, idx) = obj.id.lookup(map)<span class="question-mark">?</span>;
+            <span class="kw">let </span>road = modified.entry(r).or_insert_with(|| map.get_r_edit(r));
+            <span class="kw">if </span>road.lanes_ltr[idx].lt != obj.orig_lt {
+                <span class="macro">bail!</span>(<span class="string">&quot;{:?} lane type has changed&quot;</span>, obj);
             }
-            <span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">lt</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">remove</span>(<span class="string">&quot;ReverseLane&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">obj</span>: <span class="ident">ReverseLane</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">obj</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">l</span>.<span class="ident">lookup</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">dst_i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">obj</span>.<span class="ident">dst_i</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">modified</span>.<span class="ident">entry</span>(<span class="ident">r</span>).<span class="ident">or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>));
-            <span class="kw">let</span> <span class="ident">edits_dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">dst_i</span> {
-                <span class="ident">Direction::Fwd</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">src_i</span> {
-                <span class="ident">Direction::Back</span>
-            } <span class="kw">else</span> {
-                <span class="macro">bail!</span>(<span class="string">&quot;{:?}&#39;s road doesn&#39;t point to dst_i at all&quot;</span>, <span class="ident">obj</span>);
+            road.lanes_ltr[idx].lt = obj.lt;
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(obj) = cmd.remove(<span class="string">&quot;ReverseLane&quot;</span>) {
+            <span class="kw">let </span>obj: ReverseLane = serde_json::from_value(obj).unwrap();
+            <span class="kw">let </span>(r, idx) = obj.l.lookup(map)<span class="question-mark">?</span>;
+            <span class="kw">let </span>dst_i = map.find_i_by_osm_id(obj.dst_i)<span class="question-mark">?</span>;
+            <span class="kw">let </span>road = modified.entry(r).or_insert_with(|| map.get_r_edit(r));
+            <span class="kw">let </span>edits_dir = <span class="kw">if </span>dst_i == map.get_r(r).dst_i {
+                Direction::Fwd
+            } <span class="kw">else if </span>dst_i == map.get_r(r).src_i {
+                Direction::Back
+            } <span class="kw">else </span>{
+                <span class="macro">bail!</span>(<span class="string">&quot;{:?}&#39;s road doesn&#39;t point to dst_i at all&quot;</span>, obj);
             };
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">dir</span> <span class="op">==</span> <span class="ident">edits_dir</span> {
-                <span class="macro">bail!</span>(<span class="string">&quot;{:?}&#39;s road already points to dst_i&quot;</span>, <span class="ident">obj</span>);
+            <span class="kw">if </span>road.lanes_ltr[idx].dir == edits_dir {
+                <span class="macro">bail!</span>(<span class="string">&quot;{:?}&#39;s road already points to dst_i&quot;</span>, obj);
             }
-            <span class="ident">road</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">dir</span> <span class="op">=</span> <span class="ident">edits_dir</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">remove</span>(<span class="string">&quot;ChangeSpeedLimit&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">obj</span>: <span class="ident">ChangeSpeedLimit</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">obj</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">obj</span>.<span class="ident">id</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">modified</span>.<span class="ident">entry</span>(<span class="ident">r</span>).<span class="ident">or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>));
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">speed_limit</span> <span class="op">!</span><span class="op">=</span> <span class="ident">obj</span>.<span class="ident">old</span> {
-                <span class="macro">bail!</span>(<span class="string">&quot;{:?} speed limit has changed&quot;</span>, <span class="ident">obj</span>);
+            road.lanes_ltr[idx].dir = edits_dir;
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(obj) = cmd.remove(<span class="string">&quot;ChangeSpeedLimit&quot;</span>) {
+            <span class="kw">let </span>obj: ChangeSpeedLimit = serde_json::from_value(obj).unwrap();
+            <span class="kw">let </span>r = map.find_r_by_osm_id(obj.id)<span class="question-mark">?</span>;
+            <span class="kw">let </span>road = modified.entry(r).or_insert_with(|| map.get_r_edit(r));
+            <span class="kw">if </span>road.speed_limit != obj.old {
+                <span class="macro">bail!</span>(<span class="string">&quot;{:?} speed limit has changed&quot;</span>, obj);
             }
-            <span class="ident">road</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">new</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">remove</span>(<span class="string">&quot;ChangeAccessRestrictions&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">obj</span>: <span class="ident">ChangeAccessRestrictions</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">obj</span>).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">obj</span>.<span class="ident">id</span>)<span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">modified</span>.<span class="ident">entry</span>(<span class="ident">r</span>).<span class="ident">or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>));
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">access_restrictions</span> <span class="op">!</span><span class="op">=</span> <span class="ident">obj</span>.<span class="ident">old</span> {
-                <span class="macro">bail!</span>(<span class="string">&quot;{:?} access restrictions have changed&quot;</span>, <span class="ident">obj</span>);
+            road.speed_limit = obj.new;
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(obj) = cmd.remove(<span class="string">&quot;ChangeAccessRestrictions&quot;</span>) {
+            <span class="kw">let </span>obj: ChangeAccessRestrictions = serde_json::from_value(obj).unwrap();
+            <span class="kw">let </span>r = map.find_r_by_osm_id(obj.id)<span class="question-mark">?</span>;
+            <span class="kw">let </span>road = modified.entry(r).or_insert_with(|| map.get_r_edit(r));
+            <span class="kw">if </span>road.access_restrictions != obj.old {
+                <span class="macro">bail!</span>(<span class="string">&quot;{:?} access restrictions have changed&quot;</span>, obj);
             }
-            <span class="ident">road</span>.<span class="ident">access_restrictions</span> <span class="op">=</span> <span class="ident">obj</span>.<span class="ident">new</span>.<span class="ident">clone</span>();
-        } <span class="kw">else</span> {
-            <span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">orig</span>);
+            road.access_restrictions = obj.new.clone();
+        } <span class="kw">else </span>{
+            commands.push(orig);
         }
     }
 
-    <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">new</span>) <span class="kw">in</span> <span class="ident">modified</span> {
-        <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>);
-        <span class="ident">commands</span>
-            .<span class="ident">push</span>(<span class="ident">serde_json::to_value</span>(<span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">r</span>, <span class="ident">old</span>, <span class="ident">new</span> }.<span class="ident">to_perma</span>(<span class="ident">map</span>)).<span class="ident">unwrap</span>());
+    <span class="kw">for </span>(r, new) <span class="kw">in </span>modified {
+        <span class="kw">let </span>old = map.get_r_edit(r);
+        commands
+            .push(serde_json::to_value(EditCmd::ChangeRoad { r, old, new }.to_perma(map)).unwrap());
     }
-    <span class="ident">value</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>()[<span class="string">&quot;commands&quot;</span>] <span class="op">=</span> <span class="ident">Value::Array</span>(<span class="ident">commands</span>);
+    value.as_object_mut().unwrap()[<span class="string">&quot;commands&quot;</span>] = Value::Array(commands);
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="comment">// a3af291b2966c89d63b719e41821705077d063d2 added a map-wide merge_zones field</span>
-<span class="kw">fn</span> <span class="ident">fix_merge_zones</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>();
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">obj</span>.<span class="ident">contains_key</span>(<span class="string">&quot;merge_zones&quot;</span>) {
-        <span class="ident">obj</span>.<span class="ident">insert</span>(<span class="string">&quot;merge_zones&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Bool</span>(<span class="bool-val">true</span>));
+<span class="comment">// a3af291b2966c89d63b719e41821705077d063d2 added a map-wide merge_zones field
+</span><span class="kw">fn </span>fix_merge_zones(value: <span class="kw-2">&amp;mut </span>Value) {
+    <span class="kw">let </span>obj = value.as_object_mut().unwrap();
+    <span class="kw">if </span>!obj.contains_key(<span class="string">&quot;merge_zones&quot;</span>) {
+        obj.insert(<span class="string">&quot;merge_zones&quot;</span>.to_string(), Value::Bool(<span class="bool-val">true</span>));
     }
 }
 
-<span class="comment">// fef306489ba5e73735e0badad0172f3992d342db split map/city name into a dedicated struct</span>
-<span class="kw">fn</span> <span class="ident">fix_map_name</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::String</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="ident">root</span>[<span class="string">&quot;map_name&quot;</span>].<span class="ident">clone</span>() {
-        <span class="comment">// At the time of this change, there likely aren&#39;t many people who have edits saved in</span>
-        <span class="comment">// other maps.</span>
-        <span class="ident">root</span>.<span class="ident">insert</span>(
-            <span class="string">&quot;map_name&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">serde_json::to_value</span>(<span class="ident">MapName::seattle</span>(<span class="ident">name</span>)).<span class="ident">unwrap</span>(),
+<span class="comment">// fef306489ba5e73735e0badad0172f3992d342db split map/city name into a dedicated struct
+</span><span class="kw">fn </span>fix_map_name(value: <span class="kw-2">&amp;mut </span>Value) {
+    <span class="kw">let </span>root = value.as_object_mut().unwrap();
+    <span class="kw">if let </span>Value::String(<span class="kw-2">ref </span>name) = root[<span class="string">&quot;map_name&quot;</span>].clone() {
+        <span class="comment">// At the time of this change, there likely aren&#39;t many people who have edits saved in
+        // other maps.
+        </span>root.insert(
+            <span class="string">&quot;map_name&quot;</span>.to_string(),
+            serde_json::to_value(MapName::seattle(name)).unwrap(),
         );
     }
 }
 
-<span class="comment">// 03fe9400c2ab98b8870e09562b1f35b91036f3cf renamed &quot;phase&quot; to &quot;stage&quot;</span>
-<span class="kw">fn</span> <span class="ident">fix_phase_to_stage</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">remove</span>(<span class="string">&quot;phases&quot;</span>) {
-            <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;stages&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">list</span>);
+<span class="comment">// 03fe9400c2ab98b8870e09562b1f35b91036f3cf renamed &quot;phase&quot; to &quot;stage&quot;
+</span><span class="kw">fn </span>fix_phase_to_stage(value: <span class="kw-2">&amp;mut </span>Value) {
+    walk(value, <span class="kw-2">&amp;</span>|map| {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = map.remove(<span class="string">&quot;phases&quot;</span>) {
+            map.insert(<span class="string">&quot;stages&quot;</span>.to_string(), list);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">obj</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">remove</span>(<span class="string">&quot;phase_type&quot;</span>) {
-            <span class="ident">map</span>.<span class="ident">insert</span>(<span class="string">&quot;stage_type&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">obj</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(obj) = map.remove(<span class="string">&quot;phase_type&quot;</span>) {
+            map.insert(<span class="string">&quot;stage_type&quot;</span>.to_string(), obj);
         }
-        <span class="bool-val">false</span>
-    });
+        <span class="bool-val">false
+    </span>});
 }
 
-<span class="comment">// 34e8b0536a4517c68b0e16e5d55cb5e22dae37d8 remove adaptive signal stages.</span>
-<span class="kw">fn</span> <span class="ident">fix_adaptive_stages</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">seconds</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">remove</span>(<span class="string">&quot;Adaptive&quot;</span>) {
-            <span class="comment">// The old adaptive policy would repeat the entire stage if there was any demand at</span>
-            <span class="comment">// all, so this isn&#39;t quite equivalent, since it only doubles the original time at</span>
-            <span class="comment">// most. This adaptive policy never made any sense, so capturing its behavior more</span>
-            <span class="comment">// clearly here isn&#39;t really worth it.</span>
-            <span class="kw">let</span> <span class="ident">minimum</span> <span class="op">=</span> <span class="ident">seconds</span>.<span class="ident">clone</span>();
-            <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">Value::Number</span>(<span class="number">1</span>.<span class="ident">into</span>());
-            <span class="kw">let</span> <span class="ident">additional</span> <span class="op">=</span> <span class="ident">seconds</span>;
-            <span class="ident">map</span>.<span class="ident">insert</span>(
-                <span class="string">&quot;Variable&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">Value::Array</span>(<span class="macro">vec!</span>[<span class="ident">minimum</span>, <span class="ident">delay</span>, <span class="ident">additional</span>]),
+<span class="comment">// 34e8b0536a4517c68b0e16e5d55cb5e22dae37d8 remove adaptive signal stages.
+</span><span class="kw">fn </span>fix_adaptive_stages(value: <span class="kw-2">&amp;mut </span>Value) {
+    walk(value, <span class="kw-2">&amp;</span>|map| {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(seconds) = map.remove(<span class="string">&quot;Adaptive&quot;</span>) {
+            <span class="comment">// The old adaptive policy would repeat the entire stage if there was any demand at
+            // all, so this isn&#39;t quite equivalent, since it only doubles the original time at
+            // most. This adaptive policy never made any sense, so capturing its behavior more
+            // clearly here isn&#39;t really worth it.
+            </span><span class="kw">let </span>minimum = seconds.clone();
+            <span class="kw">let </span>delay = Value::Number(<span class="number">1</span>.into());
+            <span class="kw">let </span>additional = seconds;
+            map.insert(
+                <span class="string">&quot;Variable&quot;</span>.to_string(),
+                Value::Array(<span class="macro">vec!</span>[minimum, delay, additional]),
             );
         }
-        <span class="bool-val">false</span>
-    });
+        <span class="bool-val">false
+    </span>});
 }
 
-<span class="comment">// e08d76c8ba51d1ca8045e7692195b5f6245150c4 added traffic signal plans.</span>
-<span class="kw">fn</span> <span class="ident">fix_plans</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;TrafficSignal&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">get_mut</span>(<span class="string">&quot;TrafficSignal&quot;</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">as_object_mut</span>()
-                .<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">plan</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
-            <span class="ident">plan</span>.<span class="ident">insert</span>(<span class="string">&quot;start_time_seconds&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Number</span>(<span class="number">0</span>.<span class="ident">into</span>()));
-            <span class="ident">plan</span>.<span class="ident">insert</span>(<span class="string">&quot;stages&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>.<span class="ident">remove</span>(<span class="string">&quot;stages&quot;</span>).<span class="ident">unwrap</span>());
-            <span class="ident">plan</span>.<span class="ident">insert</span>(
-                <span class="string">&quot;offset_seconds&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="ident">ts</span>.<span class="ident">remove</span>(<span class="string">&quot;offset_seconds&quot;</span>).<span class="ident">unwrap</span>(),
+<span class="comment">// e08d76c8ba51d1ca8045e7692195b5f6245150c4 added traffic signal plans.
+</span><span class="kw">fn </span>fix_plans(value: <span class="kw-2">&amp;mut </span>Value) {
+    walk(value, <span class="kw-2">&amp;</span>|map| {
+        <span class="kw">if </span>map.len() == <span class="number">1 </span>&amp;&amp; map.contains_key(<span class="string">&quot;TrafficSignal&quot;</span>) {
+            <span class="kw">let </span>ts = map
+                .get_mut(<span class="string">&quot;TrafficSignal&quot;</span>)
+                .unwrap()
+                .as_object_mut()
+                .unwrap();
+            <span class="kw">let </span><span class="kw-2">mut </span>plan = serde_json::Map::new();
+            plan.insert(<span class="string">&quot;start_time_seconds&quot;</span>.to_string(), Value::Number(<span class="number">0</span>.into()));
+            plan.insert(<span class="string">&quot;stages&quot;</span>.to_string(), ts.remove(<span class="string">&quot;stages&quot;</span>).unwrap());
+            plan.insert(
+                <span class="string">&quot;offset_seconds&quot;</span>.to_string(),
+                ts.remove(<span class="string">&quot;offset_seconds&quot;</span>).unwrap(),
             );
-            <span class="ident">ts</span>.<span class="ident">insert</span>(<span class="string">&quot;plans&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">Value::Array</span>(<span class="macro">vec!</span>[<span class="ident">Value::Object</span>(<span class="ident">plan</span>)]));
-            <span class="bool-val">true</span>
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+            ts.insert(<span class="string">&quot;plans&quot;</span>.to_string(), Value::Array(<span class="macro">vec!</span>[Value::Object(plan)]));
+            <span class="bool-val">true
+        </span>} <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     })
 }
 
-<span class="comment">// 39f5d50fcd981d62792562429003ce9725c17277 split city name into a dedicated struct</span>
-<span class="kw">fn</span> <span class="ident">fix_city_name</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">root</span>[<span class="string">&quot;map_name&quot;</span>].<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::String</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="ident">map_name</span>[<span class="string">&quot;city&quot;</span>].<span class="ident">clone</span>() {
-        <span class="comment">// At the time of this change, there are only a few maps that somebody likely had edits</span>
-        <span class="comment">// for.</span>
-        <span class="kw">let</span> <span class="ident">country</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;salzburg&quot;</span> =&gt; <span class="string">&quot;at&quot;</span>,
-            <span class="string">&quot;montreal&quot;</span> =&gt; <span class="string">&quot;ca&quot;</span>,
-            <span class="string">&quot;berlin&quot;</span> =&gt; <span class="string">&quot;de&quot;</span>,
-            <span class="string">&quot;paris&quot;</span> =&gt; <span class="string">&quot;fr&quot;</span>,
-            <span class="string">&quot;leeds&quot;</span> <span class="op">|</span> <span class="string">&quot;london&quot;</span> =&gt; <span class="string">&quot;gb&quot;</span>,
-            <span class="string">&quot;tel_aviv&quot;</span> =&gt; <span class="string">&quot;il&quot;</span>,
-            <span class="string">&quot;krakow&quot;</span> <span class="op">|</span> <span class="string">&quot;warsaw&quot;</span> =&gt; <span class="string">&quot;pl&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="string">&quot;us&quot;</span>,
+<span class="comment">// 39f5d50fcd981d62792562429003ce9725c17277 split city name into a dedicated struct
+</span><span class="kw">fn </span>fix_city_name(value: <span class="kw-2">&amp;mut </span>Value) {
+    <span class="kw">let </span>root = value.as_object_mut().unwrap();
+    <span class="kw">let </span>map_name = root[<span class="string">&quot;map_name&quot;</span>].as_object_mut().unwrap();
+    <span class="kw">if let </span>Value::String(<span class="kw-2">ref </span>name) = map_name[<span class="string">&quot;city&quot;</span>].clone() {
+        <span class="comment">// At the time of this change, there are only a few maps that somebody likely had edits
+        // for.
+        </span><span class="kw">let </span>country = <span class="kw">match </span>name.as_ref() {
+            <span class="string">&quot;salzburg&quot; </span>=&gt; <span class="string">&quot;at&quot;</span>,
+            <span class="string">&quot;montreal&quot; </span>=&gt; <span class="string">&quot;ca&quot;</span>,
+            <span class="string">&quot;berlin&quot; </span>=&gt; <span class="string">&quot;de&quot;</span>,
+            <span class="string">&quot;paris&quot; </span>=&gt; <span class="string">&quot;fr&quot;</span>,
+            <span class="string">&quot;leeds&quot; </span>| <span class="string">&quot;london&quot; </span>=&gt; <span class="string">&quot;gb&quot;</span>,
+            <span class="string">&quot;tel_aviv&quot; </span>=&gt; <span class="string">&quot;il&quot;</span>,
+            <span class="string">&quot;krakow&quot; </span>| <span class="string">&quot;warsaw&quot; </span>=&gt; <span class="string">&quot;pl&quot;</span>,
+            <span class="kw">_ </span>=&gt; <span class="string">&quot;us&quot;</span>,
         };
-        <span class="ident">map_name</span>.<span class="ident">insert</span>(
-            <span class="string">&quot;city&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">serde_json::to_value</span>(<span class="ident">CityName::new</span>(<span class="ident">country</span>, <span class="ident">name</span>)).<span class="ident">unwrap</span>(),
+        map_name.insert(
+            <span class="string">&quot;city&quot;</span>.to_string(),
+            serde_json::to_value(CityName::new(country, name)).unwrap(),
         );
     }
 }
 
-<span class="comment">// 0e09c1decfece370eff72d3433ae00b4aff3332f added lane width to EditRoad.</span>
-<span class="kw">fn</span> <span class="ident">fix_lane_widths</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">for</span> <span class="ident">orig</span> <span class="kw">in</span> <span class="ident">value</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>()[<span class="string">&quot;commands&quot;</span>]
-        .<span class="ident">as_array_mut</span>()
-        .<span class="ident">unwrap</span>()
+<span class="comment">// 0e09c1decfece370eff72d3433ae00b4aff3332f added lane width to EditRoad.
+</span><span class="kw">fn </span>fix_lane_widths(value: <span class="kw-2">&amp;mut </span>Value, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">for </span>orig <span class="kw">in </span>value.as_object_mut().unwrap()[<span class="string">&quot;commands&quot;</span>]
+        .as_array_mut()
+        .unwrap()
     {
-        <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">orig</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cmd</span>) <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">get_mut</span>(<span class="string">&quot;ChangeRoad&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">road_id</span>: <span class="ident">OriginalRoad</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">cmd</span>[<span class="string">&quot;r&quot;</span>].<span class="ident">clone</span>()).<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">road_id</span>)<span class="question-mark">?</span>);
-            <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">cmd</span>.<span class="ident">as_object_mut</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let </span>cmd = orig.as_object_mut().unwrap();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(cmd) = cmd.get_mut(<span class="string">&quot;ChangeRoad&quot;</span>) {
+            <span class="kw">let </span>road_id: OriginalRoad = serde_json::from_value(cmd[<span class="string">&quot;r&quot;</span>].clone()).unwrap();
+            <span class="kw">let </span>road = map.get_r(map.find_r_by_osm_id(road_id)<span class="question-mark">?</span>);
+            <span class="kw">let </span>cmd = cmd.as_object_mut().unwrap();
 
-            <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> [<span class="string">&quot;old&quot;</span>, <span class="string">&quot;new&quot;</span>] {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes_ltr</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">for</span> (<span class="ident">idx</span>, <span class="kw-2">mut</span> <span class="ident">pair</span>) <span class="kw">in</span> <span class="ident">cmd</span>[<span class="ident">key</span>][<span class="string">&quot;lanes_ltr&quot;</span>]
-                    .<span class="ident">as_array_mut</span>()
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">drain</span>(..)
-                    .<span class="ident">enumerate</span>()
+            <span class="kw">for </span>key <span class="kw">in </span>[<span class="string">&quot;old&quot;</span>, <span class="string">&quot;new&quot;</span>] {
+                <span class="kw">let </span><span class="kw-2">mut </span>lanes_ltr = Vec::new();
+                <span class="kw">for </span>(idx, <span class="kw-2">mut </span>pair) <span class="kw">in </span>cmd[key][<span class="string">&quot;lanes_ltr&quot;</span>]
+                    .as_array_mut()
+                    .unwrap()
+                    .drain(..)
+                    .enumerate()
                 {
-                    <span class="kw">let</span> <span class="ident">pair</span> <span class="op">=</span> <span class="ident">pair</span>.<span class="ident">as_array_mut</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">lt</span>: <span class="ident">LaneType</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">clone</span>()).<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">dir</span>: <span class="ident">Direction</span> <span class="op">=</span> <span class="ident">serde_json::from_value</span>(<span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">clone</span>()).<span class="ident">unwrap</span>();
-                    <span class="ident">lanes_ltr</span>.<span class="ident">push</span>(<span class="ident">LaneSpec</span> {
-                        <span class="ident">lt</span>,
-                        <span class="ident">dir</span>,
-                        <span class="comment">// Before this commit, lane widths weren&#39;t modifiable, so this lookup works</span>
-                        <span class="comment">// for both &quot;old&quot; and &quot;new&quot;.</span>
-                        <span class="ident">width</span>: <span class="ident">road</span>.<span class="ident">lanes</span>[<span class="ident">idx</span>].<span class="ident">width</span>,
+                    <span class="kw">let </span>pair = pair.as_array_mut().unwrap();
+                    <span class="kw">let </span>lt: LaneType = serde_json::from_value(pair[<span class="number">0</span>].clone()).unwrap();
+                    <span class="kw">let </span>dir: Direction = serde_json::from_value(pair[<span class="number">1</span>].clone()).unwrap();
+                    lanes_ltr.push(LaneSpec {
+                        lt,
+                        dir,
+                        <span class="comment">// Before this commit, lane widths weren&#39;t modifiable, so this lookup works
+                        // for both &quot;old&quot; and &quot;new&quot;.
+                        </span>width: road.lanes[idx].width,
                     });
                 }
-                <span class="ident">cmd</span>[<span class="ident">key</span>][<span class="string">&quot;lanes_ltr&quot;</span>] <span class="op">=</span> <span class="ident">serde_json::to_value</span>(<span class="ident">lanes_ltr</span>).<span class="ident">unwrap</span>();
+                cmd[key][<span class="string">&quot;lanes_ltr&quot;</span>] = serde_json::to_value(lanes_ltr).unwrap();
             }
         }
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="comment">// f9c503ba4422ff51b609a7dc68855e8049bc9fd3 started encoding all f64&#39;s as rounded integers</span>
-<span class="kw">fn</span> <span class="ident">fix_f64s</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
-        <span class="comment">// There&#39;s one Distance and one Speed field to re-encode</span>
-        <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> [<span class="string">&quot;width&quot;</span>, <span class="string">&quot;speed_limit&quot;</span>] {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Number</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">value</span> {
-                    <span class="kw">if</span> <span class="ident">num</span>.<span class="ident">is_f64</span>() {
-                        <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> (<span class="ident">num</span>.<span class="ident">as_f64</span>().<span class="ident">unwrap</span>() <span class="op">*</span> <span class="number">10_000.0</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-                        <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="ident">Value::Number</span>(<span class="ident">encoded</span>.<span class="ident">into</span>());
+<span class="comment">// f9c503ba4422ff51b609a7dc68855e8049bc9fd3 started encoding all f64&#39;s as rounded integers
+</span><span class="kw">fn </span>fix_f64s(value: <span class="kw-2">&amp;mut </span>Value) {
+    walk(value, <span class="kw-2">&amp;</span>|map| {
+        <span class="comment">// There&#39;s one Distance and one Speed field to re-encode
+        </span><span class="kw">for </span>key <span class="kw">in </span>[<span class="string">&quot;width&quot;</span>, <span class="string">&quot;speed_limit&quot;</span>] {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = map.get_mut(key) {
+                <span class="kw">if let </span>Value::Number(num) = value {
+                    <span class="kw">if </span>num.is_f64() {
+                        <span class="kw">let </span>encoded = (num.as_f64().unwrap() * <span class="number">10_000.0</span>) <span class="kw">as </span>i32;
+                        <span class="kw-2">*</span>value = Value::Number(encoded.into());
                     }
                 }
             }
         }
-        <span class="comment">// ChangeRouteSchedule has an &#39;old&#39; and &#39;new&#39; Vec&lt;Time&gt;</span>
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="string">&quot;osm_rel_id&quot;</span>) {
-            <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> [<span class="string">&quot;old&quot;</span>, <span class="string">&quot;new&quot;</span>] {
-                <span class="kw">for</span> <span class="ident">value</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>).<span class="ident">unwrap</span>().<span class="ident">as_array_mut</span>().<span class="ident">unwrap</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Value::Number</span>(<span class="ident">num</span>) <span class="op">=</span> <span class="ident">value</span> {
-                        <span class="kw">if</span> <span class="ident">num</span>.<span class="ident">is_f64</span>() {
-                            <span class="kw">let</span> <span class="ident">encoded</span> <span class="op">=</span> (<span class="ident">num</span>.<span class="ident">as_f64</span>().<span class="ident">unwrap</span>() <span class="op">*</span> <span class="number">10_000.0</span>) <span class="kw">as</span> <span class="ident">i32</span>;
-                            <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="ident">Value::Number</span>(<span class="ident">encoded</span>.<span class="ident">into</span>());
+        <span class="comment">// ChangeRouteSchedule has an &#39;old&#39; and &#39;new&#39; Vec&lt;Time&gt;
+        </span><span class="kw">if </span>map.contains_key(<span class="string">&quot;osm_rel_id&quot;</span>) {
+            <span class="kw">for </span>key <span class="kw">in </span>[<span class="string">&quot;old&quot;</span>, <span class="string">&quot;new&quot;</span>] {
+                <span class="kw">for </span>value <span class="kw">in </span>map.get_mut(key).unwrap().as_array_mut().unwrap() {
+                    <span class="kw">if let </span>Value::Number(num) = value {
+                        <span class="kw">if </span>num.is_f64() {
+                            <span class="kw">let </span>encoded = (num.as_f64().unwrap() * <span class="number">10_000.0</span>) <span class="kw">as </span>i32;
+                            <span class="kw-2">*</span>value = Value::Number(encoded.into());
                         }
                     }
                 }
             }
         }
 
-        <span class="bool-val">false</span>
-    })
+        <span class="bool-val">false
+    </span>})
 }
 
-<span class="comment">// a0dcc255c3212c491e1fa71546a8115fe319312e removed congestion capping</span>
-<span class="kw">fn</span> <span class="ident">remove_vehicle_caps</span>(<span class="ident">value</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Value</span>) {
-    <span class="ident">walk</span>(<span class="ident">value</span>, <span class="kw-2">&amp;</span><span class="op">|</span><span class="ident">map</span><span class="op">|</span> {
-        <span class="ident">map</span>.<span class="ident">remove</span>(<span class="string">&quot;cap_vehicles_per_hour&quot;</span>);
-        <span class="bool-val">false</span>
-    });
+<span class="comment">// a0dcc255c3212c491e1fa71546a8115fe319312e removed congestion capping
+</span><span class="kw">fn </span>remove_vehicle_caps(value: <span class="kw-2">&amp;mut </span>Value) {
+    walk(value, <span class="kw-2">&amp;</span>|map| {
+        map.remove(<span class="string">&quot;cap_vehicles_per_hour&quot;</span>);
+        <span class="bool-val">false
+    </span>});
 }
 
-<span class="comment">// These&#39;re old structs used in fix_old_lane_cmds.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">OriginalLane</span> {
-    <span class="ident">parent</span>: <span class="ident">OriginalRoad</span>,
-    <span class="ident">num_fwd</span>: <span class="ident">usize</span>,
-    <span class="ident">num_back</span>: <span class="ident">usize</span>,
-    <span class="ident">dir</span>: <span class="ident">Direction</span>,
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
+<span class="comment">// These&#39;re old structs used in fix_old_lane_cmds.
+</span><span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>OriginalLane {
+    parent: OriginalRoad,
+    num_fwd: usize,
+    num_back: usize,
+    dir: Direction,
+    idx: usize,
 }
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ChangeLaneType</span> {
-    <span class="ident">id</span>: <span class="ident">OriginalLane</span>,
-    <span class="ident">lt</span>: <span class="ident">LaneType</span>,
-    <span class="ident">orig_lt</span>: <span class="ident">LaneType</span>,
+<span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>ChangeLaneType {
+    id: OriginalLane,
+    lt: LaneType,
+    orig_lt: LaneType,
 }
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ReverseLane</span> {
-    <span class="ident">l</span>: <span class="ident">OriginalLane</span>,
-    <span class="comment">// New intended dst_i</span>
-    <span class="ident">dst_i</span>: <span class="ident">osm::NodeID</span>,
+<span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>ReverseLane {
+    l: OriginalLane,
+    <span class="comment">// New intended dst_i
+    </span>dst_i: osm::NodeID,
 }
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ChangeSpeedLimit</span> {
-    <span class="ident">id</span>: <span class="ident">OriginalRoad</span>,
-    <span class="ident">new</span>: <span class="ident">Speed</span>,
-    <span class="ident">old</span>: <span class="ident">Speed</span>,
+<span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>ChangeSpeedLimit {
+    id: OriginalRoad,
+    new: Speed,
+    old: Speed,
 }
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ChangeAccessRestrictions</span> {
-    <span class="ident">id</span>: <span class="ident">OriginalRoad</span>,
-    <span class="ident">new</span>: <span class="ident">AccessRestrictions</span>,
-    <span class="ident">old</span>: <span class="ident">AccessRestrictions</span>,
+<span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>ChangeAccessRestrictions {
+    id: OriginalRoad,
+    new: AccessRestrictions,
+    old: AccessRestrictions,
 }
 
-<span class="kw">impl</span> <span class="ident">OriginalLane</span> {
-    <span class="kw">fn</span> <span class="ident">lookup</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">RoadID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="self">self</span>.<span class="ident">parent</span>)<span class="question-mark">?</span>);
-        <span class="kw">let</span> <span class="ident">current_fwd</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">children_forwards</span>();
-        <span class="kw">let</span> <span class="ident">current_back</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">children_backwards</span>();
-        <span class="kw">if</span> <span class="ident">current_fwd</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">num_fwd</span> <span class="op">|</span><span class="op">|</span> <span class="ident">current_back</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">num_back</span> {
+<span class="kw">impl </span>OriginalLane {
+    <span class="kw">fn </span>lookup(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;(RoadID, usize)&gt; {
+        <span class="kw">let </span>r = map.get_r(map.find_r_by_osm_id(<span class="self">self</span>.parent)<span class="question-mark">?</span>);
+        <span class="kw">let </span>current_fwd = r.children_forwards();
+        <span class="kw">let </span>current_back = r.children_backwards();
+        <span class="kw">if </span>current_fwd.len() != <span class="self">self</span>.num_fwd || current_back.len() != <span class="self">self</span>.num_back {
             <span class="macro">bail!</span>(
                 <span class="string">&quot;number of lanes in {} is ({} fwd, {} back) now, but ({}, {}) in the edits&quot;</span>,
-                <span class="ident">r</span>.<span class="ident">orig_id</span>,
-                <span class="ident">current_fwd</span>.<span class="ident">len</span>(),
-                <span class="ident">current_back</span>.<span class="ident">len</span>(),
-                <span class="self">self</span>.<span class="ident">num_fwd</span>,
-                <span class="self">self</span>.<span class="ident">num_back</span>
+                r.orig_id,
+                current_fwd.len(),
+                current_back.len(),
+                <span class="self">self</span>.num_fwd,
+                <span class="self">self</span>.num_back
             );
         }
-        <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
-            <span class="ident">current_fwd</span>[<span class="self">self</span>.<span class="ident">idx</span>].<span class="number">0</span>
-        } <span class="kw">else</span> {
-            <span class="ident">current_back</span>[<span class="self">self</span>.<span class="ident">idx</span>].<span class="number">0</span>
-        };
-        <span class="prelude-val">Ok</span>((<span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">l</span>.<span class="ident">offset</span>))
+        <span class="kw">let </span>l = <span class="kw">if </span><span class="self">self</span>.dir == Direction::Fwd {
+            current_fwd[<span class="self">self</span>.idx].<span class="number">0
+        </span>} <span class="kw">else </span>{
+            current_back[<span class="self">self</span>.idx].<span class="number">0
+        </span>};
+        <span class="prelude-val">Ok</span>((r.id, l.offset))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

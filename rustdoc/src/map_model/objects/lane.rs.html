@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/lane.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lane.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/lane.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lane.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -373,380 +373,380 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>, <span class="ident">Serializer</span>};
+<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>geom::{Distance, Line, PolyLine, Polygon, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapConfig</span>, <span class="ident">Road</span>,
-    <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>, <span class="ident">TurnType</span>,
+<span class="kw">use crate</span>::{
+    osm, DirectedRoadID, Direction, DrivingSide, IntersectionID, LaneType, Map, MapConfig, Road,
+    RoadID, RoadSideID, SideOfRoad, TurnType,
 };
 
-<span class="doccomment">/// From some manually audited cases in Seattle, the length of parallel street parking spots is a</span>
-<span class="doccomment">/// bit different than the length in parking lots, so set a different value here.</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PARKING_LOT_SPOT_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">6.4</span>);
+<span class="doccomment">/// From some manually audited cases in Seattle, the length of parallel street parking spots is a
+/// bit different than the length in parking lots, so set a different value here.
+</span><span class="kw">pub const </span>PARKING_LOT_SPOT_LENGTH: Distance = Distance::const_meters(<span class="number">6.4</span>);
 
-<span class="doccomment">/// A lane is identified by its parent road and its position, ordered from the left.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LaneID</span> {
-    <span class="kw">pub</span> <span class="ident">road</span>: <span class="ident">RoadID</span>,
-    <span class="kw">pub</span> <span class="ident">offset</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// A lane is identified by its parent road and its position, ordered from the left.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+</span><span class="kw">pub struct </span>LaneID {
+    <span class="kw">pub </span>road: RoadID,
+    <span class="kw">pub </span>offset: usize,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">LaneID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Lane #{}&quot;</span>, <span class="self">self</span>.<span class="ident">encode_u32</span>())
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>LaneID {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Lane #{}&quot;</span>, <span class="self">self</span>.encode_u32())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">LaneID</span> {
-    <span class="comment">// TODO Do we have an endianness problem, or does serde take care of us?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">encode_u32</span>(<span class="self">self</span>) -&gt; <span class="ident">u32</span> {
-        <span class="comment">// The first 27 bits encode the RoadID, the last 5 the offset.</span>
-        <span class="comment">//</span>
-        <span class="comment">// (In some Houston area dystopia, we might want 2^5 = 32 lanes on one road. That leaves 27</span>
-        <span class="comment">// bits for roads -- 134 million roads should be plenty.)</span>
-        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">road</span>.<span class="number">0</span> <span class="op">&lt;</span><span class="op">&lt;</span> <span class="number">5</span>;
-        (<span class="ident">road</span> <span class="op">|</span> <span class="self">self</span>.<span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">u32</span>
+<span class="kw">impl </span>LaneID {
+    <span class="comment">// TODO Do we have an endianness problem, or does serde take care of us?
+    </span><span class="kw">pub fn </span>encode_u32(<span class="self">self</span>) -&gt; u32 {
+        <span class="comment">// The first 27 bits encode the RoadID, the last 5 the offset.
+        //
+        // (In some Houston area dystopia, we might want 2^5 = 32 lanes on one road. That leaves 27
+        // bits for roads -- 134 million roads should be plenty.)
+        </span><span class="kw">let </span>road = <span class="self">self</span>.road.<span class="number">0 </span>&lt;&lt; <span class="number">5</span>;
+        (road | <span class="self">self</span>.offset) <span class="kw">as </span>u32
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decode_u32</span>(<span class="ident">x</span>: <span class="ident">u32</span>) -&gt; <span class="ident">LaneID</span> {
-        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">RoadID</span>((<span class="ident">x</span> <span class="op">&gt;</span><span class="op">&gt;</span> <span class="number">5</span>) <span class="kw">as</span> <span class="ident">usize</span>);
-        <span class="comment">// My bit twiddling is weak. Easier way to get a binary mask starting with 11111?</span>
-        <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> (<span class="ident">x</span> <span class="op">&amp;</span> (<span class="number">1</span> <span class="op">+</span> <span class="number">2</span> <span class="op">+</span> <span class="number">4</span> <span class="op">+</span> <span class="number">8</span> <span class="op">+</span> <span class="number">16</span>)) <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="ident">LaneID</span> { <span class="ident">road</span>, <span class="ident">offset</span> }
+    <span class="kw">pub fn </span>decode_u32(x: u32) -&gt; LaneID {
+        <span class="kw">let </span>road = RoadID((x &gt;&gt; <span class="number">5</span>) <span class="kw">as </span>usize);
+        <span class="comment">// My bit twiddling is weak. Easier way to get a binary mask starting with 11111?
+        </span><span class="kw">let </span>offset = (x &amp; (<span class="number">1 </span>+ <span class="number">2 </span>+ <span class="number">4 </span>+ <span class="number">8 </span>+ <span class="number">16</span>)) <span class="kw">as </span>usize;
+        LaneID { road, offset }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dummy</span>() -&gt; <span class="ident">LaneID</span> {
-        <span class="ident">LaneID</span> {
-            <span class="ident">road</span>: <span class="ident">RoadID</span>(<span class="number">0</span>),
-            <span class="ident">offset</span>: <span class="number">0</span>,
+    <span class="kw">pub fn </span>dummy() -&gt; LaneID {
+        LaneID {
+            road: RoadID(<span class="number">0</span>),
+            offset: <span class="number">0</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Serialize</span> <span class="kw">for</span> <span class="ident">LaneID</span> {
-    <span class="kw">fn</span> <span class="ident">serialize</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">s</span>: <span class="ident">S</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">S::Ok</span>, <span class="ident">S::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">S</span>: <span class="ident">Serializer</span>,
+<span class="kw">impl </span>Serialize <span class="kw">for </span>LaneID {
+    <span class="kw">fn </span>serialize&lt;S&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, s: S) -&gt; <span class="prelude-ty">Result</span>&lt;S::Ok, S::Error&gt;
+    <span class="kw">where
+        </span>S: Serializer,
     {
-        <span class="self">self</span>.<span class="ident">encode_u32</span>().<span class="ident">serialize</span>(<span class="ident">s</span>)
+        <span class="self">self</span>.encode_u32().serialize(s)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">LaneID</span> {
-    <span class="kw">fn</span> <span class="ident">deserialize</span><span class="op">&lt;</span><span class="ident">D</span><span class="op">&gt;</span>(<span class="ident">d</span>: <span class="ident">D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">D::Error</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;de</span>&gt; Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; <span class="kw">for </span>LaneID {
+    <span class="kw">fn </span>deserialize&lt;D&gt;(d: D) -&gt; <span class="prelude-ty">Result</span>&lt;LaneID, D::Error&gt;
+    <span class="kw">where
+        </span>D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
     {
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span><span class="ident">::deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(<span class="ident">LaneID::decode_u32</span>(<span class="ident">x</span>))
+        <span class="kw">let </span>x = &lt;u32&gt;::deserialize(d)<span class="question-mark">?</span>;
+        <span class="prelude-val">Ok</span>(LaneID::decode_u32(x))
     }
 }
 
-<span class="doccomment">/// A road segment is broken down into individual lanes, which have a LaneType.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Lane</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">LaneID</span>,
-    <span class="kw">pub</span> <span class="ident">lane_type</span>: <span class="ident">LaneType</span>,
-    <span class="kw">pub</span> <span class="ident">lane_center_pts</span>: <span class="ident">PolyLine</span>,
-    <span class="kw">pub</span> <span class="ident">width</span>: <span class="ident">Distance</span>,
-    <span class="kw">pub</span> <span class="ident">dir</span>: <span class="ident">Direction</span>,
+<span class="doccomment">/// A road segment is broken down into individual lanes, which have a LaneType.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug)]
+</span><span class="kw">pub struct </span>Lane {
+    <span class="kw">pub </span>id: LaneID,
+    <span class="kw">pub </span>lane_type: LaneType,
+    <span class="kw">pub </span>lane_center_pts: PolyLine,
+    <span class="kw">pub </span>width: Distance,
+    <span class="kw">pub </span>dir: Direction,
 
-    <span class="kw">pub</span> <span class="ident">src_i</span>: <span class="ident">IntersectionID</span>,
-    <span class="kw">pub</span> <span class="ident">dst_i</span>: <span class="ident">IntersectionID</span>,
+    <span class="kw">pub </span>src_i: IntersectionID,
+    <span class="kw">pub </span>dst_i: IntersectionID,
 
-    <span class="doccomment">/// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the</span>
-    <span class="doccomment">/// graph, because this is near a border.</span>
-    <span class="kw">pub</span> <span class="ident">driving_blackhole</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">biking_blackhole</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// {Cars, bikes} trying to start or end here might not be able to reach most lanes in the
+    /// graph, because this is near a border.
+    </span><span class="kw">pub </span>driving_blackhole: bool,
+    <span class="kw">pub </span>biking_blackhole: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">Lane</span> {
-    <span class="comment">// TODO most of these are wrappers; stop doing this?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">first_pt</span>()
+<span class="kw">impl </span>Lane {
+    <span class="comment">// TODO most of these are wrappers; stop doing this?
+    </span><span class="kw">pub fn </span>first_pt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pt2D {
+        <span class="self">self</span>.lane_center_pts.first_pt()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">last_pt</span>()
+    <span class="kw">pub fn </span>last_pt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pt2D {
+        <span class="self">self</span>.lane_center_pts.last_pt()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">first_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Line</span> {
-        <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">first_line</span>()
+    <span class="kw">pub fn </span>first_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Line {
+        <span class="self">self</span>.lane_center_pts.first_line()
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Line</span> {
-        <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">last_line</span>()
+    <span class="kw">pub fn </span>last_line(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Line {
+        <span class="self">self</span>.lane_center_pts.last_line()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">endpoint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">src_i</span> {
-            <span class="self">self</span>.<span class="ident">first_pt</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">dst_i</span> {
-            <span class="self">self</span>.<span class="ident">last_pt</span>()
-        } <span class="kw">else</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;{} isn&#39;t an endpoint of {}&quot;</span>, <span class="ident">i</span>, <span class="self">self</span>.<span class="ident">id</span>);
+    <span class="kw">pub fn </span>endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>, i: IntersectionID) -&gt; Pt2D {
+        <span class="kw">if </span>i == <span class="self">self</span>.src_i {
+            <span class="self">self</span>.first_pt()
+        } <span class="kw">else if </span>i == <span class="self">self</span>.dst_i {
+            <span class="self">self</span>.last_pt()
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;{} isn&#39;t an endpoint of {}&quot;</span>, i, <span class="self">self</span>.id);
         }
     }
 
-    <span class="doccomment">/// pt2 will be endpoint</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_line</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="ident">Line</span> {
-        <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">src_i</span> {
-            <span class="self">self</span>.<span class="ident">first_line</span>().<span class="ident">reversed</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">dst_i</span> {
-            <span class="self">self</span>.<span class="ident">last_line</span>()
-        } <span class="kw">else</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;{} isn&#39;t an endpoint of {}&quot;</span>, <span class="ident">i</span>, <span class="self">self</span>.<span class="ident">id</span>);
+    <span class="doccomment">/// pt2 will be endpoint
+    </span><span class="kw">pub fn </span>end_line(<span class="kw-2">&amp;</span><span class="self">self</span>, i: IntersectionID) -&gt; Line {
+        <span class="kw">if </span>i == <span class="self">self</span>.src_i {
+            <span class="self">self</span>.first_line().reversed()
+        } <span class="kw">else if </span>i == <span class="self">self</span>.dst_i {
+            <span class="self">self</span>.last_line()
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;{} isn&#39;t an endpoint of {}&quot;</span>, i, <span class="self">self</span>.id);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_along_of_point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">lane_center_pts</span>
-            .<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>)
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">dist</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">dist</span>)
+    <span class="kw">pub fn </span>dist_along_of_point(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D) -&gt; <span class="prelude-ty">Option</span>&lt;Distance&gt; {
+        <span class="self">self</span>.lane_center_pts
+            .dist_along_of_point(pt)
+            .map(|(dist, <span class="kw">_</span>)| dist)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">length</span>()
+    <span class="kw">pub fn </span>length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Distance {
+        <span class="self">self</span>.lane_center_pts.length()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersections</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO I think we&#39;re assuming there are no loop lanes</span>
-        <span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">src_i</span>, <span class="self">self</span>.<span class="ident">dst_i</span>]
+    <span class="kw">pub fn </span>intersections(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;IntersectionID&gt; {
+        <span class="comment">// TODO I think we&#39;re assuming there are no loop lanes
+        </span><span class="macro">vec!</span>[<span class="self">self</span>.src_i, <span class="self">self</span>.dst_i]
     }
 
-    <span class="comment">// TODO different types for each lane type might be reasonable</span>
+    <span class="comment">// TODO different types for each lane type might be reasonable
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">number_parking_spots</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cfg</span>: <span class="kw-2">&amp;</span><span class="ident">MapConfig</span>) -&gt; <span class="ident">usize</span> {
-        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">lane_type</span>, <span class="ident">LaneType::Parking</span>);
-        <span class="comment">// No spots next to intersections</span>
-        <span class="kw">let</span> <span class="ident">spots</span> <span class="op">=</span> (<span class="self">self</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">cfg</span>.<span class="ident">street_parking_spot_length</span>).<span class="ident">floor</span>() <span class="op">-</span> <span class="number">2.0</span>;
-        <span class="kw">if</span> <span class="ident">spots</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.0</span> {
-            <span class="ident">spots</span> <span class="kw">as</span> <span class="ident">usize</span>
-        } <span class="kw">else</span> {
-            <span class="number">0</span>
+    </span><span class="kw">pub fn </span>number_parking_spots(<span class="kw-2">&amp;</span><span class="self">self</span>, cfg: <span class="kw-2">&amp;</span>MapConfig) -&gt; usize {
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.lane_type, LaneType::Parking);
+        <span class="comment">// No spots next to intersections
+        </span><span class="kw">let </span>spots = (<span class="self">self</span>.length() / cfg.street_parking_spot_length).floor() - <span class="number">2.0</span>;
+        <span class="kw">if </span>spots &gt;= <span class="number">1.0 </span>{
+            spots <span class="kw">as </span>usize
+        } <span class="kw">else </span>{
+            <span class="number">0
+        </span>}
+    }
+
+    <span class="kw">pub fn </span>is_driving(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type == LaneType::Driving
+    }
+
+    <span class="kw">pub fn </span>is_biking(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type == LaneType::Biking
+    }
+
+    <span class="kw">pub fn </span>is_bus(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type == LaneType::Bus
+    }
+
+    <span class="kw">pub fn </span>is_walkable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type.is_walkable()
+    }
+
+    <span class="kw">pub fn </span>is_sidewalk(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type == LaneType::Sidewalk
+    }
+
+    <span class="kw">pub fn </span>is_shoulder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type == LaneType::Shoulder
+    }
+
+    <span class="kw">pub fn </span>is_parking(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type == LaneType::Parking
+    }
+
+    <span class="kw">pub fn </span>is_light_rail(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type == LaneType::LightRail
+    }
+
+    <span class="comment">// TODO Misleading?
+    </span><span class="kw">pub fn </span>is_footway(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lane_type == LaneType::Footway || <span class="self">self</span>.lane_type == LaneType::SharedUse
+    }
+
+    <span class="kw">pub fn </span>get_directed_parent(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DirectedRoadID {
+        DirectedRoadID {
+            road: <span class="self">self</span>.id.road,
+            dir: <span class="self">self</span>.dir,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_driving</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_biking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Biking</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_bus</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Bus</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_walkable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span>.<span class="ident">is_walkable</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sidewalk</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Sidewalk</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_shoulder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Shoulder</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Parking</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_light_rail</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::LightRail</span>
-    }
-
-    <span class="comment">// TODO Misleading?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_footway</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Footway</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::SharedUse</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_directed_parent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DirectedRoadID</span> {
-        <span class="ident">DirectedRoadID</span> {
-            <span class="ident">road</span>: <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">road</span>,
-            <span class="ident">dir</span>: <span class="self">self</span>.<span class="ident">dir</span>,
-        }
-    }
-
-    <span class="doccomment">/// This does the reasonable thing for the leftmost and rightmost lane on a road -- except for</span>
-    <span class="doccomment">/// roads with exactly one lane. For lanes in the middle of a road, it uses the direction of</span>
-    <span class="doccomment">/// the lane -- so bidirectional/contraflow cycletracks will produce weird results.</span>
-    <span class="comment">// TODO This is such a weird API; make blockfinding not depend on this</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_nearest_side_of_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">RoadSideID</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">offset</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="ident">RoadSideID</span> {
-                <span class="ident">road</span>: <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">road</span>,
-                <span class="ident">side</span>: <span class="ident">SideOfRoad::Left</span>,
+    <span class="doccomment">/// This does the reasonable thing for the leftmost and rightmost lane on a road -- except for
+    /// roads with exactly one lane. For lanes in the middle of a road, it uses the direction of
+    /// the lane -- so bidirectional/contraflow cycletracks will produce weird results.
+    </span><span class="comment">// TODO This is such a weird API; make blockfinding not depend on this
+    </span><span class="kw">pub fn </span>get_nearest_side_of_road(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; RoadSideID {
+        <span class="kw">if </span><span class="self">self</span>.id.offset == <span class="number">0 </span>{
+            <span class="kw">return </span>RoadSideID {
+                road: <span class="self">self</span>.id.road,
+                side: SideOfRoad::Left,
             };
         }
-        <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">road</span>);
-        <span class="kw">if</span> <span class="ident">parent</span>.<span class="ident">lanes</span>.<span class="ident">last</span>().<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">id</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span> {
-            <span class="kw">return</span> <span class="ident">RoadSideID</span> {
-                <span class="ident">road</span>: <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">road</span>,
-                <span class="ident">side</span>: <span class="ident">SideOfRoad::Right</span>,
+        <span class="kw">let </span>parent = map.get_r(<span class="self">self</span>.id.road);
+        <span class="kw">if </span>parent.lanes.last().as_ref().unwrap().id == <span class="self">self</span>.id {
+            <span class="kw">return </span>RoadSideID {
+                road: <span class="self">self</span>.id.road,
+                side: SideOfRoad::Right,
             };
         }
 
-        <span class="kw">let</span> <span class="ident">side</span> <span class="op">=</span> <span class="kw">match</span> (<span class="self">self</span>.<span class="ident">dir</span>, <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span>) {
-            (<span class="ident">Direction::Fwd</span>, <span class="ident">DrivingSide::Right</span>) =&gt; <span class="ident">SideOfRoad::Right</span>,
-            (<span class="ident">Direction::Back</span>, <span class="ident">DrivingSide::Right</span>) =&gt; <span class="ident">SideOfRoad::Left</span>,
-            (<span class="ident">Direction::Fwd</span>, <span class="ident">DrivingSide::Left</span>) =&gt; <span class="ident">SideOfRoad::Left</span>,
-            (<span class="ident">Direction::Back</span>, <span class="ident">DrivingSide::Left</span>) =&gt; <span class="ident">SideOfRoad::Right</span>,
+        <span class="kw">let </span>side = <span class="kw">match </span>(<span class="self">self</span>.dir, map.get_config().driving_side) {
+            (Direction::Fwd, DrivingSide::Right) =&gt; SideOfRoad::Right,
+            (Direction::Back, DrivingSide::Right) =&gt; SideOfRoad::Left,
+            (Direction::Fwd, DrivingSide::Left) =&gt; SideOfRoad::Left,
+            (Direction::Back, DrivingSide::Left) =&gt; SideOfRoad::Right,
         };
-        <span class="ident">RoadSideID</span> {
-            <span class="ident">road</span>: <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">road</span>,
-            <span class="ident">side</span>,
+        RoadSideID {
+            road: <span class="self">self</span>.id.road,
+            side,
         }
     }
 
-    <span class="doccomment">/// Returns the set of allowed turn types, based on individual turn lane restrictions. `None`</span>
-    <span class="doccomment">/// means all turn types are allowed.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This will return `None` for bus lanes, unless `force_bus` is true. OSM turn restrictions on</span>
-    <span class="doccomment">/// bus lanes usually apply to regular vehicles, not the buses. When generating the turns for</span>
-    <span class="doccomment">/// buses, we probably don&#39;t want to use the restrictions.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_lane_level_turn_restrictions</span>(
+    <span class="doccomment">/// Returns the set of allowed turn types, based on individual turn lane restrictions. `None`
+    /// means all turn types are allowed.
+    ///
+    /// This will return `None` for bus lanes, unless `force_bus` is true. OSM turn restrictions on
+    /// bus lanes usually apply to regular vehicles, not the buses. When generating the turns for
+    /// buses, we probably don&#39;t want to use the restrictions.
+    </span><span class="kw">pub fn </span>get_lane_level_turn_restrictions(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>,
-        <span class="ident">force_bus</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_driving</span>() <span class="op">&amp;&amp;</span> (<span class="op">!</span><span class="ident">force_bus</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">is_bus</span>()) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        road: <span class="kw-2">&amp;</span>Road,
+        force_bus: bool,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;BTreeSet&lt;TurnType&gt;&gt; {
+        <span class="kw">if </span>!<span class="self">self</span>.is_driving() &amp;&amp; (!force_bus || !<span class="self">self</span>.is_bus()) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm::ENDPT_FWD</span>) {
-            <span class="ident">road</span>.<span class="ident">osm_tags</span>
-                .<span class="ident">get</span>(<span class="string">&quot;turn:lanes:forward&quot;</span>)
-                .<span class="ident">or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;turn:lanes&quot;</span>))<span class="question-mark">?</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Back</span> <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">contains_key</span>(<span class="ident">osm::ENDPT_BACK</span>) {
-            <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">get</span>(<span class="string">&quot;turn:lanes:backward&quot;</span>)<span class="question-mark">?</span>
-        } <span class="kw">else</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span>all = <span class="kw">if </span><span class="self">self</span>.dir == Direction::Fwd &amp;&amp; road.osm_tags.contains_key(osm::ENDPT_FWD) {
+            road.osm_tags
+                .get(<span class="string">&quot;turn:lanes:forward&quot;</span>)
+                .or_else(|| road.osm_tags.get(<span class="string">&quot;turn:lanes&quot;</span>))<span class="question-mark">?
+        </span>} <span class="kw">else if </span><span class="self">self</span>.dir == Direction::Back &amp;&amp; road.osm_tags.contains_key(osm::ENDPT_BACK) {
+            road.osm_tags.get(<span class="string">&quot;turn:lanes:backward&quot;</span>)<span class="question-mark">?
+        </span>} <span class="kw">else </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         };
-        <span class="kw">let</span> <span class="ident">parts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">all</span>.<span class="ident">split</span>(<span class="string">&#39;|&#39;</span>).<span class="ident">collect</span>();
-        <span class="comment">// Verify the number of parts matches the road&#39;s lanes</span>
-        <span class="kw">let</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">road</span>
-            .<span class="ident">children</span>(<span class="self">self</span>.<span class="ident">dir</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">lt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Bus</span>)
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">id</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">id</span>)
-            .<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">lanes</span>.<span class="ident">len</span>() {
-            <span class="macro">warn!</span>(<span class="string">&quot;{}&#39;s turn restrictions don&#39;t match the lanes&quot;</span>, <span class="ident">road</span>.<span class="ident">orig_id</span>);
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span>parts: Vec&lt;<span class="kw-2">&amp;</span>str&gt; = all.split(<span class="string">&#39;|&#39;</span>).collect();
+        <span class="comment">// Verify the number of parts matches the road&#39;s lanes
+        </span><span class="kw">let </span>lanes: Vec&lt;LaneID&gt; = road
+            .children(<span class="self">self</span>.dir)
+            .into_iter()
+            .filter(|(<span class="kw">_</span>, lt)| <span class="kw-2">*</span>lt == LaneType::Driving || <span class="kw-2">*</span>lt == LaneType::Bus)
+            .map(|(id, <span class="kw">_</span>)| id)
+            .collect();
+        <span class="kw">if </span>parts.len() != lanes.len() {
+            <span class="macro">warn!</span>(<span class="string">&quot;{}&#39;s turn restrictions don&#39;t match the lanes&quot;</span>, road.orig_id);
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="comment">// TODO More warnings if this fails</span>
-        <span class="kw">let</span> <span class="ident">part</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">l</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span>)<span class="question-mark">?</span>];
+        <span class="comment">// TODO More warnings if this fails
+        </span><span class="kw">let </span>part = parts[lanes.iter().position(|l| <span class="kw-2">*</span>l == <span class="self">self</span>.id)<span class="question-mark">?</span>];
 
-        <span class="comment">// TODO Probably the target lane should get marked as LaneType::Bus</span>
-        <span class="kw">if</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;yes&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;psv&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;bus&quot;</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="comment">// TODO Probably the target lane should get marked as LaneType::Bus
+        </span><span class="kw">if </span>part == <span class="string">&quot;yes&quot; </span>|| part == <span class="string">&quot;psv&quot; </span>|| part == <span class="string">&quot;bus&quot; </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="comment">// These both mean that physically, there&#39;s no marking saying what turn is valid. In</span>
-        <span class="comment">// practice, this seems to imply straight is always fine, and right/left are fine unless</span>
-        <span class="comment">// covered by an explicit turn lane.</span>
-        <span class="comment">//</span>
-        <span class="comment">// If a multi-lane road lacks markings, just listening to this function will mean that the</span>
-        <span class="comment">// rightmos lanes could turn left, which probably isn&#39;t great for people in the middle</span>
-        <span class="comment">// lanes going straight. Further filtering (in remove_merging_turns) will prune this out.</span>
-        <span class="kw">if</span> <span class="ident">part</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">part</span> <span class="op">==</span> <span class="string">&quot;none&quot;</span> {
-            <span class="kw">let</span> <span class="ident">all_explicit_types</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">parts</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">flat_map</span>(<span class="op">|</span><span class="ident">part</span><span class="op">|</span> <span class="ident">part</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>).<span class="ident">flat_map</span>(<span class="ident">parse_turn_type_from_osm</span>))
-                .<span class="ident">collect</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">implied</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-            <span class="ident">implied</span>.<span class="ident">insert</span>(<span class="ident">TurnType::Straight</span>);
-            <span class="kw">for</span> <span class="ident">tt</span> <span class="kw">in</span> [<span class="ident">TurnType::Left</span>, <span class="ident">TurnType::Right</span>] {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">all_explicit_types</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">tt</span>) {
-                    <span class="ident">implied</span>.<span class="ident">insert</span>(<span class="ident">tt</span>);
+        <span class="comment">// These both mean that physically, there&#39;s no marking saying what turn is valid. In
+        // practice, this seems to imply straight is always fine, and right/left are fine unless
+        // covered by an explicit turn lane.
+        //
+        // If a multi-lane road lacks markings, just listening to this function will mean that the
+        // rightmos lanes could turn left, which probably isn&#39;t great for people in the middle
+        // lanes going straight. Further filtering (in remove_merging_turns) will prune this out.
+        </span><span class="kw">if </span>part.is_empty() || part == <span class="string">&quot;none&quot; </span>{
+            <span class="kw">let </span>all_explicit_types: BTreeSet&lt;TurnType&gt; = parts
+                .iter()
+                .flat_map(|part| part.split(<span class="string">&#39;;&#39;</span>).flat_map(parse_turn_type_from_osm))
+                .collect();
+            <span class="kw">let </span><span class="kw-2">mut </span>implied = BTreeSet::new();
+            implied.insert(TurnType::Straight);
+            <span class="kw">for </span>tt <span class="kw">in </span>[TurnType::Left, TurnType::Right] {
+                <span class="kw">if </span>!all_explicit_types.contains(<span class="kw-2">&amp;</span>tt) {
+                    implied.insert(tt);
                 }
             }
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">implied</span>);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(implied);
         }
 
-        <span class="prelude-val">Some</span>(<span class="ident">part</span>.<span class="ident">split</span>(<span class="string">&#39;;&#39;</span>).<span class="ident">flat_map</span>(<span class="ident">parse_turn_type_from_osm</span>).<span class="ident">collect</span>())
+        <span class="prelude-val">Some</span>(part.split(<span class="string">&#39;;&#39;</span>).flat_map(parse_turn_type_from_osm).collect())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_endpoint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>) -&gt; <span class="ident">CommonEndpoint</span> {
-        <span class="ident">CommonEndpoint::new</span>((<span class="self">self</span>.<span class="ident">src_i</span>, <span class="self">self</span>.<span class="ident">dst_i</span>), (<span class="ident">other</span>.<span class="ident">src_i</span>, <span class="ident">other</span>.<span class="ident">dst_i</span>))
+    <span class="kw">pub fn </span>common_endpoint(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Lane) -&gt; CommonEndpoint {
+        CommonEndpoint::new((<span class="self">self</span>.src_i, <span class="self">self</span>.dst_i), (other.src_i, other.dst_i))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_thick_polygon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="self">self</span>.<span class="ident">lane_center_pts</span>.<span class="ident">make_polygons</span>(<span class="self">self</span>.<span class="ident">width</span>)
-    }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CommonEndpoint</span> {
-    <span class="doccomment">/// Two lanes/roads share one endpoint</span>
-    <span class="ident">One</span>(<span class="ident">IntersectionID</span>),
-    <span class="doccomment">/// Two lanes/roads share both endpoints, because they both belong to the same road, or there</span>
-    <span class="doccomment">/// are two different roads connecting the same pair of intersections</span>
-    <span class="ident">Both</span>,
-    <span class="doccomment">/// Two lanes/roads don&#39;t have any common endpoints</span>
-    <span class="prelude-val">None</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">CommonEndpoint</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">obj1</span>: (<span class="ident">IntersectionID</span>, <span class="ident">IntersectionID</span>),
-        <span class="ident">obj2</span>: (<span class="ident">IntersectionID</span>, <span class="ident">IntersectionID</span>),
-    ) -&gt; <span class="ident">CommonEndpoint</span> {
-        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::suspicious_operation_groupings</span>)]</span>
-        <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">obj1</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">obj2</span>.<span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">obj1</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">obj2</span>.<span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="ident">obj1</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">obj2</span>.<span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">obj1</span>.<span class="number">1</span> <span class="op">==</span> <span class="ident">obj2</span>.<span class="number">1</span>;
-        <span class="kw">if</span> <span class="ident">src</span> <span class="op">&amp;&amp;</span> <span class="ident">dst</span> {
-            <span class="kw">return</span> <span class="ident">CommonEndpoint::Both</span>;
-        }
-        <span class="kw">if</span> <span class="ident">src</span> {
-            <span class="kw">return</span> <span class="ident">CommonEndpoint::One</span>(<span class="ident">obj1</span>.<span class="number">0</span>);
-        }
-        <span class="kw">if</span> <span class="ident">dst</span> {
-            <span class="kw">return</span> <span class="ident">CommonEndpoint::One</span>(<span class="ident">obj1</span>.<span class="number">1</span>);
-        }
-        <span class="ident">CommonEndpoint::None</span>
+    <span class="kw">pub fn </span>get_thick_polygon(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Polygon {
+        <span class="self">self</span>.lane_center_pts.make_polygons(<span class="self">self</span>.width)
     }
 }
 
-<span class="comment">// See https://wiki.openstreetmap.org/wiki/Key:turn</span>
-<span class="kw">fn</span> <span class="ident">parse_turn_type_from_osm</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">x</span> {
-        <span class="string">&quot;left&quot;</span> =&gt; <span class="macro">vec!</span>[<span class="ident">TurnType::Left</span>],
-        <span class="string">&quot;right&quot;</span> =&gt; <span class="macro">vec!</span>[<span class="ident">TurnType::Right</span>],
-        <span class="string">&quot;through&quot;</span> =&gt; <span class="macro">vec!</span>[<span class="ident">TurnType::Straight</span>],
-        <span class="string">&quot;slight_right&quot;</span> <span class="op">|</span> <span class="string">&quot;slight right&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_right&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_right&quot;</span> =&gt; {
-            <span class="macro">vec!</span>[<span class="ident">TurnType::Straight</span>, <span class="ident">TurnType::Right</span>]
+<span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">pub enum </span>CommonEndpoint {
+    <span class="doccomment">/// Two lanes/roads share one endpoint
+    </span>One(IntersectionID),
+    <span class="doccomment">/// Two lanes/roads share both endpoints, because they both belong to the same road, or there
+    /// are two different roads connecting the same pair of intersections
+    </span>Both,
+    <span class="doccomment">/// Two lanes/roads don&#39;t have any common endpoints
+    </span><span class="prelude-val">None</span>,
+}
+
+<span class="kw">impl </span>CommonEndpoint {
+    <span class="kw">pub fn </span>new(
+        obj1: (IntersectionID, IntersectionID),
+        obj2: (IntersectionID, IntersectionID),
+    ) -&gt; CommonEndpoint {
+        <span class="attribute">#![allow(clippy::suspicious_operation_groupings)]
+        </span><span class="kw">let </span>src = obj1.<span class="number">0 </span>== obj2.<span class="number">0 </span>|| obj1.<span class="number">0 </span>== obj2.<span class="number">1</span>;
+        <span class="kw">let </span>dst = obj1.<span class="number">1 </span>== obj2.<span class="number">0 </span>|| obj1.<span class="number">1 </span>== obj2.<span class="number">1</span>;
+        <span class="kw">if </span>src &amp;&amp; dst {
+            <span class="kw">return </span>CommonEndpoint::Both;
         }
-        <span class="string">&quot;slight_left&quot;</span> <span class="op">|</span> <span class="string">&quot;slight left&quot;</span> <span class="op">|</span> <span class="string">&quot;merge_to_left&quot;</span> <span class="op">|</span> <span class="string">&quot;sharp_left&quot;</span> =&gt; {
-            <span class="macro">vec!</span>[<span class="ident">TurnType::Straight</span>, <span class="ident">TurnType::Left</span>]
+        <span class="kw">if </span>src {
+            <span class="kw">return </span>CommonEndpoint::One(obj1.<span class="number">0</span>);
         }
-        <span class="string">&quot;reverse&quot;</span> =&gt; <span class="macro">vec!</span>[<span class="ident">TurnType::UTurn</span>],
-        <span class="string">&quot;none&quot;</span> <span class="op">|</span> <span class="string">&quot;&quot;</span> =&gt; <span class="macro">vec!</span>[],
-        <span class="kw">_</span> =&gt; {
-            <span class="macro">warn!</span>(<span class="string">&quot;Unknown turn restriction {}&quot;</span>, <span class="ident">x</span>);
+        <span class="kw">if </span>dst {
+            <span class="kw">return </span>CommonEndpoint::One(obj1.<span class="number">1</span>);
+        }
+        CommonEndpoint::None
+    }
+}
+
+<span class="comment">// See https://wiki.openstreetmap.org/wiki/Key:turn
+</span><span class="kw">fn </span>parse_turn_type_from_osm(x: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;TurnType&gt; {
+    <span class="kw">match </span>x {
+        <span class="string">&quot;left&quot; </span>=&gt; <span class="macro">vec!</span>[TurnType::Left],
+        <span class="string">&quot;right&quot; </span>=&gt; <span class="macro">vec!</span>[TurnType::Right],
+        <span class="string">&quot;through&quot; </span>=&gt; <span class="macro">vec!</span>[TurnType::Straight],
+        <span class="string">&quot;slight_right&quot; </span>| <span class="string">&quot;slight right&quot; </span>| <span class="string">&quot;merge_to_right&quot; </span>| <span class="string">&quot;sharp_right&quot; </span>=&gt; {
+            <span class="macro">vec!</span>[TurnType::Straight, TurnType::Right]
+        }
+        <span class="string">&quot;slight_left&quot; </span>| <span class="string">&quot;slight left&quot; </span>| <span class="string">&quot;merge_to_left&quot; </span>| <span class="string">&quot;sharp_left&quot; </span>=&gt; {
+            <span class="macro">vec!</span>[TurnType::Straight, TurnType::Left]
+        }
+        <span class="string">&quot;reverse&quot; </span>=&gt; <span class="macro">vec!</span>[TurnType::UTurn],
+        <span class="string">&quot;none&quot; </span>| <span class="string">&quot;&quot; </span>=&gt; <span class="macro">vec!</span>[],
+        <span class="kw">_ </span>=&gt; {
+            <span class="macro">warn!</span>(<span class="string">&quot;Unknown turn restriction {}&quot;</span>, x);
             <span class="macro">vec!</span>[]
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_lane_id_encoding</span>() {
-        <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">LaneID</span> {
-            <span class="ident">road</span>: <span class="ident">RoadID</span>(<span class="number">42</span>),
-            <span class="ident">offset</span>: <span class="number">3</span>,
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_lane_id_encoding() {
+        <span class="kw">let </span>l = LaneID {
+            road: RoadID(<span class="number">42</span>),
+            offset: <span class="number">3</span>,
         };
-        <span class="macro">assert_eq!</span>(<span class="ident">l</span>, <span class="ident">LaneID::decode_u32</span>(<span class="ident">l</span>.<span class="ident">encode_u32</span>()));
+        <span class="macro">assert_eq!</span>(l, LaneID::decode_u32(l.encode_u32()));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

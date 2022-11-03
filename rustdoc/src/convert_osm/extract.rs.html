@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/extract.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../convert_osm/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/extract.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>extract.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../convert_osm/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -387,213 +387,213 @@
 <span id="387">387</span>
 <span id="388">388</span>
 <span id="389">389</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>osm::{OsmID, RelationID, WayID};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
-<span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">osm</span>, <span class="ident">NamePerLanguage</span>};
-<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">Amenity</span>, <span class="ident">AreaType</span>, <span class="ident">RawArea</span>, <span class="ident">RawBuilding</span>, <span class="ident">RawMap</span>, <span class="ident">RawParkingLot</span>};
+<span class="kw">use </span>abstutil::{MultiMap, Tags, Timer};
+<span class="kw">use </span>geom::{Distance, FindClosest, Polygon, Pt2D, Ring};
+<span class="kw">use </span>osm2streets::{osm, NamePerLanguage};
+<span class="kw">use </span>raw_map::{Amenity, AreaType, RawArea, RawBuilding, RawMap, RawParkingLot};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Options</span>;
-<span class="kw">use</span> <span class="ident">streets_reader::osm_reader</span>::{<span class="ident">get_multipolygon_members</span>, <span class="ident">glue_multipolygon</span>, <span class="ident">multipoly_geometry</span>};
-<span class="kw">use</span> <span class="ident">streets_reader::OsmExtract</span>;
+<span class="kw">use </span><span class="kw">crate</span>::Options;
+<span class="kw">use </span>streets_reader::osm_reader::{get_multipolygon_members, glue_multipolygon, multipoly_geometry};
+<span class="kw">use </span>streets_reader::OsmExtract;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extract_osm</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>,
-    <span class="ident">osm_input_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">clip_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; (<span class="ident">OsmExtract</span>, <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">osm::WayID</span>, <span class="ident">String</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="ident">osm_xml</span> <span class="op">=</span> <span class="ident">fs_err::read_to_string</span>(<span class="ident">osm_input_path</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">doc</span> <span class="op">=</span>
-        <span class="ident">streets_reader::osm_reader::read</span>(<span class="kw-2">&amp;</span><span class="ident">osm_xml</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+<span class="kw">pub fn </span>extract_osm(
+    map: <span class="kw-2">&amp;mut </span>RawMap,
+    osm_input_path: <span class="kw-2">&amp;</span>str,
+    clip_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    opts: <span class="kw-2">&amp;</span>Options,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; (OsmExtract, MultiMap&lt;osm::WayID, String&gt;) {
+    <span class="kw">let </span>osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
+    <span class="kw">let </span><span class="kw-2">mut </span>doc =
+        streets_reader::osm_reader::read(<span class="kw-2">&amp;</span>osm_xml, <span class="kw-2">&amp;</span>map.streets.gps_bounds, timer).unwrap();
 
-    <span class="comment">// TODO Hacks to override OSM data. There&#39;s no problem upstream, but we want to accomplish</span>
-    <span class="comment">// various things for A/B Street.</span>
-    <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> [<span class="number">380902156</span>, <span class="number">380902155</span>, <span class="number">568612970</span>] {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">way</span>) <span class="op">=</span> <span class="ident">doc</span>.<span class="ident">ways</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">WayID</span>(<span class="ident">id</span>)) {
-            <span class="comment">// https://www.openstreetmap.org/way/380902156 and friends look like a separate</span>
-            <span class="comment">// cycleway smushed into the Lake Washington / Madison junction</span>
-            <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">remove</span>(<span class="string">&quot;bicycle&quot;</span>);
+    <span class="comment">// TODO Hacks to override OSM data. There&#39;s no problem upstream, but we want to accomplish
+    // various things for A/B Street.
+    </span><span class="kw">for </span>id <span class="kw">in </span>[<span class="number">380902156</span>, <span class="number">380902155</span>, <span class="number">568612970</span>] {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(way) = doc.ways.get_mut(<span class="kw-2">&amp;</span>WayID(id)) {
+            <span class="comment">// https://www.openstreetmap.org/way/380902156 and friends look like a separate
+            // cycleway smushed into the Lake Washington / Madison junction
+            </span>way.tags.remove(<span class="string">&quot;bicycle&quot;</span>);
         }
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">way</span>) <span class="op">=</span> <span class="ident">doc</span>.<span class="ident">ways</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">WayID</span>(<span class="number">332355467</span>)) {
-        <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(way) = doc.ways.get_mut(<span class="kw-2">&amp;</span>WayID(<span class="number">332355467</span>)) {
+        way.tags.insert(<span class="string">&quot;junction&quot;</span>, <span class="string">&quot;intersection&quot;</span>);
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">way</span>) <span class="op">=</span> <span class="ident">doc</span>.<span class="ident">ways</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">WayID</span>(<span class="number">332060260</span>)) {
-        <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(way) = doc.ways.get_mut(<span class="kw-2">&amp;</span>WayID(<span class="number">332060260</span>)) {
+        way.tags.insert(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>);
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">way</span>) <span class="op">=</span> <span class="ident">doc</span>.<span class="ident">ways</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">WayID</span>(<span class="number">332060236</span>)) {
-        <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>);
-    }
-
-    <span class="kw">if</span> <span class="ident">clip_path</span>.<span class="ident">is_none</span>() {
-        <span class="comment">// Use the boundary from .osm.</span>
-        <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">doc</span>.<span class="ident">gps_bounds</span>.<span class="ident">clone</span>();
-        <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>().<span class="ident">get_rectangle</span>();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(way) = doc.ways.get_mut(<span class="kw-2">&amp;</span>WayID(<span class="number">332060236</span>)) {
+        way.tags.insert(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;right&quot;</span>);
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">OsmExtract::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenity_points</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_routes_on_roads</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">osm::WayID</span>, <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
+    <span class="kw">if </span>clip_path.is_none() {
+        <span class="comment">// Use the boundary from .osm.
+        </span>map.streets.gps_bounds = doc.gps_bounds.clone();
+        map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();
+    }
 
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;processing OSM nodes&quot;</span>, <span class="ident">doc</span>.<span class="ident">nodes</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">node</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">nodes</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="ident">out</span>.<span class="ident">handle_node</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">node</span>);
-        <span class="kw">for</span> <span class="ident">amenity</span> <span class="kw">in</span> <span class="ident">get_bldg_amenities</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>.<span class="ident">tags</span>) {
-            <span class="ident">amenity_points</span>.<span class="ident">push</span>((<span class="ident">node</span>.<span class="ident">pt</span>, <span class="ident">amenity</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>out = OsmExtract::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>amenity_points = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>bus_routes_on_roads: MultiMap&lt;osm::WayID, String&gt; = MultiMap::new();
+
+    timer.start_iter(<span class="string">&quot;processing OSM nodes&quot;</span>, doc.nodes.len());
+    <span class="kw">for </span>(id, node) <span class="kw">in </span><span class="kw-2">&amp;</span>doc.nodes {
+        timer.next();
+        out.handle_node(<span class="kw-2">*</span>id, node);
+        <span class="kw">for </span>amenity <span class="kw">in </span>get_bldg_amenities(<span class="kw-2">&amp;</span>node.tags) {
+            amenity_points.push((node.pt, amenity));
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">coastline_groups</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">memorial_areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenity_areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Polygon</span>, <span class="ident">Amenity</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;processing OSM ways&quot;</span>, <span class="ident">doc</span>.<span class="ident">ways</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">way</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">doc</span>.<span class="ident">ways</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">id</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>coastline_groups: Vec&lt;(WayID, Vec&lt;Pt2D&gt;)&gt; = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>memorial_areas: Vec&lt;Polygon&gt; = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>amenity_areas: Vec&lt;(Polygon, Amenity)&gt; = Vec::new();
+    timer.start_iter(<span class="string">&quot;processing OSM ways&quot;</span>, doc.ways.len());
+    <span class="kw">for </span>(id, way) <span class="kw">in </span><span class="kw-2">&amp;mut </span>doc.ways {
+        timer.next();
+        <span class="kw">let </span>id = <span class="kw-2">*</span>id;
 
-        <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::OSM_WAY_ID</span>, <span class="ident">id</span>.<span class="number">0</span>.<span class="ident">to_string</span>());
+        way.tags.insert(osm::OSM_WAY_ID, id.<span class="number">0</span>.to_string());
 
-        <span class="kw">if</span> <span class="ident">out</span>.<span class="ident">handle_way</span>(<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">way</span>, <span class="ident">opts</span>) {
+        <span class="kw">if </span>out.handle_way(id, <span class="kw-2">&amp;</span>way, opts) {
             <span class="kw">continue</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
-            <span class="comment">// If we got here, is_road didn&#39;t interpret it as a normal road</span>
-            <span class="ident">map</span>.<span class="ident">parking_aisles</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;natural&quot;</span>, <span class="string">&quot;coastline&quot;</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;place&quot;</span>, <span class="string">&quot;island&quot;</span>) {
-            <span class="ident">coastline_groups</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>()));
+        } <span class="kw">else if </span>way.tags.is(osm::HIGHWAY, <span class="string">&quot;service&quot;</span>) {
+            <span class="comment">// If we got here, is_road didn&#39;t interpret it as a normal road
+            </span>map.parking_aisles.push((id, way.pts.clone()));
+        } <span class="kw">else if </span>way.tags.is(<span class="string">&quot;natural&quot;</span>, <span class="string">&quot;coastline&quot;</span>) &amp;&amp; !way.tags.is(<span class="string">&quot;place&quot;</span>, <span class="string">&quot;island&quot;</span>) {
+            coastline_groups.push((id, way.pts.clone()));
             <span class="kw">continue</span>;
         }
 
-        <span class="comment">// All the other cases we care about are areas.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">way</span>.<span class="ident">pts</span>.<span class="ident">clone</span>();
-        <span class="ident">deduped</span>.<span class="ident">dedup</span>();
-        <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">deduped</span>) {
-            <span class="ident">ring</span>.<span class="ident">into_polygon</span>()
-        } <span class="kw">else</span> {
+        <span class="comment">// All the other cases we care about are areas.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>deduped = way.pts.clone();
+        deduped.dedup();
+        <span class="kw">let </span>polygon = <span class="kw">if let </span><span class="prelude-val">Ok</span>(ring) = Ring::new(deduped) {
+            ring.into_polygon()
+        } <span class="kw">else </span>{
             <span class="kw">continue</span>;
         };
 
-        <span class="kw">if</span> <span class="ident">is_bldg</span>(<span class="kw-2">&amp;</span><span class="ident">way</span>.<span class="ident">tags</span>) {
-            <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">insert</span>(
-                <span class="ident">OsmID::Way</span>(<span class="ident">id</span>),
-                <span class="ident">RawBuilding</span> {
-                    <span class="ident">polygon</span>,
-                    <span class="ident">public_garage_name</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">num_parking_spots</span>: <span class="number">0</span>,
-                    <span class="ident">amenities</span>: <span class="ident">get_bldg_amenities</span>(<span class="kw-2">&amp;</span><span class="ident">way</span>.<span class="ident">tags</span>),
-                    <span class="ident">osm_tags</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
+        <span class="kw">if </span>is_bldg(<span class="kw-2">&amp;</span>way.tags) {
+            map.buildings.insert(
+                OsmID::Way(id),
+                RawBuilding {
+                    polygon,
+                    public_garage_name: <span class="prelude-val">None</span>,
+                    num_parking_spots: <span class="number">0</span>,
+                    amenities: get_bldg_amenities(<span class="kw-2">&amp;</span>way.tags),
+                    osm_tags: way.tags.clone(),
                 },
             );
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">at</span>) <span class="op">=</span> <span class="ident">get_area_type</span>(<span class="kw-2">&amp;</span><span class="ident">way</span>.<span class="ident">tags</span>) {
-            <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">RawArea</span> {
-                <span class="ident">area_type</span>: <span class="ident">at</span>,
-                <span class="ident">osm_id</span>: <span class="ident">OsmID::Way</span>(<span class="ident">id</span>),
-                <span class="ident">polygon</span>,
-                <span class="ident">osm_tags</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(at) = get_area_type(<span class="kw-2">&amp;</span>way.tags) {
+            map.areas.push(RawArea {
+                area_type: at,
+                osm_id: OsmID::Way(id),
+                polygon,
+                osm_tags: way.tags.clone(),
             });
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
-            <span class="ident">map</span>.<span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">RawParkingLot</span> {
-                <span class="ident">osm_id</span>: <span class="ident">OsmID::Way</span>(<span class="ident">id</span>),
-                <span class="ident">polygon</span>,
-                <span class="ident">osm_tags</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
+        } <span class="kw">else if </span>way.tags.is(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
+            map.parking_lots.push(RawParkingLot {
+                osm_id: OsmID::Way(id),
+                polygon,
+                osm_tags: way.tags.clone(),
             });
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;historic&quot;</span>, <span class="string">&quot;memorial&quot;</span>) {
-            <span class="ident">memorial_areas</span>.<span class="ident">push</span>(<span class="ident">polygon</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;amenity&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">amenity</span> <span class="op">=</span> <span class="ident">Amenity</span> {
-                <span class="ident">names</span>: <span class="ident">NamePerLanguage::new</span>(<span class="kw-2">&amp;</span><span class="ident">way</span>.<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage::unnamed</span>),
-                <span class="ident">amenity_type</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;amenity&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>(),
-                <span class="ident">osm_tags</span>: <span class="ident">way</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
+        } <span class="kw">else if </span>way.tags.is(<span class="string">&quot;historic&quot;</span>, <span class="string">&quot;memorial&quot;</span>) {
+            memorial_areas.push(polygon);
+        } <span class="kw">else if </span>way.tags.contains_key(<span class="string">&quot;amenity&quot;</span>) {
+            <span class="kw">let </span>amenity = Amenity {
+                names: NamePerLanguage::new(<span class="kw-2">&amp;</span>way.tags).unwrap_or_else(NamePerLanguage::unnamed),
+                amenity_type: way.tags.get(<span class="string">&quot;amenity&quot;</span>).unwrap().clone(),
+                osm_tags: way.tags.clone(),
             };
-            <span class="ident">amenity_areas</span>.<span class="ident">push</span>((<span class="ident">polygon</span>, <span class="ident">amenity</span>));
+            amenity_areas.push((polygon, amenity));
         }
     }
 
-    <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span>.<span class="ident">get_outer_ring</span>();
+    <span class="kw">let </span>boundary = map.streets.boundary_polygon.get_outer_ring();
 
-    <span class="comment">// TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in</span>
-    <span class="comment">// reader, or stop doing this entirely.</span>
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">rel</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">doc</span>.<span class="ident">relations</span> {
-        <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">insert</span>(<span class="ident">osm::OSM_REL_ID</span>, <span class="ident">id</span>.<span class="number">0</span>.<span class="ident">to_string</span>());
+    <span class="comment">// TODO Fill this out in a separate loop to keep a mutable borrow short. Maybe do this in
+    // reader, or stop doing this entirely.
+    </span><span class="kw">for </span>(id, rel) <span class="kw">in </span><span class="kw-2">&amp;mut </span>doc.relations {
+        rel.tags.insert(osm::OSM_REL_ID, id.<span class="number">0</span>.to_string());
     }
 
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;processing OSM relations&quot;</span>, <span class="ident">doc</span>.<span class="ident">relations</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">rel</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">doc</span>.<span class="ident">relations</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">id</span>;
+    timer.start_iter(<span class="string">&quot;processing OSM relations&quot;</span>, doc.relations.len());
+    <span class="kw">for </span>(id, rel) <span class="kw">in </span><span class="kw-2">&amp;</span>doc.relations {
+        timer.next();
+        <span class="kw">let </span>id = <span class="kw-2">*</span>id;
 
-        <span class="kw">if</span> <span class="ident">out</span>.<span class="ident">handle_relation</span>(<span class="ident">id</span>, <span class="ident">rel</span>) {
+        <span class="kw">if </span>out.handle_relation(id, rel) {
             <span class="kw">continue</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">area_type</span>) <span class="op">=</span> <span class="ident">get_area_type</span>(<span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">tags</span>) {
-            <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) {
-                <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span>
-                    <span class="ident">glue_multipolygon</span>(<span class="ident">id</span>, <span class="ident">get_multipolygon_members</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>))
+        } <span class="kw">else if let </span><span class="prelude-val">Some</span>(area_type) = get_area_type(<span class="kw-2">&amp;</span>rel.tags) {
+            <span class="kw">if </span>rel.tags.is(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) {
+                <span class="kw">for </span>polygon <span class="kw">in
+                    </span>glue_multipolygon(id, get_multipolygon_members(id, rel, <span class="kw-2">&amp;</span>doc), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>boundary))
                 {
-                    <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">push</span>(<span class="ident">RawArea</span> {
-                        <span class="ident">area_type</span>,
-                        <span class="ident">osm_id</span>: <span class="ident">OsmID::Relation</span>(<span class="ident">id</span>),
-                        <span class="ident">polygon</span>,
-                        <span class="ident">osm_tags</span>: <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
+                    map.areas.push(RawArea {
+                        area_type,
+                        osm_id: OsmID::Relation(id),
+                        polygon,
+                        osm_tags: rel.tags.clone(),
                     });
                 }
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_bldg</span>(<span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">tags</span>) {
-            <span class="kw">match</span> <span class="ident">multipoly_geometry</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">polygons</span>) =&gt; {
-                    <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">polygons</span> {
-                        <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">insert</span>(
-                            <span class="ident">OsmID::Relation</span>(<span class="ident">id</span>),
-                            <span class="ident">RawBuilding</span> {
-                                <span class="ident">polygon</span>,
-                                <span class="ident">public_garage_name</span>: <span class="prelude-val">None</span>,
-                                <span class="ident">num_parking_spots</span>: <span class="number">0</span>,
-                                <span class="ident">amenities</span>: <span class="ident">get_bldg_amenities</span>(<span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">tags</span>),
-                                <span class="ident">osm_tags</span>: <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
+        } <span class="kw">else if </span>is_bldg(<span class="kw-2">&amp;</span>rel.tags) {
+            <span class="kw">match </span>multipoly_geometry(id, rel, <span class="kw-2">&amp;</span>doc) {
+                <span class="prelude-val">Ok</span>(polygons) =&gt; {
+                    <span class="kw">for </span>polygon <span class="kw">in </span>polygons {
+                        map.buildings.insert(
+                            OsmID::Relation(id),
+                            RawBuilding {
+                                polygon,
+                                public_garage_name: <span class="prelude-val">None</span>,
+                                num_parking_spots: <span class="number">0</span>,
+                                amenities: get_bldg_amenities(<span class="kw-2">&amp;</span>rel.tags),
+                                osm_tags: rel.tags.clone(),
                             },
                         );
                     }
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">println!</span>(<span class="string">&quot;Skipping building {}: {}&quot;</span>, <span class="ident">id</span>, <span class="ident">err</span>),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">println!</span>(<span class="string">&quot;Skipping building {}: {}&quot;</span>, id, err),
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
-            <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span>
-                <span class="ident">glue_multipolygon</span>(<span class="ident">id</span>, <span class="ident">get_multipolygon_members</span>(<span class="ident">id</span>, <span class="ident">rel</span>, <span class="kw-2">&amp;</span><span class="ident">doc</span>), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>))
+        } <span class="kw">else if </span>rel.tags.is(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;parking&quot;</span>) {
+            <span class="kw">for </span>polygon <span class="kw">in
+                </span>glue_multipolygon(id, get_multipolygon_members(id, rel, <span class="kw-2">&amp;</span>doc), <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>boundary))
             {
-                <span class="ident">map</span>.<span class="ident">parking_lots</span>.<span class="ident">push</span>(<span class="ident">RawParkingLot</span> {
-                    <span class="ident">osm_id</span>: <span class="ident">OsmID::Relation</span>(<span class="ident">id</span>),
-                    <span class="ident">polygon</span>,
-                    <span class="ident">osm_tags</span>: <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
+                map.parking_lots.push(RawParkingLot {
+                    osm_id: OsmID::Relation(id),
+                    polygon,
+                    osm_tags: rel.tags.clone(),
                 });
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;amenity&quot;</span>) {
-            <span class="kw">let</span> <span class="ident">amenity</span> <span class="op">=</span> <span class="ident">Amenity</span> {
-                <span class="ident">names</span>: <span class="ident">NamePerLanguage::new</span>(<span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage::unnamed</span>),
-                <span class="ident">amenity_type</span>: <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;amenity&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>(),
-                <span class="ident">osm_tags</span>: <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">clone</span>(),
+        } <span class="kw">else if </span>rel.tags.is(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;multipolygon&quot;</span>) &amp;&amp; rel.tags.contains_key(<span class="string">&quot;amenity&quot;</span>) {
+            <span class="kw">let </span>amenity = Amenity {
+                names: NamePerLanguage::new(<span class="kw-2">&amp;</span>rel.tags).unwrap_or_else(NamePerLanguage::unnamed),
+                amenity_type: rel.tags.get(<span class="string">&quot;amenity&quot;</span>).unwrap().clone(),
+                osm_tags: rel.tags.clone(),
             };
-            <span class="kw">for</span> (<span class="ident">role</span>, <span class="ident">member</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">members</span> {
-                <span class="kw">if</span> <span class="ident">role</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;outer&quot;</span> {
+            <span class="kw">for </span>(role, member) <span class="kw">in </span><span class="kw-2">&amp;</span>rel.members {
+                <span class="kw">if </span>role != <span class="string">&quot;outer&quot; </span>{
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OsmID::Way</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">member</span> {
-                    <span class="comment">// Sometimes the way is just the building, so we can directly update it</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">get_mut</span>(<span class="ident">member</span>) {
-                        <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">push</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>());
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">doc</span>.<span class="ident">ways</span>[<span class="ident">w</span>].<span class="ident">pts</span>.<span class="ident">clone</span>()) {
-                        <span class="comment">// Otherwise, match geometrically later on</span>
-                        <span class="ident">amenity_areas</span>.<span class="ident">push</span>((<span class="ident">ring</span>.<span class="ident">into_polygon</span>(), <span class="ident">amenity</span>.<span class="ident">clone</span>()));
+                <span class="kw">if let </span>OsmID::Way(w) = member {
+                    <span class="comment">// Sometimes the way is just the building, so we can directly update it
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(b) = map.buildings.get_mut(member) {
+                        b.amenities.push(amenity.clone());
+                    } <span class="kw">else if let </span><span class="prelude-val">Ok</span>(ring) = Ring::new(doc.ways[w].pts.clone()) {
+                        <span class="comment">// Otherwise, match geometrically later on
+                        </span>amenity_areas.push((ring.into_polygon(), amenity.clone()));
                     }
                 }
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;route&quot;</span>) <span class="op">&amp;&amp;</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;route&quot;</span>, <span class="string">&quot;bus&quot;</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="ident">rel</span>.<span class="ident">tags</span>.<span class="ident">get</span>(<span class="string">&quot;name&quot;</span>) {
-                <span class="kw">for</span> (<span class="ident">role</span>, <span class="ident">member</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">rel</span>.<span class="ident">members</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OsmID::Way</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">member</span> {
-                        <span class="kw">if</span> <span class="ident">role</span>.<span class="ident">is_empty</span>() {
-                            <span class="ident">bus_routes_on_roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">w</span>, <span class="ident">name</span>.<span class="ident">to_string</span>());
+        } <span class="kw">else if </span>rel.tags.is(<span class="string">&quot;type&quot;</span>, <span class="string">&quot;route&quot;</span>) &amp;&amp; rel.tags.is(<span class="string">&quot;route&quot;</span>, <span class="string">&quot;bus&quot;</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = rel.tags.get(<span class="string">&quot;name&quot;</span>) {
+                <span class="kw">for </span>(role, member) <span class="kw">in </span><span class="kw-2">&amp;</span>rel.members {
+                    <span class="kw">if let </span>OsmID::Way(w) = member {
+                        <span class="kw">if </span>role.is_empty() {
+                            bus_routes_on_roads.insert(<span class="kw-2">*</span>w, name.to_string());
                         }
                     }
                 }
@@ -601,102 +601,102 @@
         }
     }
 
-    <span class="comment">// Special case the coastline.</span>
-    <span class="macro">println!</span>(<span class="string">&quot;{} ways of coastline&quot;</span>, <span class="ident">coastline_groups</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">glue_multipolygon</span>(<span class="ident">RelationID</span>(<span class="op">-</span><span class="number">1</span>), <span class="ident">coastline_groups</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">boundary</span>)) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
-        <span class="ident">osm_tags</span>.<span class="ident">insert</span>(<span class="string">&quot;water&quot;</span>, <span class="string">&quot;ocean&quot;</span>);
-        <span class="comment">// Put it at the beginning, so that it&#39;s naturally beneath island areas</span>
-        <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">insert</span>(
+    <span class="comment">// Special case the coastline.
+    </span><span class="macro">println!</span>(<span class="string">&quot;{} ways of coastline&quot;</span>, coastline_groups.len());
+    <span class="kw">for </span>polygon <span class="kw">in </span>glue_multipolygon(RelationID(-<span class="number">1</span>), coastline_groups, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>boundary)) {
+        <span class="kw">let </span><span class="kw-2">mut </span>osm_tags = Tags::empty();
+        osm_tags.insert(<span class="string">&quot;water&quot;</span>, <span class="string">&quot;ocean&quot;</span>);
+        <span class="comment">// Put it at the beginning, so that it&#39;s naturally beneath island areas
+        </span>map.areas.insert(
             <span class="number">0</span>,
-            <span class="ident">RawArea</span> {
-                <span class="ident">area_type</span>: <span class="ident">AreaType::Water</span>,
-                <span class="ident">osm_id</span>: <span class="ident">OsmID::Relation</span>(<span class="ident">RelationID</span>(<span class="op">-</span><span class="number">1</span>)),
-                <span class="ident">polygon</span>,
-                <span class="ident">osm_tags</span>,
+            RawArea {
+                area_type: AreaType::Water,
+                osm_id: OsmID::Relation(RelationID(-<span class="number">1</span>)),
+                polygon,
+                osm_tags,
             },
         );
     }
 
-    <span class="comment">// Berlin has lots of &quot;buildings&quot; mapped in the Holocaust-Mahnmal. Filter them out.</span>
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match buildings to memorial areas&quot;</span>, <span class="ident">memorial_areas</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> <span class="ident">area</span> <span class="kw">in</span> <span class="ident">memorial_areas</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="ident">map</span>.<span class="ident">buildings</span>
-            .<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">b</span><span class="op">|</span> <span class="op">!</span><span class="ident">area</span>.<span class="ident">contains_pt</span>(<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()));
+    <span class="comment">// Berlin has lots of &quot;buildings&quot; mapped in the Holocaust-Mahnmal. Filter them out.
+    </span>timer.start_iter(<span class="string">&quot;match buildings to memorial areas&quot;</span>, memorial_areas.len());
+    <span class="kw">for </span>area <span class="kw">in </span>memorial_areas {
+        timer.next();
+        map.buildings
+            .retain(|<span class="kw">_</span>, b| !area.contains_pt(b.polygon.center()));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_bldg</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">buildings</span> {
-        <span class="ident">closest_bldg</span>.<span class="ident">add_polygon</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">polygon</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>closest_bldg: FindClosest&lt;osm::OsmID&gt; =
+        FindClosest::new(<span class="kw-2">&amp;</span>map.streets.gps_bounds.to_bounds());
+    <span class="kw">for </span>(id, b) <span class="kw">in </span><span class="kw-2">&amp;</span>map.buildings {
+        closest_bldg.add_polygon(<span class="kw-2">*</span>id, <span class="kw-2">&amp;</span>b.polygon);
     }
 
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match building amenities&quot;</span>, <span class="ident">amenity_points</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="ident">amenity_points</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">closest_bldg</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">50.0</span>)) {
-            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
-                <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">push</span>(<span class="ident">amenity</span>);
+    timer.start_iter(<span class="string">&quot;match building amenities&quot;</span>, amenity_points.len());
+    <span class="kw">for </span>(pt, amenity) <span class="kw">in </span>amenity_points {
+        timer.next();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = closest_bldg.closest_pt(pt, Distance::meters(<span class="number">50.0</span>)) {
+            <span class="kw">let </span>b = map.buildings.get_mut(<span class="kw-2">&amp;</span>id).unwrap();
+            <span class="kw">if </span>b.polygon.contains_pt(pt) {
+                b.amenities.push(amenity);
             }
         }
     }
 
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match buildings to amenity areas&quot;</span>, <span class="ident">amenity_areas</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">poly</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="ident">amenity_areas</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">closest_bldg</span>.<span class="ident">all_points_inside</span>(<span class="kw-2">&amp;</span><span class="ident">poly</span>) {
-            <span class="ident">map</span>.<span class="ident">buildings</span>
-                .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">amenities</span>
-                .<span class="ident">push</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>());
+    timer.start_iter(<span class="string">&quot;match buildings to amenity areas&quot;</span>, amenity_areas.len());
+    <span class="kw">for </span>(poly, amenity) <span class="kw">in </span>amenity_areas {
+        timer.next();
+        <span class="kw">for </span>b <span class="kw">in </span>closest_bldg.all_points_inside(<span class="kw-2">&amp;</span>poly) {
+            map.buildings
+                .get_mut(<span class="kw-2">&amp;</span>b)
+                .unwrap()
+                .amenities
+                .push(amenity.clone());
         }
     }
 
-    <span class="comment">// Hack to fix z-ordering for Green Lake (and probably other places). Put water and islands</span>
-    <span class="comment">// last. I think the more proper fix is interpreting &quot;inner&quot; roles in relations.</span>
-    <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">a</span>.<span class="ident">area_type</span> {
-        <span class="ident">AreaType::Island</span> =&gt; <span class="number">2</span>,
-        <span class="ident">AreaType::Water</span> =&gt; <span class="number">1</span>,
-        <span class="kw">_</span> =&gt; <span class="number">0</span>,
+    <span class="comment">// Hack to fix z-ordering for Green Lake (and probably other places). Put water and islands
+    // last. I think the more proper fix is interpreting &quot;inner&quot; roles in relations.
+    </span>map.areas.sort_by_key(|a| <span class="kw">match </span>a.area_type {
+        AreaType::Island =&gt; <span class="number">2</span>,
+        AreaType::Water =&gt; <span class="number">1</span>,
+        <span class="kw">_ </span>=&gt; <span class="number">0</span>,
     });
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
-    <span class="ident">find_parking_aisles</span>(<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>.<span class="ident">roads</span>);
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
+    timer.start(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
+    find_parking_aisles(map, <span class="kw-2">&amp;mut </span>out.roads);
+    timer.stop(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
 
-    (<span class="ident">out</span>, <span class="ident">bus_routes_on_roads</span>)
+    (out, bus_routes_on_roads)
 }
 
-<span class="kw">fn</span> <span class="ident">is_bldg</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="ident">bool</span> {
-    <span class="comment">// Sorry, the towers at Gasworks don&#39;t count. :)</span>
-    <span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;building&quot;</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">tags</span>.<span class="ident">contains_key</span>(<span class="string">&quot;abandoned:man_made&quot;</span>)
+<span class="kw">fn </span>is_bldg(tags: <span class="kw-2">&amp;</span>Tags) -&gt; bool {
+    <span class="comment">// Sorry, the towers at Gasworks don&#39;t count. :)
+    </span>tags.contains_key(<span class="string">&quot;building&quot;</span>) &amp;&amp; !tags.contains_key(<span class="string">&quot;abandoned:man_made&quot;</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">get_bldg_amenities</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Amenity</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">amenities</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> [<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;shop&quot;</span>, <span class="string">&quot;craft&quot;</span>, <span class="string">&quot;office&quot;</span>, <span class="string">&quot;tourism&quot;</span>, <span class="string">&quot;leisure&quot;</span>] {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">amenity</span>) <span class="op">=</span> <span class="ident">tags</span>.<span class="ident">get</span>(<span class="ident">key</span>) {
-            <span class="ident">amenities</span>.<span class="ident">push</span>(<span class="ident">Amenity</span> {
-                <span class="ident">names</span>: <span class="ident">NamePerLanguage::new</span>(<span class="ident">tags</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">NamePerLanguage::unnamed</span>),
-                <span class="ident">amenity_type</span>: <span class="ident">amenity</span>.<span class="ident">clone</span>(),
-                <span class="ident">osm_tags</span>: <span class="ident">tags</span>.<span class="ident">clone</span>(),
+<span class="kw">fn </span>get_bldg_amenities(tags: <span class="kw-2">&amp;</span>Tags) -&gt; Vec&lt;Amenity&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>amenities = Vec::new();
+    <span class="kw">for </span>key <span class="kw">in </span>[<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;shop&quot;</span>, <span class="string">&quot;craft&quot;</span>, <span class="string">&quot;office&quot;</span>, <span class="string">&quot;tourism&quot;</span>, <span class="string">&quot;leisure&quot;</span>] {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(amenity) = tags.get(key) {
+            amenities.push(Amenity {
+                names: NamePerLanguage::new(tags).unwrap_or_else(NamePerLanguage::unnamed),
+                amenity_type: amenity.clone(),
+                osm_tags: tags.clone(),
             });
         }
     }
-    <span class="ident">amenities</span>
+    amenities
 }
 
-<span class="kw">fn</span> <span class="ident">get_area_type</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AreaType</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;leisure&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;garden&quot;</span>, <span class="string">&quot;park&quot;</span>, <span class="string">&quot;golf_course&quot;</span>]) {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType::Park</span>);
+<span class="kw">fn </span>get_area_type(tags: <span class="kw-2">&amp;</span>Tags) -&gt; <span class="prelude-ty">Option</span>&lt;AreaType&gt; {
+    <span class="kw">if </span>tags.is_any(<span class="string">&quot;leisure&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;garden&quot;</span>, <span class="string">&quot;park&quot;</span>, <span class="string">&quot;golf_course&quot;</span>]) {
+        <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Park);
     }
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;natural&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;wood&quot;</span>, <span class="string">&quot;scrub&quot;</span>]) {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType::Park</span>);
+    <span class="kw">if </span>tags.is_any(<span class="string">&quot;natural&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;wood&quot;</span>, <span class="string">&quot;scrub&quot;</span>]) {
+        <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Park);
     }
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is_any</span>(
+    <span class="kw">if </span>tags.is_any(
         <span class="string">&quot;landuse&quot;</span>,
         <span class="macro">vec!</span>[
             <span class="string">&quot;cemetery&quot;</span>,
@@ -707,74 +707,74 @@
             <span class="string">&quot;recreation_ground&quot;</span>,
             <span class="string">&quot;village_green&quot;</span>,
         ],
-    ) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;graveyard&quot;</span>)
+    ) || tags.is(<span class="string">&quot;amenity&quot;</span>, <span class="string">&quot;graveyard&quot;</span>)
     {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType::Park</span>);
+        <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Park);
     }
 
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;natural&quot;</span>, <span class="string">&quot;water&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;waterway&quot;</span>, <span class="string">&quot;riverbank&quot;</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType::Water</span>);
+    <span class="kw">if </span>tags.is(<span class="string">&quot;natural&quot;</span>, <span class="string">&quot;water&quot;</span>) || tags.is(<span class="string">&quot;waterway&quot;</span>, <span class="string">&quot;riverbank&quot;</span>) {
+        <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Water);
     }
 
-    <span class="kw">if</span> <span class="ident">tags</span>.<span class="ident">is</span>(<span class="string">&quot;place&quot;</span>, <span class="string">&quot;island&quot;</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">AreaType::Island</span>);
+    <span class="kw">if </span>tags.is(<span class="string">&quot;place&quot;</span>, <span class="string">&quot;island&quot;</span>) {
+        <span class="kw">return </span><span class="prelude-val">Some</span>(AreaType::Island);
     }
 
-    <span class="prelude-val">None</span>
-}
+    <span class="prelude-val">None
+</span>}
 
-<span class="comment">// Look for any service roads that collide with parking lots, and treat them as parking aisles</span>
-<span class="comment">// instead.</span>
-<span class="kw">fn</span> <span class="ident">find_parking_aisles</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">roads</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>, <span class="ident">Tags</span>)<span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">lot</span>) <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="ident">closest</span>.<span class="ident">add_polygon</span>(<span class="ident">idx</span>, <span class="kw-2">&amp;</span><span class="ident">lot</span>.<span class="ident">polygon</span>);
+<span class="comment">// Look for any service roads that collide with parking lots, and treat them as parking aisles
+// instead.
+</span><span class="kw">fn </span>find_parking_aisles(map: <span class="kw-2">&amp;mut </span>RawMap, roads: <span class="kw-2">&amp;mut </span>Vec&lt;(WayID, Vec&lt;Pt2D&gt;, Tags)&gt;) {
+    <span class="kw">let </span><span class="kw-2">mut </span>closest: FindClosest&lt;usize&gt; = FindClosest::new(<span class="kw-2">&amp;</span>map.streets.gps_bounds.to_bounds());
+    <span class="kw">for </span>(idx, lot) <span class="kw">in </span>map.parking_lots.iter().enumerate() {
+        closest.add_polygon(idx, <span class="kw-2">&amp;</span>lot.polygon);
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">keep_roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_aisles</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">pts</span>, <span class="ident">osm_tags</span>) <span class="kw">in</span> <span class="ident">roads</span>.<span class="ident">drain</span>(..) {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">osm_tags</span>.<span class="ident">is</span>(<span class="ident">osm::HIGHWAY</span>, <span class="string">&quot;service&quot;</span>) {
-            <span class="ident">keep_roads</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">pts</span>, <span class="ident">osm_tags</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>keep_roads = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>parking_aisles = Vec::new();
+    <span class="kw">for </span>(id, pts, osm_tags) <span class="kw">in </span>roads.drain(..) {
+        <span class="kw">if </span>!osm_tags.is(osm::HIGHWAY, <span class="string">&quot;service&quot;</span>) {
+            keep_roads.push((id, pts, osm_tags));
             <span class="kw">continue</span>;
         }
-        <span class="comment">// TODO This code is repeated later in make/parking_lots.rs, but oh well.</span>
+        <span class="comment">// TODO This code is repeated later in make/parking_lots.rs, but oh well.
 
-        <span class="comment">// Use the center of all the aisle points to match it to lots</span>
-        <span class="kw">let</span> <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">closest</span>
-            .<span class="ident">all_close_pts</span>(<span class="ident">Pt2D::center</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>), <span class="ident">Distance::meters</span>(<span class="number">500.0</span>))
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">idx</span>)
-            .<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">pts</span>, <span class="ident">candidates</span>) {
-            <span class="ident">parking_aisles</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">pts</span>));
-        } <span class="kw">else</span> {
-            <span class="ident">keep_roads</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">pts</span>, <span class="ident">osm_tags</span>));
+        // Use the center of all the aisle points to match it to lots
+        </span><span class="kw">let </span>candidates: Vec&lt;usize&gt; = closest
+            .all_close_pts(Pt2D::center(<span class="kw-2">&amp;</span>pts), Distance::meters(<span class="number">500.0</span>))
+            .into_iter()
+            .map(|(idx, <span class="kw">_</span>, <span class="kw">_</span>)| idx)
+            .collect();
+        <span class="kw">if </span>service_road_crosses_parking_lot(map, <span class="kw-2">&amp;</span>pts, candidates) {
+            parking_aisles.push((id, pts));
+        } <span class="kw">else </span>{
+            keep_roads.push((id, pts, osm_tags));
         }
     }
-    <span class="ident">roads</span>.<span class="ident">extend</span>(<span class="ident">keep_roads</span>);
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">pts</span>) <span class="kw">in</span> <span class="ident">parking_aisles</span> {
-        <span class="ident">map</span>.<span class="ident">parking_aisles</span>.<span class="ident">push</span>((<span class="ident">id</span>, <span class="ident">pts</span>));
+    roads.extend(keep_roads);
+    <span class="kw">for </span>(id, pts) <span class="kw">in </span>parking_aisles {
+        map.parking_aisles.push((id, pts));
     }
 }
 
-<span class="kw">fn</span> <span class="ident">service_road_crosses_parking_lot</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>], <span class="ident">candidates</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">polylines</span>, <span class="ident">rings</span>)) <span class="op">=</span> <span class="ident">Ring::split_points</span>(<span class="ident">pts</span>) {
-        <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="ident">polylines</span> {
-            <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">polygon</span>.<span class="ident">clip_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>).<span class="ident">is_some</span>() {
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
+<span class="kw">fn </span>service_road_crosses_parking_lot(map: <span class="kw-2">&amp;</span>RawMap, pts: <span class="kw-2">&amp;</span>[Pt2D], candidates: Vec&lt;usize&gt;) -&gt; bool {
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>((polylines, rings)) = Ring::split_points(pts) {
+        <span class="kw">for </span>pl <span class="kw">in </span>polylines {
+            <span class="kw">for </span>idx <span class="kw">in </span><span class="kw-2">&amp;</span>candidates {
+                <span class="kw">if </span>map.parking_lots[<span class="kw-2">*</span>idx].polygon.clip_polyline(<span class="kw-2">&amp;</span>pl).is_some() {
+                    <span class="kw">return </span><span class="bool-val">true</span>;
                 }
             }
         }
-        <span class="kw">for</span> <span class="ident">ring</span> <span class="kw">in</span> <span class="ident">rings</span> {
-            <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">candidates</span> {
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">parking_lots</span>[<span class="kw-2">*</span><span class="ident">idx</span>].<span class="ident">polygon</span>.<span class="ident">clip_ring</span>(<span class="kw-2">&amp;</span><span class="ident">ring</span>).<span class="ident">is_some</span>() {
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
+        <span class="kw">for </span>ring <span class="kw">in </span>rings {
+            <span class="kw">for </span>idx <span class="kw">in </span><span class="kw-2">&amp;</span>candidates {
+                <span class="kw">if </span>map.parking_lots[<span class="kw-2">*</span>idx].polygon.clip_ring(<span class="kw-2">&amp;</span>ring).is_some() {
+                    <span class="kw">return </span><span class="bool-val">true</span>;
                 }
             }
         }
     }
-    <span class="bool-val">false</span>
-}
+    <span class="bool-val">false
+</span>}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_osm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_osm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

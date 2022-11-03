@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/abst_paths.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>abst_paths.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstio/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/abst_paths.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>abst_paths.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstio/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -453,460 +453,460 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Generate paths for different A/B Street files</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Generate paths for different A/B Street files
 
-<span class="comment">// TODO There&#39;s some repeated code here for listing files locally/from the manifest/merged. Maybe</span>
-<span class="comment">// have a Source enum and simplify the API. But we would either have to call Manifest::load</span>
-<span class="comment">// constantly, or plumb it around with a borrow? Or maybe even owned.</span>
+</span><span class="comment">// TODO There&#39;s some repeated code here for listing files locally/from the manifest/merged. Maybe
+// have a Source enum and simplify the API. But we would either have to call Manifest::load
+// constantly, or plumb it around with a borrow? Or maybe even owned.
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</span><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::basename</span>;
+<span class="kw">use </span>abstutil::basename;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">file_exists</span>, <span class="ident">list_all_objects</span>, <span class="ident">Manifest</span>};
+<span class="kw">use crate</span>::{file_exists, list_all_objects, Manifest};
 
-<span class="macro">lazy_static::lazy_static!</span> {
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">ROOT_DIR</span>: <span class="ident">String</span> <span class="op">=</span> {
-        <span class="comment">// If you&#39;re packaging for a release and need the data directory to be in some fixed</span>
-        <span class="comment">// location: ABST_DATA_DIR=/some/path cargo build ...</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dir</span>) <span class="op">=</span> <span class="macro">option_env!</span>(<span class="string">&quot;ABST_DATA_DIR&quot;</span>) {
-            <span class="ident">dir</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
-            <span class="string">&quot;../data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;data/&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="string">&quot;data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../data/&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="string">&quot;../data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../../data/&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="string">&quot;../../data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../../../data/&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="string">&quot;../../../data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> {
+<span class="macro">lazy_static::lazy_static! </span>{
+    <span class="kw">static </span><span class="kw-2">ref </span>ROOT_DIR: String = {
+        <span class="comment">// If you&#39;re packaging for a release and need the data directory to be in some fixed
+        // location: ABST_DATA_DIR=/some/path cargo build ...
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(dir) = <span class="macro">option_env!</span>(<span class="string">&quot;ABST_DATA_DIR&quot;</span>) {
+            dir.trim_end_matches(<span class="string">&#39;/&#39;</span>).to_string()
+        } <span class="kw">else if </span><span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
+            <span class="string">&quot;../data&quot;</span>.to_string()
+        } <span class="kw">else if </span>file_exists(<span class="string">&quot;data/&quot;</span>.to_string()) {
+            <span class="string">&quot;data&quot;</span>.to_string()
+        } <span class="kw">else if </span>file_exists(<span class="string">&quot;../data/&quot;</span>.to_string()) {
+            <span class="string">&quot;../data&quot;</span>.to_string()
+        } <span class="kw">else if </span>file_exists(<span class="string">&quot;../../data/&quot;</span>.to_string()) {
+            <span class="string">&quot;../../data&quot;</span>.to_string()
+        } <span class="kw">else if </span>file_exists(<span class="string">&quot;../../../data/&quot;</span>.to_string()) {
+            <span class="string">&quot;../../../data&quot;</span>.to_string()
+        } <span class="kw">else </span>{
             <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t find the data/ directory&quot;</span>);
         }
     };
 
-    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">ROOT_PLAYER_DIR</span>: <span class="ident">String</span> <span class="op">=</span> {
-        <span class="comment">// If you&#39;re packaging for a release and want the player&#39;s local data directory to be</span>
-        <span class="comment">// $HOME/.abstreet, set ABST_PLAYER_HOME_DIR=1</span>
-        <span class="kw">if</span> <span class="macro">option_env!</span>(<span class="string">&quot;ABST_PLAYER_HOME_DIR&quot;</span>).<span class="ident">is_some</span>() {
-            <span class="kw">match</span> <span class="ident">std::env::var</span>(<span class="string">&quot;HOME&quot;</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">dir</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}/.abstreet&quot;</span>, <span class="ident">dir</span>.<span class="ident">trim_end_matches</span>(<span class="string">&#39;/&#39;</span>)),
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;This build of A/B Street stores player data in $HOME/.abstreet, but $HOME isn&#39;t set: {}&quot;</span>, <span class="ident">err</span>),
+    <span class="kw">static </span><span class="kw-2">ref </span>ROOT_PLAYER_DIR: String = {
+        <span class="comment">// If you&#39;re packaging for a release and want the player&#39;s local data directory to be
+        // $HOME/.abstreet, set ABST_PLAYER_HOME_DIR=1
+        </span><span class="kw">if </span><span class="macro">option_env!</span>(<span class="string">&quot;ABST_PLAYER_HOME_DIR&quot;</span>).is_some() {
+            <span class="kw">match </span>std::env::var(<span class="string">&quot;HOME&quot;</span>) {
+                <span class="prelude-val">Ok</span>(dir) =&gt; <span class="macro">format!</span>(<span class="string">&quot;{}/.abstreet&quot;</span>, dir.trim_end_matches(<span class="string">&#39;/&#39;</span>)),
+                <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;This build of A/B Street stores player data in $HOME/.abstreet, but $HOME isn&#39;t set: {}&quot;</span>, err),
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
-            <span class="string">&quot;../data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;data/&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="string">&quot;data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../data/&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="string">&quot;../data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../../data/&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="string">&quot;../../data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="string">&quot;../../../data/&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="string">&quot;../../../data&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> {
+        } <span class="kw">else if </span><span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
+            <span class="string">&quot;../data&quot;</span>.to_string()
+        } <span class="kw">else if </span>file_exists(<span class="string">&quot;data/&quot;</span>.to_string()) {
+            <span class="string">&quot;data&quot;</span>.to_string()
+        } <span class="kw">else if </span>file_exists(<span class="string">&quot;../data/&quot;</span>.to_string()) {
+            <span class="string">&quot;../data&quot;</span>.to_string()
+        } <span class="kw">else if </span>file_exists(<span class="string">&quot;../../data/&quot;</span>.to_string()) {
+            <span class="string">&quot;../../data&quot;</span>.to_string()
+        } <span class="kw">else if </span>file_exists(<span class="string">&quot;../../../data/&quot;</span>.to_string()) {
+            <span class="string">&quot;../../../data&quot;</span>.to_string()
+        } <span class="kw">else </span>{
             <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t find the data/ directory&quot;</span>);
         }
     };
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">p</span>: <span class="ident">I</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">as_ref</span>();
-    <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">starts_with</span>(<span class="string">&quot;player/&quot;</span>) {
-        <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="kw-2">*</span><span class="ident">ROOT_PLAYER_DIR</span>, <span class="ident">p</span>)
-    } <span class="kw">else</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="kw-2">*</span><span class="ident">ROOT_DIR</span>, <span class="ident">p</span>)
+<span class="kw">pub fn </span>path&lt;I: AsRef&lt;str&gt;&gt;(p: I) -&gt; String {
+    <span class="kw">let </span>p = p.as_ref();
+    <span class="kw">if </span>p.starts_with(<span class="string">&quot;player/&quot;</span>) {
+        <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="kw-2">*</span>ROOT_PLAYER_DIR, p)
+    } <span class="kw">else </span>{
+        <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="kw-2">*</span>ROOT_DIR, p)
     }
 }
 
-<span class="doccomment">/// A single city is identified using this.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CityName</span> {
-    <span class="doccomment">/// A two letter lowercase country code, from https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.</span>
-    <span class="doccomment">/// To represent imaginary/test cities, use the code `zz`.</span>
-    <span class="kw">pub</span> <span class="ident">country</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// The name of the city, in filename-friendly form -- for example, &quot;tel_aviv&quot;.</span>
-    <span class="kw">pub</span> <span class="ident">city</span>: <span class="ident">String</span>,
+<span class="doccomment">/// A single city is identified using this.
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>CityName {
+    <span class="doccomment">/// A two letter lowercase country code, from https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.
+    /// To represent imaginary/test cities, use the code `zz`.
+    </span><span class="kw">pub </span>country: String,
+    <span class="doccomment">/// The name of the city, in filename-friendly form -- for example, &quot;tel_aviv&quot;.
+    </span><span class="kw">pub </span>city: String,
 }
 
-<span class="kw">impl</span> <span class="ident">CityName</span> {
-    <span class="doccomment">/// Create a CityName from a country code and city.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">country</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">city</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">CityName</span> {
-        <span class="kw">if</span> <span class="ident">country</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
+<span class="kw">impl </span>CityName {
+    <span class="doccomment">/// Create a CityName from a country code and city.
+    </span><span class="kw">pub fn </span>new(country: <span class="kw-2">&amp;</span>str, city: <span class="kw-2">&amp;</span>str) -&gt; CityName {
+        <span class="kw">if </span>country.len() != <span class="number">2 </span>{
             <span class="macro">panic!</span>(
                 <span class="string">&quot;CityName::new({}, {}) has a country code that isn&#39;t two letters&quot;</span>,
-                <span class="ident">country</span>, <span class="ident">city</span>
+                country, city
             );
         }
-        <span class="ident">CityName</span> {
-            <span class="ident">country</span>: <span class="ident">country</span>.<span class="ident">to_string</span>(),
-            <span class="ident">city</span>: <span class="ident">city</span>.<span class="ident">to_string</span>(),
+        CityName {
+            country: country.to_string(),
+            city: city.to_string(),
         }
     }
 
-    <span class="doccomment">/// Convenient constructor for the main city of the game.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seattle</span>() -&gt; <span class="ident">CityName</span> {
-        <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>)
+    <span class="doccomment">/// Convenient constructor for the main city of the game.
+    </span><span class="kw">pub fn </span>seattle() -&gt; CityName {
+        CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>)
     }
 
-    <span class="doccomment">/// Returns all city names available locally.</span>
-    <span class="kw">fn</span> <span class="ident">list_all_cities_locally</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CityName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cities</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">country</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="string">&quot;system&quot;</span>)) {
-            <span class="kw">if</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;assets&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;extra_fonts&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;ltn_proposals&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;proposals&quot;</span>
-                <span class="op">|</span><span class="op">|</span> <span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;study_areas&quot;</span>
-            {
+    <span class="doccomment">/// Returns all city names available locally.
+    </span><span class="kw">fn </span>list_all_cities_locally() -&gt; Vec&lt;CityName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>cities = Vec::new();
+        <span class="kw">for </span>country <span class="kw">in </span>list_all_objects(path(<span class="string">&quot;system&quot;</span>)) {
+            <span class="kw">if </span>country == <span class="string">&quot;assets&quot;
+                </span>|| country == <span class="string">&quot;extra_fonts&quot;
+                </span>|| country == <span class="string">&quot;ltn_proposals&quot;
+                </span>|| country == <span class="string">&quot;proposals&quot;
+                </span>|| country == <span class="string">&quot;study_areas&quot;
+            </span>{
                 <span class="kw">continue</span>;
             }
-            <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="macro">format!</span>(<span class="string">&quot;system/{}&quot;</span>, <span class="ident">country</span>))) {
-                <span class="ident">cities</span>.<span class="ident">push</span>(<span class="ident">CityName::new</span>(<span class="kw-2">&amp;</span><span class="ident">country</span>, <span class="kw-2">&amp;</span><span class="ident">city</span>));
+            <span class="kw">for </span>city <span class="kw">in </span>list_all_objects(path(<span class="macro">format!</span>(<span class="string">&quot;system/{}&quot;</span>, country))) {
+                cities.push(CityName::new(<span class="kw-2">&amp;</span>country, <span class="kw-2">&amp;</span>city));
             }
         }
-        <span class="ident">cities</span>
+        cities
     }
 
-    <span class="doccomment">/// Returns all city names based on the manifest of available files.</span>
-    <span class="kw">fn</span> <span class="ident">list_all_cities_from_manifest</span>(<span class="ident">manifest</span>: <span class="kw-2">&amp;</span><span class="ident">Manifest</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CityName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cities</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">manifest</span>.<span class="ident">entries</span>.<span class="ident">keys</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">city</span>) <span class="op">=</span> <span class="ident">Manifest::path_to_city</span>(<span class="ident">path</span>) {
-                <span class="ident">cities</span>.<span class="ident">push</span>(<span class="ident">city</span>);
+    <span class="doccomment">/// Returns all city names based on the manifest of available files.
+    </span><span class="kw">fn </span>list_all_cities_from_manifest(manifest: <span class="kw-2">&amp;</span>Manifest) -&gt; Vec&lt;CityName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>cities = Vec::new();
+        <span class="kw">for </span>path <span class="kw">in </span>manifest.entries.keys() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(city) = Manifest::path_to_city(path) {
+                cities.push(city);
             }
         }
-        <span class="comment">// The paths in the manifest are ordered, so the same cities will be adjacent.</span>
-        <span class="ident">cities</span>.<span class="ident">dedup</span>();
-        <span class="ident">cities</span>
+        <span class="comment">// The paths in the manifest are ordered, so the same cities will be adjacent.
+        </span>cities.dedup();
+        cities
     }
 
-    <span class="doccomment">/// Returns all city names either available locally or based on the manifest of available files.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_cities_merged</span>(<span class="ident">manifest</span>: <span class="kw-2">&amp;</span><span class="ident">Manifest</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CityName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span> <span class="op">=</span> <span class="ident">CityName::list_all_cities_locally</span>();
-        <span class="ident">all</span>.<span class="ident">extend</span>(<span class="ident">CityName::list_all_cities_from_manifest</span>(<span class="ident">manifest</span>));
-        <span class="ident">all</span>.<span class="ident">sort</span>();
-        <span class="ident">all</span>.<span class="ident">dedup</span>();
-        <span class="ident">all</span>
+    <span class="doccomment">/// Returns all city names either available locally or based on the manifest of available files.
+    </span><span class="kw">pub fn </span>list_all_cities_merged(manifest: <span class="kw-2">&amp;</span>Manifest) -&gt; Vec&lt;CityName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>all = CityName::list_all_cities_locally();
+        all.extend(CityName::list_all_cities_from_manifest(manifest));
+        all.sort();
+        all.dedup();
+        all
     }
 
-    <span class="doccomment">/// Returns all city names based on importer config.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_cities_from_importer_config</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CityName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cities</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">country</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="string">&quot;importer/config&quot;</span>.<span class="ident">to_string</span>()) {
-            <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="macro">format!</span>(<span class="string">&quot;importer/config/{}&quot;</span>, <span class="ident">country</span>)) {
-                <span class="ident">cities</span>.<span class="ident">push</span>(<span class="ident">CityName::new</span>(<span class="kw-2">&amp;</span><span class="ident">country</span>, <span class="kw-2">&amp;</span><span class="ident">city</span>));
+    <span class="doccomment">/// Returns all city names based on importer config.
+    </span><span class="kw">pub fn </span>list_all_cities_from_importer_config() -&gt; Vec&lt;CityName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>cities = Vec::new();
+        <span class="kw">for </span>country <span class="kw">in </span>list_all_objects(<span class="string">&quot;importer/config&quot;</span>.to_string()) {
+            <span class="kw">for </span>city <span class="kw">in </span>list_all_objects(<span class="macro">format!</span>(<span class="string">&quot;importer/config/{}&quot;</span>, country)) {
+                cities.push(CityName::new(<span class="kw-2">&amp;</span>country, <span class="kw-2">&amp;</span>city));
             }
         }
-        <span class="ident">cities</span>
+        cities
     }
 
-    <span class="doccomment">/// Returns all maps in a city based on importer config.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_maps_in_city_from_importer_config</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="kw">crate</span>::list_dir</span>(<span class="macro">format!</span>(<span class="string">&quot;importer/config/{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">country</span>, <span class="self">self</span>.<span class="ident">city</span>))
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.geojson&quot;</span>))
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">MapName::from_city</span>(<span class="self">self</span>, <span class="kw-2">&amp;</span><span class="ident">basename</span>(<span class="ident">path</span>)))
-            .<span class="ident">collect</span>()
+    <span class="doccomment">/// Returns all maps in a city based on importer config.
+    </span><span class="kw">pub fn </span>list_all_maps_in_city_from_importer_config(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;MapName&gt; {
+        <span class="kw">crate</span>::list_dir(<span class="macro">format!</span>(<span class="string">&quot;importer/config/{}/{}&quot;</span>, <span class="self">self</span>.country, <span class="self">self</span>.city))
+            .into_iter()
+            .filter(|path| path.ends_with(<span class="string">&quot;.geojson&quot;</span>))
+            .map(|path| MapName::from_city(<span class="self">self</span>, <span class="kw-2">&amp;</span>basename(path)))
+            .collect()
     }
 
-    <span class="doccomment">/// Parses a CityName from something like &quot;gb/london&quot;; the inverse of `to_path`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">CityName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-            <span class="macro">bail!</span>(<span class="string">&quot;Bad CityName {}&quot;</span>, <span class="ident">x</span>);
+    <span class="doccomment">/// Parses a CityName from something like &quot;gb/london&quot;; the inverse of `to_path`.
+    </span><span class="kw">pub fn </span>parse(x: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;CityName&gt; {
+        <span class="kw">let </span>parts = x.split(<span class="string">&#39;/&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="kw">if </span>parts.len() != <span class="number">2 </span>|| parts[<span class="number">0</span>].len() != <span class="number">2 </span>{
+            <span class="macro">bail!</span>(<span class="string">&quot;Bad CityName {}&quot;</span>, x);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">CityName::new</span>(<span class="ident">parts</span>[<span class="number">0</span>], <span class="ident">parts</span>[<span class="number">1</span>]))
+        <span class="prelude-val">Ok</span>(CityName::new(parts[<span class="number">0</span>], parts[<span class="number">1</span>]))
     }
 
-    <span class="doccomment">/// Expresses the city as a path, like &quot;gb/london&quot;; the inverse of `parse`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.<span class="ident">country</span>, <span class="self">self</span>.<span class="ident">city</span>)
+    <span class="doccomment">/// Expresses the city as a path, like &quot;gb/london&quot;; the inverse of `parse`.
+    </span><span class="kw">pub fn </span>to_path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="self">self</span>.country, <span class="self">self</span>.city)
     }
 
-    <span class="doccomment">/// Stringify the city name for debug messages. Don&#39;t implement `std::fmt::Display`, to force</span>
-    <span class="doccomment">/// callers to explicitly opt into this description, which could change.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, <span class="self">self</span>.<span class="ident">city</span>, <span class="self">self</span>.<span class="ident">country</span>)
+    <span class="doccomment">/// Stringify the city name for debug messages. Don&#39;t implement `std::fmt::Display`, to force
+    /// callers to explicitly opt into this description, which could change.
+    </span><span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, <span class="self">self</span>.city, <span class="self">self</span>.country)
     }
 
-    <span class="doccomment">/// Constructs the path to some city-scoped data/input.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">input_path</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">file</span>: <span class="ident">I</span>) -&gt; <span class="ident">String</span> {
-        <span class="ident">path</span>(<span class="macro">format!</span>(
+    <span class="doccomment">/// Constructs the path to some city-scoped data/input.
+    </span><span class="kw">pub fn </span>input_path&lt;I: AsRef&lt;str&gt;&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, file: I) -&gt; String {
+        path(<span class="macro">format!</span>(
             <span class="string">&quot;input/{}/{}/{}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">country</span>,
-            <span class="self">self</span>.<span class="ident">city</span>,
-            <span class="ident">file</span>.<span class="ident">as_ref</span>()
+            <span class="self">self</span>.country,
+            <span class="self">self</span>.city,
+            file.as_ref()
         ))
     }
 
-    <span class="doccomment">/// Should metric units be used by default for this map? (Imperial if false)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uses_metric</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// We don&#39;t need a full locale lookup or anything. Myanmar and Liberia apparently use both</span>
-        <span class="comment">// but are leaning metric.</span>
-        <span class="self">self</span>.<span class="ident">country</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;us&quot;</span>
-    }
+    <span class="doccomment">/// Should metric units be used by default for this map? (Imperial if false)
+    </span><span class="kw">pub fn </span>uses_metric(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="comment">// We don&#39;t need a full locale lookup or anything. Myanmar and Liberia apparently use both
+        // but are leaning metric.
+        </span><span class="self">self</span>.country != <span class="string">&quot;us&quot;
+    </span>}
 }
 
-<span class="doccomment">/// A single map is identified using this.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MapName</span> {
-    <span class="kw">pub</span> <span class="ident">city</span>: <span class="ident">CityName</span>,
-    <span class="doccomment">/// The name of the map within the city, in filename-friendly form -- for example, &quot;downtown&quot;</span>
-    <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">String</span>,
+<span class="doccomment">/// A single map is identified using this.
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>MapName {
+    <span class="kw">pub </span>city: CityName,
+    <span class="doccomment">/// The name of the map within the city, in filename-friendly form -- for example, &quot;downtown&quot;
+    </span><span class="kw">pub </span>map: String,
 }
 
-<span class="kw">impl</span> <span class="ident">abstutil::CloneableAny</span> <span class="kw">for</span> <span class="ident">MapName</span> {}
+<span class="kw">impl </span>abstutil::CloneableAny <span class="kw">for </span>MapName {}
 
-<span class="kw">impl</span> <span class="ident">MapName</span> {
-    <span class="doccomment">/// Create a MapName from a country code, city, and map name.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">country</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">city</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">MapName</span> {
-        <span class="ident">MapName</span> {
-            <span class="ident">city</span>: <span class="ident">CityName::new</span>(<span class="ident">country</span>, <span class="ident">city</span>),
-            <span class="ident">map</span>: <span class="ident">map</span>.<span class="ident">to_string</span>(),
+<span class="kw">impl </span>MapName {
+    <span class="doccomment">/// Create a MapName from a country code, city, and map name.
+    </span><span class="kw">pub fn </span>new(country: <span class="kw-2">&amp;</span>str, city: <span class="kw-2">&amp;</span>str, map: <span class="kw-2">&amp;</span>str) -&gt; MapName {
+        MapName {
+            city: CityName::new(country, city),
+            map: map.to_string(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blank</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;blank city&quot;</span>, <span class="string">&quot;blank&quot;</span>)
+    <span class="kw">pub fn </span>blank() -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;blank city&quot;</span>, <span class="string">&quot;blank&quot;</span>)
     }
 
-    <span class="doccomment">/// Create a MapName from a city and map within that city.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_city</span>(<span class="ident">city</span>: <span class="kw-2">&amp;</span><span class="ident">CityName</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">MapName</span> {
-        <span class="ident">MapName::new</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>.<span class="ident">country</span>, <span class="kw-2">&amp;</span><span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">map</span>)
+    <span class="doccomment">/// Create a MapName from a city and map within that city.
+    </span><span class="kw">pub fn </span>from_city(city: <span class="kw-2">&amp;</span>CityName, map: <span class="kw-2">&amp;</span>str) -&gt; MapName {
+        MapName::new(<span class="kw-2">&amp;</span>city.country, <span class="kw-2">&amp;</span>city.city, map)
     }
 
-    <span class="doccomment">/// Convenient constructor for the main city of the game.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seattle</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">MapName</span> {
-        <span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>, <span class="ident">map</span>)
+    <span class="doccomment">/// Convenient constructor for the main city of the game.
+    </span><span class="kw">pub fn </span>seattle(map: <span class="kw-2">&amp;</span>str) -&gt; MapName {
+        MapName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>, map)
     }
 
-    <span class="doccomment">/// Stringify the map name for debug messages. Don&#39;t implement `std::fmt::Display`, to force</span>
-    <span class="doccomment">/// callers to explicitly opt into this description, which could change.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
+    <span class="doccomment">/// Stringify the map name for debug messages. Don&#39;t implement `std::fmt::Display`, to force
+    /// callers to explicitly opt into this description, which could change.
+    </span><span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="macro">format!</span>(
             <span class="string">&quot;{} (in {} ({}))&quot;</span>,
-            <span class="self">self</span>.<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">country</span>
+            <span class="self">self</span>.map, <span class="self">self</span>.city.city, <span class="self">self</span>.city.country
         )
     }
 
-    <span class="doccomment">/// Stringify the map name for filenames.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_filename</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="macro">format!</span>(<span class="string">&quot;{}_{}_{}&quot;</span>, <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="self">self</span>.<span class="ident">map</span>)
+    <span class="doccomment">/// Stringify the map name for filenames.
+    </span><span class="kw">pub fn </span>as_filename(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="macro">format!</span>(<span class="string">&quot;{}_{}_{}&quot;</span>, <span class="self">self</span>.city.country, <span class="self">self</span>.city.city, <span class="self">self</span>.map)
     }
 
-    <span class="doccomment">/// Transforms a path to a map back to a MapName. Returns `None` if the input is strange.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_path</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="comment">// Expect something ending like system/us/seattle/maps/montlake.bin</span>
-        <span class="kw">if</span> <span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">5</span> <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">5</span>] <span class="op">!</span><span class="op">=</span> <span class="string">&quot;system&quot;</span> <span class="op">|</span><span class="op">|</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>] <span class="op">!</span><span class="op">=</span> <span class="string">&quot;maps&quot;</span>
-        {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="doccomment">/// Transforms a path to a map back to a MapName. Returns `None` if the input is strange.
+    </span><span class="kw">pub fn </span>from_path(path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;MapName&gt; {
+        <span class="kw">let </span>parts = path.split(<span class="string">&#39;/&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="comment">// Expect something ending like system/us/seattle/maps/montlake.bin
+        </span><span class="kw">if </span>parts.len() &lt; <span class="number">5 </span>|| parts[parts.len() - <span class="number">5</span>] != <span class="string">&quot;system&quot; </span>|| parts[parts.len() - <span class="number">2</span>] != <span class="string">&quot;maps&quot;
+        </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="ident">country</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">4</span>];
-        <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">3</span>];
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">basename</span>(<span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]);
-        <span class="prelude-val">Some</span>(<span class="ident">MapName::new</span>(<span class="ident">country</span>, <span class="ident">city</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>))
+        <span class="kw">let </span>country = parts[parts.len() - <span class="number">4</span>];
+        <span class="kw">let </span>city = parts[parts.len() - <span class="number">3</span>];
+        <span class="kw">let </span>map = basename(parts[parts.len() - <span class="number">1</span>]);
+        <span class="prelude-val">Some</span>(MapName::new(country, city, <span class="kw-2">&amp;</span>map))
     }
 
-    <span class="doccomment">/// Returns the filesystem path to this map.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="ident">path</span>(<span class="macro">format!</span>(
+    <span class="doccomment">/// Returns the filesystem path to this map.
+    </span><span class="kw">pub fn </span>path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        path(<span class="macro">format!</span>(
             <span class="string">&quot;system/{}/{}/maps/{}.bin&quot;</span>,
-            <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="self">self</span>.<span class="ident">map</span>
+            <span class="self">self</span>.city.country, <span class="self">self</span>.city.city, <span class="self">self</span>.map
         ))
     }
 
-    <span class="doccomment">/// Returns all maps from one city that&#39;re available locally.</span>
-    <span class="kw">fn</span> <span class="ident">list_all_maps_in_city_locally</span>(<span class="ident">city</span>: <span class="kw-2">&amp;</span><span class="ident">CityName</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">map</span> <span class="kw">in</span> <span class="ident">list_all_objects</span>(<span class="ident">path</span>(<span class="macro">format!</span>(<span class="string">&quot;system/{}/{}/maps&quot;</span>, <span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">city</span>.<span class="ident">city</span>))) {
-            <span class="ident">names</span>.<span class="ident">push</span>(<span class="ident">MapName</span> {
-                <span class="ident">city</span>: <span class="ident">city</span>.<span class="ident">clone</span>(),
-                <span class="ident">map</span>,
+    <span class="doccomment">/// Returns all maps from one city that&#39;re available locally.
+    </span><span class="kw">fn </span>list_all_maps_in_city_locally(city: <span class="kw-2">&amp;</span>CityName) -&gt; Vec&lt;MapName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>names = Vec::new();
+        <span class="kw">for </span>map <span class="kw">in </span>list_all_objects(path(<span class="macro">format!</span>(<span class="string">&quot;system/{}/{}/maps&quot;</span>, city.country, city.city))) {
+            names.push(MapName {
+                city: city.clone(),
+                map,
             });
         }
-        <span class="ident">names</span>
+        names
     }
 
-    <span class="doccomment">/// Returns all maps from all cities available locally.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_maps_locally</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">city</span> <span class="kw">in</span> <span class="ident">CityName::list_all_cities_locally</span>() {
-            <span class="ident">names</span>.<span class="ident">extend</span>(<span class="ident">MapName::list_all_maps_in_city_locally</span>(<span class="kw-2">&amp;</span><span class="ident">city</span>));
+    <span class="doccomment">/// Returns all maps from all cities available locally.
+    </span><span class="kw">pub fn </span>list_all_maps_locally() -&gt; Vec&lt;MapName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>names = Vec::new();
+        <span class="kw">for </span>city <span class="kw">in </span>CityName::list_all_cities_locally() {
+            names.extend(MapName::list_all_maps_in_city_locally(<span class="kw-2">&amp;</span>city));
         }
-        <span class="ident">names</span>
+        names
     }
 
-    <span class="doccomment">/// Returns all maps from all cities based on the manifest of available files.</span>
-    <span class="kw">fn</span> <span class="ident">list_all_maps_from_manifest</span>(<span class="ident">manifest</span>: <span class="kw-2">&amp;</span><span class="ident">Manifest</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">manifest</span>.<span class="ident">entries</span>.<span class="ident">keys</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="ident">MapName::from_path</span>(<span class="ident">path</span>) {
-                <span class="ident">names</span>.<span class="ident">push</span>(<span class="ident">name</span>);
+    <span class="doccomment">/// Returns all maps from all cities based on the manifest of available files.
+    </span><span class="kw">fn </span>list_all_maps_from_manifest(manifest: <span class="kw-2">&amp;</span>Manifest) -&gt; Vec&lt;MapName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>names = Vec::new();
+        <span class="kw">for </span>path <span class="kw">in </span>manifest.entries.keys() {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(name) = MapName::from_path(path) {
+                names.push(name);
             }
         }
-        <span class="ident">names</span>
+        names
     }
 
-    <span class="doccomment">/// Returns all maps from all cities either available locally or based on the manifest of available files.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_maps_merged</span>(<span class="ident">manifest</span>: <span class="kw-2">&amp;</span><span class="ident">Manifest</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span> <span class="op">=</span> <span class="ident">MapName::list_all_maps_locally</span>();
-        <span class="ident">all</span>.<span class="ident">extend</span>(<span class="ident">MapName::list_all_maps_from_manifest</span>(<span class="ident">manifest</span>));
-        <span class="ident">all</span>.<span class="ident">sort</span>();
-        <span class="ident">all</span>.<span class="ident">dedup</span>();
-        <span class="ident">all</span>
+    <span class="doccomment">/// Returns all maps from all cities either available locally or based on the manifest of available files.
+    </span><span class="kw">pub fn </span>list_all_maps_merged(manifest: <span class="kw-2">&amp;</span>Manifest) -&gt; Vec&lt;MapName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>all = MapName::list_all_maps_locally();
+        all.extend(MapName::list_all_maps_from_manifest(manifest));
+        all.sort();
+        all.dedup();
+        all
     }
 
-    <span class="doccomment">/// Returns all maps from one city based on the manifest of available files.</span>
-    <span class="kw">fn</span> <span class="ident">list_all_maps_in_city_from_manifest</span>(<span class="ident">city</span>: <span class="kw-2">&amp;</span><span class="ident">CityName</span>, <span class="ident">manifest</span>: <span class="kw-2">&amp;</span><span class="ident">Manifest</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-        <span class="ident">MapName::list_all_maps_from_manifest</span>(<span class="ident">manifest</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">name</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">city</span>)
-            .<span class="ident">collect</span>()
+    <span class="doccomment">/// Returns all maps from one city based on the manifest of available files.
+    </span><span class="kw">fn </span>list_all_maps_in_city_from_manifest(city: <span class="kw-2">&amp;</span>CityName, manifest: <span class="kw-2">&amp;</span>Manifest) -&gt; Vec&lt;MapName&gt; {
+        MapName::list_all_maps_from_manifest(manifest)
+            .into_iter()
+            .filter(|name| <span class="kw-2">&amp;</span>name.city == city)
+            .collect()
     }
 
-    <span class="doccomment">/// Returns all maps from one city that&#39;re available either locally or according to the</span>
-    <span class="doccomment">/// manifest.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_maps_in_city_merged</span>(<span class="ident">city</span>: <span class="kw-2">&amp;</span><span class="ident">CityName</span>, <span class="ident">manifest</span>: <span class="kw-2">&amp;</span><span class="ident">Manifest</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MapName</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span> <span class="op">=</span> <span class="ident">MapName::list_all_maps_in_city_locally</span>(<span class="ident">city</span>);
-        <span class="ident">all</span>.<span class="ident">extend</span>(<span class="ident">MapName::list_all_maps_in_city_from_manifest</span>(<span class="ident">city</span>, <span class="ident">manifest</span>));
-        <span class="ident">all</span>.<span class="ident">sort</span>();
-        <span class="ident">all</span>.<span class="ident">dedup</span>();
-        <span class="ident">all</span>
+    <span class="doccomment">/// Returns all maps from one city that&#39;re available either locally or according to the
+    /// manifest.
+    </span><span class="kw">pub fn </span>list_all_maps_in_city_merged(city: <span class="kw-2">&amp;</span>CityName, manifest: <span class="kw-2">&amp;</span>Manifest) -&gt; Vec&lt;MapName&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>all = MapName::list_all_maps_in_city_locally(city);
+        all.extend(MapName::list_all_maps_in_city_from_manifest(city, manifest));
+        all.sort();
+        all.dedup();
+        all
     }
 
-    <span class="doccomment">/// Returns the string to opt into runtime or input files for DataPacks.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_data_pack_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="ident">Manifest::is_file_part_of_huge_seattle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>()) {
-            <span class="kw">return</span> <span class="string">&quot;us/huge_seattle&quot;</span>.<span class="ident">to_string</span>();
+    <span class="doccomment">/// Returns the string to opt into runtime or input files for DataPacks.
+    </span><span class="kw">pub fn </span>to_data_pack_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">if </span>Manifest::is_file_part_of_huge_seattle(<span class="kw-2">&amp;</span><span class="self">self</span>.path()) {
+            <span class="kw">return </span><span class="string">&quot;us/huge_seattle&quot;</span>.to_string();
         }
-        <span class="self">self</span>.<span class="ident">city</span>.<span class="ident">to_path</span>()
+        <span class="self">self</span>.city.to_path()
     }
 }
 
-<span class="comment">// System data (Players can&#39;t edit, needed at runtime)</span>
+<span class="comment">// System data (Players can&#39;t edit, needed at runtime)
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_prebaked_results</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+</span><span class="kw">pub fn </span>path_prebaked_results(name: <span class="kw-2">&amp;</span>MapName, scenario_name: <span class="kw-2">&amp;</span>str) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;system/{}/{}/prebaked_results/{}/{}.bin&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
+        name.city.country, name.city.city, name.map, scenario_name
     ))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_scenario</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="comment">// TODO Getting complicated. Sometimes we&#39;re trying to load, so we should look for .bin, then</span>
-    <span class="comment">// .json. But when we&#39;re writing a custom scenario, we actually want to write a .bin.</span>
-    <span class="kw">let</span> <span class="ident">bin</span> <span class="op">=</span> <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_scenario(name: <span class="kw-2">&amp;</span>MapName, scenario_name: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="comment">// TODO Getting complicated. Sometimes we&#39;re trying to load, so we should look for .bin, then
+    // .json. But when we&#39;re writing a custom scenario, we actually want to write a .bin.
+    </span><span class="kw">let </span>bin = path(<span class="macro">format!</span>(
         <span class="string">&quot;system/{}/{}/scenarios/{}/{}.bin&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
+        name.city.country, name.city.city, name.map, scenario_name
     ));
-    <span class="kw">let</span> <span class="ident">json</span> <span class="op">=</span> <span class="ident">path</span>(<span class="macro">format!</span>(
+    <span class="kw">let </span>json = path(<span class="macro">format!</span>(
         <span class="string">&quot;system/{}/{}/scenarios/{}/{}.json&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">scenario_name</span>
+        name.city.country, name.city.city, name.map, scenario_name
     ));
-    <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">bin</span>) {
-        <span class="kw">return</span> <span class="ident">bin</span>;
+    <span class="kw">if </span>file_exists(<span class="kw-2">&amp;</span>bin) {
+        <span class="kw">return </span>bin;
     }
-    <span class="kw">if</span> <span class="ident">file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">json</span>) {
-        <span class="kw">return</span> <span class="ident">json</span>;
+    <span class="kw">if </span>file_exists(<span class="kw-2">&amp;</span>json) {
+        <span class="kw">return </span>json;
     }
-    <span class="ident">bin</span>
+    bin
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_scenarios</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_all_scenarios(name: <span class="kw-2">&amp;</span>MapName) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;system/{}/{}/scenarios/{}&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>
+        name.city.country, name.city.city, name.map
     ))
 }
 
-<span class="doccomment">/// Extract the map and scenario name from a path. Crashes if the input is strange.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_scenario_path</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; (<span class="ident">MapName</span>, <span class="ident">String</span>) {
-    <span class="comment">// TODO regex</span>
-    <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">split</span>(<span class="string">&#39;/&#39;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-    <span class="kw">let</span> <span class="ident">country</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">5</span>];
-    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">4</span>];
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">2</span>];
-    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">basename</span>(<span class="ident">parts</span>[<span class="ident">parts</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]);
-    <span class="kw">let</span> <span class="ident">map_name</span> <span class="op">=</span> <span class="ident">MapName::new</span>(<span class="ident">country</span>, <span class="ident">city</span>, <span class="ident">map</span>);
-    (<span class="ident">map_name</span>, <span class="ident">scenario</span>)
+<span class="doccomment">/// Extract the map and scenario name from a path. Crashes if the input is strange.
+</span><span class="kw">pub fn </span>parse_scenario_path(path: <span class="kw-2">&amp;</span>str) -&gt; (MapName, String) {
+    <span class="comment">// TODO regex
+    </span><span class="kw">let </span>parts = path.split(<span class="string">&#39;/&#39;</span>).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+    <span class="kw">let </span>country = parts[parts.len() - <span class="number">5</span>];
+    <span class="kw">let </span>city = parts[parts.len() - <span class="number">4</span>];
+    <span class="kw">let </span>map = parts[parts.len() - <span class="number">2</span>];
+    <span class="kw">let </span>scenario = basename(parts[parts.len() - <span class="number">1</span>]);
+    <span class="kw">let </span>map_name = MapName::new(country, city, map);
+    (map_name, scenario)
 }
 
-<span class="comment">// Player data (Players edit this)</span>
+<span class="comment">// Player data (Players edit this)
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_player</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">p</span>: <span class="ident">I</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(<span class="string">&quot;player/{}&quot;</span>, <span class="ident">p</span>.<span class="ident">as_ref</span>()))
+</span><span class="kw">pub fn </span>path_player&lt;I: AsRef&lt;str&gt;&gt;(p: I) -&gt; String {
+    path(<span class="macro">format!</span>(<span class="string">&quot;player/{}&quot;</span>, p.as_ref()))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_camera_state</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_camera_state(name: <span class="kw-2">&amp;</span>MapName) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;player/camera_state/{}/{}/{}.json&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>
+        name.city.country, name.city.city, name.map
     ))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_edits</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_edits(name: <span class="kw-2">&amp;</span>MapName, edits_name: <span class="kw-2">&amp;</span>str) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;player/edits/{}/{}/{}/{}.json&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">edits_name</span>
+        name.city.country, name.city.city, name.map, edits_name
     ))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_edits</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_all_edits(name: <span class="kw-2">&amp;</span>MapName) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;player/edits/{}/{}/{}&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>
+        name.city.country, name.city.city, name.map
     ))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_ltn_proposals</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="ident">proposal_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_ltn_proposals(name: <span class="kw-2">&amp;</span>MapName, proposal_name: <span class="kw-2">&amp;</span>str) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;player/ltn_proposals/{}/{}/{}/{}.json.gz&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">proposal_name</span>
+        name.city.country, name.city.city, name.map, proposal_name
     ))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_ltn_proposals</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_all_ltn_proposals(name: <span class="kw-2">&amp;</span>MapName) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;player/ltn_proposals/{}/{}/{}&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>
+        name.city.country, name.city.city, name.map
     ))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_save</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">time</span>: <span class="ident">String</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_save(name: <span class="kw-2">&amp;</span>MapName, edits_name: <span class="kw-2">&amp;</span>str, run_name: <span class="kw-2">&amp;</span>str, time: String) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;player/saves/{}/{}/{}/{}_{}/{}.bin&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">edits_name</span>, <span class="ident">run_name</span>, <span class="ident">time</span>
+        name.city.country, name.city.city, name.map, edits_name, run_name, time
     ))
 }
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_all_saves</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>, <span class="ident">edits_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_all_saves(name: <span class="kw-2">&amp;</span>MapName, edits_name: <span class="kw-2">&amp;</span>str, run_name: <span class="kw-2">&amp;</span>str) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;player/saves/{}/{}/{}/{}_{}&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>, <span class="ident">edits_name</span>, <span class="ident">run_name</span>
+        name.city.country, name.city.city, name.map, edits_name, run_name
     ))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_trips</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_trips(name: <span class="kw-2">&amp;</span>MapName) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;player/routes/{}/{}/{}.json&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>
+        name.city.country, name.city.city, name.map
     ))
 }
 
-<span class="comment">// Input data (For developers to build maps, not needed at runtime)</span>
+<span class="comment">// Input data (For developers to build maps, not needed at runtime)
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_popdat</span>() -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="string">&quot;input/us/seattle/popdat.bin&quot;</span>)
+</span><span class="kw">pub fn </span>path_popdat() -&gt; String {
+    path(<span class="string">&quot;input/us/seattle/popdat.bin&quot;</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_raw_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(
+<span class="kw">pub fn </span>path_raw_map(name: <span class="kw-2">&amp;</span>MapName) -&gt; String {
+    path(<span class="macro">format!</span>(
         <span class="string">&quot;input/{}/{}/raw_maps/{}.bin&quot;</span>,
-        <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>, <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>, <span class="ident">name</span>.<span class="ident">map</span>
+        name.city.country, name.city.city, name.map
     ))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">path_shared_input</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">i</span>: <span class="ident">I</span>) -&gt; <span class="ident">String</span> {
-    <span class="ident">path</span>(<span class="macro">format!</span>(<span class="string">&quot;input/shared/{}&quot;</span>, <span class="ident">i</span>.<span class="ident">as_ref</span>()))
+<span class="kw">pub fn </span>path_shared_input&lt;I: AsRef&lt;str&gt;&gt;(i: I) -&gt; String {
+    path(<span class="macro">format!</span>(<span class="string">&quot;input/shared/{}&quot;</span>, i.as_ref()))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

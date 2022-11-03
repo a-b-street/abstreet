@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/sim/scenario.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/sim/scenario.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -363,370 +363,370 @@
 <span id="363">363</span>
 <span id="364">364</span>
 <span id="365">365</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>, <span class="ident">VecDeque</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashSet, VecDeque};
 
-<span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use </span>rand::seq::SliceRandom;
+<span class="kw">use </span>rand::{Rng, SeedableRng};
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Speed</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">synthpop::make::fork_rng</span>;
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter, Timer};
+<span class="kw">use </span>geom::{Distance, Speed};
+<span class="kw">use </span>map_model::{BuildingID, Map, OffstreetParking, RoadID};
+<span class="kw">use </span>synthpop::make::fork_rng;
+<span class="kw">use </span>synthpop::{PersonSpec, Scenario, TripEndpoint, TripMode};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ParkingSpot</span>, <span class="ident">Sim</span>, <span class="ident">StartTripArgs</span>, <span class="ident">TripInfo</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleSpec</span>, <span class="ident">VehicleType</span>, <span class="ident">BIKE_LENGTH</span>,
-    <span class="ident">MAX_CAR_LENGTH</span>, <span class="ident">MIN_CAR_LENGTH</span>,
+<span class="kw">use crate</span>::{
+    ParkingSpot, Sim, StartTripArgs, TripInfo, Vehicle, VehicleSpec, VehicleType, BIKE_LENGTH,
+    MAX_CAR_LENGTH, MIN_CAR_LENGTH,
 };
 
-<span class="kw">impl</span> <span class="ident">Sim</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">scenario</span>: <span class="kw-2">&amp;</span><span class="ident">Scenario</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
+<span class="kw">impl </span>Sim {
+    <span class="kw">pub fn </span>instantiate(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        scenario: <span class="kw-2">&amp;</span>Scenario,
+        map: <span class="kw-2">&amp;</span>Map,
+        rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
     ) {
-        <span class="self">self</span>.<span class="ident">instantiate_without_retries</span>(<span class="ident">scenario</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="bool-val">true</span>, <span class="ident">timer</span>);
+        <span class="self">self</span>.instantiate_without_retries(scenario, map, rng, <span class="bool-val">true</span>, timer);
     }
 
-    <span class="doccomment">/// If retry_if_no_room is false, any vehicles that fail to spawn because of something else in</span>
-    <span class="doccomment">/// the way will just wind up as cancelled trips.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">instantiate_without_retries</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">scenario</span>: <span class="kw-2">&amp;</span><span class="ident">Scenario</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-        <span class="ident">retry_if_no_room</span>: <span class="ident">bool</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
+    <span class="doccomment">/// If retry_if_no_room is false, any vehicles that fail to spawn because of something else in
+    /// the way will just wind up as cancelled trips.
+    </span><span class="kw">pub fn </span>instantiate_without_retries(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        scenario: <span class="kw-2">&amp;</span>Scenario,
+        map: <span class="kw-2">&amp;</span>Map,
+        rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+        retry_if_no_room: bool,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
     ) {
-        <span class="comment">// Any case where map edits could change the calls to the RNG, we have to fork.</span>
-        <span class="self">self</span>.<span class="ident">set_run_name</span>(<span class="ident">scenario</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>());
+        <span class="comment">// Any case where map edits could change the calls to the RNG, we have to fork.
+        </span><span class="self">self</span>.set_run_name(scenario.scenario_name.clone());
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;Instantiating {}&quot;</span>, <span class="ident">scenario</span>.<span class="ident">scenario_name</span>));
+        timer.start(<span class="macro">format!</span>(<span class="string">&quot;Instantiating {}&quot;</span>, scenario.scenario_name));
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">routes</span>) <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">only_seed_buses</span> {
-            <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_routes</span>() {
-                <span class="kw">if</span> <span class="ident">routes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">long_name</span>) {
-                    <span class="self">self</span>.<span class="ident">seed_bus_route</span>(<span class="ident">route</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>routes) = scenario.only_seed_buses {
+            <span class="kw">for </span>route <span class="kw">in </span>map.all_transit_routes() {
+                <span class="kw">if </span>routes.contains(<span class="kw-2">&amp;</span>route.long_name) {
+                    <span class="self">self</span>.seed_bus_route(route);
                 }
             }
-        } <span class="kw">else</span> {
-            <span class="comment">// All of them</span>
-            <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_routes</span>() {
-                <span class="self">self</span>.<span class="ident">seed_bus_route</span>(<span class="ident">route</span>);
+        } <span class="kw">else </span>{
+            <span class="comment">// All of them
+            </span><span class="kw">for </span>route <span class="kw">in </span>map.all_transit_routes() {
+                <span class="self">self</span>.seed_bus_route(route);
             }
         }
 
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;trips for People&quot;</span>, <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parked_cars</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vehicle</span>, <span class="ident">BuildingID</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">schedule_trips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">scenario</span>.<span class="ident">people</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
+        timer.start_iter(<span class="string">&quot;trips for People&quot;</span>, scenario.people.len());
+        <span class="kw">let </span><span class="kw-2">mut </span>parked_cars: Vec&lt;(Vehicle, BuildingID)&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>schedule_trips = Vec::new();
+        <span class="kw">for </span>p <span class="kw">in </span><span class="kw-2">&amp;</span>scenario.people {
+            timer.next();
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">p</span>.<span class="ident">check_schedule</span>() {
-                <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>);
+            <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = p.check_schedule() {
+                <span class="macro">panic!</span>(<span class="string">&quot;{}&quot;</span>, err);
             }
 
-            <span class="kw">let</span> (<span class="ident">vehicle_specs</span>, <span class="ident">cars_initially_parked_at</span>, <span class="ident">vehicle_foreach_trip</span>) <span class="op">=</span>
-                <span class="ident">get_vehicles</span>(<span class="ident">p</span>, <span class="ident">rng</span>);
-            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">new_person</span>(<span class="ident">p</span>.<span class="ident">orig_id</span>, <span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>), <span class="ident">vehicle_specs</span>);
-            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">cars_initially_parked_at</span> {
-                <span class="ident">parked_cars</span>.<span class="ident">push</span>((<span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">clone</span>(), <span class="ident">b</span>));
+            <span class="kw">let </span>(vehicle_specs, cars_initially_parked_at, vehicle_foreach_trip) =
+                get_vehicles(p, rng);
+            <span class="kw">let </span>person = <span class="self">self</span>.new_person(p.orig_id, rand_ped_speed(rng), vehicle_specs);
+            <span class="kw">for </span>(idx, b) <span class="kw">in </span>cars_initially_parked_at {
+                parked_cars.push((person.vehicles[idx].clone(), b));
             }
-            <span class="kw">for</span> (<span class="ident">trip</span>, <span class="ident">maybe_idx</span>) <span class="kw">in</span> <span class="ident">p</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">vehicle_foreach_trip</span>) {
-                <span class="ident">schedule_trips</span>.<span class="ident">push</span>((
-                    <span class="ident">person</span>.<span class="ident">id</span>,
-                    <span class="ident">TripInfo</span> {
-                        <span class="ident">departure</span>: <span class="ident">trip</span>.<span class="ident">depart</span>,
-                        <span class="ident">mode</span>: <span class="ident">trip</span>.<span class="ident">mode</span>,
-                        <span class="ident">start</span>: <span class="ident">trip</span>.<span class="ident">origin</span>,
-                        <span class="ident">end</span>: <span class="ident">trip</span>.<span class="ident">destination</span>,
-                        <span class="ident">purpose</span>: <span class="ident">trip</span>.<span class="ident">purpose</span>,
-                        <span class="ident">modified</span>: <span class="ident">trip</span>.<span class="ident">modified</span>,
-                        <span class="ident">cancellation_reason</span>: <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">cancelled</span> {
-                            <span class="prelude-val">Some</span>(<span class="string">&quot;cancelled by ScenarioModifier&quot;</span>.<span class="ident">to_string</span>())
-                        } <span class="kw">else</span> {
-                            <span class="prelude-val">None</span>
-                        },
+            <span class="kw">for </span>(trip, maybe_idx) <span class="kw">in </span>p.trips.iter().zip(vehicle_foreach_trip) {
+                schedule_trips.push((
+                    person.id,
+                    TripInfo {
+                        departure: trip.depart,
+                        mode: trip.mode,
+                        start: trip.origin,
+                        end: trip.destination,
+                        purpose: trip.purpose,
+                        modified: trip.modified,
+                        cancellation_reason: <span class="kw">if </span>trip.cancelled {
+                            <span class="prelude-val">Some</span>(<span class="string">&quot;cancelled by ScenarioModifier&quot;</span>.to_string())
+                        } <span class="kw">else </span>{
+                            <span class="prelude-val">None
+                        </span>},
                     },
-                    <span class="ident">StartTripArgs</span> {
-                        <span class="ident">retry_if_no_room</span>,
-                        <span class="ident">use_vehicle</span>: <span class="ident">maybe_idx</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">idx</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">vehicles</span>[<span class="ident">idx</span>].<span class="ident">id</span>),
+                    StartTripArgs {
+                        retry_if_no_room,
+                        use_vehicle: maybe_idx.map(|idx| person.vehicles[idx].id),
                     },
                 ));
             }
         }
 
-        <span class="comment">// parked_cars is stable over map edits, so don&#39;t fork.</span>
-        <span class="ident">parked_cars</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
-        <span class="ident">seed_parked_cars</span>(<span class="ident">parked_cars</span>, <span class="self">self</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="ident">timer</span>);
+        <span class="comment">// parked_cars is stable over map edits, so don&#39;t fork.
+        </span>parked_cars.shuffle(rng);
+        seed_parked_cars(parked_cars, <span class="self">self</span>, map, rng, timer);
 
-        <span class="self">self</span>.<span class="ident">spawn_trips</span>(<span class="ident">schedule_trips</span>, <span class="ident">map</span>, <span class="ident">timer</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;Instantiating {}&quot;</span>, <span class="ident">scenario</span>.<span class="ident">scenario_name</span>));
+        <span class="self">self</span>.spawn_trips(schedule_trips, map, timer);
+        timer.stop(<span class="macro">format!</span>(<span class="string">&quot;Instantiating {}&quot;</span>, scenario.scenario_name));
     }
 }
 
-<span class="kw">fn</span> <span class="ident">get_vehicles</span>(
-    <span class="ident">person</span>: <span class="kw-2">&amp;</span><span class="ident">PersonSpec</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
+<span class="kw">fn </span>get_vehicles(
+    person: <span class="kw-2">&amp;</span>PersonSpec,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
 ) -&gt; (
-    <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">VehicleSpec</span><span class="op">&gt;</span>,
-    <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">BuildingID</span>)<span class="op">&gt;</span>,
-    <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    Vec&lt;VehicleSpec&gt;,
+    Vec&lt;(usize, BuildingID)&gt;,
+    Vec&lt;<span class="prelude-ty">Option</span>&lt;usize&gt;&gt;,
 ) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vehicle_specs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cars_initially_parked_at</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vehicle_foreach_trip</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>vehicle_specs = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>cars_initially_parked_at = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>vehicle_foreach_trip = Vec::new();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bike_idx</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="comment">// For each indexed car, is it parked somewhere, or off-map?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">car_locations</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>bike_idx = <span class="prelude-val">None</span>;
+    <span class="comment">// For each indexed car, is it parked somewhere, or off-map?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>car_locations: Vec&lt;(usize, <span class="prelude-ty">Option</span>&lt;BuildingID&gt;)&gt; = Vec::new();
 
-    <span class="comment">// TODO If the trip is cancelled, this should be affected...</span>
-    <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">trips</span> {
-        <span class="kw">let</span> <span class="ident">use_for_trip</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">mode</span> {
-            <span class="ident">TripMode::Walk</span> <span class="op">|</span> <span class="ident">TripMode::Transit</span> =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">TripMode::Bike</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">bike_idx</span>.<span class="ident">is_none</span>() {
-                    <span class="ident">bike_idx</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">vehicle_specs</span>.<span class="ident">len</span>());
-                    <span class="ident">vehicle_specs</span>.<span class="ident">push</span>(<span class="ident">rand_bike</span>(<span class="ident">rng</span>));
+    <span class="comment">// TODO If the trip is cancelled, this should be affected...
+    </span><span class="kw">for </span>trip <span class="kw">in </span><span class="kw-2">&amp;</span>person.trips {
+        <span class="kw">let </span>use_for_trip = <span class="kw">match </span>trip.mode {
+            TripMode::Walk | TripMode::Transit =&gt; <span class="prelude-val">None</span>,
+            TripMode::Bike =&gt; {
+                <span class="kw">if </span>bike_idx.is_none() {
+                    bike_idx = <span class="prelude-val">Some</span>(vehicle_specs.len());
+                    vehicle_specs.push(rand_bike(rng));
                 }
-                <span class="ident">bike_idx</span>
+                bike_idx
             }
-            <span class="ident">TripMode::Drive</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">need_parked_at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">origin</span> {
-                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">b</span>),
-                    <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            TripMode::Drive =&gt; {
+                <span class="kw">let </span>need_parked_at = <span class="kw">match </span>trip.origin {
+                    TripEndpoint::Building(b) =&gt; <span class="prelude-val">Some</span>(b),
+                    <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
                 };
 
-                <span class="comment">// Any available cars in the right spot?</span>
-                <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">car_locations</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">parked_at</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">parked_at</span> <span class="op">==</span> <span class="ident">need_parked_at</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">idx</span>)
+                <span class="comment">// Any available cars in the right spot?
+                </span><span class="kw">let </span>idx = <span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = car_locations
+                    .iter()
+                    .find(|(<span class="kw">_</span>, parked_at)| <span class="kw-2">*</span>parked_at == need_parked_at)
+                    .map(|(idx, <span class="kw">_</span>)| <span class="kw-2">*</span>idx)
                 {
-                    <span class="ident">idx</span>
-                } <span class="kw">else</span> {
-                    <span class="comment">// Need a new car, starting in the right spot</span>
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">vehicle_specs</span>.<span class="ident">len</span>();
-                    <span class="ident">vehicle_specs</span>.<span class="ident">push</span>(<span class="ident">rand_car</span>(<span class="ident">rng</span>));
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">need_parked_at</span> {
-                        <span class="ident">cars_initially_parked_at</span>.<span class="ident">push</span>((<span class="ident">idx</span>, <span class="ident">b</span>));
+                    idx
+                } <span class="kw">else </span>{
+                    <span class="comment">// Need a new car, starting in the right spot
+                    </span><span class="kw">let </span>idx = vehicle_specs.len();
+                    vehicle_specs.push(rand_car(rng));
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(b) = need_parked_at {
+                        cars_initially_parked_at.push((idx, b));
                     }
-                    <span class="ident">idx</span>
+                    idx
                 };
 
-                <span class="comment">// Where does this car wind up?</span>
-                <span class="ident">car_locations</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">i</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">i</span>);
-                <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">destination</span> {
-                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
-                        <span class="ident">car_locations</span>.<span class="ident">push</span>((<span class="ident">idx</span>, <span class="prelude-val">Some</span>(<span class="ident">b</span>)));
+                <span class="comment">// Where does this car wind up?
+                </span>car_locations.retain(|(i, <span class="kw">_</span>)| idx != <span class="kw-2">*</span>i);
+                <span class="kw">match </span>trip.destination {
+                    TripEndpoint::Building(b) =&gt; {
+                        car_locations.push((idx, <span class="prelude-val">Some</span>(b)));
                     }
-                    <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; {
-                        <span class="ident">car_locations</span>.<span class="ident">push</span>((<span class="ident">idx</span>, <span class="prelude-val">None</span>));
+                    TripEndpoint::Border(<span class="kw">_</span>) | TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; {
+                        car_locations.push((idx, <span class="prelude-val">None</span>));
                     }
                 }
 
-                <span class="prelude-val">Some</span>(<span class="ident">idx</span>)
+                <span class="prelude-val">Some</span>(idx)
             }
         };
-        <span class="ident">vehicle_foreach_trip</span>.<span class="ident">push</span>(<span class="ident">use_for_trip</span>);
+        vehicle_foreach_trip.push(use_for_trip);
     }
 
-    <span class="comment">// For debugging</span>
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">vehicle_specs</span>.<span class="ident">len</span>();
-        <span class="kw">if</span> <span class="ident">bike_idx</span>.<span class="ident">is_some</span>() {
-            <span class="ident">n</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="comment">// For debugging
+    </span><span class="kw">if </span><span class="bool-val">false </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>n = vehicle_specs.len();
+        <span class="kw">if </span>bike_idx.is_some() {
+            n -= <span class="number">1</span>;
         }
-        <span class="kw">if</span> <span class="ident">n</span> <span class="op">&gt;</span> <span class="number">1</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;Someone needs {} cars&quot;</span>, <span class="ident">n</span>);
+        <span class="kw">if </span>n &gt; <span class="number">1 </span>{
+            <span class="macro">println!</span>(<span class="string">&quot;Someone needs {} cars&quot;</span>, n);
         }
     }
 
     (
-        <span class="ident">vehicle_specs</span>,
-        <span class="ident">cars_initially_parked_at</span>,
-        <span class="ident">vehicle_foreach_trip</span>,
+        vehicle_specs,
+        cars_initially_parked_at,
+        vehicle_foreach_trip,
     )
 }
 
-<span class="kw">fn</span> <span class="ident">rand_car</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">VehicleSpec</span> {
-    <span class="kw">let</span> <span class="ident">length</span> <span class="op">=</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>, <span class="ident">MIN_CAR_LENGTH</span>, <span class="ident">MAX_CAR_LENGTH</span>);
-    <span class="ident">VehicleSpec</span> {
-        <span class="ident">vehicle_type</span>: <span class="ident">VehicleType::Car</span>,
-        <span class="ident">length</span>,
-        <span class="ident">max_speed</span>: <span class="prelude-val">None</span>,
+<span class="kw">fn </span>rand_car(rng: <span class="kw-2">&amp;mut </span>XorShiftRng) -&gt; VehicleSpec {
+    <span class="kw">let </span>length = rand_dist(rng, MIN_CAR_LENGTH, MAX_CAR_LENGTH);
+    VehicleSpec {
+        vehicle_type: VehicleType::Car,
+        length,
+        max_speed: <span class="prelude-val">None</span>,
     }
 }
 
-<span class="kw">fn</span> <span class="ident">rand_bike</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">VehicleSpec</span> {
-    <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">rand_speed</span>(
-        <span class="ident">rng</span>,
-        <span class="ident">Speed::miles_per_hour</span>(<span class="number">8.0</span>),
-        <span class="ident">map_model::MAX_BIKE_SPEED</span>,
+<span class="kw">fn </span>rand_bike(rng: <span class="kw-2">&amp;mut </span>XorShiftRng) -&gt; VehicleSpec {
+    <span class="kw">let </span>max_speed = <span class="prelude-val">Some</span>(rand_speed(
+        rng,
+        Speed::miles_per_hour(<span class="number">8.0</span>),
+        map_model::MAX_BIKE_SPEED,
     ));
-    <span class="ident">VehicleSpec</span> {
-        <span class="ident">vehicle_type</span>: <span class="ident">VehicleType::Bike</span>,
-        <span class="ident">length</span>: <span class="ident">BIKE_LENGTH</span>,
-        <span class="ident">max_speed</span>,
+    VehicleSpec {
+        vehicle_type: VehicleType::Bike,
+        length: BIKE_LENGTH,
+        max_speed,
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rand_dist</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Distance</span>, <span class="ident">high</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">Distance</span> {
-    <span class="macro">assert!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
-    <span class="ident">Distance::meters</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_meters</span>()..<span class="ident">high</span>.<span class="ident">inner_meters</span>()))
+<span class="kw">pub fn </span>rand_dist(rng: <span class="kw-2">&amp;mut </span>XorShiftRng, low: Distance, high: Distance) -&gt; Distance {
+    <span class="macro">assert!</span>(high &gt; low);
+    Distance::meters(rng.gen_range(low.inner_meters()..high.inner_meters()))
 }
 
-<span class="kw">fn</span> <span class="ident">rand_speed</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Speed</span>, <span class="ident">high</span>: <span class="ident">Speed</span>) -&gt; <span class="ident">Speed</span> {
-    <span class="macro">assert!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
-    <span class="ident">Speed::meters_per_second</span>(
-        <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_meters_per_second</span>()..<span class="ident">high</span>.<span class="ident">inner_meters_per_second</span>()),
+<span class="kw">fn </span>rand_speed(rng: <span class="kw-2">&amp;mut </span>XorShiftRng, low: Speed, high: Speed) -&gt; Speed {
+    <span class="macro">assert!</span>(high &gt; low);
+    Speed::meters_per_second(
+        rng.gen_range(low.inner_meters_per_second()..high.inner_meters_per_second()),
     )
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rand_ped_speed</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">Speed</span> {
-    <span class="ident">rand_speed</span>(
-        <span class="ident">rng</span>,
-        <span class="ident">Speed::miles_per_hour</span>(<span class="number">2.0</span>),
-        <span class="ident">map_model::MAX_WALKING_SPEED</span>,
+<span class="kw">pub fn </span>rand_ped_speed(rng: <span class="kw-2">&amp;mut </span>XorShiftRng) -&gt; Speed {
+    rand_speed(
+        rng,
+        Speed::miles_per_hour(<span class="number">2.0</span>),
+        map_model::MAX_WALKING_SPEED,
     )
 }
 
-<span class="kw">fn</span> <span class="ident">seed_parked_cars</span>(
-    <span class="ident">parked_cars</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vehicle</span>, <span class="ident">BuildingID</span>)<span class="op">&gt;</span>,
-    <span class="ident">sim</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Sim</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">base_rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
+<span class="kw">fn </span>seed_parked_cars(
+    parked_cars: Vec&lt;(Vehicle, BuildingID)&gt;,
+    sim: <span class="kw-2">&amp;mut </span>Sim,
+    map: <span class="kw-2">&amp;</span>Map,
+    base_rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
 ) {
-    <span class="kw">if</span> <span class="ident">sim</span>.<span class="ident">infinite_parking</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blackholed</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;seed parked cars in infinite mode&quot;</span>, <span class="ident">parked_cars</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> (<span class="ident">vehicle</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">parked_cars</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spot</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_free_offstreet_spots</span>(<span class="ident">b</span>).<span class="ident">pop</span>() {
-                <span class="ident">sim</span>.<span class="ident">seed_parked_car</span>(<span class="ident">vehicle</span>, <span class="ident">spot</span>);
-            } <span class="kw">else</span> {
-                <span class="ident">blackholed</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">if </span>sim.infinite_parking() {
+        <span class="kw">let </span><span class="kw-2">mut </span>blackholed = <span class="number">0</span>;
+        timer.start_iter(<span class="string">&quot;seed parked cars in infinite mode&quot;</span>, parked_cars.len());
+        <span class="kw">for </span>(vehicle, b) <span class="kw">in </span>parked_cars {
+            timer.next();
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(spot) = sim.get_free_offstreet_spots(b).pop() {
+                sim.seed_parked_car(vehicle, spot);
+            } <span class="kw">else </span>{
+                blackholed += <span class="number">1</span>;
             }
         }
-        <span class="kw">if</span> <span class="ident">blackholed</span> <span class="op">&gt;</span> <span class="number">0</span> {
+        <span class="kw">if </span>blackholed &gt; <span class="number">0 </span>{
             <span class="macro">warn!</span>(
                 <span class="string">&quot;{} parked cars weren&#39;t seeded, due to blackholed buildings&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">blackholed</span>)
+                prettyprint_usize(blackholed)
             );
         }
         <span class="kw">return</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">open_spots_per_road</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">BTreeMap::new</span>();
-    <span class="kw">for</span> <span class="ident">spot</span> <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_all_parking_spots</span>().<span class="number">1</span> {
-        <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">restriction</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">spot</span> {
-            <span class="ident">ParkingSpot::Onstreet</span>(<span class="ident">l</span>, <span class="kw">_</span>) =&gt; (<span class="ident">l</span>.<span class="ident">road</span>, <span class="prelude-val">None</span>),
-            <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; (
-                <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk</span>().<span class="ident">road</span>,
-                <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">parking</span> {
-                    <span class="ident">OffstreetParking::PublicGarage</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-                    <span class="ident">OffstreetParking::Private</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">b</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>open_spots_per_road: BTreeMap&lt;RoadID, Vec&lt;(ParkingSpot, <span class="prelude-ty">Option</span>&lt;BuildingID&gt;)&gt;&gt; =
+        BTreeMap::new();
+    <span class="kw">for </span>spot <span class="kw">in </span>sim.get_all_parking_spots().<span class="number">1 </span>{
+        <span class="kw">let </span>(r, restriction) = <span class="kw">match </span>spot {
+            ParkingSpot::Onstreet(l, <span class="kw">_</span>) =&gt; (l.road, <span class="prelude-val">None</span>),
+            ParkingSpot::Offstreet(b, <span class="kw">_</span>) =&gt; (
+                map.get_b(b).sidewalk().road,
+                <span class="kw">match </span>map.get_b(b).parking {
+                    OffstreetParking::PublicGarage(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                    OffstreetParking::Private(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(b),
                 },
             ),
-            <span class="ident">ParkingSpot::Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) =&gt; (<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">driving_pos</span>.<span class="ident">lane</span>().<span class="ident">road</span>, <span class="prelude-val">None</span>),
+            ParkingSpot::Lot(pl, <span class="kw">_</span>) =&gt; (map.get_pl(pl).driving_pos.lane().road, <span class="prelude-val">None</span>),
         };
-        <span class="ident">open_spots_per_road</span>
-            .<span class="ident">entry</span>(<span class="ident">r</span>)
-            .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-            .<span class="ident">push</span>((<span class="ident">spot</span>, <span class="ident">restriction</span>));
+        open_spots_per_road
+            .entry(r)
+            .or_insert_with(Vec::new)
+            .push((spot, restriction));
     }
-    <span class="comment">// Changing parking on one road shouldn&#39;t affect far-off roads. Fork carefully.</span>
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp_rng</span> <span class="op">=</span> <span class="ident">fork_rng</span>(<span class="ident">base_rng</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">spots</span>) <span class="op">=</span> <span class="ident">open_spots_per_road</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">id</span>) {
-            <span class="ident">spots</span>.<span class="ident">shuffle</span>(<span class="kw-2">&amp;mut</span> <span class="ident">tmp_rng</span>);
+    <span class="comment">// Changing parking on one road shouldn&#39;t affect far-off roads. Fork carefully.
+    </span><span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+        <span class="kw">let </span><span class="kw-2">mut </span>tmp_rng = fork_rng(base_rng);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>spots) = open_spots_per_road.get_mut(<span class="kw-2">&amp;</span>r.id) {
+            spots.shuffle(<span class="kw-2">&amp;mut </span>tmp_rng);
         }
     }
 
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;seed parked cars&quot;</span>, <span class="ident">parked_cars</span>.<span class="ident">len</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">let</span> <span class="ident">total_cars</span> <span class="op">=</span> <span class="ident">parked_cars</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seeded</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> (<span class="ident">vehicle</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">parked_cars</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ok</span> {
+    timer.start_iter(<span class="string">&quot;seed parked cars&quot;</span>, parked_cars.len());
+    <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
+    <span class="kw">let </span>total_cars = parked_cars.len();
+    <span class="kw">let </span><span class="kw-2">mut </span>seeded = <span class="number">0</span>;
+    <span class="kw">for </span>(vehicle, b) <span class="kw">in </span>parked_cars {
+        timer.next();
+        <span class="kw">if </span>!ok {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spot</span>) <span class="op">=</span> <span class="ident">find_spot_near_building</span>(<span class="ident">b</span>, <span class="kw-2">&amp;mut</span> <span class="ident">open_spots_per_road</span>, <span class="ident">map</span>) {
-            <span class="ident">seeded</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">sim</span>.<span class="ident">seed_parked_car</span>(<span class="ident">vehicle</span>, <span class="ident">spot</span>);
-        } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(spot) = find_spot_near_building(b, <span class="kw-2">&amp;mut </span>open_spots_per_road, map) {
+            seeded += <span class="number">1</span>;
+            sim.seed_parked_car(vehicle, spot);
+        } <span class="kw">else </span>{
             <span class="macro">warn!</span>(
                 <span class="string">&quot;Not enough room to seed parked cars. Only found spots for {} of {}&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">seeded</span>),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">total_cars</span>)
+                prettyprint_usize(seeded),
+                prettyprint_usize(total_cars)
             );
-            <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            ok = <span class="bool-val">false</span>;
         }
     }
 }
 
-<span class="comment">// Pick a parking spot for this building. If the building&#39;s road has a free spot, use it. If not,</span>
-<span class="comment">// start BFSing out from the road in a deterministic way until finding a nearby road with an open</span>
-<span class="comment">// spot.</span>
-<span class="kw">fn</span> <span class="ident">find_spot_near_building</span>(
-    <span class="ident">b</span>: <span class="ident">BuildingID</span>,
-    <span class="ident">open_spots_per_road</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads_queue</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">VecDeque::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
+<span class="comment">// Pick a parking spot for this building. If the building&#39;s road has a free spot, use it. If not,
+// start BFSing out from the road in a deterministic way until finding a nearby road with an open
+// spot.
+</span><span class="kw">fn </span>find_spot_near_building(
+    b: BuildingID,
+    open_spots_per_road: <span class="kw-2">&amp;mut </span>BTreeMap&lt;RoadID, Vec&lt;(ParkingSpot, <span class="prelude-ty">Option</span>&lt;BuildingID&gt;)&gt;&gt;,
+    map: <span class="kw-2">&amp;</span>Map,
+) -&gt; <span class="prelude-ty">Option</span>&lt;ParkingSpot&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>roads_queue: VecDeque&lt;RoadID&gt; = VecDeque::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>visited: HashSet&lt;RoadID&gt; = HashSet::new();
     {
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">building_to_road</span>(<span class="ident">b</span>).<span class="ident">id</span>;
-        <span class="ident">roads_queue</span>.<span class="ident">push_back</span>(<span class="ident">start</span>);
-        <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">start</span>);
+        <span class="kw">let </span>start = map.building_to_road(b).id;
+        roads_queue.push_back(start);
+        visited.insert(start);
     }
 
-    <span class="kw">loop</span> {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">roads_queue</span>.<span class="ident">pop_front</span>()<span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">spots</span>) <span class="op">=</span> <span class="ident">open_spots_per_road</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>) {
-            <span class="comment">// Fill in all private parking first before</span>
-            <span class="comment">// TODO With some probability, skip this available spot and park farther away</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">spots</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">position</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">restriction</span>)<span class="op">|</span> <span class="ident">restriction</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(<span class="ident">b</span>))
+    <span class="kw">loop </span>{
+        <span class="kw">let </span>r = roads_queue.pop_front()<span class="question-mark">?</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(spots) = open_spots_per_road.get_mut(<span class="kw-2">&amp;</span>r) {
+            <span class="comment">// Fill in all private parking first before
+            // TODO With some probability, skip this available spot and park farther away
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = spots
+                .iter()
+                .position(|(<span class="kw">_</span>, restriction)| restriction == <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(b))
             {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">spots</span>.<span class="ident">remove</span>(<span class="ident">idx</span>).<span class="number">0</span>);
+                <span class="kw">return </span><span class="prelude-val">Some</span>(spots.remove(idx).<span class="number">0</span>);
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">spots</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">position</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">restriction</span>)<span class="op">|</span> <span class="ident">restriction</span>.<span class="ident">is_none</span>())
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = spots
+                .iter()
+                .position(|(<span class="kw">_</span>, restriction)| restriction.is_none())
             {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">spots</span>.<span class="ident">remove</span>(<span class="ident">idx</span>).<span class="number">0</span>);
+                <span class="kw">return </span><span class="prelude-val">Some</span>(spots.remove(idx).<span class="number">0</span>);
             }
         }
 
-        <span class="kw">for</span> <span class="ident">next_r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_next_roads</span>(<span class="ident">r</span>).<span class="ident">into_iter</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">visited</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">next_r</span>) {
-                <span class="ident">roads_queue</span>.<span class="ident">push_back</span>(<span class="ident">next_r</span>);
-                <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">next_r</span>);
+        <span class="kw">for </span>next_r <span class="kw">in </span>map.get_next_roads(r).into_iter() {
+            <span class="kw">if </span>!visited.contains(<span class="kw-2">&amp;</span>next_r) {
+                roads_queue.push_back(next_r);
+                visited.insert(next_r);
             }
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_parked_cars_per_bldg</span>(<span class="ident">scenario</span>: <span class="kw-2">&amp;</span><span class="ident">Scenario</span>) -&gt; <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_bldg</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="comment">// Pass in a dummy RNG</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="number">0</span>);
-    <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">scenario</span>.<span class="ident">people</span> {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">cars_initially_parked_at</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">get_vehicles</span>(<span class="ident">p</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="ident">cars_initially_parked_at</span> {
-            <span class="ident">per_bldg</span>.<span class="ident">inc</span>(<span class="ident">b</span>);
+<span class="kw">pub fn </span>count_parked_cars_per_bldg(scenario: <span class="kw-2">&amp;</span>Scenario) -&gt; Counter&lt;BuildingID&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>per_bldg = Counter::new();
+    <span class="comment">// Pass in a dummy RNG
+    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(<span class="number">0</span>);
+    <span class="kw">for </span>p <span class="kw">in </span><span class="kw-2">&amp;</span>scenario.people {
+        <span class="kw">let </span>(<span class="kw">_</span>, cars_initially_parked_at, <span class="kw">_</span>) = get_vehicles(p, <span class="kw-2">&amp;mut </span>rng);
+        <span class="kw">for </span>(<span class="kw">_</span>, b) <span class="kw">in </span>cars_initially_parked_at {
+            per_bldg.inc(b);
         }
     }
-    <span class="ident">per_bldg</span>
+    per_bldg
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

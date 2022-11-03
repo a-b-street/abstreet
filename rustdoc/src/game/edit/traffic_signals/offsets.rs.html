@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/offsets.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>offsets.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/traffic_signals/offsets.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>offsets.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -324,331 +324,331 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
+<span class="kw">use </span>maplit::btreeset;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>};
-<span class="kw">use</span> <span class="ident">map_model::IntersectionID</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">RewriteColor</span>,
-    <span class="ident">SimpleState</span>, <span class="ident">Spinner</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>geom::{Distance, Duration};
+<span class="kw">use </span>map_model::IntersectionID;
+<span class="kw">use </span>widgetry::{
+    Color, Drawable, EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Panel, RewriteColor,
+    SimpleState, Spinner, State, Text, TextExt, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::CommonState</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::traffic_signals::fade_irrelevant</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::CommonState;
+<span class="kw">use </span><span class="kw">crate</span>::edit::traffic_signals::fade_irrelevant;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShowAbsolute</span> {
-    <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">labels</span>: <span class="ident">Drawable</span>,
+<span class="kw">pub struct </span>ShowAbsolute {
+    members: BTreeSet&lt;IntersectionID&gt;,
+    labels: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">ShowAbsolute</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">members</span> {
-            <span class="ident">batch</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(
-                    <span class="ident">app</span>.<span class="ident">primary</span>
-                        .<span class="ident">map</span>
-                        .<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>)
-                        .<span class="ident">offset</span>
-                        .<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
+<span class="kw">impl </span>ShowAbsolute {
+    <span class="kw">pub fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        members: BTreeSet&lt;IntersectionID&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = fade_irrelevant(app, <span class="kw-2">&amp;</span>members);
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>members {
+            batch.append(
+                Text::from(
+                    app.primary
+                        .map
+                        .get_traffic_signal(<span class="kw-2">*</span>i)
+                        .offset
+                        .to_string(<span class="kw-2">&amp;</span>app.opts.units),
                 )
-                .<span class="ident">bg</span>(<span class="ident">Color::PURPLE</span>)
-                .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="number">0.8</span>))
-                .<span class="ident">scale</span>(<span class="number">0.3</span>)
-                .<span class="ident">centered_on</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()),
+                .bg(Color::PURPLE)
+                .render_autocropped(ctx)
+                .color(RewriteColor::ChangeAlpha(<span class="number">0.8</span>))
+                .scale(<span class="number">0.3</span>)
+                .centered_on(app.primary.map.get_i(<span class="kw-2">*</span>i).polygon.center()),
             );
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Tuning offset for {} signals&quot;</span>, <span class="ident">members</span>.<span class="ident">len</span>()))
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="macro">format!</span>(<span class="string">&quot;Tuning offset for {} signals&quot;</span>, members.len()))
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="string">&quot;Select an intersection as the base&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Select an intersection as the base&quot;</span>.text_widget(ctx),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-            <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">ShowAbsolute</span> {
-                <span class="ident">members</span>,
-                <span class="ident">labels</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
+            panel,
+            Box::new(ShowAbsolute {
+                members,
+                labels: ctx.upload(batch),
             }),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShowAbsolute</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; {
-                <span class="comment">// TODO Bit confusing UX, because all the offset changes won&#39;t show up in the</span>
-                <span class="comment">// undo stack. Could maybe do ConsumeState.</span>
-                <span class="ident">Transition::Pop</span>
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>ShowAbsolute {
+    <span class="kw">fn </span>on_click(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App, x: <span class="kw-2">&amp;</span>str, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; {
+                <span class="comment">// TODO Bit confusing UX, because all the offset changes won&#39;t show up in the
+                // undo stack. Could maybe do ConsumeState.
+                </span>Transition::Pop
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">on_mouseover</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">mouseover_unzoomed_intersections</span>(<span class="ident">ctx</span>)
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">as_intersection</span>()));
+    <span class="kw">fn </span>on_mouseover(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+        app.primary.current_selection = app
+            .mouseover_unzoomed_intersections(ctx)
+            .filter(|id| <span class="self">self</span>.members.contains(<span class="kw-2">&amp;</span>id.as_intersection()));
     }
 
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">click_on_intersection</span>(<span class="ident">ctx</span>, <span class="string">&quot;select base intersection&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">ShowRelative::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">i</span>, <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>()));
+    <span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = app.click_on_intersection(ctx, <span class="string">&quot;select base intersection&quot;</span>) {
+            <span class="kw">return </span>Transition::Replace(ShowRelative::new_state(ctx, app, i, <span class="self">self</span>.members.clone()));
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        CommonState::draw_osd(g, app);
 
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">labels</span>);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.labels);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">ShowRelative</span> {
-    <span class="ident">base</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">labels</span>: <span class="ident">Drawable</span>,
+<span class="kw">struct </span>ShowRelative {
+    base: IntersectionID,
+    members: BTreeSet&lt;IntersectionID&gt;,
+    labels: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">ShowRelative</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">base</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">base_offset</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">base</span>).<span class="ident">offset</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">members</span>);
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">members</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">i</span> <span class="op">==</span> <span class="ident">base</span> {
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
+<span class="kw">impl </span>ShowRelative {
+    <span class="kw">pub fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        base: IntersectionID,
+        members: BTreeSet&lt;IntersectionID&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>base_offset = app.primary.map.get_traffic_signal(base).offset;
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = fade_irrelevant(app, <span class="kw-2">&amp;</span>members);
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>members {
+            <span class="kw">if </span><span class="kw-2">*</span>i == base {
+                batch.push(
+                    Color::BLUE.alpha(<span class="number">0.8</span>),
+                    app.primary.map.get_i(<span class="kw-2">*</span>i).polygon.clone(),
                 );
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">offset</span> <span class="op">-</span> <span class="ident">base_offset</span>;
-                <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">Text::from</span>(<span class="ident">offset</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))
-                        .<span class="ident">bg</span>(<span class="ident">Color::PURPLE</span>)
-                        .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="number">0.8</span>))
-                        .<span class="ident">scale</span>(<span class="number">0.3</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()),
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>offset = app.primary.map.get_traffic_signal(<span class="kw-2">*</span>i).offset - base_offset;
+                batch.append(
+                    Text::from(offset.to_string(<span class="kw-2">&amp;</span>app.opts.units))
+                        .bg(Color::PURPLE)
+                        .render_autocropped(ctx)
+                        .color(RewriteColor::ChangeAlpha(<span class="number">0.8</span>))
+                        .scale(<span class="number">0.3</span>)
+                        .centered_on(app.primary.map.get_i(<span class="kw-2">*</span>i).polygon.center()),
                 );
             }
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Tuning offset for {} signals&quot;</span>, <span class="ident">members</span>.<span class="ident">len</span>()))
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="macro">format!</span>(<span class="string">&quot;Tuning offset for {} signals&quot;</span>, members.len()))
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="string">&quot;Select a second intersection to tune offset between the two&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            <span class="string">&quot;Select a second intersection to tune offset between the two&quot;</span>.text_widget(ctx),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-            <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">ShowRelative</span> {
-                <span class="ident">base</span>,
-                <span class="ident">members</span>,
-                <span class="ident">labels</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
+            panel,
+            Box::new(ShowRelative {
+                base,
+                members,
+                labels: ctx.upload(batch),
             }),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShowRelative</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">ShowAbsolute::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>())),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>ShowRelative {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Replace(ShowAbsolute::new_state(ctx, app, <span class="self">self</span>.members.clone())),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">on_mouseover</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_intersections</span>(<span class="ident">ctx</span>).<span class="ident">filter</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">id</span>.<span class="ident">as_intersection</span>();
-            <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) <span class="op">&amp;&amp;</span> <span class="ident">i</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">base</span>
+    <span class="kw">fn </span>on_mouseover(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+        app.primary.current_selection = app.mouseover_unzoomed_intersections(ctx).filter(|id| {
+            <span class="kw">let </span>i = id.as_intersection();
+            <span class="self">self</span>.members.contains(<span class="kw-2">&amp;</span>i) &amp;&amp; i != <span class="self">self</span>.base
         });
     }
 
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">click_on_intersection</span>(<span class="ident">ctx</span>, <span class="string">&quot;select second intersection&quot;</span>) {
-            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">TuneRelative::new_state</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="self">self</span>.<span class="ident">base</span>,
-                <span class="ident">i</span>,
-                <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
+    <span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(i) = app.click_on_intersection(ctx, <span class="string">&quot;select second intersection&quot;</span>) {
+            <span class="kw">return </span>Transition::Push(TuneRelative::new_state(
+                ctx,
+                app,
+                <span class="self">self</span>.base,
+                i,
+                <span class="self">self</span>.members.clone(),
             ));
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        CommonState::draw_osd(g, app);
 
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">labels</span>);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.labels);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">TuneRelative</span> {
-    <span class="ident">i1</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">i2</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="ident">labels</span>: <span class="ident">Drawable</span>,
+<span class="kw">struct </span>TuneRelative {
+    i1: IntersectionID,
+    i2: IntersectionID,
+    members: BTreeSet&lt;IntersectionID&gt;,
+    labels: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">TuneRelative</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">i1</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">i2</span>: <span class="ident">IntersectionID</span>,
-        <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="macro">btreeset!</span> {<span class="ident">i1</span>, <span class="ident">i2</span>});
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="comment">// TODO Colors aren&#39;t clear. Show directionality.</span>
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i1</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i2</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">map</span>
-            .<span class="ident">simple_path_btwn</span>(<span class="ident">i1</span>, <span class="ident">i2</span>)
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>)
-            .<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dist_btwn</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">car_dt</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">path</span> {
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-            <span class="comment">// TODO Glue polylines together and do dashed_lines</span>
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">route</span>, <span class="ident">r</span>.<span class="ident">get_thick_polygon</span>());
-            <span class="ident">dist_btwn</span> <span class="op">+</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">length</span>();
-            <span class="ident">car_dt</span> <span class="op">+</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">r</span>.<span class="ident">speed_limit</span>;
+<span class="kw">impl </span>TuneRelative {
+    <span class="kw">pub fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        i1: IntersectionID,
+        i2: IntersectionID,
+        members: BTreeSet&lt;IntersectionID&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = fade_irrelevant(app, <span class="kw-2">&amp;</span><span class="macro">btreeset! </span>{i1, i2});
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+        <span class="comment">// TODO Colors aren&#39;t clear. Show directionality.
+        </span>batch.push(Color::BLUE.alpha(<span class="number">0.8</span>), map.get_i(i1).polygon.clone());
+        batch.push(Color::RED.alpha(<span class="number">0.8</span>), map.get_i(i2).polygon.clone());
+        <span class="kw">let </span>path = map
+            .simple_path_btwn(i1, i2)
+            .map(|pair| pair.<span class="number">0</span>)
+            .unwrap_or_else(Vec::new);
+        <span class="kw">let </span><span class="kw-2">mut </span>dist_btwn = Distance::ZERO;
+        <span class="kw">let </span><span class="kw-2">mut </span>car_dt = Duration::ZERO;
+        <span class="kw">for </span>r <span class="kw">in </span>path {
+            <span class="kw">let </span>r = map.get_r(r);
+            <span class="comment">// TODO Glue polylines together and do dashed_lines
+            </span>batch.push(app.cs.route, r.get_thick_polygon());
+            dist_btwn += r.length();
+            car_dt += r.length() / r.speed_limit;
         }
 
-        <span class="kw">let</span> <span class="ident">offset1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i1</span>).<span class="ident">offset</span>;
-        <span class="kw">let</span> <span class="ident">offset2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i2</span>).<span class="ident">offset</span>;
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Tuning offset between {} and {}&quot;</span>, <span class="ident">i1</span>, <span class="ident">i2</span>))
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>offset1 = map.get_traffic_signal(i1).offset;
+        <span class="kw">let </span>offset2 = map.get_traffic_signal(i2).offset;
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="macro">format!</span>(<span class="string">&quot;Tuning offset between {} and {}&quot;</span>, i1, i2))
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Distance: {}&quot;</span>, <span class="ident">dist_btwn</span>)),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+            Text::from_multiline(<span class="macro">vec!</span>[
+                Line(<span class="macro">format!</span>(<span class="string">&quot;Distance: {}&quot;</span>, dist_btwn)),
+                Line(<span class="macro">format!</span>(
                     <span class="string">&quot;  about {} for a car if there&#39;s no congestion&quot;</span>,
-                    <span class="ident">car_dt</span>
+                    car_dt
                 )),
-                <span class="comment">// TODO We could calculate a full path and incorporate incline</span>
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+                <span class="comment">// TODO We could calculate a full path and incorporate incline
+                </span>Line(<span class="macro">format!</span>(
                     <span class="string">&quot;  about {} for a bike&quot;</span>,
-                    <span class="ident">dist_btwn</span> <span class="op">/</span> <span class="ident">map_model::MAX_BIKE_SPEED</span>
+                    dist_btwn / map_model::MAX_BIKE_SPEED
                 )),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+                Line(<span class="macro">format!</span>(
                     <span class="string">&quot;  about {} for a pedestrian&quot;</span>,
-                    <span class="ident">dist_btwn</span> <span class="op">/</span> <span class="ident">map_model::MAX_WALKING_SPEED</span>
+                    dist_btwn / map_model::MAX_WALKING_SPEED
                 )),
             ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Offset:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Spinner::widget</span>(
-                    <span class="ident">ctx</span>,
+            .into_widget(ctx),
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;Offset:&quot;</span>.text_widget(ctx).centered_vert(),
+                Spinner::widget(
+                    ctx,
                     <span class="string">&quot;offset&quot;</span>,
-                    (<span class="ident">Duration::ZERO</span>, <span class="ident">Duration::seconds</span>(<span class="number">90.0</span>)),
-                    <span class="ident">offset2</span> <span class="op">-</span> <span class="ident">offset1</span>,
-                    <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
+                    (Duration::ZERO, Duration::seconds(<span class="number">90.0</span>)),
+                    offset2 - offset1,
+                    Duration::seconds(<span class="number">1.0</span>),
                 ),
             ]),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Update offset&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Update offset&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-            <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">TuneRelative</span> {
-                <span class="ident">i1</span>,
-                <span class="ident">i2</span>,
-                <span class="ident">members</span>,
-                <span class="ident">labels</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
+        .build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
+            panel,
+            Box::new(TuneRelative {
+                i1,
+                i2,
+                members,
+                labels: ctx.upload(batch),
             }),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TuneRelative</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Update offset&quot;</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="self">self</span>.<span class="ident">i2</span>).<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="ident">relative</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;offset&quot;</span>);
-                <span class="kw">let</span> <span class="ident">offset1</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="self">self</span>.<span class="ident">i1</span>).<span class="ident">offset</span>;
-                <span class="ident">ts</span>.<span class="ident">offset</span> <span class="op">=</span> <span class="ident">offset1</span> <span class="op">+</span> <span class="ident">relative</span>;
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">incremental_edit_traffic_signal</span>(<span class="ident">ts</span>);
-                <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Pop</span>,
-                    <span class="ident">Transition::Replace</span>(<span class="ident">ShowRelative::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">i1</span>,
-                        <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>TuneRelative {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;Update offset&quot; </span>=&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>ts = app.primary.map.get_traffic_signal(<span class="self">self</span>.i2).clone();
+                <span class="kw">let </span>relative = panel.spinner(<span class="string">&quot;offset&quot;</span>);
+                <span class="kw">let </span>offset1 = app.primary.map.get_traffic_signal(<span class="self">self</span>.i1).offset;
+                ts.offset = offset1 + relative;
+                app.primary.map.incremental_edit_traffic_signal(ts);
+                Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Pop,
+                    Transition::Replace(ShowRelative::new_state(
+                        ctx,
+                        app,
+                        <span class="self">self</span>.i1,
+                        <span class="self">self</span>.members.clone(),
                     )),
                 ])
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="ident">Transition::Keep</span>
+    <span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">labels</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.labels);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

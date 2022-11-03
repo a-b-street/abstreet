@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/style/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/style/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -230,237 +230,237 @@
 <span id="230">230</span>
 <span id="231">231</span>
 <span id="232">232</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Text</span>};
+</pre><pre class="rust"><code><span class="kw">use crate</span>::{Color, Text};
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">button_style</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">button_style::ButtonStyle</span>;
+<span class="kw">pub mod </span>button_style;
+<span class="kw">pub use </span>button_style::ButtonStyle;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Style</span> {
-    <span class="kw">pub</span> <span class="ident">panel_bg</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">field_bg</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">dropdown_border</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">icon_fg</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">primary_fg</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">text_primary_color</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">text_secondary_color</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">text_tooltip_color</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">text_hotkey_color</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">text_destructive_color</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">loading_tips</span>: <span class="ident">Text</span>,
-    <span class="kw">pub</span> <span class="ident">section_bg</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">section_outline</span>: <span class="ident">OutlineStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_plain</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_outline</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_floating</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_solid</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_tab</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_solid_destructive</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_plain_destructive</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_solid_primary</span>: <span class="ident">ButtonStyle</span>,
-    <span class="kw">pub</span> <span class="ident">btn_plain_primary</span>: <span class="ident">ButtonStyle</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>Style {
+    <span class="kw">pub </span>panel_bg: Color,
+    <span class="kw">pub </span>field_bg: Color,
+    <span class="kw">pub </span>dropdown_border: Color,
+    <span class="kw">pub </span>icon_fg: Color,
+    <span class="kw">pub </span>primary_fg: Color,
+    <span class="kw">pub </span>text_primary_color: Color,
+    <span class="kw">pub </span>text_secondary_color: Color,
+    <span class="kw">pub </span>text_tooltip_color: Color,
+    <span class="kw">pub </span>text_hotkey_color: Color,
+    <span class="kw">pub </span>text_destructive_color: Color,
+    <span class="kw">pub </span>loading_tips: Text,
+    <span class="kw">pub </span>section_bg: Color,
+    <span class="kw">pub </span>section_outline: OutlineStyle,
+    <span class="kw">pub </span>btn_plain: ButtonStyle,
+    <span class="kw">pub </span>btn_outline: ButtonStyle,
+    <span class="kw">pub </span>btn_floating: ButtonStyle,
+    <span class="kw">pub </span>btn_solid: ButtonStyle,
+    <span class="kw">pub </span>btn_tab: ButtonStyle,
+    <span class="kw">pub </span>btn_solid_destructive: ButtonStyle,
+    <span class="kw">pub </span>btn_plain_destructive: ButtonStyle,
+    <span class="kw">pub </span>btn_solid_primary: ButtonStyle,
+    <span class="kw">pub </span>btn_plain_primary: ButtonStyle,
 }
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OutlineStyle</span> <span class="op">=</span> (<span class="ident">f64</span>, <span class="ident">Color</span>);
+<span class="kw">pub type </span>OutlineStyle = (f64, Color);
 
-<span class="kw">pub</span> <span class="kw">static</span> <span class="ident">DEFAULT_OUTLINE_THICKNESS</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">2.0</span>;
+<span class="kw">pub static </span>DEFAULT_OUTLINE_THICKNESS: f64 = <span class="number">2.0</span>;
 
-<span class="comment">// This is #EE702E, called &quot;ab_orange_1&quot; in Figma</span>
-<span class="kw">const</span> <span class="ident">AB_ORANGE_1</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::rgb_f</span>(<span class="number">0.933</span>, <span class="number">0.439</span>, <span class="number">0.18</span>);
+<span class="comment">// This is #EE702E, called &quot;ab_orange_1&quot; in Figma
+</span><span class="kw">const </span>AB_ORANGE_1: Color = Color::rgb_f(<span class="number">0.933</span>, <span class="number">0.439</span>, <span class="number">0.18</span>);
 
-<span class="comment">// Some ButtonStyles are shared across Styles</span>
-<span class="kw">impl</span> <span class="ident">ButtonStyle</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solid_dark_fg</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ButtonStyle</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">Color::WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-            <span class="ident">bg_hover</span>: <span class="ident">Color::WHITE</span>,
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::grey</span>(<span class="number">0.8</span>),
-            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">Color::WHITE</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>)),
+<span class="comment">// Some ButtonStyles are shared across Styles
+</span><span class="kw">impl </span>ButtonStyle {
+    <span class="kw">pub fn </span>solid_dark_fg() -&gt; <span class="self">Self </span>{
+        ButtonStyle {
+            fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.3</span>),
+            bg: Color::WHITE.alpha(<span class="number">0.8</span>),
+            bg_hover: Color::WHITE,
+            bg_disabled: Color::grey(<span class="number">0.8</span>),
+            outline: (DEFAULT_OUTLINE_THICKNESS, Color::WHITE.alpha(<span class="number">0.6</span>)),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline_dark_fg</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ButtonStyle</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>)),
+    <span class="kw">pub fn </span>outline_dark_fg() -&gt; <span class="self">Self </span>{
+        ButtonStyle {
+            fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.3</span>),
+            bg: Color::CLEAR,
+            bg_hover: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_disabled: Color::CLEAR,
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">&quot;#4C4C4C&quot;</span>)),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plain_dark_fg</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ButtonStyle</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">outline</span>: (<span class="number">0.0</span>, <span class="ident">Color::CLEAR</span>),
+    <span class="kw">pub fn </span>plain_dark_fg() -&gt; <span class="self">Self </span>{
+        ButtonStyle {
+            fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.3</span>),
+            bg: Color::CLEAR,
+            bg_hover: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_disabled: Color::CLEAR,
+            outline: (<span class="number">0.0</span>, Color::CLEAR),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solid_light_fg</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ButtonStyle</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::grey</span>(<span class="number">0.1</span>),
-            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
+    <span class="kw">pub fn </span>solid_light_fg() -&gt; <span class="self">Self </span>{
+        ButtonStyle {
+            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.3</span>),
+            bg: hex(<span class="string">&quot;#003046&quot;</span>).alpha(<span class="number">0.8</span>),
+            bg_hover: hex(<span class="string">&quot;#003046&quot;</span>),
+            bg_disabled: Color::grey(<span class="number">0.1</span>),
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">&quot;#003046&quot;</span>).alpha(<span class="number">0.6</span>)),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outline_light_fg</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ButtonStyle</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>)),
+    <span class="kw">pub fn </span>outline_light_fg() -&gt; <span class="self">Self </span>{
+        ButtonStyle {
+            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.3</span>),
+            bg: Color::CLEAR,
+            bg_hover: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_disabled: Color::CLEAR,
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">&quot;#F2F2F2&quot;</span>)),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plain_light_fg</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ButtonStyle</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">outline</span>: (<span class="number">0.0</span>, <span class="ident">Color::CLEAR</span>),
+    <span class="kw">pub fn </span>plain_light_fg() -&gt; <span class="self">Self </span>{
+        ButtonStyle {
+            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.3</span>),
+            bg: Color::CLEAR,
+            bg_hover: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_disabled: Color::CLEAR,
+            outline: (<span class="number">0.0</span>, Color::CLEAR),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">solid_primary</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">bg</span>: <span class="ident">AB_ORANGE_1</span>.<span class="ident">tint</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_hover</span>: <span class="ident">AB_ORANGE_1</span>,
-            <span class="ident">bg_disabled</span>: <span class="ident">AB_ORANGE_1</span>.<span class="ident">tint</span>(<span class="number">0.3</span>),
-            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">AB_ORANGE_1</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>)),
+    <span class="kw">pub fn </span>solid_primary() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+            bg: AB_ORANGE_1.tint(<span class="number">0.1</span>),
+            bg_hover: AB_ORANGE_1,
+            bg_disabled: AB_ORANGE_1.tint(<span class="number">0.3</span>),
+            outline: (DEFAULT_OUTLINE_THICKNESS, AB_ORANGE_1.alpha(<span class="number">0.6</span>)),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plain_primary</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">fg</span>: <span class="ident">AB_ORANGE_1</span>,
-            <span class="ident">fg_disabled</span>: <span class="ident">AB_ORANGE_1</span>.<span class="ident">tint</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">bg_hover</span>: <span class="ident">AB_ORANGE_1</span>.<span class="ident">tint</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">outline</span>: (<span class="number">0.0</span>, <span class="ident">Color::CLEAR</span>),
+    <span class="kw">pub fn </span>plain_primary() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            fg: AB_ORANGE_1,
+            fg_disabled: AB_ORANGE_1.tint(<span class="number">0.3</span>),
+            bg: Color::CLEAR,
+            bg_hover: AB_ORANGE_1.tint(<span class="number">0.1</span>),
+            bg_disabled: Color::CLEAR,
+            outline: (<span class="number">0.0</span>, Color::CLEAR),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">solid_destructive</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.8</span>),
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::grey</span>(<span class="number">0.1</span>),
-            <span class="ident">outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.6</span>)),
+    <span class="kw">fn </span>solid_destructive() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.3</span>),
+            bg: hex(<span class="string">&quot;#FF5E5E&quot;</span>).alpha(<span class="number">0.8</span>),
+            bg_hover: hex(<span class="string">&quot;#FF5E5E&quot;</span>),
+            bg_disabled: Color::grey(<span class="number">0.1</span>),
+            outline: (DEFAULT_OUTLINE_THICKNESS, hex(<span class="string">&quot;#FF5E5E&quot;</span>).alpha(<span class="number">0.6</span>)),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">plain_destructive</span>() -&gt; <span class="ident">ButtonStyle</span> {
-        <span class="self">Self</span> {
-            <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
-            <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.3</span>),
-            <span class="ident">bg</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-            <span class="ident">bg_disabled</span>: <span class="ident">Color::CLEAR</span>,
-            <span class="ident">outline</span>: (<span class="number">0.0</span>, <span class="ident">Color::CLEAR</span>),
+    <span class="kw">fn </span>plain_destructive() -&gt; ButtonStyle {
+        <span class="self">Self </span>{
+            fg: hex(<span class="string">&quot;#FF5E5E&quot;</span>),
+            fg_disabled: hex(<span class="string">&quot;#FF5E5E&quot;</span>).alpha(<span class="number">0.3</span>),
+            bg: Color::CLEAR,
+            bg_hover: hex(<span class="string">&quot;#FF5E5E&quot;</span>).alpha(<span class="number">0.1</span>),
+            bg_disabled: Color::CLEAR,
+            outline: (<span class="number">0.0</span>, Color::CLEAR),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Style</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">light_bg</span>() -&gt; <span class="ident">Style</span> {
-        <span class="ident">Style</span> {
-            <span class="comment">// shade panel_bg a bit to increase contrast vs. the section_bg, otherwise</span>
-            <span class="comment">// the section (and tabs) can be hard to distinguish</span>
-            <span class="ident">panel_bg</span>: <span class="ident">Color::WHITE</span>.<span class="ident">shade</span>(<span class="number">0.03</span>).<span class="ident">alpha</span>(<span class="number">0.95</span>),
-            <span class="ident">field_bg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-            <span class="ident">dropdown_border</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="comment">// TODO: replace inner_panel_bg with this</span>
-            <span class="ident">section_bg</span>: <span class="ident">Color::WHITE</span>,
-            <span class="ident">section_outline</span>: (<span class="number">2.0</span>, <span class="ident">Color::WHITE</span>.<span class="ident">shade</span>(<span class="number">0.1</span>)),
-            <span class="ident">loading_tips</span>: <span class="ident">Text::new</span>(),
-            <span class="ident">icon_fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">primary_fg</span>: <span class="ident">AB_ORANGE_1</span>,
-            <span class="ident">text_primary_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-            <span class="ident">text_secondary_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">tint</span>(<span class="number">0.2</span>),
-            <span class="ident">text_hotkey_color</span>: <span class="ident">AB_ORANGE_1</span>,
-            <span class="ident">text_tooltip_color</span>: <span class="ident">Color::WHITE</span>,
-            <span class="ident">text_destructive_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
-            <span class="ident">btn_outline</span>: <span class="ident">ButtonStyle::outline_dark_fg</span>(),
-            <span class="ident">btn_solid</span>: <span class="ident">ButtonStyle::solid_light_fg</span>(),
-            <span class="ident">btn_plain</span>: <span class="ident">ButtonStyle::plain_dark_fg</span>(),
-            <span class="ident">btn_tab</span>: <span class="ident">ButtonStyle</span> {
-                <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">tint</span>(<span class="number">0.2</span>),
-                <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>),
-                <span class="ident">bg</span>: <span class="ident">Color::CLEAR</span>,
-                <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#4C4C4C&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-                <span class="ident">bg_disabled</span>: <span class="ident">Color::WHITE</span>,
-                <span class="ident">outline</span>: (<span class="number">0.0</span>, <span class="ident">Color::CLEAR</span>),
+<span class="kw">impl </span>Style {
+    <span class="kw">pub fn </span>light_bg() -&gt; Style {
+        Style {
+            <span class="comment">// shade panel_bg a bit to increase contrast vs. the section_bg, otherwise
+            // the section (and tabs) can be hard to distinguish
+            </span>panel_bg: Color::WHITE.shade(<span class="number">0.03</span>).alpha(<span class="number">0.95</span>),
+            field_bg: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+            dropdown_border: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+            <span class="comment">// TODO: replace inner_panel_bg with this
+            </span>section_bg: Color::WHITE,
+            section_outline: (<span class="number">2.0</span>, Color::WHITE.shade(<span class="number">0.1</span>)),
+            loading_tips: Text::new(),
+            icon_fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+            primary_fg: AB_ORANGE_1,
+            text_primary_color: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+            text_secondary_color: hex(<span class="string">&quot;#4C4C4C&quot;</span>).tint(<span class="number">0.2</span>),
+            text_hotkey_color: AB_ORANGE_1,
+            text_tooltip_color: Color::WHITE,
+            text_destructive_color: hex(<span class="string">&quot;#FF5E5E&quot;</span>),
+            btn_outline: ButtonStyle::outline_dark_fg(),
+            btn_solid: ButtonStyle::solid_light_fg(),
+            btn_plain: ButtonStyle::plain_dark_fg(),
+            btn_tab: ButtonStyle {
+                fg: hex(<span class="string">&quot;#4C4C4C&quot;</span>).tint(<span class="number">0.2</span>),
+                fg_disabled: hex(<span class="string">&quot;#4C4C4C&quot;</span>),
+                bg: Color::CLEAR,
+                bg_hover: hex(<span class="string">&quot;#4C4C4C&quot;</span>).alpha(<span class="number">0.1</span>),
+                bg_disabled: Color::WHITE,
+                outline: (<span class="number">0.0</span>, Color::CLEAR),
             },
-            <span class="ident">btn_floating</span>: <span class="ident">ButtonStyle::solid_dark_fg</span>(),
-            <span class="ident">btn_solid_destructive</span>: <span class="ident">ButtonStyle::solid_destructive</span>(),
-            <span class="ident">btn_plain_destructive</span>: <span class="ident">ButtonStyle::plain_destructive</span>(),
-            <span class="ident">btn_solid_primary</span>: <span class="ident">ButtonStyle::solid_primary</span>(),
-            <span class="ident">btn_plain_primary</span>: <span class="ident">ButtonStyle::plain_primary</span>(),
+            btn_floating: ButtonStyle::solid_dark_fg(),
+            btn_solid_destructive: ButtonStyle::solid_destructive(),
+            btn_plain_destructive: ButtonStyle::plain_destructive(),
+            btn_solid_primary: ButtonStyle::solid_primary(),
+            btn_plain_primary: ButtonStyle::plain_primary(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dark_bg</span>() -&gt; <span class="ident">Style</span> {
-        <span class="kw">let</span> <span class="ident">navy</span> <span class="op">=</span> <span class="ident">hex</span>(<span class="string">&quot;#003046&quot;</span>);
-        <span class="ident">Style</span> {
-            <span class="comment">// tint panel_bg a bit to increase contrast vs. the section_bg, otherwise</span>
-            <span class="comment">// the section (and tabs) can be hard to distinguish</span>
-            <span class="ident">panel_bg</span>: <span class="ident">navy</span>.<span class="ident">tint</span>(<span class="number">0.05</span>).<span class="ident">alpha</span>(<span class="number">0.9</span>),
-            <span class="ident">field_bg</span>: <span class="ident">navy</span>.<span class="ident">shade</span>(<span class="number">0.2</span>),
-            <span class="ident">dropdown_border</span>: <span class="ident">Color::WHITE</span>,
-            <span class="comment">// TODO: replace inner_panel_bg with this</span>
-            <span class="ident">section_bg</span>: <span class="ident">navy</span>,
-            <span class="ident">section_outline</span>: (<span class="ident">DEFAULT_OUTLINE_THICKNESS</span>, <span class="ident">navy</span>.<span class="ident">shade</span>(<span class="number">0.2</span>)),
-            <span class="ident">loading_tips</span>: <span class="ident">Text::new</span>(),
-            <span class="ident">icon_fg</span>: <span class="ident">Color::WHITE</span>,
-            <span class="ident">primary_fg</span>: <span class="ident">AB_ORANGE_1</span>,
-            <span class="ident">text_primary_color</span>: <span class="ident">Color::WHITE</span>,
-            <span class="ident">text_secondary_color</span>: <span class="ident">Color::WHITE</span>.<span class="ident">shade</span>(<span class="number">0.2</span>),
-            <span class="ident">text_hotkey_color</span>: <span class="ident">Color::GREEN</span>,
-            <span class="ident">text_tooltip_color</span>: <span class="ident">Color::WHITE</span>,
-            <span class="ident">text_destructive_color</span>: <span class="ident">hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>),
-            <span class="ident">btn_outline</span>: <span class="ident">ButtonStyle::outline_light_fg</span>(),
-            <span class="ident">btn_solid</span>: <span class="ident">ButtonStyle::solid_dark_fg</span>(),
-            <span class="ident">btn_plain</span>: <span class="ident">ButtonStyle::plain_light_fg</span>(),
-            <span class="ident">btn_tab</span>: <span class="ident">ButtonStyle</span> {
-                <span class="ident">fg</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">shade</span>(<span class="number">0.4</span>),
-                <span class="ident">fg_disabled</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>),
-                <span class="ident">bg</span>: <span class="ident">Color::CLEAR</span>,
-                <span class="ident">bg_hover</span>: <span class="ident">hex</span>(<span class="string">&quot;#F2F2F2&quot;</span>).<span class="ident">alpha</span>(<span class="number">0.1</span>),
-                <span class="ident">bg_disabled</span>: <span class="ident">navy</span>,
-                <span class="ident">outline</span>: (<span class="number">0.0</span>, <span class="ident">Color::CLEAR</span>),
+    <span class="kw">pub fn </span>dark_bg() -&gt; Style {
+        <span class="kw">let </span>navy = hex(<span class="string">&quot;#003046&quot;</span>);
+        Style {
+            <span class="comment">// tint panel_bg a bit to increase contrast vs. the section_bg, otherwise
+            // the section (and tabs) can be hard to distinguish
+            </span>panel_bg: navy.tint(<span class="number">0.05</span>).alpha(<span class="number">0.9</span>),
+            field_bg: navy.shade(<span class="number">0.2</span>),
+            dropdown_border: Color::WHITE,
+            <span class="comment">// TODO: replace inner_panel_bg with this
+            </span>section_bg: navy,
+            section_outline: (DEFAULT_OUTLINE_THICKNESS, navy.shade(<span class="number">0.2</span>)),
+            loading_tips: Text::new(),
+            icon_fg: Color::WHITE,
+            primary_fg: AB_ORANGE_1,
+            text_primary_color: Color::WHITE,
+            text_secondary_color: Color::WHITE.shade(<span class="number">0.2</span>),
+            text_hotkey_color: Color::GREEN,
+            text_tooltip_color: Color::WHITE,
+            text_destructive_color: hex(<span class="string">&quot;#FF5E5E&quot;</span>),
+            btn_outline: ButtonStyle::outline_light_fg(),
+            btn_solid: ButtonStyle::solid_dark_fg(),
+            btn_plain: ButtonStyle::plain_light_fg(),
+            btn_tab: ButtonStyle {
+                fg: hex(<span class="string">&quot;#F2F2F2&quot;</span>).shade(<span class="number">0.4</span>),
+                fg_disabled: hex(<span class="string">&quot;#F2F2F2&quot;</span>),
+                bg: Color::CLEAR,
+                bg_hover: hex(<span class="string">&quot;#F2F2F2&quot;</span>).alpha(<span class="number">0.1</span>),
+                bg_disabled: navy,
+                outline: (<span class="number">0.0</span>, Color::CLEAR),
             },
-            <span class="ident">btn_floating</span>: <span class="ident">ButtonStyle::solid_light_fg</span>(),
-            <span class="ident">btn_solid_destructive</span>: <span class="ident">ButtonStyle::solid_destructive</span>(),
-            <span class="ident">btn_plain_destructive</span>: <span class="ident">ButtonStyle::plain_destructive</span>(),
-            <span class="ident">btn_solid_primary</span>: <span class="ident">ButtonStyle::solid_primary</span>(),
-            <span class="ident">btn_plain_primary</span>: <span class="ident">ButtonStyle::plain_primary</span>(),
+            btn_floating: ButtonStyle::solid_light_fg(),
+            btn_solid_destructive: ButtonStyle::solid_destructive(),
+            btn_plain_destructive: ButtonStyle::plain_destructive(),
+            btn_solid_primary: ButtonStyle::solid_primary(),
+            btn_plain_primary: ButtonStyle::plain_primary(),
         }
     }
 }
 
-<span class="comment">// Convenience</span>
-<span class="kw">fn</span> <span class="ident">hex</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Color</span> {
-    <span class="ident">Color::hex</span>(<span class="ident">x</span>)
+<span class="comment">// Convenience
+</span><span class="kw">fn </span>hex(x: <span class="kw-2">&amp;</span>str) -&gt; Color {
+    Color::hex(x)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

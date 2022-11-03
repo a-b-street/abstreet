@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/speed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>speed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/speed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>speed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -564,422 +564,422 @@
 <span id="564">564</span>
 <span id="565">565</span>
 <span id="566">566</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">sim::AlertLocation</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawWithTooltips</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">PersistentSplit</span>, <span class="ident">ScreenDims</span>, <span class="ident">Text</span>,
-    <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>geom::{Circle, Distance, Duration, Polygon, Pt2D, Ring, Time};
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>sim::AlertLocation;
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{
+    Choice, Color, ControlState, DrawWithTooltips, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
+    HorizontalAlignment, Key, Line, Outcome, Panel, PanelDims, PersistentSplit, ScreenDims, Text,
+    TextExt, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::Warping</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::time_warp::JumpToTime</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">GameplayMode</span>, <span class="ident">SandboxMode</span>, <span class="ident">TimeWarpScreen</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::Warping;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::time_warp::JumpToTime;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::{GameplayMode, SandboxMode, TimeWarpScreen};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimePanel</span> {
-    <span class="kw">pub</span> <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="kw">pub</span> <span class="ident">override_height</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>TimePanel {
+    <span class="kw">pub </span>panel: Panel,
+    <span class="kw">pub </span>override_height: <span class="prelude-ty">Option</span>&lt;f64&gt;,
 
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">paused</span>: <span class="ident">bool</span>,
-    <span class="ident">setting</span>: <span class="ident">SpeedSetting</span>,
-    <span class="comment">// if present, how many trips were completed in the baseline at this point</span>
-    <span class="ident">baseline_finished_trips</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    time: Time,
+    paused: bool,
+    setting: SpeedSetting,
+    <span class="comment">// if present, how many trips were completed in the baseline at this point
+    </span>baseline_finished_trips: <span class="prelude-ty">Option</span>&lt;usize&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SpeedSetting</span> {
-    <span class="doccomment">/// 1 sim second per real second</span>
-    <span class="ident">Realtime</span>,
-    <span class="doccomment">/// 5 sim seconds per real second</span>
-    <span class="ident">Fast</span>,
-    <span class="doccomment">/// 30 sim seconds per real second</span>
-    <span class="ident">Faster</span>,
-    <span class="doccomment">/// 1 sim hour per real second</span>
-    <span class="ident">Fastest</span>,
+<span class="attribute">#[derive(Clone, Copy, PartialEq, PartialOrd)]
+</span><span class="kw">pub enum </span>SpeedSetting {
+    <span class="doccomment">/// 1 sim second per real second
+    </span>Realtime,
+    <span class="doccomment">/// 5 sim seconds per real second
+    </span>Fast,
+    <span class="doccomment">/// 30 sim seconds per real second
+    </span>Faster,
+    <span class="doccomment">/// 1 sim hour per real second
+    </span>Fastest,
 }
 
-<span class="kw">impl</span> <span class="ident">TimePanel</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">TimePanel</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">time</span> <span class="op">=</span> <span class="ident">TimePanel</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">override_height</span>: <span class="prelude-val">None</span>,
-            <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">paused</span>: <span class="bool-val">false</span>,
-            <span class="ident">setting</span>: <span class="ident">SpeedSetting::Realtime</span>,
-            <span class="ident">baseline_finished_trips</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>TimePanel {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; TimePanel {
+        <span class="kw">let </span><span class="kw-2">mut </span>time = TimePanel {
+            panel: Panel::empty(ctx),
+            override_height: <span class="prelude-val">None</span>,
+            time: app.primary.sim.time(),
+            paused: <span class="bool-val">false</span>,
+            setting: SpeedSetting::Realtime,
+            baseline_finished_trips: <span class="prelude-val">None</span>,
         };
-        <span class="ident">time</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">time</span>
+        time.recreate_panel(ctx, app);
+        time
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recreate_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">row</span>.<span class="ident">push</span>({
-            <span class="kw">let</span> <span class="ident">button</span> <span class="op">=</span> <span class="ident">ctx</span>
-                .<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Space</span>);
+    <span class="kw">pub fn </span>recreate_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span><span class="kw-2">mut </span>row = Vec::new();
+        row.push({
+            <span class="kw">let </span>button = ctx
+                .style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
+                .hotkey(Key::Space);
 
-            <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[<span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> {
-                <span class="ident">button</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;play&quot;</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">button</span>
-                    .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;pause&quot;</span>)
+            Widget::custom_row(<span class="macro">vec!</span>[<span class="kw">if </span><span class="self">self</span>.paused {
+                button.build_widget(ctx, <span class="string">&quot;play&quot;</span>)
+            } <span class="kw">else </span>{
+                button
+                    .image_path(<span class="string">&quot;system/assets/speed/pause.svg&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;pause&quot;</span>)
             }])
-            .<span class="ident">margin_right</span>(<span class="number">16</span>)
+            .margin_right(<span class="number">16</span>)
         });
 
-        <span class="ident">row</span>.<span class="ident">push</span>(
-            <span class="ident">Widget::custom_row</span>(
+        row.push(
+            Widget::custom_row(
                 <span class="macro">vec!</span>[
-                    (<span class="ident">SpeedSetting::Realtime</span>, <span class="string">&quot;real-time speed&quot;</span>),
-                    (<span class="ident">SpeedSetting::Fast</span>, <span class="string">&quot;5x speed&quot;</span>),
-                    (<span class="ident">SpeedSetting::Faster</span>, <span class="string">&quot;30x speed&quot;</span>),
-                    (<span class="ident">SpeedSetting::Fastest</span>, <span class="string">&quot;3600x speed&quot;</span>),
+                    (SpeedSetting::Realtime, <span class="string">&quot;real-time speed&quot;</span>),
+                    (SpeedSetting::Fast, <span class="string">&quot;5x speed&quot;</span>),
+                    (SpeedSetting::Faster, <span class="string">&quot;30x speed&quot;</span>),
+                    (SpeedSetting::Fastest, <span class="string">&quot;3600x speed&quot;</span>),
                 ]
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">s</span>, <span class="ident">label</span>)<span class="op">|</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">label</span>).<span class="ident">small</span>());
-                    <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text::tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key::LeftArrow</span>, <span class="string">&quot;slow down&quot;</span>));
-                    <span class="ident">txt</span>.<span class="ident">extend</span>(<span class="ident">Text::tooltip</span>(<span class="ident">ctx</span>, <span class="ident">Key::RightArrow</span>, <span class="string">&quot;speed up&quot;</span>));
+                .into_iter()
+                .map(|(s, label)| {
+                    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(Line(label).small());
+                    txt.extend(Text::tooltip(ctx, Key::LeftArrow, <span class="string">&quot;slow down&quot;</span>));
+                    txt.extend(Text::tooltip(ctx, Key::RightArrow, <span class="string">&quot;speed up&quot;</span>));
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">ctx</span>
-                        .<span class="ident">style</span>()
-                        .<span class="ident">btn_plain</span>
-                        .<span class="ident">btn</span>()
-                        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
-                        .<span class="ident">image_dims</span>(<span class="ident">ScreenDims::new</span>(<span class="number">16.0</span>, <span class="number">26.0</span>))
-                        .<span class="ident">tooltip</span>(<span class="ident">txt</span>)
-                        .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
-                            <span class="ident">top</span>: <span class="number">8.0</span>,
-                            <span class="ident">bottom</span>: <span class="number">8.0</span>,
-                            <span class="ident">left</span>: <span class="number">3.0</span>,
-                            <span class="ident">right</span>: <span class="number">3.0</span>,
+                    <span class="kw">let </span><span class="kw-2">mut </span>triangle_btn = ctx
+                        .style()
+                        .btn_plain
+                        .btn()
+                        .image_path(<span class="string">&quot;system/assets/speed/triangle.svg&quot;</span>)
+                        .image_dims(ScreenDims::new(<span class="number">16.0</span>, <span class="number">26.0</span>))
+                        .tooltip(txt)
+                        .padding(EdgeInsets {
+                            top: <span class="number">8.0</span>,
+                            bottom: <span class="number">8.0</span>,
+                            left: <span class="number">3.0</span>,
+                            right: <span class="number">3.0</span>,
                         });
 
-                    <span class="kw">if</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">SpeedSetting::Realtime</span> {
-                        <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>.<span class="ident">padding_left</span>(<span class="number">10.0</span>);
+                    <span class="kw">if </span>s == SpeedSetting::Realtime {
+                        triangle_btn = triangle_btn.padding_left(<span class="number">10.0</span>);
                     }
-                    <span class="kw">if</span> <span class="ident">s</span> <span class="op">==</span> <span class="ident">SpeedSetting::Fastest</span> {
-                        <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>.<span class="ident">padding_right</span>(<span class="number">10.0</span>);
-                    }
-
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">setting</span> <span class="op">&lt;</span> <span class="ident">s</span> {
-                        <span class="ident">triangle_btn</span> <span class="op">=</span> <span class="ident">triangle_btn</span>
-                            .<span class="ident">image_color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">fg_disabled</span>, <span class="ident">ControlState::Default</span>)
+                    <span class="kw">if </span>s == SpeedSetting::Fastest {
+                        triangle_btn = triangle_btn.padding_right(<span class="number">10.0</span>);
                     }
 
-                    <span class="ident">triangle_btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="ident">label</span>)
+                    <span class="kw">if </span><span class="self">self</span>.setting &lt; s {
+                        triangle_btn = triangle_btn
+                            .image_color(ctx.style().btn_outline.fg_disabled, ControlState::Default)
+                    }
+
+                    triangle_btn.build_widget(ctx, label)
                 })
-                .<span class="ident">collect</span>(),
+                .collect(),
             )
-            .<span class="ident">margin_right</span>(<span class="number">16</span>),
+            .margin_right(<span class="number">16</span>),
         );
 
-        <span class="ident">row</span>.<span class="ident">push</span>(
-            <span class="ident">PersistentSplit::widget</span>(
-                <span class="ident">ctx</span>,
+        row.push(
+            PersistentSplit::widget(
+                ctx,
                 <span class="string">&quot;step forwards&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">time_increment</span>,
-                <span class="ident">Key::M</span>,
+                app.opts.time_increment,
+                Key::M,
                 <span class="macro">vec!</span>[
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;+1h&quot;</span>, <span class="ident">Duration::hours</span>(<span class="number">1</span>)),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;+30m&quot;</span>, <span class="ident">Duration::minutes</span>(<span class="number">30</span>)),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;+10m&quot;</span>, <span class="ident">Duration::minutes</span>(<span class="number">10</span>)),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;+0.1s&quot;</span>, <span class="ident">Duration::seconds</span>(<span class="number">0.1</span>)),
+                    Choice::new(<span class="string">&quot;+1h&quot;</span>, Duration::hours(<span class="number">1</span>)),
+                    Choice::new(<span class="string">&quot;+30m&quot;</span>, Duration::minutes(<span class="number">30</span>)),
+                    Choice::new(<span class="string">&quot;+10m&quot;</span>, Duration::minutes(<span class="number">10</span>)),
+                    Choice::new(<span class="string">&quot;+0.1s&quot;</span>, Duration::seconds(<span class="number">0.1</span>)),
                 ],
             )
-            .<span class="ident">margin_right</span>(<span class="number">16</span>),
+            .margin_right(<span class="number">16</span>),
         );
 
-        <span class="ident">row</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::B</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to specific time&quot;</span>),
+        row.push(
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/speed/jump_to_time.svg&quot;</span>)
+                .hotkey(Key::B)
+                .build_widget(ctx, <span class="string">&quot;jump to specific time&quot;</span>),
         );
 
-        <span class="ident">row</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/reset.svg&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::X</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;reset to midnight&quot;</span>),
+        row.push(
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/speed/reset.svg&quot;</span>)
+                .hotkey(Key::X)
+                .build_widget(ctx, <span class="string">&quot;reset to midnight&quot;</span>),
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="self">self</span>.<span class="ident">create_time_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>).<span class="ident">named</span>(<span class="string">&quot;time&quot;</span>),
-            <span class="ident">Widget::custom_row</span>(<span class="ident">row</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            <span class="self">self</span>.create_time_panel(ctx, app).named(<span class="string">&quot;time&quot;</span>),
+            Widget::custom_row(row),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Top</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">h</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">override_height</span> {
-            <span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dims_height</span>(<span class="ident">PanelDims::ExactPixels</span>(<span class="ident">h</span>));
+        .aligned(HorizontalAlignment::Left, VerticalAlignment::Top);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(h) = <span class="self">self</span>.override_height {
+            panel = panel.dims_height(PanelDims::ExactPixels(h));
         }
-        <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.panel = panel.build(ctx);
     }
 
-    <span class="kw">fn</span> <span class="ident">trips_completion_bar</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">text_color</span> <span class="op">=</span> <span class="ident">Color::WHITE</span>;
-        <span class="kw">let</span> <span class="ident">bar_fg</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">primary_fg</span>;
-        <span class="kw">let</span> <span class="ident">bar_bg</span> <span class="op">=</span> <span class="ident">bar_fg</span>.<span class="ident">tint</span>(<span class="number">0.6</span>).<span class="ident">shade</span>(<span class="number">0.2</span>);
-        <span class="kw">let</span> <span class="ident">cursor_fg</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#939393&quot;</span>);
+    <span class="kw">fn </span>trips_completion_bar(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">let </span>text_color = Color::WHITE;
+        <span class="kw">let </span>bar_fg = ctx.style().primary_fg;
+        <span class="kw">let </span>bar_bg = bar_fg.tint(<span class="number">0.6</span>).shade(<span class="number">0.2</span>);
+        <span class="kw">let </span>cursor_fg = Color::hex(<span class="string">&quot;#939393&quot;</span>);
 
-        <span class="comment">// This is manually tuned</span>
-        <span class="kw">let</span> <span class="ident">bar_width</span> <span class="op">=</span> <span class="number">400.0</span>;
-        <span class="kw">let</span> <span class="ident">bar_height</span> <span class="op">=</span> <span class="number">27.0</span>;
+        <span class="comment">// This is manually tuned
+        </span><span class="kw">let </span>bar_width = <span class="number">400.0</span>;
+        <span class="kw">let </span>bar_height = <span class="number">27.0</span>;
 
-        <span class="kw">let</span> (<span class="ident">finished</span>, <span class="ident">unfinished</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_trips</span>();
-        <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">finished</span> <span class="op">+</span> <span class="ident">unfinished</span>;
-        <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">total</span> <span class="op">&gt;</span> <span class="number">0</span> {
-            <span class="ident">finished</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">total</span> <span class="kw">as</span> <span class="ident">f64</span>
-        } <span class="kw">else</span> {
-            <span class="number">0.0</span>
-        };
-        <span class="kw">let</span> <span class="ident">finished_width</span> <span class="op">=</span> <span class="ident">ratio</span> <span class="op">*</span> <span class="ident">bar_width</span>;
+        <span class="kw">let </span>(finished, unfinished) = app.primary.sim.num_trips();
+        <span class="kw">let </span>total = finished + unfinished;
+        <span class="kw">let </span>ratio = <span class="kw">if </span>total &gt; <span class="number">0 </span>{
+            finished <span class="kw">as </span>f64 / total <span class="kw">as </span>f64
+        } <span class="kw">else </span>{
+            <span class="number">0.0
+        </span>};
+        <span class="kw">let </span>finished_width = ratio * bar_width;
 
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
-            <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">baseline_finished</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">baseline_finished_trips</span>.<span class="ident">unwrap_or</span>(<span class="number">0</span>);
-            <span class="kw">for</span> (<span class="ident">t</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trips</span>[<span class="ident">baseline_finished</span>..] {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+        <span class="kw">if </span>app.has_prebaked().is_some() {
+            <span class="kw">let </span>now = <span class="self">self</span>.time;
+            <span class="kw">let </span><span class="kw-2">mut </span>baseline_finished = <span class="self">self</span>.baseline_finished_trips.unwrap_or(<span class="number">0</span>);
+            <span class="kw">for </span>(t, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span>app.prebaked().finished_trips[baseline_finished..] {
+                <span class="kw">if </span><span class="kw-2">*</span>t &gt; now {
                     <span class="kw">break</span>;
                 }
-                <span class="ident">baseline_finished</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                baseline_finished += <span class="number">1</span>;
             }
-            <span class="comment">// memoized for perf.</span>
-            <span class="comment">// A bit of profiling shows we save about 0.7% of runtime</span>
-            <span class="comment">// (using montlake, zoomed out, at max speed)</span>
-            <span class="self">self</span>.<span class="ident">baseline_finished_trips</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished</span>);
+            <span class="comment">// memoized for perf.
+            // A bit of profiling shows we save about 0.7% of runtime
+            // (using montlake, zoomed out, at max speed)
+            </span><span class="self">self</span>.baseline_finished_trips = <span class="prelude-val">Some</span>(baseline_finished);
         }
 
-        <span class="kw">let</span> <span class="ident">baseline_finished_ratio</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">baseline_finished_trips</span>.<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">baseline_finished</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">unfinished</span> <span class="op">+</span> <span class="ident">baseline_finished</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">baseline_finished</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> (<span class="ident">baseline_finished</span> <span class="op">+</span> <span class="ident">unfinished</span>) <span class="kw">as</span> <span class="ident">f64</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+        <span class="kw">let </span>baseline_finished_ratio: <span class="prelude-ty">Option</span>&lt;f64&gt; =
+            <span class="self">self</span>.baseline_finished_trips.and_then(|baseline_finished| {
+                <span class="kw">if </span>unfinished + baseline_finished &gt; <span class="number">0 </span>{
+                    <span class="prelude-val">Some</span>(baseline_finished <span class="kw">as </span>f64 / (baseline_finished + unfinished) <span class="kw">as </span>f64)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             });
-        <span class="kw">let</span> <span class="ident">baseline_finished_width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">baseline_finished_ratio</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">baseline_finished_ratio</span><span class="op">|</span> <span class="ident">baseline_finished_ratio</span> <span class="op">*</span> <span class="ident">bar_width</span>);
+        <span class="kw">let </span>baseline_finished_width: <span class="prelude-ty">Option</span>&lt;f64&gt; = baseline_finished_ratio
+            .map(|baseline_finished_ratio| baseline_finished_ratio * bar_width);
 
-        <span class="kw">let</span> <span class="ident">cursor_width</span> <span class="op">=</span> <span class="number">2.0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">progress_bar</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let </span>cursor_width = <span class="number">2.0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>progress_bar = GeomBatch::new();
 
         {
-            <span class="comment">// TODO Why is the rounding so hard? The white background is always rounded</span>
-            <span class="comment">// at both ends. The moving bar should always be rounded on the left, flat</span>
-            <span class="comment">// on the right, except at the very end (for the last &#39;radius&#39; pixels). And</span>
-            <span class="comment">// when the width is too small for the radius, this messes up.</span>
-            <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">bar_bg</span>, <span class="ident">Polygon::rectangle</span>(<span class="ident">bar_width</span>, <span class="ident">bar_height</span>));
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">Polygon::maybe_rectangle</span>(<span class="ident">finished_width</span>, <span class="ident">bar_height</span>) {
-                <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">bar_fg</span>, <span class="ident">p</span>);
+            <span class="comment">// TODO Why is the rounding so hard? The white background is always rounded
+            // at both ends. The moving bar should always be rounded on the left, flat
+            // on the right, except at the very end (for the last &#39;radius&#39; pixels). And
+            // when the width is too small for the radius, this messes up.
+            </span>progress_bar.push(bar_bg, Polygon::rectangle(bar_width, bar_height));
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = Polygon::maybe_rectangle(finished_width, bar_height) {
+                progress_bar.push(bar_fg, p);
             }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished_width</span>) <span class="op">=</span> <span class="ident">baseline_finished_width</span> {
-                <span class="kw">if</span> <span class="ident">baseline_finished_width</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
-                    <span class="kw">let</span> <span class="ident">baseline_cursor</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">cursor_width</span>, <span class="ident">bar_height</span>)
-                        .<span class="ident">translate</span>(<span class="ident">baseline_finished_width</span>, <span class="number">0.0</span>);
-                    <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">cursor_fg</span>, <span class="ident">baseline_cursor</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(baseline_finished_width) = baseline_finished_width {
+                <span class="kw">if </span>baseline_finished_width &gt; <span class="number">0.0 </span>{
+                    <span class="kw">let </span>baseline_cursor = Polygon::rectangle(cursor_width, bar_height)
+                        .translate(baseline_finished_width, <span class="number">0.0</span>);
+                    progress_bar.push(cursor_fg, baseline_cursor);
                 }
             }
         }
 
-        <span class="kw">let</span> <span class="ident">text_geom</span> <span class="op">=</span> <span class="ident">Text::from</span>(
-            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Finished Trips: {}&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>))).<span class="ident">fg</span>(<span class="ident">text_color</span>),
+        <span class="kw">let </span>text_geom = Text::from(
+            Line(<span class="macro">format!</span>(<span class="string">&quot;Finished Trips: {}&quot;</span>, prettyprint_usize(finished))).fg(text_color),
         )
-        .<span class="ident">render</span>(<span class="ident">ctx</span>)
-        .<span class="ident">translate</span>(<span class="number">8.0</span>, <span class="number">0.0</span>);
-        <span class="ident">progress_bar</span>.<span class="ident">append</span>(<span class="ident">text_geom</span>);
+        .render(ctx)
+        .translate(<span class="number">8.0</span>, <span class="number">0.0</span>);
+        progress_bar.append(text_geom);
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished_width</span>) <span class="op">=</span> <span class="ident">baseline_finished_width</span> {
-            <span class="kw">let</span> <span class="ident">triangle_width</span> <span class="op">=</span> <span class="number">9.0</span>;
-            <span class="kw">let</span> <span class="ident">triangle_height</span> <span class="op">=</span> <span class="number">9.0</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(baseline_finished_width) = baseline_finished_width {
+            <span class="kw">let </span>triangle_width = <span class="number">9.0</span>;
+            <span class="kw">let </span>triangle_height = <span class="number">9.0</span>;
 
-            <span class="comment">// Add a triangle-shaped cursor above the baseline cursor</span>
-            <span class="ident">progress_bar</span> <span class="op">=</span> <span class="ident">progress_bar</span>.<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="ident">triangle_height</span>);
+            <span class="comment">// Add a triangle-shaped cursor above the baseline cursor
+            </span>progress_bar = progress_bar.translate(<span class="number">0.0</span>, triangle_height);
 
-            <span class="kw">let</span> <span class="ident">triangle</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="macro">vec!</span>[
-                <span class="ident">Pt2D::zero</span>(),
-                <span class="ident">Pt2D::new</span>(<span class="ident">triangle_width</span>, <span class="number">0.0</span>),
-                <span class="ident">Pt2D::new</span>(<span class="ident">triangle_width</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="ident">triangle_height</span>),
-                <span class="ident">Pt2D::zero</span>(),
+            <span class="kw">let </span>triangle = Ring::must_new(<span class="macro">vec!</span>[
+                Pt2D::zero(),
+                Pt2D::new(triangle_width, <span class="number">0.0</span>),
+                Pt2D::new(triangle_width / <span class="number">2.0</span>, triangle_height),
+                Pt2D::zero(),
             ])
-            .<span class="ident">into_polygon</span>()
-            .<span class="ident">translate</span>(
-                <span class="ident">baseline_finished_width</span> <span class="op">-</span> <span class="ident">triangle_width</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">+</span> <span class="ident">cursor_width</span> <span class="op">/</span> <span class="number">2.0</span>,
+            .into_polygon()
+            .translate(
+                baseline_finished_width - triangle_width / <span class="number">2.0 </span>+ cursor_width / <span class="number">2.0</span>,
                 <span class="number">0.0</span>,
             );
-            <span class="ident">progress_bar</span>.<span class="ident">push</span>(<span class="ident">cursor_fg</span>, <span class="ident">triangle</span>);
+            progress_bar.push(cursor_fg, triangle);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tooltip_text</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Finished Trips&quot;</span>);
-        <span class="ident">tooltip_text</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+        <span class="kw">let </span><span class="kw-2">mut </span>tooltip_text = Text::from(<span class="string">&quot;Finished Trips&quot;</span>);
+        tooltip_text.add_line(<span class="macro">format!</span>(
             <span class="string">&quot;{} ({}% of total)&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>),
-            (<span class="ident">ratio</span> <span class="op">*</span> <span class="number">100.0</span>) <span class="kw">as</span> <span class="ident">usize</span>
+            prettyprint_usize(finished),
+            (ratio * <span class="number">100.0</span>) <span class="kw">as </span>usize
         ));
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">baseline_finished</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">baseline_finished_trips</span> {
-            <span class="comment">// TODO: up/down icons</span>
-            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">baseline_finished</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">finished</span>) {
-                <span class="ident">std::cmp::Ordering::Greater</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">difference</span> <span class="op">=</span> <span class="ident">baseline_finished</span> <span class="op">-</span> <span class="ident">finished</span>;
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(baseline_finished) = <span class="self">self</span>.baseline_finished_trips {
+            <span class="comment">// TODO: up/down icons
+            </span><span class="kw">let </span>line = <span class="kw">match </span>baseline_finished.cmp(<span class="kw-2">&amp;</span>finished) {
+                std::cmp::Ordering::Greater =&gt; {
+                    <span class="kw">let </span>difference = baseline_finished - finished;
+                    Line(<span class="macro">format!</span>(
                         <span class="string">&quot;{} less than baseline&quot;</span>,
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">difference</span>)
+                        prettyprint_usize(difference)
                     ))
-                    .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_destructive_color</span>)
+                    .fg(ctx.style().text_destructive_color)
                 }
-                <span class="ident">std::cmp::Ordering::Less</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">difference</span> <span class="op">=</span> <span class="ident">finished</span> <span class="op">-</span> <span class="ident">baseline_finished</span>;
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(
+                std::cmp::Ordering::Less =&gt; {
+                    <span class="kw">let </span>difference = finished - baseline_finished;
+                    Line(<span class="macro">format!</span>(
                         <span class="string">&quot;{} more than baseline&quot;</span>,
-                        <span class="ident">prettyprint_usize</span>(<span class="ident">difference</span>)
+                        prettyprint_usize(difference)
                     ))
-                    .<span class="ident">fg</span>(<span class="ident">Color::GREEN</span>)
+                    .fg(Color::GREEN)
                 }
-                <span class="ident">std::cmp::Ordering::Equal</span> =&gt; <span class="ident">Line</span>(<span class="string">&quot;No change from baseline&quot;</span>),
+                std::cmp::Ordering::Equal =&gt; Line(<span class="string">&quot;No change from baseline&quot;</span>),
             };
-            <span class="ident">tooltip_text</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
+            tooltip_text.add_line(line);
         }
 
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">progress_bar</span>.<span class="ident">get_bounds</span>();
-        <span class="kw">let</span> <span class="ident">bounding_box</span> <span class="op">=</span> <span class="ident">Polygon::rectangle</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>());
-        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="ident">bounding_box</span>, <span class="ident">tooltip_text</span>, <span class="prelude-val">None</span>)];
-        <span class="ident">DrawWithTooltips::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">progress_bar</span>, <span class="ident">tooltip</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">GeomBatch::new</span>()))
+        <span class="kw">let </span>bounds = progress_bar.get_bounds();
+        <span class="kw">let </span>bounding_box = Polygon::rectangle(bounds.width(), bounds.height());
+        <span class="kw">let </span>tooltip = <span class="macro">vec!</span>[(bounding_box, tooltip_text, <span class="prelude-val">None</span>)];
+        DrawWithTooltips::new_widget(ctx, progress_bar, tooltip, Box::new(|<span class="kw">_</span>| GeomBatch::new()))
     }
 
-    <span class="kw">fn</span> <span class="ident">create_time_panel</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">trips_bar</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips_completion_bar</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>create_time_panel(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">let </span>trips_bar = <span class="self">self</span>.trips_completion_bar(ctx, app);
 
-        <span class="comment">// TODO This likely fits better in the top center panel, but no easy way to squeeze it</span>
-        <span class="comment">// into the panel for all gameplay modes</span>
-        <span class="kw">let</span> <span class="ident">record_trips</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_recorded_trips</span>() {
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-                    <span class="ident">Color::RED</span>,
-                    <span class="ident">Circle::new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Distance::meters</span>(<span class="number">10.0</span>)).<span class="ident">to_polygon</span>(),
+        <span class="comment">// TODO This likely fits better in the top center panel, but no easy way to squeeze it
+        // into the panel for all gameplay modes
+        </span><span class="kw">let </span>record_trips = <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = app.primary.sim.num_recorded_trips() {
+            Widget::row(<span class="macro">vec!</span>[
+                GeomBatch::from(<span class="macro">vec!</span>[(
+                    Color::RED,
+                    Circle::new(Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>), Distance::meters(<span class="number">10.0</span>)).to_polygon(),
                 )])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>(),
-                <span class="macro">format!</span>(<span class="string">&quot;{} trips captured&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">n</span>)).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Finish Capture&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">align_right</span>(),
+                .into_widget(ctx)
+                .centered_vert(),
+                <span class="macro">format!</span>(<span class="string">&quot;{} trips captured&quot;</span>, prettyprint_usize(n)).text_widget(ctx),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="string">&quot;Finish Capture&quot;</span>)
+                    .build_def(ctx)
+                    .align_right(),
             ])
-        } <span class="kw">else</span> {
-            <span class="ident">Widget::nothing</span>()
+        } <span class="kw">else </span>{
+            Widget::nothing()
         };
 
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="self">self</span>.<span class="ident">time</span>.<span class="ident">ampm_tostring</span>()).<span class="ident">big_monospaced</span>()).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">trips_bar</span>.<span class="ident">margin_above</span>(<span class="number">12</span>),
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> {
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;see why results are tentative&quot;</span>)
-                    .<span class="ident">centered_vert</span>()
-                    .<span class="ident">align_right</span>()
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::nothing</span>()
+        Widget::col(<span class="macro">vec!</span>[
+            Text::from(Line(<span class="self">self</span>.time.ampm_tostring()).big_monospaced()).into_widget(ctx),
+            trips_bar.margin_above(<span class="number">12</span>),
+            <span class="kw">if </span>app.primary.dirty_from_edits {
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/warning.svg&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;see why results are tentative&quot;</span>)
+                    .centered_vert()
+                    .align_right()
+            } <span class="kw">else </span>{
+                Widget::nothing()
             },
-            <span class="ident">record_trips</span>,
+            record_trips,
         ])
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">maybe_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GameplayMode</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() {
-            <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>();
-            <span class="kw">let</span> <span class="ident">time</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">create_time_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;time&quot;</span>, <span class="ident">time</span>);
+    <span class="kw">pub fn </span>event(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        maybe_mode: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>GameplayMode&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="kw">if </span><span class="self">self</span>.time != app.primary.sim.time() {
+            <span class="self">self</span>.time = app.primary.sim.time();
+            <span class="kw">let </span>time = <span class="self">self</span>.create_time_panel(ctx, app);
+            <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;time&quot;</span>, time);
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;real-time speed&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Realtime</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;real-time speed&quot; </span>=&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Realtime;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;5x speed&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fast</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="string">&quot;5x speed&quot; </span>=&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Fast;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;30x speed&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Faster</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="string">&quot;30x speed&quot; </span>=&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Faster;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;3600x speed&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fastest</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="string">&quot;3600x speed&quot; </span>=&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Fastest;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;play&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="string">&quot;play&quot; </span>=&gt; {
+                    <span class="self">self</span>.paused = <span class="bool-val">false</span>;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
+                    <span class="kw">return </span><span class="prelude-val">None</span>;
                 }
-                <span class="string">&quot;pause&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="string">&quot;pause&quot; </span>=&gt; {
+                    <span class="self">self</span>.pause(ctx, app);
                 }
-                <span class="string">&quot;reset to midnight&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">mode</span>) <span class="op">=</span> <span class="ident">maybe_mode</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::simple_new</span>(
-                            <span class="ident">app</span>,
-                            <span class="ident">mode</span>.<span class="ident">clone</span>(),
+                <span class="string">&quot;reset to midnight&quot; </span>=&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(mode) = maybe_mode {
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Replace(SandboxMode::simple_new(
+                            app,
+                            mode.clone(),
                         )));
-                    } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                            <span class="ident">ctx</span>,
+                    } <span class="kw">else </span>{
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(
+                            ctx,
                             <span class="string">&quot;Error&quot;</span>,
                             <span class="macro">vec!</span>[<span class="string">&quot;Sorry, you can&#39;t go rewind time from this mode.&quot;</span>],
                         )));
                     }
                 }
-                <span class="string">&quot;jump to specific time&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">JumpToTime::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">maybe_mode</span>.<span class="ident">cloned</span>(),
+                <span class="string">&quot;jump to specific time&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(JumpToTime::new_state(
+                        ctx,
+                        app,
+                        maybe_mode.cloned(),
                     )));
                 }
-                <span class="string">&quot;step forwards&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;step forwards&quot;</span>);
-                    <span class="kw">if</span> <span class="ident">dt</span> <span class="op">==</span> <span class="ident">Duration::seconds</span>(<span class="number">0.1</span>) {
-                        <span class="ident">app</span>.<span class="ident">primary</span>
-                            .<span class="ident">sim</span>
-                            .<span class="ident">tiny_step</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>);
-                        <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::KeepWithMouseover</span>);
+                <span class="string">&quot;step forwards&quot; </span>=&gt; {
+                    <span class="kw">let </span>dt = <span class="self">self</span>.panel.persistent_split_value(<span class="string">&quot;step forwards&quot;</span>);
+                    <span class="kw">if </span>dt == Duration::seconds(<span class="number">0.1</span>) {
+                        app.primary
+                            .sim
+                            .tiny_step(<span class="kw-2">&amp;</span>app.primary.map, <span class="kw-2">&amp;mut </span>app.primary.sim_cb);
+                        app.recalculate_current_selection(ctx);
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::KeepWithMouseover);
                     }
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">TimeWarpScreen::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">+</span> <span class="ident">dt</span>,
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(TimeWarpScreen::new_state(
+                        ctx,
+                        app,
+                        app.primary.sim.time() + dt,
                         <span class="prelude-val">None</span>,
                     )));
                 }
-                <span class="string">&quot;see why results are tentative&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                        <span class="ident">ctx</span>,
+                <span class="string">&quot;see why results are tentative&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(PopupMsg::new_state(
+                        ctx,
                         <span class="string">&quot;Simulation results not finalized&quot;</span>,
                         <span class="macro">vec!</span>[
                             <span class="string">&quot;You edited the map in the middle of the day.&quot;</span>,
@@ -990,145 +990,145 @@
                         ],
                     )));
                 }
-                <span class="string">&quot;Finish Capture&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">save_recorded_traffic</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>);
+                <span class="string">&quot;Finish Capture&quot; </span>=&gt; {
+                    app.primary.sim.save_recorded_traffic(<span class="kw-2">&amp;</span>app.primary.map);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;step forwards&quot;</span> {
-                    <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">time_increment</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;step forwards&quot;</span>);
+            Outcome::Changed(x) =&gt; {
+                <span class="kw">if </span>x == <span class="string">&quot;step forwards&quot; </span>{
+                    app.opts.time_increment = <span class="self">self</span>.panel.persistent_split_value(<span class="string">&quot;step forwards&quot;</span>);
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::LeftArrow</span>) {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                <span class="ident">SpeedSetting::Realtime</span> =&gt; <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-                <span class="ident">SpeedSetting::Fast</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Realtime</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if </span>ctx.input.pressed(Key::LeftArrow) {
+            <span class="kw">match </span><span class="self">self</span>.setting {
+                SpeedSetting::Realtime =&gt; <span class="self">self</span>.pause(ctx, app),
+                SpeedSetting::Fast =&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Realtime;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
                 }
-                <span class="ident">SpeedSetting::Faster</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fast</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                SpeedSetting::Faster =&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Fast;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
                 }
-                <span class="ident">SpeedSetting::Fastest</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Faster</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                SpeedSetting::Fastest =&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Faster;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">Key::RightArrow</span>) {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                <span class="ident">SpeedSetting::Realtime</span> =&gt; {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> {
-                        <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    } <span class="kw">else</span> {
-                        <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fast</span>;
+        <span class="kw">if </span>ctx.input.pressed(Key::RightArrow) {
+            <span class="kw">match </span><span class="self">self</span>.setting {
+                SpeedSetting::Realtime =&gt; {
+                    <span class="kw">if </span><span class="self">self</span>.paused {
+                        <span class="self">self</span>.paused = <span class="bool-val">false</span>;
+                    } <span class="kw">else </span>{
+                        <span class="self">self</span>.setting = SpeedSetting::Fast;
                     }
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                    <span class="self">self</span>.recreate_panel(ctx, app);
                 }
-                <span class="ident">SpeedSetting::Fast</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Faster</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                SpeedSetting::Fast =&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Faster;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
                 }
-                <span class="ident">SpeedSetting::Faster</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">SpeedSetting::Fastest</span>;
-                    <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                SpeedSetting::Faster =&gt; {
+                    <span class="self">self</span>.setting = SpeedSetting::Fastest;
+                    <span class="self">self</span>.recreate_panel(ctx, app);
                 }
-                <span class="ident">SpeedSetting::Fastest</span> =&gt; {}
+                SpeedSetting::Fastest =&gt; {}
             }
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">paused</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">real_dt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">nonblocking_is_update_event</span>() {
-                <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">use_update_event</span>();
-                <span class="kw">let</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">setting</span> {
-                    <span class="ident">SpeedSetting::Realtime</span> =&gt; <span class="number">1.0</span>,
-                    <span class="ident">SpeedSetting::Fast</span> =&gt; <span class="number">5.0</span>,
-                    <span class="ident">SpeedSetting::Faster</span> =&gt; <span class="number">30.0</span>,
-                    <span class="ident">SpeedSetting::Fastest</span> =&gt; <span class="number">3600.0</span>,
+        <span class="kw">if </span>!<span class="self">self</span>.paused {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(real_dt) = ctx.input.nonblocking_is_update_event() {
+                ctx.input.use_update_event();
+                <span class="kw">let </span>multiplier = <span class="kw">match </span><span class="self">self</span>.setting {
+                    SpeedSetting::Realtime =&gt; <span class="number">1.0</span>,
+                    SpeedSetting::Fast =&gt; <span class="number">5.0</span>,
+                    SpeedSetting::Faster =&gt; <span class="number">30.0</span>,
+                    SpeedSetting::Fastest =&gt; <span class="number">3600.0</span>,
                 };
-                <span class="kw">let</span> <span class="ident">dt</span> <span class="op">=</span> <span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">real_dt</span>;
-                <span class="comment">// TODO This should match the update frequency in widgetry. Plumb along the deadline</span>
-                <span class="comment">// or frequency to here.</span>
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time_limited_step</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>,
-                    <span class="ident">dt</span>,
-                    <span class="ident">Duration::seconds</span>(<span class="number">0.033</span>),
-                    <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>,
+                <span class="kw">let </span>dt = multiplier * real_dt;
+                <span class="comment">// TODO This should match the update frequency in widgetry. Plumb along the deadline
+                // or frequency to here.
+                </span>app.primary.sim.time_limited_step(
+                    <span class="kw-2">&amp;</span>app.primary.map,
+                    dt,
+                    Duration::seconds(<span class="number">0.033</span>),
+                    <span class="kw-2">&amp;mut </span>app.primary.sim_cb,
                 );
-                <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
+                app.recalculate_current_selection(ctx);
             }
         }
 
-        <span class="comment">// TODO Need to do this anywhere that steps the sim, like TimeWarpScreen.</span>
-        <span class="kw">let</span> <span class="ident">alerts</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">clear_alerts</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">alerts</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="ident">popup</span> <span class="op">=</span> <span class="ident">PopupMsg::new_state</span>(
-                <span class="ident">ctx</span>,
+        <span class="comment">// TODO Need to do this anywhere that steps the sim, like TimeWarpScreen.
+        </span><span class="kw">let </span>alerts = app.primary.sim.clear_alerts();
+        <span class="kw">if </span>!alerts.is_empty() {
+            <span class="kw">let </span>popup = PopupMsg::new_state(
+                ctx,
                 <span class="string">&quot;Alerts&quot;</span>,
-                <span class="ident">alerts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">msg</span>)<span class="op">|</span> <span class="ident">msg</span>).<span class="ident">collect</span>(),
+                alerts.iter().map(|(<span class="kw">_</span>, <span class="kw">_</span>, msg)| msg).collect(),
             );
-            <span class="kw">let</span> <span class="ident">maybe_id</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">alerts</span>[<span class="number">0</span>].<span class="number">1</span> {
-                <span class="ident">AlertLocation::Nil</span> =&gt; <span class="prelude-val">None</span>,
-                <span class="ident">AlertLocation::Intersection</span>(<span class="ident">i</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)),
-                <span class="comment">// TODO Open info panel and warp to them</span>
-                <span class="ident">AlertLocation::Person</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-                <span class="ident">AlertLocation::Building</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">ID::Building</span>(<span class="ident">b</span>)),
+            <span class="kw">let </span>maybe_id = <span class="kw">match </span>alerts[<span class="number">0</span>].<span class="number">1 </span>{
+                AlertLocation::Nil =&gt; <span class="prelude-val">None</span>,
+                AlertLocation::Intersection(i) =&gt; <span class="prelude-val">Some</span>(ID::Intersection(i)),
+                <span class="comment">// TODO Open info panel and warp to them
+                </span>AlertLocation::Person(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+                AlertLocation::Building(b) =&gt; <span class="prelude-val">Some</span>(ID::Building(b)),
             };
-            <span class="comment">// TODO Can filter for particular alerts places like this:</span>
-            <span class="comment">/*if !alerts[0].2.contains(&quot;Turn conflict cycle&quot;) {
+            <span class="comment">// TODO Can filter for particular alerts places like this:
+            /*if !alerts[0].2.contains(&quot;Turn conflict cycle&quot;) {
                 return None;
-            }*/</span>
-            <span class="comment">/*if maybe_id != Some(ID::Building(map_model::BuildingID(91))) {
+            }*/
+            /*if maybe_id != Some(ID::Building(map_model::BuildingID(91))) {
                 return None;
-            }*/</span>
-            <span class="self">self</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">maybe_id</span> {
-                <span class="comment">// Just go to the first one, but print all messages</span>
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Push</span>(<span class="ident">popup</span>),
-                    <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>(),
+            }*/
+            </span><span class="self">self</span>.pause(ctx, app);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = maybe_id {
+                <span class="comment">// Just go to the first one, but print all messages
+                </span><span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Push(popup),
+                    Transition::Push(Warping::new_state(
+                        ctx,
+                        app.primary.canonical_point(id).unwrap(),
                         <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
                         <span class="prelude-val">None</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                        <span class="kw-2">&amp;mut </span>app.primary,
                     )),
                 ]));
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">popup</span>));
+            } <span class="kw">else </span>{
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(popup));
             }
         }
 
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="self">self</span>.panel.draw(g);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pause</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">paused</span> {
-            <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="kw">pub fn </span>pause(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if </span>!<span class="self">self</span>.paused {
+            <span class="self">self</span>.paused = <span class="bool-val">true</span>;
+            <span class="self">self</span>.recreate_panel(ctx, app);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">resume</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">setting</span>: <span class="ident">SpeedSetting</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">paused</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">setting</span> <span class="op">!</span><span class="op">=</span> <span class="ident">setting</span> {
-            <span class="self">self</span>.<span class="ident">paused</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="self">self</span>.<span class="ident">setting</span> <span class="op">=</span> <span class="ident">setting</span>;
-            <span class="self">self</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="kw">pub fn </span>resume(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, setting: SpeedSetting) {
+        <span class="kw">if </span><span class="self">self</span>.paused || <span class="self">self</span>.setting != setting {
+            <span class="self">self</span>.paused = <span class="bool-val">false</span>;
+            <span class="self">self</span>.setting = setting;
+            <span class="self">self</span>.recreate_panel(ctx, app);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">paused</span>
+    <span class="kw">pub fn </span>is_paused(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.paused
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/router.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>router.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/router.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>router.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -499,506 +499,506 @@
 <span id="499">499</span>
 <span id="500">500</span>
 <span id="501">501</span>
-</pre><pre class="rust"><code><span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically</span>
-<span class="doccomment">//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! For vehicles only, not pedestrians. Follows a Path from map_model, but can opportunistically
+//! lane-change to avoid a slow lane, can can handle re-planning to look for available parking.
 
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</span><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>,
-    <span class="ident">Position</span>, <span class="ident">Traversable</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>,
+<span class="kw">use </span>geom::Distance;
+<span class="kw">use </span>map_model::{
+    BuildingID, IntersectionID, LaneID, Map, Path, PathConstraints, PathRequest, PathStep,
+    Position, Traversable, Turn, TurnID,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mechanics::Queue</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Event</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PersonID</span>, <span class="ident">SidewalkSpot</span>,
-    <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>, <span class="ident">Vehicle</span>, <span class="ident">VehicleType</span>,
+<span class="kw">use </span><span class="kw">crate</span>::mechanics::Queue;
+<span class="kw">use crate</span>::{
+    AlertLocation, CarID, Event, ParkingSim, ParkingSimState, ParkingSpot, PersonID, SidewalkSpot,
+    TripID, TripPhaseType, Vehicle, VehicleType,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">Router</span> {
-    <span class="doccomment">/// Front is always the current step</span>
-    <span class="ident">path</span>: <span class="ident">Path</span>,
-    <span class="ident">goal</span>: <span class="ident">Goal</span>,
-    <span class="ident">owner</span>: <span class="ident">CarID</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>Router {
+    <span class="doccomment">/// Front is always the current step
+    </span>path: Path,
+    goal: Goal,
+    owner: CarID,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">ActionAtEnd</span> {
-    <span class="ident">VanishAtBorder</span>(<span class="ident">IntersectionID</span>),
-    <span class="ident">StartParking</span>(<span class="ident">ParkingSpot</span>),
-    <span class="ident">GotoLaneEnd</span>,
-    <span class="ident">StopBiking</span>(<span class="ident">SidewalkSpot</span>),
-    <span class="ident">BusAtStop</span>,
-    <span class="ident">GiveUpOnParking</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>ActionAtEnd {
+    VanishAtBorder(IntersectionID),
+    StartParking(ParkingSpot),
+    GotoLaneEnd,
+    StopBiking(SidewalkSpot),
+    BusAtStop,
+    GiveUpOnParking,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Goal</span> {
-    <span class="doccomment">/// Spot and cached distance along the last driving lane</span>
-    <span class="ident">ParkNearBuilding</span> {
-        <span class="ident">target</span>: <span class="ident">BuildingID</span>,
-        <span class="ident">spot</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">ParkingSpot</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
-        <span class="doccomment">/// No parking available at all!</span>
-        <span class="ident">stuck_end_dist</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>,
-        <span class="ident">started_looking</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+</span><span class="kw">enum </span>Goal {
+    <span class="doccomment">/// Spot and cached distance along the last driving lane
+    </span>ParkNearBuilding {
+        target: BuildingID,
+        spot: <span class="prelude-ty">Option</span>&lt;(ParkingSpot, Distance)&gt;,
+        <span class="doccomment">/// No parking available at all!
+        </span>stuck_end_dist: <span class="prelude-ty">Option</span>&lt;Distance&gt;,
+        started_looking: bool,
     },
-    <span class="ident">EndAtBorder</span> {
-        <span class="ident">end_dist</span>: <span class="ident">Distance</span>,
-        <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
+    EndAtBorder {
+        end_dist: Distance,
+        i: IntersectionID,
     },
-    <span class="ident">BikeThenStop</span> {
-        <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>,
+    BikeThenStop {
+        goal: SidewalkSpot,
     },
-    <span class="ident">FollowTransitRoute</span> {
-        <span class="ident">end_dist</span>: <span class="ident">Distance</span>,
+    FollowTransitRoute {
+        end_dist: Distance,
     },
 }
 
-<span class="kw">impl</span> <span class="ident">Router</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_at_border</span>(
-        <span class="ident">owner</span>: <span class="ident">CarID</span>,
-        <span class="ident">path</span>: <span class="ident">Path</span>,
-        <span class="ident">end_dist</span>: <span class="ident">Distance</span>,
-        <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    ) -&gt; <span class="ident">Router</span> {
-        <span class="ident">Router</span> {
-            <span class="ident">path</span>,
-            <span class="ident">goal</span>: <span class="ident">Goal::EndAtBorder</span> { <span class="ident">end_dist</span>, <span class="ident">i</span> },
-            <span class="ident">owner</span>,
+<span class="kw">impl </span>Router {
+    <span class="kw">pub fn </span>end_at_border(
+        owner: CarID,
+        path: Path,
+        end_dist: Distance,
+        i: IntersectionID,
+    ) -&gt; Router {
+        Router {
+            path,
+            goal: Goal::EndAtBorder { end_dist, i },
+            owner,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">park_near</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">bldg</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">Router</span> {
-        <span class="ident">Router</span> {
-            <span class="ident">path</span>,
-            <span class="ident">goal</span>: <span class="ident">Goal::ParkNearBuilding</span> {
-                <span class="ident">target</span>: <span class="ident">bldg</span>,
-                <span class="ident">spot</span>: <span class="prelude-val">None</span>,
-                <span class="ident">stuck_end_dist</span>: <span class="prelude-val">None</span>,
-                <span class="ident">started_looking</span>: <span class="bool-val">false</span>,
+    <span class="kw">pub fn </span>park_near(owner: CarID, path: Path, bldg: BuildingID) -&gt; Router {
+        Router {
+            path,
+            goal: Goal::ParkNearBuilding {
+                target: bldg,
+                spot: <span class="prelude-val">None</span>,
+                stuck_end_dist: <span class="prelude-val">None</span>,
+                started_looking: <span class="bool-val">false</span>,
             },
-            <span class="ident">owner</span>,
+            owner,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bike_then_stop</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>) -&gt; <span class="ident">Router</span> {
-        <span class="ident">Router</span> {
-            <span class="ident">goal</span>: <span class="ident">Goal::BikeThenStop</span> { <span class="ident">goal</span> },
-            <span class="ident">path</span>,
-            <span class="ident">owner</span>,
+    <span class="kw">pub fn </span>bike_then_stop(owner: CarID, path: Path, goal: SidewalkSpot) -&gt; Router {
+        Router {
+            goal: Goal::BikeThenStop { goal },
+            path,
+            owner,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">follow_bus_route</span>(<span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>) -&gt; <span class="ident">Router</span> {
-        <span class="ident">Router</span> {
-            <span class="ident">goal</span>: <span class="ident">Goal::FollowTransitRoute</span> {
-                <span class="ident">end_dist</span>: <span class="ident">path</span>.<span class="ident">get_req</span>().<span class="ident">end</span>.<span class="ident">dist_along</span>(),
+    <span class="kw">pub fn </span>follow_bus_route(owner: CarID, path: Path) -&gt; Router {
+        Router {
+            goal: Goal::FollowTransitRoute {
+                end_dist: path.get_req().end.dist_along(),
             },
-            <span class="ident">path</span>,
-            <span class="ident">owner</span>,
+            path,
+            owner,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">head</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Traversable</span> {
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>()
+    <span class="kw">pub fn </span>head(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Traversable {
+        <span class="self">self</span>.path.current_step().as_traversable()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Traversable</span> {
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">next_step</span>().<span class="ident">as_traversable</span>()
+    <span class="kw">pub fn </span>next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Traversable {
+        <span class="self">self</span>.path.next_step().as_traversable()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Traversable</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">maybe_next_step</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">as_traversable</span>())
+    <span class="kw">pub fn </span>maybe_next(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Traversable&gt; {
+        <span class="self">self</span>.path.maybe_next_step().map(|s| s.as_traversable())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">is_last_step</span>()
+    <span class="kw">pub fn </span>last_step(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.path.is_last_step()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_end_dist</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="comment">// Shouldn&#39;t ask earlier!</span>
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">last_step</span>());
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">Goal::EndAtBorder</span> { <span class="ident">end_dist</span>, .. } =&gt; <span class="ident">end_dist</span>,
-            <span class="ident">Goal::ParkNearBuilding</span> {
-                <span class="ident">spot</span>,
-                <span class="ident">stuck_end_dist</span>,
+    <span class="kw">pub fn </span>get_end_dist(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Distance {
+        <span class="comment">// Shouldn&#39;t ask earlier!
+        </span><span class="macro">assert!</span>(<span class="self">self</span>.last_step());
+        <span class="kw">match </span><span class="self">self</span>.goal {
+            Goal::EndAtBorder { end_dist, .. } =&gt; end_dist,
+            Goal::ParkNearBuilding {
+                spot,
+                stuck_end_dist,
                 ..
-            } =&gt; <span class="ident">stuck_end_dist</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">1</span>),
-            <span class="ident">Goal::BikeThenStop</span> { <span class="kw-2">ref</span> <span class="ident">goal</span> } =&gt; <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-            <span class="ident">Goal::FollowTransitRoute</span> { <span class="ident">end_dist</span> } =&gt; <span class="ident">end_dist</span>,
+            } =&gt; stuck_end_dist.unwrap_or_else(|| spot.unwrap().<span class="number">1</span>),
+            Goal::BikeThenStop { <span class="kw-2">ref </span>goal } =&gt; goal.sidewalk_pos.dist_along(),
+            Goal::FollowTransitRoute { end_dist } =&gt; end_dist,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Path</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">path</span>
+    <span class="kw">pub fn </span>get_path(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Path {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.path
     }
 
-    <span class="doccomment">/// Returns the step just finished</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">advance</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
-        <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="ident">ParkingSimState</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">trip_and_person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>,
-        <span class="ident">events</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Traversable</span> {
-        <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">shift</span>(<span class="ident">map</span>).<span class="ident">as_traversable</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">last_step</span>() {
-            <span class="comment">// Do this to trigger the side-effect of looking for parking.</span>
-            <span class="self">self</span>.<span class="ident">maybe_handle_end</span>(
-                <span class="ident">Distance::ZERO</span>,
-                <span class="ident">vehicle</span>,
-                <span class="ident">parking</span>,
-                <span class="ident">map</span>,
-                <span class="ident">trip_and_person</span>,
-                <span class="ident">events</span>,
+    <span class="doccomment">/// Returns the step just finished
+    </span><span class="kw">pub fn </span>advance(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        vehicle: <span class="kw-2">&amp;</span>Vehicle,
+        parking: <span class="kw-2">&amp;</span>ParkingSimState,
+        map: <span class="kw-2">&amp;</span>Map,
+        trip_and_person: <span class="prelude-ty">Option</span>&lt;(TripID, PersonID)&gt;,
+        events: <span class="kw-2">&amp;mut </span>Vec&lt;Event&gt;,
+    ) -&gt; Traversable {
+        <span class="kw">let </span>prev = <span class="self">self</span>.path.shift(map).as_traversable();
+        <span class="kw">if </span><span class="self">self</span>.last_step() {
+            <span class="comment">// Do this to trigger the side-effect of looking for parking.
+            </span><span class="self">self</span>.maybe_handle_end(
+                Distance::ZERO,
+                vehicle,
+                parking,
+                map,
+                trip_and_person,
+                events,
             );
         }
 
-        <span class="comment">// Sanity check laws haven&#39;t been broken</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">head</span>() {
-            <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">vehicle</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>().<span class="ident">can_use</span>(<span class="ident">lane</span>, <span class="ident">map</span>) {
+        <span class="comment">// Sanity check laws haven&#39;t been broken
+        </span><span class="kw">if let </span>Traversable::Lane(l) = <span class="self">self</span>.head() {
+            <span class="kw">let </span>lane = map.get_l(l);
+            <span class="kw">if </span>!vehicle.vehicle_type.to_constraints().can_use(lane, map) {
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;{} just wound up on {}, a {:?} (check the OSM tags)&quot;</span>,
-                    <span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">l</span>, <span class="ident">lane</span>.<span class="ident">lane_type</span>
+                    vehicle.id, l, lane.lane_type
                 );
             }
         }
 
-        <span class="ident">prev</span>
+        prev
     }
 
-    <span class="doccomment">/// Called when the car is Queued at the last step, or when they initially advance to the last</span>
-    <span class="doccomment">/// step.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_handle_end</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">front</span>: <span class="ident">Distance</span>,
-        <span class="ident">vehicle</span>: <span class="kw-2">&amp;</span><span class="ident">Vehicle</span>,
-        <span class="ident">parking</span>: <span class="kw-2">&amp;</span><span class="ident">ParkingSimState</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="comment">// TODO Not so nice to plumb all of this here</span>
-        <span class="ident">trip_and_person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>,
-        <span class="ident">events</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ActionAtEnd</span><span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">is_last_step</span>());
+    <span class="doccomment">/// Called when the car is Queued at the last step, or when they initially advance to the last
+    /// step.
+    </span><span class="kw">pub fn </span>maybe_handle_end(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        front: Distance,
+        vehicle: <span class="kw-2">&amp;</span>Vehicle,
+        parking: <span class="kw-2">&amp;</span>ParkingSimState,
+        map: <span class="kw-2">&amp;</span>Map,
+        <span class="comment">// TODO Not so nice to plumb all of this here
+        </span>trip_and_person: <span class="prelude-ty">Option</span>&lt;(TripID, PersonID)&gt;,
+        events: <span class="kw-2">&amp;mut </span>Vec&lt;Event&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;ActionAtEnd&gt; {
+        <span class="macro">assert!</span>(<span class="self">self</span>.path.is_last_step());
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">Goal::EndAtBorder</span> { <span class="ident">end_dist</span>, <span class="ident">i</span> } =&gt; {
-                <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">==</span> <span class="ident">front</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::VanishAtBorder</span>(<span class="ident">i</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+        <span class="kw">match </span><span class="self">self</span>.goal {
+            Goal::EndAtBorder { end_dist, i } =&gt; {
+                <span class="kw">if </span>end_dist == front {
+                    <span class="prelude-val">Some</span>(ActionAtEnd::VanishAtBorder(i))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
-            <span class="ident">Goal::ParkNearBuilding</span> {
-                <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">spot</span>,
-                <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">stuck_end_dist</span>,
-                <span class="ident">target</span>,
-                <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">started_looking</span>,
+            Goal::ParkNearBuilding {
+                <span class="kw-2">ref mut </span>spot,
+                <span class="kw-2">ref mut </span>stuck_end_dist,
+                target,
+                <span class="kw-2">ref mut </span>started_looking,
             } =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">stuck_end_dist</span> {
-                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">d</span> <span class="op">==</span> <span class="ident">front</span> {
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::GiveUpOnParking</span>);
-                    } <span class="kw">else</span> {
-                        <span class="kw">return</span> <span class="prelude-val">None</span>;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = stuck_end_dist {
+                    <span class="kw">if </span><span class="kw-2">*</span>d == front {
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(ActionAtEnd::GiveUpOnParking);
+                    } <span class="kw">else </span>{
+                        <span class="kw">return </span><span class="prelude-val">None</span>;
                     }
                 }
 
-                <span class="kw">let</span> <span class="ident">need_new_spot</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">spot</span> {
-                    <span class="prelude-val">Some</span>((<span class="ident">s</span>, <span class="kw">_</span>)) =&gt; <span class="op">!</span><span class="ident">parking</span>.<span class="ident">is_free</span>(<span class="kw-2">*</span><span class="ident">s</span>),
-                    <span class="prelude-val">None</span> =&gt; <span class="bool-val">true</span>,
+                <span class="kw">let </span>need_new_spot = <span class="kw">match </span>spot {
+                    <span class="prelude-val">Some</span>((s, <span class="kw">_</span>)) =&gt; !parking.is_free(<span class="kw-2">*</span>s),
+                    <span class="prelude-val">None </span>=&gt; <span class="bool-val">true</span>,
                 };
-                <span class="kw">if</span> <span class="ident">need_new_spot</span> {
-                    <span class="kw-2">*</span><span class="ident">started_looking</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="kw">let</span> <span class="ident">current_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_lane</span>();
-                    <span class="kw">let</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="ident">parking</span>.<span class="ident">get_all_free_spots</span>(
-                        <span class="ident">Position::new</span>(<span class="ident">current_lane</span>, <span class="ident">front</span>),
-                        <span class="ident">vehicle</span>,
-                        <span class="ident">target</span>,
-                        <span class="ident">map</span>,
+                <span class="kw">if </span>need_new_spot {
+                    <span class="kw-2">*</span>started_looking = <span class="bool-val">true</span>;
+                    <span class="kw">let </span>current_lane = <span class="self">self</span>.path.current_step().as_lane();
+                    <span class="kw">let </span>candidates = parking.get_all_free_spots(
+                        Position::new(current_lane, front),
+                        vehicle,
+                        target,
+                        map,
                     );
-                    <span class="kw">let</span> <span class="ident">best</span> <span class="op">=</span>
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">driving_pos</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">target</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>) {
-                            <span class="kw">if</span> <span class="ident">driving_pos</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">current_lane</span> {
-                                <span class="kw">let</span> <span class="ident">target_dist</span> <span class="op">=</span> <span class="ident">driving_pos</span>.<span class="ident">dist_along</span>();
-                                <span class="comment">// Closest to the building</span>
-                                <span class="ident">candidates</span>
-                                    .<span class="ident">into_iter</span>()
-                                    .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pos</span>)<span class="op">|</span> (<span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">-</span> <span class="ident">target_dist</span>).<span class="ident">abs</span>())
-                            } <span class="kw">else</span> {
-                                <span class="comment">// Closest to the road endpoint, I guess</span>
-                                <span class="ident">candidates</span>
-                                    .<span class="ident">into_iter</span>()
-                                    .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pos</span>)<span class="op">|</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>())
+                    <span class="kw">let </span>best =
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>((driving_pos, <span class="kw">_</span>)) = map.get_b(target).driving_connection(map) {
+                            <span class="kw">if </span>driving_pos.lane() == current_lane {
+                                <span class="kw">let </span>target_dist = driving_pos.dist_along();
+                                <span class="comment">// Closest to the building
+                                </span>candidates
+                                    .into_iter()
+                                    .min_by_key(|(<span class="kw">_</span>, pos)| (pos.dist_along() - target_dist).abs())
+                            } <span class="kw">else </span>{
+                                <span class="comment">// Closest to the road endpoint, I guess
+                                </span>candidates
+                                    .into_iter()
+                                    .min_by_key(|(<span class="kw">_</span>, pos)| pos.dist_along())
                             }
-                        } <span class="kw">else</span> {
-                            <span class="comment">// Closest to the road endpoint, I guess</span>
-                            <span class="ident">candidates</span>
-                                .<span class="ident">into_iter</span>()
-                                .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">pos</span>)<span class="op">|</span> <span class="ident">pos</span>.<span class="ident">dist_along</span>())
+                        } <span class="kw">else </span>{
+                            <span class="comment">// Closest to the road endpoint, I guess
+                            </span>candidates
+                                .into_iter()
+                                .min_by_key(|(<span class="kw">_</span>, pos)| pos.dist_along())
                         };
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">new_spot</span>, <span class="ident">new_pos</span>)) <span class="op">=</span> <span class="ident">best</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="ident">p</span>)) <span class="op">=</span> <span class="ident">trip_and_person</span> {
-                            <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::TripPhaseStarting</span>(
-                                <span class="ident">t</span>,
-                                <span class="ident">p</span>,
-                                <span class="prelude-val">Some</span>(<span class="ident">PathRequest::vehicle</span>(
-                                    <span class="ident">Position::new</span>(<span class="ident">current_lane</span>, <span class="ident">front</span>),
-                                    <span class="ident">new_pos</span>,
-                                    <span class="ident">PathConstraints::Car</span>,
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>((new_spot, new_pos)) = best {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>((t, p)) = trip_and_person {
+                            events.push(Event::TripPhaseStarting(
+                                t,
+                                p,
+                                <span class="prelude-val">Some</span>(PathRequest::vehicle(
+                                    Position::new(current_lane, front),
+                                    new_pos,
+                                    PathConstraints::Car,
                                 )),
-                                <span class="ident">TripPhaseType::Parking</span>,
+                                TripPhaseType::Parking,
                             ));
                         }
-                        <span class="macro">assert_eq!</span>(<span class="ident">new_pos</span>.<span class="ident">lane</span>(), <span class="ident">current_lane</span>);
-                        <span class="macro">assert!</span>(<span class="ident">new_pos</span>.<span class="ident">dist_along</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">front</span>);
-                        <span class="kw-2">*</span><span class="ident">spot</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">new_spot</span>, <span class="ident">new_pos</span>.<span class="ident">dist_along</span>()));
-                    } <span class="kw">else</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">new_path_steps</span>, <span class="ident">new_spot</span>, <span class="ident">new_pos</span>)) <span class="op">=</span>
-                            <span class="ident">parking</span>.<span class="ident">path_to_free_parking_spot</span>(<span class="ident">current_lane</span>, <span class="ident">vehicle</span>, <span class="ident">target</span>, <span class="ident">map</span>)
+                        <span class="macro">assert_eq!</span>(new_pos.lane(), current_lane);
+                        <span class="macro">assert!</span>(new_pos.dist_along() &gt;= front);
+                        <span class="kw-2">*</span>spot = <span class="prelude-val">Some</span>((new_spot, new_pos.dist_along()));
+                    } <span class="kw">else </span>{
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>((new_path_steps, new_spot, new_pos)) =
+                            parking.path_to_free_parking_spot(current_lane, vehicle, target, map)
                         {
-                            <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">new_path_steps</span>.<span class="ident">is_empty</span>());
-                            <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">new_path_steps</span> {
-                                <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">add</span>(<span class="ident">step</span>, <span class="ident">map</span>);
+                            <span class="macro">assert!</span>(!new_path_steps.is_empty());
+                            <span class="kw">for </span>step <span class="kw">in </span>new_path_steps {
+                                <span class="self">self</span>.path.add(step, map);
                             }
-                            <span class="kw-2">*</span><span class="ident">spot</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">new_spot</span>, <span class="ident">new_pos</span>.<span class="ident">dist_along</span>()));
-                            <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::PathAmended</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">clone</span>()));
-                            <span class="comment">// TODO This path might not be the same as the one found here...</span>
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="ident">p</span>)) <span class="op">=</span> <span class="ident">trip_and_person</span> {
-                                <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::TripPhaseStarting</span>(
-                                    <span class="ident">t</span>,
-                                    <span class="ident">p</span>,
-                                    <span class="prelude-val">Some</span>(<span class="ident">PathRequest::vehicle</span>(
-                                        <span class="ident">Position::new</span>(<span class="ident">current_lane</span>, <span class="ident">front</span>),
-                                        <span class="ident">new_pos</span>,
-                                        <span class="ident">PathConstraints::Car</span>,
+                            <span class="kw-2">*</span>spot = <span class="prelude-val">Some</span>((new_spot, new_pos.dist_along()));
+                            events.push(Event::PathAmended(<span class="self">self</span>.path.clone()));
+                            <span class="comment">// TODO This path might not be the same as the one found here...
+                            </span><span class="kw">if let </span><span class="prelude-val">Some</span>((t, p)) = trip_and_person {
+                                events.push(Event::TripPhaseStarting(
+                                    t,
+                                    p,
+                                    <span class="prelude-val">Some</span>(PathRequest::vehicle(
+                                        Position::new(current_lane, front),
+                                        new_pos,
+                                        PathConstraints::Car,
                                     )),
-                                    <span class="ident">TripPhaseType::Parking</span>,
+                                    TripPhaseType::Parking,
                                 ));
                             }
-                        } <span class="kw">else</span> {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">p</span>)) <span class="op">=</span> <span class="ident">trip_and_person</span> {
-                                <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::Alert</span>(
-                                    <span class="ident">AlertLocation::Person</span>(<span class="ident">p</span>),
+                        } <span class="kw">else </span>{
+                            <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, p)) = trip_and_person {
+                                events.push(Event::Alert(
+                                    AlertLocation::Person(p),
                                     <span class="macro">format!</span>(
                                         <span class="string">&quot;{} can&#39;t find parking on {} or anywhere reachable from \
                                          it. Possibly we&#39;re just totally out of parking space!&quot;</span>,
-                                        <span class="ident">vehicle</span>.<span class="ident">id</span>, <span class="ident">current_lane</span>
+                                        vehicle.id, current_lane
                                     ),
                                 ));
                             }
-                            <span class="kw-2">*</span><span class="ident">stuck_end_dist</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">current_lane</span>).<span class="ident">length</span>());
+                            <span class="kw-2">*</span>stuck_end_dist = <span class="prelude-val">Some</span>(map.get_l(current_lane).length());
                         }
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::GotoLaneEnd</span>);
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(ActionAtEnd::GotoLaneEnd);
                     }
                 }
 
-                <span class="kw">if</span> <span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">1</span> <span class="op">==</span> <span class="ident">front</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::StartParking</span>(<span class="ident">spot</span>.<span class="ident">unwrap</span>().<span class="number">0</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+                <span class="kw">if </span>spot.unwrap().<span class="number">1 </span>== front {
+                    <span class="prelude-val">Some</span>(ActionAtEnd::StartParking(spot.unwrap().<span class="number">0</span>))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
-            <span class="ident">Goal::BikeThenStop</span> { <span class="kw-2">ref</span> <span class="ident">goal</span> } =&gt; {
-                <span class="kw">if</span> <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">front</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::StopBiking</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+            Goal::BikeThenStop { <span class="kw-2">ref </span>goal } =&gt; {
+                <span class="kw">if </span>goal.sidewalk_pos.dist_along() == front {
+                    <span class="prelude-val">Some</span>(ActionAtEnd::StopBiking(goal.clone()))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
-            <span class="ident">Goal::FollowTransitRoute</span> { <span class="ident">end_dist</span> } =&gt; {
-                <span class="kw">if</span> <span class="ident">end_dist</span> <span class="op">==</span> <span class="ident">front</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">ActionAtEnd::BusAtStop</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+            Goal::FollowTransitRoute { end_dist } =&gt; {
+                <span class="kw">if </span>end_dist == front {
+                    <span class="prelude-val">Some</span>(ActionAtEnd::BusAtStop)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">opportunistically_lanechange</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">queues</span>: <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Queue</span><span class="op">&gt;</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">handle_uber_turns</span>: <span class="ident">bool</span>,
+    <span class="kw">pub fn </span>opportunistically_lanechange(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        queues: <span class="kw-2">&amp;</span>HashMap&lt;Traversable, Queue&gt;,
+        map: <span class="kw-2">&amp;</span>Map,
+        handle_uber_turns: bool,
     ) {
-        <span class="comment">// if we&#39;re already in the uber-turn, we&#39;re committed, but if we&#39;re about to enter one, lock</span>
-        <span class="comment">// in the best path through it now.</span>
-        <span class="kw">if</span> <span class="ident">handle_uber_turns</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">currently_inside_ut</span>().<span class="ident">is_some</span>() {
+        <span class="comment">// if we&#39;re already in the uber-turn, we&#39;re committed, but if we&#39;re about to enter one, lock
+        // in the best path through it now.
+        </span><span class="kw">if </span>handle_uber_turns &amp;&amp; <span class="self">self</span>.path.currently_inside_ut().is_some() {
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">segment</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> (<span class="ident">current_turn</span>, <span class="ident">next_lane</span>) <span class="op">=</span> {
-                <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_steps</span>();
-                <span class="kw">if</span> <span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">5</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span> {
+        <span class="kw">let </span><span class="kw-2">mut </span>segment = <span class="number">0</span>;
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>(current_turn, next_lane) = {
+                <span class="kw">let </span>steps = <span class="self">self</span>.path.get_steps();
+                <span class="kw">if </span>steps.len() &lt; <span class="number">5 </span>+ segment * <span class="number">2 </span>{
                     <span class="kw">return</span>;
                 }
-                <span class="kw">match</span> (<span class="ident">steps</span>[<span class="number">1</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>], <span class="ident">steps</span>[<span class="number">4</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>]) {
-                    (<span class="ident">PathStep::Turn</span>(<span class="ident">t</span>), <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>)) =&gt; (<span class="ident">t</span>, <span class="ident">l</span>),
-                    <span class="kw">_</span> =&gt; {
+                <span class="kw">match </span>(steps[<span class="number">1 </span>+ segment * <span class="number">2</span>], steps[<span class="number">4 </span>+ segment * <span class="number">2</span>]) {
+                    (PathStep::Turn(t), PathStep::Lane(l)) =&gt; (t, l),
+                    <span class="kw">_ </span>=&gt; {
                         <span class="kw">return</span>;
                     }
                 }
             };
 
-            <span class="kw">let</span> <span class="ident">orig_target_lane</span> <span class="op">=</span> <span class="ident">current_turn</span>.<span class="ident">dst</span>;
-            <span class="kw">let</span> <span class="ident">parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">orig_target_lane</span>);
-            <span class="kw">let</span> <span class="ident">next_parent</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">next_lane</span>).<span class="ident">src_i</span>;
-            <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">vehicle_type</span>.<span class="ident">to_constraints</span>();
+            <span class="kw">let </span>orig_target_lane = current_turn.dst;
+            <span class="kw">let </span>parent = map.get_parent(orig_target_lane);
+            <span class="kw">let </span>next_parent = map.get_l(next_lane).src_i;
+            <span class="kw">let </span>constraints = <span class="self">self</span>.owner.vehicle_type.to_constraints();
 
-            <span class="kw">let</span> <span class="ident">compute_cost</span> <span class="op">=</span> <span class="op">|</span><span class="ident">turn1</span>: <span class="kw-2">&amp;</span><span class="ident">Turn</span>, <span class="ident">lane</span>: <span class="ident">LaneID</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="kw-2">mut</span> <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">turn1</span>.<span class="ident">penalty</span>(<span class="ident">constraints</span>, <span class="ident">map</span>);
-                <span class="kw">let</span> (<span class="ident">vehicles</span>, <span class="kw-2">mut</span> <span class="ident">bike</span>) <span class="op">=</span> <span class="ident">queues</span>[<span class="kw-2">&amp;</span><span class="ident">Traversable::Lane</span>(<span class="ident">lane</span>)].<span class="ident">target_lane_penalty</span>();
+            <span class="kw">let </span>compute_cost = |turn1: <span class="kw-2">&amp;</span>Turn, lane: LaneID| {
+                <span class="kw">let </span>(lt, lc, <span class="kw-2">mut </span>slow_lane) = turn1.penalty(constraints, map);
+                <span class="kw">let </span>(vehicles, <span class="kw-2">mut </span>bike) = queues[<span class="kw-2">&amp;</span>Traversable::Lane(lane)].target_lane_penalty();
 
-                <span class="comment">// The magic happens here. We have different penalties:</span>
-                <span class="comment">//</span>
-                <span class="comment">// 1) Are we headed towards a general purpose lane instead of a dedicated bike/bus</span>
-                <span class="comment">//    lane?</span>
-                <span class="comment">// 2) Are there any bikes in the target lane? This ONLY matters if we&#39;re a car. If</span>
-                <span class="comment">//    we&#39;re another bike, the speed difference won&#39;t matter.</span>
-                <span class="comment">// 3) IF we&#39;re a bike, are we headed to something other than the slow (rightmost in</span>
-                <span class="comment">//    the US) lane?</span>
-                <span class="comment">// 4) Are there lots of vehicles stacked up in one lane?</span>
-                <span class="comment">// 5) Are we changing lanes?</span>
-                <span class="comment">//</span>
-                <span class="comment">// A linear combination of these penalties is hard to reason about. We mostly</span>
-                <span class="comment">// make our choice based on each penalty in order, breaking ties by moving onto the</span>
-                <span class="comment">// next thing. With one exception: To produce more realistic behavior, we combine</span>
-                <span class="comment">// `vehicles + lc` as one score to avoid switching lanes just to get around one car.</span>
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">owner</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
-                    <span class="ident">bike</span> <span class="op">=</span> <span class="number">0</span>;
-                } <span class="kw">else</span> {
-                    <span class="ident">slow_lane</span> <span class="op">=</span> <span class="number">0</span>;
+                <span class="comment">// The magic happens here. We have different penalties:
+                //
+                // 1) Are we headed towards a general purpose lane instead of a dedicated bike/bus
+                //    lane?
+                // 2) Are there any bikes in the target lane? This ONLY matters if we&#39;re a car. If
+                //    we&#39;re another bike, the speed difference won&#39;t matter.
+                // 3) IF we&#39;re a bike, are we headed to something other than the slow (rightmost in
+                //    the US) lane?
+                // 4) Are there lots of vehicles stacked up in one lane?
+                // 5) Are we changing lanes?
+                //
+                // A linear combination of these penalties is hard to reason about. We mostly
+                // make our choice based on each penalty in order, breaking ties by moving onto the
+                // next thing. With one exception: To produce more realistic behavior, we combine
+                // `vehicles + lc` as one score to avoid switching lanes just to get around one car.
+                </span><span class="kw">if </span><span class="self">self</span>.owner.vehicle_type == VehicleType::Bike {
+                    bike = <span class="number">0</span>;
+                } <span class="kw">else </span>{
+                    slow_lane = <span class="number">0</span>;
                 }
 
-                (<span class="ident">lt</span>, <span class="ident">bike</span>, <span class="ident">slow_lane</span>, <span class="ident">vehicles</span> <span class="op">+</span> <span class="ident">lc</span>)
+                (lt, bike, slow_lane, vehicles + lc)
             };
 
-            <span class="comment">// Look for other candidates, and assign a cost to each.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">original_cost</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">orig_target_lane</span>).<span class="ident">dir</span>;
-            <span class="kw">let</span> <span class="ident">best</span> <span class="op">=</span> <span class="ident">parent</span>
-                .<span class="ident">lanes</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">dir</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>))
-                .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
-                    <span class="comment">// Make sure we can go from this lane to next_lane.</span>
+            <span class="comment">// Look for other candidates, and assign a cost to each.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>original_cost = <span class="prelude-val">None</span>;
+            <span class="kw">let </span>dir = map.get_l(orig_target_lane).dir;
+            <span class="kw">let </span>best = parent
+                .lanes
+                .iter()
+                .filter(|l| l.dir == dir &amp;&amp; constraints.can_use(l, map))
+                .filter_map(|l| {
+                    <span class="comment">// Make sure we can go from this lane to next_lane.
 
-                    <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">TurnID</span> {
-                        <span class="ident">parent</span>: <span class="ident">current_turn</span>.<span class="ident">parent</span>,
-                        <span class="ident">src</span>: <span class="ident">current_turn</span>.<span class="ident">src</span>,
-                        <span class="ident">dst</span>: <span class="ident">l</span>.<span class="ident">id</span>,
+                    </span><span class="kw">let </span>t1 = TurnID {
+                        parent: current_turn.parent,
+                        src: current_turn.src,
+                        dst: l.id,
                     };
-                    <span class="kw">let</span> <span class="ident">turn1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">t1</span>)<span class="question-mark">?</span>;
+                    <span class="kw">let </span>turn1 = map.maybe_get_t(t1)<span class="question-mark">?</span>;
 
-                    <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">TurnID</span> {
-                        <span class="ident">parent</span>: <span class="ident">next_parent</span>,
-                        <span class="ident">src</span>: <span class="ident">l</span>.<span class="ident">id</span>,
-                        <span class="ident">dst</span>: <span class="ident">next_lane</span>,
+                    <span class="kw">let </span>t2 = TurnID {
+                        parent: next_parent,
+                        src: l.id,
+                        dst: next_lane,
                     };
-                    <span class="kw">let</span> <span class="ident">turn2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">t2</span>)<span class="question-mark">?</span>;
+                    <span class="kw">let </span>turn2 = map.maybe_get_t(t2)<span class="question-mark">?</span>;
 
-                    <span class="prelude-val">Some</span>((<span class="ident">turn1</span>, <span class="ident">l</span>.<span class="ident">id</span>, <span class="ident">turn2</span>))
+                    <span class="prelude-val">Some</span>((turn1, l.id, turn2))
                 })
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)<span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">compute_cost</span>(<span class="ident">turn1</span>, <span class="ident">l</span>);
-                    <span class="kw">if</span> <span class="ident">turn1</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">current_turn</span> {
-                        <span class="ident">original_cost</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>);
+                .map(|(turn1, l, turn2)| {
+                    <span class="kw">let </span>cost = compute_cost(turn1, l);
+                    <span class="kw">if </span>turn1.id == current_turn {
+                        original_cost = <span class="prelude-val">Some</span>(cost);
                     }
-                    (<span class="ident">cost</span>, <span class="ident">turn1</span>, <span class="ident">l</span>, <span class="ident">turn2</span>)
+                    (cost, turn1, l, turn2)
                 })
-                .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="ident">cost</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cost</span>);
+                .min_by_key(|(cost, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)| <span class="kw-2">*</span>cost);
 
-            <span class="kw">if</span> <span class="ident">best</span>.<span class="ident">is_none</span>() {
-                <span class="macro">error!</span>(<span class="string">&quot;no valid paths found: {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">owner</span>);
+            <span class="kw">if </span>best.is_none() {
+                <span class="macro">error!</span>(<span class="string">&quot;no valid paths found: {:?}&quot;</span>, <span class="self">self</span>.owner);
                 <span class="kw">return</span>;
             }
-            <span class="kw">let</span> (<span class="ident">best_cost</span>, <span class="ident">turn1</span>, <span class="ident">best_lane</span>, <span class="ident">turn2</span>) <span class="op">=</span> <span class="ident">best</span>.<span class="ident">unwrap</span>();
+            <span class="kw">let </span>(best_cost, turn1, best_lane, turn2) = best.unwrap();
 
-            <span class="kw">if</span> <span class="ident">original_cost</span>.<span class="ident">is_none</span>() {
-                <span class="macro">error!</span>(<span class="string">&quot;original_cost was unexpectedly None {:?}&quot;</span>, <span class="self">self</span>.<span class="ident">owner</span>);
+            <span class="kw">if </span>original_cost.is_none() {
+                <span class="macro">error!</span>(<span class="string">&quot;original_cost was unexpectedly None {:?}&quot;</span>, <span class="self">self</span>.owner);
                 <span class="kw">return</span>;
             }
-            <span class="kw">let</span> <span class="ident">original_cost</span> <span class="op">=</span> <span class="ident">original_cost</span>.<span class="ident">unwrap</span>();
+            <span class="kw">let </span>original_cost = original_cost.unwrap();
 
-            <span class="comment">// Only switch if the target queue is some amount better; don&#39;t oscillate</span>
-            <span class="comment">// unnecessarily.</span>
-            <span class="kw">if</span> <span class="ident">best_cost</span> <span class="op">&lt;</span> <span class="ident">original_cost</span> {
+            <span class="comment">// Only switch if the target queue is some amount better; don&#39;t oscillate
+            // unnecessarily.
+            </span><span class="kw">if </span>best_cost &lt; original_cost {
                 <span class="macro">debug!</span>(
                     <span class="string">&quot;changing lanes {:?} -&gt; {:?}, cost: {:?} -&gt; {:?}&quot;</span>,
-                    <span class="ident">orig_target_lane</span>, <span class="ident">best_lane</span>, <span class="ident">original_cost</span>, <span class="ident">best_cost</span>
+                    orig_target_lane, best_lane, original_cost, best_cost
                 );
-                <span class="self">self</span>.<span class="ident">path</span>
-                    .<span class="ident">modify_step</span>(<span class="number">1</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>, <span class="ident">PathStep::Turn</span>(<span class="ident">turn1</span>.<span class="ident">id</span>), <span class="ident">map</span>);
-                <span class="self">self</span>.<span class="ident">path</span>
-                    .<span class="ident">modify_step</span>(<span class="number">2</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>, <span class="ident">PathStep::Lane</span>(<span class="ident">best_lane</span>), <span class="ident">map</span>);
-                <span class="self">self</span>.<span class="ident">path</span>
-                    .<span class="ident">modify_step</span>(<span class="number">3</span> <span class="op">+</span> <span class="ident">segment</span> <span class="op">*</span> <span class="number">2</span>, <span class="ident">PathStep::Turn</span>(<span class="ident">turn2</span>.<span class="ident">id</span>), <span class="ident">map</span>);
+                <span class="self">self</span>.path
+                    .modify_step(<span class="number">1 </span>+ segment * <span class="number">2</span>, PathStep::Turn(turn1.id), map);
+                <span class="self">self</span>.path
+                    .modify_step(<span class="number">2 </span>+ segment * <span class="number">2</span>, PathStep::Lane(best_lane), map);
+                <span class="self">self</span>.path
+                    .modify_step(<span class="number">3 </span>+ segment * <span class="number">2</span>, PathStep::Turn(turn2.id), map);
             }
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">is_upcoming_uber_turn_component</span>(<span class="ident">turn2</span>.<span class="ident">id</span>) {
-                <span class="ident">segment</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            } <span class="kw">else</span> {
-                <span class="comment">// finished</span>
-                <span class="kw">break</span>;
+            <span class="kw">if </span><span class="self">self</span>.path.is_upcoming_uber_turn_component(turn2.id) {
+                segment += <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                <span class="comment">// finished
+                </span><span class="kw">break</span>;
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">can_lanechange</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">from</span>: <span class="ident">LaneID</span>, <span class="ident">to</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">steps</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_steps</span>();
-        <span class="kw">if</span> <span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">3</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">pub fn </span>can_lanechange(<span class="kw-2">&amp;</span><span class="self">self</span>, from: LaneID, to: LaneID, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        <span class="kw">let </span>steps = <span class="self">self</span>.path.get_steps();
+        <span class="kw">if </span>steps.len() &lt; <span class="number">3 </span>{
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
-        <span class="macro">assert_eq!</span>(<span class="ident">PathStep::Lane</span>(<span class="ident">from</span>), <span class="ident">steps</span>[<span class="number">0</span>]);
-        <span class="kw">let</span> <span class="ident">current_turn</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">steps</span>[<span class="number">1</span>] {
-            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="macro">assert_eq!</span>(PathStep::Lane(from), steps[<span class="number">0</span>]);
+        <span class="kw">let </span>current_turn = <span class="kw">match </span>steps[<span class="number">1</span>] {
+            PathStep::Turn(t) =&gt; t,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="kw">let</span> <span class="ident">next_lane</span> <span class="op">=</span> <span class="ident">current_turn</span>.<span class="ident">dst</span>;
-        <span class="macro">assert_eq!</span>(<span class="ident">PathStep::Lane</span>(<span class="ident">next_lane</span>), <span class="ident">steps</span>[<span class="number">2</span>]);
-        <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">TurnID</span> {
-            <span class="ident">parent</span>: <span class="ident">current_turn</span>.<span class="ident">parent</span>,
-            <span class="ident">src</span>: <span class="ident">to</span>,
-            <span class="ident">dst</span>: <span class="ident">next_lane</span>,
+        <span class="kw">let </span>next_lane = current_turn.dst;
+        <span class="macro">assert_eq!</span>(PathStep::Lane(next_lane), steps[<span class="number">2</span>]);
+        map.maybe_get_t(TurnID {
+            parent: current_turn.parent,
+            src: to,
+            dst: next_lane,
         })
-        .<span class="ident">is_some</span>()
+        .is_some()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">confirm_lanechange</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">to</span>: <span class="ident">LaneID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="comment">// No assertions, blind trust!</span>
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">0</span>, <span class="ident">PathStep::Lane</span>(<span class="ident">to</span>), <span class="ident">map</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">turn</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">get_steps</span>()[<span class="number">1</span>] {
-            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">pub fn </span>confirm_lanechange(<span class="kw-2">&amp;mut </span><span class="self">self</span>, to: LaneID, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="comment">// No assertions, blind trust!
+        </span><span class="self">self</span>.path.modify_step(<span class="number">0</span>, PathStep::Lane(to), map);
+        <span class="kw">let </span><span class="kw-2">mut </span>turn = <span class="kw">match </span><span class="self">self</span>.path.get_steps()[<span class="number">1</span>] {
+            PathStep::Turn(t) =&gt; t,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="ident">turn</span>.<span class="ident">src</span> <span class="op">=</span> <span class="ident">to</span>;
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">modify_step</span>(<span class="number">1</span>, <span class="ident">PathStep::Turn</span>(<span class="ident">turn</span>), <span class="ident">map</span>);
+        turn.src = to;
+        <span class="self">self</span>.path.modify_step(<span class="number">1</span>, PathStep::Turn(turn), map);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">Goal::ParkNearBuilding</span> {
-                <span class="ident">started_looking</span>, ..
-            } =&gt; <span class="ident">started_looking</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+    <span class="kw">pub fn </span>is_parking(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.goal {
+            Goal::ParkNearBuilding {
+                started_looking, ..
+            } =&gt; started_looking,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_parking_spot_goal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">ParkingSpot</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">goal</span> {
-            <span class="ident">Goal::ParkNearBuilding</span> { <span class="kw-2">ref</span> <span class="ident">spot</span>, .. } =&gt; <span class="ident">spot</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">s</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">s</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">pub fn </span>get_parking_spot_goal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>ParkingSpot&gt; {
+        <span class="kw">match </span><span class="self">self</span>.goal {
+            Goal::ParkNearBuilding { <span class="kw-2">ref </span>spot, .. } =&gt; spot.as_ref().map(|(s, <span class="kw">_</span>)| s),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

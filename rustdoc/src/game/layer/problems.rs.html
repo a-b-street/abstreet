@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/problems.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>problems.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/problems.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>problems.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -281,288 +281,288 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
+<span class="kw">use </span>std::fmt::Write;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">checkbox_per_mode</span>, <span class="ident">make_heatmap</span>, <span class="ident">HeatmapOptions</span>};
-<span class="kw">use</span> <span class="ident">map_model::Traversable</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">Problem</span>, <span class="ident">ProblemType</span>, <span class="ident">TripInfo</span>};
-<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PanelDims</span>, <span class="ident">Slider</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>,
-    <span class="ident">Transition</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>geom::{Circle, Distance, Pt2D, Time};
+<span class="kw">use </span>map_gui::tools::{checkbox_per_mode, make_heatmap, HeatmapOptions};
+<span class="kw">use </span>map_model::Traversable;
+<span class="kw">use </span>sim::{Problem, ProblemType, TripInfo};
+<span class="kw">use </span>synthpop::TripMode;
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{
+    Color, EventCtx, GfxCtx, Line, Outcome, Panel, PanelDims, Slider, Text, TextExt, Toggle,
+    Transition, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">super</span>::problems_diff::ProblemTypes</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer</span>::{<span class="ident">header</span>, <span class="ident">problems_diff</span>, <span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>, <span class="ident">PANEL_PLACEMENT</span>};
+<span class="kw">use </span><span class="kw">super</span>::problems_diff::ProblemTypes;
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::layer::{header, problems_diff, Layer, LayerOutcome, PANEL_PLACEMENT};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ProblemMap</span> {
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">opts</span>: <span class="ident">Options</span>,
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>ProblemMap {
+    time: Time,
+    opts: Options,
+    draw: ToggleZoomed,
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">ProblemMap</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Layer <span class="kw">for </span>ProblemMap {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="string">&quot;problem map&quot;</span>)
     }
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">ProblemMap::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
-            <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
+        <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
+            <span class="kw">let </span><span class="kw-2">mut </span>new = ProblemMap::new(ctx, app, <span class="self">self</span>.opts.clone());
+            new.panel.restore(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.panel);
+            <span class="kw-2">*</span><span class="self">self </span>= new;
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Close</span>);
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
-                <span class="string">&quot;Export to CSV&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Transition</span>(<span class="ident">Transition::Push</span>(
-                        <span class="kw">match</span> <span class="ident">export_raw_problems</span>(<span class="ident">app</span>) {
-                            <span class="prelude-val">Ok</span>(<span class="ident">path</span>) =&gt; <span class="ident">PopupMsg::new_state</span>(
-                                <span class="ident">ctx</span>,
+                <span class="string">&quot;Export to CSV&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Transition(Transition::Push(
+                        <span class="kw">match </span>export_raw_problems(app) {
+                            <span class="prelude-val">Ok</span>(path) =&gt; PopupMsg::new_state(
+                                ctx,
                                 <span class="string">&quot;Data exported&quot;</span>,
                                 <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Data exported to {path}&quot;</span>)],
                             ),
-                            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                                <span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()])
+                            <span class="prelude-val">Err</span>(err) =&gt; {
+                                PopupMsg::new_state(ctx, <span class="string">&quot;Export failed&quot;</span>, <span class="macro">vec!</span>[err.to_string()])
                             }
                         },
                     )));
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Compare before proposal&quot;</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Replace</span>(<span class="ident">Box::new</span>(
-                        <span class="ident">problems_diff::RelativeProblemMap::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">types</span>.<span class="ident">clone</span>()),
+            Outcome::Changed(x) =&gt; {
+                <span class="kw">if </span>x == <span class="string">&quot;Compare before proposal&quot; </span>{
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Replace(Box::new(
+                        problems_diff::RelativeProblemMap::new(ctx, app, <span class="self">self</span>.opts.types.clone()),
                     )));
                 }
 
-                <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">options</span>(<span class="ident">app</span>);
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">opts</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_opts</span> {
-                    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">ProblemMap::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_opts</span>);
+                <span class="kw">let </span>new_opts = <span class="self">self</span>.options(app);
+                <span class="kw">if </span><span class="self">self</span>.opts != new_opts {
+                    <span class="kw-2">*</span><span class="self">self </span>= ProblemMap::new(ctx, app, new_opts);
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.draw.draw(g);
     }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    }
-    <span class="kw">fn</span> <span class="ident">draw_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>);
+    <span class="kw">fn </span>draw_minimap(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw.unzoomed);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ProblemMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="ident">Options</span>) -&gt; <span class="ident">ProblemMap</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">trip</span>, <span class="ident">problems</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">problems_per_trip</span> {
-            <span class="kw">for</span> (<span class="ident">time</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-                <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">show</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">trip</span>), <span class="kw-2">*</span><span class="ident">time</span>, <span class="ident">problem</span>) {
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">problem</span>.<span class="ident">point</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>));
+<span class="kw">impl </span>ProblemMap {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, opts: Options) -&gt; ProblemMap {
+        <span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+        <span class="kw">for </span>(trip, problems) <span class="kw">in </span><span class="kw-2">&amp;</span>app.primary.sim.get_analytics().problems_per_trip {
+            <span class="kw">for </span>(time, problem) <span class="kw">in </span>problems {
+                <span class="kw">if </span>opts.show(app.primary.sim.trip_info(<span class="kw-2">*</span>trip), <span class="kw-2">*</span>time, problem) {
+                    pts.push(problem.point(<span class="kw-2">&amp;</span>app.primary.map));
                 }
             }
         }
-        <span class="kw">let</span> <span class="ident">num_pts</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">len</span>();
+        <span class="kw">let </span>num_pts = pts.len();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
-        <span class="kw">let</span> <span class="ident">legend</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">o</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">heatmap</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">make_heatmap</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">draw</span>.<span class="ident">unzoomed</span>,
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>(),
-                <span class="ident">pts</span>,
-                <span class="ident">o</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>draw = ToggleZoomed::builder();
+        <span class="kw">let </span>legend = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>o) = opts.heatmap {
+            <span class="prelude-val">Some</span>(make_heatmap(
+                ctx,
+                <span class="kw-2">&amp;mut </span>draw.unzoomed,
+                app.primary.map.get_bounds(),
+                pts,
+                o,
             ))
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">circle</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Distance::meters</span>(<span class="number">10.0</span>)).<span class="ident">to_polygon</span>();
-            <span class="comment">// TODO Different colors per problem type</span>
-            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-                <span class="ident">draw</span>.<span class="ident">unzoomed</span>
-                    .<span class="ident">push</span>(<span class="ident">Color::PURPLE</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">circle</span>.<span class="ident">translate</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()));
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>circle = Circle::new(Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>), Distance::meters(<span class="number">10.0</span>)).to_polygon();
+            <span class="comment">// TODO Different colors per problem type
+            </span><span class="kw">for </span>pt <span class="kw">in </span>pts {
+                draw.unzoomed
+                    .push(Color::PURPLE.alpha(<span class="number">0.8</span>), circle.translate(pt.x(), pt.y()));
             }
-            <span class="prelude-val">None</span>
-        };
-        <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">legend</span>, <span class="ident">num_pts</span>);
-        <span class="ident">ProblemMap</span> {
-            <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">opts</span>,
-            <span class="ident">draw</span>: <span class="ident">draw</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">panel</span>: <span class="ident">controls</span>,
+            <span class="prelude-val">None
+        </span>};
+        <span class="kw">let </span>controls = make_controls(ctx, app, <span class="kw-2">&amp;</span>opts, legend, num_pts);
+        ProblemMap {
+            time: app.primary.sim.time(),
+            opts,
+            draw: draw.build(ctx),
+            panel: controls,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Options</span> {
-        <span class="kw">let</span> <span class="ident">heatmap</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Show heatmap&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">HeatmapOptions::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modes</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">TripMode::all</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="ident">m</span>.<span class="ident">ongoing_verb</span>()) {
-                <span class="ident">modes</span>.<span class="ident">insert</span>(<span class="ident">m</span>);
+    <span class="kw">fn </span>options(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; Options {
+        <span class="kw">let </span>heatmap = <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;Show heatmap&quot;</span>) {
+            <span class="prelude-val">Some</span>(HeatmapOptions::from_controls(<span class="kw-2">&amp;</span><span class="self">self</span>.panel))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
+        <span class="kw">let </span><span class="kw-2">mut </span>modes = BTreeSet::new();
+        <span class="kw">for </span>m <span class="kw">in </span>TripMode::all() {
+            <span class="kw">if </span><span class="self">self</span>.panel.is_checked(m.ongoing_verb()) {
+                modes.insert(m);
             }
         }
-        <span class="kw">let</span> <span class="ident">end_of_day</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>();
-        <span class="ident">Options</span> {
-            <span class="ident">heatmap</span>,
-            <span class="ident">modes</span>,
-            <span class="ident">time1</span>: <span class="ident">end_of_day</span>.<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;time1&quot;</span>).<span class="ident">get_percent</span>()),
-            <span class="ident">time2</span>: <span class="ident">end_of_day</span>.<span class="ident">percent_of</span>(<span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;time2&quot;</span>).<span class="ident">get_percent</span>()),
-            <span class="ident">types</span>: <span class="ident">ProblemTypes::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>),
+        <span class="kw">let </span>end_of_day = app.primary.sim.get_end_of_day();
+        Options {
+            heatmap,
+            modes,
+            time1: end_of_day.percent_of(<span class="self">self</span>.panel.slider(<span class="string">&quot;time1&quot;</span>).get_percent()),
+            time2: end_of_day.percent_of(<span class="self">self</span>.panel.slider(<span class="string">&quot;time2&quot;</span>).get_percent()),
+            types: ProblemTypes::from_controls(<span class="kw-2">&amp;</span><span class="self">self</span>.panel),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
-    <span class="comment">// If None, just a dot map</span>
-    <span class="ident">heatmap</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeatmapOptions</span><span class="op">&gt;</span>,
-    <span class="ident">modes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
-    <span class="ident">time1</span>: <span class="ident">Time</span>,
-    <span class="ident">time2</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">types</span>: <span class="ident">ProblemTypes</span>,
+<span class="attribute">#[derive(Clone, PartialEq)]
+</span><span class="kw">pub struct </span>Options {
+    <span class="comment">// If None, just a dot map
+    </span>heatmap: <span class="prelude-ty">Option</span>&lt;HeatmapOptions&gt;,
+    modes: BTreeSet&lt;TripMode&gt;,
+    time1: Time,
+    time2: Time,
+    <span class="kw">pub </span>types: ProblemTypes,
 }
 
-<span class="kw">impl</span> <span class="ident">Options</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">heatmap</span>: <span class="prelude-val">Some</span>(<span class="ident">HeatmapOptions::new</span>()),
-            <span class="ident">modes</span>: <span class="ident">TripMode::all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-            <span class="ident">time1</span>: <span class="ident">Time::START_OF_DAY</span>,
-            <span class="ident">time2</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>(),
-            <span class="ident">types</span>: <span class="ident">ProblemTypes::new</span>(),
+<span class="kw">impl </span>Options {
+    <span class="kw">pub fn </span>new(app: <span class="kw-2">&amp;</span>App) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            heatmap: <span class="prelude-val">Some</span>(HeatmapOptions::new()),
+            modes: TripMode::all().into_iter().collect(),
+            time1: Time::START_OF_DAY,
+            time2: app.primary.sim.get_end_of_day(),
+            types: ProblemTypes::new(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">show</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">trip</span>: <span class="ident">TripInfo</span>, <span class="ident">time</span>: <span class="ident">Time</span>, <span class="ident">problem</span>: <span class="kw-2">&amp;</span><span class="ident">Problem</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">modes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">trip</span>.<span class="ident">mode</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">time</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">time1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">time</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">time2</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">fn </span>show(<span class="kw-2">&amp;</span><span class="self">self</span>, trip: TripInfo, time: Time, problem: <span class="kw-2">&amp;</span>Problem) -&gt; bool {
+        <span class="kw">if </span>!<span class="self">self</span>.modes.contains(<span class="kw-2">&amp;</span>trip.mode) || time &lt; <span class="self">self</span>.time1 || time &gt; <span class="self">self</span>.time2 {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
-        <span class="self">self</span>.<span class="ident">types</span>.<span class="ident">show</span>(<span class="ident">problem</span>)
+        <span class="self">self</span>.types.show(problem)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_controls</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
-    <span class="ident">legend</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>,
-    <span class="ident">num_problems</span>: <span class="ident">usize</span>,
-) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Problems encountered&quot;</span>),
-        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Matching problems: &quot;</span>).<span class="ident">secondary</span>(),
-            <span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">num_problems</span>)),
+<span class="kw">fn </span>make_controls(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    opts: <span class="kw-2">&amp;</span>Options,
+    legend: <span class="prelude-ty">Option</span>&lt;Widget&gt;,
+    num_problems: usize,
+) -&gt; Panel {
+    <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[
+        header(ctx, <span class="string">&quot;Problems encountered&quot;</span>),
+        Text::from_all(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Matching problems: &quot;</span>).secondary(),
+            Line(prettyprint_usize(num_problems)),
         ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        .into_widget(ctx),
     ];
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>));
+    <span class="kw">if </span>app.has_prebaked().is_some() {
+        col.push(Toggle::switch(ctx, <span class="string">&quot;Compare before proposal&quot;</span>, <span class="prelude-val">None</span>, <span class="bool-val">false</span>));
     }
 
-    <span class="comment">// TODO You can&#39;t drag the sliders, since we don&#39;t remember that we&#39;re dragging a particular</span>
-    <span class="comment">// slider when we recreate it here. Use panel.replace?</span>
-    <span class="kw">let</span> <span class="ident">end_of_day</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>();
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="string">&quot;Happening between:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-        <span class="ident">Slider::area</span>(
-            <span class="ident">ctx</span>,
-            <span class="number">0.15</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>,
-            <span class="ident">opts</span>.<span class="ident">time1</span>.<span class="ident">to_percent</span>(<span class="ident">end_of_day</span>),
+    <span class="comment">// TODO You can&#39;t drag the sliders, since we don&#39;t remember that we&#39;re dragging a particular
+    // slider when we recreate it here. Use panel.replace?
+    </span><span class="kw">let </span>end_of_day = app.primary.sim.get_end_of_day();
+    col.push(Widget::row(<span class="macro">vec!</span>[
+        <span class="string">&quot;Happening between:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+        Slider::area(
+            ctx,
+            <span class="number">0.15 </span>* ctx.canvas.window_width,
+            opts.time1.to_percent(end_of_day),
             <span class="string">&quot;time1&quot;</span>,
         )
-        .<span class="ident">align_right</span>(),
+        .align_right(),
     ]));
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="string">&quot;and:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-        <span class="ident">Slider::area</span>(
-            <span class="ident">ctx</span>,
-            <span class="number">0.15</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>,
-            <span class="ident">opts</span>.<span class="ident">time2</span>.<span class="ident">to_percent</span>(<span class="ident">end_of_day</span>),
+    col.push(Widget::row(<span class="macro">vec!</span>[
+        <span class="string">&quot;and:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+        Slider::area(
+            ctx,
+            <span class="number">0.15 </span>* ctx.canvas.window_width,
+            opts.time2.to_percent(end_of_day),
             <span class="string">&quot;time2&quot;</span>,
         )
-        .<span class="ident">align_right</span>(),
+        .align_right(),
     ]));
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">checkbox_per_mode</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">modes</span>));
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">opts</span>.<span class="ident">types</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>));
+    col.push(checkbox_per_mode(ctx, app, <span class="kw-2">&amp;</span>opts.modes));
+    col.push(opts.types.to_controls(ctx));
 
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Toggle::choice</span>(
-        <span class="ident">ctx</span>,
+    col.push(Toggle::choice(
+        ctx,
         <span class="string">&quot;Show heatmap&quot;</span>,
         <span class="string">&quot;Heatmap&quot;</span>,
         <span class="string">&quot;Points&quot;</span>,
         <span class="prelude-val">None</span>,
-        <span class="ident">opts</span>.<span class="ident">heatmap</span>.<span class="ident">is_some</span>(),
+        opts.heatmap.is_some(),
     ));
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">o</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">heatmap</span> {
-        <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="string">&quot;Heatmap Options&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
-        <span class="ident">col</span>.<span class="ident">extend</span>(<span class="ident">o</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>, <span class="ident">legend</span>.<span class="ident">unwrap</span>()));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>o) = opts.heatmap {
+        col.push(Line(<span class="string">&quot;Heatmap Options&quot;</span>).small_heading().into_widget(ctx));
+        col.extend(o.to_controls(ctx, legend.unwrap()));
     }
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;Export to CSV&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>));
+    col.push(ctx.style().btn_plain.text(<span class="string">&quot;Export to CSV&quot;</span>).build_def(ctx));
 
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
-        .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-        <span class="comment">// TODO Tune and use more widely</span>
-        .<span class="ident">dims_height</span>(<span class="ident">PanelDims::MaxPercent</span>(<span class="number">0.6</span>))
-        <span class="comment">// TODO Not sure why needed -- if you leave the mouse on the right spot,</span>
-        <span class="comment">// Outcome::Changed(time1) happens?</span>
-        .<span class="ident">ignore_initial_events</span>()
-        .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    Panel::new_builder(Widget::col(col))
+        .aligned_pair(PANEL_PLACEMENT)
+        <span class="comment">// TODO Tune and use more widely
+        </span>.dims_height(PanelDims::MaxPercent(<span class="number">0.6</span>))
+        <span class="comment">// TODO Not sure why needed -- if you leave the mouse on the right spot,
+        // Outcome::Changed(time1) happens?
+        </span>.ignore_initial_events()
+        .build(ctx)
 }
 
-<span class="kw">fn</span> <span class="ident">export_raw_problems</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">format!</span>(
+<span class="kw">fn </span>export_raw_problems(app: <span class="kw-2">&amp;</span>App) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>path = <span class="macro">format!</span>(
         <span class="string">&quot;problems_{}_{}.csv&quot;</span>,
-        <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">as_filename</span>(),
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">as_filename</span>()
+        map.get_name().as_filename(),
+        app.primary.sim.time().as_filename()
     );
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="macro">writeln!</span>(<span class="ident">out</span>, <span class="string">&quot;trip_id,time,problem_type,longitude,latitude,osm_url&quot;</span>)<span class="question-mark">?</span>;
-    <span class="kw">for</span> (<span class="ident">trip</span>, <span class="ident">problems</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">problems_per_trip</span> {
-        <span class="kw">for</span> (<span class="ident">time</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">problem</span>.<span class="ident">point</span>(<span class="ident">map</span>).<span class="ident">to_gps</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
-            <span class="kw">let</span> <span class="ident">osm_url</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">problem</span> {
-                <span class="ident">Problem::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="ident">i</span>) =&gt; {
-                    <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">orig_id</span>.<span class="ident">to_string</span>()
+    <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
+    <span class="macro">writeln!</span>(out, <span class="string">&quot;trip_id,time,problem_type,longitude,latitude,osm_url&quot;</span>)<span class="question-mark">?</span>;
+    <span class="kw">for </span>(trip, problems) <span class="kw">in </span><span class="kw-2">&amp;</span>app.primary.sim.get_analytics().problems_per_trip {
+        <span class="kw">for </span>(time, problem) <span class="kw">in </span>problems {
+            <span class="kw">let </span>pt = problem.point(map).to_gps(map.get_gps_bounds());
+            <span class="kw">let </span>osm_url = <span class="kw">match </span>problem {
+                Problem::IntersectionDelay(i, <span class="kw">_</span>) | Problem::ComplexIntersectionCrossing(i) =&gt; {
+                    map.get_i(<span class="kw-2">*</span>i).orig_id.to_string()
                 }
-                <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) <span class="op">|</span> <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="ident">on</span>) =&gt; <span class="kw">match</span> <span class="ident">on</span> {
-                    <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">l</span>.<span class="ident">road</span>).<span class="ident">orig_id</span>.<span class="ident">to_string</span>(),
-                    <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">orig_id</span>.<span class="ident">to_string</span>(),
+                Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) =&gt; <span class="kw">match </span>on {
+                    Traversable::Lane(l) =&gt; map.get_r(l.road).orig_id.to_string(),
+                    Traversable::Turn(t) =&gt; map.get_i(t.parent).orig_id.to_string(),
                 },
-                <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">orig_id</span>.<span class="ident">to_string</span>(),
+                Problem::ArterialIntersectionCrossing(t) =&gt; map.get_i(t.parent).orig_id.to_string(),
             };
             <span class="macro">writeln!</span>(
-                <span class="ident">out</span>,
+                out,
                 <span class="string">&quot;{},{},{:?},{},{},{}&quot;</span>,
-                <span class="ident">trip</span>.<span class="number">0</span>,
-                <span class="ident">time</span>.<span class="ident">inner_seconds</span>(),
-                <span class="ident">ProblemType::from</span>(<span class="ident">problem</span>),
-                <span class="ident">pt</span>.<span class="ident">x</span>(),
-                <span class="ident">pt</span>.<span class="ident">y</span>(),
-                <span class="ident">osm_url</span>,
+                trip.<span class="number">0</span>,
+                time.inner_seconds(),
+                ProblemType::from(problem),
+                pt.x(),
+                pt.y(),
+                osm_url,
             )<span class="question-mark">?</span>;
         }
     }
 
-    <span class="ident">abstio::write_file</span>(<span class="ident">path</span>, <span class="ident">out</span>)
+    abstio::write_file(path, out)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

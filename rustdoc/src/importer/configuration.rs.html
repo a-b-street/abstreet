@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/configuration.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>configuration.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/configuration.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>configuration.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -29,36 +29,36 @@
 <span id="29">29</span>
 <span id="30">30</span>
 <span id="31">31</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>serde::Deserialize;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ImporterConfiguration</span> {
-    <span class="kw">pub</span> <span class="ident">osmium</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">unzip</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">gunzip</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">gunzip_args</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Deserialize)]
+#[serde(default)]
+</span><span class="kw">pub struct </span>ImporterConfiguration {
+    <span class="kw">pub </span>osmium: String,
+    <span class="kw">pub </span>unzip: String,
+    <span class="kw">pub </span>gunzip: String,
+    <span class="kw">pub </span>gunzip_args: String,
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ImporterConfiguration</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">ImporterConfiguration</span> {
-        <span class="ident">ImporterConfiguration</span> {
-            <span class="ident">osmium</span>: <span class="ident">String::from</span>(<span class="string">&quot;osmium&quot;</span>),
-            <span class="ident">unzip</span>: <span class="ident">String::from</span>(<span class="string">&quot;unzip&quot;</span>),
-            <span class="ident">gunzip</span>: <span class="ident">String::from</span>(<span class="string">&quot;gunzip&quot;</span>),
-            <span class="ident">gunzip_args</span>: <span class="ident">String::from</span>(<span class="string">&quot;&quot;</span>),
+<span class="kw">impl </span>Default <span class="kw">for </span>ImporterConfiguration {
+    <span class="kw">fn </span>default() -&gt; ImporterConfiguration {
+        ImporterConfiguration {
+            osmium: String::from(<span class="string">&quot;osmium&quot;</span>),
+            unzip: String::from(<span class="string">&quot;unzip&quot;</span>),
+            gunzip: String::from(<span class="string">&quot;gunzip&quot;</span>),
+            gunzip_args: String::from(<span class="string">&quot;&quot;</span>),
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_configuration</span>() -&gt; <span class="ident">ImporterConfiguration</span> {
-    <span class="comment">// Safe to assume that {} can be parsed given struct-level Default implementation.</span>
-    <span class="kw">let</span> <span class="ident">default</span> <span class="op">=</span> <span class="ident">serde_json::from_str</span>(<span class="string">&quot;{}&quot;</span>).<span class="ident">unwrap</span>();
+<span class="kw">pub fn </span>load_configuration() -&gt; ImporterConfiguration {
+    <span class="comment">// Safe to assume that {} can be parsed given struct-level Default implementation.
+    </span><span class="kw">let </span>default = serde_json::from_str(<span class="string">&quot;{}&quot;</span>).unwrap();
 
-    <span class="kw">match</span> <span class="ident">fs_err::read_to_string</span>(<span class="string">&quot;importer.json&quot;</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">contents</span>) =&gt; <span class="ident">serde_json::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">contents</span>).<span class="ident">unwrap_or</span>(<span class="ident">default</span>),
-        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="ident">default</span>,
+    <span class="kw">match </span>fs_err::read_to_string(<span class="string">&quot;importer.json&quot;</span>) {
+        <span class="prelude-val">Ok</span>(contents) =&gt; serde_json::from_str(<span class="kw-2">&amp;</span>contents).unwrap_or(default),
+        <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; default,
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

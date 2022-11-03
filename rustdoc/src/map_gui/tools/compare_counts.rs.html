@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/compare_counts.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compare_counts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/compare_counts.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>compare_counts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -299,306 +299,306 @@
 <span id="299">299</span>
 <span id="300">300</span>
 <span id="301">301</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Histogram</span>, <span class="ident">Statistic</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">synthpop::TrafficCounts</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">ToggleZoomed</span>, <span class="ident">ToggleZoomedBuilder</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::DivergingScale</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>geom::{Distance, Histogram, Statistic};
+<span class="kw">use </span>map_model::{IntersectionID, RoadID};
+<span class="kw">use </span>synthpop::TrafficCounts;
+<span class="kw">use </span>widgetry::mapspace::{ObjectID, ToggleZoomed, ToggleZoomedBuilder, World, WorldOutcome};
+<span class="kw">use </span>widgetry::tools::DivergingScale;
+<span class="kw">use </span>widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Key, Line, Text, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools</span>::{<span class="ident">cmp_count</span>, <span class="ident">ColorNetwork</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">use </span><span class="kw">crate</span>::tools::{cmp_count, ColorNetwork};
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompareCounts</span> {
-    <span class="kw">pub</span> <span class="ident">layer</span>: <span class="ident">Layer</span>,
-    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">counts_a</span>: <span class="ident">TrafficCounts</span>,
-    <span class="ident">heatmap_a</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="kw">pub</span> <span class="ident">counts_b</span>: <span class="ident">TrafficCounts</span>,
-    <span class="ident">heatmap_b</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">relative_heatmap</span>: <span class="ident">ToggleZoomed</span>,
+<span class="kw">pub struct </span>CompareCounts {
+    <span class="kw">pub </span>layer: Layer,
+    world: World&lt;Obj&gt;,
+    <span class="kw">pub </span>counts_a: TrafficCounts,
+    heatmap_a: ToggleZoomed,
+    <span class="kw">pub </span>counts_b: TrafficCounts,
+    heatmap_b: ToggleZoomed,
+    relative_heatmap: ToggleZoomed,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">enum</span> <span class="ident">Obj</span> {
-    <span class="ident">Road</span>(<span class="ident">RoadID</span>),
-    <span class="ident">Intersection</span>(<span class="ident">IntersectionID</span>),
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+</span><span class="kw">enum </span>Obj {
+    Road(RoadID),
+    Intersection(IntersectionID),
 }
-<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">Obj</span> {}
+<span class="kw">impl </span>ObjectID <span class="kw">for </span>Obj {}
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Layer</span> {
-    <span class="ident">A</span>,
-    <span class="ident">B</span>,
-    <span class="ident">Compare</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq)]
+</span><span class="kw">pub enum </span>Layer {
+    A,
+    B,
+    Compare,
 }
 
-<span class="kw">impl</span> <span class="ident">CompareCounts</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
-        <span class="ident">counts_a</span>: <span class="ident">TrafficCounts</span>,
-        <span class="ident">counts_b</span>: <span class="ident">TrafficCounts</span>,
-        <span class="ident">layer</span>: <span class="ident">Layer</span>,
-        <span class="ident">clickable_roads</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">CompareCounts</span> {
-        <span class="kw">let</span> <span class="ident">heatmap_a</span> <span class="op">=</span> <span class="ident">calculate_heatmap</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">counts_a</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">heatmap_b</span> <span class="op">=</span> <span class="ident">calculate_heatmap</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">counts_b</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">relative_heatmap</span> <span class="op">=</span> <span class="ident">calculate_relative_heatmap</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">counts_a</span>, <span class="kw-2">&amp;</span><span class="ident">counts_b</span>);
+<span class="kw">impl </span>CompareCounts {
+    <span class="kw">pub fn </span>new(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike,
+        counts_a: TrafficCounts,
+        counts_b: TrafficCounts,
+        layer: Layer,
+        clickable_roads: bool,
+    ) -&gt; CompareCounts {
+        <span class="kw">let </span>heatmap_a = calculate_heatmap(ctx, app, counts_a.clone());
+        <span class="kw">let </span>heatmap_b = calculate_heatmap(ctx, app, counts_b.clone());
+        <span class="kw">let </span>relative_heatmap = calculate_relative_heatmap(ctx, app, <span class="kw-2">&amp;</span>counts_a, <span class="kw-2">&amp;</span>counts_b);
 
-        <span class="ident">CompareCounts</span> {
-            <span class="ident">layer</span>,
-            <span class="ident">world</span>: <span class="ident">make_world</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">clickable_roads</span>),
-            <span class="ident">counts_a</span>,
-            <span class="ident">heatmap_a</span>,
-            <span class="ident">counts_b</span>,
-            <span class="ident">heatmap_b</span>,
-            <span class="ident">relative_heatmap</span>,
+        CompareCounts {
+            layer,
+            world: make_world(ctx, app, clickable_roads),
+            counts_a,
+            heatmap_a,
+            counts_b,
+            heatmap_b,
+            relative_heatmap,
         }
     }
 
-    <span class="doccomment">/// Start with the relative layer if anything has changed</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autoselect_layer</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">per_road</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">per_road</span>
-            <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">per_intersection</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">per_intersection</span>
+    <span class="doccomment">/// Start with the relative layer if anything has changed
+    </span><span class="kw">pub fn </span>autoselect_layer(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.layer = <span class="kw">if </span><span class="self">self</span>.counts_a.per_road == <span class="self">self</span>.counts_b.per_road
+            &amp;&amp; <span class="self">self</span>.counts_a.per_intersection == <span class="self">self</span>.counts_b.per_intersection
         {
-            <span class="ident">Layer::A</span>
-        } <span class="kw">else</span> {
-            <span class="ident">Layer::Compare</span>
+            Layer::A
+        } <span class="kw">else </span>{
+            Layer::Compare
         };
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">recalculate_b</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">counts_b</span>: <span class="ident">TrafficCounts</span>) {
-        <span class="self">self</span>.<span class="ident">counts_b</span> <span class="op">=</span> <span class="ident">counts_b</span>;
-        <span class="self">self</span>.<span class="ident">heatmap_b</span> <span class="op">=</span> <span class="ident">calculate_heatmap</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">relative_heatmap</span> <span class="op">=</span>
-            <span class="ident">calculate_relative_heatmap</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_a</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_b</span>);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">layer</span> <span class="op">==</span> <span class="ident">Layer::A</span> {
-            <span class="self">self</span>.<span class="ident">autoselect_layer</span>();
+    <span class="kw">pub fn </span>recalculate_b(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, counts_b: TrafficCounts) {
+        <span class="self">self</span>.counts_b = counts_b;
+        <span class="self">self</span>.heatmap_b = calculate_heatmap(ctx, app, <span class="self">self</span>.counts_b.clone());
+        <span class="self">self</span>.relative_heatmap =
+            calculate_relative_heatmap(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.counts_a, <span class="kw-2">&amp;</span><span class="self">self</span>.counts_b);
+        <span class="kw">if </span><span class="self">self</span>.layer == Layer::A {
+            <span class="self">self</span>.autoselect_layer();
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">CompareCounts</span> {
-        <span class="ident">CompareCounts</span> {
-            <span class="ident">layer</span>: <span class="ident">Layer::A</span>,
-            <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
-            <span class="ident">counts_a</span>: <span class="ident">TrafficCounts::default</span>(),
-            <span class="ident">heatmap_a</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">counts_b</span>: <span class="ident">TrafficCounts::default</span>(),
-            <span class="ident">heatmap_b</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">relative_heatmap</span>: <span class="ident">ToggleZoomed::empty</span>(<span class="ident">ctx</span>),
+    <span class="kw">pub fn </span>empty(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; CompareCounts {
+        CompareCounts {
+            layer: Layer::A,
+            world: World::unbounded(),
+            counts_a: TrafficCounts::default(),
+            heatmap_a: ToggleZoomed::empty(ctx),
+            counts_b: TrafficCounts::default(),
+            heatmap_b: ToggleZoomed::empty(ctx),
+            relative_heatmap: ToggleZoomed::empty(ctx),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_panel_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Show which traffic counts?&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="comment">// TODO Maybe tab style</span>
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">description</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">layer</span> <span class="op">==</span> <span class="ident">Layer::A</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Num1</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;A counts&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">description</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">layer</span> <span class="op">==</span> <span class="ident">Layer::B</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Num2</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;B counts&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Compare&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">layer</span> <span class="op">==</span> <span class="ident">Layer::Compare</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Num3</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    <span class="kw">pub fn </span>get_panel_widget(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        Widget::col(<span class="macro">vec!</span>[
+            <span class="string">&quot;Show which traffic counts?&quot;</span>.text_widget(ctx),
+            <span class="comment">// TODO Maybe tab style
+            </span>Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="kw-2">&amp;</span><span class="self">self</span>.counts_a.description)
+                    .disabled(<span class="self">self</span>.layer == Layer::A)
+                    .hotkey(Key::Num1)
+                    .build_widget(ctx, <span class="string">&quot;A counts&quot;</span>),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="kw-2">&amp;</span><span class="self">self</span>.counts_b.description)
+                    .disabled(<span class="self">self</span>.layer == Layer::B)
+                    .hotkey(Key::Num2)
+                    .build_widget(ctx, <span class="string">&quot;B counts&quot;</span>),
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="string">&quot;Compare&quot;</span>)
+                    .disabled(<span class="self">self</span>.layer == Layer::Compare)
+                    .hotkey(Key::Num3)
+                    .build_def(ctx),
             ]),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Swap A&lt;-&gt;B&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ctx.style().btn_outline.text(<span class="string">&quot;Swap A&lt;-&gt;B&quot;</span>).build_def(ctx),
         ])
-        .<span class="ident">section</span>(<span class="ident">ctx</span>)
+        .section(ctx)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">layer</span> {
-            <span class="ident">Layer::A</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">heatmap_a</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
+        <span class="kw">match </span><span class="self">self</span>.layer {
+            Layer::A =&gt; {
+                <span class="self">self</span>.heatmap_a.draw(g);
             }
-            <span class="ident">Layer::B</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">heatmap_b</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+            Layer::B =&gt; {
+                <span class="self">self</span>.heatmap_b.draw(g);
             }
-            <span class="ident">Layer::Compare</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">relative_heatmap</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+            Layer::Compare =&gt; {
+                <span class="self">self</span>.relative_heatmap.draw(g);
             }
         }
 
-        <span class="comment">// Manually generate tooltips last-minute</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">get_hovering</span>() {
-            <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">Obj::Road</span>(<span class="ident">r</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">layer</span> {
-                    <span class="ident">Layer::A</span> =&gt; <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>),
-                    <span class="ident">Layer::B</span> =&gt; <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>),
-                    <span class="ident">Layer::Compare</span> =&gt; {
-                        <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="self">self</span>.<span class="ident">relative_road_tooltip</span>(<span class="ident">app</span>, <span class="ident">r</span>));
+        <span class="comment">// Manually generate tooltips last-minute
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.world.get_hovering() {
+            <span class="kw">let </span>count = <span class="kw">match </span>id {
+                Obj::Road(r) =&gt; <span class="kw">match </span><span class="self">self</span>.layer {
+                    Layer::A =&gt; <span class="self">self</span>.counts_a.per_road.get(r),
+                    Layer::B =&gt; <span class="self">self</span>.counts_b.per_road.get(r),
+                    Layer::Compare =&gt; {
+                        g.draw_mouse_tooltip(<span class="self">self</span>.relative_road_tooltip(app, r));
                         <span class="kw">return</span>;
                     }
                 },
-                <span class="ident">Obj::Intersection</span>(<span class="ident">i</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">layer</span> {
-                    <span class="ident">Layer::A</span> =&gt; <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">per_intersection</span>.<span class="ident">get</span>(<span class="ident">i</span>),
-                    <span class="ident">Layer::B</span> =&gt; <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">per_intersection</span>.<span class="ident">get</span>(<span class="ident">i</span>),
-                    <span class="ident">Layer::Compare</span> =&gt; {
+                Obj::Intersection(i) =&gt; <span class="kw">match </span><span class="self">self</span>.layer {
+                    Layer::A =&gt; <span class="self">self</span>.counts_a.per_intersection.get(i),
+                    Layer::B =&gt; <span class="self">self</span>.counts_b.per_intersection.get(i),
+                    Layer::Compare =&gt; {
                         <span class="kw">return</span>;
                     }
                 },
             };
-            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">count</span>))));
+            g.draw_mouse_tooltip(Text::from(Line(prettyprint_usize(count))));
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">relative_road_tooltip</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>);
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">per_road</span>.<span class="ident">get</span>(<span class="ident">r</span>);
-        <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> (<span class="ident">b</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">a</span> <span class="kw">as</span> <span class="ident">f64</span>);
+    <span class="kw">fn </span>relative_road_tooltip(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, r: RoadID) -&gt; Text {
+        <span class="kw">let </span>a = <span class="self">self</span>.counts_a.per_road.get(r);
+        <span class="kw">let </span>b = <span class="self">self</span>.counts_b.per_road.get(r);
+        <span class="kw">let </span>ratio = (b <span class="kw">as </span>f64) / (a <span class="kw">as </span>f64);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>())),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from_multiline(<span class="macro">vec!</span>[
+            Line(app.map().get_r(r).get_name(app.opts().language.as_ref())),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{}: {}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">description</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">a</span>)
+                <span class="self">self</span>.counts_a.description,
+                prettyprint_usize(a)
             )),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{}: {}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">description</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">b</span>)
+                <span class="self">self</span>.counts_b.description,
+                prettyprint_usize(b)
             )),
         ]);
-        <span class="ident">cmp_count</span>(<span class="kw-2">&amp;mut</span> <span class="ident">txt</span>, <span class="ident">a</span>, <span class="ident">b</span>);
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+        cmp_count(<span class="kw-2">&amp;mut </span>txt, a, b);
+        txt.add_line(Line(<span class="macro">format!</span>(
             <span class="string">&quot;{}/{}: {:.2}&quot;</span>,
-            <span class="self">self</span>.<span class="ident">counts_b</span>.<span class="ident">description</span>, <span class="self">self</span>.<span class="ident">counts_a</span>.<span class="ident">description</span>, <span class="ident">ratio</span>
+            <span class="self">self</span>.counts_b.description, <span class="self">self</span>.counts_a.description, ratio
         )));
-        <span class="ident">txt</span>
+        txt
     }
 
-    <span class="doccomment">/// If clickable_roads was enabled and a road was clicked, this returns the ID.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">Obj::Road</span>(<span class="ident">r</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">r</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="doccomment">/// If clickable_roads was enabled and a road was clicked, this returns the ID.
+    </span><span class="kw">pub fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; <span class="prelude-ty">Option</span>&lt;RoadID&gt; {
+        <span class="kw">match </span><span class="self">self</span>.world.event(ctx) {
+            WorldOutcome::ClickedObject(Obj::Road(r)) =&gt; <span class="prelude-val">Some</span>(r),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// If a button owned by this was clicked, returns the new widget to replace</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_click</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;A counts&quot;</span> =&gt; <span class="ident">Layer::A</span>,
-            <span class="string">&quot;B counts&quot;</span> =&gt; <span class="ident">Layer::B</span>,
-            <span class="string">&quot;Compare&quot;</span> =&gt; <span class="ident">Layer::Compare</span>,
-            <span class="string">&quot;Swap A&lt;-&gt;B&quot;</span> =&gt; {
-                <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">counts_a</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">counts_b</span>);
-                <span class="self">self</span>.<span class="ident">relative_heatmap</span> <span class="op">=</span>
-                    <span class="ident">calculate_relative_heatmap</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_a</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts_b</span>);
-                <span class="self">self</span>.<span class="ident">layer</span>
+    <span class="doccomment">/// If a button owned by this was clicked, returns the new widget to replace
+    </span><span class="kw">pub fn </span>on_click(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, x: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Widget&gt; {
+        <span class="self">self</span>.layer = <span class="kw">match </span>x {
+            <span class="string">&quot;A counts&quot; </span>=&gt; Layer::A,
+            <span class="string">&quot;B counts&quot; </span>=&gt; Layer::B,
+            <span class="string">&quot;Compare&quot; </span>=&gt; Layer::Compare,
+            <span class="string">&quot;Swap A&lt;-&gt;B&quot; </span>=&gt; {
+                std::mem::swap(<span class="kw-2">&amp;mut </span><span class="self">self</span>.counts_a, <span class="kw-2">&amp;mut </span><span class="self">self</span>.counts_b);
+                <span class="self">self</span>.relative_heatmap =
+                    calculate_relative_heatmap(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.counts_a, <span class="kw-2">&amp;</span><span class="self">self</span>.counts_b);
+                <span class="self">self</span>.layer
             }
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
         };
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>))
+        <span class="prelude-val">Some</span>(<span class="self">self</span>.get_panel_widget(ctx))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">relative_scale</span>() -&gt; <span class="ident">DivergingScale</span> {
-        <span class="comment">// TODO This is still a bit arbitrary</span>
-        <span class="ident">DivergingScale::new</span>(<span class="ident">Color::GREEN</span>, <span class="ident">Color::grey</span>(<span class="number">0.2</span>), <span class="ident">Color::RED</span>).<span class="ident">range</span>(<span class="number">0.0</span>, <span class="number">2.0</span>)
+    <span class="kw">pub fn </span>relative_scale() -&gt; DivergingScale {
+        <span class="comment">// TODO This is still a bit arbitrary
+        </span>DivergingScale::new(Color::GREEN, Color::grey(<span class="number">0.2</span>), Color::RED).range(<span class="number">0.0</span>, <span class="number">2.0</span>)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">calculate_heatmap</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">counts</span>: <span class="ident">TrafficCounts</span>) -&gt; <span class="ident">ToggleZoomed</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::no_fading</span>(<span class="ident">app</span>);
-    <span class="comment">// TODO The scale will be different for roads and intersections</span>
-    <span class="ident">colorer</span>.<span class="ident">ranked_roads</span>(<span class="ident">counts</span>.<span class="ident">per_road</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">good_to_bad_red</span>);
-    <span class="ident">colorer</span>.<span class="ident">ranked_intersections</span>(<span class="ident">counts</span>.<span class="ident">per_intersection</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">good_to_bad_red</span>);
-    <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>)
+<span class="kw">fn </span>calculate_heatmap(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, counts: TrafficCounts) -&gt; ToggleZoomed {
+    <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorNetwork::no_fading(app);
+    <span class="comment">// TODO The scale will be different for roads and intersections
+    </span>colorer.ranked_roads(counts.per_road, <span class="kw-2">&amp;</span>app.cs().good_to_bad_red);
+    colorer.ranked_intersections(counts.per_intersection, <span class="kw-2">&amp;</span>app.cs().good_to_bad_red);
+    colorer.build(ctx)
 }
 
-<span class="kw">fn</span> <span class="ident">calculate_relative_heatmap</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
-    <span class="ident">counts_a</span>: <span class="kw-2">&amp;</span><span class="ident">TrafficCounts</span>,
-    <span class="ident">counts_b</span>: <span class="kw-2">&amp;</span><span class="ident">TrafficCounts</span>,
-) -&gt; <span class="ident">ToggleZoomed</span> {
-    <span class="comment">// First just understand the counts...</span>
-    <span class="comment">// TODO This doesn&#39;t have explicit 0&#39;s</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hgram_before</span> <span class="op">=</span> <span class="ident">Histogram::new</span>();
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="ident">counts_a</span>.<span class="ident">per_road</span>.<span class="ident">borrow</span>() {
-        <span class="ident">hgram_before</span>.<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">cnt</span>);
+<span class="kw">fn </span>calculate_relative_heatmap(
+    ctx: <span class="kw-2">&amp;</span>EventCtx,
+    app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike,
+    counts_a: <span class="kw-2">&amp;</span>TrafficCounts,
+    counts_b: <span class="kw-2">&amp;</span>TrafficCounts,
+) -&gt; ToggleZoomed {
+    <span class="comment">// First just understand the counts...
+    // TODO This doesn&#39;t have explicit 0&#39;s
+    </span><span class="kw">let </span><span class="kw-2">mut </span>hgram_before = Histogram::new();
+    <span class="kw">for </span>(<span class="kw">_</span>, cnt) <span class="kw">in </span>counts_a.per_road.borrow() {
+        hgram_before.add(<span class="kw-2">*</span>cnt);
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hgram_after</span> <span class="op">=</span> <span class="ident">Histogram::new</span>();
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="ident">counts_b</span>.<span class="ident">per_road</span>.<span class="ident">borrow</span>() {
-        <span class="ident">hgram_after</span>.<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">cnt</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>hgram_after = Histogram::new();
+    <span class="kw">for </span>(<span class="kw">_</span>, cnt) <span class="kw">in </span>counts_b.per_road.borrow() {
+        hgram_after.add(<span class="kw-2">*</span>cnt);
     }
-    <span class="macro">info!</span>(<span class="string">&quot;Road counts before: {}&quot;</span>, <span class="ident">hgram_before</span>.<span class="ident">describe</span>());
-    <span class="macro">info!</span>(<span class="string">&quot;Road counts after: {}&quot;</span>, <span class="ident">hgram_after</span>.<span class="ident">describe</span>());
+    <span class="macro">info!</span>(<span class="string">&quot;Road counts before: {}&quot;</span>, hgram_before.describe());
+    <span class="macro">info!</span>(<span class="string">&quot;Road counts after: {}&quot;</span>, hgram_after.describe());
 
-    <span class="comment">// What&#39;s physical road width look like?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hgram_width</span> <span class="op">=</span> <span class="ident">Histogram::new</span>();
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">all_roads</span>() {
-        <span class="ident">hgram_width</span>.<span class="ident">add</span>(<span class="ident">r</span>.<span class="ident">get_width</span>());
+    <span class="comment">// What&#39;s physical road width look like?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>hgram_width = Histogram::new();
+    <span class="kw">for </span>r <span class="kw">in </span>app.map().all_roads() {
+        hgram_width.add(r.get_width());
     }
-    <span class="macro">info!</span>(<span class="string">&quot;Physical road widths: {}&quot;</span>, <span class="ident">hgram_width</span>.<span class="ident">describe</span>());
+    <span class="macro">info!</span>(<span class="string">&quot;Physical road widths: {}&quot;</span>, hgram_width.describe());
 
-    <span class="comment">// Draw road width based on the count before</span>
-    <span class="comment">// TODO unwrap will crash on an empty demand model</span>
-    <span class="kw">let</span> <span class="ident">min_count</span> <span class="op">=</span> <span class="ident">hgram_before</span>.<span class="ident">select</span>(<span class="ident">Statistic::Min</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">max_count</span> <span class="op">=</span> <span class="ident">hgram_before</span>.<span class="ident">select</span>(<span class="ident">Statistic::Max</span>).<span class="ident">unwrap</span>();
+    <span class="comment">// Draw road width based on the count before
+    // TODO unwrap will crash on an empty demand model
+    </span><span class="kw">let </span>min_count = hgram_before.select(Statistic::Min).unwrap();
+    <span class="kw">let </span>max_count = hgram_before.select(Statistic::Max).unwrap();
 
-    <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">CompareCounts::relative_scale</span>();
+    <span class="kw">let </span>scale = CompareCounts::relative_scale();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_roads</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-    <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">before</span>, <span class="ident">after</span>) <span class="kw">in</span> <span class="ident">counts_a</span>.<span class="ident">per_road</span>.<span class="ident">clone</span>().<span class="ident">compare</span>(<span class="ident">counts_b</span>.<span class="ident">per_road</span>.<span class="ident">clone</span>()) {
-        <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> (<span class="ident">after</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">before</span> <span class="kw">as</span> <span class="ident">f64</span>);
-        <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">scale</span>.<span class="ident">eval</span>(<span class="ident">ratio</span>) {
-            <span class="ident">c</span>
-        } <span class="kw">else</span> {
+    <span class="kw">let </span><span class="kw-2">mut </span>draw_roads = GeomBatch::new();
+    <span class="kw">for </span>(r, before, after) <span class="kw">in </span>counts_a.per_road.clone().compare(counts_b.per_road.clone()) {
+        <span class="kw">let </span>ratio = (after <span class="kw">as </span>f64) / (before <span class="kw">as </span>f64);
+        <span class="kw">let </span>color = <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = scale.eval(ratio) {
+            c
+        } <span class="kw">else </span>{
             <span class="kw">continue</span>;
         };
 
-        <span class="comment">// TODO Refactor histogram helpers</span>
-        <span class="kw">let</span> <span class="ident">pct_count</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">before</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="number">0.0</span>
-        } <span class="kw">else</span> {
-            (<span class="ident">before</span> <span class="op">-</span> <span class="ident">min_count</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> (<span class="ident">max_count</span> <span class="op">-</span> <span class="ident">min_count</span>) <span class="kw">as</span> <span class="ident">f64</span>
+        <span class="comment">// TODO Refactor histogram helpers
+        </span><span class="kw">let </span>pct_count = <span class="kw">if </span>before == <span class="number">0 </span>{
+            <span class="number">0.0
+        </span>} <span class="kw">else </span>{
+            (before - min_count) <span class="kw">as </span>f64 / (max_count - min_count) <span class="kw">as </span>f64
         };
-        <span class="comment">// TODO Pretty arbitrary. Ideally we&#39;d hide roads and intersections underneath...</span>
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">6.0</span>) <span class="op">+</span> <span class="ident">pct_count</span> <span class="op">*</span> <span class="ident">Distance::meters</span>(<span class="number">15.0</span>);
+        <span class="comment">// TODO Pretty arbitrary. Ideally we&#39;d hide roads and intersections underneath...
+        </span><span class="kw">let </span>width = Distance::meters(<span class="number">6.0</span>) + pct_count * Distance::meters(<span class="number">15.0</span>);
 
-        <span class="ident">draw_roads</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">center_pts</span>.<span class="ident">make_polygons</span>(<span class="ident">width</span>));
+        draw_roads.push(color, app.map().get_r(r).center_pts.make_polygons(width));
     }
-    <span class="ident">ToggleZoomedBuilder::from</span>(<span class="ident">draw_roads</span>).<span class="ident">build</span>(<span class="ident">ctx</span>)
+    ToggleZoomedBuilder::from(draw_roads).build(ctx)
 }
 
-<span class="kw">fn</span> <span class="ident">make_world</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">clickable_roads</span>: <span class="ident">bool</span>) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">Obj</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_bounds</span>());
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">all_roads</span>() {
-        <span class="ident">world</span>
-            .<span class="ident">add</span>(<span class="ident">Obj::Road</span>(<span class="ident">r</span>.<span class="ident">id</span>))
-            .<span class="ident">hitbox</span>(<span class="ident">r</span>.<span class="ident">get_thick_polygon</span>())
-            .<span class="ident">drawn_in_master_batch</span>()
-            .<span class="ident">invisibly_hoverable</span>()
-            .<span class="ident">set_clickable</span>(<span class="ident">clickable_roads</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+<span class="kw">fn </span>make_world(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, clickable_roads: bool) -&gt; World&lt;Obj&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>world = World::bounded(app.map().get_bounds());
+    <span class="kw">for </span>r <span class="kw">in </span>app.map().all_roads() {
+        world
+            .add(Obj::Road(r.id))
+            .hitbox(r.get_thick_polygon())
+            .drawn_in_master_batch()
+            .invisibly_hoverable()
+            .set_clickable(clickable_roads)
+            .build(ctx);
     }
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">all_intersections</span>() {
-        <span class="ident">world</span>
-            .<span class="ident">add</span>(<span class="ident">Obj::Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>))
-            .<span class="ident">hitbox</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>())
-            .<span class="ident">drawn_in_master_batch</span>()
-            .<span class="ident">invisibly_hoverable</span>()
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+    <span class="kw">for </span>i <span class="kw">in </span>app.map().all_intersections() {
+        world
+            .add(Obj::Intersection(i.id))
+            .hitbox(i.polygon.clone())
+            .drawn_in_master_batch()
+            .invisibly_hoverable()
+            .build(ctx);
     }
-    <span class="ident">world</span>
+    world
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

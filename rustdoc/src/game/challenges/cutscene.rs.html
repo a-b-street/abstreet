@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/cutscene.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cutscene.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/challenges/cutscene.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>cutscene.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -297,304 +297,304 @@
 <span id="297">297</span>
 <span id="298">298</span>
 <span id="299">299</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">hotkeys</span>, <span class="ident">ButtonStyle</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>map_gui::tools::grey_out_map;
+<span class="kw">use </span>widgetry::{
+    hotkeys, ButtonStyle, Color, ControlState, EventCtx, GeomBatch, GfxCtx, Image, Key, Line,
+    Outcome, Panel, State, Text, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::Transition</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::app::Transition;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CutsceneBuilder</span> {
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">scenes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scene</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>CutsceneBuilder {
+    name: String,
+    scenes: Vec&lt;Scene&gt;,
 }
 
-<span class="kw">enum</span> <span class="ident">Layout</span> {
-    <span class="ident">PlayerSpeaking</span>,
-    <span class="ident">BossSpeaking</span>,
-    <span class="ident">Extra</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">f64</span>),
+<span class="kw">enum </span>Layout {
+    PlayerSpeaking,
+    BossSpeaking,
+    Extra(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, f64),
 }
 
-<span class="kw">struct</span> <span class="ident">Scene</span> {
-    <span class="ident">layout</span>: <span class="ident">Layout</span>,
-    <span class="ident">msg</span>: <span class="ident">Text</span>,
+<span class="kw">struct </span>Scene {
+    layout: Layout,
+    msg: Text,
 }
 
-<span class="kw">impl</span> <span class="ident">CutsceneBuilder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">CutsceneBuilder</span> {
-        <span class="ident">CutsceneBuilder</span> {
-            <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
-            <span class="ident">scenes</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl </span>CutsceneBuilder {
+    <span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span>str) -&gt; CutsceneBuilder {
+        CutsceneBuilder {
+            name: name.to_string(),
+            scenes: Vec::new(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">fg_color</span>() -&gt; <span class="ident">Color</span> {
-        <span class="ident">ButtonStyle::outline_dark_fg</span>().<span class="ident">fg</span>
+    <span class="kw">fn </span>fg_color() -&gt; Color {
+        ButtonStyle::outline_dark_fg().fg
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">player</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="ident">I</span>) -&gt; <span class="ident">CutsceneBuilder</span> {
-        <span class="self">self</span>.<span class="ident">scenes</span>.<span class="ident">push</span>(<span class="ident">Scene</span> {
-            <span class="ident">layout</span>: <span class="ident">Layout::PlayerSpeaking</span>,
-            <span class="ident">msg</span>: <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">msg</span>).<span class="ident">fg</span>(<span class="ident"><span class="self">Self</span>::fg_color</span>())),
+    <span class="kw">pub fn </span>player&lt;I: Into&lt;String&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, msg: I) -&gt; CutsceneBuilder {
+        <span class="self">self</span>.scenes.push(Scene {
+            layout: Layout::PlayerSpeaking,
+            msg: Text::from(Line(msg).fg(<span class="self">Self</span>::fg_color())),
         });
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">boss</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">msg</span>: <span class="ident">I</span>) -&gt; <span class="ident">CutsceneBuilder</span> {
-        <span class="self">self</span>.<span class="ident">scenes</span>.<span class="ident">push</span>(<span class="ident">Scene</span> {
-            <span class="ident">layout</span>: <span class="ident">Layout::BossSpeaking</span>,
-            <span class="ident">msg</span>: <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">msg</span>).<span class="ident">fg</span>(<span class="ident"><span class="self">Self</span>::fg_color</span>())),
+    <span class="kw">pub fn </span>boss&lt;I: Into&lt;String&gt;&gt;(<span class="kw-2">mut </span><span class="self">self</span>, msg: I) -&gt; CutsceneBuilder {
+        <span class="self">self</span>.scenes.push(Scene {
+            layout: Layout::BossSpeaking,
+            msg: Text::from(Line(msg).fg(<span class="self">Self</span>::fg_color())),
         });
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extra</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">mut</span> <span class="self">self</span>,
-        <span class="ident">character</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
-        <span class="ident">scale</span>: <span class="ident">f64</span>,
-        <span class="ident">msg</span>: <span class="ident">I</span>,
-    ) -&gt; <span class="ident">CutsceneBuilder</span> {
-        <span class="self">self</span>.<span class="ident">scenes</span>.<span class="ident">push</span>(<span class="ident">Scene</span> {
-            <span class="ident">layout</span>: <span class="ident">Layout::Extra</span>(<span class="ident">character</span>, <span class="ident">scale</span>),
-            <span class="ident">msg</span>: <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">msg</span>).<span class="ident">fg</span>(<span class="ident"><span class="self">Self</span>::fg_color</span>())),
+    <span class="kw">pub fn </span>extra&lt;I: Into&lt;String&gt;&gt;(
+        <span class="kw-2">mut </span><span class="self">self</span>,
+        character: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str,
+        scale: f64,
+        msg: I,
+    ) -&gt; CutsceneBuilder {
+        <span class="self">self</span>.scenes.push(Scene {
+            layout: Layout::Extra(character, scale),
+            msg: Text::from(Line(msg).fg(<span class="self">Self</span>::fg_color())),
         });
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(
+    <span class="kw">pub fn </span>build(
         <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">make_task</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::new</span>(<span class="ident">CutscenePlayer</span> {
-            <span class="ident">panel</span>: <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenes</span>, <span class="kw-2">&amp;</span><span class="ident">make_task</span>, <span class="number">0</span>),
-            <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">name</span>,
-            <span class="ident">scenes</span>: <span class="self">self</span>.<span class="ident">scenes</span>,
-            <span class="ident">idx</span>: <span class="number">0</span>,
-            <span class="ident">make_task</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        make_task: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        Box::new(CutscenePlayer {
+            panel: make_panel(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenes, <span class="kw-2">&amp;</span>make_task, <span class="number">0</span>),
+            name: <span class="self">self</span>.name,
+            scenes: <span class="self">self</span>.scenes,
+            idx: <span class="number">0</span>,
+            make_task,
         })
     }
 }
 
-<span class="kw">struct</span> <span class="ident">CutscenePlayer</span> {
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">scenes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Scene</span><span class="op">&gt;</span>,
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">make_task</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>CutscenePlayer {
+    name: String,
+    scenes: Vec&lt;Scene&gt;,
+    idx: usize,
+    panel: Panel,
+    make_task: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CutscenePlayer</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;quit&quot;</span> =&gt; {
-                    <span class="comment">// TODO Should SandboxMode use on_destroy for this?</span>
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
-                    <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
-                    <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Pop</span>]);
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>CutscenePlayer {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;quit&quot; </span>=&gt; {
+                    <span class="comment">// TODO Should SandboxMode use on_destroy for this?
+                    </span>app.primary.clear_sim();
+                    app.set_prebaked(<span class="prelude-val">None</span>);
+                    <span class="kw">return </span>Transition::Multi(<span class="macro">vec!</span>[Transition::Pop, Transition::Pop]);
                 }
-                <span class="string">&quot;back&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">idx</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-                    <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span>
-                        <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenes</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">make_task</span>, <span class="self">self</span>.<span class="ident">idx</span>);
+                <span class="string">&quot;back&quot; </span>=&gt; {
+                    <span class="self">self</span>.idx -= <span class="number">1</span>;
+                    <span class="self">self</span>.panel =
+                        make_panel(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenes, <span class="kw-2">&amp;</span><span class="self">self</span>.make_task, <span class="self">self</span>.idx);
                 }
-                <span class="string">&quot;next&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                    <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span>
-                        <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenes</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">make_task</span>, <span class="self">self</span>.<span class="ident">idx</span>);
+                <span class="string">&quot;next&quot; </span>=&gt; {
+                    <span class="self">self</span>.idx += <span class="number">1</span>;
+                    <span class="self">self</span>.panel =
+                        make_panel(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenes, <span class="kw-2">&amp;</span><span class="self">self</span>.make_task, <span class="self">self</span>.idx);
                 }
-                <span class="string">&quot;Skip cutscene&quot;</span> =&gt; {
-                    <span class="self">self</span>.<span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">scenes</span>.<span class="ident">len</span>();
-                    <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span>
-                        <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenes</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">make_task</span>, <span class="self">self</span>.<span class="ident">idx</span>);
+                <span class="string">&quot;Skip cutscene&quot; </span>=&gt; {
+                    <span class="self">self</span>.idx = <span class="self">self</span>.scenes.len();
+                    <span class="self">self</span>.panel =
+                        make_panel(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenes, <span class="kw-2">&amp;</span><span class="self">self</span>.make_task, <span class="self">self</span>.idx);
                 }
-                <span class="string">&quot;Start&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                <span class="string">&quot;Start&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="comment">// TODO Should the Panel for text widgets with wrapping do this instead?</span>
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">is_window_resized</span>() {
-            <span class="self">self</span>.<span class="ident">panel</span> <span class="op">=</span> <span class="ident">make_panel</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenes</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">make_task</span>, <span class="self">self</span>.<span class="ident">idx</span>);
+        <span class="comment">// TODO Should the Panel for text widgets with wrapping do this instead?
+        </span><span class="kw">if </span>ctx.input.is_window_resized() {
+            <span class="self">self</span>.panel = make_panel(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.name, <span class="kw-2">&amp;</span><span class="self">self</span>.scenes, <span class="kw-2">&amp;</span><span class="self">self</span>.make_task, <span class="self">self</span>.idx);
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_panel</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">scenes</span>: <span class="kw-2">&amp;</span>[<span class="ident">Scene</span>],
-    <span class="ident">make_task</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span>,
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
-) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="ident">prev_builder</span> <span class="op">=</span> <span class="ident">ButtonStyle::plain_dark_fg</span>()
-        .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/circled_prev.svg&quot;</span>)
-        .<span class="ident">image_dims</span>(<span class="number">45.0</span>)
-        .<span class="ident">hotkey</span>(<span class="ident">Key::LeftArrow</span>)
-        .<span class="ident">bg_color</span>(<span class="ident">Color::CLEAR</span>, <span class="ident">ControlState::Disabled</span>);
+<span class="kw">fn </span>make_panel(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    name: <span class="kw-2">&amp;</span>str,
+    scenes: <span class="kw-2">&amp;</span>[Scene],
+    make_task: <span class="kw-2">&amp;</span><span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget,
+    idx: usize,
+) -&gt; Panel {
+    <span class="kw">let </span>prev_builder = ButtonStyle::plain_dark_fg()
+        .icon(<span class="string">&quot;system/assets/tools/circled_prev.svg&quot;</span>)
+        .image_dims(<span class="number">45.0</span>)
+        .hotkey(Key::LeftArrow)
+        .bg_color(Color::CLEAR, ControlState::Disabled);
 
-    <span class="kw">let</span> <span class="ident">next</span> <span class="op">=</span> <span class="ident">prev_builder</span>
-        .<span class="ident">clone</span>()
-        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/tools/circled_next.svg&quot;</span>)
-        .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec!</span>[<span class="ident">Key::RightArrow</span>, <span class="ident">Key::Space</span>, <span class="ident">Key::Enter</span>]))
-        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next&quot;</span>);
+    <span class="kw">let </span>next = prev_builder
+        .clone()
+        .image_path(<span class="string">&quot;system/assets/tools/circled_next.svg&quot;</span>)
+        .hotkey(hotkeys(<span class="macro">vec!</span>[Key::RightArrow, Key::Space, Key::Enter]))
+        .build_widget(ctx, <span class="string">&quot;next&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">prev</span> <span class="op">=</span> <span class="ident">prev_builder</span>.<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span>).<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;back&quot;</span>);
+    <span class="kw">let </span>prev = prev_builder.disabled(idx == <span class="number">0</span>).build_widget(ctx, <span class="string">&quot;back&quot;</span>);
 
-    <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">scenes</span>.<span class="ident">len</span>() {
-        <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-            (<span class="ident">make_task</span>)(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Start&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_horiz</span>()
-                .<span class="ident">align_bottom</span>(),
+    <span class="kw">let </span>inner = <span class="kw">if </span>idx == scenes.len() {
+        Widget::custom_col(<span class="macro">vec!</span>[
+            (make_task)(ctx),
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Start&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx)
+                .centered_horiz()
+                .align_bottom(),
         ])
-    } <span class="kw">else</span> {
-        <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-            <span class="kw">match</span> <span class="ident">scenes</span>[<span class="ident">idx</span>].<span class="ident">layout</span> {
-                <span class="ident">Layout::PlayerSpeaking</span> =&gt; <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
-                        .<span class="ident">scale</span>(<span class="number">0.75</span>)
-                        .<span class="ident">autocrop</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">scenes</span>[<span class="ident">idx</span>]
-                            .<span class="ident">msg</span>
-                            .<span class="ident">clone</span>()
-                            .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>)
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
-                            .<span class="ident">untinted</span>()
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+    } <span class="kw">else </span>{
+        Widget::custom_col(<span class="macro">vec!</span>[
+            <span class="kw">match </span>scenes[idx].layout {
+                Layout::PlayerSpeaking =&gt; Widget::custom_row(<span class="macro">vec!</span>[
+                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
+                        .scale(<span class="number">0.75</span>)
+                        .autocrop()
+                        .into_widget(ctx),
+                    Widget::custom_row(<span class="macro">vec!</span>[
+                        scenes[idx]
+                            .msg
+                            .clone()
+                            .wrap_to_pct(ctx, <span class="number">30</span>)
+                            .into_widget(ctx),
+                        Image::from_path(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                            .untinted()
+                            .into_widget(ctx),
                     ])
-                    .<span class="ident">align_right</span>(),
+                    .align_right(),
                 ]),
-                <span class="ident">Layout::BossSpeaking</span> =&gt; <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
-                        .<span class="ident">scale</span>(<span class="number">0.75</span>)
-                        .<span class="ident">autocrop</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">scenes</span>[<span class="ident">idx</span>]
-                        .<span class="ident">msg</span>
-                        .<span class="ident">clone</span>()
-                        .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
-                        .<span class="ident">untinted</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">align_right</span>(),
+                Layout::BossSpeaking =&gt; Widget::custom_row(<span class="macro">vec!</span>[
+                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
+                        .scale(<span class="number">0.75</span>)
+                        .autocrop()
+                        .into_widget(ctx),
+                    scenes[idx]
+                        .msg
+                        .clone()
+                        .wrap_to_pct(ctx, <span class="number">30</span>)
+                        .into_widget(ctx),
+                    Image::from_path(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                        .untinted()
+                        .into_widget(ctx)
+                        .align_right(),
                 ]),
-                <span class="ident">Layout::Extra</span>(<span class="ident">filename</span>, <span class="ident">scale</span>) =&gt; <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
-                        .<span class="ident">scale</span>(<span class="number">0.75</span>)
-                        .<span class="ident">autocrop</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                        <span class="ident">GeomBatch::load_svg</span>(
-                            <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-                            <span class="macro">format!</span>(<span class="string">&quot;system/assets/characters/{}&quot;</span>, <span class="ident">filename</span>),
+                Layout::Extra(filename, scale) =&gt; Widget::custom_row(<span class="macro">vec!</span>[
+                    GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/characters/boss.svg.gz&quot;</span>)
+                        .scale(<span class="number">0.75</span>)
+                        .autocrop()
+                        .into_widget(ctx),
+                    Widget::col(<span class="macro">vec!</span>[
+                        GeomBatch::load_svg(
+                            ctx.prerender,
+                            <span class="macro">format!</span>(<span class="string">&quot;system/assets/characters/{}&quot;</span>, filename),
                         )
-                        .<span class="ident">scale</span>(<span class="ident">scale</span>)
-                        .<span class="ident">autocrop</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">scenes</span>[<span class="ident">idx</span>]
-                            .<span class="ident">msg</span>
-                            .<span class="ident">clone</span>()
-                            .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">30</span>)
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                        .scale(scale)
+                        .autocrop()
+                        .into_widget(ctx),
+                        scenes[idx]
+                            .msg
+                            .clone()
+                            .wrap_to_pct(ctx, <span class="number">30</span>)
+                            .into_widget(ctx),
                     ]),
-                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
-                        .<span class="ident">untinted</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    Image::from_path(<span class="string">&quot;system/assets/characters/player.svg&quot;</span>)
+                        .untinted()
+                        .into_widget(ctx),
                 ])
-                .<span class="ident">evenly_spaced</span>(),
+                .evenly_spaced(),
             }
-            .<span class="ident">margin_above</span>(<span class="number">100</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[<span class="ident">prev</span>.<span class="ident">margin_right</span>(<span class="number">40</span>), <span class="ident">next</span>]).<span class="ident">centered_horiz</span>(),
-                <span class="ident">ButtonStyle::outline_dark_fg</span>()
-                    .<span class="ident">text</span>(<span class="string">&quot;Skip cutscene&quot;</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_horiz</span>(),
+            .margin_above(<span class="number">100</span>),
+            Widget::col(<span class="macro">vec!</span>[
+                Widget::row(<span class="macro">vec!</span>[prev.margin_right(<span class="number">40</span>), next]).centered_horiz(),
+                ButtonStyle::outline_dark_fg()
+                    .text(<span class="string">&quot;Skip cutscene&quot;</span>)
+                    .build_def(ctx)
+                    .centered_horiz(),
             ])
-            .<span class="ident">align_bottom</span>(),
+            .align_bottom(),
         ])
     };
 
-    <span class="kw">let</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="ident">name</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_back</span>(<span class="string">&quot;Home&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;quit&quot;</span>)
-                .<span class="ident">align_right</span>(),
+    <span class="kw">let </span>col = <span class="macro">vec!</span>[
+        Widget::row(<span class="macro">vec!</span>[
+            Line(name).small_heading().into_widget(ctx),
+            ctx.style()
+                .btn_back(<span class="string">&quot;Home&quot;</span>)
+                .build_widget(ctx, <span class="string">&quot;quit&quot;</span>)
+                .align_right(),
         ])
-        .<span class="ident">margin_below</span>(<span class="number">40</span>),
-        <span class="ident">inner</span>
-            .<span class="ident">fill_height</span>()
-            .<span class="ident">padding</span>(<span class="number">42</span>)
-            .<span class="ident">bg</span>(<span class="ident">Color::WHITE</span>)
-            .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">outline</span>),
+        .margin_below(<span class="number">40</span>),
+        inner
+            .fill_height()
+            .padding(<span class="number">42</span>)
+            .bg(Color::WHITE)
+            .outline(ctx.style().btn_solid.outline),
     ];
 
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>)
+    Panel::new_builder(Widget::col(col)).build(ctx)
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShowMessage</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>ShowMessage {
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">ShowMessage</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">contents</span>: <span class="ident">Widget</span>, <span class="ident">bg</span>: <span class="ident">Color</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">Box::new</span>(<span class="ident">ShowMessage</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(
-                <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">contents</span>,
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;OK&quot;</span>)
-                        .<span class="ident">hotkey</span>(<span class="ident">hotkeys</span>(<span class="macro">vec!</span>[<span class="ident">Key::Escape</span>, <span class="ident">Key::Space</span>, <span class="ident">Key::Enter</span>]))
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">centered_horiz</span>()
-                        .<span class="ident">align_bottom</span>(),
+<span class="kw">impl </span>ShowMessage {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, contents: Widget, bg: Color) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        Box::new(ShowMessage {
+            panel: Panel::new_builder(
+                Widget::custom_col(<span class="macro">vec!</span>[
+                    contents,
+                    ctx.style()
+                        .btn_solid_primary
+                        .text(<span class="string">&quot;OK&quot;</span>)
+                        .hotkey(hotkeys(<span class="macro">vec!</span>[Key::Escape, Key::Space, Key::Enter]))
+                        .build_def(ctx)
+                        .centered_horiz()
+                        .align_bottom(),
                 ])
-                .<span class="ident">padding</span>(<span class="number">16</span>)
-                .<span class="ident">bg</span>(<span class="ident">bg</span>),
+                .padding(<span class="number">16</span>)
+                .bg(bg),
             )
-            .<span class="ident">exact_size_percent</span>(<span class="number">50</span>, <span class="number">50</span>)
-            .<span class="ident">build_custom</span>(<span class="ident">ctx</span>),
+            .exact_size_percent(<span class="number">50</span>, <span class="number">50</span>)
+            .build_custom(ctx),
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShowMessage</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;OK&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>ShowMessage {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;OK&quot; </span>=&gt; Transition::Pop,
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="kw">_</span> =&gt; <span class="ident">Transition::Keep</span>,
+            <span class="kw">_ </span>=&gt; Transition::Keep,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        grey_out_map(g, app);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

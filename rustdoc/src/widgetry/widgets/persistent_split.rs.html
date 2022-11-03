@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/persistent_split.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>persistent_split.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/persistent_split.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>persistent_split.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -133,140 +133,140 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Polygon</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>geom::Polygon;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Button</span>, <span class="ident">ButtonBuilder</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">Dropdown</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
-    <span class="ident">JustDraw</span>, <span class="ident">MultiKey</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>, <span class="ident">WidgetOutput</span>,
+<span class="kw">use crate</span>::{
+    Button, ButtonBuilder, Choice, Color, ControlState, Dropdown, EventCtx, GeomBatch, GfxCtx,
+    JustDraw, MultiKey, Outcome, ScreenDims, ScreenPt, Widget, WidgetImpl, WidgetOutput,
 };
 
-<span class="comment">// TODO Radio buttons in the menu</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PersistentSplit</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span><span class="op">&gt;</span> {
-    <span class="ident">current_value</span>: <span class="ident">T</span>,
-    <span class="ident">btn</span>: <span class="ident">Button</span>,
-    <span class="ident">spacer</span>: <span class="ident">JustDraw</span>,
-    <span class="ident">dropdown</span>: <span class="ident">Dropdown</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="comment">// TODO Radio buttons in the menu
+</span><span class="kw">pub struct </span>PersistentSplit&lt;T: Clone + PartialEq&gt; {
+    current_value: T,
+    btn: Button,
+    spacer: JustDraw,
+    dropdown: Dropdown&lt;T&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">std::fmt::Debug</span><span class="op">&gt;</span> <span class="ident">PersistentSplit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">widget</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">default_value</span>: <span class="ident">T</span>,
-        <span class="ident">hotkey</span>: <span class="ident">MK</span>,
-        <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">outline</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">outline</span>;
-        <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">PersistentSplit::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">label</span>,
-            <span class="ident">default_value</span>,
-            <span class="ident">hotkey</span>,
-            <span class="ident">choices</span>,
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ PartialEq + Clone + std::fmt::Debug&gt; PersistentSplit&lt;T&gt; {
+    <span class="kw">pub fn </span>widget&lt;MK: Into&lt;<span class="prelude-ty">Option</span>&lt;MultiKey&gt;&gt;&gt;(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        label: <span class="kw-2">&amp;</span>str,
+        default_value: T,
+        hotkey: MK,
+        choices: Vec&lt;Choice&lt;T&gt;&gt;,
+    ) -&gt; Widget {
+        <span class="kw">let </span>outline = ctx.style().btn_outline.outline;
+        Widget::new(Box::new(PersistentSplit::new(
+            ctx,
+            label,
+            default_value,
+            hotkey,
+            choices,
         )))
-        .<span class="ident">outline</span>(<span class="ident">outline</span>)
-        .<span class="ident">named</span>(<span class="ident">label</span>)
+        .outline(outline)
+        .named(label)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">default_value</span>: <span class="ident">T</span>,
-        <span class="ident">hotkey</span>: <span class="ident">MK</span>,
-        <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">PersistentSplit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">dropdown</span> <span class="op">=</span> <span class="ident">Dropdown::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;change&quot;</span>, <span class="ident">default_value</span>, <span class="ident">choices</span>, <span class="bool-val">true</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">button_builder</span>(<span class="ident">ctx</span>).<span class="ident">label_text</span>(<span class="ident">dropdown</span>.<span class="ident">current_value_label</span>());
+    <span class="kw">pub fn </span>new&lt;MK: Into&lt;<span class="prelude-ty">Option</span>&lt;MultiKey&gt;&gt;&gt;(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        label: <span class="kw-2">&amp;</span>str,
+        default_value: T,
+        hotkey: MK,
+        choices: Vec&lt;Choice&lt;T&gt;&gt;,
+    ) -&gt; PersistentSplit&lt;T&gt; {
+        <span class="kw">let </span>dropdown = Dropdown::new(ctx, <span class="string">&quot;change&quot;</span>, default_value, choices, <span class="bool-val">true</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>btn = button_builder(ctx).label_text(dropdown.current_value_label());
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">multikey</span>) <span class="op">=</span> <span class="ident">hotkey</span>.<span class="ident">into</span>() {
-            <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">hotkey</span>(<span class="ident">multikey</span>)
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(multikey) = hotkey.into() {
+            btn = btn.hotkey(multikey)
         }
-        <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">label</span>);
+        <span class="kw">let </span>btn = btn.build(ctx, label);
 
-        <span class="kw">let</span> <span class="ident">outline_style</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>;
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outline_color</span>) <span class="op">=</span> <span class="ident">outline_style</span>.<span class="ident">outline</span>;
+        <span class="kw">let </span>outline_style = <span class="kw-2">&amp;</span>ctx.style().btn_outline;
+        <span class="kw">let </span>(<span class="kw">_</span>, outline_color) = outline_style.outline;
 
-        <span class="ident">PersistentSplit</span> {
-            <span class="ident">current_value</span>: <span class="ident">dropdown</span>.<span class="ident">current_value</span>(),
-            <span class="ident">spacer</span>: <span class="ident">JustDraw::wrap</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-                    <span class="ident">outline_color</span>,
-                    <span class="ident">Polygon::rectangle</span>(<span class="number">3.0</span>, <span class="ident">btn</span>.<span class="ident">get_dims</span>().<span class="ident">height</span>),
+        PersistentSplit {
+            current_value: dropdown.current_value(),
+            spacer: JustDraw::wrap(
+                ctx,
+                GeomBatch::from(<span class="macro">vec!</span>[(
+                    outline_color,
+                    Polygon::rectangle(<span class="number">3.0</span>, btn.get_dims().height),
                 )]),
             )
-            .<span class="ident">take_just_draw</span>(),
-            <span class="ident">btn</span>,
-            <span class="ident">dropdown</span>,
+            .take_just_draw(),
+            btn,
+            dropdown,
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">button_builder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">ButtonBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span><span class="op">&gt;</span> {
-    <span class="ident">ctx</span>.<span class="ident">style</span>()
-        .<span class="ident">btn_plain</span>
-        .<span class="ident">btn</span>()
-        .<span class="ident">outline</span>((<span class="number">0.0</span>, <span class="ident">Color::CLEAR</span>), <span class="ident">ControlState::Default</span>)
+<span class="kw">fn </span>button_builder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt;(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; ButtonBuilder&lt;<span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;c</span>&gt; {
+    ctx.style()
+        .btn_plain
+        .btn()
+        .outline((<span class="number">0.0</span>, Color::CLEAR), ControlState::Default)
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">PersistentSplit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">T</span> {
-        <span class="self">self</span>.<span class="ident">current_value</span>.<span class="ident">clone</span>()
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ PartialEq + Clone&gt; PersistentSplit&lt;T&gt; {
+    <span class="kw">pub fn </span>current_value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; T {
+        <span class="self">self</span>.current_value.clone()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span><span class="op">&gt;</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">PersistentSplit</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="kw">let</span> <span class="ident">dims1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">get_dims</span>();
-        <span class="kw">let</span> <span class="ident">dims2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">spacer</span>.<span class="ident">get_dims</span>();
-        <span class="kw">let</span> <span class="ident">dims3</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dropdown</span>.<span class="ident">get_dims</span>();
-        <span class="ident">ScreenDims::new</span>(
-            <span class="ident">dims1</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">dims2</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">dims3</span>.<span class="ident">width</span>,
-            <span class="ident">dims1</span>.<span class="ident">height</span>.<span class="ident">max</span>(<span class="ident">dims2</span>.<span class="ident">height</span>).<span class="ident">max</span>(<span class="ident">dims3</span>.<span class="ident">height</span>),
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Clone + PartialEq&gt; WidgetImpl <span class="kw">for </span>PersistentSplit&lt;T&gt; {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="kw">let </span>dims1 = <span class="self">self</span>.btn.get_dims();
+        <span class="kw">let </span>dims2 = <span class="self">self</span>.spacer.get_dims();
+        <span class="kw">let </span>dims3 = <span class="self">self</span>.dropdown.get_dims();
+        ScreenDims::new(
+            dims1.width + dims2.width + dims3.width,
+            dims1.height.max(dims2.height).max(dims3.height),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">set_pos</span>(<span class="ident">top_left</span>);
-        <span class="self">self</span>.<span class="ident">spacer</span>
-            .<span class="ident">set_pos</span>(<span class="ident">ScreenPt::new</span>(<span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">dims</span>.<span class="ident">width</span>, <span class="ident">top_left</span>.<span class="ident">y</span>));
-        <span class="self">self</span>.<span class="ident">dropdown</span>.<span class="ident">set_pos</span>(<span class="ident">ScreenPt::new</span>(
-            <span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">dims</span>.<span class="ident">width</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">spacer</span>.<span class="ident">get_dims</span>().<span class="ident">width</span>,
-            <span class="ident">top_left</span>.<span class="ident">y</span>,
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+        <span class="self">self</span>.btn.set_pos(top_left);
+        <span class="self">self</span>.spacer
+            .set_pos(ScreenPt::new(top_left.x + <span class="self">self</span>.btn.dims.width, top_left.y));
+        <span class="self">self</span>.dropdown.set_pos(ScreenPt::new(
+            top_left.x + <span class="self">self</span>.btn.dims.width + <span class="self">self</span>.spacer.get_dims().width,
+            top_left.y,
         ));
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">output</span>.<span class="ident">outcome</span> {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, output: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="self">self</span>.btn.event(ctx, output);
+        <span class="kw">if let </span>Outcome::Clicked(<span class="kw">_</span>) = output.outcome {
             <span class="kw">return</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp_output</span> <span class="op">=</span> <span class="ident">WidgetOutput::new</span>();
-        <span class="self">self</span>.<span class="ident">dropdown</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">tmp_output</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>tmp_output = WidgetOutput::new();
+        <span class="self">self</span>.dropdown.event(ctx, <span class="kw-2">&amp;mut </span>tmp_output);
 
-        <span class="kw">let</span> <span class="ident">new_value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dropdown</span>.<span class="ident">current_value</span>();
-        <span class="kw">if</span> <span class="ident">new_value</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_value</span> {
-            <span class="self">self</span>.<span class="ident">current_value</span> <span class="op">=</span> <span class="ident">new_value</span>;
-            <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">action</span>.<span class="ident">clone</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">button_builder</span> <span class="op">=</span>
-                <span class="ident">button_builder</span>(<span class="ident">ctx</span>).<span class="ident">label_text</span>(<span class="self">self</span>.<span class="ident">dropdown</span>.<span class="ident">current_value_label</span>());
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">multikey</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">hotkey</span>.<span class="ident">take</span>() {
-                <span class="ident">button_builder</span> <span class="op">=</span> <span class="ident">button_builder</span>.<span class="ident">hotkey</span>(<span class="ident">multikey</span>)
+        <span class="kw">let </span>new_value = <span class="self">self</span>.dropdown.current_value();
+        <span class="kw">if </span>new_value != <span class="self">self</span>.current_value {
+            <span class="self">self</span>.current_value = new_value;
+            <span class="kw">let </span>label = <span class="self">self</span>.btn.action.clone();
+            <span class="kw">let </span><span class="kw-2">mut </span>button_builder =
+                button_builder(ctx).label_text(<span class="self">self</span>.dropdown.current_value_label());
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(multikey) = <span class="self">self</span>.btn.hotkey.take() {
+                button_builder = button_builder.hotkey(multikey)
             }
-            <span class="self">self</span>.<span class="ident">btn</span> <span class="op">=</span> <span class="ident">button_builder</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">label</span>);
-            <span class="ident">output</span>.<span class="ident">redo_layout</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Changed</span>(<span class="ident">label</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Focused</span>(<span class="kw">_</span>) <span class="op">=</span> <span class="ident">tmp_output</span>.<span class="ident">outcome</span> {
-            <span class="ident">output</span>.<span class="ident">outcome</span> <span class="op">=</span> <span class="ident">Outcome::Focused</span>(<span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">action</span>.<span class="ident">clone</span>());
+            <span class="self">self</span>.btn = button_builder.build(ctx, <span class="kw-2">&amp;</span>label);
+            output.redo_layout = <span class="bool-val">true</span>;
+            output.outcome = Outcome::Changed(label);
+        } <span class="kw">else if let </span>Outcome::Focused(<span class="kw">_</span>) = tmp_output.outcome {
+            output.outcome = Outcome::Focused(<span class="self">self</span>.btn.action.clone());
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="self">self</span>.<span class="ident">btn</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">spacer</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">dropdown</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="self">self</span>.btn.draw(g);
+        <span class="self">self</span>.spacer.draw(g);
+        <span class="self">self</span>.dropdown.draw(g);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

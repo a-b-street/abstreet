@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/geom/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/geom/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -367,374 +367,374 @@
 <span id="367">367</span>
 <span id="368">368</span>
 <span id="369">369</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Bounds</span>, <span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Angle, Bounds, GPSBounds, Polygon, Pt2D, Tessellation};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GfxCtx</span>, <span class="ident">JustDraw</span>, <span class="ident">Prerender</span>, <span class="ident">ScreenDims</span>,
-    <span class="ident">Widget</span>,
+<span class="kw">use crate</span>::{
+    svg, Color, DeferDraw, Drawable, EventCtx, Fill, GfxCtx, JustDraw, Prerender, ScreenDims,
+    Widget,
 };
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">geom_batch_stack</span>;
+<span class="kw">pub mod </span>geom_batch_stack;
 
-<span class="doccomment">/// A mutable builder for a group of colored tessellated polygons.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GeomBatch</span> {
-    <span class="comment">// f64 is the z-value offset. This must be in (-1, 0], with values closer to -1.0</span>
-    <span class="comment">// rendering above values closer to 0.0.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Tessellation</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">autocrop_dims</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// A mutable builder for a group of colored tessellated polygons.
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>GeomBatch {
+    <span class="comment">// f64 is the z-value offset. This must be in (-1, 0], with values closer to -1.0
+    // rendering above values closer to 0.0.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) list: Vec&lt;(Fill, Tessellation, f64)&gt;,
+    <span class="kw">pub </span>autocrop_dims: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">std::fmt::Debug</span> <span class="kw">for</span> <span class="ident">GeomBatch</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;GeomBatch&quot;</span>)
-            .<span class="ident">field</span>(<span class="string">&quot;bounds&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">get_bounds</span>())
-            .<span class="ident">field</span>(<span class="string">&quot;items&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">list</span>.<span class="ident">len</span>())
-            .<span class="ident">field</span>(<span class="string">&quot;autocrop_dims&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">autocrop_dims</span>)
-            .<span class="ident">finish</span>()
+<span class="kw">impl </span>std::fmt::Debug <span class="kw">for </span>GeomBatch {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
+        f.debug_struct(<span class="string">&quot;GeomBatch&quot;</span>)
+            .field(<span class="string">&quot;bounds&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.get_bounds())
+            .field(<span class="string">&quot;items&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.list.len())
+            .field(<span class="string">&quot;autocrop_dims&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.autocrop_dims)
+            .finish()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">GeomBatch</span> {
-    <span class="doccomment">/// Creates an empty batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">GeomBatch</span> {
-        <span class="ident">GeomBatch</span> {
-            <span class="ident">list</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">autocrop_dims</span>: <span class="bool-val">true</span>,
+<span class="kw">impl </span>GeomBatch {
+    <span class="doccomment">/// Creates an empty batch.
+    </span><span class="kw">pub fn </span>new() -&gt; GeomBatch {
+        GeomBatch {
+            list: Vec::new(),
+            autocrop_dims: <span class="bool-val">true</span>,
         }
     }
 
-    <span class="doccomment">/// Adds a single tessellated polygon, painted according to `Fill`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">T</span>) {
-        <span class="self">self</span>.<span class="ident">push_with_z</span>(<span class="ident">fill</span>, <span class="ident">p</span>, <span class="number">0.0</span>);
+    <span class="doccomment">/// Adds a single tessellated polygon, painted according to `Fill`
+    </span><span class="kw">pub fn </span>push&lt;F: Into&lt;Fill&gt;, T: Into&lt;Tessellation&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fill: F, p: T) {
+        <span class="self">self</span>.push_with_z(fill, p, <span class="number">0.0</span>);
     }
 
-    <span class="doccomment">/// Offset z value to render above/below other polygons.</span>
-    <span class="doccomment">/// z must be in (-1, 0] to ensure we don&#39;t traverse layers of the UI - to make</span>
-    <span class="doccomment">/// sure we don&#39;t inadvertently render something *above* a tooltip, etc.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_with_z</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">fill</span>: <span class="ident">F</span>,
-        <span class="ident">p</span>: <span class="ident">T</span>,
-        <span class="ident">z_offset</span>: <span class="ident">f64</span>,
+    <span class="doccomment">/// Offset z value to render above/below other polygons.
+    /// z must be in (-1, 0] to ensure we don&#39;t traverse layers of the UI - to make
+    /// sure we don&#39;t inadvertently render something *above* a tooltip, etc.
+    </span><span class="kw">pub fn </span>push_with_z&lt;F: Into&lt;Fill&gt;, T: Into&lt;Tessellation&gt;&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        fill: F,
+        p: T,
+        z_offset: f64,
     ) {
-        <span class="macro">debug_assert!</span>(<span class="ident">z_offset</span> <span class="op">&gt;</span> <span class="op">-</span><span class="number">1.0</span>);
-        <span class="macro">debug_assert!</span>(<span class="ident">z_offset</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.0</span>);
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">fill</span>.<span class="ident">into</span>(), <span class="ident">p</span>.<span class="ident">into</span>(), <span class="ident">z_offset</span>));
+        <span class="macro">debug_assert!</span>(z_offset &gt; -<span class="number">1.0</span>);
+        <span class="macro">debug_assert!</span>(z_offset &lt;= <span class="number">0.0</span>);
+        <span class="self">self</span>.list.push((fill.into(), p.into(), z_offset));
     }
 
-    <span class="doccomment">/// Adds a single polygon to the front of the batch, painted according to `Fill`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unshift</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">p</span>: <span class="ident">T</span>) {
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">insert</span>(<span class="number">0</span>, (<span class="ident">fill</span>.<span class="ident">into</span>(), <span class="ident">p</span>.<span class="ident">into</span>(), <span class="number">0.0</span>));
+    <span class="doccomment">/// Adds a single polygon to the front of the batch, painted according to `Fill`
+    </span><span class="kw">pub fn </span>unshift&lt;F: Into&lt;Fill&gt;, T: Into&lt;Tessellation&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fill: F, p: T) {
+        <span class="self">self</span>.list.insert(<span class="number">0</span>, (fill.into(), p.into(), <span class="number">0.0</span>));
     }
 
-    <span class="doccomment">/// Removes the first polygon in the batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">remove</span>(<span class="number">0</span>);
+    <span class="doccomment">/// Removes the first polygon in the batch.
+    </span><span class="kw">pub fn </span>shift(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.list.remove(<span class="number">0</span>);
     }
 
-    <span class="doccomment">/// Applies one Fill to many polygons.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">fill</span>: <span class="ident">F</span>, <span class="ident">polys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">fill</span> <span class="op">=</span> <span class="ident">fill</span>.<span class="ident">into</span>();
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polys</span> {
-            <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">push</span>((<span class="ident">fill</span>.<span class="ident">clone</span>(), <span class="ident">p</span>.<span class="ident">into</span>(), <span class="number">0.0</span>));
+    <span class="doccomment">/// Applies one Fill to many polygons.
+    </span><span class="kw">pub fn </span>extend&lt;F: Into&lt;Fill&gt;, T: Into&lt;Tessellation&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, fill: F, polys: Vec&lt;T&gt;) {
+        <span class="kw">let </span>fill = fill.into();
+        <span class="kw">for </span>p <span class="kw">in </span>polys {
+            <span class="self">self</span>.list.push((fill.clone(), p.into(), <span class="number">0.0</span>));
         }
     }
 
-    <span class="doccomment">/// Appends all colored polygons from another batch to the current one.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">GeomBatch</span>) {
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">list</span>);
+    <span class="doccomment">/// Appends all colored polygons from another batch to the current one.
+    </span><span class="kw">pub fn </span>append(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: GeomBatch) {
+        <span class="self">self</span>.list.extend(other.list);
     }
 
-    <span class="doccomment">/// Returns the colored polygons in this batch, destroying the batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Fill</span>, <span class="ident">Tessellation</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">list</span>
+    <span class="doccomment">/// Returns the colored polygons in this batch, destroying the batch.
+    </span><span class="kw">pub fn </span>consume(<span class="self">self</span>) -&gt; Vec&lt;(Fill, Tessellation, f64)&gt; {
+        <span class="self">self</span>.list
     }
 
-    <span class="doccomment">/// Draws the batch, consuming it. Only use this for drawing things once.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">let</span> <span class="ident">obj</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">prerender</span>.<span class="ident">upload_temporary</span>(<span class="self">self</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">obj</span>);
+    <span class="doccomment">/// Draws the batch, consuming it. Only use this for drawing things once.
+    </span><span class="kw">pub fn </span>draw(<span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="kw">let </span>obj = g.prerender.upload_temporary(<span class="self">self</span>);
+        g.redraw(<span class="kw-2">&amp;</span>obj);
     }
 
-    <span class="doccomment">/// Upload the batch of polygons to the GPU, returning something that can be cheaply redrawn</span>
-    <span class="doccomment">/// many times later.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="ident">ctx</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Upload the batch of polygons to the GPU, returning something that can be cheaply redrawn
+    /// many times later.
+    </span><span class="kw">pub fn </span>upload(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Drawable {
+        ctx.prerender.upload(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Wrap in a Widget for layouting, so this batch can become part of a larger one.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">DeferDraw::new_widget</span>(<span class="self">self</span>)
+    <span class="doccomment">/// Wrap in a Widget for layouting, so this batch can become part of a larger one.
+    </span><span class="kw">pub fn </span>batch(<span class="self">self</span>) -&gt; Widget {
+        DeferDraw::new_widget(<span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Wrap in a Widget, so the batch can be drawn as part of a Panel.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">JustDraw::wrap</span>(<span class="ident">ctx</span>, <span class="self">self</span>)
+    <span class="doccomment">/// Wrap in a Widget, so the batch can be drawn as part of a Panel.
+    </span><span class="kw">pub fn </span>into_widget(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        JustDraw::wrap(ctx, <span class="self">self</span>)
     }
 
-    <span class="doccomment">/// Compute the bounds of all polygons in this batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bounds</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">Bounds::new</span>();
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">list</span> {
-            <span class="ident">bounds</span>.<span class="ident">union</span>(<span class="ident">poly</span>.<span class="ident">get_bounds</span>());
+    <span class="doccomment">/// Compute the bounds of all polygons in this batch.
+    </span><span class="kw">pub fn </span>get_bounds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bounds {
+        <span class="kw">let </span><span class="kw-2">mut </span>bounds = Bounds::new();
+        <span class="kw">for </span>(<span class="kw">_</span>, poly, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.list {
+            bounds.union(poly.get_bounds());
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">autocrop_dims</span> {
-            <span class="ident">bounds</span>.<span class="ident">update</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>));
+        <span class="kw">if </span>!<span class="self">self</span>.autocrop_dims {
+            bounds.update(Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>));
         }
-        <span class="ident">bounds</span>
+        bounds
     }
 
-    <span class="doccomment">/// Sets the top-left to 0, 0. Not sure exactly when this should be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autocrop</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>();
-        <span class="kw">if</span> <span class="ident">bounds</span>.<span class="ident">min_x</span> <span class="op">==</span> <span class="number">0.0</span> <span class="op">&amp;&amp;</span> <span class="ident">bounds</span>.<span class="ident">min_y</span> <span class="op">==</span> <span class="number">0.0</span> {
-            <span class="kw">return</span> <span class="self">self</span>;
+    <span class="doccomment">/// Sets the top-left to 0, 0. Not sure exactly when this should be used.
+    </span><span class="kw">pub fn </span>autocrop(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; GeomBatch {
+        <span class="kw">let </span>bounds = <span class="self">self</span>.get_bounds();
+        <span class="kw">if </span>bounds.min_x == <span class="number">0.0 </span>&amp;&amp; bounds.min_y == <span class="number">0.0 </span>{
+            <span class="kw">return </span><span class="self">self</span>;
         }
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="ident">poly</span>.<span class="ident">translate</span>(<span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="op">-</span><span class="ident">bounds</span>.<span class="ident">min_y</span>);
+        <span class="kw">for </span>(<span class="kw">_</span>, poly, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
+            poly.translate(-bounds.min_x, -bounds.min_y);
         }
-        <span class="self">self</span>
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// True when the batch is empty.
+    </span><span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.list.is_empty()
     }
 
-    <span class="doccomment">/// True when the batch is empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">is_empty</span>()
-    }
-
-    <span class="doccomment">/// Returns the width and height of all geometry contained in the batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="comment">// TODO Maybe warn about this happening and avoid in the first place? Sometimes we wind up</span>
-        <span class="comment">// trying to draw completely empty text.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="ident">ScreenDims::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
+    <span class="doccomment">/// Returns the width and height of all geometry contained in the batch.
+    </span><span class="kw">pub fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="comment">// TODO Maybe warn about this happening and avoid in the first place? Sometimes we wind up
+        // trying to draw completely empty text.
+        </span><span class="kw">if </span><span class="self">self</span>.is_empty() {
+            <span class="kw">return </span>ScreenDims::new(<span class="number">0.0</span>, <span class="number">0.0</span>);
         }
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>();
-        <span class="ident">ScreenDims::new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>())
+        <span class="kw">let </span>bounds = <span class="self">self</span>.get_bounds();
+        ScreenDims::new(bounds.width(), bounds.height())
     }
 
-    <span class="doccomment">/// Returns a batch containing an SVG from a file.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span>, <span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>, <span class="ident">filename</span>: <span class="ident">I</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="ident">svg::load_svg</span>(<span class="ident">prerender</span>.<span class="ident">as_ref</span>(), <span class="ident">filename</span>.<span class="ident">as_ref</span>()).<span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns a batch containing an SVG from a file.
+    </span><span class="kw">pub fn </span>load_svg&lt;P: AsRef&lt;Prerender&gt;, I: AsRef&lt;str&gt;&gt;(prerender: <span class="kw-2">&amp;</span>P, filename: I) -&gt; GeomBatch {
+        svg::load_svg(prerender.as_ref(), filename.as_ref()).<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg_bytes</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">P</span>,
-        <span class="ident">labeled_bytes</span>: (<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]),
-    ) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="ident">svg::load_svg_bytes</span>(<span class="ident">prerender</span>.<span class="ident">as_ref</span>(), <span class="ident">labeled_bytes</span>.<span class="number">0</span>, <span class="ident">labeled_bytes</span>.<span class="number">1</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;invalid svg bytes&quot;</span>)
-            .<span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.
+    </span><span class="kw">pub fn </span>load_svg_bytes&lt;P: AsRef&lt;Prerender&gt;&gt;(
+        prerender: <span class="kw-2">&amp;</span>P,
+        labeled_bytes: (<span class="kw-2">&amp;</span>str, <span class="kw-2">&amp;</span>[u8]),
+    ) -&gt; GeomBatch {
+        svg::load_svg_bytes(prerender.as_ref(), labeled_bytes.<span class="number">0</span>, labeled_bytes.<span class="number">1</span>)
+            .expect(<span class="string">&quot;invalid svg bytes&quot;</span>)
+            .<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Prefer to use `load_svg_bytes`, which caches the parsed SVG, unless</span>
-    <span class="doccomment">/// the SVG was dynamically generated, or is otherwise unlikely to be</span>
-    <span class="doccomment">/// reused.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_svg_bytes_uncached</span>(<span class="ident">raw</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="ident">svg::load_svg_from_bytes_uncached</span>(<span class="ident">raw</span>).<span class="ident">unwrap</span>().<span class="number">0</span>
-    }
+    <span class="doccomment">/// Returns a GeomBatch from the bytes of a utf8 encoded SVG string.
+    ///
+    /// Prefer to use `load_svg_bytes`, which caches the parsed SVG, unless
+    /// the SVG was dynamically generated, or is otherwise unlikely to be
+    /// reused.
+    </span><span class="kw">pub fn </span>load_svg_bytes_uncached(raw: <span class="kw-2">&amp;</span>[u8]) -&gt; GeomBatch {
+        svg::load_svg_from_bytes_uncached(raw).unwrap().<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Transforms all colors in a batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">transformation</span>: <span class="ident">RewriteColor</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">for</span> (<span class="ident">fancy</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Fill::Color</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">c</span>) <span class="op">=</span> <span class="ident">fancy</span> {
-                <span class="kw-2">*</span><span class="ident">c</span> <span class="op">=</span> <span class="ident">transformation</span>.<span class="ident">apply</span>(<span class="kw-2">*</span><span class="ident">c</span>);
+    <span class="doccomment">/// Transforms all colors in a batch.
+    </span><span class="kw">pub fn </span>color(<span class="kw-2">mut </span><span class="self">self</span>, transformation: RewriteColor) -&gt; GeomBatch {
+        <span class="kw">for </span>(fancy, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
+            <span class="kw">if let </span>Fill::Color(<span class="kw-2">ref mut </span>c) = fancy {
+                <span class="kw-2">*</span>c = transformation.apply(<span class="kw-2">*</span>c);
             }
         }
-        <span class="self">self</span>
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Translates the batch to be centered on some point.
+    </span><span class="kw">pub fn </span>centered_on(<span class="self">self</span>, center: Pt2D) -&gt; GeomBatch {
+        <span class="kw">let </span>dims = <span class="self">self</span>.get_dims();
+        <span class="kw">let </span>dx = center.x() - dims.width / <span class="number">2.0</span>;
+        <span class="kw">let </span>dy = center.y() - dims.height / <span class="number">2.0</span>;
+        <span class="self">self</span>.translate(dx, dy)
     }
 
-    <span class="doccomment">/// Translates the batch to be centered on some point.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">centered_on</span>(<span class="self">self</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_dims</span>();
-        <span class="kw">let</span> <span class="ident">dx</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="kw">let</span> <span class="ident">dy</span> <span class="op">=</span> <span class="ident">center</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">dims</span>.<span class="ident">height</span> <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="self">self</span>.<span class="ident">translate</span>(<span class="ident">dx</span>, <span class="ident">dy</span>)
+    <span class="doccomment">/// Translates the batch by some offset.
+    </span><span class="kw">pub fn </span>translate(<span class="kw-2">mut </span><span class="self">self</span>, dx: f64, dy: f64) -&gt; GeomBatch {
+        <span class="kw">for </span>(<span class="kw">_</span>, poly, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
+            poly.translate(dx, dy);
+        }
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Rotates each polygon in the batch relative to the center of that polygon.
+    </span><span class="kw">pub fn </span>rotate(<span class="kw-2">mut </span><span class="self">self</span>, angle: Angle) -&gt; GeomBatch {
+        <span class="kw">for </span>(<span class="kw">_</span>, poly, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
+            poly.rotate(angle);
+        }
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Rotates each polygon in the batch relative to the center of the entire batch.
+    </span><span class="kw">pub fn </span>rotate_around_batch_center(<span class="kw-2">mut </span><span class="self">self</span>, angle: Angle) -&gt; GeomBatch {
+        <span class="comment">// Bounds won&#39;t be defined if so
+        </span><span class="kw">if </span><span class="self">self</span>.list.is_empty() {
+            <span class="kw">return </span><span class="self">self</span>;
+        }
+
+        <span class="kw">let </span>center = <span class="self">self</span>.get_bounds().center();
+        <span class="kw">for </span>(<span class="kw">_</span>, poly, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
+            poly.rotate_around(angle, center);
+        }
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Equivalent to
+    /// `self.scale(scale).centered_on(center_on).rotate_around_batch_center(rotate)`, but faster.
+    </span><span class="kw">pub fn </span>multi_transform(<span class="kw-2">mut </span><span class="self">self</span>, scale: f64, center_on: Pt2D, rotate: Angle) -&gt; GeomBatch {
+        <span class="kw">if </span><span class="self">self</span>.list.is_empty() {
+            <span class="kw">return </span><span class="self">self</span>;
+        }
+
+        <span class="kw">let </span>bounds = <span class="self">self</span>.get_bounds().scale(scale);
+        <span class="kw">let </span>dx = center_on.x() - bounds.width() / <span class="number">2.0</span>;
+        <span class="kw">let </span>dy = center_on.y() - bounds.height() / <span class="number">2.0</span>;
+        <span class="kw">let </span>rotate_around_pt = bounds.center().offset(dx, dy);
+
+        <span class="kw">for </span>(<span class="kw">_</span>, poly, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
+            poly.inplace_multi_transform(scale, dx, dy, rotate, rotate_around_pt);
+        }
+
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Scales the batch by some factor.
+    </span><span class="kw">pub fn </span>scale(<span class="self">self</span>, factor: f64) -&gt; GeomBatch {
+        <span class="self">self</span>.scale_xy(factor, factor)
     }
 
-    <span class="doccomment">/// Translates the batch by some offset.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">translate</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dx</span>: <span class="ident">f64</span>, <span class="ident">dy</span>: <span class="ident">f64</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="ident">poly</span>.<span class="ident">translate</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
+    <span class="kw">pub fn </span>scale_xy(<span class="kw-2">mut </span><span class="self">self</span>, x_factor: f64, y_factor: f64) -&gt; GeomBatch {
+        <span class="attribute">#[allow(clippy::float_cmp)]
+        </span><span class="kw">if </span>x_factor == <span class="number">1.0 </span>&amp;&amp; y_factor == <span class="number">1.0 </span>{
+            <span class="kw">return </span><span class="self">self</span>;
         }
-        <span class="self">self</span>
+
+        <span class="kw">for </span>(<span class="kw">_</span>, poly, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
+            poly.scale_xy(x_factor, y_factor);
+        }
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// Scales the batch so that the width matches something, preserving aspect ratio.
+    </span><span class="kw">pub fn </span>scale_to_fit_width(<span class="self">self</span>, width: f64) -&gt; GeomBatch {
+        <span class="kw">let </span>ratio = width / <span class="self">self</span>.get_bounds().width();
+        <span class="self">self</span>.scale(ratio)
     }
 
-    <span class="doccomment">/// Rotates each polygon in the batch relative to the center of that polygon.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="ident">poly</span>.<span class="ident">rotate</span>(<span class="ident">angle</span>);
+    <span class="doccomment">/// Overrides the Z-ordering offset for the batch. Must be in (-1, 0], with values closer to -1
+    /// rendering on top.
+    </span><span class="kw">pub fn </span>set_z_offset(<span class="kw-2">mut </span><span class="self">self</span>, offset: f64) -&gt; GeomBatch {
+        <span class="kw">if </span>offset &lt;= -<span class="number">1.0 </span>|| offset &gt; <span class="number">0.0 </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;set_z_offset({}) must be in (-1, 0]&quot;</span>, offset);
         }
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Rotates each polygon in the batch relative to the center of the entire batch.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rotate_around_batch_center</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">angle</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="comment">// Bounds won&#39;t be defined if so</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="self">self</span>;
+        <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, z) <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.list {
+            <span class="kw-2">*</span>z = offset;
         }
+        <span class="self">self
+    </span>}
 
-        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">center</span>();
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="ident">poly</span>.<span class="ident">rotate_around</span>(<span class="ident">angle</span>, <span class="ident">center</span>);
-        }
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Equivalent to</span>
-    <span class="doccomment">/// `self.scale(scale).centered_on(center_on).rotate_around_batch_center(rotate)`, but faster.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">multi_transform</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">scale</span>: <span class="ident">f64</span>, <span class="ident">center_on</span>: <span class="ident">Pt2D</span>, <span class="ident">rotate</span>: <span class="ident">Angle</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">list</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="self">self</span>;
-        }
-
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">scale</span>(<span class="ident">scale</span>);
-        <span class="kw">let</span> <span class="ident">dx</span> <span class="op">=</span> <span class="ident">center_on</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="kw">let</span> <span class="ident">dy</span> <span class="op">=</span> <span class="ident">center_on</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="kw">let</span> <span class="ident">rotate_around_pt</span> <span class="op">=</span> <span class="ident">bounds</span>.<span class="ident">center</span>().<span class="ident">offset</span>(<span class="ident">dx</span>, <span class="ident">dy</span>);
-
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="ident">poly</span>.<span class="ident">inplace_multi_transform</span>(<span class="ident">scale</span>, <span class="ident">dx</span>, <span class="ident">dy</span>, <span class="ident">rotate</span>, <span class="ident">rotate_around_pt</span>);
-        }
-
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Scales the batch by some factor.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale</span>(<span class="self">self</span>, <span class="ident">factor</span>: <span class="ident">f64</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="self">self</span>.<span class="ident">scale_xy</span>(<span class="ident">factor</span>, <span class="ident">factor</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale_xy</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">x_factor</span>: <span class="ident">f64</span>, <span class="ident">y_factor</span>: <span class="ident">f64</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::float_cmp</span>)]</span>
-        <span class="kw">if</span> <span class="ident">x_factor</span> <span class="op">==</span> <span class="number">1.0</span> <span class="op">&amp;&amp;</span> <span class="ident">y_factor</span> <span class="op">==</span> <span class="number">1.0</span> {
-            <span class="kw">return</span> <span class="self">self</span>;
-        }
-
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">poly</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="ident">poly</span>.<span class="ident">scale_xy</span>(<span class="ident">x_factor</span>, <span class="ident">y_factor</span>);
-        }
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Scales the batch so that the width matches something, preserving aspect ratio.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale_to_fit_width</span>(<span class="self">self</span>, <span class="ident">width</span>: <span class="ident">f64</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> <span class="ident">width</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">get_bounds</span>().<span class="ident">width</span>();
-        <span class="self">self</span>.<span class="ident">scale</span>(<span class="ident">ratio</span>)
-    }
-
-    <span class="doccomment">/// Overrides the Z-ordering offset for the batch. Must be in (-1, 0], with values closer to -1</span>
-    <span class="doccomment">/// rendering on top.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_z_offset</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">offset</span>: <span class="ident">f64</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">if</span> <span class="ident">offset</span> <span class="op">&lt;</span><span class="op">=</span> <span class="op">-</span><span class="number">1.0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">offset</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;set_z_offset({}) must be in (-1, 0]&quot;</span>, <span class="ident">offset</span>);
-        }
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">z</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="kw-2">*</span><span class="ident">z</span> <span class="op">=</span> <span class="ident">offset</span>;
-        }
-        <span class="self">self</span>
-    }
-
-    <span class="doccomment">/// Exports the batch to a list of GeoJSON features, labeling each colored triangle. Note the</span>
-    <span class="doccomment">/// result will be very large and kind of meaningless -- individual triangles are returned; any</span>
-    <span class="doccomment">/// original polygons are lost. Z-values, alpha values from the color, and non-RGB fill</span>
-    <span class="doccomment">/// patterns are lost. The world-space coordinates are optionally translated back to GPS.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_geojson</span>(<span class="self">self</span>, <span class="ident">gps_bounds</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">GPSBounds</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">geojson::Feature</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">features</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">fill</span>, <span class="ident">polygon</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">list</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Fill::Color</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">fill</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">properties</span> <span class="op">=</span> <span class="ident">serde_json::Map::new</span>();
-                <span class="ident">properties</span>.<span class="ident">insert</span>(<span class="string">&quot;color&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">color</span>.<span class="ident">as_hex</span>().<span class="ident">into</span>());
-                <span class="kw">for</span> <span class="ident">triangle</span> <span class="kw">in</span> <span class="ident">polygon</span>.<span class="ident">triangles</span>() {
-                    <span class="ident">features</span>.<span class="ident">push</span>(<span class="ident">geojson::Feature</span> {
-                        <span class="ident">bbox</span>: <span class="prelude-val">None</span>,
-                        <span class="comment">// TODO We could do a bit better and at least emit a MultiPolygon</span>
-                        <span class="ident">geometry</span>: <span class="prelude-val">Some</span>(<span class="ident">Polygon::from_triangle</span>(<span class="kw-2">&amp;</span><span class="ident">triangle</span>).<span class="ident">to_geojson</span>(<span class="ident">gps_bounds</span>)),
-                        <span class="ident">id</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">properties</span>: <span class="prelude-val">Some</span>(<span class="ident">properties</span>.<span class="ident">clone</span>()),
-                        <span class="ident">foreign_members</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Exports the batch to a list of GeoJSON features, labeling each colored triangle. Note the
+    /// result will be very large and kind of meaningless -- individual triangles are returned; any
+    /// original polygons are lost. Z-values, alpha values from the color, and non-RGB fill
+    /// patterns are lost. The world-space coordinates are optionally translated back to GPS.
+    </span><span class="kw">pub fn </span>into_geojson(<span class="self">self</span>, gps_bounds: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>GPSBounds&gt;) -&gt; Vec&lt;geojson::Feature&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>features = Vec::new();
+        <span class="kw">for </span>(fill, polygon, <span class="kw">_</span>) <span class="kw">in </span><span class="self">self</span>.list {
+            <span class="kw">if let </span>Fill::Color(color) = fill {
+                <span class="kw">let </span><span class="kw-2">mut </span>properties = serde_json::Map::new();
+                properties.insert(<span class="string">&quot;color&quot;</span>.to_string(), color.as_hex().into());
+                <span class="kw">for </span>triangle <span class="kw">in </span>polygon.triangles() {
+                    features.push(geojson::Feature {
+                        bbox: <span class="prelude-val">None</span>,
+                        <span class="comment">// TODO We could do a bit better and at least emit a MultiPolygon
+                        </span>geometry: <span class="prelude-val">Some</span>(Polygon::from_triangle(<span class="kw-2">&amp;</span>triangle).to_geojson(gps_bounds)),
+                        id: <span class="prelude-val">None</span>,
+                        properties: <span class="prelude-val">Some</span>(properties.clone()),
+                        foreign_members: <span class="prelude-val">None</span>,
                     });
                 }
             }
         }
-        <span class="ident">features</span>
+        features
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="self">self</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">GeomBatch</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">GeomBatch::new</span>()
+    <span class="kw">pub fn </span>build(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Drawable {
+        ctx.upload(<span class="self">self</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Fill</span><span class="op">&gt;</span>, <span class="ident">T</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">Tessellation</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">F</span>, <span class="ident">T</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GeomBatch</span> {
-    <span class="doccomment">/// Creates a batch of filled polygons.</span>
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">F</span>, <span class="ident">T</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="ident">GeomBatch</span> {
-            <span class="ident">list</span>: <span class="ident">list</span>
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">c</span>, <span class="ident">p</span>)<span class="op">|</span> (<span class="ident">c</span>.<span class="ident">into</span>(), <span class="ident">p</span>.<span class="ident">into</span>(), <span class="number">0.0</span>))
-                .<span class="ident">collect</span>(),
-            <span class="ident">autocrop_dims</span>: <span class="bool-val">true</span>,
+<span class="kw">impl </span>Default <span class="kw">for </span>GeomBatch {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        GeomBatch::new()
+    }
+}
+
+<span class="kw">impl</span>&lt;F: Into&lt;Fill&gt;, T: Into&lt;Tessellation&gt;&gt; From&lt;Vec&lt;(F, T)&gt;&gt; <span class="kw">for </span>GeomBatch {
+    <span class="doccomment">/// Creates a batch of filled polygons.
+    </span><span class="kw">fn </span>from(list: Vec&lt;(F, T)&gt;) -&gt; GeomBatch {
+        GeomBatch {
+            list: list
+                .into_iter()
+                .map(|(c, p)| (c.into(), p.into(), <span class="number">0.0</span>))
+                .collect(),
+            autocrop_dims: <span class="bool-val">true</span>,
         }
     }
 }
 
-<span class="doccomment">/// A way to transform all colors in a GeomBatch.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">serde::Serialize</span>, <span class="ident">serde::Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RewriteColor</span> {
-    <span class="doccomment">/// Don&#39;t do anything</span>
-    <span class="ident">NoOp</span>,
-    <span class="doccomment">/// Change every instance of the first color to the second</span>
-    <span class="ident">Change</span>(<span class="ident">Color</span>, <span class="ident">Color</span>),
-    <span class="doccomment">/// Change all colors to the specified value. For this to be interesting, the batch shouldn&#39;t</span>
-    <span class="doccomment">/// be a solid block of color. This does not modify Color::CLEAR.</span>
-    <span class="ident">ChangeAll</span>(<span class="ident">Color</span>),
-    <span class="doccomment">/// Change the alpha value of all colors to this value.</span>
-    <span class="ident">ChangeAlpha</span>(<span class="ident">f32</span>),
-    <span class="doccomment">/// Convert all colors to greyscale.</span>
-    <span class="ident">MakeGrayscale</span>,
+<span class="doccomment">/// A way to transform all colors in a GeomBatch.
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
+</span><span class="kw">pub enum </span>RewriteColor {
+    <span class="doccomment">/// Don&#39;t do anything
+    </span>NoOp,
+    <span class="doccomment">/// Change every instance of the first color to the second
+    </span>Change(Color, Color),
+    <span class="doccomment">/// Change all colors to the specified value. For this to be interesting, the batch shouldn&#39;t
+    /// be a solid block of color. This does not modify Color::CLEAR.
+    </span>ChangeAll(Color),
+    <span class="doccomment">/// Change the alpha value of all colors to this value.
+    </span>ChangeAlpha(f32),
+    <span class="doccomment">/// Convert all colors to greyscale.
+    </span>MakeGrayscale,
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::From</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RewriteColor</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="ident">RewriteColor</span> {
-        <span class="ident">RewriteColor::ChangeAll</span>(<span class="ident">color</span>)
+<span class="kw">impl </span>std::convert::From&lt;Color&gt; <span class="kw">for </span>RewriteColor {
+    <span class="kw">fn </span>from(color: Color) -&gt; RewriteColor {
+        RewriteColor::ChangeAll(color)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">RewriteColor</span> {
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">c</span>: <span class="ident">Color</span>) -&gt; <span class="ident">Color</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">RewriteColor::NoOp</span> =&gt; <span class="ident">c</span>,
-            <span class="ident">RewriteColor::Change</span>(<span class="ident">from</span>, <span class="ident">to</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">from</span> {
-                    <span class="kw-2">*</span><span class="ident">to</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">c</span>
+<span class="kw">impl </span>RewriteColor {
+    <span class="kw">fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, c: Color) -&gt; Color {
+        <span class="kw">match </span><span class="self">self </span>{
+            RewriteColor::NoOp =&gt; c,
+            RewriteColor::Change(from, to) =&gt; {
+                <span class="kw">if </span>c == <span class="kw-2">*</span>from {
+                    <span class="kw-2">*</span>to
+                } <span class="kw">else </span>{
+                    c
                 }
             }
-            <span class="ident">RewriteColor::ChangeAll</span>(<span class="ident">to</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">c</span> <span class="op">==</span> <span class="ident">Color::CLEAR</span> {
-                    <span class="ident">c</span>
-                } <span class="kw">else</span> {
-                    <span class="kw-2">*</span><span class="ident">to</span>
+            RewriteColor::ChangeAll(to) =&gt; {
+                <span class="kw">if </span>c == Color::CLEAR {
+                    c
+                } <span class="kw">else </span>{
+                    <span class="kw-2">*</span>to
                 }
             }
-            <span class="ident">RewriteColor::ChangeAlpha</span>(<span class="ident">alpha</span>) =&gt; <span class="ident">c</span>.<span class="ident">alpha</span>(<span class="kw-2">*</span><span class="ident">alpha</span>),
-            <span class="ident">RewriteColor::MakeGrayscale</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">avg</span> <span class="op">=</span> (<span class="ident">c</span>.<span class="ident">r</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">g</span> <span class="op">+</span> <span class="ident">c</span>.<span class="ident">b</span>) <span class="op">/</span> <span class="number">3.0</span>;
-                <span class="ident">Color::grey</span>(<span class="ident">avg</span>).<span class="ident">alpha</span>(<span class="ident">c</span>.<span class="ident">a</span>)
+            RewriteColor::ChangeAlpha(alpha) =&gt; c.alpha(<span class="kw-2">*</span>alpha),
+            RewriteColor::MakeGrayscale =&gt; {
+                <span class="kw">let </span>avg = (c.r + c.g + c.b) / <span class="number">3.0</span>;
+                Color::grey(avg).alpha(c.a)
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

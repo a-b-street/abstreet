@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/walking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/mechanics/walking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1050,1057 +1050,1057 @@
 <span id="1050">1050</span>
 <span id="1051">1051</span>
 <span id="1052">1052</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">FixedMap</span>, <span class="ident">IndexableKey</span>, <span class="ident">MultiMap</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Line</span>, <span class="ident">PolyLine</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">DrivingSide</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathStep</span>,
-    <span class="ident">RoadID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">Traversable</span>,
+<span class="kw">use </span>abstutil::{deserialize_multimap, serialize_multimap, FixedMap, IndexableKey, MultiMap};
+<span class="kw">use </span>geom::{Distance, Duration, Line, PolyLine, Speed, Time};
+<span class="kw">use </span>map_model::{
+    BuildingID, DrivingSide, IntersectionID, Map, ParkingLotID, Path, PathConstraints, PathStep,
+    RoadID, TransitRouteID, Traversable,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sim::Ctx</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">pedestrian_body_radius</span>, <span class="ident">AgentID</span>, <span class="ident">AgentProperties</span>, <span class="ident">Command</span>, <span class="ident">CommutersVehiclesCounts</span>,
-    <span class="ident">CreatePedestrian</span>, <span class="ident">DistanceInterval</span>, <span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">Event</span>, <span class="ident">Intent</span>,
-    <span class="ident">IntersectionSimState</span>, <span class="ident">ParkedCar</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedCrowdLocation</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>,
-    <span class="ident">Problem</span>, <span class="ident">Scheduler</span>, <span class="ident">SidewalkPOI</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TimeInterval</span>, <span class="ident">TransitSimState</span>, <span class="ident">TripID</span>,
-    <span class="ident">TripManager</span>, <span class="ident">UnzoomedAgent</span>,
+<span class="kw">use </span><span class="kw">crate</span>::sim::Ctx;
+<span class="kw">use crate</span>::{
+    pedestrian_body_radius, AgentID, AgentProperties, Command, CommutersVehiclesCounts,
+    CreatePedestrian, DistanceInterval, DrawPedCrowdInput, DrawPedestrianInput, Event, Intent,
+    IntersectionSimState, ParkedCar, ParkingSpot, PedCrowdLocation, PedestrianID, PersonID,
+    Problem, Scheduler, SidewalkPOI, SidewalkSpot, TimeInterval, TransitSimState, TripID,
+    TripManager, UnzoomedAgent,
 };
 
-<span class="kw">const</span> <span class="ident">TIME_TO_START_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::const_seconds</span>(<span class="number">30.0</span>);
-<span class="kw">const</span> <span class="ident">TIME_TO_FINISH_BIKING</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::const_seconds</span>(<span class="number">45.0</span>);
+<span class="kw">const </span>TIME_TO_START_BIKING: Duration = Duration::const_seconds(<span class="number">30.0</span>);
+<span class="kw">const </span>TIME_TO_FINISH_BIKING: Duration = Duration::const_seconds(<span class="number">45.0</span>);
 
-<span class="doccomment">/// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and</span>
-<span class="doccomment">/// just &quot;ghost&quot; through each other. There&#39;s no queueing or slowdown when many people are</span>
-<span class="doccomment">/// overlapping. They&#39;re simply grouped together into a DrawPedCrowdInput for rendering.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">WalkingSimState</span> {
-    <span class="ident">peds</span>: <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">PedestrianID</span>, <span class="ident">Pedestrian</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_multimap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_multimap&quot;</span>
-    )]</span>
-    <span class="ident">peds_per_traversable</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">PedestrianID</span><span class="op">&gt;</span>,
-    <span class="ident">events</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Simulates pedestrians. Unlike vehicles, pedestrians can move bidirectionally on sidewalks and
+/// just &quot;ghost&quot; through each other. There&#39;s no queueing or slowdown when many people are
+/// overlapping. They&#39;re simply grouped together into a DrawPedCrowdInput for rendering.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>WalkingSimState {
+    peds: FixedMap&lt;PedestrianID, Pedestrian&gt;,
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_multimap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_multimap&quot;
+    </span>)]
+    </span>peds_per_traversable: MultiMap&lt;Traversable, PedestrianID&gt;,
+    events: Vec&lt;Event&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">WalkingSimState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">WalkingSimState</span> {
-        <span class="ident">WalkingSimState</span> {
-            <span class="ident">peds</span>: <span class="ident">FixedMap::new</span>(),
-            <span class="ident">peds_per_traversable</span>: <span class="ident">MultiMap::new</span>(),
-            <span class="ident">events</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl </span>WalkingSimState {
+    <span class="kw">pub fn </span>new() -&gt; WalkingSimState {
+        WalkingSimState {
+            peds: FixedMap::new(),
+            peds_per_traversable: MultiMap::new(),
+            events: Vec::new(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">spawn_ped</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">params</span>: <span class="ident">CreatePedestrian</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">scheduler</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scheduler</span>,
+    <span class="kw">pub fn </span>spawn_ped(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        now: Time,
+        params: CreatePedestrian,
+        map: <span class="kw-2">&amp;</span>Map,
+        scheduler: <span class="kw-2">&amp;mut </span>Scheduler,
     ) {
-        <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">start</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">params</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_lane</span>(), <span class="ident">start_lane</span>);
+        <span class="kw">let </span>start_lane = params.start.sidewalk_pos.lane();
+        <span class="macro">assert_eq!</span>(params.path.current_step().as_lane(), start_lane);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">params</span>.<span class="ident">path</span>.<span class="ident">last_step</span>().<span class="ident">as_lane</span>(),
-            <span class="ident">params</span>.<span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()
+            params.path.last_step().as_lane(),
+            params.goal.sidewalk_pos.lane()
         );
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ped</span> <span class="op">=</span> <span class="ident">Pedestrian</span> {
-            <span class="ident">id</span>: <span class="ident">params</span>.<span class="ident">id</span>,
-            <span class="comment">// Temporary bogus thing</span>
-            <span class="ident">state</span>: <span class="ident">PedState::Crossing</span> {
-                <span class="ident">dist_int</span>: <span class="ident">DistanceInterval::new_walking</span>(<span class="ident">Distance::ZERO</span>, <span class="ident">Distance::meters</span>(<span class="number">1.0</span>)),
-                <span class="ident">time_int</span>: <span class="ident">TimeInterval::new</span>(
-                    <span class="ident">Time::START_OF_DAY</span>,
-                    <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">1.0</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>ped = Pedestrian {
+            id: params.id,
+            <span class="comment">// Temporary bogus thing
+            </span>state: PedState::Crossing {
+                dist_int: DistanceInterval::new_walking(Distance::ZERO, Distance::meters(<span class="number">1.0</span>)),
+                time_int: TimeInterval::new(
+                    Time::START_OF_DAY,
+                    Time::START_OF_DAY + Duration::seconds(<span class="number">1.0</span>),
                 ),
-                <span class="ident">steep_uphill</span>: <span class="bool-val">false</span>,
+                steep_uphill: <span class="bool-val">false</span>,
             },
-            <span class="ident">speed</span>: <span class="ident">params</span>.<span class="ident">speed</span>,
-            <span class="ident">total_blocked_time</span>: <span class="ident">Duration::ZERO</span>,
-            <span class="ident">started_at</span>: <span class="ident">now</span>,
-            <span class="ident">path</span>: <span class="ident">params</span>.<span class="ident">path</span>,
-            <span class="ident">start</span>: <span class="ident">params</span>.<span class="ident">start</span>.<span class="ident">clone</span>(),
-            <span class="ident">goal</span>: <span class="ident">params</span>.<span class="ident">goal</span>,
-            <span class="ident">trip</span>: <span class="ident">params</span>.<span class="ident">trip</span>,
-            <span class="ident">person</span>: <span class="ident">params</span>.<span class="ident">person</span>,
+            speed: params.speed,
+            total_blocked_time: Duration::ZERO,
+            started_at: now,
+            path: params.path,
+            start: params.start.clone(),
+            goal: params.goal,
+            trip: params.trip,
+            person: params.person,
         };
-        <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">params</span>.<span class="ident">start</span>.<span class="ident">connection</span> {
-            <span class="ident">SidewalkPOI::Building</span>(<span class="ident">b</span>) <span class="op">|</span> <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>)) =&gt; {
-                <span class="ident">PedState::LeavingBuilding</span>(
-                    <span class="ident">b</span>,
-                    <span class="ident">TimeInterval::new</span>(<span class="ident">now</span>, <span class="ident">now</span> <span class="op">+</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">ped</span>.<span class="ident">speed</span>),
+        ped.state = <span class="kw">match </span>params.start.connection {
+            SidewalkPOI::Building(b) | SidewalkPOI::ParkingSpot(ParkingSpot::Offstreet(b, <span class="kw">_</span>)) =&gt; {
+                PedState::LeavingBuilding(
+                    b,
+                    TimeInterval::new(now, now + map.get_b(b).driveway_geom.length() / ped.speed),
                 )
             }
-            <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="ident">ParkingSpot::Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>)) =&gt; <span class="ident">PedState::LeavingParkingLot</span>(
-                <span class="ident">pl</span>,
-                <span class="ident">TimeInterval::new</span>(<span class="ident">now</span>, <span class="ident">now</span> <span class="op">+</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_line</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">ped</span>.<span class="ident">speed</span>),
+            SidewalkPOI::ParkingSpot(ParkingSpot::Lot(pl, <span class="kw">_</span>)) =&gt; PedState::LeavingParkingLot(
+                pl,
+                TimeInterval::new(now, now + map.get_pl(pl).sidewalk_line.length() / ped.speed),
             ),
-            <span class="ident">SidewalkPOI::BikeRack</span>(<span class="ident">driving_pos</span>) =&gt; <span class="ident">PedState::FinishingBiking</span>(
-                <span class="ident">params</span>.<span class="ident">start</span>.<span class="ident">clone</span>(),
-                <span class="ident">Line::must_new</span>(<span class="ident">driving_pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>), <span class="ident">params</span>.<span class="ident">start</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>)),
-                <span class="ident">TimeInterval::new</span>(<span class="ident">now</span>, <span class="ident">now</span> <span class="op">+</span> <span class="ident">TIME_TO_FINISH_BIKING</span>),
+            SidewalkPOI::BikeRack(driving_pos) =&gt; PedState::FinishingBiking(
+                params.start.clone(),
+                Line::must_new(driving_pos.pt(map), params.start.sidewalk_pos.pt(map)),
+                TimeInterval::new(now, now + TIME_TO_FINISH_BIKING),
             ),
-            <span class="kw">_</span> =&gt; <span class="ident">ped</span>.<span class="ident">crossing_state</span>(
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds_per_traversable</span>,
-                <span class="ident">params</span>.<span class="ident">start</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-                <span class="ident">now</span>,
-                <span class="ident">map</span>,
-                <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>,
+            <span class="kw">_ </span>=&gt; ped.crossing_state(
+                <span class="kw-2">&amp;</span><span class="self">self</span>.peds_per_traversable,
+                params.start.sidewalk_pos.dist_along(),
+                now,
+                map,
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>.events,
             ),
         };
 
-        <span class="ident">scheduler</span>.<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
-        <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">insert</span>(<span class="ident">ped</span>.<span class="ident">id</span>, <span class="ident">ped</span>);
-        <span class="self">self</span>.<span class="ident">peds_per_traversable</span>.<span class="ident">insert</span>(
-            <span class="ident">Traversable::Lane</span>(<span class="ident">params</span>.<span class="ident">start</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>()),
-            <span class="ident">params</span>.<span class="ident">id</span>,
+        scheduler.push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+        <span class="self">self</span>.peds.insert(ped.id, ped);
+        <span class="self">self</span>.peds_per_traversable.insert(
+            Traversable::Lane(params.start.sidewalk_pos.lane()),
+            params.id,
         );
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_draw_ped</span>(
+    <span class="kw">pub fn </span>get_draw_ped(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">id</span>: <span class="ident">PedestrianID</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DrawPedestrianInput</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_draw_ped</span>(<span class="ident">now</span>, <span class="ident">map</span>))
+        id: PedestrianID,
+        now: Time,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;DrawPedestrianInput&gt; {
+        <span class="self">self</span>.peds.get(<span class="kw-2">&amp;</span>id).map(|p| p.get_draw_ped(now, map))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all_draw_peds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawPedestrianInput</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">peds</span>
-            .<span class="ident">values</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">get_draw_ped</span>(<span class="ident">now</span>, <span class="ident">map</span>))
-            .<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>get_all_draw_peds(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;DrawPedestrianInput&gt; {
+        <span class="self">self</span>.peds
+            .values()
+            .map(|p| p.get_draw_ped(now, map))
+            .collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_ped</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">id</span>: <span class="ident">PedestrianID</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ctx</span>,
-        <span class="ident">trips</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TripManager</span>,
-        <span class="ident">transit</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TransitSimState</span>,
+    <span class="kw">pub fn </span>update_ped(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        id: PedestrianID,
+        now: Time,
+        ctx: <span class="kw-2">&amp;mut </span>Ctx,
+        trips: <span class="kw-2">&amp;mut </span>TripManager,
+        transit: <span class="kw-2">&amp;mut </span>TransitSimState,
     ) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ped</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="kw">match</span> <span class="ident">ped</span>.<span class="ident">state</span> {
-            <span class="ident">PedState::Crossing</span> { <span class="kw-2">ref</span> <span class="ident">dist_int</span>, .. } =&gt; {
-                <span class="kw">if</span> <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">is_last_step</span>() {
-                    <span class="kw">match</span> <span class="ident">ped</span>.<span class="ident">goal</span>.<span class="ident">connection</span> {
-                        <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="ident">spot</span>) =&gt; {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParkingSpot::Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">spot</span> {
-                                <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PedState::EnteringParkingLot</span>(
-                                    <span class="ident">pl</span>,
-                                    <span class="ident">TimeInterval::new</span>(
-                                        <span class="ident">now</span>,
-                                        <span class="ident">now</span> <span class="op">+</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_line</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">ped</span>.<span class="ident">speed</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>ped = <span class="self">self</span>.peds.get_mut(<span class="kw-2">&amp;</span>id).unwrap();
+        <span class="kw">match </span>ped.state {
+            PedState::Crossing { <span class="kw-2">ref </span>dist_int, .. } =&gt; {
+                <span class="kw">if </span>ped.path.is_last_step() {
+                    <span class="kw">match </span>ped.goal.connection {
+                        SidewalkPOI::ParkingSpot(spot) =&gt; {
+                            <span class="kw">if let </span>ParkingSpot::Lot(pl, <span class="kw">_</span>) = spot {
+                                ped.state = PedState::EnteringParkingLot(
+                                    pl,
+                                    TimeInterval::new(
+                                        now,
+                                        now + ctx.map.get_pl(pl).sidewalk_line.length() / ped.speed,
                                     ),
                                 );
-                                <span class="ident">ctx</span>.<span class="ident">scheduler</span>
-                                    .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
-                            } <span class="kw">else</span> {
-                                <span class="self">self</span>.<span class="ident">peds_per_traversable</span>
-                                    .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">ped</span>.<span class="ident">id</span>);
-                                <span class="ident">trips</span>.<span class="ident">ped_reached_parking_spot</span>(
-                                    <span class="ident">now</span>,
-                                    <span class="ident">ped</span>.<span class="ident">id</span>,
-                                    <span class="ident">spot</span>,
-                                    <span class="ident">ped</span>.<span class="ident">total_blocked_time</span>,
-                                    <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">total_length</span>(),
-                                    <span class="ident">ctx</span>,
+                                ctx.scheduler
+                                    .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                            } <span class="kw">else </span>{
+                                <span class="self">self</span>.peds_per_traversable
+                                    .remove(ped.path.current_step().as_traversable(), ped.id);
+                                trips.ped_reached_parking_spot(
+                                    now,
+                                    ped.id,
+                                    spot,
+                                    ped.total_blocked_time,
+                                    ped.path.total_length(),
+                                    ctx,
                                 );
-                                <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
+                                <span class="self">self</span>.peds.remove(<span class="kw-2">&amp;</span>id);
                             }
                         }
-                        <span class="ident">SidewalkPOI::Building</span>(<span class="ident">b</span>) =&gt; {
-                            <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PedState::EnteringBuilding</span>(
-                                <span class="ident">b</span>,
-                                <span class="ident">TimeInterval::new</span>(
-                                    <span class="ident">now</span>,
-                                    <span class="ident">now</span> <span class="op">+</span> <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">ped</span>.<span class="ident">speed</span>,
+                        SidewalkPOI::Building(b) =&gt; {
+                            ped.state = PedState::EnteringBuilding(
+                                b,
+                                TimeInterval::new(
+                                    now,
+                                    now + ctx.map.get_b(b).driveway_geom.length() / ped.speed,
                                 ),
                             );
-                            <span class="ident">ctx</span>.<span class="ident">scheduler</span>
-                                .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
+                            ctx.scheduler
+                                .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                         }
-                        <span class="ident">SidewalkPOI::TransitStop</span>(<span class="ident">stop</span>) =&gt; {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">route</span>) <span class="op">=</span> <span class="ident">trips</span>.<span class="ident">ped_reached_bus_stop</span>(
-                                <span class="ident">now</span>,
-                                <span class="ident">ped</span>.<span class="ident">id</span>,
-                                <span class="ident">stop</span>,
-                                <span class="ident">ped</span>.<span class="ident">total_blocked_time</span>,
-                                <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">total_length</span>(),
-                                <span class="ident">ctx</span>,
-                                <span class="ident">transit</span>,
+                        SidewalkPOI::TransitStop(stop) =&gt; {
+                            <span class="kw">if let </span><span class="prelude-val">Some</span>(route) = trips.ped_reached_bus_stop(
+                                now,
+                                ped.id,
+                                stop,
+                                ped.total_blocked_time,
+                                ped.path.total_length(),
+                                ctx,
+                                transit,
                             ) {
-                                <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PedState::WaitingForBus</span>(<span class="ident">route</span>, <span class="ident">now</span>);
-                            } <span class="kw">else</span> {
-                                <span class="self">self</span>.<span class="ident">peds_per_traversable</span>
-                                    .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">ped</span>.<span class="ident">id</span>);
-                                <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
+                                ped.state = PedState::WaitingForBus(route, now);
+                            } <span class="kw">else </span>{
+                                <span class="self">self</span>.peds_per_traversable
+                                    .remove(ped.path.current_step().as_traversable(), ped.id);
+                                <span class="self">self</span>.peds.remove(<span class="kw-2">&amp;</span>id);
                             }
                         }
-                        <span class="ident">SidewalkPOI::Border</span>(<span class="ident">i</span>) =&gt; {
-                            <span class="self">self</span>.<span class="ident">peds_per_traversable</span>
-                                .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">ped</span>.<span class="ident">id</span>);
-                            <span class="ident">trips</span>.<span class="ident">ped_reached_border</span>(
-                                <span class="ident">now</span>,
-                                <span class="ident">ped</span>.<span class="ident">id</span>,
-                                <span class="ident">i</span>,
-                                <span class="ident">ped</span>.<span class="ident">total_blocked_time</span>,
-                                <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">total_length</span>(),
-                                <span class="ident">ctx</span>,
+                        SidewalkPOI::Border(i) =&gt; {
+                            <span class="self">self</span>.peds_per_traversable
+                                .remove(ped.path.current_step().as_traversable(), ped.id);
+                            trips.ped_reached_border(
+                                now,
+                                ped.id,
+                                i,
+                                ped.total_blocked_time,
+                                ped.path.total_length(),
+                                ctx,
                             );
-                            <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
+                            <span class="self">self</span>.peds.remove(<span class="kw-2">&amp;</span>id);
                         }
-                        <span class="ident">SidewalkPOI::BikeRack</span>(<span class="ident">driving_pos</span>) =&gt; {
-                            <span class="kw">let</span> <span class="ident">pt1</span> <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt</span>(<span class="ident">ctx</span>.<span class="ident">map</span>);
-                            <span class="kw">let</span> <span class="ident">pt2</span> <span class="op">=</span> <span class="ident">driving_pos</span>.<span class="ident">pt</span>(<span class="ident">ctx</span>.<span class="ident">map</span>);
-                            <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PedState::StartingToBike</span>(
-                                <span class="ident">ped</span>.<span class="ident">goal</span>.<span class="ident">clone</span>(),
-                                <span class="ident">Line::must_new</span>(<span class="ident">pt1</span>, <span class="ident">pt2</span>),
-                                <span class="ident">TimeInterval::new</span>(<span class="ident">now</span>, <span class="ident">now</span> <span class="op">+</span> <span class="ident">TIME_TO_START_BIKING</span>),
+                        SidewalkPOI::BikeRack(driving_pos) =&gt; {
+                            <span class="kw">let </span>pt1 = ped.goal.sidewalk_pos.pt(ctx.map);
+                            <span class="kw">let </span>pt2 = driving_pos.pt(ctx.map);
+                            ped.state = PedState::StartingToBike(
+                                ped.goal.clone(),
+                                Line::must_new(pt1, pt2),
+                                TimeInterval::new(now, now + TIME_TO_START_BIKING),
                             );
-                            <span class="ident">ctx</span>.<span class="ident">scheduler</span>
-                                .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
+                            ctx.scheduler
+                                .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
                         }
-                        <span class="ident">SidewalkPOI::SuddenlyAppear</span> =&gt; <span class="macro">unreachable!</span>(),
-                        <span class="ident">SidewalkPOI::DeferredParkingSpot</span> =&gt; <span class="macro">unreachable!</span>(),
+                        SidewalkPOI::SuddenlyAppear =&gt; <span class="macro">unreachable!</span>(),
+                        SidewalkPOI::DeferredParkingSpot =&gt; <span class="macro">unreachable!</span>(),
                     }
-                } <span class="kw">else</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>()
+                } <span class="kw">else </span>{
+                    <span class="kw">if let </span>PathStep::Turn(t) | PathStep::ContraflowTurn(t) = ped.path.current_step()
                     {
-                        <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">turn_finished</span>(
-                            <span class="ident">now</span>,
-                            <span class="ident">AgentID::Pedestrian</span>(<span class="ident">ped</span>.<span class="ident">id</span>),
-                            <span class="ident">t</span>,
-                            <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
-                            <span class="ident">ctx</span>.<span class="ident">map</span>,
+                        ctx.intersections.turn_finished(
+                            now,
+                            AgentID::Pedestrian(ped.id),
+                            t,
+                            ctx.scheduler,
+                            ctx.map,
                             <span class="bool-val">false</span>,
                         );
                     }
 
-                    <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">dist_int</span>.<span class="ident">end</span>;
-                    <span class="kw">if</span> <span class="ident">ped</span>.<span class="ident">maybe_transition</span>(
-                        <span class="ident">now</span>,
-                        <span class="ident">ctx</span>.<span class="ident">map</span>,
-                        <span class="ident">ctx</span>.<span class="ident">intersections</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">peds_per_traversable</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>,
-                        <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
+                    <span class="kw">let </span>dist = dist_int.end;
+                    <span class="kw">if </span>ped.maybe_transition(
+                        now,
+                        ctx.map,
+                        ctx.intersections,
+                        <span class="kw-2">&amp;mut </span><span class="self">self</span>.peds_per_traversable,
+                        <span class="kw-2">&amp;mut </span><span class="self">self</span>.events,
+                        ctx.scheduler,
                     ) {
-                        <span class="ident">ctx</span>.<span class="ident">scheduler</span>
-                            .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
-                    } <span class="kw">else</span> {
-                        <span class="comment">// Must&#39;ve failed because we can&#39;t turn yet. Don&#39;t schedule a retry here.</span>
-                        <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">PedState::WaitingToTurn</span>(<span class="ident">dist</span>, <span class="ident">now</span>);
+                        ctx.scheduler
+                            .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                    } <span class="kw">else </span>{
+                        <span class="comment">// Must&#39;ve failed because we can&#39;t turn yet. Don&#39;t schedule a retry here.
+                        </span>ped.state = PedState::WaitingToTurn(dist, now);
                     }
                 }
             }
-            <span class="ident">PedState::WaitingToTurn</span>(<span class="kw">_</span>, <span class="ident">blocked_since</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">ped</span>.<span class="ident">maybe_transition</span>(
-                    <span class="ident">now</span>,
-                    <span class="ident">ctx</span>.<span class="ident">map</span>,
-                    <span class="ident">ctx</span>.<span class="ident">intersections</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">peds_per_traversable</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>,
-                    <span class="ident">ctx</span>.<span class="ident">scheduler</span>,
+            PedState::WaitingToTurn(<span class="kw">_</span>, blocked_since) =&gt; {
+                <span class="kw">if </span>ped.maybe_transition(
+                    now,
+                    ctx.map,
+                    ctx.intersections,
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.peds_per_traversable,
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.events,
+                    ctx.scheduler,
                 ) {
-                    <span class="ident">ctx</span>.<span class="ident">scheduler</span>
-                        .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
-                    <span class="ident">ped</span>.<span class="ident">total_blocked_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">blocked_since</span>;
-                    <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::IntersectionDelayMeasured</span>(
-                        <span class="ident">ped</span>.<span class="ident">trip</span>,
-                        <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_turn</span>(),
-                        <span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>),
-                        <span class="ident">now</span> <span class="op">-</span> <span class="ident">blocked_since</span>,
+                    ctx.scheduler
+                        .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
+                    ped.total_blocked_time += now - blocked_since;
+                    <span class="self">self</span>.events.push(Event::IntersectionDelayMeasured(
+                        ped.trip,
+                        ped.path.current_step().as_turn(),
+                        AgentID::Pedestrian(id),
+                        now - blocked_since,
                     ));
                 }
             }
-            <span class="ident">PedState::LeavingBuilding</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; {
-                <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">crossing_state</span>(
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds_per_traversable</span>,
-                    <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-                    <span class="ident">now</span>,
-                    <span class="ident">ctx</span>.<span class="ident">map</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>,
+            PedState::LeavingBuilding(b, <span class="kw">_</span>) =&gt; {
+                ped.state = ped.crossing_state(
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.peds_per_traversable,
+                    ctx.map.get_b(b).sidewalk_pos.dist_along(),
+                    now,
+                    ctx.map,
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.events,
                 );
-                <span class="ident">ctx</span>.<span class="ident">scheduler</span>
-                    .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
+                ctx.scheduler
+                    .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
-            <span class="ident">PedState::EnteringBuilding</span>(<span class="ident">bldg</span>, <span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">peds_per_traversable</span>
-                    .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">ped</span>.<span class="ident">id</span>);
-                <span class="ident">trips</span>.<span class="ident">ped_reached_building</span>(
-                    <span class="ident">now</span>,
-                    <span class="ident">ped</span>.<span class="ident">id</span>,
-                    <span class="ident">bldg</span>,
-                    <span class="ident">ped</span>.<span class="ident">total_blocked_time</span>,
-                    <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">total_length</span>(),
-                    <span class="ident">ctx</span>,
+            PedState::EnteringBuilding(bldg, <span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.peds_per_traversable
+                    .remove(ped.path.current_step().as_traversable(), ped.id);
+                trips.ped_reached_building(
+                    now,
+                    ped.id,
+                    bldg,
+                    ped.total_blocked_time,
+                    ped.path.total_length(),
+                    ctx,
                 );
-                <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
+                <span class="self">self</span>.peds.remove(<span class="kw-2">&amp;</span>id);
             }
-            <span class="ident">PedState::LeavingParkingLot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) =&gt; {
-                <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">crossing_state</span>(
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds_per_traversable</span>,
-                    <span class="ident">ctx</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-                    <span class="ident">now</span>,
-                    <span class="ident">ctx</span>.<span class="ident">map</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>,
+            PedState::LeavingParkingLot(pl, <span class="kw">_</span>) =&gt; {
+                ped.state = ped.crossing_state(
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.peds_per_traversable,
+                    ctx.map.get_pl(pl).sidewalk_pos.dist_along(),
+                    now,
+                    ctx.map,
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.events,
                 );
-                <span class="ident">ctx</span>.<span class="ident">scheduler</span>
-                    .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
+                ctx.scheduler
+                    .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
-            <span class="ident">PedState::EnteringParkingLot</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">peds_per_traversable</span>
-                    .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">ped</span>.<span class="ident">id</span>);
-                <span class="ident">trips</span>.<span class="ident">ped_reached_parking_spot</span>(
-                    <span class="ident">now</span>,
-                    <span class="ident">ped</span>.<span class="ident">id</span>,
-                    <span class="kw">match</span> <span class="ident">ped</span>.<span class="ident">goal</span>.<span class="ident">connection</span> {
-                        <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="ident">spot</span>) =&gt; <span class="ident">spot</span>,
-                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            PedState::EnteringParkingLot(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.peds_per_traversable
+                    .remove(ped.path.current_step().as_traversable(), ped.id);
+                trips.ped_reached_parking_spot(
+                    now,
+                    ped.id,
+                    <span class="kw">match </span>ped.goal.connection {
+                        SidewalkPOI::ParkingSpot(spot) =&gt; spot,
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                     },
-                    <span class="ident">ped</span>.<span class="ident">total_blocked_time</span>,
-                    <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">total_length</span>(),
-                    <span class="ident">ctx</span>,
+                    ped.total_blocked_time,
+                    ped.path.total_length(),
+                    ctx,
                 );
-                <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
+                <span class="self">self</span>.peds.remove(<span class="kw-2">&amp;</span>id);
             }
-            <span class="ident">PedState::StartingToBike</span>(<span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">peds_per_traversable</span>
-                    .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">ped</span>.<span class="ident">id</span>);
-                <span class="ident">trips</span>.<span class="ident">ped_ready_to_bike</span>(
-                    <span class="ident">now</span>,
-                    <span class="ident">ped</span>.<span class="ident">id</span>,
-                    <span class="ident">spot</span>.<span class="ident">clone</span>(),
-                    <span class="ident">ped</span>.<span class="ident">total_blocked_time</span>,
-                    <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">total_length</span>(),
-                    <span class="ident">ctx</span>,
+            PedState::StartingToBike(<span class="kw-2">ref </span>spot, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.peds_per_traversable
+                    .remove(ped.path.current_step().as_traversable(), ped.id);
+                trips.ped_ready_to_bike(
+                    now,
+                    ped.id,
+                    spot.clone(),
+                    ped.total_blocked_time,
+                    ped.path.total_length(),
+                    ctx,
                 );
-                <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
+                <span class="self">self</span>.peds.remove(<span class="kw-2">&amp;</span>id);
             }
-            <span class="ident">PedState::FinishingBiking</span>(<span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="ident">ped</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">crossing_state</span>(
-                    <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds_per_traversable</span>,
-                    <span class="ident">spot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-                    <span class="ident">now</span>,
-                    <span class="ident">ctx</span>.<span class="ident">map</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>,
+            PedState::FinishingBiking(<span class="kw-2">ref </span>spot, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                ped.state = ped.crossing_state(
+                    <span class="kw-2">&amp;</span><span class="self">self</span>.peds_per_traversable,
+                    spot.sidewalk_pos.dist_along(),
+                    now,
+                    ctx.map,
+                    <span class="kw-2">&amp;mut </span><span class="self">self</span>.events,
                 );
-                <span class="ident">ctx</span>.<span class="ident">scheduler</span>
-                    .<span class="ident">push</span>(<span class="ident">ped</span>.<span class="ident">state</span>.<span class="ident">get_end_time</span>(), <span class="ident">Command::UpdatePed</span>(<span class="ident">ped</span>.<span class="ident">id</span>));
+                ctx.scheduler
+                    .push(ped.state.get_end_time(), Command::UpdatePed(ped.id));
             }
-            <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            PedState::WaitingForBus(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ped_boarded_bus</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ped</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="kw">match</span> <span class="ident">ped</span>.<span class="ident">state</span> {
-            <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="ident">blocked_since</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">peds_per_traversable</span>
-                    .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">id</span>);
-                <span class="ident">ped</span>.<span class="ident">total_blocked_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">now</span> <span class="op">-</span> <span class="ident">blocked_since</span>;
+    <span class="kw">pub fn </span>ped_boarded_bus(<span class="kw-2">&amp;mut </span><span class="self">self</span>, now: Time, id: PedestrianID) {
+        <span class="kw">let </span><span class="kw-2">mut </span>ped = <span class="self">self</span>.peds.remove(<span class="kw-2">&amp;</span>id).unwrap();
+        <span class="kw">match </span>ped.state {
+            PedState::WaitingForBus(<span class="kw">_</span>, blocked_since) =&gt; {
+                <span class="self">self</span>.peds_per_traversable
+                    .remove(ped.path.current_step().as_traversable(), id);
+                ped.total_blocked_time += now - blocked_since;
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
     }
 
-    <span class="doccomment">/// Abruptly remove a pedestrian from the simulation. They may be in any arbitrary state, like</span>
-    <span class="doccomment">/// in the middle of a turn.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">delete_ped</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ctx</span>) {
-        <span class="kw">let</span> <span class="ident">ped</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">peds_per_traversable</span>
-            .<span class="ident">remove</span>(<span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="ident">id</span>);
-        <span class="ident">ctx</span>.<span class="ident">scheduler</span>.<span class="ident">cancel</span>(<span class="ident">Command::UpdatePed</span>(<span class="ident">id</span>));
+    <span class="doccomment">/// Abruptly remove a pedestrian from the simulation. They may be in any arbitrary state, like
+    /// in the middle of a turn.
+    </span><span class="kw">pub fn </span>delete_ped(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: PedestrianID, ctx: <span class="kw-2">&amp;mut </span>Ctx) {
+        <span class="kw">let </span>ped = <span class="self">self</span>.peds.remove(<span class="kw-2">&amp;</span>id).unwrap();
+        <span class="self">self</span>.peds_per_traversable
+            .remove(ped.path.current_step().as_traversable(), id);
+        ctx.scheduler.cancel(Command::UpdatePed(id));
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">current_step</span>() {
-            <span class="ident">ctx</span>.<span class="ident">intersections</span>
-                .<span class="ident">agent_deleted_mid_turn</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>), <span class="ident">t</span>);
+        <span class="kw">if let </span>PathStep::Turn(t) | PathStep::ContraflowTurn(t) = ped.path.current_step() {
+            ctx.intersections
+                .agent_deleted_mid_turn(AgentID::Pedestrian(id), t);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">PathStep::Turn</span>(<span class="ident">t</span>)) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>)) <span class="op">=</span>
-            <span class="ident">ped</span>.<span class="ident">path</span>.<span class="ident">maybe_next_step</span>()
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(PathStep::Turn(t)) | <span class="prelude-val">Some</span>(PathStep::ContraflowTurn(t)) =
+            ped.path.maybe_next_step()
         {
-            <span class="ident">ctx</span>.<span class="ident">intersections</span>.<span class="ident">cancel_request</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>), <span class="ident">t</span>);
+            ctx.intersections.cancel_request(AgentID::Pedestrian(id), t);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">debug_ped_json</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ped</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-            <span class="ident">abstutil::to_json</span>(<span class="ident">ped</span>)
-        } <span class="kw">else</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;{} doesn&#39;t exist&quot;</span>, <span class="ident">id</span>)
+    <span class="kw">pub fn </span>debug_ped_json(<span class="kw-2">&amp;</span><span class="self">self</span>, id: PedestrianID) -&gt; String {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(ped) = <span class="self">self</span>.peds.get(<span class="kw-2">&amp;</span>id) {
+            abstutil::to_json(ped)
+        } <span class="kw">else </span>{
+            <span class="macro">format!</span>(<span class="string">&quot;{} doesn&#39;t exist&quot;</span>, id)
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">agent_properties</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>, <span class="ident">now</span>: <span class="ident">Time</span>) -&gt; <span class="ident">AgentProperties</span> {
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>];
+    <span class="kw">pub fn </span>agent_properties(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, id: PedestrianID, now: Time) -&gt; AgentProperties {
+        <span class="kw">let </span>p = <span class="kw-2">&amp;</span><span class="self">self</span>.peds[<span class="kw-2">&amp;</span>id];
 
-        <span class="kw">let</span> <span class="ident">time_spent_waiting</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">state</span>.<span class="ident">time_spent_waiting</span>(<span class="ident">now</span>);
-        <span class="comment">// TODO Incorporate this somewhere</span>
-        <span class="comment">/*if let PedState::WaitingForBus(r, _) = p.state {
+        <span class="kw">let </span>time_spent_waiting = p.state.time_spent_waiting(now);
+        <span class="comment">// TODO Incorporate this somewhere
+        /*if let PedState::WaitingForBus(r, _) = p.state {
             extra.push(format!(&quot;Waiting for bus {}&quot;, map.get_tr(r).name));
-        }*/</span>
+        }*/
 
-        <span class="kw">let</span> <span class="ident">current_state_dist</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">state</span> {
-            <span class="ident">PedState::Crossing</span> {
-                <span class="kw-2">ref</span> <span class="ident">dist_int</span>,
-                <span class="kw-2">ref</span> <span class="ident">time_int</span>,
+        </span><span class="kw">let </span>current_state_dist = <span class="kw">match </span>p.state {
+            PedState::Crossing {
+                <span class="kw-2">ref </span>dist_int,
+                <span class="kw-2">ref </span>time_int,
                 ..
-            } =&gt; <span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>) <span class="op">*</span> <span class="ident">dist_int</span>.<span class="ident">length</span>(),
-            <span class="comment">// We&#39;re at the beginning of our trip and are only walking along a driveway or biking</span>
-            <span class="comment">// connection</span>
-            <span class="ident">PedState::LeavingBuilding</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">PedState::LeavingParkingLot</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">PedState::FinishingBiking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
-            <span class="comment">// In all of these cases, we haven&#39;t shifted the PathStep that led us to this state yet</span>
-            <span class="ident">PedState::WaitingToTurn</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">PedState::EnteringBuilding</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">PedState::EnteringParkingLot</span>(<span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">PedState::StartingToBike</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
-            <span class="op">|</span> <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">dist_crossed_from_step</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">current_step</span>())
+            } =&gt; time_int.percent(now) * dist_int.length(),
+            <span class="comment">// We&#39;re at the beginning of our trip and are only walking along a driveway or biking
+            // connection
+            </span>PedState::LeavingBuilding(<span class="kw">_</span>, <span class="kw">_</span>)
+            | PedState::LeavingParkingLot(<span class="kw">_</span>, <span class="kw">_</span>)
+            | PedState::FinishingBiking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; Distance::ZERO,
+            <span class="comment">// In all of these cases, we haven&#39;t shifted the PathStep that led us to this state yet
+            </span>PedState::WaitingToTurn(<span class="kw">_</span>, <span class="kw">_</span>)
+            | PedState::EnteringBuilding(<span class="kw">_</span>, <span class="kw">_</span>)
+            | PedState::EnteringParkingLot(<span class="kw">_</span>, <span class="kw">_</span>)
+            | PedState::StartingToBike(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+            | PedState::WaitingForBus(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                p.path.dist_crossed_from_step(map, <span class="kw-2">&amp;</span>p.path.current_step())
             }
         };
 
-        <span class="ident">AgentProperties</span> {
-            <span class="ident">total_time</span>: <span class="ident">now</span> <span class="op">-</span> <span class="ident">p</span>.<span class="ident">started_at</span>,
-            <span class="ident">waiting_here</span>: <span class="ident">time_spent_waiting</span>,
-            <span class="ident">total_waiting</span>: <span class="ident">p</span>.<span class="ident">total_blocked_time</span> <span class="op">+</span> <span class="ident">time_spent_waiting</span>,
-            <span class="ident">dist_crossed</span>: <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">crossed_so_far</span>() <span class="op">+</span> <span class="ident">current_state_dist</span>,
-            <span class="ident">total_dist</span>: <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">total_length</span>(),
+        AgentProperties {
+            total_time: now - p.started_at,
+            waiting_here: time_spent_waiting,
+            total_waiting: p.total_blocked_time + time_spent_waiting,
+            dist_crossed: p.path.crossed_so_far() + current_state_dist,
+            total_dist: p.path.total_length(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_route</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> (<span class="ident">p</span>.<span class="ident">get_dist_along</span>(<span class="ident">now</span>, <span class="ident">map</span>) <span class="op">+</span> <span class="ident">pedestrian_body_radius</span>()).<span class="ident">min</span>(
-            <span class="ident">p</span>.<span class="ident">path</span>
-                .<span class="ident">current_step</span>()
-                .<span class="ident">as_traversable</span>()
-                .<span class="ident">get_polyline</span>(<span class="ident">map</span>)
-                .<span class="ident">length</span>(),
+    <span class="kw">pub fn </span>trace_route(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time, id: PedestrianID, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;PolyLine&gt; {
+        <span class="kw">let </span>p = <span class="self">self</span>.peds.get(<span class="kw-2">&amp;</span>id)<span class="question-mark">?</span>;
+        <span class="kw">let </span>dist = (p.get_dist_along(now, map) + pedestrian_body_radius()).min(
+            p.path
+                .current_step()
+                .as_traversable()
+                .get_polyline(map)
+                .length(),
         );
-        <span class="ident">p</span>.<span class="ident">path</span>.<span class="ident">trace_from_start</span>(<span class="ident">map</span>, <span class="ident">dist</span>)
+        p.path.trace_from_start(map, dist)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">PedestrianID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">path</span>)
+    <span class="kw">pub fn </span>get_path(<span class="kw-2">&amp;</span><span class="self">self</span>, id: PedestrianID) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Path&gt; {
+        <span class="kw">let </span>p = <span class="self">self</span>.peds.get(<span class="kw-2">&amp;</span>id)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>p.path)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_unzoomed_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UnzoomedAgent</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">peds</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">pub fn </span>get_unzoomed_agents(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;UnzoomedAgent&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>peds = Vec::new();
 
-        <span class="kw">for</span> <span class="ident">ped</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">values</span>() {
-            <span class="ident">peds</span>.<span class="ident">push</span>(<span class="ident">UnzoomedAgent</span> {
-                <span class="ident">id</span>: <span class="ident">AgentID::Pedestrian</span>(<span class="ident">ped</span>.<span class="ident">id</span>),
-                <span class="ident">pos</span>: <span class="ident">ped</span>.<span class="ident">get_draw_ped</span>(<span class="ident">now</span>, <span class="ident">map</span>).<span class="ident">pos</span>,
-                <span class="ident">person</span>: <span class="prelude-val">Some</span>(<span class="ident">ped</span>.<span class="ident">person</span>),
-                <span class="ident">parking</span>: <span class="bool-val">false</span>,
+        <span class="kw">for </span>ped <span class="kw">in </span><span class="self">self</span>.peds.values() {
+            peds.push(UnzoomedAgent {
+                id: AgentID::Pedestrian(ped.id),
+                pos: ped.get_draw_ped(now, map).pos,
+                person: <span class="prelude-val">Some</span>(ped.person),
+                parking: <span class="bool-val">false</span>,
             });
         }
 
-        <span class="ident">peds</span>
+        peds
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_draw_peds_on</span>(
+    <span class="kw">pub fn </span>get_draw_peds_on(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">on</span>: <span class="ident">Traversable</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawPedestrianInput</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawPedCrowdInput</span><span class="op">&gt;</span>) {
-        <span class="comment">// Classify into direction-based groups or by building/parking lot driveway.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">forwards</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PedestrianID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">backwards</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PedestrianID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bldg_driveway</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, (<span class="ident">PedestrianID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lot_driveway</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">ParkingLotID</span>, (<span class="ident">PedestrianID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
+        now: Time,
+        on: Traversable,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; (Vec&lt;DrawPedestrianInput&gt;, Vec&lt;DrawPedCrowdInput&gt;) {
+        <span class="comment">// Classify into direction-based groups or by building/parking lot driveway.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>forwards: Vec&lt;(PedestrianID, Distance)&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>backwards: Vec&lt;(PedestrianID, Distance)&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>bldg_driveway: MultiMap&lt;BuildingID, (PedestrianID, Distance)&gt; = MultiMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>lot_driveway: MultiMap&lt;ParkingLotID, (PedestrianID, Distance)&gt; = MultiMap::new();
 
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds_per_traversable</span>.<span class="ident">get</span>(<span class="ident">on</span>) {
-            <span class="kw">let</span> <span class="ident">ped</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds</span>[<span class="ident">id</span>];
-            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">ped</span>.<span class="ident">get_dist_along</span>(<span class="ident">now</span>, <span class="ident">map</span>);
+        <span class="kw">for </span>id <span class="kw">in </span><span class="self">self</span>.peds_per_traversable.get(on) {
+            <span class="kw">let </span>ped = <span class="kw-2">&amp;</span><span class="self">self</span>.peds[id];
+            <span class="kw">let </span>dist = ped.get_dist_along(now, map);
 
-            <span class="kw">match</span> <span class="ident">ped</span>.<span class="ident">state</span> {
-                <span class="ident">PedState::Crossing</span> { <span class="kw-2">ref</span> <span class="ident">dist_int</span>, .. } =&gt; {
-                    <span class="kw">if</span> <span class="ident">dist_int</span>.<span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">dist_int</span>.<span class="ident">end</span> {
-                        <span class="ident">forwards</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">dist</span>));
-                    } <span class="kw">else</span> {
-                        <span class="ident">backwards</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">dist</span>));
+            <span class="kw">match </span>ped.state {
+                PedState::Crossing { <span class="kw-2">ref </span>dist_int, .. } =&gt; {
+                    <span class="kw">if </span>dist_int.start &lt; dist_int.end {
+                        forwards.push((<span class="kw-2">*</span>id, dist));
+                    } <span class="kw">else </span>{
+                        backwards.push((<span class="kw-2">*</span>id, dist));
                     }
                 }
-                <span class="ident">PedState::WaitingToTurn</span>(<span class="ident">dist</span>, <span class="kw">_</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">dist</span> <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
-                        <span class="ident">backwards</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">dist</span>));
-                    } <span class="kw">else</span> {
-                        <span class="ident">forwards</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">dist</span>));
+                PedState::WaitingToTurn(dist, <span class="kw">_</span>) =&gt; {
+                    <span class="kw">if </span>dist == Distance::ZERO {
+                        backwards.push((<span class="kw-2">*</span>id, dist));
+                    } <span class="kw">else </span>{
+                        forwards.push((<span class="kw-2">*</span>id, dist));
                     }
                 }
-                <span class="ident">PedState::LeavingBuilding</span>(<span class="ident">b</span>, <span class="kw-2">ref</span> <span class="ident">int</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>.<span class="ident">length</span>();
-                    <span class="ident">bldg_driveway</span>.<span class="ident">insert</span>(<span class="ident">b</span>, (<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">int</span>.<span class="ident">percent</span>(<span class="ident">now</span>) <span class="op">*</span> <span class="ident">len</span>));
+                PedState::LeavingBuilding(b, <span class="kw-2">ref </span>int) =&gt; {
+                    <span class="kw">let </span>len = map.get_b(b).driveway_geom.length();
+                    bldg_driveway.insert(b, (<span class="kw-2">*</span>id, int.percent(now) * len));
                 }
-                <span class="ident">PedState::EnteringBuilding</span>(<span class="ident">b</span>, <span class="kw-2">ref</span> <span class="ident">int</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>.<span class="ident">length</span>();
-                    <span class="ident">bldg_driveway</span>.<span class="ident">insert</span>(<span class="ident">b</span>, (<span class="kw-2">*</span><span class="ident">id</span>, (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">int</span>.<span class="ident">percent</span>(<span class="ident">now</span>)) <span class="op">*</span> <span class="ident">len</span>));
+                PedState::EnteringBuilding(b, <span class="kw-2">ref </span>int) =&gt; {
+                    <span class="kw">let </span>len = map.get_b(b).driveway_geom.length();
+                    bldg_driveway.insert(b, (<span class="kw-2">*</span>id, (<span class="number">1.0 </span>- int.percent(now)) * len));
                 }
-                <span class="ident">PedState::LeavingParkingLot</span>(<span class="ident">pl</span>, <span class="kw-2">ref</span> <span class="ident">int</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_line</span>.<span class="ident">length</span>();
-                    <span class="ident">lot_driveway</span>.<span class="ident">insert</span>(<span class="ident">pl</span>, (<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">int</span>.<span class="ident">percent</span>(<span class="ident">now</span>) <span class="op">*</span> <span class="ident">len</span>));
+                PedState::LeavingParkingLot(pl, <span class="kw-2">ref </span>int) =&gt; {
+                    <span class="kw">let </span>len = map.get_pl(pl).sidewalk_line.length();
+                    lot_driveway.insert(pl, (<span class="kw-2">*</span>id, int.percent(now) * len));
                 }
-                <span class="ident">PedState::EnteringParkingLot</span>(<span class="ident">pl</span>, <span class="kw-2">ref</span> <span class="ident">int</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_line</span>.<span class="ident">length</span>();
-                    <span class="ident">lot_driveway</span>.<span class="ident">insert</span>(<span class="ident">pl</span>, (<span class="kw-2">*</span><span class="ident">id</span>, (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">int</span>.<span class="ident">percent</span>(<span class="ident">now</span>)) <span class="op">*</span> <span class="ident">len</span>));
+                PedState::EnteringParkingLot(pl, <span class="kw-2">ref </span>int) =&gt; {
+                    <span class="kw">let </span>len = map.get_pl(pl).sidewalk_line.length();
+                    lot_driveway.insert(pl, (<span class="kw-2">*</span>id, (<span class="number">1.0 </span>- int.percent(now)) * len));
                 }
-                <span class="ident">PedState::StartingToBike</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">PedState::FinishingBiking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
-                <span class="op">|</span> <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                    <span class="comment">// The backwards half of the sidewalk is closer to the road.</span>
-                    <span class="ident">backwards</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">id</span>, <span class="ident">dist</span>));
+                PedState::StartingToBike(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+                | PedState::FinishingBiking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+                | PedState::WaitingForBus(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                    <span class="comment">// The backwards half of the sidewalk is closer to the road.
+                    </span>backwards.push((<span class="kw-2">*</span>id, dist));
                 }
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">crowds</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawPedCrowdInput</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">loners</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawPedestrianInput</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>crowds: Vec&lt;DrawPedCrowdInput&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>loners: Vec&lt;DrawPedestrianInput&gt; = Vec::new();
 
-        <span class="comment">// For each group, sort by distance along. Attempt to bundle into intervals.</span>
-        <span class="kw">for</span> (<span class="kw-2">mut</span> <span class="ident">group</span>, <span class="ident">location</span>, <span class="ident">on_len</span>) <span class="kw">in</span> <span class="macro">vec!</span>[
+        <span class="comment">// For each group, sort by distance along. Attempt to bundle into intervals.
+        </span><span class="kw">for </span>(<span class="kw-2">mut </span>group, location, on_len) <span class="kw">in </span><span class="macro">vec!</span>[
             (
-                <span class="ident">forwards</span>,
-                <span class="ident">PedCrowdLocation::Sidewalk</span>(<span class="ident">on</span>, <span class="bool-val">false</span>),
-                <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>(),
+                forwards,
+                PedCrowdLocation::Sidewalk(on, <span class="bool-val">false</span>),
+                on.get_polyline(map).length(),
             ),
             (
-                <span class="ident">backwards</span>,
-                <span class="ident">PedCrowdLocation::Sidewalk</span>(<span class="ident">on</span>, <span class="bool-val">true</span>),
-                <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>(),
+                backwards,
+                PedCrowdLocation::Sidewalk(on, <span class="bool-val">true</span>),
+                on.get_polyline(map).length(),
             ),
         ]
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">chain</span>(<span class="ident">bldg_driveway</span>.<span class="ident">consume</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">b</span>, <span class="ident">set</span>)<span class="op">|</span> {
+        .into_iter()
+        .chain(bldg_driveway.consume().into_iter().map(|(b, set)| {
             (
-                <span class="ident">set</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-                <span class="ident">PedCrowdLocation::BldgDriveway</span>(<span class="ident">b</span>),
-                <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>.<span class="ident">length</span>(),
+                set.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+                PedCrowdLocation::BldgDriveway(b),
+                map.get_b(b).driveway_geom.length(),
             )
         }))
-        .<span class="ident">chain</span>(<span class="ident">lot_driveway</span>.<span class="ident">consume</span>().<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">pl</span>, <span class="ident">set</span>)<span class="op">|</span> {
+        .chain(lot_driveway.consume().into_iter().map(|(pl, set)| {
             (
-                <span class="ident">set</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-                <span class="ident">PedCrowdLocation::LotDriveway</span>(<span class="ident">pl</span>),
-                <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_line</span>.<span class="ident">length</span>(),
+                set.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+                PedCrowdLocation::LotDriveway(pl),
+                map.get_pl(pl).sidewalk_line.length(),
             )
         })) {
-            <span class="kw">if</span> <span class="ident">group</span>.<span class="ident">is_empty</span>() {
+            <span class="kw">if </span>group.is_empty() {
                 <span class="kw">continue</span>;
             }
-            <span class="ident">group</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">dist</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">dist</span>);
-            <span class="kw">let</span> (<span class="ident">individs</span>, <span class="ident">these_crowds</span>) <span class="op">=</span> <span class="ident">find_crowds</span>(<span class="ident">group</span>, <span class="ident">location</span>);
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">individs</span> {
-                <span class="ident">loners</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">peds</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>].<span class="ident">get_draw_ped</span>(<span class="ident">now</span>, <span class="ident">map</span>));
+            group.sort_by_key(|(<span class="kw">_</span>, dist)| <span class="kw-2">*</span>dist);
+            <span class="kw">let </span>(individs, these_crowds) = find_crowds(group, location);
+            <span class="kw">for </span>id <span class="kw">in </span>individs {
+                loners.push(<span class="self">self</span>.peds[<span class="kw-2">&amp;</span>id].get_draw_ped(now, map));
             }
-            <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">crowd</span> <span class="kw">in</span> <span class="ident">these_crowds</span> {
-                <span class="comment">// Clamp the distance intervals.</span>
-                <span class="kw">if</span> <span class="ident">crowd</span>.<span class="ident">low</span> <span class="op">&lt;</span> <span class="ident">Distance::ZERO</span> {
-                    <span class="ident">crowd</span>.<span class="ident">low</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
+            <span class="kw">for </span><span class="kw-2">mut </span>crowd <span class="kw">in </span>these_crowds {
+                <span class="comment">// Clamp the distance intervals.
+                </span><span class="kw">if </span>crowd.low &lt; Distance::ZERO {
+                    crowd.low = Distance::ZERO;
                 }
-                <span class="kw">if</span> <span class="ident">crowd</span>.<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">on_len</span> {
-                    <span class="ident">crowd</span>.<span class="ident">high</span> <span class="op">=</span> <span class="ident">on_len</span>;
+                <span class="kw">if </span>crowd.high &gt; on_len {
+                    crowd.high = on_len;
                 }
-                <span class="ident">crowds</span>.<span class="ident">push</span>(<span class="ident">crowd</span>);
-            }
-        }
-
-        (<span class="ident">loners</span>, <span class="ident">crowds</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">events</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_trips_to_parking</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">evicted_cars</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentID</span>, <span class="ident">TripID</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">goals</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">SidewalkPOI</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">evicted_cars</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="ident">p</span>.<span class="ident">spot</span>))
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">affected</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">ped</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">values</span>() {
-            <span class="kw">if</span> <span class="ident">goals</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">ped</span>.<span class="ident">goal</span>.<span class="ident">connection</span>) {
-                <span class="ident">affected</span>.<span class="ident">push</span>((<span class="ident">AgentID::Pedestrian</span>(<span class="ident">ped</span>.<span class="ident">id</span>), <span class="ident">ped</span>.<span class="ident">trip</span>));
+                crowds.push(crowd);
             }
         }
-        <span class="ident">affected</span>
+
+        (loners, crowds)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_waiting_people</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">delays</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PersonID</span>, <span class="ident">Duration</span><span class="op">&gt;</span>) {
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">values</span>() {
-            <span class="kw">let</span> <span class="ident">delay</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">state</span>.<span class="ident">time_spent_waiting</span>(<span class="ident">now</span>);
-            <span class="kw">if</span> <span class="ident">delay</span> <span class="op">&gt;</span> <span class="ident">Duration::ZERO</span> {
-                <span class="ident">delays</span>.<span class="ident">insert</span>(<span class="ident">p</span>.<span class="ident">person</span>, <span class="ident">delay</span>);
+    <span class="kw">pub fn </span>collect_events(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;Event&gt; {
+        std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.events)
+    }
+
+    <span class="kw">pub fn </span>find_trips_to_parking(<span class="kw-2">&amp;</span><span class="self">self</span>, evicted_cars: Vec&lt;ParkedCar&gt;) -&gt; Vec&lt;(AgentID, TripID)&gt; {
+        <span class="kw">let </span>goals: BTreeSet&lt;SidewalkPOI&gt; = evicted_cars
+            .into_iter()
+            .map(|p| SidewalkPOI::ParkingSpot(p.spot))
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>affected = Vec::new();
+        <span class="kw">for </span>ped <span class="kw">in </span><span class="self">self</span>.peds.values() {
+            <span class="kw">if </span>goals.contains(<span class="kw-2">&amp;</span>ped.goal.connection) {
+                affected.push((AgentID::Pedestrian(ped.id), ped.trip));
+            }
+        }
+        affected
+    }
+
+    <span class="kw">pub fn </span>all_waiting_people(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time, delays: <span class="kw-2">&amp;mut </span>BTreeMap&lt;PersonID, Duration&gt;) {
+        <span class="kw">for </span>p <span class="kw">in </span><span class="self">self</span>.peds.values() {
+            <span class="kw">let </span>delay = p.state.time_spent_waiting(now);
+            <span class="kw">if </span>delay &gt; Duration::ZERO {
+                delays.insert(p.person, delay);
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">populate_commuter_counts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">cnts</span>: <span class="kw-2">&amp;mut</span> <span class="ident">CommutersVehiclesCounts</span>) {
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds</span>.<span class="ident">values</span>() {
-            <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">goal</span>.<span class="ident">connection</span> {
-                <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">SidewalkPOI::DeferredParkingSpot</span> =&gt; {
-                    <span class="ident">cnts</span>.<span class="ident">walking_to_from_car</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">pub fn </span>populate_commuter_counts(<span class="kw-2">&amp;</span><span class="self">self</span>, cnts: <span class="kw-2">&amp;mut </span>CommutersVehiclesCounts) {
+        <span class="kw">for </span>p <span class="kw">in </span><span class="self">self</span>.peds.values() {
+            <span class="kw">match </span>p.goal.connection {
+                SidewalkPOI::ParkingSpot(<span class="kw">_</span>) | SidewalkPOI::DeferredParkingSpot =&gt; {
+                    cnts.walking_to_from_car += <span class="number">1</span>;
                 }
-                <span class="ident">SidewalkPOI::TransitStop</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="ident">cnts</span>.<span class="ident">walking_to_from_transit</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                SidewalkPOI::TransitStop(<span class="kw">_</span>) =&gt; {
+                    cnts.walking_to_from_transit += <span class="number">1</span>;
                 }
-                <span class="ident">SidewalkPOI::BikeRack</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="ident">cnts</span>.<span class="ident">walking_to_from_bike</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                SidewalkPOI::BikeRack(<span class="kw">_</span>) =&gt; {
+                    cnts.walking_to_from_bike += <span class="number">1</span>;
                 }
-                <span class="kw">_</span> =&gt; <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">start</span>.<span class="ident">connection</span> {
-                    <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">SidewalkPOI::DeferredParkingSpot</span> =&gt; {
-                        <span class="ident">cnts</span>.<span class="ident">walking_to_from_car</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">_ </span>=&gt; <span class="kw">match </span>p.start.connection {
+                    SidewalkPOI::ParkingSpot(<span class="kw">_</span>) | SidewalkPOI::DeferredParkingSpot =&gt; {
+                        cnts.walking_to_from_car += <span class="number">1</span>;
                     }
-                    <span class="ident">SidewalkPOI::TransitStop</span>(<span class="kw">_</span>) =&gt; {
-                        <span class="ident">cnts</span>.<span class="ident">walking_to_from_transit</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    SidewalkPOI::TransitStop(<span class="kw">_</span>) =&gt; {
+                        cnts.walking_to_from_transit += <span class="number">1</span>;
                     }
-                    <span class="ident">SidewalkPOI::BikeRack</span>(<span class="kw">_</span>) =&gt; {
-                        <span class="ident">cnts</span>.<span class="ident">walking_to_from_bike</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    SidewalkPOI::BikeRack(<span class="kw">_</span>) =&gt; {
+                        cnts.walking_to_from_bike += <span class="number">1</span>;
                     }
-                    <span class="kw">_</span> =&gt; {
-                        <span class="ident">cnts</span>.<span class="ident">walking_commuters</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    <span class="kw">_ </span>=&gt; {
+                        cnts.walking_commuters += <span class="number">1</span>;
                     }
                 },
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_pedestrian_density</span>(
+    <span class="kw">pub fn </span>get_pedestrian_density(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; (<span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">f64</span><span class="op">&gt;</span>, <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">f64</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intersections</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">for</span> (<span class="ident">traversable</span>, <span class="ident">peds</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">peds_per_traversable</span>.<span class="ident">borrow</span>() {
-            <span class="kw">if</span> <span class="ident">peds</span>.<span class="ident">is_empty</span>() {
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; (BTreeMap&lt;RoadID, f64&gt;, BTreeMap&lt;IntersectionID, f64&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>roads = BTreeMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>intersections = BTreeMap::new();
+        <span class="kw">for </span>(traversable, peds) <span class="kw">in </span><span class="self">self</span>.peds_per_traversable.borrow() {
+            <span class="kw">if </span>peds.is_empty() {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">density</span> <span class="op">=</span> (<span class="ident">peds</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">area</span>(<span class="ident">map</span>, <span class="kw-2">*</span><span class="ident">traversable</span>);
-            <span class="kw">match</span> <span class="ident">traversable</span> {
-                <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">entry</span>(<span class="ident">l</span>.<span class="ident">road</span>).<span class="ident">or_insert</span>(<span class="number">0.0</span>);
-                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">entry</span> <span class="op">&lt;</span> <span class="ident">density</span> {
-                        <span class="kw-2">*</span><span class="ident">entry</span> <span class="op">=</span> <span class="ident">density</span>;
+            <span class="kw">let </span>density = (peds.len() <span class="kw">as </span>f64) / area(map, <span class="kw-2">*</span>traversable);
+            <span class="kw">match </span>traversable {
+                Traversable::Lane(l) =&gt; {
+                    <span class="kw">let </span>entry = roads.entry(l.road).or_insert(<span class="number">0.0</span>);
+                    <span class="kw">if </span><span class="kw-2">*</span>entry &lt; density {
+                        <span class="kw-2">*</span>entry = density;
                     }
                 }
-                <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="ident">intersections</span>.<span class="ident">entry</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">or_insert</span>(<span class="number">0.0</span>);
-                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">entry</span> <span class="op">&lt;</span> <span class="ident">density</span> {
-                        <span class="kw-2">*</span><span class="ident">entry</span> <span class="op">=</span> <span class="ident">density</span>;
+                Traversable::Turn(t) =&gt; {
+                    <span class="kw">let </span>entry = intersections.entry(t.parent).or_insert(<span class="number">0.0</span>);
+                    <span class="kw">if </span><span class="kw-2">*</span>entry &lt; density {
+                        <span class="kw-2">*</span>entry = density;
                     }
                 }
             }
         }
-        (<span class="ident">roads</span>, <span class="ident">intersections</span>)
+        (roads, intersections)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Pedestrian</span> {
-    <span class="ident">id</span>: <span class="ident">PedestrianID</span>,
-    <span class="ident">state</span>: <span class="ident">PedState</span>,
-    <span class="ident">speed</span>: <span class="ident">Speed</span>,
-    <span class="ident">total_blocked_time</span>: <span class="ident">Duration</span>,
-    <span class="comment">// TODO organize analytics better.</span>
-    <span class="ident">started_at</span>: <span class="ident">Time</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone)]
+</span><span class="kw">struct </span>Pedestrian {
+    id: PedestrianID,
+    state: PedState,
+    speed: Speed,
+    total_blocked_time: Duration,
+    <span class="comment">// TODO organize analytics better.
+    </span>started_at: Time,
 
-    <span class="ident">path</span>: <span class="ident">Path</span>,
-    <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>,
-    <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>,
-    <span class="ident">trip</span>: <span class="ident">TripID</span>,
-    <span class="ident">person</span>: <span class="ident">PersonID</span>,
+    path: Path,
+    start: SidewalkSpot,
+    goal: SidewalkSpot,
+    trip: TripID,
+    person: PersonID,
 }
 
-<span class="kw">impl</span> <span class="ident">Pedestrian</span> {
-    <span class="kw">fn</span> <span class="ident">crossing_state</span>(
+<span class="kw">impl </span>Pedestrian {
+    <span class="kw">fn </span>crossing_state(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">peds_per_traversable</span>: <span class="kw-2">&amp;</span><span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">PedestrianID</span><span class="op">&gt;</span>,
-        <span class="ident">start_dist</span>: <span class="ident">Distance</span>,
-        <span class="ident">start_time</span>: <span class="ident">Time</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">events</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">PedState</span> {
-        <span class="kw">let</span> <span class="ident">end_dist</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">is_last_step</span>() {
-            <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>()
-        } <span class="kw">else</span> {
-            <span class="comment">// TODO PathStep should have a end_dist... or end_pos</span>
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>() {
-                <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">length</span>(),
-                <span class="ident">PathStep::ContraflowLane</span>(<span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
-                <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">length</span>(),
-                <span class="ident">PathStep::ContraflowTurn</span>(<span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
+        peds_per_traversable: <span class="kw-2">&amp;</span>MultiMap&lt;Traversable, PedestrianID&gt;,
+        start_dist: Distance,
+        start_time: Time,
+        map: <span class="kw-2">&amp;</span>Map,
+        events: <span class="kw-2">&amp;mut </span>Vec&lt;Event&gt;,
+    ) -&gt; PedState {
+        <span class="kw">let </span>end_dist = <span class="kw">if </span><span class="self">self</span>.path.is_last_step() {
+            <span class="self">self</span>.goal.sidewalk_pos.dist_along()
+        } <span class="kw">else </span>{
+            <span class="comment">// TODO PathStep should have a end_dist... or end_pos
+            </span><span class="kw">match </span><span class="self">self</span>.path.current_step() {
+                PathStep::Lane(l) =&gt; map.get_l(l).length(),
+                PathStep::ContraflowLane(<span class="kw">_</span>) =&gt; Distance::ZERO,
+                PathStep::Turn(t) =&gt; map.get_t(t).geom.length(),
+                PathStep::ContraflowTurn(<span class="kw">_</span>) =&gt; Distance::ZERO,
             }
         };
 
-        <span class="kw">let</span> <span class="ident">speed_penalty</span> <span class="op">=</span> <span class="ident">crowdedness_penalty</span>(
-            <span class="ident">map</span>,
-            <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(),
-            <span class="ident">peds_per_traversable</span>,
+        <span class="kw">let </span>speed_penalty = crowdedness_penalty(
+            map,
+            <span class="self">self</span>.path.current_step().as_traversable(),
+            peds_per_traversable,
         );
-        <span class="kw">if</span> <span class="ident">speed_penalty</span> <span class="op">!</span><span class="op">=</span> <span class="number">1.0</span> {
-            <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::ProblemEncountered</span>(
-                <span class="self">self</span>.<span class="ident">trip</span>,
-                <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>()),
+        <span class="kw">if </span>speed_penalty != <span class="number">1.0 </span>{
+            events.push(Event::ProblemEncountered(
+                <span class="self">self</span>.trip,
+                Problem::PedestrianOvercrowding(<span class="self">self</span>.path.current_step().as_traversable()),
             ));
         }
 
-        <span class="kw">let</span> <span class="ident">dist_int</span> <span class="op">=</span> <span class="ident">DistanceInterval::new_walking</span>(<span class="ident">start_dist</span>, <span class="ident">end_dist</span>);
-        <span class="kw">let</span> (<span class="ident">speed</span>, <span class="ident">percent_incline</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">max_speed_and_incline_along</span>(
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">speed</span>),
-            <span class="ident">PathConstraints::Pedestrian</span>,
-            <span class="ident">map</span>,
+        <span class="kw">let </span>dist_int = DistanceInterval::new_walking(start_dist, end_dist);
+        <span class="kw">let </span>(speed, percent_incline) = <span class="self">self</span>.path.current_step().max_speed_and_incline_along(
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.speed),
+            PathConstraints::Pedestrian,
+            map,
         );
-        <span class="kw">let</span> <span class="ident">time_int</span> <span class="op">=</span> <span class="ident">TimeInterval::new</span>(
-            <span class="ident">start_time</span>,
-            <span class="ident">start_time</span> <span class="op">+</span> <span class="ident">dist_int</span>.<span class="ident">length</span>() <span class="op">/</span> (<span class="ident">speed_penalty</span> <span class="op">*</span> <span class="ident">speed</span>),
+        <span class="kw">let </span>time_int = TimeInterval::new(
+            start_time,
+            start_time + dist_int.length() / (speed_penalty * speed),
         );
-        <span class="ident">PedState::Crossing</span> {
-            <span class="ident">dist_int</span>,
-            <span class="ident">time_int</span>,
-            <span class="ident">steep_uphill</span>: <span class="ident">percent_incline</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.08</span>,
+        PedState::Crossing {
+            dist_int,
+            time_int,
+            steep_uphill: percent_incline &gt;= <span class="number">0.08</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get_dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">PedState::Crossing</span> {
-                <span class="kw-2">ref</span> <span class="ident">dist_int</span>,
-                <span class="kw-2">ref</span> <span class="ident">time_int</span>,
+    <span class="kw">fn </span>get_dist_along(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time, map: <span class="kw-2">&amp;</span>Map) -&gt; Distance {
+        <span class="kw">match </span><span class="self">self</span>.state {
+            PedState::Crossing {
+                <span class="kw-2">ref </span>dist_int,
+                <span class="kw-2">ref </span>time_int,
                 ..
-            } =&gt; <span class="ident">dist_int</span>.<span class="ident">lerp</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>)),
-            <span class="ident">PedState::WaitingToTurn</span>(<span class="ident">dist</span>, <span class="kw">_</span>) =&gt; <span class="ident">dist</span>,
-            <span class="ident">PedState::LeavingBuilding</span>(<span class="ident">b</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">PedState::EnteringBuilding</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; {
-                <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>()
+            } =&gt; dist_int.lerp(time_int.percent(now)),
+            PedState::WaitingToTurn(dist, <span class="kw">_</span>) =&gt; dist,
+            PedState::LeavingBuilding(b, <span class="kw">_</span>) | PedState::EnteringBuilding(b, <span class="kw">_</span>) =&gt; {
+                map.get_b(b).sidewalk_pos.dist_along()
             }
-            <span class="ident">PedState::LeavingParkingLot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">PedState::EnteringParkingLot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) =&gt; {
-                <span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>()
+            PedState::LeavingParkingLot(pl, <span class="kw">_</span>) | PedState::EnteringParkingLot(pl, <span class="kw">_</span>) =&gt; {
+                map.get_pl(pl).sidewalk_pos.dist_along()
             }
-            <span class="ident">PedState::StartingToBike</span>(<span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">spot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-            <span class="ident">PedState::FinishingBiking</span>(<span class="kw-2">ref</span> <span class="ident">spot</span>, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">spot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
-            <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>(),
+            PedState::StartingToBike(<span class="kw-2">ref </span>spot, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; spot.sidewalk_pos.dist_along(),
+            PedState::FinishingBiking(<span class="kw-2">ref </span>spot, <span class="kw">_</span>, <span class="kw">_</span>) =&gt; spot.sidewalk_pos.dist_along(),
+            PedState::WaitingForBus(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">self</span>.goal.sidewalk_pos.dist_along(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">get_draw_ped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">DrawPedestrianInput</span> {
-        <span class="kw">let</span> <span class="ident">on</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>();
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;at {}, {}&#39;s position is broken&quot;</span>, <span class="ident">now</span>, <span class="self">self</span>.<span class="ident">id</span>);
-        <span class="kw">let</span> <span class="ident">angle_offset</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Right</span> {
-            <span class="number">90.0</span>
-        } <span class="kw">else</span> {
-            <span class="number">270.0</span>
+    <span class="kw">fn </span>get_draw_ped(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time, map: <span class="kw-2">&amp;</span>Map) -&gt; DrawPedestrianInput {
+        <span class="kw">let </span>on = <span class="self">self</span>.path.current_step().as_traversable();
+        <span class="kw">let </span>err = <span class="macro">format!</span>(<span class="string">&quot;at {}, {}&#39;s position is broken&quot;</span>, now, <span class="self">self</span>.id);
+        <span class="kw">let </span>angle_offset = <span class="kw">if </span>map.get_config().driving_side == DrivingSide::Right {
+            <span class="number">90.0
+        </span>} <span class="kw">else </span>{
+            <span class="number">270.0
+        </span>};
+        <span class="kw">let </span>project_away = <span class="kw">match </span>on {
+            Traversable::Lane(l) =&gt; map.get_l(l).width / <span class="number">2.0 </span>- pedestrian_body_radius(),
+            <span class="comment">// Width of a crossing is fuzzy, but this could likely be improved
+            </span>Traversable::Turn(<span class="kw">_</span>) =&gt; pedestrian_body_radius(),
         };
-        <span class="kw">let</span> <span class="ident">project_away</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">on</span> {
-            <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span> <span class="op">-</span> <span class="ident">pedestrian_body_radius</span>(),
-            <span class="comment">// Width of a crossing is fuzzy, but this could likely be improved</span>
-            <span class="ident">Traversable::Turn</span>(<span class="kw">_</span>) =&gt; <span class="ident">pedestrian_body_radius</span>(),
-        };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">intent</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>intent = <span class="prelude-val">None</span>;
 
-        <span class="kw">let</span> (<span class="ident">pos</span>, <span class="ident">facing</span>) <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-            <span class="ident">PedState::Crossing</span> {
-                <span class="kw-2">ref</span> <span class="ident">dist_int</span>,
-                <span class="kw-2">ref</span> <span class="ident">time_int</span>,
-                <span class="ident">steep_uphill</span>,
+        <span class="kw">let </span>(pos, facing) = <span class="kw">match </span><span class="self">self</span>.state {
+            PedState::Crossing {
+                <span class="kw-2">ref </span>dist_int,
+                <span class="kw-2">ref </span>time_int,
+                steep_uphill,
             } =&gt; {
-                <span class="kw">let</span> <span class="ident">percent</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">now</span> <span class="op">&gt;</span> <span class="ident">time_int</span>.<span class="ident">end</span> {
-                    <span class="number">1.0</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>)
+                <span class="kw">let </span>percent = <span class="kw">if </span>now &gt; time_int.end {
+                    <span class="number">1.0
+                </span>} <span class="kw">else </span>{
+                    time_int.percent(now)
                 };
-                <span class="kw">let</span> (<span class="ident">pos</span>, <span class="ident">orig_angle</span>) <span class="op">=</span> <span class="ident">on</span>
-                    .<span class="ident">get_polyline</span>(<span class="ident">map</span>)
-                    .<span class="ident">dist_along</span>(<span class="ident">dist_int</span>.<span class="ident">lerp</span>(<span class="ident">percent</span>))
-                    .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">err</span>);
-                <span class="kw">let</span> <span class="ident">facing</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dist_int</span>.<span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">dist_int</span>.<span class="ident">end</span> {
-                    <span class="ident">orig_angle</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">orig_angle</span>.<span class="ident">opposite</span>()
+                <span class="kw">let </span>(pos, orig_angle) = on
+                    .get_polyline(map)
+                    .dist_along(dist_int.lerp(percent))
+                    .expect(<span class="kw-2">&amp;</span>err);
+                <span class="kw">let </span>facing = <span class="kw">if </span>dist_int.start &lt; dist_int.end {
+                    orig_angle
+                } <span class="kw">else </span>{
+                    orig_angle.opposite()
                 };
-                <span class="kw">if</span> <span class="ident">steep_uphill</span> {
-                    <span class="ident">intent</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Intent::SteepUphill</span>);
+                <span class="kw">if </span>steep_uphill {
+                    intent = <span class="prelude-val">Some</span>(Intent::SteepUphill);
                 }
                 (
-                    <span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">project_away</span>, <span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
-                    <span class="ident">facing</span>,
+                    pos.project_away(project_away, facing.rotate_degs(angle_offset)),
+                    facing,
                 )
             }
-            <span class="ident">PedState::WaitingToTurn</span>(<span class="ident">dist</span>, <span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">pos</span>, <span class="ident">orig_angle</span>) <span class="op">=</span> <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">dist_along</span>(<span class="ident">dist</span>).<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="ident">err</span>);
-                <span class="kw">let</span> <span class="ident">facing</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dist</span> <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
-                    <span class="ident">orig_angle</span>.<span class="ident">opposite</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">orig_angle</span>
+            PedState::WaitingToTurn(dist, <span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>(pos, orig_angle) = on.get_polyline(map).dist_along(dist).expect(<span class="kw-2">&amp;</span>err);
+                <span class="kw">let </span>facing = <span class="kw">if </span>dist == Distance::ZERO {
+                    orig_angle.opposite()
+                } <span class="kw">else </span>{
+                    orig_angle
                 };
                 (
-                    <span class="ident">pos</span>.<span class="ident">project_away</span>(<span class="ident">project_away</span>, <span class="ident">facing</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
-                    <span class="ident">facing</span>,
+                    pos.project_away(project_away, facing.rotate_degs(angle_offset)),
+                    facing,
                 )
             }
-            <span class="ident">PedState::LeavingBuilding</span>(<span class="ident">b</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>;
-                <span class="comment">// If we&#39;re on some tiny line and percent_along fails, just fall back to to some</span>
-                <span class="comment">// point on the line instead of crashing.</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>) <span class="op">*</span> <span class="ident">pl</span>.<span class="ident">length</span>()) {
-                    <span class="ident">pair</span>
-                } <span class="kw">else</span> {
-                    (<span class="ident">pl</span>.<span class="ident">first_pt</span>(), <span class="ident">pl</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>())
+            PedState::LeavingBuilding(b, <span class="kw-2">ref </span>time_int) =&gt; {
+                <span class="kw">let </span>pl = <span class="kw-2">&amp;</span>map.get_b(b).driveway_geom;
+                <span class="comment">// If we&#39;re on some tiny line and percent_along fails, just fall back to to some
+                // point on the line instead of crashing.
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(pair) = pl.dist_along(time_int.percent(now) * pl.length()) {
+                    pair
+                } <span class="kw">else </span>{
+                    (pl.first_pt(), pl.first_line().angle())
                 }
             }
-            <span class="ident">PedState::EnteringBuilding</span>(<span class="ident">b</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">driveway_geom</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>((<span class="ident">pt</span>, <span class="ident">angle</span>)) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">dist_along</span>((<span class="number">1.0</span> <span class="op">-</span> <span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>)) <span class="op">*</span> <span class="ident">pl</span>.<span class="ident">length</span>())
+            PedState::EnteringBuilding(b, <span class="kw-2">ref </span>time_int) =&gt; {
+                <span class="kw">let </span>pl = <span class="kw-2">&amp;</span>map.get_b(b).driveway_geom;
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>((pt, angle)) = pl.dist_along((<span class="number">1.0 </span>- time_int.percent(now)) * pl.length())
                 {
-                    (<span class="ident">pt</span>, <span class="ident">angle</span>.<span class="ident">opposite</span>())
-                } <span class="kw">else</span> {
-                    (<span class="ident">pl</span>.<span class="ident">first_pt</span>(), <span class="ident">pl</span>.<span class="ident">first_line</span>().<span class="ident">angle</span>().<span class="ident">opposite</span>())
+                    (pt, angle.opposite())
+                } <span class="kw">else </span>{
+                    (pl.first_pt(), pl.first_line().angle().opposite())
                 }
             }
-            <span class="ident">PedState::LeavingParkingLot</span>(<span class="ident">pl</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_line</span>;
+            PedState::LeavingParkingLot(pl, <span class="kw-2">ref </span>time_int) =&gt; {
+                <span class="kw">let </span>line = <span class="kw-2">&amp;</span>map.get_pl(pl).sidewalk_line;
                 (
-                    <span class="ident">line</span>.<span class="ident">percent_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>))
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">pt1</span>()),
-                    <span class="ident">line</span>.<span class="ident">angle</span>(),
+                    line.percent_along(time_int.percent(now))
+                        .unwrap_or_else(|<span class="kw">_</span>| line.pt1()),
+                    line.angle(),
                 )
             }
-            <span class="ident">PedState::EnteringParkingLot</span>(<span class="ident">pl</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">pl</span>).<span class="ident">sidewalk_line</span>;
+            PedState::EnteringParkingLot(pl, <span class="kw-2">ref </span>time_int) =&gt; {
+                <span class="kw">let </span>line = <span class="kw-2">&amp;</span>map.get_pl(pl).sidewalk_line;
                 (
-                    <span class="ident">line</span>.<span class="ident">reversed</span>()
-                        .<span class="ident">percent_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>))
-                        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">pt1</span>()),
-                    <span class="ident">line</span>.<span class="ident">angle</span>().<span class="ident">opposite</span>(),
+                    line.reversed()
+                        .percent_along(time_int.percent(now))
+                        .unwrap_or_else(|<span class="kw">_</span>| line.pt1()),
+                    line.angle().opposite(),
                 )
             }
-            <span class="ident">PedState::StartingToBike</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">line</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; (
-                <span class="ident">line</span>.<span class="ident">percent_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>))
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">pt1</span>()),
-                <span class="ident">line</span>.<span class="ident">angle</span>(),
+            PedState::StartingToBike(<span class="kw">_</span>, <span class="kw-2">ref </span>line, <span class="kw-2">ref </span>time_int) =&gt; (
+                line.percent_along(time_int.percent(now))
+                    .unwrap_or_else(|<span class="kw">_</span>| line.pt1()),
+                line.angle(),
             ),
-            <span class="ident">PedState::FinishingBiking</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">line</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; (
-                <span class="ident">line</span>.<span class="ident">percent_along</span>(<span class="ident">time_int</span>.<span class="ident">percent</span>(<span class="ident">now</span>))
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">line</span>.<span class="ident">pt1</span>()),
-                <span class="ident">line</span>.<span class="ident">angle</span>(),
+            PedState::FinishingBiking(<span class="kw">_</span>, <span class="kw-2">ref </span>line, <span class="kw-2">ref </span>time_int) =&gt; (
+                line.percent_along(time_int.percent(now))
+                    .unwrap_or_else(|<span class="kw">_</span>| line.pt1()),
+                line.angle(),
             ),
-            <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt_and_angle</span>(<span class="ident">map</span>);
-                <span class="comment">// Stand on the far side of the sidewalk (by the bus stop), facing the road</span>
-                (
-                    <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">project_away</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="ident">angle_offset</span>)),
-                    <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="ident">angle_offset</span>),
+            PedState::WaitingForBus(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>(pt, angle) = <span class="self">self</span>.goal.sidewalk_pos.pt_and_angle(map);
+                <span class="comment">// Stand on the far side of the sidewalk (by the bus stop), facing the road
+                </span>(
+                    pt.project_away(project_away, angle.rotate_degs(angle_offset)),
+                    angle.rotate_degs(-angle_offset),
                 )
             }
         };
 
-        <span class="ident">DrawPedestrianInput</span> {
-            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">id</span>,
-            <span class="ident">pos</span>,
-            <span class="ident">facing</span>,
-            <span class="ident">waiting_for_turn</span>: <span class="kw">match</span> <span class="self">self</span>.<span class="ident">state</span> {
-                <span class="ident">PedState::WaitingToTurn</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">next_step</span>().<span class="ident">as_turn</span>()),
-                <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+        DrawPedestrianInput {
+            id: <span class="self">self</span>.id,
+            pos,
+            facing,
+            waiting_for_turn: <span class="kw">match </span><span class="self">self</span>.state {
+                PedState::WaitingToTurn(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">Some</span>(<span class="self">self</span>.path.next_step().as_turn()),
+                <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
             },
-            <span class="ident">intent</span>,
-            <span class="ident">preparing_bike</span>: <span class="macro">matches!</span>(
-                <span class="self">self</span>.<span class="ident">state</span>,
-                <span class="ident">PedState::StartingToBike</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">PedState::FinishingBiking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
+            intent,
+            preparing_bike: <span class="macro">matches!</span>(
+                <span class="self">self</span>.state,
+                PedState::StartingToBike(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) | PedState::FinishingBiking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>)
             ),
-            <span class="ident">waiting_for_bus</span>: <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">state</span>, <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>)),
-            <span class="ident">on</span>,
-            <span class="ident">person</span>: <span class="self">self</span>.<span class="ident">person</span>,
+            waiting_for_bus: <span class="macro">matches!</span>(<span class="self">self</span>.state, PedState::WaitingForBus(<span class="kw">_</span>, <span class="kw">_</span>)),
+            on,
+            person: <span class="self">self</span>.person,
         }
     }
 
-    <span class="comment">// True if we successfully continued to the next step of our path</span>
-    <span class="kw">fn</span> <span class="ident">maybe_transition</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">intersections</span>: <span class="kw-2">&amp;mut</span> <span class="ident">IntersectionSimState</span>,
-        <span class="ident">peds_per_traversable</span>: <span class="kw-2">&amp;mut</span> <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">PedestrianID</span><span class="op">&gt;</span>,
-        <span class="ident">events</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
-        <span class="ident">scheduler</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scheduler</span>,
-    ) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">next_step</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">intersections</span>.<span class="ident">maybe_start_turn</span>(
-                <span class="ident">AgentID::Pedestrian</span>(<span class="self">self</span>.<span class="ident">id</span>),
-                <span class="ident">t</span>,
-                <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>).<span class="ident">max_speed_along</span>(
-                    <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">speed</span>),
-                    <span class="ident">PathConstraints::Pedestrian</span>,
-                    <span class="ident">map</span>,
+    <span class="comment">// True if we successfully continued to the next step of our path
+    </span><span class="kw">fn </span>maybe_transition(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        now: Time,
+        map: <span class="kw-2">&amp;</span>Map,
+        intersections: <span class="kw-2">&amp;mut </span>IntersectionSimState,
+        peds_per_traversable: <span class="kw-2">&amp;mut </span>MultiMap&lt;Traversable, PedestrianID&gt;,
+        events: <span class="kw-2">&amp;mut </span>Vec&lt;Event&gt;,
+        scheduler: <span class="kw-2">&amp;mut </span>Scheduler,
+    ) -&gt; bool {
+        <span class="kw">if let </span>PathStep::Turn(t) | PathStep::ContraflowTurn(t) = <span class="self">self</span>.path.next_step() {
+            <span class="kw">if </span>!intersections.maybe_start_turn(
+                AgentID::Pedestrian(<span class="self">self</span>.id),
+                t,
+                PathStep::Turn(t).max_speed_along(
+                    <span class="prelude-val">Some</span>(<span class="self">self</span>.speed),
+                    PathConstraints::Pedestrian,
+                    map,
                 ),
-                <span class="ident">now</span>,
-                <span class="ident">map</span>,
-                <span class="ident">scheduler</span>,
+                now,
+                map,
+                scheduler,
                 <span class="prelude-val">None</span>,
             ) {
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+                <span class="kw">return </span><span class="bool-val">false</span>;
             }
         }
 
-        <span class="ident">peds_per_traversable</span>.<span class="ident">remove</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="self">self</span>.<span class="ident">id</span>);
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">shift</span>(<span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">start_dist</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>() {
-            <span class="ident">PathStep::Lane</span>(<span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
-            <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">length</span>(),
-            <span class="ident">PathStep::Turn</span>(<span class="kw">_</span>) =&gt; <span class="ident">Distance::ZERO</span>,
-            <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">length</span>(),
+        peds_per_traversable.remove(<span class="self">self</span>.path.current_step().as_traversable(), <span class="self">self</span>.id);
+        <span class="self">self</span>.path.shift(map);
+        <span class="kw">let </span>start_dist = <span class="kw">match </span><span class="self">self</span>.path.current_step() {
+            PathStep::Lane(<span class="kw">_</span>) =&gt; Distance::ZERO,
+            PathStep::ContraflowLane(l) =&gt; map.get_l(l).length(),
+            PathStep::Turn(<span class="kw">_</span>) =&gt; Distance::ZERO,
+            PathStep::ContraflowTurn(t) =&gt; map.get_t(t).geom.length(),
         };
-        <span class="self">self</span>.<span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">crossing_state</span>(<span class="ident">peds_per_traversable</span>, <span class="ident">start_dist</span>, <span class="ident">now</span>, <span class="ident">map</span>, <span class="ident">events</span>);
-        <span class="ident">peds_per_traversable</span>.<span class="ident">insert</span>(<span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(), <span class="self">self</span>.<span class="ident">id</span>);
-        <span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::AgentEntersTraversable</span>(
-            <span class="ident">AgentID::Pedestrian</span>(<span class="self">self</span>.<span class="ident">id</span>),
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">trip</span>),
-            <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">current_step</span>().<span class="ident">as_traversable</span>(),
+        <span class="self">self</span>.state = <span class="self">self</span>.crossing_state(peds_per_traversable, start_dist, now, map, events);
+        peds_per_traversable.insert(<span class="self">self</span>.path.current_step().as_traversable(), <span class="self">self</span>.id);
+        events.push(Event::AgentEntersTraversable(
+            AgentID::Pedestrian(<span class="self">self</span>.id),
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.trip),
+            <span class="self">self</span>.path.current_step().as_traversable(),
             <span class="prelude-val">None</span>,
         ));
-        <span class="bool-val">true</span>
-    }
+        <span class="bool-val">true
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">enum</span> <span class="ident">PedState</span> {
-    <span class="ident">Crossing</span> {
-        <span class="ident">dist_int</span>: <span class="ident">DistanceInterval</span>,
-        <span class="ident">time_int</span>: <span class="ident">TimeInterval</span>,
-        <span class="ident">steep_uphill</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Debug, Clone)]
+</span><span class="kw">enum </span>PedState {
+    Crossing {
+        dist_int: DistanceInterval,
+        time_int: TimeInterval,
+        steep_uphill: bool,
     },
-    <span class="doccomment">/// The Distance is either 0 or the current traversable&#39;s length. The Time is blocked_since.</span>
-    <span class="ident">WaitingToTurn</span>(<span class="ident">Distance</span>, <span class="ident">Time</span>),
-    <span class="ident">LeavingBuilding</span>(<span class="ident">BuildingID</span>, <span class="ident">TimeInterval</span>),
-    <span class="ident">EnteringBuilding</span>(<span class="ident">BuildingID</span>, <span class="ident">TimeInterval</span>),
-    <span class="ident">LeavingParkingLot</span>(<span class="ident">ParkingLotID</span>, <span class="ident">TimeInterval</span>),
-    <span class="ident">EnteringParkingLot</span>(<span class="ident">ParkingLotID</span>, <span class="ident">TimeInterval</span>),
-    <span class="ident">StartingToBike</span>(<span class="ident">SidewalkSpot</span>, <span class="ident">Line</span>, <span class="ident">TimeInterval</span>),
-    <span class="ident">FinishingBiking</span>(<span class="ident">SidewalkSpot</span>, <span class="ident">Line</span>, <span class="ident">TimeInterval</span>),
-    <span class="ident">WaitingForBus</span>(<span class="ident">TransitRouteID</span>, <span class="ident">Time</span>),
+    <span class="doccomment">/// The Distance is either 0 or the current traversable&#39;s length. The Time is blocked_since.
+    </span>WaitingToTurn(Distance, Time),
+    LeavingBuilding(BuildingID, TimeInterval),
+    EnteringBuilding(BuildingID, TimeInterval),
+    LeavingParkingLot(ParkingLotID, TimeInterval),
+    EnteringParkingLot(ParkingLotID, TimeInterval),
+    StartingToBike(SidewalkSpot, Line, TimeInterval),
+    FinishingBiking(SidewalkSpot, Line, TimeInterval),
+    WaitingForBus(TransitRouteID, Time),
 }
 
-<span class="kw">impl</span> <span class="ident">PedState</span> {
-    <span class="kw">fn</span> <span class="ident">get_end_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Time</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PedState::Crossing</span> { <span class="kw-2">ref</span> <span class="ident">time_int</span>, .. } =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">PedState::WaitingToTurn</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">PedState::LeavingBuilding</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">PedState::EnteringBuilding</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">PedState::LeavingParkingLot</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">PedState::EnteringParkingLot</span>(<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">PedState::StartingToBike</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">PedState::FinishingBiking</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">time_int</span>) =&gt; <span class="ident">time_int</span>.<span class="ident">end</span>,
-            <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">impl </span>PedState {
+    <span class="kw">fn </span>get_end_time(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Time {
+        <span class="kw">match </span><span class="self">self </span>{
+            PedState::Crossing { <span class="kw-2">ref </span>time_int, .. } =&gt; time_int.end,
+            PedState::WaitingToTurn(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            PedState::LeavingBuilding(<span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; time_int.end,
+            PedState::EnteringBuilding(<span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; time_int.end,
+            PedState::LeavingParkingLot(<span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; time_int.end,
+            PedState::EnteringParkingLot(<span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; time_int.end,
+            PedState::StartingToBike(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; time_int.end,
+            PedState::FinishingBiking(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref </span>time_int) =&gt; time_int.end,
+            PedState::WaitingForBus(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">time_spent_waiting</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PedState::WaitingToTurn</span>(<span class="kw">_</span>, <span class="ident">blocked_since</span>)
-            <span class="op">|</span> <span class="ident">PedState::WaitingForBus</span>(<span class="kw">_</span>, <span class="ident">blocked_since</span>) =&gt; <span class="ident">now</span> <span class="op">-</span> <span class="kw-2">*</span><span class="ident">blocked_since</span>,
-            <span class="kw">_</span> =&gt; <span class="ident">Duration::ZERO</span>,
+    <span class="kw">fn </span>time_spent_waiting(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time) -&gt; Duration {
+        <span class="kw">match </span><span class="self">self </span>{
+            PedState::WaitingToTurn(<span class="kw">_</span>, blocked_since)
+            | PedState::WaitingForBus(<span class="kw">_</span>, blocked_since) =&gt; now - <span class="kw-2">*</span>blocked_since,
+            <span class="kw">_ </span>=&gt; Duration::ZERO,
         }
     }
 }
 
-<span class="comment">// The crowds returned here may have low/high values extending up to radius past the real geometry.</span>
-<span class="kw">fn</span> <span class="ident">find_crowds</span>(
-    <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PedestrianID</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span>,
-    <span class="ident">location</span>: <span class="ident">PedCrowdLocation</span>,
-) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PedestrianID</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DrawPedCrowdInput</span><span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">loners</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">crowds</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="ident">pedestrian_body_radius</span>();
+<span class="comment">// The crowds returned here may have low/high values extending up to radius past the real geometry.
+</span><span class="kw">fn </span>find_crowds(
+    input: Vec&lt;(PedestrianID, Distance)&gt;,
+    location: PedCrowdLocation,
+) -&gt; (Vec&lt;PedestrianID&gt;, Vec&lt;DrawPedCrowdInput&gt;) {
+    <span class="kw">let </span><span class="kw-2">mut </span>loners = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>crowds = Vec::new();
+    <span class="kw">let </span>radius = pedestrian_body_radius();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_crowd</span> <span class="op">=</span> <span class="ident">DrawPedCrowdInput</span> {
-        <span class="ident">low</span>: <span class="ident">input</span>[<span class="number">0</span>].<span class="number">1</span> <span class="op">-</span> <span class="ident">radius</span>,
-        <span class="ident">high</span>: <span class="ident">input</span>[<span class="number">0</span>].<span class="number">1</span> <span class="op">+</span> <span class="ident">radius</span>,
-        <span class="ident">members</span>: <span class="macro">vec!</span>[<span class="ident">input</span>[<span class="number">0</span>].<span class="number">0</span>],
-        <span class="ident">location</span>: <span class="ident">location</span>.<span class="ident">clone</span>(),
+    <span class="kw">let </span><span class="kw-2">mut </span>current_crowd = DrawPedCrowdInput {
+        low: input[<span class="number">0</span>].<span class="number">1 </span>- radius,
+        high: input[<span class="number">0</span>].<span class="number">1 </span>+ radius,
+        members: <span class="macro">vec!</span>[input[<span class="number">0</span>].<span class="number">0</span>],
+        location: location.clone(),
     };
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">dist</span>) <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">into_iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
-        <span class="comment">// If the pedestrian circles would overlap at all,</span>
-        <span class="kw">if</span> <span class="ident">dist</span> <span class="op">-</span> <span class="ident">radius</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">current_crowd</span>.<span class="ident">high</span> {
-            <span class="ident">current_crowd</span>.<span class="ident">members</span>.<span class="ident">push</span>(<span class="ident">id</span>);
-            <span class="ident">current_crowd</span>.<span class="ident">high</span> <span class="op">=</span> <span class="ident">dist</span> <span class="op">+</span> <span class="ident">radius</span>;
-        } <span class="kw">else</span> {
-            <span class="kw">if</span> <span class="ident">current_crowd</span>.<span class="ident">members</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-                <span class="ident">loners</span>.<span class="ident">push</span>(<span class="ident">current_crowd</span>.<span class="ident">members</span>[<span class="number">0</span>]);
-            } <span class="kw">else</span> {
-                <span class="ident">crowds</span>.<span class="ident">push</span>(<span class="ident">current_crowd</span>);
+    <span class="kw">for </span>(id, dist) <span class="kw">in </span>input.into_iter().skip(<span class="number">1</span>) {
+        <span class="comment">// If the pedestrian circles would overlap at all,
+        </span><span class="kw">if </span>dist - radius &lt;= current_crowd.high {
+            current_crowd.members.push(id);
+            current_crowd.high = dist + radius;
+        } <span class="kw">else </span>{
+            <span class="kw">if </span>current_crowd.members.len() == <span class="number">1 </span>{
+                loners.push(current_crowd.members[<span class="number">0</span>]);
+            } <span class="kw">else </span>{
+                crowds.push(current_crowd);
             }
-            <span class="comment">// Reset current_crowd</span>
-            <span class="ident">current_crowd</span> <span class="op">=</span> <span class="ident">DrawPedCrowdInput</span> {
-                <span class="ident">low</span>: <span class="ident">dist</span> <span class="op">-</span> <span class="ident">radius</span>,
-                <span class="ident">high</span>: <span class="ident">dist</span> <span class="op">+</span> <span class="ident">radius</span>,
-                <span class="ident">members</span>: <span class="macro">vec!</span>[<span class="ident">id</span>],
-                <span class="ident">location</span>: <span class="ident">location</span>.<span class="ident">clone</span>(),
+            <span class="comment">// Reset current_crowd
+            </span>current_crowd = DrawPedCrowdInput {
+                low: dist - radius,
+                high: dist + radius,
+                members: <span class="macro">vec!</span>[id],
+                location: location.clone(),
             };
         }
     }
-    <span class="comment">// Handle the last bit</span>
-    <span class="kw">if</span> <span class="ident">current_crowd</span>.<span class="ident">members</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-        <span class="ident">loners</span>.<span class="ident">push</span>(<span class="ident">current_crowd</span>.<span class="ident">members</span>[<span class="number">0</span>]);
-    } <span class="kw">else</span> {
-        <span class="ident">crowds</span>.<span class="ident">push</span>(<span class="ident">current_crowd</span>);
+    <span class="comment">// Handle the last bit
+    </span><span class="kw">if </span>current_crowd.members.len() == <span class="number">1 </span>{
+        loners.push(current_crowd.members[<span class="number">0</span>]);
+    } <span class="kw">else </span>{
+        crowds.push(current_crowd);
     }
 
-    (<span class="ident">loners</span>, <span class="ident">crowds</span>)
+    (loners, crowds)
 }
 
-<span class="kw">impl</span> <span class="ident">IndexableKey</span> <span class="kw">for</span> <span class="ident">PedestrianID</span> {
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="number">0</span>
+<span class="kw">impl </span>IndexableKey <span class="kw">for </span>PedestrianID {
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+}
+
+<span class="doccomment">/// Returns a number in (0, 1] to multiply speed by to account for current crowdedness.
+///
+/// We could get really fancy here and slow people down only when they&#39;re part of a crowd, or
+/// passing people going the opposite direction. But start simple -- keep a fixed speed for the
+/// entire time on a sidewalk, and base the decision on how many people are there when entering the
+/// sidewalk.
+</span><span class="kw">fn </span>crowdedness_penalty(
+    map: <span class="kw-2">&amp;</span>Map,
+    traversable: Traversable,
+    peds_per_traversable: <span class="kw-2">&amp;</span>MultiMap&lt;Traversable, PedestrianID&gt;,
+) -&gt; f64 {
+    <span class="kw">let </span>num_people = peds_per_traversable.get(traversable).len();
+    <span class="comment">// Assume everyone&#39;s equally spread out
+    </span><span class="kw">let </span>people_per_sq_m = (num_people <span class="kw">as </span>f64) / area(map, traversable);
+    <span class="comment">// Based on eyeballing images from
+    // https://www.gkstill.com/Support/crowd-density/CrowdDensity-1.html, let&#39;s use a fixed
+    // threshold of 1.5 people per square meter as &quot;crowded&quot; and slow them down by half.
+    </span><span class="kw">if </span>people_per_sq_m &lt; <span class="number">1.5 </span>{
+        <span class="comment">// Plenty of room, no penalty
+        </span><span class="kw">return </span><span class="number">1.0</span>;
     }
-}
+    <span class="number">0.5
+</span>}
 
-<span class="doccomment">/// Returns a number in (0, 1] to multiply speed by to account for current crowdedness.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// We could get really fancy here and slow people down only when they&#39;re part of a crowd, or</span>
-<span class="doccomment">/// passing people going the opposite direction. But start simple -- keep a fixed speed for the</span>
-<span class="doccomment">/// entire time on a sidewalk, and base the decision on how many people are there when entering the</span>
-<span class="doccomment">/// sidewalk.</span>
-<span class="kw">fn</span> <span class="ident">crowdedness_penalty</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">traversable</span>: <span class="ident">Traversable</span>,
-    <span class="ident">peds_per_traversable</span>: <span class="kw-2">&amp;</span><span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">PedestrianID</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">f64</span> {
-    <span class="kw">let</span> <span class="ident">num_people</span> <span class="op">=</span> <span class="ident">peds_per_traversable</span>.<span class="ident">get</span>(<span class="ident">traversable</span>).<span class="ident">len</span>();
-    <span class="comment">// Assume everyone&#39;s equally spread out</span>
-    <span class="kw">let</span> <span class="ident">people_per_sq_m</span> <span class="op">=</span> (<span class="ident">num_people</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="ident">area</span>(<span class="ident">map</span>, <span class="ident">traversable</span>);
-    <span class="comment">// Based on eyeballing images from</span>
-    <span class="comment">// https://www.gkstill.com/Support/crowd-density/CrowdDensity-1.html, let&#39;s use a fixed</span>
-    <span class="comment">// threshold of 1.5 people per square meter as &quot;crowded&quot; and slow them down by half.</span>
-    <span class="kw">if</span> <span class="ident">people_per_sq_m</span> <span class="op">&lt;</span> <span class="number">1.5</span> {
-        <span class="comment">// Plenty of room, no penalty</span>
-        <span class="kw">return</span> <span class="number">1.0</span>;
-    }
-    <span class="number">0.5</span>
-}
-
-<span class="comment">// In m^2</span>
-<span class="kw">fn</span> <span class="ident">area</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">traversable</span>: <span class="ident">Traversable</span>) -&gt; <span class="ident">f64</span> {
-    <span class="comment">// The length of the sidewalk or crosswalk</span>
-    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">traversable</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
-    <span class="comment">// The width of the space</span>
-    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">traversable</span> {
-        <span class="comment">// Sidewalk</span>
-        <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">width</span>,
-        <span class="comment">// For crosswalks, the thinner of the two sidewalks being connected</span>
-        <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>).<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">dst</span>).<span class="ident">width</span>),
+<span class="comment">// In m^2
+</span><span class="kw">fn </span>area(map: <span class="kw-2">&amp;</span>Map, traversable: Traversable) -&gt; f64 {
+    <span class="comment">// The length of the sidewalk or crosswalk
+    </span><span class="kw">let </span>len = traversable.get_polyline(map).length();
+    <span class="comment">// The width of the space
+    </span><span class="kw">let </span>width = <span class="kw">match </span>traversable {
+        <span class="comment">// Sidewalk
+        </span>Traversable::Lane(l) =&gt; map.get_l(l).width,
+        <span class="comment">// For crosswalks, the thinner of the two sidewalks being connected
+        </span>Traversable::Turn(t) =&gt; map.get_l(t.src).width.min(map.get_l(t.dst).width),
     };
-    <span class="ident">width</span>.<span class="ident">inner_meters</span>() <span class="op">*</span> <span class="ident">len</span>.<span class="ident">inner_meters</span>()
+    width.inner_meters() * len.inner_meters()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

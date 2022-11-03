@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/devtools/collisions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>collisions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/devtools/collisions.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>collisions.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -311,318 +311,318 @@
 <span id="311">311</span>
 <span id="312">312</span>
 <span id="313">313</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
-<span class="kw">use</span> <span class="ident">collisions</span>::{<span class="ident">CollisionDataset</span>, <span class="ident">Severity</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DummyID</span>, <span class="ident">World</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Slider</span>,
-    <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
+<span class="kw">use </span>collisions::{CollisionDataset, Severity};
+<span class="kw">use </span>geom::{Circle, Distance, Duration, FindClosest, Time};
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>widgetry::mapspace::{DummyID, World};
+<span class="kw">use </span>widgetry::{
+    Choice, Color, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Line, Outcome, Panel, Slider,
+    State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CollisionsViewer</span> {
-    <span class="ident">data</span>: <span class="ident">CollisionDataset</span>,
-    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>CollisionsViewer {
+    data: CollisionDataset,
+    world: World&lt;DummyID&gt;,
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">CollisionsViewer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load collision data&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all</span>: <span class="ident">CollisionDataset</span> <span class="op">=</span>
-                <span class="ident">abstio::read_binary</span>(<span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">input_path</span>(<span class="string">&quot;collisions.bin&quot;</span>), <span class="ident">timer</span>);
-            <span class="ident">all</span>.<span class="ident">collisions</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> {
-                <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>()
-                    .<span class="ident">contains_pt</span>(<span class="ident">c</span>.<span class="ident">location</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()))
+<span class="kw">impl </span>CollisionsViewer {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+        <span class="kw">let </span>data = ctx.loading_screen(<span class="string">&quot;load collision data&quot;</span>, |<span class="kw">_</span>, timer| {
+            <span class="kw">let </span><span class="kw-2">mut </span>all: CollisionDataset =
+                abstio::read_binary(map.get_city_name().input_path(<span class="string">&quot;collisions.bin&quot;</span>), timer);
+            all.collisions.retain(|c| {
+                map.get_boundary_polygon()
+                    .contains_pt(c.location.to_pt(map.get_gps_bounds()))
             });
-            <span class="ident">all</span>
+            all
         });
 
-        <span class="kw">let</span> <span class="ident">filters</span> <span class="op">=</span> <span class="ident">Filters::new</span>();
-        <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">filters</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>);
-        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">indices</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">aggregated</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="ident">indices</span>);
+        <span class="kw">let </span>filters = Filters::new();
+        <span class="kw">let </span>indices = filters.apply(<span class="kw-2">&amp;</span>data);
+        <span class="kw">let </span>count = indices.len();
+        <span class="kw">let </span>world = aggregated(ctx, app, <span class="kw-2">&amp;</span>data, indices);
 
-        <span class="ident">Box::new</span>(<span class="ident">CollisionsViewer</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Collisions viewer&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        Box::new(CollisionsViewer {
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Widget::row(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Collisions viewer&quot;</span>).small_heading().into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="macro">format!</span>(<span class="string">&quot;{} collisions&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>))
-                    .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">named</span>(<span class="string">&quot;count&quot;</span>),
-                <span class="ident">Filters::make_controls</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;controls&quot;</span>),
+                <span class="macro">format!</span>(<span class="string">&quot;{} collisions&quot;</span>, prettyprint_usize(count))
+                    .text_widget(ctx)
+                    .named(<span class="string">&quot;count&quot;</span>),
+                Filters::make_controls(ctx).named(<span class="string">&quot;controls&quot;</span>),
             ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">data</span>,
-            <span class="ident">world</span>,
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx),
+            data,
+            world,
         })
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Filters</span> {
-    <span class="ident">show_individual</span>: <span class="ident">bool</span>,
-    <span class="ident">time_range</span>: (<span class="ident">Duration</span>, <span class="ident">Duration</span>),
-    <span class="ident">severity</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Severity</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">struct </span>Filters {
+    show_individual: bool,
+    time_range: (Duration, Duration),
+    severity: <span class="prelude-ty">Option</span>&lt;Severity&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Filters</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Filters</span> {
-        <span class="ident">Filters</span> {
-            <span class="ident">show_individual</span>: <span class="bool-val">false</span>,
-            <span class="ident">time_range</span>: (<span class="ident">Duration::ZERO</span>, <span class="ident">Duration::hours</span>(<span class="number">24</span>)),
-            <span class="ident">severity</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>Filters {
+    <span class="kw">fn </span>new() -&gt; Filters {
+        Filters {
+            show_individual: <span class="bool-val">false</span>,
+            time_range: (Duration::ZERO, Duration::hours(<span class="number">24</span>)),
+            severity: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Returns the indices of all matching collisions</span>
-    <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">CollisionDataset</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">c</span>) <span class="kw">in</span> <span class="ident">data</span>.<span class="ident">collisions</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">c</span>.<span class="ident">time</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">time_range</span>.<span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">time</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">time_range</span>.<span class="number">1</span> {
+    <span class="doccomment">/// Returns the indices of all matching collisions
+    </span><span class="kw">fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, data: <span class="kw-2">&amp;</span>CollisionDataset) -&gt; Vec&lt;usize&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::new();
+        <span class="kw">for </span>(idx, c) <span class="kw">in </span>data.collisions.iter().enumerate() {
+            <span class="kw">if </span>c.time &lt; <span class="self">self</span>.time_range.<span class="number">0 </span>|| c.time &gt; <span class="self">self</span>.time_range.<span class="number">1 </span>{
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">severity</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span> <span class="op">!</span><span class="op">=</span> <span class="ident">c</span>.<span class="ident">severity</span>).<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>) {
+            <span class="kw">if </span><span class="self">self</span>.severity.map(|s| s != c.severity).unwrap_or(<span class="bool-val">false</span>) {
                 <span class="kw">continue</span>;
             }
-            <span class="ident">indices</span>.<span class="ident">push</span>(<span class="ident">idx</span>);
+            indices.push(idx);
         }
-        <span class="ident">indices</span>
+        indices
     }
 
-    <span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Toggle::choice</span>(
-                <span class="ident">ctx</span>,
+    <span class="kw">fn </span>make_controls(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
+        Widget::col(<span class="macro">vec!</span>[
+            Toggle::choice(
+                ctx,
                 <span class="string">&quot;individual / aggregated&quot;</span>,
                 <span class="string">&quot;individual&quot;</span>,
                 <span class="string">&quot;aggregated&quot;</span>,
                 <span class="prelude-val">None</span>,
                 <span class="bool-val">false</span>,
             ),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Between:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-                <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">0.0</span>, <span class="string">&quot;time1&quot;</span>),
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;Between:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                Slider::area(ctx, <span class="number">0.1 </span>* ctx.canvas.window_width, <span class="number">0.0</span>, <span class="string">&quot;time1&quot;</span>),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;and:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-                <span class="ident">Slider::area</span>(<span class="ident">ctx</span>, <span class="number">0.1</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="number">1.0</span>, <span class="string">&quot;time2&quot;</span>),
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;and:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                Slider::area(ctx, <span class="number">0.1 </span>* ctx.canvas.window_width, <span class="number">1.0</span>, <span class="string">&quot;time2&quot;</span>),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Severity:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_right</span>(<span class="number">20</span>),
-                <span class="ident">Widget::dropdown</span>(
-                    <span class="ident">ctx</span>,
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;Severity:&quot;</span>.text_widget(ctx).margin_right(<span class="number">20</span>),
+                Widget::dropdown(
+                    ctx,
                     <span class="string">&quot;severity&quot;</span>,
                     <span class="prelude-val">None</span>,
                     <span class="macro">vec!</span>[
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;any&quot;</span>, <span class="prelude-val">None</span>),
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;slight&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">Severity::Slight</span>)),
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;serious&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">Severity::Serious</span>)),
-                        <span class="ident">Choice::new</span>(<span class="string">&quot;fatal&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">Severity::Fatal</span>)),
+                        Choice::new(<span class="string">&quot;any&quot;</span>, <span class="prelude-val">None</span>),
+                        Choice::new(<span class="string">&quot;slight&quot;</span>, <span class="prelude-val">Some</span>(Severity::Slight)),
+                        Choice::new(<span class="string">&quot;serious&quot;</span>, <span class="prelude-val">Some</span>(Severity::Serious)),
+                        Choice::new(<span class="string">&quot;fatal&quot;</span>, <span class="prelude-val">Some</span>(Severity::Fatal)),
                     ],
                 ),
             ]),
         ])
     }
 
-    <span class="kw">fn</span> <span class="ident">from_controls</span>(<span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="ident">Filters</span> {
-        <span class="kw">let</span> <span class="ident">end_of_day</span> <span class="op">=</span> <span class="ident">Duration::hours</span>(<span class="number">24</span>);
-        <span class="ident">Filters</span> {
-            <span class="ident">show_individual</span>: <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;individual / aggregated&quot;</span>),
-            <span class="ident">time_range</span>: (
-                <span class="ident">end_of_day</span> <span class="op">*</span> <span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;time1&quot;</span>).<span class="ident">get_percent</span>(),
-                <span class="ident">end_of_day</span> <span class="op">*</span> <span class="ident">panel</span>.<span class="ident">slider</span>(<span class="string">&quot;time2&quot;</span>).<span class="ident">get_percent</span>(),
+    <span class="kw">fn </span>from_controls(panel: <span class="kw-2">&amp;</span>Panel) -&gt; Filters {
+        <span class="kw">let </span>end_of_day = Duration::hours(<span class="number">24</span>);
+        Filters {
+            show_individual: panel.is_checked(<span class="string">&quot;individual / aggregated&quot;</span>),
+            time_range: (
+                end_of_day * panel.slider(<span class="string">&quot;time1&quot;</span>).get_percent(),
+                end_of_day * panel.slider(<span class="string">&quot;time2&quot;</span>).get_percent(),
             ),
-            <span class="ident">severity</span>: <span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;severity&quot;</span>),
+            severity: panel.dropdown_value(<span class="string">&quot;severity&quot;</span>),
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">aggregated</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">CollisionDataset</span>,
-    <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+<span class="kw">fn </span>aggregated(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    data: <span class="kw-2">&amp;</span>CollisionDataset,
+    indices: Vec&lt;usize&gt;,
+) -&gt; World&lt;DummyID&gt; {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
 
-    <span class="comment">// Match each collision to the nearest road and intersection</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-        <span class="ident">closest</span>.<span class="ident">add_polygon</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">polygon</span>);
+    <span class="comment">// Match each collision to the nearest road and intersection
+    </span><span class="kw">let </span><span class="kw-2">mut </span>closest: FindClosest&lt;ID&gt; = FindClosest::new(map.get_bounds());
+    <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
+        closest.add_polygon(ID::Intersection(i.id), <span class="kw-2">&amp;</span>i.polygon);
     }
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="ident">closest</span>.<span class="ident">add</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>.<span class="ident">id</span>), <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">points</span>());
+    <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+        closest.add(ID::Road(r.id), r.center_pts.points());
     }
 
-    <span class="comment">// How many collisions occurred at each road and intersection?</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_road</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_intersection</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">unsnapped</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">indices</span> {
-        <span class="kw">let</span> <span class="ident">collision</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">collisions</span>[<span class="ident">idx</span>];
-        <span class="comment">// Search up to 10m away</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(
-            <span class="ident">collision</span>.<span class="ident">location</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
-            <span class="ident">Distance::meters</span>(<span class="number">10.0</span>),
+    <span class="comment">// How many collisions occurred at each road and intersection?
+    </span><span class="kw">let </span><span class="kw-2">mut </span>per_road = Counter::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>per_intersection = Counter::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>unsnapped = <span class="number">0</span>;
+    <span class="kw">for </span>idx <span class="kw">in </span>indices {
+        <span class="kw">let </span>collision = <span class="kw-2">&amp;</span>data.collisions[idx];
+        <span class="comment">// Search up to 10m away
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = closest.closest_pt(
+            collision.location.to_pt(map.get_gps_bounds()),
+            Distance::meters(<span class="number">10.0</span>),
         ) {
-            <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Road</span>(<span class="ident">r</span>) =&gt; {
-                    <span class="ident">per_road</span>.<span class="ident">inc</span>(<span class="ident">r</span>);
+            <span class="kw">match </span>id {
+                ID::Road(r) =&gt; {
+                    per_road.inc(r);
                 }
-                <span class="ident">ID::Intersection</span>(<span class="ident">i</span>) =&gt; {
-                    <span class="ident">per_intersection</span>.<span class="ident">inc</span>(<span class="ident">i</span>);
+                ID::Intersection(i) =&gt; {
+                    per_intersection.inc(i);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
-        } <span class="kw">else</span> {
-            <span class="ident">unsnapped</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        } <span class="kw">else </span>{
+            unsnapped += <span class="number">1</span>;
         }
     }
-    <span class="kw">if</span> <span class="ident">unsnapped</span> <span class="op">&gt;</span> <span class="number">0</span> {
+    <span class="kw">if </span>unsnapped &gt; <span class="number">0 </span>{
         <span class="macro">warn!</span>(
             <span class="string">&quot;{} collisions weren&#39;t close enough to a road or intersection&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">unsnapped</span>)
+            prettyprint_usize(unsnapped)
         );
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-    <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>;
-    <span class="comment">// Same scale for both roads and intersections</span>
-    <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">per_road</span>.<span class="ident">max</span>().<span class="ident">max</span>(<span class="ident">per_intersection</span>.<span class="ident">max</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>world = World::bounded(map.get_bounds());
+    <span class="kw">let </span>scale = <span class="kw-2">&amp;</span>app.cs.good_to_bad_red;
+    <span class="comment">// Same scale for both roads and intersections
+    </span><span class="kw">let </span>total = per_road.max().max(per_intersection.max());
 
-    <span class="kw">for</span> (<span class="ident">r</span>, <span class="ident">count</span>) <span class="kw">in</span> <span class="ident">per_road</span>.<span class="ident">consume</span>() {
-        <span class="ident">world</span>
-            .<span class="ident">add_unnamed</span>()
-            <span class="comment">// TODO Moving a very small bit of logic from ColorNetwork::pct_roads here...</span>
-            .<span class="ident">hitbox</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">get_thick_polygon</span>())
-            .<span class="ident">draw_color</span>(<span class="ident">scale</span>.<span class="ident">eval</span>(<span class="ident">pct</span>(<span class="ident">count</span>, <span class="ident">total</span>)))
-            .<span class="ident">hover_alpha</span>(<span class="number">0.5</span>)
-            .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
+    <span class="kw">for </span>(r, count) <span class="kw">in </span>per_road.consume() {
+        world
+            .add_unnamed()
+            <span class="comment">// TODO Moving a very small bit of logic from ColorNetwork::pct_roads here...
+            </span>.hitbox(map.get_r(r).get_thick_polygon())
+            .draw_color(scale.eval(pct(count, total)))
+            .hover_alpha(<span class="number">0.5</span>)
+            .tooltip(Text::from(<span class="macro">format!</span>(
                 <span class="string">&quot;{} collisions&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>)
+                prettyprint_usize(count)
             )))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+            .build(ctx);
     }
-    <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">count</span>) <span class="kw">in</span> <span class="ident">per_intersection</span>.<span class="ident">consume</span>() {
-        <span class="ident">world</span>
-            .<span class="ident">add_unnamed</span>()
-            .<span class="ident">hitbox</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>())
-            .<span class="ident">draw_color</span>(<span class="ident">scale</span>.<span class="ident">eval</span>(<span class="ident">pct</span>(<span class="ident">count</span>, <span class="ident">total</span>)))
-            .<span class="ident">hover_alpha</span>(<span class="number">0.5</span>)
-            .<span class="ident">tooltip</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
+    <span class="kw">for </span>(i, count) <span class="kw">in </span>per_intersection.consume() {
+        world
+            .add_unnamed()
+            .hitbox(map.get_i(i).polygon.clone())
+            .draw_color(scale.eval(pct(count, total)))
+            .hover_alpha(<span class="number">0.5</span>)
+            .tooltip(Text::from(<span class="macro">format!</span>(
                 <span class="string">&quot;{} collisions&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>)
+                prettyprint_usize(count)
             )))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+            .build(ctx);
     }
 
-    <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>,
-            <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
+    world.draw_master_batch(
+        ctx,
+        GeomBatch::from(<span class="macro">vec!</span>[(
+            app.cs.fade_map_dark,
+            map.get_boundary_polygon().clone(),
         )]),
     );
-    <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
-    <span class="ident">world</span>
+    world.initialize_hover(ctx);
+    world
 }
 
-<span class="kw">fn</span> <span class="ident">individual</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">CollisionDataset</span>,
-    <span class="ident">indices</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">World</span><span class="op">&lt;</span><span class="ident">DummyID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
+<span class="kw">fn </span>individual(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    data: <span class="kw-2">&amp;</span>CollisionDataset,
+    indices: Vec&lt;usize&gt;,
+) -&gt; World&lt;DummyID&gt; {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span><span class="kw-2">mut </span>world = World::bounded(map.get_bounds());
 
-    <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">indices</span> {
-        <span class="kw">let</span> <span class="ident">collision</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">data</span>.<span class="ident">collisions</span>[<span class="ident">idx</span>];
+    <span class="kw">for </span>idx <span class="kw">in </span>indices {
+        <span class="kw">let </span>collision = <span class="kw-2">&amp;</span>data.collisions[idx];
 
-        <span class="comment">// TODO Multiple collisions can occur at exactly the same spot. Need to add support for</span>
-        <span class="comment">// that in World -- the KML viewer is the example to follow.</span>
-        <span class="ident">world</span>
-            .<span class="ident">add_unnamed</span>()
-            .<span class="ident">hitbox</span>(
-                <span class="ident">Circle::new</span>(
-                    <span class="ident">collision</span>.<span class="ident">location</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>()),
-                    <span class="ident">Distance::meters</span>(<span class="number">5.0</span>),
+        <span class="comment">// TODO Multiple collisions can occur at exactly the same spot. Need to add support for
+        // that in World -- the KML viewer is the example to follow.
+        </span>world
+            .add_unnamed()
+            .hitbox(
+                Circle::new(
+                    collision.location.to_pt(map.get_gps_bounds()),
+                    Distance::meters(<span class="number">5.0</span>),
                 )
-                .<span class="ident">to_polygon</span>(),
+                .to_polygon(),
             )
-            .<span class="ident">draw_color</span>(<span class="ident">Color::RED</span>)
-            .<span class="ident">hover_alpha</span>(<span class="number">0.5</span>)
-            .<span class="ident">tooltip</span>(<span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+            .draw_color(Color::RED)
+            .hover_alpha(<span class="number">0.5</span>)
+            .tooltip(Text::from_multiline(<span class="macro">vec!</span>[
+                Line(<span class="macro">format!</span>(
                     <span class="string">&quot;Time: {}&quot;</span>,
-                    (<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">collision</span>.<span class="ident">time</span>).<span class="ident">ampm_tostring</span>()
+                    (Time::START_OF_DAY + collision.time).ampm_tostring()
                 )),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Severity: {:?}&quot;</span>, <span class="ident">collision</span>.<span class="ident">severity</span>)),
+                Line(<span class="macro">format!</span>(<span class="string">&quot;Severity: {:?}&quot;</span>, collision.severity)),
             ]))
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+            .build(ctx);
     }
 
-    <span class="ident">world</span>.<span class="ident">draw_master_batch</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>,
-            <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
+    world.draw_master_batch(
+        ctx,
+        GeomBatch::from(<span class="macro">vec!</span>[(
+            app.cs.fade_map_dark,
+            map.get_boundary_polygon().clone(),
         )]),
     );
-    <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
-    <span class="ident">world</span>
+    world.initialize_hover(ctx);
+    world
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CollisionsViewer</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>CollisionsViewer {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="self">self</span>.world.event(ctx);
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::Changed</span>(<span class="kw">_</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">filters</span> <span class="op">=</span> <span class="ident">Filters::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-                <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">filters</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>);
-                <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">indices</span>.<span class="ident">len</span>();
-                <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">filters</span>.<span class="ident">show_individual</span> {
-                    <span class="ident">individual</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>, <span class="ident">indices</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">aggregated</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">data</span>, <span class="ident">indices</span>)
+            Outcome::Changed(<span class="kw">_</span>) =&gt; {
+                <span class="kw">let </span>filters = Filters::from_controls(<span class="kw-2">&amp;</span><span class="self">self</span>.panel);
+                <span class="kw">let </span>indices = filters.apply(<span class="kw-2">&amp;</span><span class="self">self</span>.data);
+                <span class="kw">let </span>count = indices.len();
+                <span class="self">self</span>.world = <span class="kw">if </span>filters.show_individual {
+                    individual(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.data, indices)
+                } <span class="kw">else </span>{
+                    aggregated(ctx, app, <span class="kw-2">&amp;</span><span class="self">self</span>.data, indices)
                 };
-                <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{} collisions&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>)).<span class="ident">text_widget</span>(<span class="ident">ctx</span>);
-                <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;count&quot;</span>, <span class="ident">count</span>);
+                <span class="kw">let </span>count = <span class="macro">format!</span>(<span class="string">&quot;{} collisions&quot;</span>, prettyprint_usize(count)).text_widget(ctx);
+                <span class="self">self</span>.panel.replace(ctx, <span class="string">&quot;count&quot;</span>, count);
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.world.draw(g);
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="comment">// TODO Refactor -- wasn&#39;t geom Percent supposed to help?</span>
-<span class="kw">fn</span> <span class="ident">pct</span>(<span class="ident">value</span>: <span class="ident">usize</span>, <span class="ident">total</span>: <span class="ident">usize</span>) -&gt; <span class="ident">f64</span> {
-    <span class="kw">if</span> <span class="ident">total</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="number">1.0</span>
-    } <span class="kw">else</span> {
-        <span class="ident">value</span> <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">total</span> <span class="kw">as</span> <span class="ident">f64</span>
+<span class="comment">// TODO Refactor -- wasn&#39;t geom Percent supposed to help?
+</span><span class="kw">fn </span>pct(value: usize, total: usize) -&gt; f64 {
+    <span class="kw">if </span>total == <span class="number">0 </span>{
+        <span class="number">1.0
+    </span>} <span class="kw">else </span>{
+        value <span class="kw">as </span>f64 / total <span class="kw">as </span>f64
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

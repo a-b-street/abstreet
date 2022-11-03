@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/transit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/transit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -412,419 +412,419 @@
 <span id="412">412</span>
 <span id="413">413</span>
 <span id="414">414</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathStep</span>, <span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::{prettyprint_usize, Counter};
+<span class="kw">use </span>geom::{Circle, Distance, Time};
+<span class="kw">use </span>map_gui::tools::ColorNetwork;
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::{PathStep, TransitRoute, TransitRouteID, TransitStopID};
+<span class="kw">use </span>sim::{AgentID, CarID};
+<span class="kw">use </span>widgetry::{Color, ControlState, EventCtx, Key, Line, RewriteColor, Text, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_tabs</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::info::{header_btns, make_tabs, Details, Tab};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">stop</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">TransitStopID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Bus stop&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>stop(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: TransitStopID) -&gt; Widget {
+    <span class="kw">let </span>header = Widget::row(<span class="macro">vec!</span>[
+        Line(<span class="string">&quot;Bus stop&quot;</span>).small_heading().into_widget(ctx),
+        header_btns(ctx),
     ]);
 
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[<span class="ident">header</span>, <span class="ident">stop_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>)])
+    Widget::custom_col(<span class="macro">vec!</span>[header, stop_body(ctx, app, details, id).tab_body(ctx)])
 }
 
-<span class="kw">fn</span> <span class="ident">stop_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">TransitStopID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>stop_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: TransitStopID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>;
+    <span class="kw">let </span>ts = app.primary.map.get_ts(id);
+    <span class="kw">let </span>sim = <span class="kw-2">&amp;</span>app.primary.sim;
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">name</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+    rows.push(Line(<span class="kw-2">&amp;</span>ts.name).into_widget(ctx));
 
-    <span class="kw">let</span> <span class="ident">all_arrivals</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">bus_arrivals</span>;
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_routes_serving_stop</span>(<span class="ident">id</span>) {
-        <span class="comment">// Full names can overlap, so include the ID</span>
-        <span class="kw">let</span> <span class="ident">label</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, <span class="ident">r</span>.<span class="ident">long_name</span>, <span class="ident">r</span>.<span class="ident">id</span>);
-        <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">label</span>),
+    <span class="kw">let </span>all_arrivals = <span class="kw-2">&amp;</span>sim.get_analytics().bus_arrivals;
+    <span class="kw">for </span>r <span class="kw">in </span>app.primary.map.get_routes_serving_stop(id) {
+        <span class="comment">// Full names can overlap, so include the ID
+        </span><span class="kw">let </span>label = <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, r.long_name, r.id);
+        rows.push(
+            ctx.style()
+                .btn_outline
+                .text(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, r.short_name))
+                .build_widget(ctx, <span class="kw-2">&amp;</span>label),
         );
-        <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(<span class="ident">label</span>, <span class="ident">Tab::TransitRoute</span>(<span class="ident">r</span>.<span class="ident">id</span>));
+        details.hyperlinks.insert(label, Tab::TransitRoute(r.id));
 
-        <span class="kw">let</span> <span class="ident">arrivals</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">CarID</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">all_arrivals</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">route</span>, <span class="ident">stop</span>)<span class="op">|</span> <span class="ident">r</span>.<span class="ident">id</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">route</span> <span class="op">&amp;&amp;</span> <span class="ident">id</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">stop</span>)
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="ident">car</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">t</span>, <span class="kw-2">*</span><span class="ident">car</span>))
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">arrivals</span>.<span class="ident">last</span>() {
-            <span class="comment">// TODO Button to jump to the bus</span>
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;  Last bus arrived {} ago&quot;</span>, <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="kw-2">*</span><span class="ident">t</span>)).<span class="ident">secondary</span>());
-        } <span class="kw">else</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;  No arrivals yet&quot;</span>).<span class="ident">secondary</span>());
+        <span class="kw">let </span>arrivals: Vec&lt;(Time, CarID)&gt; = all_arrivals
+            .iter()
+            .filter(|(<span class="kw">_</span>, <span class="kw">_</span>, route, stop)| r.id == <span class="kw-2">*</span>route &amp;&amp; id == <span class="kw-2">*</span>stop)
+            .map(|(t, car, <span class="kw">_</span>, <span class="kw">_</span>)| (<span class="kw-2">*</span>t, <span class="kw-2">*</span>car))
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((t, <span class="kw">_</span>)) = arrivals.last() {
+            <span class="comment">// TODO Button to jump to the bus
+            </span>txt.add_line(Line(<span class="macro">format!</span>(<span class="string">&quot;  Last bus arrived {} ago&quot;</span>, sim.time() - <span class="kw-2">*</span>t)).secondary());
+        } <span class="kw">else </span>{
+            txt.add_line(Line(<span class="string">&quot;  No arrivals yet&quot;</span>).secondary());
         }
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+        rows.push(txt.into_widget(ctx));
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">boardings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">TransitRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alightings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">TransitRouteID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">passengers_boarding</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>) {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">r</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">list</span> {
-            <span class="ident">boardings</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>boardings: Counter&lt;TransitRouteID&gt; = Counter::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>alightings: Counter&lt;TransitRouteID&gt; = Counter::new();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = app.primary.sim.get_analytics().passengers_boarding.get(<span class="kw-2">&amp;</span>id) {
+        <span class="kw">for </span>(<span class="kw">_</span>, r, <span class="kw">_</span>) <span class="kw">in </span>list {
+            boardings.inc(<span class="kw-2">*</span>r);
         }
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">primary</span>
-        .<span class="ident">sim</span>
-        .<span class="ident">get_analytics</span>()
-        .<span class="ident">passengers_alighting</span>
-        .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>)
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = app
+        .primary
+        .sim
+        .get_analytics()
+        .passengers_alighting
+        .get(<span class="kw-2">&amp;</span>id)
     {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="ident">list</span> {
-            <span class="ident">alightings</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+        <span class="kw">for </span>(<span class="kw">_</span>, r) <span class="kw">in </span>list {
+            alightings.inc(<span class="kw-2">*</span>r);
         }
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;Total&quot;</span>);
-    <span class="ident">txt</span>.<span class="ident">append</span>(
-        <span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+    txt.add_line(<span class="string">&quot;Total&quot;</span>);
+    txt.append(
+        Line(<span class="macro">format!</span>(
             <span class="string">&quot;: {} boardings, {} alightings&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">boardings</span>.<span class="ident">sum</span>()),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">alightings</span>.<span class="ident">sum</span>())
+            prettyprint_usize(boardings.sum()),
+            prettyprint_usize(alightings.sum())
         ))
-        .<span class="ident">secondary</span>(),
+        .secondary(),
     );
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_routes_serving_stop</span>(<span class="ident">id</span>) {
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">r</span>.<span class="ident">short_name</span>));
-        <span class="ident">txt</span>.<span class="ident">append</span>(
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">for </span>r <span class="kw">in </span>app.primary.map.get_routes_serving_stop(id) {
+        txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, r.short_name));
+        txt.append(
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;: {} boardings, {} alightings&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">boardings</span>.<span class="ident">get</span>(<span class="ident">r</span>.<span class="ident">id</span>)),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">alightings</span>.<span class="ident">get</span>(<span class="ident">r</span>.<span class="ident">id</span>))
+                prettyprint_usize(boardings.get(r.id)),
+                prettyprint_usize(alightings.get(r.id))
             ))
-            .<span class="ident">secondary</span>(),
+            .secondary(),
         );
     }
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+    rows.push(txt.into_widget(ctx));
 
-    <span class="comment">// Draw where the bus/train stops</span>
-    <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_body</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-        <span class="ident">Circle::new</span>(<span class="ident">ts</span>.<span class="ident">driving_pos</span>.<span class="ident">pt</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>), <span class="ident">Distance::meters</span>(<span class="number">2.5</span>)).<span class="ident">to_polygon</span>(),
+    <span class="comment">// Draw where the bus/train stops
+    </span>details.draw_extra.zoomed.push(
+        app.cs.bus_body.alpha(<span class="number">0.5</span>),
+        Circle::new(ts.driving_pos.pt(<span class="kw-2">&amp;</span>app.primary.map), Distance::meters(<span class="number">2.5</span>)).to_polygon(),
     );
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bus_status</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">bus_header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">id</span>)),
-        <span class="ident">bus_status_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>bus_status(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: CarID) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        bus_header(ctx, app, details, id, Tab::TransitVehicleStatus(id)),
+        bus_status_body(ctx, app, details, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">bus_status_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>bus_status_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: CarID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">primary</span>
-        .<span class="ident">map</span>
-        .<span class="ident">get_tr</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">bus_route_id</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>());
+    <span class="kw">let </span>route = app
+        .primary
+        .map
+        .get_tr(app.primary.sim.bus_route_id(id).unwrap());
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Serves route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    rows.push(
+        ctx.style()
+            .btn_outline
+            .text(<span class="macro">format!</span>(<span class="string">&quot;Serves route {}&quot;</span>, route.short_name))
+            .build_def(ctx),
     );
-    <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(
-        <span class="macro">format!</span>(<span class="string">&quot;Serves route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>),
-        <span class="ident">Tab::TransitRoute</span>(<span class="ident">route</span>.<span class="ident">id</span>),
+    details.hyperlinks.insert(
+        <span class="macro">format!</span>(<span class="string">&quot;Serves route {}&quot;</span>, route.short_name),
+        Tab::TransitRoute(route.id),
     );
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">Line</span>(<span class="macro">format!</span>(
+    rows.push(
+        Line(<span class="macro">format!</span>(
             <span class="string">&quot;Currently has {} passengers&quot;</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_transit_passengers</span>(<span class="ident">id</span>),
+            app.primary.sim.num_transit_passengers(id),
         ))
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        .into_widget(ctx),
     );
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">fn</span> <span class="ident">bus_header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">tab</span>: <span class="ident">Tab</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">bus_route_id</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
+<span class="kw">fn </span>bus_header(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: CarID, tab: Tab) -&gt; Widget {
+    <span class="kw">let </span>route = app.primary.sim.bus_route_id(id).unwrap();
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">primary</span>
-        .<span class="ident">sim</span>
-        .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID::Car</span>(<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = app
+        .primary
+        .sim
+        .canonical_pt_for_agent(AgentID::Car(id), <span class="kw-2">&amp;</span>app.primary.map)
     {
-        <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">pt</span>);
+        ctx.canvas.center_on_map_pt(pt);
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
+    rows.push(Widget::row(<span class="macro">vec!</span>[
+        Line(<span class="macro">format!</span>(
             <span class="string">&quot;{} (route {})&quot;</span>,
-            <span class="ident">id</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_tr</span>(<span class="ident">route</span>).<span class="ident">short_name</span>
+            id,
+            app.primary.map.get_tr(route).short_name
         ))
-        .<span class="ident">small_heading</span>()
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+        .small_heading()
+        .into_widget(ctx),
+        header_btns(ctx),
     ]));
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">make_tabs</span>(
-        <span class="ident">ctx</span>,
-        <span class="kw-2">&amp;mut</span> <span class="ident">details</span>.<span class="ident">hyperlinks</span>,
-        <span class="ident">tab</span>,
-        <span class="macro">vec!</span>[(<span class="string">&quot;Status&quot;</span>, <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">id</span>))],
+    rows.push(make_tabs(
+        ctx,
+        <span class="kw-2">&amp;mut </span>details.hyperlinks,
+        tab,
+        <span class="macro">vec!</span>[(<span class="string">&quot;Status&quot;</span>, Tab::TransitVehicleStatus(id))],
     ));
 
-    <span class="ident">Widget::custom_col</span>(<span class="ident">rows</span>)
+    Widget::custom_col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">route</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">TransitRouteID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_tr</span>(<span class="ident">id</span>);
+<span class="kw">pub fn </span>route(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: TransitRouteID) -&gt; Widget {
+    <span class="kw">let </span>header = {
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+        <span class="kw">let </span>route = map.get_tr(id);
 
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, <span class="ident">route</span>.<span class="ident">short_name</span>))
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            Line(<span class="macro">format!</span>(<span class="string">&quot;Route {}&quot;</span>, route.short_name))
+                .small_heading()
+                .into_widget(ctx),
+            header_btns(ctx),
         ])
     };
 
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>,
-        <span class="ident">route_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header,
+        route_body(ctx, app, details, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">route_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">TransitRouteID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>route_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: TransitRouteID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_tr</span>(<span class="ident">id</span>);
-    <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">long_name</span>)
-            .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>)
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>route = map.get_tr(id);
+    rows.push(
+        Text::from(<span class="kw-2">&amp;</span>route.long_name)
+            .wrap_to_pct(ctx, <span class="number">20</span>)
+            .into_widget(ctx),
     );
 
-    <span class="kw">let</span> <span class="ident">buses</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">status_of_buses</span>(<span class="ident">id</span>, <span class="ident">map</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_locations</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">if</span> <span class="ident">buses</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;No {} running&quot;</span>, <span class="ident">route</span>.<span class="ident">plural_noun</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
-    } <span class="kw">else</span> {
-        <span class="kw">for</span> (<span class="ident">bus</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">pt</span>) <span class="kw">in</span> <span class="ident">buses</span> {
-            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="ident">bus</span>.<span class="ident">to_string</span>()).<span class="ident">build_def</span>(<span class="ident">ctx</span>));
-            <span class="ident">details</span>
-                .<span class="ident">hyperlinks</span>
-                .<span class="ident">insert</span>(<span class="ident">bus</span>.<span class="ident">to_string</span>(), <span class="ident">Tab::TransitVehicleStatus</span>(<span class="ident">bus</span>));
-            <span class="ident">bus_locations</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
+    <span class="kw">let </span>buses = app.primary.sim.status_of_buses(id, map);
+    <span class="kw">let </span><span class="kw-2">mut </span>bus_locations = Vec::new();
+    <span class="kw">if </span>buses.is_empty() {
+        rows.push(<span class="macro">format!</span>(<span class="string">&quot;No {} running&quot;</span>, route.plural_noun()).text_widget(ctx));
+    } <span class="kw">else </span>{
+        <span class="kw">for </span>(bus, <span class="kw">_</span>, <span class="kw">_</span>, pt) <span class="kw">in </span>buses {
+            rows.push(ctx.style().btn_outline.text(bus.to_string()).build_def(ctx));
+            details
+                .hyperlinks
+                .insert(bus.to_string(), Tab::TransitVehicleStatus(bus));
+            bus_locations.push(pt);
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">boardings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">alightings</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">waiting</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-    <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">stops</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">passengers_boarding</span>.<span class="ident">get</span>(<span class="ident">ts</span>) {
-            <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">r</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">list</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">id</span> {
-                    <span class="ident">boardings</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">ts</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>boardings: Counter&lt;TransitStopID&gt; = Counter::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>alightings: Counter&lt;TransitStopID&gt; = Counter::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>waiting: Counter&lt;TransitStopID&gt; = Counter::new();
+    <span class="kw">for </span>ts <span class="kw">in </span><span class="kw-2">&amp;</span>route.stops {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = app.primary.sim.get_analytics().passengers_boarding.get(ts) {
+            <span class="kw">for </span>(<span class="kw">_</span>, r, <span class="kw">_</span>) <span class="kw">in </span>list {
+                <span class="kw">if </span><span class="kw-2">*</span>r == id {
+                    boardings.inc(<span class="kw-2">*</span>ts);
                 }
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">passengers_alighting</span>.<span class="ident">get</span>(<span class="ident">ts</span>) {
-            <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">r</span>) <span class="kw">in</span> <span class="ident">list</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">id</span> {
-                    <span class="ident">alightings</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">ts</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = app.primary.sim.get_analytics().passengers_alighting.get(ts) {
+            <span class="kw">for </span>(<span class="kw">_</span>, r) <span class="kw">in </span>list {
+                <span class="kw">if </span><span class="kw-2">*</span>r == id {
+                    alightings.inc(<span class="kw-2">*</span>ts);
                 }
             }
         }
 
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">r</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_people_waiting_at_stop</span>(<span class="kw-2">*</span><span class="ident">ts</span>) {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">==</span> <span class="ident">id</span> {
-                <span class="ident">waiting</span>.<span class="ident">inc</span>(<span class="kw-2">*</span><span class="ident">ts</span>);
+        <span class="kw">for </span>(<span class="kw">_</span>, r, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span>app.primary.sim.get_people_waiting_at_stop(<span class="kw-2">*</span>ts) {
+            <span class="kw">if </span><span class="kw-2">*</span>r == id {
+                waiting.inc(<span class="kw-2">*</span>ts);
             }
         }
     }
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Total&quot;</span>),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+    rows.push(
+        Text::from_all(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Total&quot;</span>),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;: {} boardings, {} alightings, {} currently waiting&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">boardings</span>.<span class="ident">sum</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">alightings</span>.<span class="ident">sum</span>()),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">waiting</span>.<span class="ident">sum</span>())
+                prettyprint_usize(boardings.sum()),
+                prettyprint_usize(alightings.sum()),
+                prettyprint_usize(waiting.sum())
             ))
-            .<span class="ident">secondary</span>(),
+            .secondary(),
         ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        .into_widget(ctx),
     );
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;{} stops&quot;</span>, <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+    rows.push(<span class="macro">format!</span>(<span class="string">&quot;{} stops&quot;</span>, route.stops.len()).text_widget(ctx));
     {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">route</span>.<span class="ident">start</span>).<span class="ident">src_i</span>);
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Starts at {}&quot;</span>, <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>));
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
-                .<span class="ident">image_color</span>(<span class="ident">RewriteColor::NoOp</span>, <span class="ident">ControlState::Default</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="ident">name</span>.<span class="ident">clone</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>i = map.get_i(map.get_l(route.start).src_i);
+        <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">&quot;Starts at {}&quot;</span>, i.name(app.opts.language.as_ref(), map));
+        rows.push(Widget::row(<span class="macro">vec!</span>[
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/timeline/start_pos.svg&quot;</span>)
+                .image_color(RewriteColor::NoOp, ControlState::Default)
+                .build_widget(ctx, <span class="kw-2">&amp;</span>name),
+            name.clone().text_widget(ctx),
         ]));
-        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID::Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>));
+        details.warpers.insert(name, ID::Intersection(i.id));
     }
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">ts</span>) <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">ts</span>);
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Stop {}: {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">ts</span>.<span class="ident">name</span>);
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="kw-2">&amp;</span><span class="ident">ts</span>.<span class="ident">name</span>),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">for </span>(idx, ts) <span class="kw">in </span>route.stops.iter().enumerate() {
+        <span class="kw">let </span>ts = map.get_ts(<span class="kw-2">*</span>ts);
+        <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">&quot;Stop {}: {}&quot;</span>, idx + <span class="number">1</span>, ts.name);
+        rows.push(Widget::row(<span class="macro">vec!</span>[
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/tools/pin.svg&quot;</span>)
+                .build_widget(ctx, <span class="kw-2">&amp;</span>name),
+            Text::from_all(<span class="macro">vec!</span>[
+                Line(<span class="kw-2">&amp;</span>ts.name),
+                Line(<span class="macro">format!</span>(
                     <span class="string">&quot;: {} boardings, {} alightings, {} currently waiting&quot;</span>,
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">boardings</span>.<span class="ident">get</span>(<span class="ident">ts</span>.<span class="ident">id</span>)),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">alightings</span>.<span class="ident">get</span>(<span class="ident">ts</span>.<span class="ident">id</span>)),
-                    <span class="ident">prettyprint_usize</span>(<span class="ident">waiting</span>.<span class="ident">get</span>(<span class="ident">ts</span>.<span class="ident">id</span>))
+                    prettyprint_usize(boardings.get(ts.id)),
+                    prettyprint_usize(alightings.get(ts.id)),
+                    prettyprint_usize(waiting.get(ts.id))
                 ))
-                .<span class="ident">secondary</span>(),
+                .secondary(),
             ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            .into_widget(ctx),
         ]));
-        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID::TransitStop</span>(<span class="ident">ts</span>.<span class="ident">id</span>));
+        details.warpers.insert(name, ID::TransitStop(ts.id));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">route</span>.<span class="ident">end_border</span> {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">dst_i</span>);
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Ends at {}&quot;</span>, <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>));
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
-                .<span class="ident">image_color</span>(<span class="ident">RewriteColor::NoOp</span>, <span class="ident">ControlState::Default</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="ident">name</span>.<span class="ident">clone</span>().<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(l) = route.end_border {
+        <span class="kw">let </span>i = map.get_i(map.get_l(l).dst_i);
+        <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">&quot;Ends at {}&quot;</span>, i.name(app.opts.language.as_ref(), map));
+        rows.push(Widget::row(<span class="macro">vec!</span>[
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/timeline/goal_pos.svg&quot;</span>)
+                .image_color(RewriteColor::NoOp, ControlState::Default)
+                .build_widget(ctx, <span class="kw-2">&amp;</span>name),
+            name.clone().text_widget(ctx),
         ]));
-        <span class="ident">details</span>.<span class="ident">warpers</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">ID::Intersection</span>(<span class="ident">i</span>.<span class="ident">id</span>));
+        details.warpers.insert(name, ID::Intersection(i.id));
     }
 
-    <span class="comment">// TODO Soon it&#39;ll be time to split into tabs</span>
-    {
-        <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Edit schedule&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::E</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;edit {}&quot;</span>, <span class="ident">route</span>.<span class="ident">id</span>)),
+    <span class="comment">// TODO Soon it&#39;ll be time to split into tabs
+    </span>{
+        rows.push(
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Edit schedule&quot;</span>)
+                .hotkey(Key::E)
+                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;edit {}&quot;</span>, route.id)),
         );
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">describe_schedule</span>(<span class="ident">route</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
+        rows.push(describe_schedule(route).into_widget(ctx));
     }
 
-    <span class="comment">// Draw the route, label stops, and show location of buses</span>
-    {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::new</span>(<span class="ident">app</span>);
-        <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">all_paths</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>() {
-            <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span> {
-                    <span class="ident">colorer</span>.<span class="ident">add_l</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bus</span>);
+    <span class="comment">// Draw the route, label stops, and show location of buses
+    </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorNetwork::new(app);
+        <span class="kw">for </span>path <span class="kw">in </span>route.all_paths(map).unwrap() {
+            <span class="kw">for </span>step <span class="kw">in </span>path.get_steps() {
+                <span class="kw">if let </span>PathStep::Lane(l) = step {
+                    colorer.add_l(<span class="kw-2">*</span>l, app.cs.unzoomed_bus);
                 }
             }
         }
-        <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">append</span>(<span class="ident">colorer</span>.<span class="ident">draw</span>);
+        details.draw_extra.append(colorer.draw);
 
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">bus_locations</span> {
-            <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                <span class="ident">Color::BLUE</span>,
-                <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">20.0</span>)).<span class="ident">to_polygon</span>(),
+        <span class="kw">for </span>pt <span class="kw">in </span>bus_locations {
+            details.draw_extra.unzoomed.push(
+                Color::BLUE,
+                Circle::new(pt, Distance::meters(<span class="number">20.0</span>)).to_polygon(),
             );
-            <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-                <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>)).<span class="ident">to_polygon</span>(),
+            details.draw_extra.zoomed.push(
+                Color::BLUE.alpha(<span class="number">0.5</span>),
+                Circle::new(pt, Distance::meters(<span class="number">5.0</span>)).to_polygon(),
             );
         }
 
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">ts</span>) <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="kw-2">*</span><span class="ident">ts</span>);
-            <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">ts</span>.<span class="ident">name</span>))
-                    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_layer</span>)
-                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">ts</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>)),
+        <span class="kw">for </span>(idx, ts) <span class="kw">in </span>route.stops.iter().enumerate() {
+            <span class="kw">let </span>ts = map.get_ts(<span class="kw-2">*</span>ts);
+            details.draw_extra.unzoomed.append(
+                Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, idx + <span class="number">1</span>, ts.name))
+                    .bg(app.cs.bus_layer)
+                    .render_autocropped(ctx)
+                    .centered_on(ts.sidewalk_pos.pt(map)),
             );
-            <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">ts</span>.<span class="ident">name</span>))
-                    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">bus_layer</span>)
-                    .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">scale</span>(<span class="number">0.1</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">ts</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>)),
+            details.draw_extra.zoomed.append(
+                Text::from(<span class="macro">format!</span>(<span class="string">&quot;{}) {}&quot;</span>, idx + <span class="number">1</span>, ts.name))
+                    .bg(app.cs.bus_layer)
+                    .render_autocropped(ctx)
+                    .scale(<span class="number">0.1</span>)
+                    .centered_on(ts.sidewalk_pos.pt(map)),
             );
         }
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="comment">// TODO Unit test</span>
-<span class="kw">fn</span> <span class="ident">describe_schedule</span>(<span class="ident">route</span>: <span class="kw-2">&amp;</span><span class="ident">TransitRoute</span>) -&gt; <span class="ident">Text</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+<span class="comment">// TODO Unit test
+</span><span class="kw">fn </span>describe_schedule(route: <span class="kw-2">&amp;</span>TransitRoute) -&gt; Text {
+    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+    txt.add_line(<span class="macro">format!</span>(
         <span class="string">&quot;{} {}s run this route daily&quot;</span>,
-        <span class="ident">route</span>.<span class="ident">spawn_times</span>.<span class="ident">len</span>(),
-        <span class="ident">route</span>.<span class="ident">plural_noun</span>()
+        route.spawn_times.len(),
+        route.plural_noun()
     ));
 
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="comment">// Compress the times</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">route</span>.<span class="ident">spawn_times</span>[<span class="number">0</span>];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dt</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">route</span>.<span class="ident">spawn_times</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">last</span> {
-                <span class="kw">let</span> <span class="ident">new_dt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">-</span> <span class="ident">l</span>;
-                <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">new_dt</span>) <span class="op">==</span> <span class="ident">dt</span> {
-                    <span class="ident">last</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+    <span class="kw">if </span><span class="bool-val">false </span>{
+        <span class="comment">// Compress the times
+        </span><span class="kw">let </span><span class="kw-2">mut </span>start = route.spawn_times[<span class="number">0</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>last = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>dt = <span class="prelude-val">None</span>;
+        <span class="kw">for </span>t <span class="kw">in </span>route.spawn_times.iter().skip(<span class="number">1</span>) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(l) = last {
+                <span class="kw">let </span>new_dt = <span class="kw-2">*</span>t - l;
+                <span class="kw">if </span><span class="prelude-val">Some</span>(new_dt) == dt {
+                    last = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>t);
+                } <span class="kw">else </span>{
+                    txt.add_line(<span class="macro">format!</span>(
                         <span class="string">&quot;Every {} from {} to {}&quot;</span>,
-                        <span class="ident">dt</span>.<span class="ident">unwrap</span>(),
-                        <span class="ident">start</span>.<span class="ident">ampm_tostring</span>(),
-                        <span class="ident">l</span>.<span class="ident">ampm_tostring</span>()
+                        dt.unwrap(),
+                        start.ampm_tostring(),
+                        l.ampm_tostring()
                     ));
-                    <span class="ident">start</span> <span class="op">=</span> <span class="ident">l</span>;
-                    <span class="ident">last</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
-                    <span class="ident">dt</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_dt</span>);
+                    start = l;
+                    last = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>t);
+                    dt = <span class="prelude-val">Some</span>(new_dt);
                 }
-            } <span class="kw">else</span> {
-                <span class="ident">last</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
-                <span class="ident">dt</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span> <span class="op">-</span> <span class="ident">start</span>);
+            } <span class="kw">else </span>{
+                last = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>t);
+                dt = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>t - start);
             }
         }
-        <span class="comment">// Handle end</span>
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+        <span class="comment">// Handle end
+        </span>txt.add_line(<span class="macro">format!</span>(
             <span class="string">&quot;Every {} from {} to {}&quot;</span>,
-            <span class="ident">dt</span>.<span class="ident">unwrap</span>(),
-            <span class="ident">start</span>.<span class="ident">ampm_tostring</span>(),
-            <span class="ident">last</span>.<span class="ident">unwrap</span>().<span class="ident">ampm_tostring</span>()
+            dt.unwrap(),
+            start.ampm_tostring(),
+            last.unwrap().ampm_tostring()
         ));
-    } <span class="kw">else</span> {
-        <span class="comment">// Just list the times</span>
-        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">spawn_times</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">t</span>.<span class="ident">ampm_tostring</span>());
+    } <span class="kw">else </span>{
+        <span class="comment">// Just list the times
+        </span><span class="kw">for </span>t <span class="kw">in </span><span class="kw-2">&amp;</span>route.spawn_times {
+            txt.add_line(t.ampm_tostring());
         }
     }
-    <span class="ident">txt</span>
+    txt
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

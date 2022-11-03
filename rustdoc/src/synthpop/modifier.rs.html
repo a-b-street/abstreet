@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/modifier.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>modifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/modifier.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>modifier.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -166,173 +166,173 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-</pre><pre class="rust"><code><span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rand</span>;
+</pre><pre class="rust"><code><span class="kw">extern crate </span>rand;
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+<span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">rand::Rng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>rand::Rng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{Duration, Time};
+<span class="kw">use </span>map_model::Map;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Scenario</span>, <span class="ident">TripMode</span>};
+<span class="kw">use crate</span>::{Scenario, TripMode};
 
-<span class="doccomment">/// Transforms an existing Scenario before instantiating it.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ScenarioModifier</span> {
-    <span class="ident">RepeatDays</span>(<span class="ident">usize</span>),
-    <span class="ident">RepeatDaysNoise</span> {
-        <span class="ident">days</span>: <span class="ident">usize</span>,
-        <span class="ident">departure_time_noise</span>: <span class="ident">Duration</span>,
+<span class="doccomment">/// Transforms an existing Scenario before instantiating it.
+</span><span class="attribute">#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>ScenarioModifier {
+    RepeatDays(usize),
+    RepeatDaysNoise {
+        days: usize,
+        departure_time_noise: Duration,
     },
-    <span class="ident">ChangeMode</span> {
-        <span class="ident">pct_ppl</span>: <span class="ident">usize</span>,
-        <span class="ident">departure_filter</span>: (<span class="ident">Time</span>, <span class="ident">Time</span>),
-        <span class="ident">from_modes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
-        <span class="doccomment">/// If `None`, then just cancel the trip.</span>
-        <span class="ident">to_mode</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
+    ChangeMode {
+        pct_ppl: usize,
+        departure_filter: (Time, Time),
+        from_modes: BTreeSet&lt;TripMode&gt;,
+        <span class="doccomment">/// If `None`, then just cancel the trip.
+        </span>to_mode: <span class="prelude-ty">Option</span>&lt;TripMode&gt;,
     },
-    <span class="doccomment">/// Scenario name</span>
-    <span class="ident">AddExtraTrips</span>(<span class="ident">String</span>),
+    <span class="doccomment">/// Scenario name
+    </span>AddExtraTrips(String),
 }
 
-<span class="kw">impl</span> <span class="ident">ScenarioModifier</span> {
-    <span class="doccomment">/// If this modifies scenario_name, then that means prebaked results don&#39;t match up and</span>
-    <span class="doccomment">/// shouldn&#39;t be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="kw-2">mut</span> <span class="ident">s</span>: <span class="ident">Scenario</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">Scenario</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ScenarioModifier::RepeatDays</span>(<span class="ident">n</span>) =&gt; <span class="ident">repeat_days</span>(<span class="ident">s</span>, <span class="kw-2">*</span><span class="ident">n</span>, <span class="prelude-val">None</span>, <span class="ident">rng</span>),
-            <span class="ident">ScenarioModifier::RepeatDaysNoise</span> {
-                <span class="ident">days</span>,
-                <span class="ident">departure_time_noise</span>,
-            } =&gt; <span class="ident">repeat_days</span>(<span class="ident">s</span>, <span class="kw-2">*</span><span class="ident">days</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">departure_time_noise</span>), <span class="ident">rng</span>),
-            <span class="ident">ScenarioModifier::ChangeMode</span> {
-                <span class="ident">pct_ppl</span>,
-                <span class="ident">departure_filter</span>,
-                <span class="ident">from_modes</span>,
-                <span class="ident">to_mode</span>,
+<span class="kw">impl </span>ScenarioModifier {
+    <span class="doccomment">/// If this modifies scenario_name, then that means prebaked results don&#39;t match up and
+    /// shouldn&#39;t be used.
+    </span><span class="kw">pub fn </span>apply(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, <span class="kw-2">mut </span>s: Scenario, rng: <span class="kw-2">&amp;mut </span>XorShiftRng) -&gt; Scenario {
+        <span class="kw">match </span><span class="self">self </span>{
+            ScenarioModifier::RepeatDays(n) =&gt; repeat_days(s, <span class="kw-2">*</span>n, <span class="prelude-val">None</span>, rng),
+            ScenarioModifier::RepeatDaysNoise {
+                days,
+                departure_time_noise,
+            } =&gt; repeat_days(s, <span class="kw-2">*</span>days, <span class="prelude-val">Some</span>(<span class="kw-2">*</span>departure_time_noise), rng),
+            ScenarioModifier::ChangeMode {
+                pct_ppl,
+                departure_filter,
+                from_modes,
+                to_mode,
             } =&gt; {
-                <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">person</span>) <span class="kw">in</span> <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">iter_mut</span>().<span class="ident">enumerate</span>() {
-                    <span class="comment">// This is &quot;stable&quot; as percentage increases. If you modify 10% of people in one</span>
-                    <span class="comment">// run, then modify 11% in another, the modified people in the 11% run will be</span>
-                    <span class="comment">// a strict superset of the 10% run.</span>
-                    <span class="kw">if</span> <span class="ident">idx</span> <span class="op">%</span> <span class="number">100</span> <span class="op">&gt;</span> <span class="kw-2">*</span><span class="ident">pct_ppl</span> {
+                <span class="kw">for </span>(idx, person) <span class="kw">in </span>s.people.iter_mut().enumerate() {
+                    <span class="comment">// This is &quot;stable&quot; as percentage increases. If you modify 10% of people in one
+                    // run, then modify 11% in another, the modified people in the 11% run will be
+                    // a strict superset of the 10% run.
+                    </span><span class="kw">if </span>idx % <span class="number">100 </span>&gt; <span class="kw-2">*</span>pct_ppl {
                         <span class="kw">continue</span>;
                     }
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cancel_rest</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">person</span>.<span class="ident">trips</span> {
-                        <span class="kw">if</span> <span class="ident">cancel_rest</span> {
-                            <span class="ident">trip</span>.<span class="ident">modified</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="ident">trip</span>.<span class="ident">cancelled</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="kw">let </span><span class="kw-2">mut </span>cancel_rest = <span class="bool-val">false</span>;
+                    <span class="kw">for </span>trip <span class="kw">in </span><span class="kw-2">&amp;mut </span>person.trips {
+                        <span class="kw">if </span>cancel_rest {
+                            trip.modified = <span class="bool-val">true</span>;
+                            trip.cancelled = <span class="bool-val">true</span>;
                             <span class="kw">continue</span>;
                         }
 
-                        <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">depart</span> <span class="op">&lt;</span> <span class="ident">departure_filter</span>.<span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">trip</span>.<span class="ident">depart</span> <span class="op">&gt;</span> <span class="ident">departure_filter</span>.<span class="number">1</span> {
+                        <span class="kw">if </span>trip.depart &lt; departure_filter.<span class="number">0 </span>|| trip.depart &gt; departure_filter.<span class="number">1 </span>{
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw">if</span> <span class="op">!</span><span class="ident">from_modes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">trip</span>.<span class="ident">mode</span>) {
+                        <span class="kw">if </span>!from_modes.contains(<span class="kw-2">&amp;</span>trip.mode) {
                             <span class="kw">continue</span>;
                         }
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">to_mode</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">to_mode</span> {
-                            <span class="ident">trip</span>.<span class="ident">mode</span> <span class="op">=</span> <span class="ident">to_mode</span>;
-                            <span class="ident">trip</span>.<span class="ident">modified</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        } <span class="kw">else</span> {
-                            <span class="ident">trip</span>.<span class="ident">modified</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="ident">trip</span>.<span class="ident">cancelled</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                            <span class="comment">// The next trip assumes we&#39;re at the destination of this cancelled</span>
-                            <span class="comment">// trip, and so on. Have to cancel the rest.</span>
-                            <span class="ident">cancel_rest</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(to_mode) = <span class="kw-2">*</span>to_mode {
+                            trip.mode = to_mode;
+                            trip.modified = <span class="bool-val">true</span>;
+                        } <span class="kw">else </span>{
+                            trip.modified = <span class="bool-val">true</span>;
+                            trip.cancelled = <span class="bool-val">true</span>;
+                            <span class="comment">// The next trip assumes we&#39;re at the destination of this cancelled
+                            // trip, and so on. Have to cancel the rest.
+                            </span>cancel_rest = <span class="bool-val">true</span>;
                         }
                     }
                 }
-                <span class="ident">s</span>
+                s
             }
-            <span class="comment">// TODO This doesn&#39;t work on web!</span>
-            <span class="ident">ScenarioModifier::AddExtraTrips</span>(<span class="ident">name</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">other</span>: <span class="ident">Scenario</span> <span class="op">=</span> <span class="ident">abstio::must_read_object</span>(
-                    <span class="ident">abstio::path_scenario</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">name</span>),
-                    <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+            <span class="comment">// TODO This doesn&#39;t work on web!
+            </span>ScenarioModifier::AddExtraTrips(name) =&gt; {
+                <span class="kw">let </span>other: Scenario = abstio::must_read_object(
+                    abstio::path_scenario(map.get_name(), name),
+                    <span class="kw-2">&amp;mut </span>Timer::throwaway(),
                 );
-                <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">people</span> {
-                    <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">p</span>.<span class="ident">trips</span> {
-                        <span class="ident">trip</span>.<span class="ident">modified</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="kw">for </span><span class="kw-2">mut </span>p <span class="kw">in </span>other.people {
+                    <span class="kw">for </span>trip <span class="kw">in </span><span class="kw-2">&amp;mut </span>p.trips {
+                        trip.modified = <span class="bool-val">true</span>;
                     }
-                    <span class="ident">s</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">p</span>);
+                    s.people.push(p);
                 }
-                <span class="ident">s</span>
+                s
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">describe</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ScenarioModifier::RepeatDays</span>(<span class="ident">n</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;repeat the entire day {} times&quot;</span>, <span class="ident">n</span>),
-            <span class="ident">ScenarioModifier::RepeatDaysNoise</span> {
-                <span class="ident">days</span>,
-                <span class="ident">departure_time_noise</span>,
+    <span class="kw">pub fn </span>describe(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">match </span><span class="self">self </span>{
+            ScenarioModifier::RepeatDays(n) =&gt; <span class="macro">format!</span>(<span class="string">&quot;repeat the entire day {} times&quot;</span>, n),
+            ScenarioModifier::RepeatDaysNoise {
+                days,
+                departure_time_noise,
             } =&gt; <span class="macro">format!</span>(
                 <span class="string">&quot;repeat the entire day {} times with +/- {} noise on each departure&quot;</span>,
-                <span class="ident">days</span>, <span class="ident">departure_time_noise</span>
+                days, departure_time_noise
             ),
-            <span class="ident">ScenarioModifier::ChangeMode</span> {
-                <span class="ident">pct_ppl</span>,
-                <span class="ident">to_mode</span>,
-                <span class="ident">departure_filter</span>,
-                <span class="ident">from_modes</span>,
+            ScenarioModifier::ChangeMode {
+                pct_ppl,
+                to_mode,
+                departure_filter,
+                from_modes,
             } =&gt; <span class="macro">format!</span>(
                 <span class="string">&quot;change all trips for {}% of people of types {:?} leaving between {} and {} to \
                  {:?}&quot;</span>,
-                <span class="ident">pct_ppl</span>,
-                <span class="ident">from_modes</span>,
-                <span class="ident">departure_filter</span>.<span class="number">0</span>.<span class="ident">ampm_tostring</span>(),
-                <span class="ident">departure_filter</span>.<span class="number">1</span>.<span class="ident">ampm_tostring</span>(),
-                <span class="ident">to_mode</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">verb</span>())
+                pct_ppl,
+                from_modes,
+                departure_filter.<span class="number">0</span>.ampm_tostring(),
+                departure_filter.<span class="number">1</span>.ampm_tostring(),
+                to_mode.map(|m| m.verb())
             ),
-            <span class="ident">ScenarioModifier::AddExtraTrips</span>(<span class="ident">name</span>) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Add extra trips from {}&quot;</span>, <span class="ident">name</span>),
+            ScenarioModifier::AddExtraTrips(name) =&gt; <span class="macro">format!</span>(<span class="string">&quot;Add extra trips from {}&quot;</span>, name),
         }
     }
 }
 
-<span class="comment">// Utter hack. Blindly repeats all trips taken by each person every day.</span>
-<span class="comment">//</span>
-<span class="comment">// What happens if the last place a person winds up in a day isn&#39;t the same as where their</span>
-<span class="comment">// first trip the next starts? Will crash as soon as the scenario is instantiated, through</span>
-<span class="comment">// check_schedule().</span>
-<span class="comment">//</span>
-<span class="comment">// The bigger problem is that any people that seem to require multiple cars... will wind up</span>
-<span class="comment">// needing LOTS of cars.</span>
-<span class="kw">fn</span> <span class="ident">repeat_days</span>(
-    <span class="kw-2">mut</span> <span class="ident">s</span>: <span class="ident">Scenario</span>,
-    <span class="ident">days</span>: <span class="ident">usize</span>,
-    <span class="ident">noise</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-) -&gt; <span class="ident">Scenario</span> {
-    <span class="ident">s</span>.<span class="ident">scenario_name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{} (repeated {} days)&quot;</span>, <span class="ident">s</span>.<span class="ident">scenario_name</span>, <span class="ident">days</span>);
-    <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">s</span>.<span class="ident">people</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">days</span> {
-            <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">trips</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">clone</span>();
-                <span class="ident">new</span>.<span class="ident">depart</span> <span class="op">+</span><span class="op">=</span> <span class="ident">offset</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">noise_v</span>) <span class="op">=</span> <span class="ident">noise</span> {
-                    <span class="comment">// + or - noise_v</span>
-                    <span class="kw">let</span> <span class="ident">noise_rnd</span> <span class="op">=</span> <span class="ident">Duration::seconds</span>(
-                        <span class="ident">rng</span>.<span class="ident">gen_range</span>((<span class="number">0.0</span>)..<span class="op">=</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">noise_v</span>.<span class="ident">inner_seconds</span>() <span class="kw">as</span> <span class="ident">f64</span>)),
-                    ) <span class="op">-</span> <span class="ident">noise_v</span>;
-                    <span class="ident">new</span>.<span class="ident">depart</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">depart</span>.<span class="ident">clamped_sub</span>(<span class="ident">noise_rnd</span>);
+<span class="comment">// Utter hack. Blindly repeats all trips taken by each person every day.
+//
+// What happens if the last place a person winds up in a day isn&#39;t the same as where their
+// first trip the next starts? Will crash as soon as the scenario is instantiated, through
+// check_schedule().
+//
+// The bigger problem is that any people that seem to require multiple cars... will wind up
+// needing LOTS of cars.
+</span><span class="kw">fn </span>repeat_days(
+    <span class="kw-2">mut </span>s: Scenario,
+    days: usize,
+    noise: <span class="prelude-ty">Option</span>&lt;Duration&gt;,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+) -&gt; Scenario {
+    s.scenario_name = <span class="macro">format!</span>(<span class="string">&quot;{} (repeated {} days)&quot;</span>, s.scenario_name, days);
+    <span class="kw">for </span>person <span class="kw">in </span><span class="kw-2">&amp;mut </span>s.people {
+        <span class="kw">let </span><span class="kw-2">mut </span>trips = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>offset = Duration::ZERO;
+        <span class="kw">for _ in </span><span class="number">0</span>..days {
+            <span class="kw">for </span>trip <span class="kw">in </span><span class="kw-2">&amp;</span>person.trips {
+                <span class="kw">let </span><span class="kw-2">mut </span>new = trip.clone();
+                new.depart += offset;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(noise_v) = noise {
+                    <span class="comment">// + or - noise_v
+                    </span><span class="kw">let </span>noise_rnd = Duration::seconds(
+                        rng.gen_range((<span class="number">0.0</span>)..=(<span class="number">2.0 </span>* noise_v.inner_seconds() <span class="kw">as </span>f64)),
+                    ) - noise_v;
+                    new.depart = new.depart.clamped_sub(noise_rnd);
                 }
-                <span class="ident">new</span>.<span class="ident">modified</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                <span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">new</span>);
+                new.modified = <span class="bool-val">true</span>;
+                trips.push(new);
             }
-            <span class="ident">offset</span> <span class="op">+</span><span class="op">=</span> <span class="ident">Duration::hours</span>(<span class="number">24</span>);
+            offset += Duration::hours(<span class="number">24</span>);
         }
-        <span class="ident">person</span>.<span class="ident">trips</span> <span class="op">=</span> <span class="ident">trips</span>;
+        person.trips = trips;
     }
-    <span class="ident">s</span>
+    s
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

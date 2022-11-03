@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/person.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>person.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/person.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>person.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -728,735 +728,735 @@
 <span id="728">728</span>
 <span id="729">729</span>
 <span id="730">730</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use </span>rand::seq::SliceRandom;
+<span class="kw">use </span>rand::{Rng, SeedableRng};
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
-<span class="kw">use</span> <span class="ident">sim</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">ParkingSpot</span>, <span class="ident">PedestrianID</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">PersonState</span>, <span class="ident">TripID</span>, <span class="ident">TripResult</span>,
-    <span class="ident">VehicleType</span>,
+<span class="kw">use </span>geom::{Angle, Duration, Time};
+<span class="kw">use </span>map_model::Map;
+<span class="kw">use </span>sim::{
+    AgentID, CarID, ParkingSpot, PedestrianID, Person, PersonID, PersonState, TripID, TripResult,
+    VehicleType,
 };
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">include_labeled_bytes</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
-    <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">RewriteColor</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">TextSpan</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>synthpop::{TripEndpoint, TripMode};
+<span class="kw">use </span>widgetry::{
+    include_labeled_bytes, Color, ControlState, CornerRounding, EdgeInsets, EventCtx, GeomBatch,
+    Image, Key, Line, RewriteColor, Text, TextExt, TextSpan, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info</span>::{<span class="ident">building</span>, <span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">make_tabs</span>, <span class="ident">trip</span>, <span class="ident">Details</span>, <span class="ident">OpenTrip</span>, <span class="ident">Tab</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::info::{building, header_btns, make_table, make_tabs, trip, Details, OpenTrip, Tab};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trips</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">id</span>: <span class="ident">PersonID</span>,
-    <span class="ident">open_trips</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">OpenTrip</span><span class="op">&gt;</span>,
-    <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">details</span>,
-            <span class="ident">id</span>,
-            <span class="ident">Tab::PersonTrips</span>(<span class="ident">id</span>, <span class="ident">open_trips</span>.<span class="ident">clone</span>()),
-            <span class="ident">is_paused</span>,
+<span class="kw">pub fn </span>trips(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    id: PersonID,
+    open_trips: <span class="kw-2">&amp;mut </span>BTreeMap&lt;TripID, OpenTrip&gt;,
+    is_paused: bool,
+) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(
+            ctx,
+            app,
+            details,
+            id,
+            Tab::PersonTrips(id, open_trips.clone()),
+            is_paused,
         ),
-        <span class="ident">trips_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">open_trips</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+        trips_body(ctx, app, details, id, open_trips).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">trips_body</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">id</span>: <span class="ident">PersonID</span>,
-    <span class="ident">open_trips</span>: <span class="kw-2">&amp;mut</span> <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">OpenTrip</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>trips_body(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    id: PersonID,
+    open_trips: <span class="kw-2">&amp;mut </span>BTreeMap&lt;TripID, OpenTrip&gt;,
+) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>;
-    <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">id</span>);
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>sim = <span class="kw-2">&amp;</span>app.primary.sim;
+    <span class="kw">let </span>person = sim.get_person(id);
 
-    <span class="comment">// If there&#39;s at least one open trip, then we&#39;ll draw a route on the map. If so, add a dark</span>
-    <span class="comment">// overlay for better contrast in the unzoomed view. Only add it once, even if multiple trips</span>
-    <span class="comment">// are open.</span>
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">open_trips</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
+    <span class="comment">// If there&#39;s at least one open trip, then we&#39;ll draw a route on the map. If so, add a dark
+    // overlay for better contrast in the unzoomed view. Only add it once, even if multiple trips
+    // are open.
+    </span><span class="kw">if </span>!open_trips.is_empty() {
+        details.draw_extra.unzoomed.push(
+            app.cs.fade_map_dark,
+            app.primary.map.get_boundary_polygon().clone(),
         );
     }
 
-    <span class="comment">// I&#39;m sorry for bad variable names</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wheres_waldo</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">t</span>) <span class="kw">in</span> <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">let</span> (<span class="ident">trip_status</span>, <span class="ident">color</span>, <span class="ident">maybe_info</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="kw-2">*</span><span class="ident">t</span>) {
-            <span class="ident">TripResult::TripNotStarted</span> =&gt; {
-                <span class="kw">if</span> <span class="ident">wheres_waldo</span> {
-                    <span class="ident">wheres_waldo</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">current_status</span>(<span class="ident">ctx</span>, <span class="ident">person</span>, <span class="ident">map</span>));
+    <span class="comment">// I&#39;m sorry for bad variable names
+    </span><span class="kw">let </span><span class="kw-2">mut </span>wheres_waldo = <span class="bool-val">true</span>;
+    <span class="kw">for </span>(idx, t) <span class="kw">in </span>person.trips.iter().enumerate() {
+        <span class="kw">let </span>(trip_status, color, maybe_info) = <span class="kw">match </span>sim.trip_to_agent(<span class="kw-2">*</span>t) {
+            TripResult::TripNotStarted =&gt; {
+                <span class="kw">if </span>wheres_waldo {
+                    wheres_waldo = <span class="bool-val">false</span>;
+                    rows.push(current_status(ctx, person, map));
                 }
-                <span class="kw">if</span> <span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&gt;</span> <span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">departure</span> {
+                <span class="kw">if </span>sim.time() &gt; sim.trip_info(<span class="kw-2">*</span>t).departure {
                     (
                         <span class="string">&quot;delayed start&quot;</span>,
-                        <span class="ident">Color::YELLOW</span>,
-                        <span class="ident">open_trips</span>
-                            .<span class="ident">get_mut</span>(<span class="ident">t</span>)
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::future</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
+                        Color::YELLOW,
+                        open_trips
+                            .get_mut(t)
+                            .map(|open_trip| trip::future(ctx, app, <span class="kw-2">*</span>t, open_trip, details)),
                     )
-                } <span class="kw">else</span> {
+                } <span class="kw">else </span>{
                     (
                         <span class="string">&quot;future&quot;</span>,
-                        <span class="ident">Color::hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>),
-                        <span class="ident">open_trips</span>
-                            .<span class="ident">get_mut</span>(<span class="ident">t</span>)
-                            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::future</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
+                        Color::hex(<span class="string">&quot;#4CA7E9&quot;</span>),
+                        open_trips
+                            .get_mut(t)
+                            .map(|open_trip| trip::future(ctx, app, <span class="kw-2">*</span>t, open_trip, details)),
                     )
                 }
             }
-            <span class="ident">TripResult::Ok</span>(<span class="ident">a</span>) =&gt; {
-                <span class="macro">assert!</span>(<span class="ident">wheres_waldo</span>);
-                <span class="ident">wheres_waldo</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            TripResult::Ok(a) =&gt; {
+                <span class="macro">assert!</span>(wheres_waldo);
+                wheres_waldo = <span class="bool-val">false</span>;
                 (
                     <span class="string">&quot;ongoing&quot;</span>,
-                    <span class="ident">Color::hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>),
-                    <span class="ident">open_trips</span>
-                        .<span class="ident">get_mut</span>(<span class="ident">t</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::ongoing</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">a</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
+                    Color::hex(<span class="string">&quot;#7FFA4D&quot;</span>),
+                    open_trips
+                        .get_mut(t)
+                        .map(|open_trip| trip::ongoing(ctx, app, <span class="kw-2">*</span>t, a, open_trip, details)),
                 )
             }
-            <span class="ident">TripResult::ModeChange</span> =&gt; {
-                <span class="comment">// TODO No details. Weird case.</span>
-                <span class="macro">assert!</span>(<span class="ident">wheres_waldo</span>);
-                <span class="ident">wheres_waldo</span> <span class="op">=</span> <span class="bool-val">false</span>;
+            TripResult::ModeChange =&gt; {
+                <span class="comment">// TODO No details. Weird case.
+                </span><span class="macro">assert!</span>(wheres_waldo);
+                wheres_waldo = <span class="bool-val">false</span>;
                 (
                     <span class="string">&quot;ongoing&quot;</span>,
-                    <span class="ident">Color::hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>),
-                    <span class="ident">open_trips</span>.<span class="ident">get</span>(<span class="ident">t</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">Widget::nothing</span>()),
+                    Color::hex(<span class="string">&quot;#7FFA4D&quot;</span>),
+                    open_trips.get(t).map(|<span class="kw">_</span>| Widget::nothing()),
                 )
             }
-            <span class="ident">TripResult::TripDone</span> =&gt; {
-                <span class="macro">assert!</span>(<span class="ident">wheres_waldo</span>);
+            TripResult::TripDone =&gt; {
+                <span class="macro">assert!</span>(wheres_waldo);
                 (
                     <span class="string">&quot;finished&quot;</span>,
-                    <span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>),
-                    <span class="kw">if</span> <span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
-                        <span class="prelude-val">Some</span>(<span class="ident">trip::finished</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">open_trips</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">details</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">None</span>
-                    },
+                    Color::hex(<span class="string">&quot;#A3A3A3&quot;</span>),
+                    <span class="kw">if </span>open_trips.contains_key(t) {
+                        <span class="prelude-val">Some</span>(trip::finished(ctx, app, id, open_trips, <span class="kw-2">*</span>t, details))
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">None
+                    </span>},
                 )
             }
-            <span class="ident">TripResult::TripCancelled</span> =&gt; {
-                <span class="comment">// Cancelled trips can happen anywhere in the schedule right now</span>
-                (
+            TripResult::TripCancelled =&gt; {
+                <span class="comment">// Cancelled trips can happen anywhere in the schedule right now
+                </span>(
                     <span class="string">&quot;cancelled&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_banned_turn</span>,
-                    <span class="ident">open_trips</span>
-                        .<span class="ident">get_mut</span>(<span class="ident">t</span>)
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">open_trip</span><span class="op">|</span> <span class="ident">trip::cancelled</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">open_trip</span>, <span class="ident">details</span>)),
+                    app.cs.signal_banned_turn,
+                    open_trips
+                        .get_mut(t)
+                        .map(|open_trip| trip::cancelled(ctx, app, <span class="kw-2">*</span>t, open_trip, details)),
                 )
             }
-            <span class="ident">TripResult::TripDoesntExist</span> =&gt; <span class="macro">unreachable!</span>(),
+            TripResult::TripDoesntExist =&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">t</span>);
+        <span class="kw">let </span>trip = sim.trip_info(<span class="kw-2">*</span>t);
 
-        <span class="kw">let</span> (<span class="ident">row_btn</span>, <span class="ident">_hitbox</span>) <span class="op">=</span> <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-            <span class="macro">format!</span>(<span class="string">&quot;Trip {} &quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>)
-                .<span class="ident">batch_text</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>()
-                .<span class="ident">margin_right</span>(<span class="number">21</span>),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">GeomBatch::load_svg</span>(
-                    <span class="ident">ctx</span>.<span class="ident">prerender</span>,
-                    <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">mode</span> {
-                        <span class="ident">TripMode::Walk</span> =&gt; <span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>,
-                        <span class="ident">TripMode::Bike</span> =&gt; <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>,
-                        <span class="ident">TripMode::Drive</span> =&gt; <span class="string">&quot;system/assets/meters/car.svg&quot;</span>,
-                        <span class="ident">TripMode::Transit</span> =&gt; <span class="string">&quot;system/assets/meters/bus.svg&quot;</span>,
+        <span class="kw">let </span>(row_btn, _hitbox) = Widget::custom_row(<span class="macro">vec!</span>[
+            <span class="macro">format!</span>(<span class="string">&quot;Trip {} &quot;</span>, idx + <span class="number">1</span>)
+                .batch_text(ctx)
+                .centered_vert()
+                .margin_right(<span class="number">21</span>),
+            Widget::row(<span class="macro">vec!</span>[
+                GeomBatch::load_svg(
+                    ctx.prerender,
+                    <span class="kw">match </span>trip.mode {
+                        TripMode::Walk =&gt; <span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>,
+                        TripMode::Bike =&gt; <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>,
+                        TripMode::Drive =&gt; <span class="string">&quot;system/assets/meters/car.svg&quot;</span>,
+                        TripMode::Transit =&gt; <span class="string">&quot;system/assets/meters/bus.svg&quot;</span>,
                     },
                 )
-                <span class="comment">// we want the icon to be about the same height as the text</span>
-                .<span class="ident">scale</span>(<span class="number">0.75</span>)
-                <span class="comment">// discard any padding built into the svg</span>
-                .<span class="ident">autocrop</span>()
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAll</span>(<span class="ident">color</span>))
-                .<span class="ident">batch</span>(),
-                <span class="comment">// Without this bottom padding, text is much closer to bottom of pill than top -</span>
-                <span class="comment">// seemingly more so than just text ascender/descender descrepancies - why?</span>
-                <span class="ident">Line</span>(<span class="ident">trip_status</span>)
-                    .<span class="ident">small</span>()
-                    .<span class="ident">fg</span>(<span class="ident">color</span>)
-                    .<span class="ident">batch</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">container</span>()
-                    .<span class="ident">padding_bottom</span>(<span class="number">2</span>),
+                <span class="comment">// we want the icon to be about the same height as the text
+                </span>.scale(<span class="number">0.75</span>)
+                <span class="comment">// discard any padding built into the svg
+                </span>.autocrop()
+                .color(RewriteColor::ChangeAll(color))
+                .batch(),
+                <span class="comment">// Without this bottom padding, text is much closer to bottom of pill than top -
+                // seemingly more so than just text ascender/descender descrepancies - why?
+                </span>Line(trip_status)
+                    .small()
+                    .fg(color)
+                    .batch(ctx)
+                    .container()
+                    .padding_bottom(<span class="number">2</span>),
             ])
-            .<span class="ident">centered</span>()
-            .<span class="ident">corner_rounding</span>(<span class="ident">CornerRounding::FullyRounded</span>)
-            .<span class="ident">outline</span>((<span class="number">1.0</span>, <span class="ident">color</span>))
-            .<span class="ident">bg</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.2</span>))
-            .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
-                <span class="ident">top</span>: <span class="number">5.0</span>,
-                <span class="ident">bottom</span>: <span class="number">5.0</span>,
-                <span class="ident">left</span>: <span class="number">10.0</span>,
-                <span class="ident">right</span>: <span class="number">10.0</span>,
+            .centered()
+            .corner_rounding(CornerRounding::FullyRounded)
+            .outline((<span class="number">1.0</span>, color))
+            .bg(color.alpha(<span class="number">0.2</span>))
+            .padding(EdgeInsets {
+                top: <span class="number">5.0</span>,
+                bottom: <span class="number">5.0</span>,
+                left: <span class="number">10.0</span>,
+                right: <span class="number">10.0</span>,
             })
-            .<span class="ident">margin_right</span>(<span class="number">21</span>),
-            <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">modified</span> {
-                <span class="ident">Line</span>(<span class="string">&quot;modified&quot;</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>().<span class="ident">margin_right</span>(<span class="number">15</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::nothing</span>()
+            .margin_right(<span class="number">21</span>),
+            <span class="kw">if </span>trip.modified {
+                Line(<span class="string">&quot;modified&quot;</span>).batch(ctx).centered_vert().margin_right(<span class="number">15</span>)
+            } <span class="kw">else </span>{
+                Widget::nothing()
             },
-            <span class="kw">if</span> <span class="ident">trip_status</span> <span class="op">==</span> <span class="string">&quot;finished&quot;</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">before</span>) <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">has_prebaked</span>()
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">finished_trip_time</span>(<span class="kw-2">*</span><span class="ident">t</span>))
+            <span class="kw">if </span>trip_status == <span class="string">&quot;finished&quot; </span>{
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(before) = app
+                    .has_prebaked()
+                    .and_then(|<span class="kw">_</span>| app.prebaked().finished_trip_time(<span class="kw-2">*</span>t))
                 {
-                    <span class="kw">let</span> (<span class="ident">after</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">finished_trip_details</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">unwrap</span>();
-                    <span class="ident">Text::from</span>(<span class="ident">cmp_duration_shorter</span>(<span class="ident">after</span>, <span class="ident">before</span>))
-                        .<span class="ident">batch</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">centered_vert</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">Widget::nothing</span>()
+                    <span class="kw">let </span>(after, <span class="kw">_</span>, <span class="kw">_</span>) = app.primary.sim.finished_trip_details(<span class="kw-2">*</span>t).unwrap();
+                    Text::from(cmp_duration_shorter(after, before))
+                        .batch(ctx)
+                        .centered_vert()
+                } <span class="kw">else </span>{
+                    Widget::nothing()
                 }
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::nothing</span>()
+            } <span class="kw">else </span>{
+                Widget::nothing()
             },
             {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon</span> <span class="op">=</span> <span class="ident">Image::from_bytes</span>(<span class="macro">include_labeled_bytes!</span>(
-                    <span class="string">&quot;../../../../widgetry/icons/arrow_drop_down.svg&quot;</span>
-                ))
-                .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
-                .<span class="ident">expect</span>(<span class="string">&quot;invalid svg&quot;</span>)
-                .<span class="number">0</span>
-                .<span class="ident">scale</span>(<span class="number">1.5</span>);
+                <span class="kw">let </span><span class="kw-2">mut </span>icon = Image::from_bytes(<span class="macro">include_labeled_bytes!</span>(
+                    <span class="string">&quot;../../../../widgetry/icons/arrow_drop_down.svg&quot;
+                </span>))
+                .build_batch(ctx)
+                .expect(<span class="string">&quot;invalid svg&quot;</span>)
+                .<span class="number">0
+                </span>.scale(<span class="number">1.5</span>);
 
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
-                    <span class="ident">icon</span> <span class="op">=</span> <span class="ident">icon</span>.<span class="ident">rotate</span>(<span class="ident">Angle::degrees</span>(<span class="number">180.0</span>));
+                <span class="kw">if </span>!open_trips.contains_key(t) {
+                    icon = icon.rotate(Angle::degrees(<span class="number">180.0</span>));
                 }
 
-                <span class="ident">icon</span>.<span class="ident">batch</span>().<span class="ident">container</span>().<span class="ident">align_right</span>().<span class="ident">margin_right</span>(<span class="number">10</span>)
+                icon.batch().container().align_right().margin_right(<span class="number">10</span>)
             },
         ])
-        .<span class="ident">centered</span>()
-        .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
-        .<span class="ident">padding</span>(<span class="number">16</span>)
-        .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-        .<span class="ident">into_geom</span>(<span class="ident">ctx</span>, <span class="prelude-val">Some</span>(<span class="number">0.3</span>));
-        <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid</span>
-                .<span class="ident">btn</span>()
-                .<span class="ident">custom_batch</span>(<span class="ident">row_btn</span>.<span class="ident">clone</span>(), <span class="ident">ControlState::Default</span>)
-                .<span class="ident">custom_batch</span>(
-                    <span class="ident">row_btn</span>.<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>,
-                        <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">bg_hover</span>,
+        .centered()
+        .outline(ctx.style().section_outline)
+        .padding(<span class="number">16</span>)
+        .bg(app.cs.inner_panel_bg)
+        .into_geom(ctx, <span class="prelude-val">Some</span>(<span class="number">0.3</span>));
+        rows.push(
+            ctx.style()
+                .btn_solid
+                .btn()
+                .custom_batch(row_btn.clone(), ControlState::Default)
+                .custom_batch(
+                    row_btn.color(RewriteColor::Change(
+                        app.cs.inner_panel_bg,
+                        ctx.style().btn_outline.bg_hover,
                     )),
-                    <span class="ident">ControlState::Hovered</span>,
+                    ControlState::Hovered,
                 )
-                .<span class="ident">build_widget</span>(
-                    <span class="ident">ctx</span>,
+                .build_widget(
+                    ctx,
                     <span class="macro">format!</span>(
                         <span class="string">&quot;{} {}&quot;</span>,
-                        <span class="kw">if</span> <span class="ident">open_trips</span>.<span class="ident">contains_key</span>(<span class="ident">t</span>) {
-                            <span class="string">&quot;hide&quot;</span>
-                        } <span class="kw">else</span> {
-                            <span class="string">&quot;show&quot;</span>
-                        },
-                        <span class="ident">t</span>
+                        <span class="kw">if </span>open_trips.contains_key(t) {
+                            <span class="string">&quot;hide&quot;
+                        </span>} <span class="kw">else </span>{
+                            <span class="string">&quot;show&quot;
+                        </span>},
+                        t
                     ),
                 )
-                .<span class="ident">margin_above</span>(<span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> { <span class="number">0</span> } <span class="kw">else</span> { <span class="number">16</span> }),
+                .margin_above(<span class="kw">if </span>idx == <span class="number">0 </span>{ <span class="number">0 </span>} <span class="kw">else </span>{ <span class="number">16 </span>}),
         );
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">maybe_info</span> {
-            <span class="ident">rows</span>.<span class="ident">push</span>(
-                <span class="ident">info</span>.<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>)
-                    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-                    .<span class="ident">padding</span>(<span class="number">16</span>),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(info) = maybe_info {
+            rows.push(
+                info.outline(ctx.style().section_outline)
+                    .bg(app.cs.inner_panel_bg)
+                    .padding(<span class="number">16</span>),
             );
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_trips</span> <span class="op">=</span> <span class="ident">open_trips</span>.<span class="ident">clone</span>();
-            <span class="ident">new_trips</span>.<span class="ident">remove</span>(<span class="ident">t</span>);
-            <span class="ident">details</span>
-                .<span class="ident">hyperlinks</span>
-                .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;hide {}&quot;</span>, <span class="ident">t</span>), <span class="ident">Tab::PersonTrips</span>(<span class="ident">id</span>, <span class="ident">new_trips</span>));
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_trips</span> <span class="op">=</span> <span class="ident">open_trips</span>.<span class="ident">clone</span>();
-            <span class="ident">new_trips</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">OpenTrip::new</span>());
-            <span class="ident">details</span>
-                .<span class="ident">hyperlinks</span>
-                .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;show {}&quot;</span>, <span class="ident">t</span>), <span class="ident">Tab::PersonTrips</span>(<span class="ident">id</span>, <span class="ident">new_trips</span>));
+            <span class="kw">let </span><span class="kw-2">mut </span>new_trips = open_trips.clone();
+            new_trips.remove(t);
+            details
+                .hyperlinks
+                .insert(<span class="macro">format!</span>(<span class="string">&quot;hide {}&quot;</span>, t), Tab::PersonTrips(id, new_trips));
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>new_trips = open_trips.clone();
+            new_trips.insert(<span class="kw-2">*</span>t, OpenTrip::new());
+            details
+                .hyperlinks
+                .insert(<span class="macro">format!</span>(<span class="string">&quot;show {}&quot;</span>, t), Tab::PersonTrips(id, new_trips));
         }
     }
-    <span class="kw">if</span> <span class="ident">wheres_waldo</span> {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">current_status</span>(<span class="ident">ctx</span>, <span class="ident">person</span>, <span class="ident">map</span>));
+    <span class="kw">if </span>wheres_waldo {
+        rows.push(current_status(ctx, person, map));
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bio</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">id</span>: <span class="ident">PersonID</span>,
-    <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::PersonBio</span>(<span class="ident">id</span>), <span class="ident">is_paused</span>),
-        <span class="ident">bio_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>bio(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    id: PersonID,
+    is_paused: bool,
+) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, app, details, id, Tab::PersonBio(id), is_paused),
+        bio_body(ctx, app, details, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">bio_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">PersonID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">id</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">u64</span>);
+<span class="kw">fn </span>bio_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: PersonID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
+    <span class="kw">let </span>person = app.primary.sim.get_person(id);
+    <span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(id.<span class="number">0 </span><span class="kw">as </span>u64);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg_data</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="ident">svg_face::generate_face</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg_data</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg_bytes_uncached</span>(<span class="kw-2">&amp;</span><span class="ident">svg_data</span>).<span class="ident">autocrop</span>();
-    <span class="kw">let</span> <span class="ident">dims</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_dims</span>();
-    <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">scale</span>((<span class="number">200.0</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">width</span>).<span class="ident">min</span>(<span class="number">200.0</span> <span class="op">/</span> <span class="ident">dims</span>.<span class="ident">height</span>));
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>svg_data = Vec::new();
+    svg_face::generate_face(<span class="kw-2">&amp;mut </span>svg_data, <span class="kw-2">&amp;mut </span>rng).unwrap();
+    <span class="kw">let </span>batch = GeomBatch::load_svg_bytes_uncached(<span class="kw-2">&amp;</span>svg_data).autocrop();
+    <span class="kw">let </span>dims = batch.get_dims();
+    <span class="kw">let </span>batch = batch.scale((<span class="number">200.0 </span>/ dims.width).min(<span class="number">200.0 </span>/ dims.height));
+    rows.push(batch.into_widget(ctx).centered_horiz());
 
-    <span class="kw">let</span> <span class="ident">nickname</span> <span class="op">=</span> <span class="ident">petname::Petnames::default</span>().<span class="ident">generate</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="number">2</span>, <span class="string">&quot; &quot;</span>);
-    <span class="kw">let</span> <span class="ident">age</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">5</span>..<span class="number">100</span>);
+    <span class="kw">let </span>nickname = petname::Petnames::default().generate(<span class="kw-2">&amp;mut </span>rng, <span class="number">2</span>, <span class="string">&quot; &quot;</span>);
+    <span class="kw">let </span>age = rng.gen_range(<span class="number">5</span>..<span class="number">100</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">table</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="string">&quot;Nickname&quot;</span>, <span class="ident">nickname</span>), (<span class="string">&quot;Age&quot;</span>, <span class="ident">age</span>.<span class="ident">to_string</span>())];
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="ident">table</span>.<span class="ident">push</span>((<span class="string">&quot;Debug ID&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">person</span>.<span class="ident">orig_id</span>)));
+    <span class="kw">let </span><span class="kw-2">mut </span>table = <span class="macro">vec!</span>[(<span class="string">&quot;Nickname&quot;</span>, nickname), (<span class="string">&quot;Age&quot;</span>, age.to_string())];
+    <span class="kw">if </span>app.opts.dev {
+        table.push((<span class="string">&quot;Debug ID&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, person.orig_id)));
     }
-    <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">table</span>));
-    <span class="comment">// TODO Mad libs!</span>
-    <span class="comment">// - Keeps a collection of ___ at all times</span>
-    <span class="comment">// - Origin story: accidentally fell into a vat of cheese curds</span>
-    <span class="comment">// - Superpower: Makes unnervingly realistic squirrel noises</span>
-    <span class="comment">// - Rides a fixie</span>
-    <span class="comment">// - Has 17 pinky toe piercings (surprising, considering they&#39;re the state champ at</span>
-    <span class="comment">// barefoot marathons)</span>
-    <span class="comment">// TODO Favorite color: colors.lol</span>
+    rows.extend(make_table(ctx, table));
+    <span class="comment">// TODO Mad libs!
+    // - Keeps a collection of ___ at all times
+    // - Origin story: accidentally fell into a vat of cheese curds
+    // - Superpower: Makes unnervingly realistic squirrel noises
+    // - Rides a fixie
+    // - Has 17 pinky toe piercings (surprising, considering they&#39;re the state champ at
+    // barefoot marathons)
+    // TODO Favorite color: colors.lol
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>() {
-        <span class="comment">// TODO add hospitalization/quarantine probably</span>
-        <span class="kw">let</span> <span class="ident">status</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">is_sane</span>(<span class="ident">id</span>) {
-            <span class="string">&quot;Susceptible&quot;</span>.<span class="ident">to_string</span>()
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">is_exposed</span>(<span class="ident">id</span>) {
-            <span class="macro">format!</span>(<span class="string">&quot;Exposed at {}&quot;</span>, <span class="ident">p</span>.<span class="ident">get_time</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">ampm_tostring</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">is_infectious</span>(<span class="ident">id</span>) {
-            <span class="macro">format!</span>(<span class="string">&quot;Infected at {}&quot;</span>, <span class="ident">p</span>.<span class="ident">get_time</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">ampm_tostring</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">is_recovered</span>(<span class="ident">id</span>) {
-            <span class="macro">format!</span>(<span class="string">&quot;Recovered at {}&quot;</span>, <span class="ident">p</span>.<span class="ident">get_time</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">ampm_tostring</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">p</span>.<span class="ident">is_dead</span>(<span class="ident">id</span>) {
-            <span class="macro">format!</span>(<span class="string">&quot;Dead at {}&quot;</span>, <span class="ident">p</span>.<span class="ident">get_time</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>().<span class="ident">ampm_tostring</span>())
-        } <span class="kw">else</span> {
-            <span class="comment">// TODO More info here? Make these public too?</span>
-            <span class="string">&quot;Other (hospitalized or quarantined)&quot;</span>.<span class="ident">to_string</span>()
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(p) = app.primary.sim.get_pandemic_model() {
+        <span class="comment">// TODO add hospitalization/quarantine probably
+        </span><span class="kw">let </span>status = <span class="kw">if </span>p.is_sane(id) {
+            <span class="string">&quot;Susceptible&quot;</span>.to_string()
+        } <span class="kw">else if </span>p.is_exposed(id) {
+            <span class="macro">format!</span>(<span class="string">&quot;Exposed at {}&quot;</span>, p.get_time(id).unwrap().ampm_tostring())
+        } <span class="kw">else if </span>p.is_infectious(id) {
+            <span class="macro">format!</span>(<span class="string">&quot;Infected at {}&quot;</span>, p.get_time(id).unwrap().ampm_tostring())
+        } <span class="kw">else if </span>p.is_recovered(id) {
+            <span class="macro">format!</span>(<span class="string">&quot;Recovered at {}&quot;</span>, p.get_time(id).unwrap().ampm_tostring())
+        } <span class="kw">else if </span>p.is_dead(id) {
+            <span class="macro">format!</span>(<span class="string">&quot;Dead at {}&quot;</span>, p.get_time(id).unwrap().ampm_tostring())
+        } <span class="kw">else </span>{
+            <span class="comment">// TODO More info here? Make these public too?
+            </span><span class="string">&quot;Other (hospitalized or quarantined)&quot;</span>.to_string()
         };
-        <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Pandemic model state: &quot;</span>).<span class="ident">secondary</span>(),
-                <span class="ident">Line</span>(<span class="ident">status</span>),
+        rows.push(
+            Text::from_all(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Pandemic model state: &quot;</span>).secondary(),
+                Line(status),
             ])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            .into_widget(ctx),
         );
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_bike</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">for</span> <span class="ident">v</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">vehicles</span> {
-        <span class="kw">if</span> <span class="ident">v</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
-            <span class="ident">has_bike</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">is_some</span>() {
-            <span class="ident">rows</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_outline</span>
-                    .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>))
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>has_bike = <span class="bool-val">false</span>;
+    <span class="kw">for </span>v <span class="kw">in </span><span class="kw-2">&amp;</span>person.vehicles {
+        <span class="kw">if </span>v.vehicle_type == VehicleType::Bike {
+            has_bike = <span class="bool-val">true</span>;
+        } <span class="kw">else if </span>app.primary.sim.lookup_parked_car(v.id).is_some() {
+            rows.push(
+                ctx.style()
+                    .btn_outline
+                    .text(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, v.id))
+                    .build_def(ctx),
             );
-            <span class="ident">details</span>
-                .<span class="ident">hyperlinks</span>
-                .<span class="ident">insert</span>(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>), <span class="ident">Tab::ParkedCar</span>(<span class="ident">v</span>.<span class="ident">id</span>));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PersonState::Trip</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">person</span>.<span class="ident">state</span> {
-            <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="ident">t</span>) {
-                <span class="ident">TripResult::Ok</span>(<span class="ident">AgentID::Car</span>(<span class="ident">x</span>)) <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="ident">v</span>.<span class="ident">id</span> =&gt; {
-                    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (currently driving)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+            details
+                .hyperlinks
+                .insert(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (parked)&quot;</span>, v.id), Tab::ParkedCar(v.id));
+        } <span class="kw">else if let </span>PersonState::Trip(t) = person.state {
+            <span class="kw">match </span>app.primary.sim.trip_to_agent(t) {
+                TripResult::Ok(AgentID::Car(x)) <span class="kw">if </span>x == v.id =&gt; {
+                    rows.push(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (currently driving)&quot;</span>, v.id).text_widget(ctx));
                 }
-                <span class="kw">_</span> =&gt; {
-                    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+                <span class="kw">_ </span>=&gt; {
+                    rows.push(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, v.id).text_widget(ctx));
                 }
             }
-        } <span class="kw">else</span> {
-            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, <span class="ident">v</span>.<span class="ident">id</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+        } <span class="kw">else </span>{
+            rows.push(<span class="macro">format!</span>(<span class="string">&quot;Owner of {} (off-map)&quot;</span>, v.id).text_widget(ctx));
         }
     }
-    <span class="kw">if</span> <span class="ident">has_bike</span> {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="string">&quot;Owns a bike&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+    <span class="kw">if </span>has_bike {
+        rows.push(<span class="string">&quot;Owns a bike&quot;</span>.text_widget(ctx));
     }
 
-    <span class="comment">// Debug info about their simulation state</span>
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">AgentID::Car</span>(<span class="ident">car</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">person_to_agent</span>(<span class="ident">id</span>) {
-            <span class="ident">rows</span>.<span class="ident">push</span>(
-                <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;State: {:?}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">debug_car_ui</span>(<span class="ident">car</span>)))
-                    .<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>)
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+    <span class="comment">// Debug info about their simulation state
+    </span><span class="kw">if </span>app.opts.dev {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(AgentID::Car(car)) = app.primary.sim.person_to_agent(id) {
+            rows.push(
+                Text::from(<span class="macro">format!</span>(<span class="string">&quot;State: {:?}&quot;</span>, app.primary.sim.debug_car_ui(car)))
+                    .wrap_to_pct(ctx, <span class="number">20</span>)
+                    .into_widget(ctx),
             );
         }
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">schedule</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">id</span>: <span class="ident">PersonID</span>,
-    <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::PersonSchedule</span>(<span class="ident">id</span>), <span class="ident">is_paused</span>),
-        <span class="ident">schedule_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>schedule(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    id: PersonID,
+    is_paused: bool,
+) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, app, details, id, Tab::PersonSchedule(id), is_paused),
+        schedule_body(ctx, app, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">schedule_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">PersonID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">id</span>.<span class="number">0</span> <span class="kw">as</span> <span class="ident">u64</span>);
+<span class="kw">fn </span>schedule_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, id: PersonID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
+    <span class="kw">let </span>person = app.primary.sim.get_person(id);
+    <span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(id.<span class="number">0 </span><span class="kw">as </span>u64);
 
-    <span class="comment">// TODO Proportional 24-hour timeline would be easier to understand</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_t</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span>;
-    <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">trips</span> {
-        <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">t</span>);
-        <span class="kw">let</span> <span class="ident">at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">trip</span>.<span class="ident">start</span> {
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
-                <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
-                    <span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>()
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">b</span>
-                        .<span class="ident">amenities</span>
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()))
-                        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                    <span class="macro">format!</span>(<span class="string">&quot;{} (at {})&quot;</span>, <span class="ident">list</span>.<span class="ident">choose</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>(), <span class="ident">b</span>.<span class="ident">address</span>)
+    <span class="comment">// TODO Proportional 24-hour timeline would be easier to understand
+    </span><span class="kw">let </span><span class="kw-2">mut </span>last_t = Time::START_OF_DAY;
+    <span class="kw">for </span>t <span class="kw">in </span><span class="kw-2">&amp;</span>person.trips {
+        <span class="kw">let </span>trip = app.primary.sim.trip_info(<span class="kw-2">*</span>t);
+        <span class="kw">let </span>at = <span class="kw">match </span>trip.start {
+            TripEndpoint::Building(b) =&gt; {
+                <span class="kw">let </span>b = app.primary.map.get_b(b);
+                <span class="kw">if </span>b.amenities.is_empty() {
+                    b.address.clone()
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>list = b
+                        .amenities
+                        .iter()
+                        .map(|a| a.names.get(app.opts.language.as_ref()))
+                        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                    <span class="macro">format!</span>(<span class="string">&quot;{} (at {})&quot;</span>, list.choose(<span class="kw-2">&amp;mut </span>rng).unwrap(), b.address)
                 }
             }
-            <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;off-map&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;suddenly appear&quot;</span>.<span class="ident">to_string</span>(),
+            TripEndpoint::Border(<span class="kw">_</span>) =&gt; <span class="string">&quot;off-map&quot;</span>.to_string(),
+            TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="string">&quot;suddenly appear&quot;</span>.to_string(),
         };
-        <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">Text::from</span>(<span class="macro">format!</span>(<span class="string">&quot;  Spends {} at {}&quot;</span>, <span class="ident">trip</span>.<span class="ident">departure</span> <span class="op">-</span> <span class="ident">last_t</span>, <span class="ident">at</span>)).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        rows.push(
+            Text::from(<span class="macro">format!</span>(<span class="string">&quot;  Spends {} at {}&quot;</span>, trip.departure - last_t, at)).into_widget(ctx),
         );
-        <span class="comment">// TODO Ideally end time if we know</span>
-        <span class="ident">last_t</span> <span class="op">=</span> <span class="ident">trip</span>.<span class="ident">departure</span>;
+        <span class="comment">// TODO Ideally end time if we know
+        </span>last_t = trip.departure;
     }
-    <span class="comment">// Where do they spend the night?</span>
-    <span class="kw">let</span> <span class="ident">last_trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
-    <span class="kw">let</span> <span class="ident">at</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">last_trip</span>.<span class="ident">end</span> {
-        <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>()
-            } <span class="kw">else</span> {
-                <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">b</span>
-                    .<span class="ident">amenities</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()))
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-                <span class="macro">format!</span>(<span class="string">&quot;{} (at {})&quot;</span>, <span class="ident">list</span>.<span class="ident">choose</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>).<span class="ident">unwrap</span>(), <span class="ident">b</span>.<span class="ident">address</span>)
+    <span class="comment">// Where do they spend the night?
+    </span><span class="kw">let </span>last_trip = app.primary.sim.trip_info(<span class="kw-2">*</span>person.trips.last().unwrap());
+    <span class="kw">let </span>at = <span class="kw">match </span>last_trip.end {
+        TripEndpoint::Building(b) =&gt; {
+            <span class="kw">let </span>b = app.primary.map.get_b(b);
+            <span class="kw">if </span>b.amenities.is_empty() {
+                b.address.clone()
+            } <span class="kw">else </span>{
+                <span class="kw">let </span>list = b
+                    .amenities
+                    .iter()
+                    .map(|a| a.names.get(app.opts.language.as_ref()))
+                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+                <span class="macro">format!</span>(<span class="string">&quot;{} (at {})&quot;</span>, list.choose(<span class="kw-2">&amp;mut </span>rng).unwrap(), b.address)
             }
         }
-        <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;off-map&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;suddenly disappear&quot;</span>.<span class="ident">to_string</span>(),
+        TripEndpoint::Border(<span class="kw">_</span>) =&gt; <span class="string">&quot;off-map&quot;</span>.to_string(),
+        TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="string">&quot;suddenly disappear&quot;</span>.to_string(),
     };
-    <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">Text::from</span>(<span class="macro">format!</span>(
+    rows.push(
+        Text::from(<span class="macro">format!</span>(
             <span class="string">&quot;  Spends {} at {}&quot;</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>() <span class="op">-</span> <span class="ident">last_trip</span>.<span class="ident">departure</span>,
-            <span class="ident">at</span>
+            app.primary.sim.get_end_of_day() - last_trip.departure,
+            at
         ))
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        .into_widget(ctx),
     );
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crowd</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">members</span>: <span class="kw-2">&amp;</span>[<span class="ident">PedestrianID</span>]) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Pedestrian crowd&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>crowd(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, members: <span class="kw-2">&amp;</span>[PedestrianID]) -&gt; Widget {
+    <span class="kw">let </span>header = Widget::custom_col(<span class="macro">vec!</span>[
+        Line(<span class="string">&quot;Pedestrian crowd&quot;</span>).small_heading().into_widget(ctx),
+        header_btns(ctx),
     ]);
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>,
-        <span class="ident">crowd_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">members</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header,
+        crowd_body(ctx, app, details, members).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">crowd_body</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">members</span>: <span class="kw-2">&amp;</span>[<span class="ident">PedestrianID</span>],
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">id</span>) <span class="kw">in</span> <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">primary</span>
-            .<span class="ident">sim</span>
-            .<span class="ident">agent_to_person</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="kw-2">*</span><span class="ident">id</span>))
-            .<span class="ident">unwrap</span>();
-        <span class="comment">// TODO What other info is useful to summarize?</span>
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="macro">format!</span>(<span class="string">&quot;{})&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="ident">person</span>.<span class="ident">to_string</span>())
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+<span class="kw">fn </span>crowd_body(
+    ctx: <span class="kw-2">&amp;</span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    members: <span class="kw-2">&amp;</span>[PedestrianID],
+) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
+    <span class="kw">for </span>(idx, id) <span class="kw">in </span>members.iter().enumerate() {
+        <span class="kw">let </span>person = app
+            .primary
+            .sim
+            .agent_to_person(AgentID::Pedestrian(<span class="kw-2">*</span>id))
+            .unwrap();
+        <span class="comment">// TODO What other info is useful to summarize?
+        </span>rows.push(Widget::row(<span class="macro">vec!</span>[
+            <span class="macro">format!</span>(<span class="string">&quot;{})&quot;</span>, idx + <span class="number">1</span>).text_widget(ctx).centered_vert(),
+            ctx.style()
+                .btn_outline
+                .text(person.to_string())
+                .build_def(ctx),
         ]));
-        <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(
-            <span class="ident">person</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Tab::PersonTrips</span>(
-                <span class="ident">person</span>,
-                <span class="ident">OpenTrip::single</span>(
-                    <span class="ident">app</span>.<span class="ident">primary</span>
-                        .<span class="ident">sim</span>
-                        .<span class="ident">agent_to_trip</span>(<span class="ident">AgentID::Pedestrian</span>(<span class="kw-2">*</span><span class="ident">id</span>))
-                        .<span class="ident">unwrap</span>(),
+        details.hyperlinks.insert(
+            person.to_string(),
+            Tab::PersonTrips(
+                person,
+                OpenTrip::single(
+                    app.primary
+                        .sim
+                        .agent_to_trip(AgentID::Pedestrian(<span class="kw-2">*</span>id))
+                        .unwrap(),
                 ),
             ),
         );
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parked_car</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">id</span>: <span class="ident">CarID</span>,
-    <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">header</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Parked car #{}&quot;</span>, <span class="ident">id</span>.<span class="ident">id</span>))
-            .<span class="ident">small_heading</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="comment">// Little indirect, but the handler of this action is actually the ContextualActions</span>
-            <span class="comment">// for SandboxMode.</span>
-            <span class="kw">if</span> <span class="ident">is_paused</span> {
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>)
-            } <span class="kw">else</span> {
-                <span class="comment">// TODO Blink</span>
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">image_color</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>), <span class="ident">ControlState::Default</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>)
+<span class="kw">pub fn </span>parked_car(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    id: CarID,
+    is_paused: bool,
+) -&gt; Widget {
+    <span class="kw">let </span>header = Widget::row(<span class="macro">vec!</span>[
+        Line(<span class="macro">format!</span>(<span class="string">&quot;Parked car #{}&quot;</span>, id.id))
+            .small_heading()
+            .into_widget(ctx),
+        Widget::row(<span class="macro">vec!</span>[
+            <span class="comment">// Little indirect, but the handler of this action is actually the ContextualActions
+            // for SandboxMode.
+            </span><span class="kw">if </span>is_paused {
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .hotkey(Key::F)
+                    .build_widget(ctx, <span class="string">&quot;follow (run the simulation)&quot;</span>)
+            } <span class="kw">else </span>{
+                <span class="comment">// TODO Blink
+                </span>ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .image_color(Color::hex(<span class="string">&quot;#7FFA4D&quot;</span>), ControlState::Default)
+                    .hotkey(Key::F)
+                    .build_widget(ctx, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>)
             },
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+            ctx.style().btn_close_widget(ctx),
         ])
-        .<span class="ident">align_right</span>(),
+        .align_right(),
     ]);
 
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>,
-        <span class="ident">parked_car_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header,
+        parked_car_body(ctx, app, details, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">parked_car_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">CarID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="comment">// TODO prev trips, next trips, etc</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>parked_car_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: CarID) -&gt; Widget {
+    <span class="comment">// TODO prev trips, next trips, etc
+    </span><span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_owner_of_car</span>(<span class="ident">id</span>).<span class="ident">unwrap</span>();
-    <span class="ident">rows</span>.<span class="ident">push</span>(
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="macro">format!</span>(<span class="string">&quot;Owned by {}&quot;</span>, <span class="ident">p</span>))
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    <span class="kw">let </span>p = app.primary.sim.get_owner_of_car(id).unwrap();
+    rows.push(
+        ctx.style()
+            .btn_outline
+            .text(<span class="macro">format!</span>(<span class="string">&quot;Owned by {}&quot;</span>, p))
+            .build_def(ctx),
     );
-    <span class="ident">details</span>.<span class="ident">hyperlinks</span>.<span class="ident">insert</span>(
-        <span class="macro">format!</span>(<span class="string">&quot;Owned by {}&quot;</span>, <span class="ident">p</span>),
-        <span class="ident">Tab::PersonTrips</span>(<span class="ident">p</span>, <span class="ident">BTreeMap::new</span>()),
+    details.hyperlinks.insert(
+        <span class="macro">format!</span>(<span class="string">&quot;Owned by {}&quot;</span>, p),
+        Tab::PersonTrips(p, BTreeMap::new()),
     );
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">lookup_parked_car</span>(<span class="ident">id</span>) {
-        <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">spot</span> {
-            <span class="ident">ParkingSpot::Onstreet</span>(<span class="kw">_</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">ParkingSpot::Lot</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(
-                    <span class="ident">app</span>.<span class="ident">primary</span>
-                        .<span class="ident">sim</span>
-                        .<span class="ident">canonical_pt_for_agent</span>(<span class="ident">AgentID::Car</span>(<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
-                        .<span class="ident">unwrap</span>(),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = app.primary.sim.lookup_parked_car(id) {
+        <span class="kw">match </span>p.spot {
+            ParkingSpot::Onstreet(<span class="kw">_</span>, <span class="kw">_</span>) | ParkingSpot::Lot(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                ctx.canvas.center_on_map_pt(
+                    app.primary
+                        .sim
+                        .canonical_pt_for_agent(AgentID::Car(id), <span class="kw-2">&amp;</span>app.primary.map)
+                        .unwrap(),
                 );
             }
-            <span class="ident">ParkingSpot::Offstreet</span>(<span class="ident">b</span>, <span class="kw">_</span>) =&gt; {
-                <span class="ident">ctx</span>.<span class="ident">canvas</span>
-                    .<span class="ident">center_on_map_pt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">center</span>());
-                <span class="ident">rows</span>.<span class="ident">push</span>(
-                    <span class="macro">format!</span>(<span class="string">&quot;Parked inside {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">address</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            ParkingSpot::Offstreet(b, <span class="kw">_</span>) =&gt; {
+                ctx.canvas
+                    .center_on_map_pt(app.primary.map.get_b(b).polygon.center());
+                rows.push(
+                    <span class="macro">format!</span>(<span class="string">&quot;Parked inside {}&quot;</span>, app.primary.map.get_b(b).address).text_widget(ctx),
                 );
             }
         }
 
-        <span class="ident">rows</span>.<span class="ident">push</span>(
+        rows.push(
             <span class="macro">format!</span>(
                 <span class="string">&quot;Parked here for {}&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="ident">p</span>.<span class="ident">parked_since</span>
+                app.primary.sim.time() - p.parked_since
             )
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            .text_widget(ctx),
         );
-    } <span class="kw">else</span> {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="string">&quot;No longer parked&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+    } <span class="kw">else </span>{
+        rows.push(<span class="string">&quot;No longer parked&quot;</span>.text_widget(ctx));
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">fn</span> <span class="ident">header</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>,
-    <span class="ident">id</span>: <span class="ident">PersonID</span>,
-    <span class="ident">tab</span>: <span class="ident">Tab</span>,
-    <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>header(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    details: <span class="kw-2">&amp;mut </span>Details,
+    id: PersonID,
+    tab: Tab,
+    is_paused: bool,
+) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> (<span class="ident">current_trip</span>, (<span class="ident">descr</span>, <span class="ident">maybe_icon</span>)) <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">id</span>).<span class="ident">state</span> {
-        <span class="ident">PersonState::Inside</span>(<span class="ident">b</span>) =&gt; {
-            <span class="ident">ctx</span>.<span class="ident">canvas</span>
-                .<span class="ident">center_on_map_pt</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">label_center</span>);
-            <span class="ident">building::draw_occupants</span>(<span class="ident">details</span>, <span class="ident">app</span>, <span class="ident">b</span>, <span class="prelude-val">Some</span>(<span class="ident">id</span>));
+    <span class="kw">let </span>(current_trip, (descr, maybe_icon)) = <span class="kw">match </span>app.primary.sim.get_person(id).state {
+        PersonState::Inside(b) =&gt; {
+            ctx.canvas
+                .center_on_map_pt(app.primary.map.get_b(b).label_center);
+            building::draw_occupants(details, app, b, <span class="prelude-val">Some</span>(id));
             (<span class="prelude-val">None</span>, (<span class="string">&quot;indoors&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/tools/home.svg&quot;</span>)))
         }
-        <span class="ident">PersonState::Trip</span>(<span class="ident">t</span>) =&gt; (
-            <span class="prelude-val">Some</span>(<span class="ident">t</span>),
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="ident">t</span>).<span class="ident">ok</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">canonical_pt_for_agent</span>(<span class="ident">a</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_on_map_pt</span>(<span class="ident">pt</span>);
+        PersonState::Trip(t) =&gt; (
+            <span class="prelude-val">Some</span>(t),
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = app.primary.sim.trip_to_agent(t).ok() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = app.primary.sim.canonical_pt_for_agent(a, <span class="kw-2">&amp;</span>app.primary.map) {
+                    ctx.canvas.center_on_map_pt(pt);
                 }
-                <span class="kw">match</span> <span class="ident">a</span> {
-                    <span class="ident">AgentID::Pedestrian</span>(<span class="kw">_</span>) =&gt; {
+                <span class="kw">match </span>a {
+                    AgentID::Pedestrian(<span class="kw">_</span>) =&gt; {
                         (<span class="string">&quot;walking&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>))
                     }
-                    <span class="ident">AgentID::Car</span>(<span class="ident">c</span>) =&gt; <span class="kw">match</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> {
-                        <span class="ident">VehicleType::Car</span> =&gt; (<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)),
-                        <span class="ident">VehicleType::Bike</span> =&gt; (<span class="string">&quot;biking&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)),
-                        <span class="ident">VehicleType::Bus</span> <span class="op">|</span> <span class="ident">VehicleType::Train</span> =&gt; <span class="macro">unreachable!</span>(),
+                    AgentID::Car(c) =&gt; <span class="kw">match </span>c.vehicle_type {
+                        VehicleType::Car =&gt; (<span class="string">&quot;driving&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)),
+                        VehicleType::Bike =&gt; (<span class="string">&quot;biking&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)),
+                        VehicleType::Bus | VehicleType::Train =&gt; <span class="macro">unreachable!</span>(),
                     },
-                    <span class="ident">AgentID::BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
+                    AgentID::BusPassenger(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {
                         (<span class="string">&quot;riding a bus&quot;</span>, <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/meters/bus.svg&quot;</span>))
                     }
                 }
-            } <span class="kw">else</span> {
-                <span class="comment">// TODO Really should clean up the TripModeChange issue</span>
-                (<span class="string">&quot;...&quot;</span>, <span class="prelude-val">None</span>)
+            } <span class="kw">else </span>{
+                <span class="comment">// TODO Really should clean up the TripModeChange issue
+                </span>(<span class="string">&quot;...&quot;</span>, <span class="prelude-val">None</span>)
             },
         ),
-        <span class="ident">PersonState::OffMap</span> =&gt; (<span class="prelude-val">None</span>, (<span class="string">&quot;off map&quot;</span>, <span class="prelude-val">None</span>)),
+        PersonState::OffMap =&gt; (<span class="prelude-val">None</span>, (<span class="string">&quot;off map&quot;</span>, <span class="prelude-val">None</span>)),
     };
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">id</span>)).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">icon</span>) <span class="op">=</span> <span class="ident">maybe_icon</span> {
-            <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="ident">icon</span>)
-                .<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAll</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>)))
-                .<span class="ident">autocrop</span>();
-            <span class="kw">let</span> <span class="ident">y_factor</span> <span class="op">=</span> <span class="number">20.0</span> <span class="op">/</span> <span class="ident">batch</span>.<span class="ident">get_dims</span>().<span class="ident">height</span>;
-            <span class="ident">batch</span>.<span class="ident">scale</span>(<span class="ident">y_factor</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">margin_left</span>(<span class="number">28</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">Widget::nothing</span>()
+    rows.push(Widget::custom_row(<span class="macro">vec!</span>[
+        Line(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, id)).small_heading().into_widget(ctx),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(icon) = maybe_icon {
+            <span class="kw">let </span>batch = GeomBatch::load_svg(ctx, icon)
+                .color(RewriteColor::ChangeAll(Color::hex(<span class="string">&quot;#A3A3A3&quot;</span>)))
+                .autocrop();
+            <span class="kw">let </span>y_factor = <span class="number">20.0 </span>/ batch.get_dims().height;
+            batch.scale(y_factor).into_widget(ctx).margin_left(<span class="number">28</span>)
+        } <span class="kw">else </span>{
+            Widget::nothing()
         }
-        .<span class="ident">centered_vert</span>(),
-        <span class="ident">Line</span>(<span class="ident">descr</span>.<span class="ident">to_string</span>())
-            .<span class="ident">small_heading</span>()
-            .<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>))
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-            .<span class="ident">margin_horiz</span>(<span class="number">10</span>),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="comment">// Little indirect, but the handler of this action is actually the ContextualActions</span>
-            <span class="comment">// for SandboxMode.</span>
-            <span class="kw">if</span> <span class="ident">is_paused</span> {
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>)
-            } <span class="kw">else</span> {
-                <span class="comment">// TODO Blink</span>
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">image_color</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#7FFA4D&quot;</span>), <span class="ident">ControlState::Default</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>)
+        .centered_vert(),
+        Line(descr.to_string())
+            .small_heading()
+            .fg(Color::hex(<span class="string">&quot;#A3A3A3&quot;</span>))
+            .into_widget(ctx)
+            .margin_horiz(<span class="number">10</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            <span class="comment">// Little indirect, but the handler of this action is actually the ContextualActions
+            // for SandboxMode.
+            </span><span class="kw">if </span>is_paused {
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .hotkey(Key::F)
+                    .build_widget(ctx, <span class="string">&quot;follow (run the simulation)&quot;</span>)
+            } <span class="kw">else </span>{
+                <span class="comment">// TODO Blink
+                </span>ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .image_color(Color::hex(<span class="string">&quot;#7FFA4D&quot;</span>), ControlState::Default)
+                    .hotkey(Key::F)
+                    .build_widget(ctx, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>)
             },
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+            ctx.style().btn_close_widget(ctx),
         ])
-        .<span class="ident">align_right</span>(),
+        .align_right(),
     ]));
 
-    <span class="kw">let</span> <span class="ident">open_trips</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">current_trip</span> {
-        <span class="ident">OpenTrip::single</span>(<span class="ident">t</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">BTreeMap::new</span>()
+    <span class="kw">let </span>open_trips = <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = current_trip {
+        OpenTrip::single(t)
+    } <span class="kw">else </span>{
+        BTreeMap::new()
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tabs</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        (<span class="string">&quot;Trips&quot;</span>, <span class="ident">Tab::PersonTrips</span>(<span class="ident">id</span>, <span class="ident">open_trips</span>)),
-        (<span class="string">&quot;Bio&quot;</span>, <span class="ident">Tab::PersonBio</span>(<span class="ident">id</span>)),
+    <span class="kw">let </span><span class="kw-2">mut </span>tabs = <span class="macro">vec!</span>[
+        (<span class="string">&quot;Trips&quot;</span>, Tab::PersonTrips(id, open_trips)),
+        (<span class="string">&quot;Bio&quot;</span>, Tab::PersonBio(id)),
     ];
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="ident">tabs</span>.<span class="ident">push</span>((<span class="string">&quot;Schedule&quot;</span>, <span class="ident">Tab::PersonSchedule</span>(<span class="ident">id</span>)));
+    <span class="kw">if </span>app.opts.dev {
+        tabs.push((<span class="string">&quot;Schedule&quot;</span>, Tab::PersonSchedule(id)));
     }
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">make_tabs</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">details</span>.<span class="ident">hyperlinks</span>, <span class="ident">tab</span>, <span class="ident">tabs</span>));
+    rows.push(make_tabs(ctx, <span class="kw-2">&amp;mut </span>details.hyperlinks, tab, tabs));
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">fn</span> <span class="ident">current_status</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">person</span>: <span class="kw-2">&amp;</span><span class="ident">Person</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Widget</span> {
-    (<span class="kw">match</span> <span class="ident">person</span>.<span class="ident">state</span> {
-        <span class="ident">PersonState::Inside</span>(<span class="ident">b</span>) =&gt; {
-            <span class="comment">// TODO hyperlink</span>
-            <span class="macro">format!</span>(<span class="string">&quot;Currently inside {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">address</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+<span class="kw">fn </span>current_status(ctx: <span class="kw-2">&amp;</span>EventCtx, person: <span class="kw-2">&amp;</span>Person, map: <span class="kw-2">&amp;</span>Map) -&gt; Widget {
+    (<span class="kw">match </span>person.state {
+        PersonState::Inside(b) =&gt; {
+            <span class="comment">// TODO hyperlink
+            </span><span class="macro">format!</span>(<span class="string">&quot;Currently inside {}&quot;</span>, map.get_b(b).address).text_widget(ctx)
         }
-        <span class="ident">PersonState::Trip</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
-        <span class="ident">PersonState::OffMap</span> =&gt; <span class="string">&quot;Currently outside the map boundaries&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        PersonState::Trip(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+        PersonState::OffMap =&gt; <span class="string">&quot;Currently outside the map boundaries&quot;</span>.text_widget(ctx),
     })
-    .<span class="ident">margin_vert</span>(<span class="number">16</span>)
+    .margin_vert(<span class="number">16</span>)
 }
 
-<span class="comment">// TODO Dedupe with the version in helpers</span>
-<span class="kw">fn</span> <span class="ident">cmp_duration_shorter</span>(<span class="ident">after</span>: <span class="ident">Duration</span>, <span class="ident">before</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">TextSpan</span> {
-    <span class="kw">if</span> <span class="ident">after</span>.<span class="ident">epsilon_eq</span>(<span class="ident">before</span>) {
-        <span class="ident">Line</span>(<span class="string">&quot;no change&quot;</span>).<span class="ident">small</span>()
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">after</span> <span class="op">&lt;</span> <span class="ident">before</span> {
-        <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} faster&quot;</span>, <span class="ident">before</span> <span class="op">-</span> <span class="ident">after</span>))
-            .<span class="ident">small</span>()
-            .<span class="ident">fg</span>(<span class="ident">Color::GREEN</span>)
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">after</span> <span class="op">&gt;</span> <span class="ident">before</span> {
-        <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} slower&quot;</span>, <span class="ident">after</span> <span class="op">-</span> <span class="ident">before</span>))
-            .<span class="ident">small</span>()
-            .<span class="ident">fg</span>(<span class="ident">Color::RED</span>)
-    } <span class="kw">else</span> {
+<span class="comment">// TODO Dedupe with the version in helpers
+</span><span class="kw">fn </span>cmp_duration_shorter(after: Duration, before: Duration) -&gt; TextSpan {
+    <span class="kw">if </span>after.epsilon_eq(before) {
+        Line(<span class="string">&quot;no change&quot;</span>).small()
+    } <span class="kw">else if </span>after &lt; before {
+        Line(<span class="macro">format!</span>(<span class="string">&quot;{} faster&quot;</span>, before - after))
+            .small()
+            .fg(Color::GREEN)
+    } <span class="kw">else if </span>after &gt; before {
+        Line(<span class="macro">format!</span>(<span class="string">&quot;{} slower&quot;</span>, after - before))
+            .small()
+            .fg(Color::RED)
+    } <span class="kw">else </span>{
         <span class="macro">unreachable!</span>()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

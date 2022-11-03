@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/map_config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map_config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/map_config.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>map_config.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -107,114 +107,114 @@
 <span id="107">107</span>
 <span id="108">108</span>
 <span id="109">109</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom::Distance</span>;
-<span class="kw">use</span> <span class="ident">map_model::DrivingSide</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>abstio::{CityName, MapName};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::Distance;
+<span class="kw">use </span>map_model::DrivingSide;
 
-<span class="doccomment">/// Given the name of a map, configure its import.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Note this was once expressed as config files for every city. That was less maintainable; most</span>
-<span class="doccomment">/// places used default values that were copied around.</span>
-<span class="comment">// Slightly more verbose logic feels easier to read</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::match_like_matches_macro</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">config_for_map</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">convert_osm::Options</span> {
-    <span class="comment">// Some maps have extra procedurally generated houses. Just see if a file in a canonical</span>
-    <span class="comment">// location exists.</span>
-    <span class="kw">let</span> <span class="ident">procgen_houses</span> <span class="op">=</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;procgen_houses.json&quot;</span>);
-    <span class="kw">let</span> <span class="ident">extra_buildings</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">abstio::file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">procgen_houses</span>) {
-        <span class="prelude-val">Some</span>(<span class="ident">procgen_houses</span>)
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    };
+<span class="doccomment">/// Given the name of a map, configure its import.
+///
+/// Note this was once expressed as config files for every city. That was less maintainable; most
+/// places used default values that were copied around.
+</span><span class="comment">// Slightly more verbose logic feels easier to read
+</span><span class="attribute">#[allow(clippy::match_like_matches_macro)]
+</span><span class="kw">pub fn </span>config_for_map(name: <span class="kw-2">&amp;</span>MapName) -&gt; convert_osm::Options {
+    <span class="comment">// Some maps have extra procedurally generated houses. Just see if a file in a canonical
+    // location exists.
+    </span><span class="kw">let </span>procgen_houses = name.city.input_path(<span class="string">&quot;procgen_houses.json&quot;</span>);
+    <span class="kw">let </span>extra_buildings = <span class="kw">if </span>abstio::file_exists(<span class="kw-2">&amp;</span>procgen_houses) {
+        <span class="prelude-val">Some</span>(procgen_houses)
+    } <span class="kw">else </span>{
+        <span class="prelude-val">None
+    </span>};
 
-    <span class="ident">convert_osm::Options</span> {
-        <span class="ident">map_config</span>: <span class="ident">osm2streets::MapConfig</span> {
-            <span class="ident">driving_side</span>: <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;au&quot;</span> <span class="op">|</span> <span class="string">&quot;gb&quot;</span> <span class="op">|</span> <span class="string">&quot;in&quot;</span> <span class="op">|</span> <span class="string">&quot;jp&quot;</span> <span class="op">|</span> <span class="string">&quot;nz&quot;</span> <span class="op">|</span> <span class="string">&quot;sg&quot;</span> =&gt; <span class="ident">DrivingSide::Left</span>,
-                <span class="kw">_</span> =&gt; <span class="ident">DrivingSide::Right</span>,
+    convert_osm::Options {
+        map_config: osm2streets::MapConfig {
+            driving_side: <span class="kw">match </span>name.city.country.as_ref() {
+                <span class="string">&quot;au&quot; </span>| <span class="string">&quot;gb&quot; </span>| <span class="string">&quot;in&quot; </span>| <span class="string">&quot;jp&quot; </span>| <span class="string">&quot;nz&quot; </span>| <span class="string">&quot;sg&quot; </span>=&gt; DrivingSide::Left,
+                <span class="kw">_ </span>=&gt; DrivingSide::Right,
             },
-            <span class="ident">bikes_can_use_bus_lanes</span>: <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;pl&quot;</span>,
-            <span class="ident">inferred_sidewalks</span>: <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;pl&quot;</span>,
-            <span class="ident">street_parking_spot_length</span>: <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;ca&quot;</span>, <span class="string">&quot;montreal&quot;</span>) {
-                <span class="ident">Distance::meters</span>(<span class="number">6.5</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">Distance::meters</span>(<span class="number">8.0</span>)
+            bikes_can_use_bus_lanes: name.city.country != <span class="string">&quot;pl&quot;</span>,
+            inferred_sidewalks: name.city.country != <span class="string">&quot;pl&quot;</span>,
+            street_parking_spot_length: <span class="kw">if </span>name.city == CityName::new(<span class="string">&quot;ca&quot;</span>, <span class="string">&quot;montreal&quot;</span>) {
+                Distance::meters(<span class="number">6.5</span>)
+            } <span class="kw">else </span>{
+                Distance::meters(<span class="number">8.0</span>)
             },
-            <span class="ident">turn_on_red</span>: <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span> <span class="op">==</span> <span class="string">&quot;us&quot;</span> <span class="op">&amp;&amp;</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span> <span class="op">!</span><span class="op">=</span> <span class="string">&quot;nyc&quot;</span>,
-            <span class="ident">find_dog_legs_experiment</span>: <span class="macro">vec!</span>[
-                <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>),
-                <span class="ident">MapName::seattle</span>(<span class="string">&quot;downtown&quot;</span>),
-                <span class="ident">MapName::seattle</span>(<span class="string">&quot;lakeslice&quot;</span>),
-                <span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;phoenix&quot;</span>, <span class="string">&quot;tempe&quot;</span>),
-                <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>),
-                <span class="comment">//MapName::new(&quot;gb&quot;, &quot;leeds&quot;, &quot;north&quot;),</span>
-                <span class="comment">//MapName::new(&quot;gb&quot;, &quot;london&quot;, &quot;camden&quot;),</span>
-                <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>, <span class="string">&quot;kennington&quot;</span>),
-                <span class="comment">//MapName::new(&quot;gb&quot;, &quot;london&quot;, &quot;southwark&quot;),</span>
-                <span class="comment">//MapName::new(&quot;gb&quot;, &quot;manchester&quot;, &quot;levenshulme&quot;),</span>
-                <span class="ident">MapName::new</span>(<span class="string">&quot;pl&quot;</span>, <span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>),
+            turn_on_red: name.city.country == <span class="string">&quot;us&quot; </span>&amp;&amp; name.city.city != <span class="string">&quot;nyc&quot;</span>,
+            find_dog_legs_experiment: <span class="macro">vec!</span>[
+                MapName::seattle(<span class="string">&quot;montlake&quot;</span>),
+                MapName::seattle(<span class="string">&quot;downtown&quot;</span>),
+                MapName::seattle(<span class="string">&quot;lakeslice&quot;</span>),
+                MapName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;phoenix&quot;</span>, <span class="string">&quot;tempe&quot;</span>),
+                MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>),
+                <span class="comment">//MapName::new(&quot;gb&quot;, &quot;leeds&quot;, &quot;north&quot;),
+                //MapName::new(&quot;gb&quot;, &quot;london&quot;, &quot;camden&quot;),
+                </span>MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;london&quot;</span>, <span class="string">&quot;kennington&quot;</span>),
+                <span class="comment">//MapName::new(&quot;gb&quot;, &quot;london&quot;, &quot;southwark&quot;),
+                //MapName::new(&quot;gb&quot;, &quot;manchester&quot;, &quot;levenshulme&quot;),
+                </span>MapName::new(<span class="string">&quot;pl&quot;</span>, <span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>),
             ]
-            .<span class="ident">contains</span>(<span class="ident">name</span>),
-            <span class="ident">merge_osm_ways</span>: <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">osm2streets::OriginalRoad</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-                <span class="string">&quot;merge_osm_ways.json&quot;</span>.<span class="ident">to_string</span>(),
-                <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+            .contains(name),
+            merge_osm_ways: abstio::maybe_read_json::&lt;Vec&lt;osm2streets::OriginalRoad&gt;&gt;(
+                <span class="string">&quot;merge_osm_ways.json&quot;</span>.to_string(),
+                <span class="kw-2">&amp;mut </span>Timer::throwaway(),
             )
-            .<span class="ident">ok</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>),
-            <span class="ident">osm2lanes</span>: <span class="bool-val">false</span>,
+            .ok()
+            .unwrap_or_else(Vec::new),
+            osm2lanes: <span class="bool-val">false</span>,
         },
-        <span class="ident">onstreet_parking</span>: <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;seattle&quot;</span> =&gt; {
-                <span class="ident">convert_osm::OnstreetParking::Blockface</span>(<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;blockface.bin&quot;</span>))
+        onstreet_parking: <span class="kw">match </span>name.city.city.as_ref() {
+            <span class="string">&quot;seattle&quot; </span>=&gt; {
+                convert_osm::OnstreetParking::Blockface(name.city.input_path(<span class="string">&quot;blockface.bin&quot;</span>))
             }
-            <span class="string">&quot;lyon&quot;</span> <span class="op">|</span> <span class="string">&quot;milwaukee&quot;</span> <span class="op">|</span> <span class="string">&quot;montreal&quot;</span> <span class="op">|</span> <span class="string">&quot;tel_aviv&quot;</span> <span class="op">|</span> <span class="string">&quot;zurich&quot;</span> =&gt; {
-                <span class="ident">convert_osm::OnstreetParking::SomeAdditionalWhereNoData</span> { <span class="ident">pct</span>: <span class="number">50</span> }
+            <span class="string">&quot;lyon&quot; </span>| <span class="string">&quot;milwaukee&quot; </span>| <span class="string">&quot;montreal&quot; </span>| <span class="string">&quot;tel_aviv&quot; </span>| <span class="string">&quot;zurich&quot; </span>=&gt; {
+                convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: <span class="number">50 </span>}
             }
-            <span class="string">&quot;krakow&quot;</span> <span class="op">|</span> <span class="string">&quot;warsaw&quot;</span> =&gt; {
-                <span class="ident">convert_osm::OnstreetParking::SomeAdditionalWhereNoData</span> { <span class="ident">pct</span>: <span class="number">90</span> }
+            <span class="string">&quot;krakow&quot; </span>| <span class="string">&quot;warsaw&quot; </span>=&gt; {
+                convert_osm::OnstreetParking::SomeAdditionalWhereNoData { pct: <span class="number">90 </span>}
             }
-            <span class="kw">_</span> =&gt; <span class="ident">convert_osm::OnstreetParking::JustOSM</span>,
+            <span class="kw">_ </span>=&gt; convert_osm::OnstreetParking::JustOSM,
         },
-        <span class="ident">public_offstreet_parking</span>: <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::seattle</span>() {
-            <span class="ident">convert_osm::PublicOffstreetParking::Gis</span>(<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;offstreet_parking.bin&quot;</span>))
-        } <span class="kw">else</span> {
-            <span class="ident">convert_osm::PublicOffstreetParking::None</span>
+        public_offstreet_parking: <span class="kw">if </span>name.city == CityName::seattle() {
+            convert_osm::PublicOffstreetParking::Gis(name.city.input_path(<span class="string">&quot;offstreet_parking.bin&quot;</span>))
+        } <span class="kw">else </span>{
+            convert_osm::PublicOffstreetParking::None
         },
-        <span class="ident">private_offstreet_parking</span>: <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::seattle</span>() {
-            <span class="ident">convert_osm::PrivateOffstreetParking::FixedPerBldg</span>(
-                <span class="comment">// TODO Utter guesses or in response to gridlock</span>
-                <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>() {
-                    <span class="string">&quot;downtown&quot;</span> =&gt; <span class="number">5</span>,
-                    <span class="string">&quot;lakeslice&quot;</span> =&gt; <span class="number">5</span>,
-                    <span class="string">&quot;qa&quot;</span> =&gt; <span class="number">5</span>,
-                    <span class="string">&quot;south_seattle&quot;</span> =&gt; <span class="number">5</span>,
-                    <span class="string">&quot;wallingford&quot;</span> =&gt; <span class="number">5</span>,
-                    <span class="kw">_</span> =&gt; <span class="number">1</span>,
+        private_offstreet_parking: <span class="kw">if </span>name.city == CityName::seattle() {
+            convert_osm::PrivateOffstreetParking::FixedPerBldg(
+                <span class="comment">// TODO Utter guesses or in response to gridlock
+                </span><span class="kw">match </span>name.map.as_ref() {
+                    <span class="string">&quot;downtown&quot; </span>=&gt; <span class="number">5</span>,
+                    <span class="string">&quot;lakeslice&quot; </span>=&gt; <span class="number">5</span>,
+                    <span class="string">&quot;qa&quot; </span>=&gt; <span class="number">5</span>,
+                    <span class="string">&quot;south_seattle&quot; </span>=&gt; <span class="number">5</span>,
+                    <span class="string">&quot;wallingford&quot; </span>=&gt; <span class="number">5</span>,
+                    <span class="kw">_ </span>=&gt; <span class="number">1</span>,
                 },
             )
-        } <span class="kw">else</span> {
-            <span class="ident">convert_osm::PrivateOffstreetParking::FixedPerBldg</span>(<span class="number">3</span>)
+        } <span class="kw">else </span>{
+            convert_osm::PrivateOffstreetParking::FixedPerBldg(<span class="number">3</span>)
         },
-        <span class="ident">include_railroads</span>: <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;phoenix&quot;</span> <span class="op">|</span> <span class="string">&quot;seattle&quot;</span> <span class="op">|</span> <span class="string">&quot;tucson&quot;</span> =&gt; <span class="bool-val">false</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">true</span>,
+        include_railroads: <span class="kw">match </span>name.city.city.as_ref() {
+            <span class="string">&quot;phoenix&quot; </span>| <span class="string">&quot;seattle&quot; </span>| <span class="string">&quot;tucson&quot; </span>=&gt; <span class="bool-val">false</span>,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
         },
-        <span class="ident">extra_buildings</span>,
-        <span class="ident">filter_crosswalks</span>: <span class="bool-val">false</span>,
-        <span class="comment">// https://www.transit.land is a great place to find the static GTFS URLs</span>
-        <span class="ident">gtfs_url</span>: <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">MapName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;arboretum&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;http://metro.kingcounty.gov/GTFS/google_transit.zip&quot;</span>.<span class="ident">to_string</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;san_francisco&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;https://gtfs.sfmta.com/transitdata/google_transit.zip&quot;</span>.<span class="ident">to_string</span>())
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">MapName::new</span>(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;aricanduva&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="string">&quot;https://github.com/transitland/gtfs-archives-not-hosted-elsewhere/blob/master/sao-paulo-sptrans.zip?raw=true&quot;</span>.<span class="ident">to_string</span>())
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        },
-        <span class="comment">// We only have one city-specific elevation source working well enough to keep.</span>
-        <span class="ident">elevation</span>: <span class="ident">name</span>.<span class="ident">city</span> <span class="op">==</span> <span class="ident">CityName::new</span>(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>),
+        extra_buildings,
+        filter_crosswalks: <span class="bool-val">false</span>,
+        <span class="comment">// https://www.transit.land is a great place to find the static GTFS URLs
+        </span>gtfs_url: <span class="kw">if </span>name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;arboretum&quot;</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;http://metro.kingcounty.gov/GTFS/google_transit.zip&quot;</span>.to_string())
+        } <span class="kw">else if </span>name.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;san_francisco&quot;</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;https://gtfs.sfmta.com/transitdata/google_transit.zip&quot;</span>.to_string())
+        } <span class="kw">else if </span>name == <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;br&quot;</span>, <span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;aricanduva&quot;</span>) {
+            <span class="prelude-val">Some</span>(<span class="string">&quot;https://github.com/transitland/gtfs-archives-not-hosted-elsewhere/blob/master/sao-paulo-sptrans.zip?raw=true&quot;</span>.to_string())
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>},
+        <span class="comment">// We only have one city-specific elevation source working well enough to keep.
+        </span>elevation: name.city == CityName::new(<span class="string">&quot;us&quot;</span>, <span class="string">&quot;seattle&quot;</span>),
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/engine.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>engine.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/engine.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>engine.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -181,188 +181,188 @@
 <span id="181">181</span>
 <span id="182">182</span>
 <span id="183">183</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">fast_paths</span>::{<span class="ident">deserialize_32</span>, <span class="ident">serialize_32</span>, <span class="ident">FastGraph</span>, <span class="ident">InputGraph</span>, <span class="ident">PathCalculator</span>};
-<span class="kw">use</span> <span class="ident">petgraph::graph</span>::{<span class="ident">DiGraph</span>, <span class="ident">NodeIndex</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">thread_local::ThreadLocal</span>;
+<span class="kw">use </span>fast_paths::{deserialize_32, serialize_32, FastGraph, InputGraph, PathCalculator};
+<span class="kw">use </span>petgraph::graph::{DiGraph, NodeIndex};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>thread_local::ThreadLocal;
 
-<span class="doccomment">/// This operates on raw IDs and costs; no type safety. The thing containing this transforms</span>
-<span class="doccomment">/// to/from higher-level types.</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::large_enum_variant</span>)]</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathfindEngine</span> {
-    <span class="ident">Empty</span>,
-    <span class="ident">Dijkstra</span> {
-        <span class="ident">graph</span>: <span class="ident">DiGraph</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
+<span class="doccomment">/// This operates on raw IDs and costs; no type safety. The thing containing this transforms
+/// to/from higher-level types.
+</span><span class="attribute">#[allow(clippy::large_enum_variant)]
+#[derive(Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>PathfindEngine {
+    Empty,
+    Dijkstra {
+        graph: DiGraph&lt;usize, usize&gt;,
     },
-    <span class="ident">CH</span> {
-        <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_32&quot;</span>, <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_32&quot;</span>)]</span>
-        <span class="ident">graph</span>: <span class="ident">FastGraph</span>,
-        <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-        <span class="ident">path_calc</span>: <span class="ident">ThreadLocal</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">PathCalculator</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    CH {
+        <span class="attribute">#[serde(serialize_with = <span class="string">&quot;serialize_32&quot;</span>, deserialize_with = <span class="string">&quot;deserialize_32&quot;</span>)]
+        </span>graph: FastGraph,
+        <span class="attribute">#[serde(skip_serializing, skip_deserializing)]
+        </span>path_calc: ThreadLocal&lt;RefCell&lt;PathCalculator&gt;&gt;,
     },
 }
 
-<span class="comment">// Implemented manually to deal with the ThreadLocal</span>
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">PathfindEngine</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathfindEngine::Empty</span> =&gt; <span class="ident">PathfindEngine::Empty</span>,
-            <span class="ident">PathfindEngine::Dijkstra</span> { <span class="kw-2">ref</span> <span class="ident">graph</span> } =&gt; <span class="ident">PathfindEngine::Dijkstra</span> {
-                <span class="ident">graph</span>: <span class="ident">graph</span>.<span class="ident">clone</span>(),
+<span class="comment">// Implemented manually to deal with the ThreadLocal
+</span><span class="kw">impl </span>Clone <span class="kw">for </span>PathfindEngine {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span><span class="self">self </span>{
+            PathfindEngine::Empty =&gt; PathfindEngine::Empty,
+            PathfindEngine::Dijkstra { <span class="kw-2">ref </span>graph } =&gt; PathfindEngine::Dijkstra {
+                graph: graph.clone(),
             },
-            <span class="ident">PathfindEngine::CH</span> { <span class="kw-2">ref</span> <span class="ident">graph</span>, .. } =&gt; <span class="ident">PathfindEngine::CH</span> {
-                <span class="ident">graph</span>: <span class="ident">graph</span>.<span class="ident">clone</span>(),
-                <span class="ident">path_calc</span>: <span class="ident">ThreadLocal::new</span>(),
+            PathfindEngine::CH { <span class="kw-2">ref </span>graph, .. } =&gt; PathfindEngine::CH {
+                graph: graph.clone(),
+                path_calc: ThreadLocal::new(),
             },
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PathfindEngine</span> {
-    <span class="doccomment">/// Returns (path cost, node IDs in path)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_path</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">usize</span>, <span class="ident">end</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">calculate_path_multiple_sources_and_targets</span>(<span class="macro">vec!</span>[(<span class="ident">start</span>, <span class="number">0</span>)], <span class="macro">vec!</span>[(<span class="ident">end</span>, <span class="number">0</span>)])
+<span class="kw">impl </span>PathfindEngine {
+    <span class="doccomment">/// Returns (path cost, node IDs in path)
+    </span><span class="kw">pub fn </span>calculate_path(<span class="kw-2">&amp;</span><span class="self">self</span>, start: usize, end: usize) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, Vec&lt;usize&gt;)&gt; {
+        <span class="self">self</span>.calculate_path_multiple_sources_and_targets(<span class="macro">vec!</span>[(start, <span class="number">0</span>)], <span class="macro">vec!</span>[(end, <span class="number">0</span>)])
     }
 
-    <span class="doccomment">/// Returns (path cost, node IDs in path). Input is pairs of (node ID, extra weight)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_path_multiple_sources_and_targets</span>(
+    <span class="doccomment">/// Returns (path cost, node IDs in path). Input is pairs of (node ID, extra weight)
+    </span><span class="kw">pub fn </span>calculate_path_multiple_sources_and_targets(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-        <span class="ident">ends</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathfindEngine::Empty</span> =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">PathfindEngine::Dijkstra</span> { <span class="kw-2">ref</span> <span class="ident">graph</span> } =&gt; {
-                <span class="comment">// If there are multiple starts and ends, calculate each individual path and take</span>
-                <span class="comment">// the lowest cost.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">best_pair</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">NodeIndex</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="kw">for</span> (<span class="ident">start_node</span>, <span class="ident">weight1</span>) <span class="kw">in</span> <span class="ident">starts</span> {
-                    <span class="kw">let</span> <span class="ident">start_node</span> <span class="op">=</span> <span class="ident">NodeIndex::new</span>(<span class="ident">start_node</span>);
-                    <span class="kw">for</span> (<span class="ident">end_node</span>, <span class="ident">weight2</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ends</span> {
-                        <span class="kw">let</span> <span class="ident">end_node</span> <span class="op">=</span> <span class="ident">NodeIndex::new</span>(<span class="kw-2">*</span><span class="ident">end_node</span>);
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">raw_weight</span>, <span class="ident">raw_nodes</span>)) <span class="op">=</span> <span class="ident">petgraph::algo::astar</span>(
-                            <span class="ident">graph</span>,
-                            <span class="ident">start_node</span>,
-                            <span class="op">|</span><span class="ident">node</span><span class="op">|</span> <span class="ident">node</span> <span class="op">==</span> <span class="ident">end_node</span>,
-                            <span class="op">|</span><span class="ident">edge</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">edge</span>.<span class="ident">weight</span>(),
-                            <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="number">0</span>,
+        starts: Vec&lt;(usize, usize)&gt;,
+        ends: Vec&lt;(usize, usize)&gt;,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(usize, Vec&lt;usize&gt;)&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            PathfindEngine::Empty =&gt; <span class="macro">unreachable!</span>(),
+            PathfindEngine::Dijkstra { <span class="kw-2">ref </span>graph } =&gt; {
+                <span class="comment">// If there are multiple starts and ends, calculate each individual path and take
+                // the lowest cost.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>best_pair: <span class="prelude-ty">Option</span>&lt;(usize, Vec&lt;NodeIndex&gt;)&gt; = <span class="prelude-val">None</span>;
+                <span class="kw">for </span>(start_node, weight1) <span class="kw">in </span>starts {
+                    <span class="kw">let </span>start_node = NodeIndex::new(start_node);
+                    <span class="kw">for </span>(end_node, weight2) <span class="kw">in </span><span class="kw-2">&amp;</span>ends {
+                        <span class="kw">let </span>end_node = NodeIndex::new(<span class="kw-2">*</span>end_node);
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>((raw_weight, raw_nodes)) = petgraph::algo::astar(
+                            graph,
+                            start_node,
+                            |node| node == end_node,
+                            |edge| <span class="kw-2">*</span>edge.weight(),
+                            |<span class="kw">_</span>| <span class="number">0</span>,
                         ) {
-                            <span class="kw">let</span> <span class="ident">total_weight</span> <span class="op">=</span> <span class="ident">raw_weight</span> <span class="op">+</span> <span class="ident">weight1</span> <span class="op">+</span> <span class="ident">weight2</span>;
-                            <span class="kw">if</span> <span class="ident">best_pair</span>
-                                .<span class="ident">as_ref</span>()
-                                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">total_weight</span> <span class="op">&lt;</span> <span class="ident">pair</span>.<span class="number">0</span>)
-                                .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
+                            <span class="kw">let </span>total_weight = raw_weight + weight1 + weight2;
+                            <span class="kw">if </span>best_pair
+                                .as_ref()
+                                .map(|pair| total_weight &lt; pair.<span class="number">0</span>)
+                                .unwrap_or(<span class="bool-val">true</span>)
                             {
-                                <span class="ident">best_pair</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">total_weight</span>, <span class="ident">raw_nodes</span>));
+                                best_pair = <span class="prelude-val">Some</span>((total_weight, raw_nodes));
                             }
                         }
                     }
                 }
-                <span class="kw">let</span> (<span class="ident">raw_weight</span>, <span class="ident">raw_nodes</span>) <span class="op">=</span> <span class="ident">best_pair</span><span class="question-mark">?</span>;
+                <span class="kw">let </span>(raw_weight, raw_nodes) = best_pair<span class="question-mark">?</span>;
                 <span class="prelude-val">Some</span>((
-                    <span class="ident">raw_weight</span>,
-                    <span class="ident">raw_nodes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">n</span><span class="op">|</span> <span class="ident">n</span>.<span class="ident">index</span>()).<span class="ident">collect</span>(),
+                    raw_weight,
+                    raw_nodes.into_iter().map(|n| n.index()).collect(),
                 ))
             }
-            <span class="ident">PathfindEngine::CH</span> {
-                <span class="kw-2">ref</span> <span class="ident">graph</span>,
-                <span class="kw-2">ref</span> <span class="ident">path_calc</span>,
+            PathfindEngine::CH {
+                <span class="kw-2">ref </span>graph,
+                <span class="kw-2">ref </span>path_calc,
             } =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">calc</span> <span class="op">=</span> <span class="ident">path_calc</span>
-                    .<span class="ident">get_or</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RefCell::new</span>(<span class="ident">fast_paths::create_calculator</span>(<span class="ident">graph</span>)))
-                    .<span class="ident">borrow_mut</span>();
-                <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">calc</span>.<span class="ident">calc_path_multiple_sources_and_targets</span>(<span class="ident">graph</span>, <span class="ident">starts</span>, <span class="ident">ends</span>)<span class="question-mark">?</span>;
-                <span class="comment">// TODO Add an into_nodes to avoid this clone</span>
-                <span class="prelude-val">Some</span>((<span class="ident">path</span>.<span class="ident">get_weight</span>(), <span class="ident">path</span>.<span class="ident">get_nodes</span>().<span class="ident">to_vec</span>()))
+                <span class="kw">let </span><span class="kw-2">mut </span>calc = path_calc
+                    .get_or(|| RefCell::new(fast_paths::create_calculator(graph)))
+                    .borrow_mut();
+                <span class="kw">let </span>path = calc.calc_path_multiple_sources_and_targets(graph, starts, ends)<span class="question-mark">?</span>;
+                <span class="comment">// TODO Add an into_nodes to avoid this clone
+                </span><span class="prelude-val">Some</span>((path.get_weight(), path.get_nodes().to_vec()))
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reuse_ordering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">CreateEngine</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathfindEngine::Empty</span> =&gt; <span class="macro">unreachable!</span>(),
-            <span class="comment">// Just don&#39;t reuse the ordering</span>
-            <span class="ident">PathfindEngine::Dijkstra</span> { .. } =&gt; <span class="ident">CreateEngine::Dijkstra</span>,
-            <span class="ident">PathfindEngine::CH</span> { <span class="kw-2">ref</span> <span class="ident">graph</span>, .. } =&gt; <span class="ident">CreateEngine::CHSeedingNodeOrdering</span>(<span class="ident">graph</span>),
+    <span class="kw">pub fn </span>reuse_ordering(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; CreateEngine {
+        <span class="kw">match </span><span class="self">self </span>{
+            PathfindEngine::Empty =&gt; <span class="macro">unreachable!</span>(),
+            <span class="comment">// Just don&#39;t reuse the ordering
+            </span>PathfindEngine::Dijkstra { .. } =&gt; CreateEngine::Dijkstra,
+            PathfindEngine::CH { <span class="kw-2">ref </span>graph, .. } =&gt; CreateEngine::CHSeedingNodeOrdering(graph),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dijkstra</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">PathfindEngine::Dijkstra</span> { .. })
+    <span class="kw">pub fn </span>is_dijkstra(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, PathfindEngine::Dijkstra { .. })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">usize</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">usize</span>, <span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathfindEngine::Empty</span> =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">PathfindEngine::Dijkstra</span> { <span class="kw-2">ref</span> <span class="ident">graph</span> } =&gt; {
-                <span class="ident">petgraph::algo::dijkstra</span>(<span class="ident">graph</span>, <span class="ident">NodeIndex::new</span>(<span class="ident">start</span>), <span class="prelude-val">None</span>, <span class="op">|</span><span class="ident">edge</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">edge</span>.<span class="ident">weight</span>())
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>.<span class="ident">index</span>(), <span class="ident">v</span>))
-                    .<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>all_costs_from(<span class="kw-2">&amp;</span><span class="self">self</span>, start: usize) -&gt; HashMap&lt;usize, usize&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            PathfindEngine::Empty =&gt; <span class="macro">unreachable!</span>(),
+            PathfindEngine::Dijkstra { <span class="kw-2">ref </span>graph } =&gt; {
+                petgraph::algo::dijkstra(graph, NodeIndex::new(start), <span class="prelude-val">None</span>, |edge| <span class="kw-2">*</span>edge.weight())
+                    .into_iter()
+                    .map(|(k, v)| (k.index(), v))
+                    .collect()
             }
-            <span class="ident">PathfindEngine::CH</span> { .. } =&gt; <span class="macro">unreachable!</span>(),
+            PathfindEngine::CH { .. } =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CreateEngine</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">Dijkstra</span>,
-    <span class="ident">CH</span>,
-    <span class="ident">CHSeedingNodeOrdering</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">FastGraph</span>),
+<span class="kw">pub enum </span>CreateEngine&lt;<span class="lifetime">&#39;a</span>&gt; {
+    Dijkstra,
+    CH,
+    CHSeedingNodeOrdering(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>FastGraph),
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">CreateEngine</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input_graph</span>: <span class="ident">InputGraph</span>) -&gt; <span class="ident">PathfindEngine</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">CreateEngine::Dijkstra</span> =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">DiGraph::new</span>();
-                <span class="kw">let</span> <span class="ident">dummy_weight</span> <span class="op">=</span> <span class="number">42</span>;
-                <span class="kw">for</span> <span class="ident">node</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">input_graph</span>.<span class="ident">get_num_nodes</span>() {
-                    <span class="macro">assert_eq!</span>(<span class="ident">graph</span>.<span class="ident">add_node</span>(<span class="ident">dummy_weight</span>).<span class="ident">index</span>(), <span class="ident">node</span>);
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; CreateEngine&lt;<span class="lifetime">&#39;a</span>&gt; {
+    <span class="kw">pub fn </span>create(<span class="kw-2">&amp;</span><span class="self">self</span>, input_graph: InputGraph) -&gt; PathfindEngine {
+        <span class="kw">match </span><span class="self">self </span>{
+            CreateEngine::Dijkstra =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>graph = DiGraph::new();
+                <span class="kw">let </span>dummy_weight = <span class="number">42</span>;
+                <span class="kw">for </span>node <span class="kw">in </span><span class="number">0</span>..input_graph.get_num_nodes() {
+                    <span class="macro">assert_eq!</span>(graph.add_node(dummy_weight).index(), node);
                 }
-                <span class="kw">for</span> <span class="ident">edge</span> <span class="kw">in</span> <span class="ident">input_graph</span>.<span class="ident">get_edges</span>() {
-                    <span class="ident">graph</span>.<span class="ident">add_edge</span>(
-                        <span class="ident">NodeIndex::new</span>(<span class="ident">edge</span>.<span class="ident">from</span>),
-                        <span class="ident">NodeIndex::new</span>(<span class="ident">edge</span>.<span class="ident">to</span>),
-                        <span class="ident">edge</span>.<span class="ident">weight</span>,
+                <span class="kw">for </span>edge <span class="kw">in </span>input_graph.get_edges() {
+                    graph.add_edge(
+                        NodeIndex::new(edge.from),
+                        NodeIndex::new(edge.to),
+                        edge.weight,
                     );
                 }
-                <span class="ident">PathfindEngine::Dijkstra</span> { <span class="ident">graph</span> }
+                PathfindEngine::Dijkstra { graph }
             }
-            <span class="ident">CreateEngine::CH</span> =&gt; {
+            CreateEngine::CH =&gt; {
                 <span class="macro">info!</span>(
                     <span class="string">&quot;Contraction hierarchy input graph has {} nodes&quot;</span>,
-                    <span class="ident">abstutil::prettyprint_usize</span>(<span class="ident">input_graph</span>.<span class="ident">get_num_nodes</span>())
+                    abstutil::prettyprint_usize(input_graph.get_num_nodes())
                 );
 
-                <span class="ident">PathfindEngine::CH</span> {
-                    <span class="ident">graph</span>: <span class="ident">fast_paths::prepare_with_params</span>(
-                        <span class="kw-2">&amp;</span><span class="ident">input_graph</span>,
-                        <span class="comment">// see discussion about fast_paths parameters here: https://github.com/easbar/fast_paths/pull/37</span>
-                        <span class="kw-2">&amp;</span><span class="ident">fast_paths::Params::new</span>(<span class="number">0.01</span>, <span class="number">100</span>, <span class="number">10</span>, <span class="number">100</span>),
+                PathfindEngine::CH {
+                    graph: fast_paths::prepare_with_params(
+                        <span class="kw-2">&amp;</span>input_graph,
+                        <span class="comment">// see discussion about fast_paths parameters here: https://github.com/easbar/fast_paths/pull/37
+                        </span><span class="kw-2">&amp;</span>fast_paths::Params::new(<span class="number">0.01</span>, <span class="number">100</span>, <span class="number">10</span>, <span class="number">100</span>),
                     ),
-                    <span class="ident">path_calc</span>: <span class="ident">ThreadLocal::new</span>(),
+                    path_calc: ThreadLocal::new(),
                 }
             }
-            <span class="ident">CreateEngine::CHSeedingNodeOrdering</span>(<span class="ident">prev_graph</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">node_ordering</span> <span class="op">=</span> <span class="ident">prev_graph</span>.<span class="ident">get_node_ordering</span>();
-                <span class="kw">let</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">fast_paths::prepare_with_order_with_params</span>(
-                    <span class="kw-2">&amp;</span><span class="ident">input_graph</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">node_ordering</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">fast_paths::ParamsWithOrder::new</span>(<span class="number">100</span>),
+            CreateEngine::CHSeedingNodeOrdering(prev_graph) =&gt; {
+                <span class="kw">let </span>node_ordering = prev_graph.get_node_ordering();
+                <span class="kw">let </span>graph = fast_paths::prepare_with_order_with_params(
+                    <span class="kw-2">&amp;</span>input_graph,
+                    <span class="kw-2">&amp;</span>node_ordering,
+                    <span class="kw-2">&amp;</span>fast_paths::ParamsWithOrder::new(<span class="number">100</span>),
                 )
-                .<span class="ident">unwrap</span>();
-                <span class="ident">PathfindEngine::CH</span> {
-                    <span class="ident">graph</span>,
-                    <span class="ident">path_calc</span>: <span class="ident">ThreadLocal::new</span>(),
+                .unwrap();
+                PathfindEngine::CH {
+                    graph,
+                    path_calc: ThreadLocal::new(),
                 }
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

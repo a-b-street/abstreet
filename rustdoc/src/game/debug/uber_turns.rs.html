@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/uber_turns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>uber_turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/debug/uber_turns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>uber_turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -258,265 +258,265 @@
 <span id="258">258</span>
 <span id="259">259</span>
 <span id="260">260</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">geom::ArrowCap</span>;
-<span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">BIG_ARROW_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionID</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>,
-    <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>geom::ArrowCap;
+<span class="kw">use </span>map_gui::render::{DrawOptions, BIG_ARROW_THICKNESS};
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::{IntersectionCluster, IntersectionID};
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{
+    Color, DrawBaselayer, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line,
+    Panel, SimpleState, State, Text, TextExt, Toggle, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">ShowEverything</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::CommonState</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, ShowEverything, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::CommonState;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UberTurnPicker</span> {
-    <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>UberTurnPicker {
+    members: BTreeSet&lt;IntersectionID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">UberTurnPicker</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">i</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">IntersectionCluster::autodetect</span>(<span class="ident">i</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-            <span class="ident">members</span>.<span class="ident">extend</span>(<span class="ident">list</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">members</span>.<span class="ident">insert</span>(<span class="ident">i</span>);
+<span class="kw">impl </span>UberTurnPicker {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, i: IntersectionID) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>members = BTreeSet::new();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = IntersectionCluster::autodetect(i, <span class="kw-2">&amp;</span>app.primary.map) {
+            members.extend(list);
+        } <span class="kw">else </span>{
+            members.insert(i);
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Select multiple intersections&quot;</span>)
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Select multiple intersections&quot;</span>)
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;View uber-turns&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Detect all clusters&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::D</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;View uber-turns&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Detect all clusters&quot;</span>)
+                .hotkey(Key::D)
+                .build_def(ctx),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">UberTurnPicker</span> { <span class="ident">members</span> }))
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(panel, Box::new(UberTurnPicker { members }))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UberTurnPicker</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;View uber-turns&quot;</span> =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                        <span class="ident">ctx</span>,
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>UberTurnPicker {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;View uber-turns&quot; </span>=&gt; {
+                <span class="kw">if </span><span class="self">self</span>.members.len() &lt; <span class="number">2 </span>{
+                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
+                        ctx,
                         <span class="string">&quot;Error&quot;</span>,
                         <span class="macro">vec!</span>[<span class="string">&quot;Select at least two intersections&quot;</span>],
                     ));
                 }
-                <span class="ident">Transition::Replace</span>(<span class="ident">UberTurnViewer::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
+                Transition::Replace(UberTurnViewer::new_state(
+                    ctx,
+                    app,
+                    <span class="self">self</span>.members.clone(),
                     <span class="number">0</span>,
                     <span class="bool-val">true</span>,
                 ))
             }
-            <span class="string">&quot;Detect all clusters&quot;</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">clear</span>();
-                <span class="kw">for</span> <span class="ident">ic</span> <span class="kw">in</span> <span class="ident">IntersectionCluster::find_all</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-                    <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">extend</span>(<span class="ident">ic</span>.<span class="ident">members</span>);
+            <span class="string">&quot;Detect all clusters&quot; </span>=&gt; {
+                <span class="self">self</span>.members.clear();
+                <span class="kw">for </span>ic <span class="kw">in </span>IntersectionCluster::find_all(<span class="kw-2">&amp;</span>app.primary.map) {
+                    <span class="self">self</span>.members.extend(ic.members);
                 }
-                <span class="ident">Transition::Keep</span>
+                Transition::Keep
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">on_mouseover</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_intersections</span>(<span class="ident">ctx</span>);
+    <span class="kw">fn </span>on_mouseover(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+        app.primary.current_selection = app.mouseover_unzoomed_intersections(ctx);
     }
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;add this intersection&quot;</span>) {
-                <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">insert</span>(<span class="ident">i</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>)
-                <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">per_obj</span>.<span class="ident">left_click</span>(<span class="ident">ctx</span>, <span class="string">&quot;remove this intersection&quot;</span>)
+    <span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Intersection(i)) = app.primary.current_selection {
+            <span class="kw">if </span>!<span class="self">self</span>.members.contains(<span class="kw-2">&amp;</span>i) &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;add this intersection&quot;</span>) {
+                <span class="self">self</span>.members.insert(i);
+            } <span class="kw">else if </span><span class="self">self</span>.members.contains(<span class="kw-2">&amp;</span>i)
+                &amp;&amp; app.per_obj.left_click(ctx, <span class="string">&quot;remove this intersection&quot;</span>)
             {
-                <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>);
+                <span class="self">self</span>.members.remove(<span class="kw-2">&amp;</span>i);
             }
         }
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        CommonState::draw_osd(g, app);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">members</span> {
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.members {
+            batch.push(
+                Color::RED.alpha(<span class="number">0.8</span>),
+                app.primary.map.get_i(<span class="kw-2">*</span>i).polygon.clone(),
             );
         }
-        <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="ident">draw</span>);
+        <span class="kw">let </span>draw = g.upload(batch);
+        g.redraw(<span class="kw-2">&amp;</span>draw);
     }
 }
 
-<span class="kw">struct</span> <span class="ident">UberTurnViewer</span> {
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
-    <span class="ident">ic</span>: <span class="ident">IntersectionCluster</span>,
-    <span class="ident">idx</span>: <span class="ident">usize</span>,
-    <span class="ident">legal_turns</span>: <span class="ident">bool</span>,
+<span class="kw">struct </span>UberTurnViewer {
+    draw: Drawable,
+    ic: IntersectionCluster,
+    idx: usize,
+    legal_turns: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">UberTurnViewer</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-        <span class="ident">idx</span>: <span class="ident">usize</span>,
-        <span class="ident">legal_turns</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+<span class="kw">impl </span>UberTurnViewer {
+    <span class="kw">pub fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        members: BTreeSet&lt;IntersectionID&gt;,
+        idx: usize,
+        legal_turns: bool,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        app.primary.current_selection = <span class="prelude-val">None</span>;
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
 
-        <span class="kw">let</span> (<span class="ident">ic1</span>, <span class="ident">ic2</span>) <span class="op">=</span> <span class="ident">IntersectionCluster::new</span>(<span class="ident">members</span>, <span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">ic</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">legal_turns</span> { <span class="ident">ic1</span> } <span class="kw">else</span> { <span class="ident">ic2</span> };
+        <span class="kw">let </span>(ic1, ic2) = IntersectionCluster::new(members, map);
+        <span class="kw">let </span>ic = <span class="kw">if </span>legal_turns { ic1 } <span class="kw">else </span>{ ic2 };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ic</span>.<span class="ident">members</span> {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>), <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>ic.members {
+            batch.push(Color::BLUE.alpha(<span class="number">0.5</span>), map.get_i(<span class="kw-2">*</span>i).polygon.clone());
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="ident">ut</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">ic</span>.<span class="ident">uber_turns</span>[<span class="ident">idx</span>];
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="ident">Color::RED</span>,
-                <span class="ident">ut</span>.<span class="ident">geom</span>(<span class="ident">map</span>)
-                    .<span class="ident">make_arrow</span>(<span class="ident">BIG_ARROW_THICKNESS</span>, <span class="ident">ArrowCap::Triangle</span>),
+        <span class="kw">if </span>!ic.uber_turns.is_empty() {
+            <span class="kw">let </span>ut = <span class="kw-2">&amp;</span>ic.uber_turns[idx];
+            batch.push(
+                Color::RED,
+                ut.geom(map)
+                    .make_arrow(BIG_ARROW_THICKNESS, ArrowCap::Triangle),
             );
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Uber-turn viewer&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">50.0</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_prev</span>()
-                    .<span class="ident">disabled</span>(<span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::LeftArrow</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous uber-turn&quot;</span>),
-                <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>())).<span class="ident">secondary</span>())
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_next</span>()
-                    .<span class="ident">disabled</span>(<span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">ic</span>.<span class="ident">uber_turns</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::RightArrow</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next uber-turn&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Uber-turn viewer&quot;</span>).small_heading().into_widget(ctx),
+                Widget::vert_separator(ctx, <span class="number">50.0</span>),
+                ctx.style()
+                    .btn_prev()
+                    .disabled(idx == <span class="number">0</span>)
+                    .hotkey(Key::LeftArrow)
+                    .build_widget(ctx, <span class="string">&quot;previous uber-turn&quot;</span>),
+                Text::from(Line(<span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, idx + <span class="number">1</span>, ic.uber_turns.len())).secondary())
+                    .into_widget(ctx)
+                    .centered_vert(),
+                ctx.style()
+                    .btn_next()
+                    .disabled(ic.uber_turns.is_empty() || idx == ic.uber_turns.len() - <span class="number">1</span>)
+                    .hotkey(Key::RightArrow)
+                    .build_widget(ctx, <span class="string">&quot;next uber-turn&quot;</span>),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Toggle::choice</span>(
-                    <span class="ident">ctx</span>,
+            Widget::row(<span class="macro">vec!</span>[
+                Toggle::choice(
+                    ctx,
                     <span class="string">&quot;legal / illegal movements&quot;</span>,
                     <span class="string">&quot;legal&quot;</span>,
                     <span class="string">&quot;illegal&quot;</span>,
                     <span class="prelude-val">None</span>,
-                    <span class="ident">legal_turns</span>,
+                    legal_turns,
                 ),
-                <span class="string">&quot;movements&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                <span class="string">&quot;movements&quot;</span>.text_widget(ctx),
             ]),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-            <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">UberTurnViewer</span> {
-                <span class="ident">draw</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
-                <span class="ident">ic</span>,
-                <span class="ident">idx</span>,
-                <span class="ident">legal_turns</span>,
+        .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+        .build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
+            panel,
+            Box::new(UberTurnViewer {
+                draw: ctx.upload(batch),
+                ic,
+                idx,
+                legal_turns,
             }),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">UberTurnViewer</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;previous uber-turn&quot;</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">UberTurnViewer::new_state</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="self">self</span>.<span class="ident">ic</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
-                <span class="self">self</span>.<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>,
-                <span class="self">self</span>.<span class="ident">legal_turns</span>,
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>UberTurnViewer {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;previous uber-turn&quot; </span>=&gt; Transition::Replace(UberTurnViewer::new_state(
+                ctx,
+                app,
+                <span class="self">self</span>.ic.members.clone(),
+                <span class="self">self</span>.idx - <span class="number">1</span>,
+                <span class="self">self</span>.legal_turns,
             )),
-            <span class="string">&quot;next uber-turn&quot;</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">UberTurnViewer::new_state</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="self">self</span>.<span class="ident">ic</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
-                <span class="self">self</span>.<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>,
-                <span class="self">self</span>.<span class="ident">legal_turns</span>,
+            <span class="string">&quot;next uber-turn&quot; </span>=&gt; Transition::Replace(UberTurnViewer::new_state(
+                ctx,
+                app,
+                <span class="self">self</span>.ic.members.clone(),
+                <span class="self">self</span>.idx + <span class="number">1</span>,
+                <span class="self">self</span>.legal_turns,
             )),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
-    <span class="kw">fn</span> <span class="ident">panel_changed</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">UberTurnViewer::new_state</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="self">self</span>.<span class="ident">ic</span>.<span class="ident">members</span>.<span class="ident">clone</span>(),
+    <span class="kw">fn </span>panel_changed(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="prelude-val">Some</span>(Transition::Replace(UberTurnViewer::new_state(
+            ctx,
+            app,
+            <span class="self">self</span>.ic.members.clone(),
             <span class="number">0</span>,
-            <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;legal / illegal movements&quot;</span>),
+            panel.is_checked(<span class="string">&quot;legal / illegal movements&quot;</span>),
         )))
     }
 
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="ident">Transition::Keep</span>
+    <span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::Custom</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::Custom
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">DrawOptions::new</span>();
-        <span class="ident">opts</span>.<span class="ident">suppress_traffic_signal_details</span>
-            .<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">ic</span>.<span class="ident">members</span>.<span class="ident">clone</span>());
-        <span class="ident">app</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">opts</span>, <span class="kw-2">&amp;</span><span class="ident">ShowEverything::new</span>());
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span><span class="kw-2">mut </span>opts = DrawOptions::new();
+        opts.suppress_traffic_signal_details
+            .extend(<span class="self">self</span>.ic.members.clone());
+        app.draw(g, opts, <span class="kw-2">&amp;</span>ShowEverything::new());
 
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

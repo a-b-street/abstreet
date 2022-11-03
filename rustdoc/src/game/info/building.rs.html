@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/building.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>building.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/building.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>building.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -319,321 +319,321 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::render::DrawPedestrian</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">LaneID</span>, <span class="ident">OffstreetParking</span>, <span class="ident">Traversable</span>, <span class="ident">SIDEWALK_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">DrawPedestrianInput</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">TripResult</span>, <span class="ident">VehicleType</span>};
-<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use </span>geom::{Angle, Circle, Distance, Speed, Time};
+<span class="kw">use </span>map_gui::render::DrawPedestrian;
+<span class="kw">use </span>map_model::{BuildingID, LaneID, OffstreetParking, Traversable, SIDEWALK_THICKNESS};
+<span class="kw">use </span>sim::{DrawPedestrianInput, PedestrianID, PersonID, TripResult, VehicleType};
+<span class="kw">use </span>synthpop::TripMode;
+<span class="kw">use </span>widgetry::{Color, EventCtx, Line, Text, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_table</span>, <span class="ident">make_tabs</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::info::{header_btns, make_table, make_tabs, Details, Tab};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">info</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::BldgInfo</span>(<span class="ident">id</span>)),
-        <span class="ident">info_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>info(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: BuildingID) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, app, details, id, Tab::BldgInfo(id)),
+        info_body(ctx, app, details, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">info_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>info_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: BuildingID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">id</span>);
+    <span class="kw">let </span>b = app.primary.map.get_b(id);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kv</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="string">&quot;Address&quot;</span>, <span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>())];
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">names</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">name</span> {
-        <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;Name&quot;</span>, <span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()).<span class="ident">to_string</span>()));
+    <span class="kw">let </span><span class="kw-2">mut </span>kv = <span class="macro">vec!</span>[(<span class="string">&quot;Address&quot;</span>, b.address.clone())];
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>names) = b.name {
+        kv.push((<span class="string">&quot;Name&quot;</span>, names.get(app.opts.language.as_ref()).to_string()));
     }
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;OSM ID&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>.<span class="ident">inner</span>())));
+    <span class="kw">if </span>app.opts.dev {
+        kv.push((<span class="string">&quot;OSM ID&quot;</span>, <span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, b.orig_id.inner())));
     }
 
-    <span class="kw">let</span> <span class="ident">num_spots</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">num_parking_spots</span>();
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">infinite_parking</span>() {
-        <span class="ident">kv</span>.<span class="ident">push</span>((
+    <span class="kw">let </span>num_spots = b.num_parking_spots();
+    <span class="kw">if </span>app.primary.sim.infinite_parking() {
+        kv.push((
             <span class="string">&quot;Parking&quot;</span>,
             <span class="macro">format!</span>(
                 <span class="string">&quot;Unlimited, currently {} cars inside&quot;</span>,
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">bldg_to_parked_cars</span>(<span class="ident">b</span>.<span class="ident">id</span>).<span class="ident">len</span>()
+                app.primary.sim.bldg_to_parked_cars(b.id).len()
             ),
         ));
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">num_spots</span> <span class="op">&gt;</span> <span class="number">0</span> {
-        <span class="kw">let</span> <span class="ident">free</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_free_offstreet_spots</span>(<span class="ident">b</span>.<span class="ident">id</span>).<span class="ident">len</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OffstreetParking::PublicGarage</span>(<span class="kw-2">ref</span> <span class="ident">n</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">parking</span> {
-            <span class="ident">kv</span>.<span class="ident">push</span>((
+    } <span class="kw">else if </span>num_spots &gt; <span class="number">0 </span>{
+        <span class="kw">let </span>free = app.primary.sim.get_free_offstreet_spots(b.id).len();
+        <span class="kw">if let </span>OffstreetParking::PublicGarage(<span class="kw-2">ref </span>n, <span class="kw">_</span>) = b.parking {
+            kv.push((
                 <span class="string">&quot;Parking&quot;</span>,
-                <span class="macro">format!</span>(<span class="string">&quot;{} / {} public spots available via {}&quot;</span>, <span class="ident">free</span>, <span class="ident">num_spots</span>, <span class="ident">n</span>),
+                <span class="macro">format!</span>(<span class="string">&quot;{} / {} public spots available via {}&quot;</span>, free, num_spots, n),
             ));
-        } <span class="kw">else</span> {
-            <span class="ident">kv</span>.<span class="ident">push</span>((
+        } <span class="kw">else </span>{
+            kv.push((
                 <span class="string">&quot;Parking&quot;</span>,
-                <span class="macro">format!</span>(<span class="string">&quot;{} / {} private spots available&quot;</span>, <span class="ident">free</span>, <span class="ident">num_spots</span>),
+                <span class="macro">format!</span>(<span class="string">&quot;{} / {} private spots available&quot;</span>, free, num_spots),
             ));
         }
-    } <span class="kw">else</span> {
-        <span class="ident">kv</span>.<span class="ident">push</span>((<span class="string">&quot;Parking&quot;</span>, <span class="string">&quot;None&quot;</span>.<span class="ident">to_string</span>()));
+    } <span class="kw">else </span>{
+        kv.push((<span class="string">&quot;Parking&quot;</span>, <span class="string">&quot;None&quot;</span>.to_string()));
     }
 
-    <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(<span class="ident">ctx</span>, <span class="ident">kv</span>));
+    rows.extend(make_table(ctx, kv));
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-        <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;1 amenity:&quot;</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;{} amenities:&quot;</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>()));
+    <span class="kw">if </span>!b.amenities.is_empty() {
+        txt.add_line(<span class="string">&quot;&quot;</span>);
+        <span class="kw">if </span>b.amenities.len() == <span class="number">1 </span>{
+            txt.add_line(<span class="string">&quot;1 amenity:&quot;</span>);
+        } <span class="kw">else </span>{
+            txt.add_line(<span class="macro">format!</span>(<span class="string">&quot;{} amenities:&quot;</span>, b.amenities.len()));
         }
-        <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">amenities</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(
+        <span class="kw">for </span>a <span class="kw">in </span><span class="kw-2">&amp;</span>b.amenities {
+            txt.add_line(<span class="macro">format!</span>(
                 <span class="string">&quot;  {} ({})&quot;</span>,
-                <span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()),
-                <span class="ident">a</span>.<span class="ident">amenity_type</span>
+                a.names.get(app.opts.language.as_ref()),
+                a.amenity_type
             ));
         }
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">infinite_parking</span>() {
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">primary</span>
-            .<span class="ident">sim</span>
-            .<span class="ident">walking_path_to_nearest_parking_spot</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">id</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>))
+    <span class="kw">if </span>!app.primary.sim.infinite_parking() {
+        txt.add_line(<span class="string">&quot;&quot;</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(pl) = app
+            .primary
+            .sim
+            .walking_path_to_nearest_parking_spot(<span class="kw-2">&amp;</span>app.primary.map, id)
+            .and_then(|path| path.trace(<span class="kw-2">&amp;</span>app.primary.map))
         {
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">parking_trip</span>;
-            <span class="comment">// TODO But this color doesn&#39;t show up well against the info panel...</span>
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Nearest parking&quot;</span>).<span class="ident">fg</span>(<span class="ident">color</span>));
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(
+            <span class="kw">let </span>color = app.cs.parking_trip;
+            <span class="comment">// TODO But this color doesn&#39;t show up well against the info panel...
+            </span>txt.add_line(Line(<span class="string">&quot;Nearest parking&quot;</span>).fg(color));
+            txt.append(Line(<span class="macro">format!</span>(
                 <span class="string">&quot; is ~{} away by foot&quot;</span>,
-                <span class="ident">pl</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">Speed::miles_per_hour</span>(<span class="number">3.0</span>)
+                pl.length() / Speed::miles_per_hour(<span class="number">3.0</span>)
             )));
 
-            <span class="ident">details</span>
-                .<span class="ident">draw_extra</span>
-                .<span class="ident">unzoomed</span>
-                .<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">10.0</span>)));
-            <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">extend</span>(
-                <span class="ident">color</span>,
-                <span class="ident">pl</span>.<span class="ident">dashed_lines</span>(
-                    <span class="ident">Distance::meters</span>(<span class="number">0.75</span>),
-                    <span class="ident">Distance::meters</span>(<span class="number">1.0</span>),
-                    <span class="ident">Distance::meters</span>(<span class="number">0.4</span>),
+            details
+                .draw_extra
+                .unzoomed
+                .push(color, pl.make_polygons(Distance::meters(<span class="number">10.0</span>)));
+            details.draw_extra.zoomed.extend(
+                color,
+                pl.dashed_lines(
+                    Distance::meters(<span class="number">0.75</span>),
+                    Distance::meters(<span class="number">1.0</span>),
+                    Distance::meters(<span class="number">0.4</span>),
                 ),
             );
-        } <span class="kw">else</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;No nearby parking available&quot;</span>)
+        } <span class="kw">else </span>{
+            txt.add_line(<span class="string">&quot;No nearby parking available&quot;</span>)
         }
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">txt</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>))
+    <span class="kw">if </span>!txt.is_empty() {
+        rows.push(txt.into_widget(ctx))
     }
 
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Open OSM&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">b</span>.<span class="ident">orig_id</span>)),
+    <span class="kw">if </span>app.opts.dev {
+        rows.push(
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Open OSM&quot;</span>)
+                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, b.orig_id)),
         );
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">b</span>.<span class="ident">osm_tags</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
-            <span class="ident">rows</span>.<span class="ident">extend</span>(<span class="ident">make_table</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">b</span>.<span class="ident">osm_tags</span>
-                    .<span class="ident">inner</span>()
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">to_string</span>()))
-                    .<span class="ident">collect</span>(),
+        <span class="kw">if </span>!b.osm_tags.is_empty() {
+            rows.push(<span class="string">&quot;Raw OpenStreetMap data&quot;</span>.text_widget(ctx));
+            rows.extend(make_table(
+                ctx,
+                b.osm_tags
+                    .inner()
+                    .iter()
+                    .map(|(k, v)| (k, v.to_string()))
+                    .collect(),
             ));
         }
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">people</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::BldgPeople</span>(<span class="ident">id</span>)),
-        <span class="ident">people_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">details</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>people(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: BuildingID) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, app, details, id, Tab::BldgPeople(id)),
+        people_body(ctx, app, details, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">people_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
+<span class="kw">fn </span>people_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: BuildingID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
 
-    <span class="comment">// Two caveats about these counts:</span>
-    <span class="comment">// 1) A person might use multiple modes through the day, but this just picks a single category.</span>
-    <span class="comment">// 2) Only people currently in the building currently are counted, whether or not that&#39;s their</span>
-    <span class="comment">//    home.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drivers</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cyclists</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">others</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="comment">// Two caveats about these counts:
+    // 1) A person might use multiple modes through the day, but this just picks a single category.
+    // 2) Only people currently in the building currently are counted, whether or not that&#39;s their
+    //    home.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>drivers = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>cyclists = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>others = <span class="number">0</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ppl</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Widget</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">bldg_to_people</span>(<span class="ident">id</span>) {
-        <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_person</span>(<span class="ident">p</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>ppl: Vec&lt;(Time, Widget)&gt; = Vec::new();
+    <span class="kw">for </span>p <span class="kw">in </span>app.primary.sim.bldg_to_people(id) {
+        <span class="kw">let </span>person = app.primary.sim.get_person(p);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_car</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_bike</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">for</span> <span class="ident">vehicle</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">vehicles</span> {
-            <span class="kw">if</span> <span class="ident">vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Car</span> {
-                <span class="ident">has_car</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
-                <span class="ident">has_bike</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>has_car = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>has_bike = <span class="bool-val">false</span>;
+        <span class="kw">for </span>vehicle <span class="kw">in </span><span class="kw-2">&amp;</span>person.vehicles {
+            <span class="kw">if </span>vehicle.vehicle_type == VehicleType::Car {
+                has_car = <span class="bool-val">true</span>;
+            } <span class="kw">else if </span>vehicle.vehicle_type == VehicleType::Bike {
+                has_bike = <span class="bool-val">true</span>;
             }
         }
-        <span class="kw">if</span> <span class="ident">has_car</span> {
-            <span class="ident">drivers</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">has_bike</span> {
-            <span class="ident">cyclists</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">others</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="kw">if </span>has_car {
+            drivers += <span class="number">1</span>;
+        } <span class="kw">else if </span>has_bike {
+            cyclists += <span class="number">1</span>;
+        } <span class="kw">else </span>{
+            others += <span class="number">1</span>;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next_trip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TripMode</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">person</span>.<span class="ident">trips</span> {
-            <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_to_agent</span>(<span class="kw-2">*</span><span class="ident">t</span>) {
-                <span class="ident">TripResult::TripNotStarted</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">trip</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">trip_info</span>(<span class="kw-2">*</span><span class="ident">t</span>);
-                    <span class="ident">next_trip</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">trip</span>.<span class="ident">departure</span>, <span class="ident">trip</span>.<span class="ident">mode</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>next_trip: <span class="prelude-ty">Option</span>&lt;(Time, TripMode)&gt; = <span class="prelude-val">None</span>;
+        <span class="kw">for </span>t <span class="kw">in </span><span class="kw-2">&amp;</span>person.trips {
+            <span class="kw">match </span>app.primary.sim.trip_to_agent(<span class="kw-2">*</span>t) {
+                TripResult::TripNotStarted =&gt; {
+                    <span class="kw">let </span>trip = app.primary.sim.trip_info(<span class="kw-2">*</span>t);
+                    next_trip = <span class="prelude-val">Some</span>((trip.departure, trip.mode));
                     <span class="kw">break</span>;
                 }
-                <span class="ident">TripResult::Ok</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">TripResult::ModeChange</span> =&gt; {
-                    <span class="comment">// TODO What to do here? This is meant for building callers right now</span>
-                    <span class="kw">break</span>;
+                TripResult::Ok(<span class="kw">_</span>) | TripResult::ModeChange =&gt; {
+                    <span class="comment">// TODO What to do here? This is meant for building callers right now
+                    </span><span class="kw">break</span>;
                 }
-                <span class="ident">TripResult::TripDone</span> <span class="op">|</span> <span class="ident">TripResult::TripCancelled</span> =&gt; {}
-                <span class="ident">TripResult::TripDoesntExist</span> =&gt; <span class="macro">unreachable!</span>(),
+                TripResult::TripDone | TripResult::TripCancelled =&gt; {}
+                TripResult::TripDoesntExist =&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
-        <span class="ident">details</span>
-            .<span class="ident">hyperlinks</span>
-            .<span class="ident">insert</span>(<span class="ident">p</span>.<span class="ident">to_string</span>(), <span class="ident">Tab::PersonTrips</span>(<span class="ident">p</span>, <span class="ident">BTreeMap::new</span>()));
-        <span class="kw">let</span> <span class="ident">widget</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="ident">p</span>.<span class="ident">to_string</span>()).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="ident">mode</span>)) <span class="op">=</span> <span class="ident">next_trip</span> {
+        details
+            .hyperlinks
+            .insert(p.to_string(), Tab::PersonTrips(p, BTreeMap::new()));
+        <span class="kw">let </span>widget = Widget::row(<span class="macro">vec!</span>[
+            ctx.style().btn_outline.text(p.to_string()).build_def(ctx),
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((t, mode)) = next_trip {
                 <span class="macro">format!</span>(
                     <span class="string">&quot;Leaving in {} to {}&quot;</span>,
-                    <span class="ident">t</span> <span class="op">-</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-                    <span class="ident">mode</span>.<span class="ident">verb</span>()
+                    t - app.primary.sim.time(),
+                    mode.verb()
                 )
-                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-            } <span class="kw">else</span> {
-                <span class="string">&quot;Staying inside&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
+                .text_widget(ctx)
+            } <span class="kw">else </span>{
+                <span class="string">&quot;Staying inside&quot;</span>.text_widget(ctx)
             },
         ]);
-        <span class="ident">ppl</span>.<span class="ident">push</span>((
-            <span class="ident">next_trip</span>
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">t</span>)
-                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>()),
-            <span class="ident">widget</span>,
+        ppl.push((
+            next_trip
+                .map(|(t, <span class="kw">_</span>)| t)
+                .unwrap_or_else(|| app.primary.sim.get_end_of_day()),
+            widget,
         ));
     }
 
-    <span class="comment">// Sort by time to next trip</span>
-    <span class="ident">ppl</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="ident">t</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">t</span>);
-    <span class="kw">if</span> <span class="ident">ppl</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">rows</span>.<span class="ident">push</span>(<span class="string">&quot;Nobody&#39;s inside right now&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
-    } <span class="kw">else</span> {
-        <span class="ident">rows</span>.<span class="ident">push</span>(
+    <span class="comment">// Sort by time to next trip
+    </span>ppl.sort_by_key(|(t, <span class="kw">_</span>)| <span class="kw-2">*</span>t);
+    <span class="kw">if </span>ppl.is_empty() {
+        rows.push(<span class="string">&quot;Nobody&#39;s inside right now&quot;</span>.text_widget(ctx));
+    } <span class="kw">else </span>{
+        rows.push(
             <span class="macro">format!</span>(
                 <span class="string">&quot;{} drivers, {} cyclists, {} others&quot;</span>,
-                <span class="ident">drivers</span>, <span class="ident">cyclists</span>, <span class="ident">others</span>
+                drivers, cyclists, others
             )
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            .text_widget(ctx),
         );
 
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">w</span>) <span class="kw">in</span> <span class="ident">ppl</span> {
-            <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">w</span>);
+        <span class="kw">for </span>(<span class="kw">_</span>, w) <span class="kw">in </span>ppl {
+            rows.push(w);
         }
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">fn</span> <span class="ident">header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>, <span class="ident">tab</span>: <span class="ident">Tab</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="ident">id</span>.<span class="ident">to_string</span>()).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+<span class="kw">fn </span>header(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: BuildingID, tab: Tab) -&gt; Widget {
+    <span class="kw">let </span>rows = <span class="macro">vec!</span>[
+        Widget::row(<span class="macro">vec!</span>[
+            Line(id.to_string()).small_heading().into_widget(ctx),
+            header_btns(ctx),
         ]),
-        <span class="ident">make_tabs</span>(
-            <span class="ident">ctx</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">details</span>.<span class="ident">hyperlinks</span>,
-            <span class="ident">tab</span>,
-            <span class="macro">vec!</span>[(<span class="string">&quot;Info&quot;</span>, <span class="ident">Tab::BldgInfo</span>(<span class="ident">id</span>)), (<span class="string">&quot;People&quot;</span>, <span class="ident">Tab::BldgPeople</span>(<span class="ident">id</span>))],
+        make_tabs(
+            ctx,
+            <span class="kw-2">&amp;mut </span>details.hyperlinks,
+            tab,
+            <span class="macro">vec!</span>[(<span class="string">&quot;Info&quot;</span>, Tab::BldgInfo(id)), (<span class="string">&quot;People&quot;</span>, Tab::BldgPeople(id))],
         ),
     ];
 
-    <span class="ident">draw_occupants</span>(<span class="ident">details</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="prelude-val">None</span>);
-    <span class="comment">// TODO Draw cars parked inside?</span>
+    draw_occupants(details, app, id, <span class="prelude-val">None</span>);
+    <span class="comment">// TODO Draw cars parked inside?
 
-    <span class="ident">Widget::custom_col</span>(<span class="ident">rows</span>)
+    </span>Widget::custom_col(rows)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_occupants</span>(<span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">BuildingID</span>, <span class="ident">focus</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>) {
-    <span class="comment">// TODO Lots of fun ideas here. Have a deterministic simulation based on building ID and time</span>
-    <span class="comment">// to have people &quot;realistically&quot; move around. Draw little floor plans.</span>
+<span class="kw">pub fn </span>draw_occupants(details: <span class="kw-2">&amp;mut </span>Details, app: <span class="kw-2">&amp;</span>App, id: BuildingID, focus: <span class="prelude-ty">Option</span>&lt;PersonID&gt;) {
+    <span class="comment">// TODO Lots of fun ideas here. Have a deterministic simulation based on building ID and time
+    // to have people &quot;realistically&quot; move around. Draw little floor plans.
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ppl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">bldg_to_people</span>(<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">num_rows_cols</span> <span class="op">=</span> (<span class="ident">ppl</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">sqrt</span>().<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>;
+    </span><span class="kw">let </span><span class="kw-2">mut </span>ppl = app.primary.sim.bldg_to_people(id);
+    <span class="kw">let </span>num_rows_cols = (ppl.len() <span class="kw">as </span>f64).sqrt().ceil() <span class="kw">as </span>usize;
 
-    <span class="kw">let</span> <span class="ident">ped_len</span> <span class="op">=</span> <span class="ident">sim::pedestrian_body_radius</span>().<span class="ident">inner_meters</span>() <span class="op">*</span> <span class="number">2.0</span>;
-    <span class="kw">let</span> <span class="ident">separation</span> <span class="op">=</span> <span class="ident">ped_len</span> <span class="op">*</span> <span class="number">1.5</span>;
+    <span class="kw">let </span>ped_len = sim::pedestrian_body_radius().inner_meters() * <span class="number">2.0</span>;
+    <span class="kw">let </span>separation = ped_len * <span class="number">1.5</span>;
 
-    <span class="kw">let</span> <span class="ident">total_width_height</span> <span class="op">=</span> (<span class="ident">num_rows_cols</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> (<span class="ident">ped_len</span> <span class="op">+</span> <span class="ident">separation</span>);
-    <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="ident">app</span>
-        .<span class="ident">primary</span>
-        .<span class="ident">map</span>
-        .<span class="ident">get_b</span>(<span class="ident">id</span>)
-        .<span class="ident">label_center</span>
-        .<span class="ident">offset</span>(<span class="op">-</span><span class="ident">total_width_height</span> <span class="op">/</span> <span class="number">2.0</span>, <span class="op">-</span><span class="ident">total_width_height</span> <span class="op">/</span> <span class="number">2.0</span>);
+    <span class="kw">let </span>total_width_height = (num_rows_cols <span class="kw">as </span>f64) * (ped_len + separation);
+    <span class="kw">let </span>top_left = app
+        .primary
+        .map
+        .get_b(id)
+        .label_center
+        .offset(-total_width_height / <span class="number">2.0</span>, -total_width_height / <span class="number">2.0</span>);
 
-    <span class="comment">// TODO Current thing is inefficient and can easily wind up outside the building.</span>
+    <span class="comment">// TODO Current thing is inefficient and can easily wind up outside the building.
 
-    <span class="lifetime">&#39;OUTER</span>: <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_rows_cols</span> {
-        <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_rows_cols</span> {
-            <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">ppl</span>.<span class="ident">pop</span>() {
-                <span class="ident">p</span>
-            } <span class="kw">else</span> {
-                <span class="kw">break</span> <span class="lifetime">&#39;OUTER</span>;
+    </span><span class="lifetime">&#39;OUTER</span>: <span class="kw">for </span>x <span class="kw">in </span><span class="number">0</span>..num_rows_cols {
+        <span class="kw">for </span>y <span class="kw">in </span><span class="number">0</span>..num_rows_cols {
+            <span class="kw">let </span>person = <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = ppl.pop() {
+                p
+            } <span class="kw">else </span>{
+                <span class="kw">break </span><span class="lifetime">&#39;OUTER</span>;
             };
-            <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">top_left</span>.<span class="ident">offset</span>(
-                (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> (<span class="ident">ped_len</span> <span class="op">+</span> <span class="ident">separation</span>),
-                (<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> (<span class="ident">ped_len</span> <span class="op">+</span> <span class="ident">separation</span>),
+            <span class="kw">let </span>pos = top_left.offset(
+                (x <span class="kw">as </span>f64) * (ped_len + separation),
+                (y <span class="kw">as </span>f64) * (ped_len + separation),
             );
 
-            <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>) <span class="op">==</span> <span class="ident">focus</span> {
-                <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>.<span class="ident">push</span>(
-                    <span class="ident">Color::YELLOW</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>),
-                    <span class="ident">Circle::new</span>(<span class="ident">pos</span>, <span class="ident">SIDEWALK_THICKNESS</span>).<span class="ident">to_polygon</span>(),
+            <span class="kw">if </span><span class="prelude-val">Some</span>(person) == focus {
+                details.draw_extra.zoomed.push(
+                    Color::YELLOW.alpha(<span class="number">0.8</span>),
+                    Circle::new(pos, SIDEWALK_THICKNESS).to_polygon(),
                 );
             }
 
-            <span class="ident">DrawPedestrian::geometry</span>(
-                <span class="kw-2">&amp;mut</span> <span class="ident">details</span>.<span class="ident">draw_extra</span>.<span class="ident">zoomed</span>,
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>,
-                <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>,
-                <span class="kw-2">&amp;</span><span class="ident">DrawPedestrianInput</span> {
-                    <span class="comment">// Lies</span>
-                    <span class="ident">id</span>: <span class="ident">PedestrianID</span>(<span class="ident">person</span>.<span class="number">0</span>),
-                    <span class="ident">person</span>,
-                    <span class="ident">pos</span>,
-                    <span class="ident">facing</span>: <span class="ident">Angle::degrees</span>(<span class="number">90.0</span>),
-                    <span class="ident">waiting_for_turn</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">intent</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">preparing_bike</span>: <span class="bool-val">false</span>,
-                    <span class="comment">// Both hands and feet!</span>
-                    <span class="ident">waiting_for_bus</span>: <span class="bool-val">true</span>,
-                    <span class="ident">on</span>: <span class="ident">Traversable::Lane</span>(<span class="ident">LaneID::dummy</span>()),
+            DrawPedestrian::geometry(
+                <span class="kw-2">&amp;mut </span>details.draw_extra.zoomed,
+                <span class="kw-2">&amp;</span>app.primary.sim,
+                <span class="kw-2">&amp;</span>app.cs,
+                <span class="kw-2">&amp;</span>DrawPedestrianInput {
+                    <span class="comment">// Lies
+                    </span>id: PedestrianID(person.<span class="number">0</span>),
+                    person,
+                    pos,
+                    facing: Angle::degrees(<span class="number">90.0</span>),
+                    waiting_for_turn: <span class="prelude-val">None</span>,
+                    intent: <span class="prelude-val">None</span>,
+                    preparing_bike: <span class="bool-val">false</span>,
+                    <span class="comment">// Both hands and feet!
+                    </span>waiting_for_bus: <span class="bool-val">true</span>,
+                    on: Traversable::Lane(LaneID::dummy()),
                 },
                 <span class="number">0</span>,
             );
@@ -641,4 +641,4 @@
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

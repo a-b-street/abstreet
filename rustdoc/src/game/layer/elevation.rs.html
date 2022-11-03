@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/elevation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>elevation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/elevation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>elevation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -319,326 +319,326 @@
 <span id="319">319</span>
 <span id="320">320</span>
 <span id="321">321</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">Grid</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::ColorScale</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Angle, Distance, FindClosest, PolyLine, Polygon, Pt2D};
+<span class="kw">use </span>map_gui::tools::{ColorDiscrete, Grid};
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::tools::ColorScale;
+<span class="kw">use </span>widgetry::{Color, EventCtx, GeomBatch, GfxCtx, Panel, Text, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer</span>::{<span class="ident">header</span>, <span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>, <span class="ident">PANEL_PLACEMENT</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SteepStreets</span> {
-    <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>SteepStreets {
+    tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;,
+    draw: ToggleZoomed,
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">SteepStreets</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Layer <span class="kw">for </span>SteepStreets {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="string">&quot;steep streets&quot;</span>)
     }
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">mouseover_unzoomed_roads_and_intersections</span>(<span class="ident">ctx</span>) {
-                <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="self">self</span>.tooltip = <span class="prelude-val">None</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(ID::Road(r)) = app.mouseover_unzoomed_roads_and_intersections(ctx) {
+                <span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(Text::from(<span class="macro">format!</span>(
                     <span class="string">&quot;{:.1}% incline&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">percent_incline</span>.<span class="ident">abs</span>() <span class="op">*</span> <span class="number">100.0</span>
-                )));
+                    app.primary.map.get_r(r).percent_incline.abs() * <span class="number">100.0
+                </span>)));
             }
         }
 
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;</span><span class="ident">::simple_event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">panel</span>)
+        &lt;<span class="kw">dyn </span>Layer&gt;::simple_event(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel)
     }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">txt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span> {
-            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.draw.draw(g);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>txt) = <span class="self">self</span>.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
         }
     }
-    <span class="kw">fn</span> <span class="ident">draw_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>);
+    <span class="kw">fn </span>draw_minimap(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw.unzoomed);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SteepStreets</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">SteepStreets</span> {
-        <span class="kw">let</span> (<span class="ident">colorer</span>, <span class="ident">steepest</span>, <span class="ident">uphill_legend</span>) <span class="op">=</span> <span class="ident">SteepStreets::make_colorer</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="kw">let</span> (<span class="ident">draw</span>, <span class="ident">legend</span>) <span class="op">=</span> <span class="ident">colorer</span>.<span class="ident">build</span>(<span class="ident">ctx</span>);
+<span class="kw">impl </span>SteepStreets {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; SteepStreets {
+        <span class="kw">let </span>(colorer, steepest, uphill_legend) = SteepStreets::make_colorer(ctx, app);
+        <span class="kw">let </span>(draw, legend) = colorer.build(ctx);
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Steep streets&quot;</span>),
-            <span class="ident">uphill_legend</span>,
-            <span class="ident">legend</span>,
-            <span class="macro">format!</span>(<span class="string">&quot;Steepest road: {:.0}% incline&quot;</span>, <span class="ident">steepest</span> <span class="op">*</span> <span class="number">100.0</span>).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            header(ctx, <span class="string">&quot;Steep streets&quot;</span>),
+            uphill_legend,
+            legend,
+            <span class="macro">format!</span>(<span class="string">&quot;Steepest road: {:.0}% incline&quot;</span>, steepest * <span class="number">100.0</span>).text_widget(ctx),
         ]))
-        .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .aligned_pair(PANEL_PLACEMENT)
+        .build(ctx);
 
-        <span class="ident">SteepStreets</span> {
-            <span class="ident">tooltip</span>: <span class="prelude-val">None</span>,
-            <span class="ident">draw</span>,
-            <span class="ident">panel</span>,
+        SteepStreets {
+            tooltip: <span class="prelude-val">None</span>,
+            draw,
+            panel,
         }
     }
 
-    <span class="doccomment">/// Also returns the steepest street and a row explaining the uphill arrows</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_colorer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">App</span>) -&gt; (<span class="ident">ColorDiscrete</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">f64</span>, <span class="ident">Widget</span>) {
-        <span class="kw">let</span> (<span class="ident">categories</span>, <span class="ident">uphill_legend</span>) <span class="op">=</span> <span class="ident">SteepStreets::make_legend</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorDiscrete::new</span>(<span class="ident">app</span>, <span class="ident">categories</span>);
+    <span class="doccomment">/// Also returns the steepest street and a row explaining the uphill arrows
+    </span><span class="kw">pub fn </span>make_colorer&lt;<span class="lifetime">&#39;a</span>&gt;(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>App) -&gt; (ColorDiscrete&lt;<span class="lifetime">&#39;a</span>&gt;, f64, Widget) {
+        <span class="kw">let </span>(categories, uphill_legend) = SteepStreets::make_legend(ctx);
+        <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorDiscrete::new(app, categories);
 
-        <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">5.0</span>);
-        <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steepest</span> <span class="op">=</span> <span class="number">0.0_f64</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">arrows</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
+        <span class="kw">let </span>arrow_len = Distance::meters(<span class="number">5.0</span>);
+        <span class="kw">let </span>thickness = Distance::meters(<span class="number">2.0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>steepest = <span class="number">0.0_f64</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>arrows = GeomBatch::new();
+        <span class="kw">for </span>r <span class="kw">in </span>app.primary.map.all_roads() {
+            <span class="kw">if </span>r.is_light_rail() {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">percent_incline</span>.<span class="ident">abs</span>();
-            <span class="ident">steepest</span> <span class="op">=</span> <span class="ident">steepest</span>.<span class="ident">max</span>(<span class="ident">pct</span>);
+            <span class="kw">let </span>pct = r.percent_incline.abs();
+            steepest = steepest.max(pct);
 
-            <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.03</span> {
-                <span class="string">&quot;0-3% (flat)&quot;</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.05</span> {
-                <span class="string">&quot;3-5%&quot;</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.08</span> {
-                <span class="string">&quot;5-8%&quot;</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.1</span> {
-                <span class="string">&quot;8-10%&quot;</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.2</span> {
-                <span class="string">&quot;10-20%&quot;</span>
-            } <span class="kw">else</span> {
-                <span class="string">&quot;&gt;20% (steep)&quot;</span>
-            };
-            <span class="ident">colorer</span>.<span class="ident">add_r</span>(<span class="ident">r</span>.<span class="ident">id</span>, <span class="ident">bucket</span>);
+            <span class="kw">let </span>bucket = <span class="kw">if </span>pct &lt; <span class="number">0.03 </span>{
+                <span class="string">&quot;0-3% (flat)&quot;
+            </span>} <span class="kw">else if </span>pct &lt; <span class="number">0.05 </span>{
+                <span class="string">&quot;3-5%&quot;
+            </span>} <span class="kw">else if </span>pct &lt; <span class="number">0.08 </span>{
+                <span class="string">&quot;5-8%&quot;
+            </span>} <span class="kw">else if </span>pct &lt; <span class="number">0.1 </span>{
+                <span class="string">&quot;8-10%&quot;
+            </span>} <span class="kw">else if </span>pct &lt; <span class="number">0.2 </span>{
+                <span class="string">&quot;10-20%&quot;
+            </span>} <span class="kw">else </span>{
+                <span class="string">&quot;&gt;20% (steep)&quot;
+            </span>};
+            colorer.add_r(r.id, bucket);
 
-            <span class="comment">// Draw arrows pointing uphill</span>
-            <span class="comment">// TODO Draw V&#39;s, not arrows.</span>
-            <span class="comment">// TODO Or try gradient colors.</span>
-            <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.03</span> {
+            <span class="comment">// Draw arrows pointing uphill
+            // TODO Draw V&#39;s, not arrows.
+            // TODO Or try gradient colors.
+            </span><span class="kw">if </span>pct &lt; <span class="number">0.03 </span>{
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">center_pts</span>.<span class="ident">clone</span>();
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">percent_incline</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-                <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
+            <span class="kw">let </span><span class="kw-2">mut </span>pl = r.center_pts.clone();
+            <span class="kw">if </span>r.percent_incline &lt; <span class="number">0.0 </span>{
+                pl = pl.reversed();
             }
 
-            <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">pl</span>.<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">15.0</span>), <span class="ident">arrow_len</span>) {
-                <span class="ident">arrows</span>.<span class="ident">push</span>(
-                    <span class="ident">Color::WHITE</span>,
-                    <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="op">-</span><span class="number">135.0</span>)),
-                        <span class="ident">pt</span>,
-                        <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">angle</span>.<span class="ident">rotate_degs</span>(<span class="number">135.0</span>)),
+            <span class="kw">for </span>(pt, angle) <span class="kw">in </span>pl.step_along(Distance::meters(<span class="number">15.0</span>), arrow_len) {
+                arrows.push(
+                    Color::WHITE,
+                    PolyLine::must_new(<span class="macro">vec!</span>[
+                        pt.project_away(arrow_len, angle.rotate_degs(-<span class="number">135.0</span>)),
+                        pt,
+                        pt.project_away(arrow_len, angle.rotate_degs(<span class="number">135.0</span>)),
                     ])
-                    .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>),
+                    .make_polygons(thickness),
                 );
             }
         }
-        <span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">append</span>(<span class="ident">arrows</span>);
+        colorer.draw.unzoomed.append(arrows);
 
-        (<span class="ident">colorer</span>, <span class="ident">steepest</span>, <span class="ident">uphill_legend</span>)
+        (colorer, steepest, uphill_legend)
     }
 
-    <span class="doccomment">/// Returns the colored categories used and a row explaining the uphill arrows</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; (<span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Color</span>)<span class="op">&gt;</span>, <span class="ident">Widget</span>) {
-        <span class="kw">let</span> <span class="ident">categories</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="comment">// Colors and buckets from https://github.com/ITSLeeds/slopes</span>
-            (<span class="string">&quot;0-3% (flat)&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#296B07&quot;</span>)),
-            (<span class="string">&quot;3-5%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#689A03&quot;</span>)),
-            (<span class="string">&quot;5-8%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#EB9A04&quot;</span>)),
-            (<span class="string">&quot;8-10%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#D30800&quot;</span>)),
-            (<span class="string">&quot;10-20%&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#980104&quot;</span>)),
-            (<span class="string">&quot;&gt;20% (steep)&quot;</span>, <span class="ident">Color::hex</span>(<span class="string">&quot;#680605&quot;</span>)),
+    <span class="doccomment">/// Returns the colored categories used and a row explaining the uphill arrows
+    </span><span class="kw">pub fn </span>make_legend(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; (Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Color)&gt;, Widget) {
+        <span class="kw">let </span>categories = <span class="macro">vec!</span>[
+            <span class="comment">// Colors and buckets from https://github.com/ITSLeeds/slopes
+            </span>(<span class="string">&quot;0-3% (flat)&quot;</span>, Color::hex(<span class="string">&quot;#296B07&quot;</span>)),
+            (<span class="string">&quot;3-5%&quot;</span>, Color::hex(<span class="string">&quot;#689A03&quot;</span>)),
+            (<span class="string">&quot;5-8%&quot;</span>, Color::hex(<span class="string">&quot;#EB9A04&quot;</span>)),
+            (<span class="string">&quot;8-10%&quot;</span>, Color::hex(<span class="string">&quot;#D30800&quot;</span>)),
+            (<span class="string">&quot;10-20%&quot;</span>, Color::hex(<span class="string">&quot;#980104&quot;</span>)),
+            (<span class="string">&quot;&gt;20% (steep)&quot;</span>, Color::hex(<span class="string">&quot;#680605&quot;</span>)),
         ];
 
-        <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">5.0</span>);
-        <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">2.0</span>);
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>);
-        <span class="kw">let</span> <span class="ident">panel_arrow</span> <span class="op">=</span> <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-            <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">135.0</span>)),
-            <span class="ident">pt</span>,
-            <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">arrow_len</span>, <span class="ident">Angle::degrees</span>(<span class="number">135.0</span>)),
+        <span class="kw">let </span>arrow_len = Distance::meters(<span class="number">5.0</span>);
+        <span class="kw">let </span>thickness = Distance::meters(<span class="number">2.0</span>);
+        <span class="kw">let </span>pt = Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>);
+        <span class="kw">let </span>panel_arrow = PolyLine::must_new(<span class="macro">vec!</span>[
+            pt.project_away(arrow_len, Angle::degrees(-<span class="number">135.0</span>)),
+            pt,
+            pt.project_away(arrow_len, Angle::degrees(<span class="number">135.0</span>)),
         ])
-        .<span class="ident">make_polygons</span>(<span class="ident">thickness</span>)
-        .<span class="ident">must_scale</span>(<span class="number">5.0</span>);
-        <span class="kw">let</span> <span class="ident">uphill_legend</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_primary_color</span>, <span class="ident">panel_arrow</span>)])
-                .<span class="ident">autocrop</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="string">&quot;points uphill&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+        .make_polygons(thickness)
+        .must_scale(<span class="number">5.0</span>);
+        <span class="kw">let </span>uphill_legend = Widget::row(<span class="macro">vec!</span>[
+            GeomBatch::from(<span class="macro">vec!</span>[(ctx.style().text_primary_color, panel_arrow)])
+                .autocrop()
+                .into_widget(ctx),
+            <span class="string">&quot;points uphill&quot;</span>.text_widget(ctx).centered_vert(),
         ]);
 
-        (<span class="ident">categories</span>, <span class="ident">uphill_legend</span>)
+        (categories, uphill_legend)
     }
 }
 
-<span class="kw">const</span> <span class="ident">INTERSECTION_SEARCH_RADIUS</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">300.0</span>);
-<span class="kw">const</span> <span class="ident">CONTOUR_STEP_SIZE</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">15.0</span>);
+<span class="kw">const </span>INTERSECTION_SEARCH_RADIUS: Distance = Distance::const_meters(<span class="number">300.0</span>);
+<span class="kw">const </span>CONTOUR_STEP_SIZE: Distance = Distance::const_meters(<span class="number">15.0</span>);
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ElevationContours</span> {
-    <span class="ident">tooltip</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>,
-    <span class="ident">closest_elevation</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>,
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>ElevationContours {
+    tooltip: <span class="prelude-ty">Option</span>&lt;Text&gt;,
+    closest_elevation: FindClosest&lt;Distance&gt;,
+    draw: ToggleZoomed,
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">ElevationContours</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Layer <span class="kw">for </span>ElevationContours {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="string">&quot;elevation&quot;</span>)
     }
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">elevation</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>
-                        .<span class="ident">closest_elevation</span>
-                        .<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">INTERSECTION_SEARCH_RADIUS</span>)
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            <span class="self">self</span>.tooltip = <span class="prelude-val">None</span>;
+            <span class="kw">if </span>ctx.canvas.is_unzoomed() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>((elevation, <span class="kw">_</span>)) = <span class="self">self
+                        </span>.closest_elevation
+                        .closest_pt(pt, INTERSECTION_SEARCH_RADIUS)
                     {
-                        <span class="self">self</span>.<span class="ident">tooltip</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Text::from</span>(<span class="macro">format!</span>(
+                        <span class="self">self</span>.tooltip = <span class="prelude-val">Some</span>(Text::from(<span class="macro">format!</span>(
                             <span class="string">&quot;Elevation: {}&quot;</span>,
-                            <span class="ident">elevation</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+                            elevation.to_string(<span class="kw-2">&amp;</span>app.opts.units)
                         )));
                     }
                 }
             }
         }
 
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Layer</span><span class="op">&gt;</span><span class="ident">::simple_event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">panel</span>)
+        &lt;<span class="kw">dyn </span>Layer&gt;::simple_event(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.panel)
     }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">txt</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">tooltip</span> {
-            <span class="ident">g</span>.<span class="ident">draw_mouse_tooltip</span>(<span class="ident">txt</span>.<span class="ident">clone</span>());
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.draw.draw(g);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>txt) = <span class="self">self</span>.tooltip {
+            g.draw_mouse_tooltip(txt.clone());
         }
     }
-    <span class="kw">fn</span> <span class="ident">draw_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>);
+    <span class="kw">fn </span>draw_minimap(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw.unzoomed);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ElevationContours</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">ElevationContours</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">low</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-            <span class="ident">low</span> <span class="op">=</span> <span class="ident">low</span>.<span class="ident">min</span>(<span class="ident">i</span>.<span class="ident">elevation</span>);
-            <span class="ident">high</span> <span class="op">=</span> <span class="ident">high</span>.<span class="ident">max</span>(<span class="ident">i</span>.<span class="ident">elevation</span>);
+<span class="kw">impl </span>ElevationContours {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; ElevationContours {
+        <span class="kw">let </span><span class="kw-2">mut </span>low = Distance::ZERO;
+        <span class="kw">let </span><span class="kw-2">mut </span>high = Distance::ZERO;
+        <span class="kw">for </span>i <span class="kw">in </span>app.primary.map.all_intersections() {
+            low = low.min(i.elevation);
+            high = high.max(i.elevation);
         }
 
-        <span class="kw">let</span> (<span class="ident">closest_elevation</span>, <span class="ident">draw</span>) <span class="op">=</span> <span class="ident">ElevationContours::make_contours</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">low</span>, <span class="ident">high</span>);
+        <span class="kw">let </span>(closest_elevation, draw) = ElevationContours::make_contours(ctx, app, low, high);
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Elevation&quot;</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            header(ctx, <span class="string">&quot;Elevation&quot;</span>),
             <span class="macro">format!</span>(
                 <span class="string">&quot;Elevation from {} to {}&quot;</span>,
-                <span class="ident">low</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>),
-                <span class="ident">high</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+                low.to_string(<span class="kw-2">&amp;</span>app.opts.units),
+                high.to_string(<span class="kw-2">&amp;</span>app.opts.units)
             )
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+            .text_widget(ctx),
         ]))
-        .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .aligned_pair(PANEL_PLACEMENT)
+        .build(ctx);
 
-        <span class="ident">ElevationContours</span> {
-            <span class="ident">tooltip</span>: <span class="prelude-val">None</span>,
-            <span class="ident">closest_elevation</span>,
-            <span class="ident">draw</span>,
-            <span class="ident">panel</span>,
+        ElevationContours {
+            tooltip: <span class="prelude-val">None</span>,
+            closest_elevation,
+            draw,
+            panel,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_contours</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">low</span>: <span class="ident">Distance</span>,
-        <span class="ident">high</span>: <span class="ident">Distance</span>,
-    ) -&gt; (<span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>, <span class="ident">ToggleZoomed</span>) {
-        <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">bounds</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
+    <span class="kw">pub fn </span>make_contours(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        low: Distance,
+        high: Distance,
+    ) -&gt; (FindClosest&lt;Distance&gt;, ToggleZoomed) {
+        <span class="kw">let </span>bounds = app.primary.map.get_bounds();
+        <span class="kw">let </span><span class="kw-2">mut </span>closest = FindClosest::new(bounds);
+        <span class="kw">let </span><span class="kw-2">mut </span>draw = ToggleZoomed::builder();
 
-        <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;generate contours&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;gather input&quot;</span>);
+        ctx.loading_screen(<span class="string">&quot;generate contours&quot;</span>, |<span class="kw">_</span>, timer| {
+            timer.start(<span class="string">&quot;gather input&quot;</span>);
 
-            <span class="kw">let</span> <span class="ident">resolution_m</span> <span class="op">=</span> <span class="number">30.0</span>;
-            <span class="comment">// Elevation in meters</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">grid</span>: <span class="ident">Grid</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Grid::new</span>(
-                (<span class="ident">bounds</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="ident">resolution_m</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
-                (<span class="ident">bounds</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="ident">resolution_m</span>).<span class="ident">ceil</span>() <span class="kw">as</span> <span class="ident">usize</span>,
+            <span class="kw">let </span>resolution_m = <span class="number">30.0</span>;
+            <span class="comment">// Elevation in meters
+            </span><span class="kw">let </span><span class="kw-2">mut </span>grid: Grid&lt;f64&gt; = Grid::new(
+                (bounds.width() / resolution_m).ceil() <span class="kw">as </span>usize,
+                (bounds.height() / resolution_m).ceil() <span class="kw">as </span>usize,
                 <span class="number">0.0</span>,
             );
 
-            <span class="comment">// Since gaps in the grid mess stuff up, just fill out each grid cell. Explicitly do the</span>
-            <span class="comment">// interpolation to the nearest measurement we have.</span>
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-                <span class="comment">// TODO Or maybe even just the center?</span>
-                <span class="ident">closest</span>.<span class="ident">add_polygon</span>(<span class="ident">i</span>.<span class="ident">elevation</span>, <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">polygon</span>);
+            <span class="comment">// Since gaps in the grid mess stuff up, just fill out each grid cell. Explicitly do the
+            // interpolation to the nearest measurement we have.
+            </span><span class="kw">for </span>i <span class="kw">in </span>app.primary.map.all_intersections() {
+                <span class="comment">// TODO Or maybe even just the center?
+                </span>closest.add_polygon(i.elevation, <span class="kw-2">&amp;</span>i.polygon);
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">grid</span>.<span class="ident">width</span> {
-                <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">grid</span>.<span class="ident">height</span> {
-                    <span class="ident">indices</span>.<span class="ident">push</span>((<span class="ident">x</span>, <span class="ident">y</span>));
+            <span class="kw">let </span><span class="kw-2">mut </span>indices = Vec::new();
+            <span class="kw">for </span>x <span class="kw">in </span><span class="number">0</span>..grid.width {
+                <span class="kw">for </span>y <span class="kw">in </span><span class="number">0</span>..grid.height {
+                    indices.push((x, y));
                 }
             }
-            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">elevation</span>) <span class="kw">in</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(<span class="string">&quot;fill out grid&quot;</span>, <span class="ident">indices</span>, <span class="op">|</span>(<span class="ident">x</span>, <span class="ident">y</span>)<span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>((<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">resolution_m</span>, (<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">resolution_m</span>);
-                <span class="kw">let</span> <span class="ident">elevation</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">INTERSECTION_SEARCH_RADIUS</span>) {
-                    <span class="prelude-val">Some</span>((<span class="ident">e</span>, <span class="kw">_</span>)) =&gt; <span class="ident">e</span>,
-                    <span class="comment">// No intersections nearby... assume ocean?</span>
-                    <span class="prelude-val">None</span> =&gt; <span class="ident">Distance::ZERO</span>,
+            <span class="kw">for </span>(idx, elevation) <span class="kw">in </span>timer.parallelize(<span class="string">&quot;fill out grid&quot;</span>, indices, |(x, y)| {
+                <span class="kw">let </span>pt = Pt2D::new((x <span class="kw">as </span>f64) * resolution_m, (y <span class="kw">as </span>f64) * resolution_m);
+                <span class="kw">let </span>elevation = <span class="kw">match </span>closest.closest_pt(pt, INTERSECTION_SEARCH_RADIUS) {
+                    <span class="prelude-val">Some</span>((e, <span class="kw">_</span>)) =&gt; e,
+                    <span class="comment">// No intersections nearby... assume ocean?
+                    </span><span class="prelude-val">None </span>=&gt; Distance::ZERO,
                 };
-                (<span class="ident">grid</span>.<span class="ident">idx</span>(<span class="ident">x</span>, <span class="ident">y</span>), <span class="ident">elevation</span>)
+                (grid.idx(x, y), elevation)
             }) {
-                <span class="ident">grid</span>.<span class="ident">data</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">elevation</span>.<span class="ident">inner_meters</span>();
+                grid.data[idx] = elevation.inner_meters();
             }
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;gather input&quot;</span>);
+            timer.stop(<span class="string">&quot;gather input&quot;</span>);
 
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;calculate contours&quot;</span>);
-            <span class="comment">// Generate polygons covering the contour line where the cost in the grid crosses these</span>
-            <span class="comment">// threshold values.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">thresholds</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">low</span>;
-            <span class="kw">while</span> <span class="ident">x</span> <span class="op">&lt;</span> <span class="ident">high</span> {
-                <span class="ident">thresholds</span>.<span class="ident">push</span>(<span class="ident">x</span>.<span class="ident">inner_meters</span>());
-                <span class="ident">x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">CONTOUR_STEP_SIZE</span>;
+            timer.start(<span class="string">&quot;calculate contours&quot;</span>);
+            <span class="comment">// Generate polygons covering the contour line where the cost in the grid crosses these
+            // threshold values.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>thresholds: Vec&lt;f64&gt; = Vec::new();
+            <span class="kw">let </span><span class="kw-2">mut </span>x = low;
+            <span class="kw">while </span>x &lt; high {
+                thresholds.push(x.inner_meters());
+                x += CONTOUR_STEP_SIZE;
             }
-            <span class="comment">// And color the polygon for each threshold</span>
-            <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">ColorScale</span>(<span class="macro">vec!</span>[<span class="ident">Color::WHITE</span>, <span class="ident">Color::RED</span>]);
-            <span class="kw">let</span> <span class="ident">colors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> <span class="op">=</span> (<span class="number">0</span>..<span class="ident">thresholds</span>.<span class="ident">len</span>())
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">scale</span>.<span class="ident">eval</span>((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">thresholds</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span>)))
-                .<span class="ident">collect</span>();
-            <span class="kw">let</span> <span class="ident">smooth</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="ident">contour_builder</span> <span class="op">=</span>
-                <span class="ident">contour::ContourBuilder::new</span>(<span class="ident">grid</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">grid</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u32</span>, <span class="ident">smooth</span>);
-            <span class="kw">let</span> <span class="ident">contours</span> <span class="op">=</span> <span class="ident">contour_builder</span>.<span class="ident">contours</span>(<span class="kw-2">&amp;</span><span class="ident">grid</span>.<span class="ident">data</span>, <span class="kw-2">&amp;</span><span class="ident">thresholds</span>).<span class="ident">unwrap</span>();
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;calculate contours&quot;</span>);
+            <span class="comment">// And color the polygon for each threshold
+            </span><span class="kw">let </span>scale = ColorScale(<span class="macro">vec!</span>[Color::WHITE, Color::RED]);
+            <span class="kw">let </span>colors: Vec&lt;Color&gt; = (<span class="number">0</span>..thresholds.len())
+                .map(|i| scale.eval((i <span class="kw">as </span>f64) / (thresholds.len() <span class="kw">as </span>f64)))
+                .collect();
+            <span class="kw">let </span>smooth = <span class="bool-val">false</span>;
+            <span class="kw">let </span>contour_builder =
+                contour::ContourBuilder::new(grid.width <span class="kw">as </span>u32, grid.height <span class="kw">as </span>u32, smooth);
+            <span class="kw">let </span>contours = contour_builder.contours(<span class="kw-2">&amp;</span>grid.data, <span class="kw-2">&amp;</span>thresholds).unwrap();
+            timer.stop(<span class="string">&quot;calculate contours&quot;</span>);
 
-            <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;draw&quot;</span>, <span class="ident">contours</span>.<span class="ident">len</span>());
-            <span class="kw">for</span> (<span class="ident">contour</span>, <span class="ident">color</span>) <span class="kw">in</span> <span class="ident">contours</span>.<span class="ident">into_iter</span>().<span class="ident">zip</span>(<span class="ident">colors</span>) {
-                <span class="ident">timer</span>.<span class="ident">next</span>();
-                <span class="kw">let</span> (<span class="ident">polygons</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">contour</span>.<span class="ident">into_inner</span>();
-                <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">polygons</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">Polygon::try_from</span>(<span class="ident">p</span>) {
-                        <span class="kw">let</span> <span class="ident">poly</span> <span class="op">=</span> <span class="ident">p</span>.<span class="ident">must_scale</span>(<span class="ident">resolution_m</span>);
-                        <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(
-                            <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-                            <span class="ident">poly</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">5.0</span>)),
+            timer.start_iter(<span class="string">&quot;draw&quot;</span>, contours.len());
+            <span class="kw">for </span>(contour, color) <span class="kw">in </span>contours.into_iter().zip(colors) {
+                timer.next();
+                <span class="kw">let </span>(polygons, <span class="kw">_</span>) = contour.into_inner();
+                <span class="kw">for </span>p <span class="kw">in </span>polygons {
+                    <span class="kw">if let </span><span class="prelude-val">Ok</span>(p) = Polygon::try_from(p) {
+                        <span class="kw">let </span>poly = p.must_scale(resolution_m);
+                        draw.unzoomed.push(
+                            Color::BLACK.alpha(<span class="number">0.5</span>),
+                            poly.to_outline(Distance::meters(<span class="number">5.0</span>)),
                         );
-                        <span class="ident">draw</span>.<span class="ident">unzoomed</span>.<span class="ident">push</span>(<span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.1</span>), <span class="ident">poly</span>);
+                        draw.unzoomed.push(color.alpha(<span class="number">0.1</span>), poly);
                     }
                 }
             }
         });
 
-        (<span class="ident">closest</span>, <span class="ident">draw</span>.<span class="ident">build</span>(<span class="ident">ctx</span>))
+        (closest, draw.build(ctx))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/v1.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>v1.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/v1.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>v1.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -840,146 +840,146 @@
 <span id="840">840</span>
 <span id="841">841</span>
 <span id="842">842</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">VecDeque</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, VecDeque};
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>, <span class="ident">Speed</span>, <span class="ident">EPSILON_DIST</span>};
+<span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>geom::{Distance, Duration, PolyLine, Polygon, Ring, Speed, EPSILON_DIST};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">RoadID</span>, <span class="ident">Traversable</span>,
-    <span class="ident">TurnID</span>, <span class="ident">UberTurn</span>,
+<span class="kw">use crate</span>::{
+    BuildingID, DirectedRoadID, LaneID, Map, PathConstraints, Position, RoadID, Traversable,
+    TurnID, UberTurn,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathStep</span> {
-    <span class="doccomment">/// Original direction</span>
-    <span class="ident">Lane</span>(<span class="ident">LaneID</span>),
-    <span class="doccomment">/// Sidewalks only!</span>
-    <span class="ident">ContraflowLane</span>(<span class="ident">LaneID</span>),
-    <span class="ident">Turn</span>(<span class="ident">TurnID</span>),
-    <span class="ident">ContraflowTurn</span>(<span class="ident">TurnID</span>),
+<span class="attribute">#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord)]
+</span><span class="kw">pub enum </span>PathStep {
+    <span class="doccomment">/// Original direction
+    </span>Lane(LaneID),
+    <span class="doccomment">/// Sidewalks only!
+    </span>ContraflowLane(LaneID),
+    Turn(TurnID),
+    ContraflowTurn(TurnID),
 }
 
-<span class="kw">impl</span> <span class="ident">PathStep</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_traversable</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Traversable</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathStep::Lane</span>(<span class="ident">id</span>) =&gt; <span class="ident">Traversable::Lane</span>(<span class="kw-2">*</span><span class="ident">id</span>),
-            <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">id</span>) =&gt; <span class="ident">Traversable::Lane</span>(<span class="kw-2">*</span><span class="ident">id</span>),
-            <span class="ident">PathStep::Turn</span>(<span class="ident">id</span>) =&gt; <span class="ident">Traversable::Turn</span>(<span class="kw-2">*</span><span class="ident">id</span>),
-            <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">id</span>) =&gt; <span class="ident">Traversable::Turn</span>(<span class="kw-2">*</span><span class="ident">id</span>),
+<span class="kw">impl </span>PathStep {
+    <span class="kw">pub fn </span>as_traversable(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Traversable {
+        <span class="kw">match </span><span class="self">self </span>{
+            PathStep::Lane(id) =&gt; Traversable::Lane(<span class="kw-2">*</span>id),
+            PathStep::ContraflowLane(id) =&gt; Traversable::Lane(<span class="kw-2">*</span>id),
+            PathStep::Turn(id) =&gt; Traversable::Turn(<span class="kw-2">*</span>id),
+            PathStep::ContraflowTurn(id) =&gt; Traversable::Turn(<span class="kw-2">*</span>id),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_lane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LaneID</span> {
-        <span class="self">self</span>.<span class="ident">as_traversable</span>().<span class="ident">as_lane</span>()
+    <span class="kw">pub fn </span>as_lane(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LaneID {
+        <span class="self">self</span>.as_traversable().as_lane()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_turn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">TurnID</span> {
-        <span class="self">self</span>.<span class="ident">as_traversable</span>().<span class="ident">as_turn</span>()
+    <span class="kw">pub fn </span>as_turn(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; TurnID {
+        <span class="self">self</span>.as_traversable().as_turn()
     }
 
-    <span class="comment">// start is relative to the start of the actual geometry -- so from the lane&#39;s real start for</span>
-    <span class="comment">// ContraflowLane.</span>
-    <span class="kw">fn</span> <span class="ident">exact_slice</span>(
+    <span class="comment">// start is relative to the start of the actual geometry -- so from the lane&#39;s real start for
+    // ContraflowLane.
+    </span><span class="kw">fn </span>exact_slice(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">start</span>: <span class="ident">Distance</span>,
-        <span class="ident">dist_ahead</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">dist_ahead</span> {
-            <span class="kw">if</span> <span class="ident">d</span> <span class="op">&lt;</span> <span class="ident">Distance::ZERO</span> {
-                <span class="macro">panic!</span>(<span class="string">&quot;Negative dist_ahead?! {}&quot;</span>, <span class="ident">d</span>);
+        map: <span class="kw-2">&amp;</span>Map,
+        start: Distance,
+        dist_ahead: <span class="prelude-ty">Option</span>&lt;Distance&gt;,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PolyLine&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = dist_ahead {
+            <span class="kw">if </span>d &lt; Distance::ZERO {
+                <span class="macro">panic!</span>(<span class="string">&quot;Negative dist_ahead?! {}&quot;</span>, d);
             }
-            <span class="kw">if</span> <span class="ident">d</span> <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
+            <span class="kw">if </span>d == Distance::ZERO {
                 <span class="macro">bail!</span>(<span class="string">&quot;0 dist ahead for slice&quot;</span>);
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathStep::Lane</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">lane_center_pts</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">dist_ahead</span> {
-                    <span class="ident">pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">start</span>, <span class="ident">start</span> <span class="op">+</span> <span class="ident">d</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">start</span>, <span class="ident">pts</span>.<span class="ident">length</span>())
+        <span class="kw">match </span><span class="self">self </span>{
+            PathStep::Lane(id) =&gt; {
+                <span class="kw">let </span>pts = <span class="kw-2">&amp;</span>map.get_l(<span class="kw-2">*</span>id).lane_center_pts;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = dist_ahead {
+                    pts.maybe_exact_slice(start, start + d)
+                } <span class="kw">else </span>{
+                    pts.maybe_exact_slice(start, pts.length())
                 }
             }
-            <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">lane_center_pts</span>.<span class="ident">reversed</span>();
-                <span class="kw">let</span> <span class="ident">reversed_start</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">start</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">dist_ahead</span> {
-                    <span class="ident">pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">reversed_start</span>, <span class="ident">reversed_start</span> <span class="op">+</span> <span class="ident">d</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">reversed_start</span>, <span class="ident">pts</span>.<span class="ident">length</span>())
+            PathStep::ContraflowLane(id) =&gt; {
+                <span class="kw">let </span>pts = map.get_l(<span class="kw-2">*</span>id).lane_center_pts.reversed();
+                <span class="kw">let </span>reversed_start = pts.length() - start;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = dist_ahead {
+                    pts.maybe_exact_slice(reversed_start, reversed_start + d)
+                } <span class="kw">else </span>{
+                    pts.maybe_exact_slice(reversed_start, pts.length())
                 }
             }
-            <span class="ident">PathStep::Turn</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">geom</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">dist_ahead</span> {
-                    <span class="ident">pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">start</span>, <span class="ident">start</span> <span class="op">+</span> <span class="ident">d</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">start</span>, <span class="ident">pts</span>.<span class="ident">length</span>())
+            PathStep::Turn(id) =&gt; {
+                <span class="kw">let </span>pts = <span class="kw-2">&amp;</span>map.get_t(<span class="kw-2">*</span>id).geom;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = dist_ahead {
+                    pts.maybe_exact_slice(start, start + d)
+                } <span class="kw">else </span>{
+                    pts.maybe_exact_slice(start, pts.length())
                 }
             }
-            <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">geom</span>.<span class="ident">reversed</span>();
-                <span class="kw">let</span> <span class="ident">reversed_start</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="ident">start</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">d</span>) <span class="op">=</span> <span class="ident">dist_ahead</span> {
-                    <span class="ident">pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">reversed_start</span>, <span class="ident">reversed_start</span> <span class="op">+</span> <span class="ident">d</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">pts</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">reversed_start</span>, <span class="ident">pts</span>.<span class="ident">length</span>())
+            PathStep::ContraflowTurn(id) =&gt; {
+                <span class="kw">let </span>pts = <span class="kw-2">&amp;</span>map.get_t(<span class="kw-2">*</span>id).geom.reversed();
+                <span class="kw">let </span>reversed_start = pts.length() - start;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(d) = dist_ahead {
+                    pts.maybe_exact_slice(reversed_start, reversed_start + d)
+                } <span class="kw">else </span>{
+                    pts.maybe_exact_slice(reversed_start, pts.length())
                 }
             }
         }
     }
 
-    <span class="doccomment">/// The single definitive place to determine how fast somebody could go along a single road or</span>
-    <span class="doccomment">/// turn. This should be used for pathfinding and simulation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_speed_along</span>(
+    <span class="doccomment">/// The single definitive place to determine how fast somebody could go along a single road or
+    /// turn. This should be used for pathfinding and simulation.
+    </span><span class="kw">pub fn </span>max_speed_along(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">max_speed_on_flat_ground</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="ident">Speed</span> {
-        <span class="self">self</span>.<span class="ident">max_speed_and_incline_along</span>(<span class="ident">max_speed_on_flat_ground</span>, <span class="ident">constraints</span>, <span class="ident">map</span>)
-            .<span class="number">0</span>
-    }
+        max_speed_on_flat_ground: <span class="prelude-ty">Option</span>&lt;Speed&gt;,
+        constraints: PathConstraints,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; Speed {
+        <span class="self">self</span>.max_speed_and_incline_along(max_speed_on_flat_ground, constraints, map)
+            .<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// The single definitive place to determine how fast somebody could go along a single road or</span>
-    <span class="doccomment">/// turn. This should be used for pathfinding and simulation. Returns (speed, percent incline).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_speed_and_incline_along</span>(
+    <span class="doccomment">/// The single definitive place to determine how fast somebody could go along a single road or
+    /// turn. This should be used for pathfinding and simulation. Returns (speed, percent incline).
+    </span><span class="kw">pub fn </span>max_speed_and_incline_along(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">max_speed_on_flat_ground</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; (<span class="ident">Speed</span>, <span class="ident">f64</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">Traversable::max_speed_along_road</span>(
-                <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">get_directed_parent</span>(),
-                <span class="ident">max_speed_on_flat_ground</span>,
-                <span class="ident">constraints</span>,
-                <span class="ident">map</span>,
+        max_speed_on_flat_ground: <span class="prelude-ty">Option</span>&lt;Speed&gt;,
+        constraints: PathConstraints,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; (Speed, f64) {
+        <span class="kw">match </span><span class="self">self </span>{
+            PathStep::Lane(l) =&gt; Traversable::max_speed_along_road(
+                map.get_l(<span class="kw-2">*</span>l).get_directed_parent(),
+                max_speed_on_flat_ground,
+                constraints,
+                map,
             ),
-            <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) =&gt; <span class="ident">Traversable::max_speed_along_road</span>(
+            PathStep::ContraflowLane(l) =&gt; Traversable::max_speed_along_road(
                 {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">dr</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">get_directed_parent</span>();
-                    <span class="ident">dr</span>.<span class="ident">dir</span> <span class="op">=</span> <span class="ident">dr</span>.<span class="ident">dir</span>.<span class="ident">opposite</span>();
-                    <span class="ident">dr</span>
+                    <span class="kw">let </span><span class="kw-2">mut </span>dr = map.get_l(<span class="kw-2">*</span>l).get_directed_parent();
+                    dr.dir = dr.dir.opposite();
+                    dr
                 },
-                <span class="ident">max_speed_on_flat_ground</span>,
-                <span class="ident">constraints</span>,
-                <span class="ident">map</span>,
+                max_speed_on_flat_ground,
+                constraints,
+                map,
             ),
-            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; (
-                <span class="ident">Traversable::max_speed_along_movement</span>(
-                    <span class="ident">t</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>),
-                    <span class="ident">max_speed_on_flat_ground</span>,
-                    <span class="ident">constraints</span>,
-                    <span class="ident">map</span>,
+            PathStep::Turn(t) | PathStep::ContraflowTurn(t) =&gt; (
+                Traversable::max_speed_along_movement(
+                    t.to_movement(map),
+                    max_speed_on_flat_ground,
+                    constraints,
+                    map,
                 ),
                 <span class="number">0.0</span>,
             ),
@@ -987,664 +987,664 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Path</span> {
-    <span class="ident">steps</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>,
-    <span class="comment">// The original request used to produce this path. Calling shift(), add(), modify_step(), etc</span>
-    <span class="comment">// will NOT affect this.</span>
-    <span class="ident">orig_req</span>: <span class="ident">PathRequest</span>,
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+</span><span class="kw">pub struct </span>Path {
+    steps: VecDeque&lt;PathStep&gt;,
+    <span class="comment">// The original request used to produce this path. Calling shift(), add(), modify_step(), etc
+    // will NOT affect this.
+    </span>orig_req: PathRequest,
 
-    <span class="comment">// Also track progress along the original path.</span>
-    <span class="ident">total_length</span>: <span class="ident">Distance</span>,
-    <span class="ident">crossed_so_far</span>: <span class="ident">Distance</span>,
+    <span class="comment">// Also track progress along the original path.
+    </span>total_length: Distance,
+    crossed_so_far: Distance,
 
-    <span class="comment">// A list of uber-turns encountered by this path, in order. The steps are flattened into the</span>
-    <span class="comment">// sequence of turn-&gt;lane-&gt;...-&gt;turn.</span>
-    <span class="ident">uber_turns</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span>,
-    <span class="comment">// Is the current_step in the middle of an UberTurn?</span>
-    <span class="ident">currently_inside_ut</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span>,
+    <span class="comment">// A list of uber-turns encountered by this path, in order. The steps are flattened into the
+    // sequence of turn-&gt;lane-&gt;...-&gt;turn.
+    </span>uber_turns: VecDeque&lt;UberTurn&gt;,
+    <span class="comment">// Is the current_step in the middle of an UberTurn?
+    </span>currently_inside_ut: <span class="prelude-ty">Option</span>&lt;UberTurn&gt;,
 
-    <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
+    blocked_starts: Vec&lt;LaneID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Path</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">steps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span>,
-        <span class="ident">orig_req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span>,
-        <span class="ident">blocked_starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Path</span> {
-        <span class="comment">// Haven&#39;t seen problems here in a very long time. Noticeably saves some time to skip.</span>
-        <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="ident">validate_continuity</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">steps</span>);
+<span class="kw">impl </span>Path {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        map: <span class="kw-2">&amp;</span>Map,
+        steps: Vec&lt;PathStep&gt;,
+        orig_req: PathRequest,
+        uber_turns: Vec&lt;UberTurn&gt;,
+        blocked_starts: Vec&lt;LaneID&gt;,
+    ) -&gt; Path {
+        <span class="comment">// Haven&#39;t seen problems here in a very long time. Noticeably saves some time to skip.
+        </span><span class="kw">if </span><span class="bool-val">false </span>{
+            validate_continuity(map, <span class="kw-2">&amp;</span>steps);
         }
-        <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="ident">validate_restrictions</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">steps</span>);
+        <span class="kw">if </span><span class="bool-val">false </span>{
+            validate_restrictions(map, <span class="kw-2">&amp;</span>steps);
         }
-        <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="ident">validate_zones</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">steps</span>, <span class="kw-2">&amp;</span><span class="ident">orig_req</span>);
+        <span class="kw">if </span><span class="bool-val">false </span>{
+            validate_zones(map, <span class="kw-2">&amp;</span>steps, <span class="kw-2">&amp;</span>orig_req);
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path</span> {
-            <span class="ident">steps</span>: <span class="ident">VecDeque::from</span>(<span class="ident">steps</span>),
-            <span class="ident">orig_req</span>,
-            <span class="ident">total_length</span>: <span class="ident">Distance::ZERO</span>,
-            <span class="ident">crossed_so_far</span>: <span class="ident">Distance::ZERO</span>,
-            <span class="ident">uber_turns</span>: <span class="ident">uber_turns</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-            <span class="ident">currently_inside_ut</span>: <span class="prelude-val">None</span>,
-            <span class="ident">blocked_starts</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>path = Path {
+            steps: VecDeque::from(steps),
+            orig_req,
+            total_length: Distance::ZERO,
+            crossed_so_far: Distance::ZERO,
+            uber_turns: uber_turns.into_iter().collect(),
+            currently_inside_ut: <span class="prelude-val">None</span>,
+            blocked_starts,
         };
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">path</span>.<span class="ident">steps</span> {
-            <span class="ident">path</span>.<span class="ident">total_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">dist_crossed_from_step</span>(<span class="ident">map</span>, <span class="ident">step</span>);
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span>path.steps {
+            path.total_length += path.dist_crossed_from_step(map, step);
         }
-        <span class="ident">path</span>
+        path
     }
 
-    <span class="doccomment">/// Once we finish this PathStep, how much distance will be crossed? If the step is at the</span>
-    <span class="doccomment">/// beginning or end of our path, then the full length may not be used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dist_crossed_from_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">step</span>: <span class="kw-2">&amp;</span><span class="ident">PathStep</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="kw">match</span> <span class="ident">step</span> {
-            <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>);
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">start</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">lane</span>.<span class="ident">id</span> {
-                    <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>()
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">lane</span>.<span class="ident">id</span> {
-                    <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">lane</span>.<span class="ident">length</span>()
+    <span class="doccomment">/// Once we finish this PathStep, how much distance will be crossed? If the step is at the
+    /// beginning or end of our path, then the full length may not be used.
+    </span><span class="kw">pub fn </span>dist_crossed_from_step(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, step: <span class="kw-2">&amp;</span>PathStep) -&gt; Distance {
+        <span class="kw">match </span>step {
+            PathStep::Lane(l) =&gt; {
+                <span class="kw">let </span>lane = map.get_l(<span class="kw-2">*</span>l);
+                <span class="kw">if </span><span class="self">self</span>.orig_req.start.lane() == lane.id {
+                    lane.length() - <span class="self">self</span>.orig_req.start.dist_along()
+                } <span class="kw">else if </span><span class="self">self</span>.orig_req.end.lane() == lane.id {
+                    <span class="self">self</span>.orig_req.end.dist_along()
+                } <span class="kw">else </span>{
+                    lane.length()
                 }
             }
-            <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>);
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">start</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">lane</span>.<span class="ident">id</span> {
-                    <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>()
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">lane</span>.<span class="ident">id</span> {
-                    <span class="ident">lane</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">lane</span>.<span class="ident">length</span>()
+            PathStep::ContraflowLane(l) =&gt; {
+                <span class="kw">let </span>lane = map.get_l(<span class="kw-2">*</span>l);
+                <span class="kw">if </span><span class="self">self</span>.orig_req.start.lane() == lane.id {
+                    <span class="self">self</span>.orig_req.start.dist_along()
+                } <span class="kw">else if </span><span class="self">self</span>.orig_req.end.lane() == lane.id {
+                    lane.length() - <span class="self">self</span>.orig_req.end.dist_along()
+                } <span class="kw">else </span>{
+                    lane.length()
                 }
             }
-            <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">length</span>(),
+            PathStep::Turn(t) | PathStep::ContraflowTurn(t) =&gt; map.get_t(<span class="kw-2">*</span>t).geom.length(),
         }
     }
 
-    <span class="doccomment">/// The original PathRequest used to produce this path. If the path has been modified since</span>
-    <span class="doccomment">/// creation, the start and end of the request won&#39;t match up with the current path steps.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_req</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PathRequest</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">orig_req</span>
+    <span class="doccomment">/// The original PathRequest used to produce this path. If the path has been modified since
+    /// creation, the start and end of the request won&#39;t match up with the current path steps.
+    </span><span class="kw">pub fn </span>get_req(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PathRequest {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.orig_req
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crossed_so_far</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="self">self</span>.<span class="ident">crossed_so_far</span>
+    <span class="kw">pub fn </span>crossed_so_far(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Distance {
+        <span class="self">self</span>.crossed_so_far
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">total_length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="self">self</span>.<span class="ident">total_length</span>
+    <span class="kw">pub fn </span>total_length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Distance {
+        <span class="self">self</span>.total_length
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent_dist_crossed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="comment">// Sometimes this happens</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">==</span> <span class="ident">Distance::ZERO</span> {
-            <span class="kw">return</span> <span class="number">1.0</span>;
+    <span class="kw">pub fn </span>percent_dist_crossed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="comment">// Sometimes this happens
+        </span><span class="kw">if </span><span class="self">self</span>.total_length == Distance::ZERO {
+            <span class="kw">return </span><span class="number">1.0</span>;
         }
-        <span class="self">self</span>.<span class="ident">crossed_so_far</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">total_length</span>
+        <span class="self">self</span>.crossed_so_far / <span class="self">self</span>.total_length
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">is_empty</span>()
+    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.steps.is_empty()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_last_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>
-    }
+    <span class="kw">pub fn </span>is_last_step(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.steps.len() == <span class="number">1
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">isnt_last_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span>
-    }
+    <span class="kw">pub fn </span>isnt_last_step(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.steps.len() &gt; <span class="number">1
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">currently_inside_ut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">currently_inside_ut</span>
+    <span class="kw">pub fn </span>currently_inside_ut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="prelude-ty">Option</span>&lt;UberTurn&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.currently_inside_ut
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">about_to_start_ut</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">UberTurn</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>about_to_start_ut(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>UberTurn&gt; {
+        <span class="kw">if </span><span class="self">self</span>.steps.len() &lt; <span class="number">2 </span>|| <span class="self">self</span>.uber_turns.is_empty() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">1</span>] {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">uber_turns</span>[<span class="number">0</span>].<span class="ident">path</span>[<span class="number">0</span>] <span class="op">==</span> <span class="ident">t</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">uber_turns</span>[<span class="number">0</span>]);
+        <span class="kw">if let </span>PathStep::Turn(t) = <span class="self">self</span>.steps[<span class="number">1</span>] {
+            <span class="kw">if </span><span class="self">self</span>.uber_turns[<span class="number">0</span>].path[<span class="number">0</span>] == t {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.uber_turns[<span class="number">0</span>]);
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">shift</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">PathStep</span> {
-        <span class="kw">let</span> <span class="ident">step</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">crossed_so_far</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">dist_crossed_from_step</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">step</span>);
+    <span class="kw">pub fn </span>shift(<span class="kw-2">&amp;mut </span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; PathStep {
+        <span class="kw">let </span>step = <span class="self">self</span>.steps.pop_front().unwrap();
+        <span class="self">self</span>.crossed_so_far += <span class="self">self</span>.dist_crossed_from_step(map, <span class="kw-2">&amp;</span>step);
 
-        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::collapsible_if</span>)]</span> <span class="comment">// better readability</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">ut</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">currently_inside_ut</span> {
-            <span class="kw">if</span> <span class="ident">step</span> <span class="op">==</span> <span class="ident">PathStep::Turn</span>(<span class="kw-2">*</span><span class="ident">ut</span>.<span class="ident">path</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>()) {
-                <span class="self">self</span>.<span class="ident">currently_inside_ut</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="attribute">#[allow(clippy::collapsible_if)] </span><span class="comment">// better readability
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>ut) = <span class="self">self</span>.currently_inside_ut {
+            <span class="kw">if </span>step == PathStep::Turn(<span class="kw-2">*</span>ut.path.last().unwrap()) {
+                <span class="self">self</span>.currently_inside_ut = <span class="prelude-val">None</span>;
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">0</span>] <span class="op">==</span> <span class="ident">PathStep::Turn</span>(<span class="self">self</span>.<span class="ident">uber_turns</span>[<span class="number">0</span>].<span class="ident">path</span>[<span class="number">0</span>]) {
-                <span class="self">self</span>.<span class="ident">currently_inside_ut</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">uber_turns</span>.<span class="ident">pop_front</span>().<span class="ident">unwrap</span>());
-            }
-        }
-
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-            <span class="comment">// TODO When handle_uber_turns experiment is turned off, this will crash</span>
-            <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">uber_turns</span>.<span class="ident">is_empty</span>());
-            <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">currently_inside_ut</span>.<span class="ident">is_none</span>());
-        }
-
-        <span class="ident">step</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">step</span>: <span class="ident">PathStep</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">PathStep::Lane</span>(<span class="ident">l</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">back</span>() {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">l</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">end</span>.<span class="ident">lane</span>() {
-                <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">length</span>() <span class="op">-</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>();
+        } <span class="kw">else if </span>!<span class="self">self</span>.steps.is_empty() &amp;&amp; !<span class="self">self</span>.uber_turns.is_empty() {
+            <span class="kw">if </span><span class="self">self</span>.steps[<span class="number">0</span>] == PathStep::Turn(<span class="self">self</span>.uber_turns[<span class="number">0</span>].path[<span class="number">0</span>]) {
+                <span class="self">self</span>.currently_inside_ut = <span class="prelude-val">Some</span>(<span class="self">self</span>.uber_turns.pop_front().unwrap());
             }
         }
-        <span class="comment">// TODO We assume we&#39;ll be going along the full length of this new step</span>
-        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">+</span><span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
 
-        <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">push_back</span>(<span class="ident">step</span>);
-        <span class="comment">// TODO Maybe need to amend uber_turns?</span>
+        <span class="kw">if </span><span class="self">self</span>.steps.len() == <span class="number">1 </span>{
+            <span class="comment">// TODO When handle_uber_turns experiment is turned off, this will crash
+            </span><span class="macro">assert!</span>(<span class="self">self</span>.uber_turns.is_empty());
+            <span class="macro">assert!</span>(<span class="self">self</span>.currently_inside_ut.is_none());
+        }
+
+        step
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_upcoming_uber_turn_component</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">TurnID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">uber_turns</span>
-            .<span class="ident">front</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">ut</span><span class="op">|</span> <span class="ident">ut</span>.<span class="ident">path</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>))
-            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+    <span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, step: PathStep, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(PathStep::Lane(l)) = <span class="self">self</span>.steps.back() {
+            <span class="kw">if </span><span class="kw-2">*</span>l == <span class="self">self</span>.orig_req.end.lane() {
+                <span class="self">self</span>.total_length += map.get_l(<span class="kw-2">*</span>l).length() - <span class="self">self</span>.orig_req.end.dist_along();
+            }
+        }
+        <span class="comment">// TODO We assume we&#39;ll be going along the full length of this new step
+        </span><span class="self">self</span>.total_length += step.as_traversable().get_polyline(map).length();
+
+        <span class="self">self</span>.steps.push_back(step);
+        <span class="comment">// TODO Maybe need to amend uber_turns?
+    </span>}
+
+    <span class="kw">pub fn </span>is_upcoming_uber_turn_component(<span class="kw-2">&amp;</span><span class="self">self</span>, t: TurnID) -&gt; bool {
+        <span class="self">self</span>.uber_turns
+            .front()
+            .map(|ut| ut.path.contains(<span class="kw-2">&amp;</span>t))
+            .unwrap_or(<span class="bool-val">false</span>)
     }
 
-    <span class="doccomment">/// Trusting the caller to do this in valid ways.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">modify_step</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>, <span class="ident">step</span>: <span class="ident">PathStep</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">currently_inside_ut</span>.<span class="ident">is_none</span>());
-        <span class="comment">// We&#39;re assuming this step was in the middle of the path, meaning we were planning to</span>
-        <span class="comment">// travel its full length</span>
-        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">-</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>].<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
+    <span class="doccomment">/// Trusting the caller to do this in valid ways.
+    </span><span class="kw">pub fn </span>modify_step(<span class="kw-2">&amp;mut </span><span class="self">self</span>, idx: usize, step: PathStep, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.currently_inside_ut.is_none());
+        <span class="comment">// We&#39;re assuming this step was in the middle of the path, meaning we were planning to
+        // travel its full length
+        </span><span class="self">self</span>.total_length -= <span class="self">self</span>.steps[idx].as_traversable().get_polyline(map).length();
 
-        <span class="comment">// When replacing a turn, also update any references to it in uber_turns</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">old_turn</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>] {
-            <span class="kw">for</span> <span class="ident">uts</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">uber_turns</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">turn_idx</span>) <span class="op">=</span> <span class="ident">uts</span>.<span class="ident">path</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">old_turn</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">new_turn</span>) <span class="op">=</span> <span class="ident">step</span> {
-                        <span class="ident">uts</span>.<span class="ident">path</span>[<span class="ident">turn_idx</span>] <span class="op">=</span> <span class="ident">new_turn</span>;
-                    } <span class="kw">else</span> {
-                        <span class="macro">panic!</span>(<span class="string">&quot;expected turn, but found {:?}&quot;</span>, <span class="ident">step</span>);
+        <span class="comment">// When replacing a turn, also update any references to it in uber_turns
+        </span><span class="kw">if let </span>PathStep::Turn(old_turn) = <span class="self">self</span>.steps[idx] {
+            <span class="kw">for </span>uts <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.uber_turns {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(turn_idx) = uts.path.iter().position(|i| i == <span class="kw-2">&amp;</span>old_turn) {
+                    <span class="kw">if let </span>PathStep::Turn(new_turn) = step {
+                        uts.path[turn_idx] = new_turn;
+                    } <span class="kw">else </span>{
+                        <span class="macro">panic!</span>(<span class="string">&quot;expected turn, but found {:?}&quot;</span>, step);
                     }
                 }
             }
         }
 
-        <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">step</span>;
-        <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">idx</span>].<span class="ident">as_traversable</span>().<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">length</span>();
+        <span class="self">self</span>.steps[idx] = step;
+        <span class="self">self</span>.total_length += <span class="self">self</span>.steps[idx].as_traversable().get_polyline(map).length();
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">total_length</span> <span class="op">&lt;</span> <span class="ident">Distance::ZERO</span> {
+        <span class="kw">if </span><span class="self">self</span>.total_length &lt; Distance::ZERO {
             <span class="macro">panic!</span>(
                 <span class="string">&quot;modify_step broke total_length, it&#39;s now {}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">total_length</span>
+                <span class="self">self</span>.total_length
             );
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">current_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PathStep</span> {
-        <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">0</span>]
+    <span class="kw">pub fn </span>current_step(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathStep {
+        <span class="self">self</span>.steps[<span class="number">0</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">next_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PathStep</span> {
-        <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">1</span>]
+    <span class="kw">pub fn </span>next_step(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathStep {
+        <span class="self">self</span>.steps[<span class="number">1</span>]
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_next_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_last_step</span>() {
-            <span class="prelude-val">None</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">next_step</span>())
+    <span class="kw">pub fn </span>maybe_next_step(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PathStep&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_last_step() {
+            <span class="prelude-val">None
+        </span>} <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(<span class="self">self</span>.next_step())
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">last_step</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">PathStep</span> {
-        <span class="self">self</span>.<span class="ident">steps</span>[<span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>]
+    <span class="kw">pub fn </span>last_step(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; PathStep {
+        <span class="self">self</span>.steps[<span class="self">self</span>.steps.len() - <span class="number">1</span>]
     }
 
-    <span class="doccomment">/// Traces along the path from its originally requested start. This is only valid to call for</span>
-    <span class="doccomment">/// an umodified path.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// It mostly seems the PolyLine&#39;s length will match `total_length`, but callers beware if</span>
-    <span class="doccomment">/// you&#39;re relying on this -- check walking paths with the buggy sharp angles particularly.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">0</span>].<span class="ident">as_traversable</span>();
-        <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">Traversable::Lane</span>(<span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">start</span>.<span class="ident">lane</span>());
-        <span class="kw">if</span> <span class="ident">t1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">t2</span> {
+    <span class="doccomment">/// Traces along the path from its originally requested start. This is only valid to call for
+    /// an umodified path.
+    ///
+    /// It mostly seems the PolyLine&#39;s length will match `total_length`, but callers beware if
+    /// you&#39;re relying on this -- check walking paths with the buggy sharp angles particularly.
+    </span><span class="kw">pub fn </span>trace(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;PolyLine&gt; {
+        <span class="kw">let </span>t1 = <span class="self">self</span>.steps[<span class="number">0</span>].as_traversable();
+        <span class="kw">let </span>t2 = Traversable::Lane(<span class="self">self</span>.orig_req.start.lane());
+        <span class="kw">if </span>t1 != t2 {
             <span class="macro">warn!</span>(
                 <span class="string">&quot;Can&#39;t trace modified path; first step is {}, but requested started from {}&quot;</span>,
-                <span class="ident">t1</span>, <span class="ident">t2</span>
+                t1, t2
             );
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="self">self</span>.<span class="ident">trace_from_start</span>(<span class="ident">map</span>, <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>())
+        <span class="self">self</span>.trace_from_start(map, <span class="self">self</span>.orig_req.start.dist_along())
     }
 
-    <span class="doccomment">/// Traces along the path from a specified distance along the first step until the end.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_from_start</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start_dist</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">orig_end_dist</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>();
+    <span class="doccomment">/// Traces along the path from a specified distance along the first step until the end.
+    </span><span class="kw">pub fn </span>trace_from_start(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, start_dist: Distance) -&gt; <span class="prelude-ty">Option</span>&lt;PolyLine&gt; {
+        <span class="kw">let </span>orig_end_dist = <span class="self">self</span>.orig_req.end.dist_along();
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-            <span class="kw">let</span> <span class="ident">dist_ahead</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">start_dist</span> <span class="op">&lt;</span> <span class="ident">orig_end_dist</span> {
-                <span class="ident">orig_end_dist</span> <span class="op">-</span> <span class="ident">start_dist</span>
-            } <span class="kw">else</span> {
-                <span class="ident">start_dist</span> <span class="op">-</span> <span class="ident">orig_end_dist</span>
+        <span class="kw">if </span><span class="self">self</span>.steps.len() == <span class="number">1 </span>{
+            <span class="kw">let </span>dist_ahead = <span class="kw">if </span>start_dist &lt; orig_end_dist {
+                orig_end_dist - start_dist
+            } <span class="kw">else </span>{
+                start_dist - orig_end_dist
             };
 
-            <span class="comment">// Why might this fail? It&#39;s possible there are paths on their last step that&#39;re</span>
-            <span class="comment">// effectively empty, because they&#39;re a 0-length turn, or something like a pedestrian</span>
-            <span class="comment">// crossing a front path and immediately getting on a bike.</span>
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">0</span>]
-                .<span class="ident">exact_slice</span>(<span class="ident">map</span>, <span class="ident">start_dist</span>, <span class="prelude-val">Some</span>(<span class="ident">dist_ahead</span>))
-                .<span class="ident">ok</span>();
+            <span class="comment">// Why might this fail? It&#39;s possible there are paths on their last step that&#39;re
+            // effectively empty, because they&#39;re a 0-length turn, or something like a pedestrian
+            // crossing a front path and immediately getting on a bike.
+            </span><span class="kw">return </span><span class="self">self</span>.steps[<span class="number">0</span>]
+                .exact_slice(map, start_dist, <span class="prelude-val">Some</span>(dist_ahead))
+                .ok();
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts_so_far</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>pts_so_far: <span class="prelude-ty">Option</span>&lt;PolyLine&gt; = <span class="prelude-val">None</span>;
 
-        <span class="comment">// Special case the first step with start_dist.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">0</span>].<span class="ident">exact_slice</span>(<span class="ident">map</span>, <span class="ident">start_dist</span>, <span class="prelude-val">None</span>) {
-            <span class="ident">pts_so_far</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">pts</span>);
+        <span class="comment">// Special case the first step with start_dist.
+        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(pts) = <span class="self">self</span>.steps[<span class="number">0</span>].exact_slice(map, start_dist, <span class="prelude-val">None</span>) {
+            pts_so_far = <span class="prelude-val">Some</span>(pts);
         }
 
-        <span class="comment">// Crunch through the intermediate steps, as long as we can.</span>
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() {
-            <span class="comment">// Restrict the last step&#39;s slice</span>
-            <span class="kw">let</span> <span class="ident">dist_ahead</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                <span class="prelude-val">Some</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">i</span>] {
-                    <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) =&gt; {
-                        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_center_pts</span>.<span class="ident">reversed</span>().<span class="ident">length</span>() <span class="op">-</span> <span class="ident">orig_end_dist</span>
+        <span class="comment">// Crunch through the intermediate steps, as long as we can.
+        </span><span class="kw">for </span>i <span class="kw">in </span><span class="number">1</span>..<span class="self">self</span>.steps.len() {
+            <span class="comment">// Restrict the last step&#39;s slice
+            </span><span class="kw">let </span>dist_ahead = <span class="kw">if </span>i == <span class="self">self</span>.steps.len() - <span class="number">1 </span>{
+                <span class="prelude-val">Some</span>(<span class="kw">match </span><span class="self">self</span>.steps[i] {
+                    PathStep::ContraflowLane(l) =&gt; {
+                        map.get_l(l).lane_center_pts.reversed().length() - orig_end_dist
                     }
-                    <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; {
-                        <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">reversed</span>().<span class="ident">length</span>() <span class="op">-</span> <span class="ident">orig_end_dist</span>
+                    PathStep::ContraflowTurn(t) =&gt; {
+                        map.get_t(t).geom.reversed().length() - orig_end_dist
                     }
-                    <span class="kw">_</span> =&gt; <span class="ident">orig_end_dist</span>,
+                    <span class="kw">_ </span>=&gt; orig_end_dist,
                 })
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            };
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>};
 
-            <span class="kw">let</span> <span class="ident">start_dist_this_step</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">i</span>] {
-                <span class="comment">// TODO Length of a PolyLine can slightly change when points are reversed! That</span>
-                <span class="comment">// seems bad.</span>
-                <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_center_pts</span>.<span class="ident">reversed</span>().<span class="ident">length</span>(),
-                <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">reversed</span>().<span class="ident">length</span>(),
-                <span class="kw">_</span> =&gt; <span class="ident">Distance::ZERO</span>,
+            <span class="kw">let </span>start_dist_this_step = <span class="kw">match </span><span class="self">self</span>.steps[i] {
+                <span class="comment">// TODO Length of a PolyLine can slightly change when points are reversed! That
+                // seems bad.
+                </span>PathStep::ContraflowLane(l) =&gt; map.get_l(l).lane_center_pts.reversed().length(),
+                PathStep::ContraflowTurn(t) =&gt; map.get_t(t).geom.reversed().length(),
+                <span class="kw">_ </span>=&gt; Distance::ZERO,
             };
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">new_pts</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="ident">i</span>].<span class="ident">exact_slice</span>(<span class="ident">map</span>, <span class="ident">start_dist_this_step</span>, <span class="ident">dist_ahead</span>) {
-                <span class="kw">if</span> <span class="ident">pts_so_far</span>.<span class="ident">is_some</span>() {
-                    <span class="kw">match</span> <span class="ident">pts_so_far</span>.<span class="ident">unwrap</span>().<span class="ident">extend</span>(<span class="ident">new_pts</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">new</span>) =&gt; {
-                            <span class="ident">pts_so_far</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new</span>);
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(new_pts) = <span class="self">self</span>.steps[i].exact_slice(map, start_dist_this_step, dist_ahead) {
+                <span class="kw">if </span>pts_so_far.is_some() {
+                    <span class="kw">match </span>pts_so_far.unwrap().extend(new_pts) {
+                        <span class="prelude-val">Ok</span>(new) =&gt; {
+                            pts_so_far = <span class="prelude-val">Some</span>(new);
                         }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                            <span class="macro">println!</span>(<span class="string">&quot;WARNING: Couldn&#39;t trace some path: {}&quot;</span>, <span class="ident">err</span>);
-                            <span class="kw">return</span> <span class="prelude-val">None</span>;
+                        <span class="prelude-val">Err</span>(err) =&gt; {
+                            <span class="macro">println!</span>(<span class="string">&quot;WARNING: Couldn&#39;t trace some path: {}&quot;</span>, err);
+                            <span class="kw">return </span><span class="prelude-val">None</span>;
                         }
                     }
-                } <span class="kw">else</span> {
-                    <span class="ident">pts_so_far</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_pts</span>);
+                } <span class="kw">else </span>{
+                    pts_so_far = <span class="prelude-val">Some</span>(new_pts);
                 }
             }
         }
 
-        <span class="prelude-val">Some</span>(<span class="ident">pts_so_far</span>.<span class="ident">unwrap</span>())
+        <span class="prelude-val">Some</span>(pts_so_far.unwrap())
     }
 
-    <span class="doccomment">/// Draws the thickened path, matching entire roads. Ignores the path&#39;s exact starting and</span>
-    <span class="doccomment">/// ending distance.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_v2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">right_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="kw">match</span> <span class="ident">step</span> {
-                <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="kw-2">*</span><span class="ident">l</span>);
-                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_half_width</span>();
-                    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">road</span>.<span class="ident">dst_i</span> {
-                        <span class="ident">left_pts</span>.<span class="ident">extend</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">width</span>)<span class="question-mark">?</span>.<span class="ident">into_points</span>());
-                        <span class="ident">right_pts</span>.<span class="ident">extend</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>)<span class="question-mark">?</span>.<span class="ident">into_points</span>());
-                    } <span class="kw">else</span> {
-                        <span class="ident">left_pts</span>
-                            .<span class="ident">extend</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>)<span class="question-mark">?</span>.<span class="ident">reversed</span>().<span class="ident">into_points</span>());
-                        <span class="ident">right_pts</span>
-                            .<span class="ident">extend</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">width</span>)<span class="question-mark">?</span>.<span class="ident">reversed</span>().<span class="ident">into_points</span>());
+    <span class="doccomment">/// Draws the thickened path, matching entire roads. Ignores the path&#39;s exact starting and
+    /// ending distance.
+    </span><span class="kw">pub fn </span>trace_v2(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;Polygon&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>left_pts = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>right_pts = Vec::new();
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
+            <span class="kw">match </span>step {
+                PathStep::Lane(l) =&gt; {
+                    <span class="kw">let </span>road = map.get_parent(<span class="kw-2">*</span>l);
+                    <span class="kw">let </span>width = road.get_half_width();
+                    <span class="kw">if </span>map.get_l(<span class="kw-2">*</span>l).dst_i == road.dst_i {
+                        left_pts.extend(road.center_pts.shift_left(width)<span class="question-mark">?</span>.into_points());
+                        right_pts.extend(road.center_pts.shift_right(width)<span class="question-mark">?</span>.into_points());
+                    } <span class="kw">else </span>{
+                        left_pts
+                            .extend(road.center_pts.shift_right(width)<span class="question-mark">?</span>.reversed().into_points());
+                        right_pts
+                            .extend(road.center_pts.shift_left(width)<span class="question-mark">?</span>.reversed().into_points());
                     }
                 }
-                <span class="ident">PathStep::ContraflowLane</span>(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(),
-                <span class="comment">// Just make a straight line across the intersection. It&#39;d be fancier to try and</span>
-                <span class="comment">// trace along.</span>
-                <span class="ident">PathStep::Turn</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="kw">_</span>) =&gt; {}
+                PathStep::ContraflowLane(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(),
+                <span class="comment">// Just make a straight line across the intersection. It&#39;d be fancier to try and
+                // trace along.
+                </span>PathStep::Turn(<span class="kw">_</span>) | PathStep::ContraflowTurn(<span class="kw">_</span>) =&gt; {}
             }
         }
-        <span class="ident">right_pts</span>.<span class="ident">reverse</span>();
-        <span class="ident">left_pts</span>.<span class="ident">extend</span>(<span class="ident">right_pts</span>);
-        <span class="ident">left_pts</span>.<span class="ident">push</span>(<span class="ident">left_pts</span>[<span class="number">0</span>]);
-        <span class="prelude-val">Ok</span>(<span class="ident">Ring::deduping_new</span>(<span class="ident">left_pts</span>)<span class="question-mark">?</span>.<span class="ident">into_polygon</span>())
+        right_pts.reverse();
+        left_pts.extend(right_pts);
+        left_pts.push(left_pts[<span class="number">0</span>]);
+        <span class="prelude-val">Ok</span>(Ring::deduping_new(left_pts)<span class="question-mark">?</span>.into_polygon())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_steps</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span>
+    <span class="kw">pub fn </span>get_steps(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>VecDeque&lt;PathStep&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.steps
     }
 
-    <span class="doccomment">/// Estimate how long following the path will take in the best case, assuming no traffic or</span>
-    <span class="doccomment">/// delay at intersections. To determine the speed along each step, the agent&#39;s optional</span>
-    <span class="doccomment">/// max_speed must be known.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">estimate_duration</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">max_speed</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dist_crossed_from_step</span>(<span class="ident">map</span>, <span class="ident">step</span>);
-            <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span> <span class="ident">step</span>.<span class="ident">max_speed_along</span>(<span class="ident">max_speed</span>, <span class="self">self</span>.<span class="ident">orig_req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>);
-            <span class="ident">total</span> <span class="op">+</span><span class="op">=</span> <span class="ident">dist</span> <span class="op">/</span> <span class="ident">speed</span>;
+    <span class="doccomment">/// Estimate how long following the path will take in the best case, assuming no traffic or
+    /// delay at intersections. To determine the speed along each step, the agent&#39;s optional
+    /// max_speed must be known.
+    </span><span class="kw">pub fn </span>estimate_duration(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, max_speed: <span class="prelude-ty">Option</span>&lt;Speed&gt;) -&gt; Duration {
+        <span class="kw">let </span><span class="kw-2">mut </span>total = Duration::ZERO;
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
+            <span class="kw">let </span>dist = <span class="self">self</span>.dist_crossed_from_step(map, step);
+            <span class="kw">let </span>speed = step.max_speed_along(max_speed, <span class="self">self</span>.orig_req.constraints, map);
+            total += dist / speed;
         }
-        <span class="ident">total</span>
+        total
     }
 
-    <span class="doccomment">/// If the agent following this path will initially block some intermediate lanes as they move</span>
-    <span class="doccomment">/// between a driveway and `get_req().start`, then record them here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_blocked_starts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">blocked_starts</span>.<span class="ident">clone</span>()
+    <span class="doccomment">/// If the agent following this path will initially block some intermediate lanes as they move
+    /// between a driveway and `get_req().start`, then record them here.
+    </span><span class="kw">pub fn </span>get_blocked_starts(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;LaneID&gt; {
+        <span class="self">self</span>.blocked_starts.clone()
     }
 
-    <span class="doccomment">/// Returns the total elevation (gain, loss) experienced over the path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_total_elevation_change</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; (<span class="ident">Distance</span>, <span class="ident">Distance</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gain</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">loss</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="kw">let</span> (<span class="ident">from</span>, <span class="ident">to</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">step</span> {
-                <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>);
+    <span class="doccomment">/// Returns the total elevation (gain, loss) experienced over the path.
+    </span><span class="kw">pub fn </span>get_total_elevation_change(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; (Distance, Distance) {
+        <span class="kw">let </span><span class="kw-2">mut </span>gain = Distance::ZERO;
+        <span class="kw">let </span><span class="kw-2">mut </span>loss = Distance::ZERO;
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
+            <span class="kw">let </span>(from, to) = <span class="kw">match </span>step {
+                PathStep::Lane(l) =&gt; {
+                    <span class="kw">let </span>lane = map.get_l(<span class="kw-2">*</span>l);
                     (
-                        <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>).<span class="ident">elevation</span>,
-                        <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>).<span class="ident">elevation</span>,
+                        map.get_i(lane.src_i).elevation,
+                        map.get_i(lane.dst_i).elevation,
                     )
                 }
-                <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>);
+                PathStep::ContraflowLane(l) =&gt; {
+                    <span class="kw">let </span>lane = map.get_l(<span class="kw-2">*</span>l);
                     (
-                        <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">dst_i</span>).<span class="ident">elevation</span>,
-                        <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">lane</span>.<span class="ident">src_i</span>).<span class="ident">elevation</span>,
+                        map.get_i(lane.dst_i).elevation,
+                        map.get_i(lane.src_i).elevation,
                     )
                 }
-                <span class="ident">PathStep::Turn</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="kw">_</span>) =&gt; {
+                PathStep::Turn(<span class="kw">_</span>) | PathStep::ContraflowTurn(<span class="kw">_</span>) =&gt; {
                     <span class="kw">continue</span>;
                 }
             };
-            <span class="kw">if</span> <span class="ident">from</span> <span class="op">&lt;</span> <span class="ident">to</span> {
-                <span class="ident">gain</span> <span class="op">+</span><span class="op">=</span> <span class="ident">to</span> <span class="op">-</span> <span class="ident">from</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">loss</span> <span class="op">+</span><span class="op">=</span> <span class="ident">from</span> <span class="op">-</span> <span class="ident">to</span>;
+            <span class="kw">if </span>from &lt; to {
+                gain += to - from;
+            } <span class="kw">else </span>{
+                loss += from - to;
             }
         }
-        (<span class="ident">gain</span>, <span class="ident">loss</span>)
+        (gain, loss)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_step_at_dist_along</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="kw-2">mut</span> <span class="ident">dist_along</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PathStep</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="kw">let</span> <span class="ident">dist_here</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">dist_crossed_from_step</span>(<span class="ident">map</span>, <span class="ident">step</span>);
-            <span class="kw">if</span> <span class="ident">dist_along</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">dist_here</span> {
-                <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="kw-2">*</span><span class="ident">step</span>);
+    <span class="kw">pub fn </span>get_step_at_dist_along(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, <span class="kw-2">mut </span>dist_along: Distance) -&gt; <span class="prelude-ty">Result</span>&lt;PathStep&gt; {
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
+            <span class="kw">let </span>dist_here = <span class="self">self</span>.dist_crossed_from_step(map, step);
+            <span class="kw">if </span>dist_along &lt;= dist_here {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(<span class="kw-2">*</span>step);
             }
-            <span class="ident">dist_along</span> <span class="op">-</span><span class="op">=</span> <span class="ident">dist_here</span>;
+            dist_along -= dist_here;
         }
         <span class="macro">bail!</span>(
             <span class="string">&quot;get_step_at_dist_along has leftover distance of {}&quot;</span>,
-            <span class="ident">dist_along</span>
+            dist_along
         );
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crosses_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">step</span> {
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">r</span> {
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
+    <span class="kw">pub fn </span>crosses_road(<span class="kw-2">&amp;</span><span class="self">self</span>, r: RoadID) -&gt; bool {
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
+            <span class="kw">if let </span>PathStep::Lane(l) | PathStep::ContraflowLane(l) = step {
+                <span class="kw">if </span>l.road == r {
+                    <span class="kw">return </span><span class="bool-val">true</span>;
                 }
             }
         }
-        <span class="bool-val">false</span>
-    }
+        <span class="bool-val">false
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PathRequest</span> {
-    <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">Position</span>,
-    <span class="kw">pub</span> <span class="ident">end</span>: <span class="ident">Position</span>,
-    <span class="kw">pub</span> <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    <span class="comment">// If present, also consider this start position, adding an extra cost to use it. When a Path</span>
-    <span class="comment">// is returned, &#39;start&#39; might be switched to use this one instead, reflecting the choice made.</span>
-    <span class="comment">// TODO It&#39;s assumed this lane is on the same directed road as `start`, but this isn&#39;t</span>
-    <span class="comment">// enforced!</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">alt_start</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Position</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>PathRequest {
+    <span class="kw">pub </span>start: Position,
+    <span class="kw">pub </span>end: Position,
+    <span class="kw">pub </span>constraints: PathConstraints,
+    <span class="comment">// If present, also consider this start position, adding an extra cost to use it. When a Path
+    // is returned, &#39;start&#39; might be switched to use this one instead, reflecting the choice made.
+    // TODO It&#39;s assumed this lane is on the same directed road as `start`, but this isn&#39;t
+    // enforced!
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) alt_start: <span class="prelude-ty">Option</span>&lt;(Position, Duration)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">PathRequest</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>PathRequest {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">write!</span>(
-            <span class="ident">f</span>,
+            f,
             <span class="string">&quot;PathRequest({} along {}... to {} along {} for {:?})&quot;</span>,
-            <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">dist_along</span>(),
-            <span class="self">self</span>.<span class="ident">start</span>.<span class="ident">lane</span>(),
-            <span class="self">self</span>.<span class="ident">end</span>.<span class="ident">dist_along</span>(),
-            <span class="self">self</span>.<span class="ident">end</span>.<span class="ident">lane</span>(),
-            <span class="self">self</span>.<span class="ident">constraints</span>,
+            <span class="self">self</span>.start.dist_along(),
+            <span class="self">self</span>.start.lane(),
+            <span class="self">self</span>.end.dist_along(),
+            <span class="self">self</span>.end.lane(),
+            <span class="self">self</span>.constraints,
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">PathRequest</span> {
-    <span class="doccomment">/// Determines the start and end position to travel between two buildings for a certain mode.</span>
-    <span class="doccomment">/// The path won&#39;t cover modality transfers -- if somebody has to walk between the building and</span>
-    <span class="doccomment">/// a parking spot or bikeable position, that won&#39;t be captured here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">between_buildings</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">from</span>: <span class="ident">BuildingID</span>,
-        <span class="ident">to</span>: <span class="ident">BuildingID</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">from</span>);
-        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">to</span>);
-        <span class="kw">let</span> (<span class="ident">start</span>, <span class="ident">end</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
-            <span class="ident">PathConstraints::Pedestrian</span> =&gt; (<span class="ident">from</span>.<span class="ident">sidewalk_pos</span>, <span class="ident">to</span>.<span class="ident">sidewalk_pos</span>),
-            <span class="ident">PathConstraints::Bike</span> =&gt; (<span class="ident">from</span>.<span class="ident">biking_connection</span>(<span class="ident">map</span>)<span class="question-mark">?</span>.<span class="number">0</span>, <span class="ident">to</span>.<span class="ident">biking_connection</span>(<span class="ident">map</span>)<span class="question-mark">?</span>.<span class="number">0</span>),
-            <span class="ident">PathConstraints::Car</span> =&gt; (
-                <span class="ident">from</span>.<span class="ident">driving_connection</span>(<span class="ident">map</span>)<span class="question-mark">?</span>.<span class="number">0</span>,
-                <span class="ident">to</span>.<span class="ident">driving_connection</span>(<span class="ident">map</span>)<span class="question-mark">?</span>.<span class="number">0</span>,
+<span class="kw">impl </span>PathRequest {
+    <span class="doccomment">/// Determines the start and end position to travel between two buildings for a certain mode.
+    /// The path won&#39;t cover modality transfers -- if somebody has to walk between the building and
+    /// a parking spot or bikeable position, that won&#39;t be captured here.
+    </span><span class="kw">pub fn </span>between_buildings(
+        map: <span class="kw-2">&amp;</span>Map,
+        from: BuildingID,
+        to: BuildingID,
+        constraints: PathConstraints,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;PathRequest&gt; {
+        <span class="kw">let </span>from = map.get_b(from);
+        <span class="kw">let </span>to = map.get_b(to);
+        <span class="kw">let </span>(start, end) = <span class="kw">match </span>constraints {
+            PathConstraints::Pedestrian =&gt; (from.sidewalk_pos, to.sidewalk_pos),
+            PathConstraints::Bike =&gt; (from.biking_connection(map)<span class="question-mark">?</span>.<span class="number">0</span>, to.biking_connection(map)<span class="question-mark">?</span>.<span class="number">0</span>),
+            PathConstraints::Car =&gt; (
+                from.driving_connection(map)<span class="question-mark">?</span>.<span class="number">0</span>,
+                to.driving_connection(map)<span class="question-mark">?</span>.<span class="number">0</span>,
             ),
-            <span class="comment">// These two aren&#39;t useful here. A pedestrian using transit would pass in</span>
-            <span class="comment">// PathConstraints::Pedestrian. There&#39;s no reason yet to find a route for a bus or</span>
-            <span class="comment">// train to travel between buildings.</span>
-            <span class="ident">PathConstraints::Bus</span> <span class="op">|</span> <span class="ident">PathConstraints::Train</span> =&gt; <span class="macro">unimplemented!</span>(),
+            <span class="comment">// These two aren&#39;t useful here. A pedestrian using transit would pass in
+            // PathConstraints::Pedestrian. There&#39;s no reason yet to find a route for a bus or
+            // train to travel between buildings.
+            </span>PathConstraints::Bus | PathConstraints::Train =&gt; <span class="macro">unimplemented!</span>(),
         };
-        <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints::Car</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">PathRequest::leave_from_driveway</span>(
-                <span class="ident">start</span>,
-                <span class="ident">end</span>,
-                <span class="ident">constraints</span>,
-                <span class="ident">map</span>,
+        <span class="kw">if </span>constraints == PathConstraints::Car {
+            <span class="prelude-val">Some</span>(PathRequest::leave_from_driveway(
+                start,
+                end,
+                constraints,
+                map,
             ))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">PathRequest</span> {
-                <span class="ident">start</span>,
-                <span class="ident">end</span>,
-                <span class="ident">constraints</span>,
-                <span class="ident">alt_start</span>: <span class="prelude-val">None</span>,
+        } <span class="kw">else </span>{
+            <span class="prelude-val">Some</span>(PathRequest {
+                start,
+                end,
+                constraints,
+                alt_start: <span class="prelude-val">None</span>,
             })
         }
     }
 
-    <span class="doccomment">/// The caller must pass in two valid sidewalk positions. This isn&#39;t verified.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">walking</span>(<span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">end</span>: <span class="ident">Position</span>) -&gt; <span class="ident">PathRequest</span> {
-        <span class="ident">PathRequest</span> {
-            <span class="ident">start</span>,
-            <span class="ident">end</span>,
-            <span class="ident">constraints</span>: <span class="ident">PathConstraints::Pedestrian</span>,
-            <span class="ident">alt_start</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// The caller must pass in two valid sidewalk positions. This isn&#39;t verified.
+    </span><span class="kw">pub fn </span>walking(start: Position, end: Position) -&gt; PathRequest {
+        PathRequest {
+            start,
+            end,
+            constraints: PathConstraints::Pedestrian,
+            alt_start: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// The caller must pass in two valid positions for the vehicle type. This isn&#39;t verified. No</span>
-    <span class="doccomment">/// off-side turns from driveways happen; the exact start position is used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vehicle</span>(<span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">end</span>: <span class="ident">Position</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>) -&gt; <span class="ident">PathRequest</span> {
-        <span class="ident">PathRequest</span> {
-            <span class="ident">start</span>,
-            <span class="ident">end</span>,
-            <span class="ident">constraints</span>,
-            <span class="ident">alt_start</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// The caller must pass in two valid positions for the vehicle type. This isn&#39;t verified. No
+    /// off-side turns from driveways happen; the exact start position is used.
+    </span><span class="kw">pub fn </span>vehicle(start: Position, end: Position, constraints: PathConstraints) -&gt; PathRequest {
+        PathRequest {
+            start,
+            end,
+            constraints,
+            alt_start: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// The caller must pass in two valid positions for the vehicle type. This isn&#39;t verified.</span>
-    <span class="doccomment">/// TODO The vehicle may cut exit the driveway onto the off-side of the road.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">leave_from_driveway</span>(
-        <span class="ident">start</span>: <span class="ident">Position</span>,
-        <span class="ident">end</span>: <span class="ident">Position</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="ident">PathRequest</span> {
-        <span class="kw">let</span> <span class="ident">alt_start</span> <span class="op">=</span> (<span class="op">|</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>.<span class="ident">lane</span>());
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start_lane</span>.<span class="ident">id</span>.<span class="ident">road</span>);
-            <span class="comment">// If start and end road match, don&#39;t exit offside</span>
-            <span class="comment">// TODO Sometimes this is valid! Just not if we&#39;re trying to go behind ourselves</span>
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">end</span>.<span class="ident">lane</span>().<span class="ident">road</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="doccomment">/// The caller must pass in two valid positions for the vehicle type. This isn&#39;t verified.
+    /// TODO The vehicle may cut exit the driveway onto the off-side of the road.
+    </span><span class="kw">pub fn </span>leave_from_driveway(
+        start: Position,
+        end: Position,
+        constraints: PathConstraints,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; PathRequest {
+        <span class="kw">let </span>alt_start = (|| {
+            <span class="kw">let </span>start_lane = map.get_l(start.lane());
+            <span class="kw">let </span>road = map.get_r(start_lane.id.road);
+            <span class="comment">// If start and end road match, don&#39;t exit offside
+            // TODO Sometimes this is valid! Just not if we&#39;re trying to go behind ourselves
+            </span><span class="kw">if </span>road.id == end.lane().road {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
-            <span class="kw">let</span> <span class="ident">offside_dir</span> <span class="op">=</span> <span class="ident">start_lane</span>.<span class="ident">dir</span>.<span class="ident">opposite</span>();
-            <span class="kw">let</span> <span class="ident">alt_lane</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">find_closest_lane</span>(<span class="ident">start_lane</span>.<span class="ident">id</span>, <span class="op">|</span><span class="ident">l</span><span class="op">|</span> {
-                <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">offside_dir</span> <span class="op">&amp;&amp;</span> <span class="ident">constraints</span>.<span class="ident">can_use</span>(<span class="ident">l</span>, <span class="ident">map</span>)
+            <span class="kw">let </span>offside_dir = start_lane.dir.opposite();
+            <span class="kw">let </span>alt_lane = road.find_closest_lane(start_lane.id, |l| {
+                l.dir == offside_dir &amp;&amp; constraints.can_use(l, map)
             })<span class="question-mark">?</span>;
-            <span class="comment">// TODO Do we need buffer_dist like driving_connection does?</span>
-            <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">start</span>.<span class="ident">equiv_pos</span>(<span class="ident">alt_lane</span>, <span class="ident">map</span>);
-            <span class="kw">let</span> <span class="ident">number_lanes_between</span> <span class="op">=</span>
-                ((<span class="ident">start_lane</span>.<span class="ident">id</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">-</span> (<span class="ident">alt_lane</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">f64</span>)).<span class="ident">abs</span>();
-            <span class="comment">// TODO Tune the cost of cutting across lanes</span>
-            <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">Duration::seconds</span>(<span class="number">10.0</span>) <span class="op">*</span> <span class="ident">number_lanes_between</span>;
-            <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="ident">cost</span>))
+            <span class="comment">// TODO Do we need buffer_dist like driving_connection does?
+            </span><span class="kw">let </span>pos = start.equiv_pos(alt_lane, map);
+            <span class="kw">let </span>number_lanes_between =
+                ((start_lane.id.offset <span class="kw">as </span>f64) - (alt_lane.offset <span class="kw">as </span>f64)).abs();
+            <span class="comment">// TODO Tune the cost of cutting across lanes
+            </span><span class="kw">let </span>cost = Duration::seconds(<span class="number">10.0</span>) * number_lanes_between;
+            <span class="prelude-val">Some</span>((pos, cost))
         })();
-        <span class="ident">PathRequest</span> {
-            <span class="ident">start</span>,
-            <span class="ident">end</span>,
-            <span class="ident">constraints</span>,
-            <span class="ident">alt_start</span>,
+        PathRequest {
+            start,
+            end,
+            constraints,
+            alt_start,
         }
     }
 
-    <span class="doccomment">/// Create a request from the beginning of one road to the end of another. Picks an arbitrary</span>
-    <span class="doccomment">/// start and end lane from the available ones.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">between_directed_roads</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">from</span>: <span class="ident">DirectedRoadID</span>,
-        <span class="ident">to</span>: <span class="ident">DirectedRoadID</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Position::start</span>(<span class="ident">from</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">pop</span>()<span class="question-mark">?</span>);
-        <span class="kw">let</span> <span class="ident">end</span> <span class="op">=</span> <span class="ident">Position::end</span>(<span class="ident">to</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">pop</span>()<span class="question-mark">?</span>, <span class="ident">map</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">PathRequest</span> {
-            <span class="ident">start</span>,
-            <span class="ident">end</span>,
-            <span class="ident">constraints</span>,
-            <span class="ident">alt_start</span>: <span class="prelude-val">None</span>,
+    <span class="doccomment">/// Create a request from the beginning of one road to the end of another. Picks an arbitrary
+    /// start and end lane from the available ones.
+    </span><span class="kw">pub fn </span>between_directed_roads(
+        map: <span class="kw-2">&amp;</span>Map,
+        from: DirectedRoadID,
+        to: DirectedRoadID,
+        constraints: PathConstraints,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;PathRequest&gt; {
+        <span class="kw">let </span>start = Position::start(from.lanes(constraints, map).pop()<span class="question-mark">?</span>);
+        <span class="kw">let </span>end = Position::end(to.lanes(constraints, map).pop()<span class="question-mark">?</span>, map);
+        <span class="prelude-val">Some</span>(PathRequest {
+            start,
+            end,
+            constraints,
+            alt_start: <span class="prelude-val">None</span>,
         })
     }
 
-    <span class="doccomment">/// Group similar requests together, returning the number of matches. This can be used to</span>
-    <span class="doccomment">/// calculate less paths and multiply whatever&#39;s being measured by the count.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note this throws away detail. It only groups by the mode and from/to parent. Exact position</span>
-    <span class="doccomment">/// and alternate starting points are lost.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deduplicate</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">requests</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PathRequest</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">count_before</span> <span class="op">=</span> <span class="ident">requests</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">common</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span>
-            (<span class="ident">PathConstraints</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">DirectedRoadID</span>),
-            (<span class="ident">PathRequest</span>, <span class="ident">usize</span>),
-        <span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">for</span> <span class="ident">req</span> <span class="kw">in</span> <span class="ident">requests</span> {
-            <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> (
-                <span class="ident">req</span>.<span class="ident">constraints</span>,
-                <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(),
-                <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(),
+    <span class="doccomment">/// Group similar requests together, returning the number of matches. This can be used to
+    /// calculate less paths and multiply whatever&#39;s being measured by the count.
+    ///
+    /// Note this throws away detail. It only groups by the mode and from/to parent. Exact position
+    /// and alternate starting points are lost.
+    </span><span class="kw">pub fn </span>deduplicate(map: <span class="kw-2">&amp;</span>Map, requests: Vec&lt;PathRequest&gt;) -&gt; Vec&lt;(PathRequest, usize)&gt; {
+        <span class="kw">let </span>count_before = requests.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>common: BTreeMap&lt;
+            (PathConstraints, DirectedRoadID, DirectedRoadID),
+            (PathRequest, usize),
+        &gt; = BTreeMap::new();
+        <span class="kw">for </span>req <span class="kw">in </span>requests {
+            <span class="kw">let </span>key = (
+                req.constraints,
+                map.get_l(req.start.lane()).get_directed_parent(),
+                map.get_l(req.end.lane()).get_directed_parent(),
             );
-            <span class="kw">let</span> <span class="ident">pair</span> <span class="op">=</span> <span class="ident">common</span>.<span class="ident">entry</span>(<span class="ident">key</span>).<span class="ident">or_insert_with</span>(<span class="op">|</span><span class="op">|</span> (<span class="ident">req</span>, <span class="number">0</span>));
-            <span class="ident">pair</span>.<span class="number">1</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+            <span class="kw">let </span>pair = common.entry(key).or_insert_with(|| (req, <span class="number">0</span>));
+            pair.<span class="number">1 </span>+= <span class="number">1</span>;
         }
-        <span class="kw">if</span> <span class="bool-val">false</span> {
+        <span class="kw">if </span><span class="bool-val">false </span>{
             <span class="macro">info!</span>(
                 <span class="string">&quot;{} requests deduplicated down to {}&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">count_before</span>),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">common</span>.<span class="ident">len</span>())
+                prettyprint_usize(count_before),
+                prettyprint_usize(common.len())
             );
         }
-        <span class="ident">common</span>.<span class="ident">into_values</span>().<span class="ident">collect</span>()
+        common.into_values().collect()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">validate_continuity</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">steps</span>: <span class="kw-2">&amp;</span>[<span class="ident">PathStep</span>]) {
-    <span class="kw">if</span> <span class="ident">steps</span>.<span class="ident">is_empty</span>() {
+<span class="kw">fn </span>validate_continuity(map: <span class="kw-2">&amp;</span>Map, steps: <span class="kw-2">&amp;</span>[PathStep]) {
+    <span class="kw">if </span>steps.is_empty() {
         <span class="macro">panic!</span>(<span class="string">&quot;Empty path&quot;</span>);
     }
-    <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">steps</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>] {
-            <span class="ident">PathStep::Lane</span>(<span class="ident">id</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>).<span class="ident">last_pt</span>(),
-            <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">id</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>).<span class="ident">first_pt</span>(),
-            <span class="ident">PathStep::Turn</span>(<span class="ident">id</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">id</span>).<span class="ident">geom</span>.<span class="ident">last_pt</span>(),
-            <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">id</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">id</span>).<span class="ident">geom</span>.<span class="ident">first_pt</span>(),
+    <span class="kw">for </span>pair <span class="kw">in </span>steps.windows(<span class="number">2</span>) {
+        <span class="kw">let </span>from = <span class="kw">match </span>pair[<span class="number">0</span>] {
+            PathStep::Lane(id) =&gt; map.get_l(id).last_pt(),
+            PathStep::ContraflowLane(id) =&gt; map.get_l(id).first_pt(),
+            PathStep::Turn(id) =&gt; map.get_t(id).geom.last_pt(),
+            PathStep::ContraflowTurn(id) =&gt; map.get_t(id).geom.first_pt(),
         };
-        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">1</span>] {
-            <span class="ident">PathStep::Lane</span>(<span class="ident">id</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>).<span class="ident">first_pt</span>(),
-            <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">id</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>).<span class="ident">last_pt</span>(),
-            <span class="ident">PathStep::Turn</span>(<span class="ident">id</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">id</span>).<span class="ident">geom</span>.<span class="ident">first_pt</span>(),
-            <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">id</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">id</span>).<span class="ident">geom</span>.<span class="ident">last_pt</span>(),
+        <span class="kw">let </span>to = <span class="kw">match </span>pair[<span class="number">1</span>] {
+            PathStep::Lane(id) =&gt; map.get_l(id).first_pt(),
+            PathStep::ContraflowLane(id) =&gt; map.get_l(id).last_pt(),
+            PathStep::Turn(id) =&gt; map.get_t(id).geom.first_pt(),
+            PathStep::ContraflowTurn(id) =&gt; map.get_t(id).geom.last_pt(),
         };
-        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">dist_to</span>(<span class="ident">to</span>);
-        <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span> <span class="ident">EPSILON_DIST</span> {
+        <span class="kw">let </span>len = from.dist_to(to);
+        <span class="kw">if </span>len &gt; EPSILON_DIST {
             <span class="macro">println!</span>(<span class="string">&quot;All steps in invalid path:&quot;</span>);
-            <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="ident">steps</span> {
-                <span class="kw">match</span> <span class="ident">s</span> {
-                    <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; <span class="macro">println!</span>(
+            <span class="kw">for </span>s <span class="kw">in </span>steps {
+                <span class="kw">match </span>s {
+                    PathStep::Lane(l) =&gt; <span class="macro">println!</span>(
                         <span class="string">&quot;  {:?} from {} to {}&quot;</span>,
-                        <span class="ident">s</span>,
-                        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">src_i</span>,
-                        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">dst_i</span>
+                        s,
+                        map.get_l(<span class="kw-2">*</span>l).src_i,
+                        map.get_l(<span class="kw-2">*</span>l).dst_i
                     ),
-                    <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">l</span>) =&gt; <span class="macro">println!</span>(
+                    PathStep::ContraflowLane(l) =&gt; <span class="macro">println!</span>(
                         <span class="string">&quot;  {:?} from {} to {}&quot;</span>,
-                        <span class="ident">s</span>,
-                        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">dst_i</span>,
-                        <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">l</span>).<span class="ident">src_i</span>
+                        s,
+                        map.get_l(<span class="kw-2">*</span>l).dst_i,
+                        map.get_l(<span class="kw-2">*</span>l).src_i
                     ),
-                    <span class="ident">PathStep::Turn</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="kw">_</span>) =&gt; <span class="macro">println!</span>(<span class="string">&quot;  {:?}&quot;</span>, <span class="ident">s</span>),
+                    PathStep::Turn(<span class="kw">_</span>) | PathStep::ContraflowTurn(<span class="kw">_</span>) =&gt; <span class="macro">println!</span>(<span class="string">&quot;  {:?}&quot;</span>, s),
                 }
             }
             <span class="macro">panic!</span>(
                 <span class="string">&quot;pathfind() returned path that warps {} from {:?} to {:?}&quot;</span>,
-                <span class="ident">len</span>, <span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]
+                len, pair[<span class="number">0</span>], pair[<span class="number">1</span>]
             );
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">validate_restrictions</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">steps</span>: <span class="kw-2">&amp;</span>[<span class="ident">PathStep</span>]) {
-    <span class="kw">for</span> <span class="ident">triple</span> <span class="kw">in</span> <span class="ident">steps</span>.<span class="ident">windows</span>(<span class="number">5</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> (<span class="ident">PathStep::Lane</span>(<span class="ident">l1</span>), <span class="ident">PathStep::Lane</span>(<span class="ident">l2</span>), <span class="ident">PathStep::Lane</span>(<span class="ident">l3</span>)) <span class="op">=</span>
-            (<span class="ident">triple</span>[<span class="number">0</span>], <span class="ident">triple</span>[<span class="number">2</span>], <span class="ident">triple</span>[<span class="number">4</span>])
+<span class="kw">fn </span>validate_restrictions(map: <span class="kw-2">&amp;</span>Map, steps: <span class="kw-2">&amp;</span>[PathStep]) {
+    <span class="kw">for </span>triple <span class="kw">in </span>steps.windows(<span class="number">5</span>) {
+        <span class="kw">if let </span>(PathStep::Lane(l1), PathStep::Lane(l2), PathStep::Lane(l3)) =
+            (triple[<span class="number">0</span>], triple[<span class="number">2</span>], triple[<span class="number">4</span>])
         {
-            <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l1</span>);
-            <span class="kw">let</span> <span class="ident">via</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">road</span>;
-            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">l3</span>.<span class="ident">road</span>;
+            <span class="kw">let </span>from = map.get_parent(l1);
+            <span class="kw">let </span>via = l2.road;
+            <span class="kw">let </span>to = l3.road;
 
-            <span class="kw">for</span> (<span class="ident">dont_via</span>, <span class="ident">dont_to</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">from</span>.<span class="ident">complicated_turn_restrictions</span> {
-                <span class="kw">if</span> <span class="ident">via</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">dont_via</span> <span class="op">&amp;&amp;</span> <span class="ident">to</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">dont_to</span> {
+            <span class="kw">for </span>(dont_via, dont_to) <span class="kw">in </span><span class="kw-2">&amp;</span>from.complicated_turn_restrictions {
+                <span class="kw">if </span>via == <span class="kw-2">*</span>dont_via &amp;&amp; to == <span class="kw-2">*</span>dont_to {
                     <span class="macro">panic!</span>(
                         <span class="string">&quot;Some path does illegal uber-turn: {} -&gt; {} -&gt; {}&quot;</span>,
-                        <span class="ident">l1</span>, <span class="ident">l2</span>, <span class="ident">l3</span>
+                        l1, l2, l3
                     );
                 }
             }
@@ -1652,35 +1652,35 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">validate_zones</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">steps</span>: <span class="kw-2">&amp;</span>[<span class="ident">PathStep</span>], <span class="ident">req</span>: <span class="kw-2">&amp;</span><span class="ident">PathRequest</span>) {
-    <span class="kw">let</span> <span class="ident">z1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_zone</span>(<span class="ident">map</span>);
-    <span class="kw">let</span> <span class="ident">z2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">get_zone</span>(<span class="ident">map</span>);
+<span class="kw">fn </span>validate_zones(map: <span class="kw-2">&amp;</span>Map, steps: <span class="kw-2">&amp;</span>[PathStep], req: <span class="kw-2">&amp;</span>PathRequest) {
+    <span class="kw">let </span>z1 = map.get_parent(req.start.lane()).get_zone(map);
+    <span class="kw">let </span>z2 = map.get_parent(req.end.lane()).get_zone(map);
 
-    <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">steps</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">|</span> <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span> {
-            <span class="kw">if</span> <span class="ident">map</span>
-                .<span class="ident">get_parent</span>(<span class="ident">t</span>.<span class="ident">src</span>)
-                .<span class="ident">access_restrictions</span>
-                .<span class="ident">allow_through_traffic</span>
-                .<span class="ident">contains</span>(<span class="ident">req</span>.<span class="ident">constraints</span>)
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">map</span>
-                    .<span class="ident">get_parent</span>(<span class="ident">t</span>.<span class="ident">dst</span>)
-                    .<span class="ident">access_restrictions</span>
-                    .<span class="ident">allow_through_traffic</span>
-                    .<span class="ident">contains</span>(<span class="ident">req</span>.<span class="ident">constraints</span>)
+    <span class="kw">for </span>step <span class="kw">in </span>steps {
+        <span class="kw">if let </span>PathStep::Turn(t) | PathStep::ContraflowTurn(t) = step {
+            <span class="kw">if </span>map
+                .get_parent(t.src)
+                .access_restrictions
+                .allow_through_traffic
+                .contains(req.constraints)
+                &amp;&amp; !map
+                    .get_parent(t.dst)
+                    .access_restrictions
+                    .allow_through_traffic
+                    .contains(req.constraints)
             {
-                <span class="comment">// Entering our destination zone is fine</span>
-                <span class="kw">let</span> <span class="ident">into_zone</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">t</span>.<span class="ident">dst</span>).<span class="ident">get_zone</span>(<span class="ident">map</span>);
-                <span class="kw">if</span> <span class="ident">into_zone</span> <span class="op">!</span><span class="op">=</span> <span class="ident">z1</span> <span class="op">&amp;&amp;</span> <span class="ident">into_zone</span> <span class="op">!</span><span class="op">=</span> <span class="ident">z2</span> {
-                    <span class="comment">// TODO There are lots of false positive here that occur when part of the graph</span>
-                    <span class="comment">// is separated from the rest by access-restricted roads. Could maybe detect</span>
-                    <span class="comment">// that here, or ideally even extend the zone at map construction time (or edit</span>
-                    <span class="comment">// time) when that happens.</span>
-                    <span class="macro">panic!</span>(<span class="string">&quot;{} causes illegal entrance into a zone at {}&quot;</span>, <span class="ident">req</span>, <span class="ident">t</span>);
+                <span class="comment">// Entering our destination zone is fine
+                </span><span class="kw">let </span>into_zone = map.get_parent(t.dst).get_zone(map);
+                <span class="kw">if </span>into_zone != z1 &amp;&amp; into_zone != z2 {
+                    <span class="comment">// TODO There are lots of false positive here that occur when part of the graph
+                    // is separated from the rest by access-restricted roads. Could maybe detect
+                    // that here, or ideally even extend the zone at map construction time (or edit
+                    // time) when that happens.
+                    </span><span class="macro">panic!</span>(<span class="string">&quot;{} causes illegal entrance into a zone at {}&quot;</span>, req, t);
                 }
             }
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

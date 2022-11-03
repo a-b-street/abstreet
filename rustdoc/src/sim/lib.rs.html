@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -612,619 +612,619 @@
 <span id="612">612</span>
 <span id="613">613</span>
 <span id="614">614</span>
-</pre><pre class="rust"><code><span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also</span>
-<span class="doccomment">//! https://a-b-street.github.io/docs/tech/trafficsim/index.html.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! The simulation is very roughly layered into two pieces: the low-level &quot;mechanics&quot; of simulating</span>
-<span class="doccomment">//! individual agents over time, and higher-level systems like TripManager and TransitSimState that</span>
-<span class="doccomment">//! glue together individual goals executed by the agents.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! Helpful terminology:</span>
-<span class="doccomment">//! - sov = single occupancy vehicle, a car with just a driver and no passengers. (Car passengers</span>
-<span class="doccomment">//!   are not currently modelled)</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The sim crate runs a traffic simulation on top of the map_model. See also
+//! https://a-b-street.github.io/docs/tech/trafficsim/index.html.
+//!
+//! The simulation is very roughly layered into two pieces: the low-level &quot;mechanics&quot; of simulating
+//! individual agents over time, and higher-level systems like TripManager and TransitSimState that
+//! glue together individual goals executed by the agents.
+//!
+//! Helpful terminology:
+//! - sov = single occupancy vehicle, a car with just a driver and no passengers. (Car passengers
+//!   are not currently modelled)
 
-<span class="comment">// Disable some noisy clippy warnings</span>
-<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>, <span class="ident">clippy::too_many_arguments</span>)]</span>
+</span><span class="comment">// Disable some noisy clippy warnings
+</span><span class="attribute">#![allow(clippy::type_complexity, clippy::too_many_arguments)]
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+#[macro_use]
+</span><span class="kw">extern crate </span>anyhow;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_usize</span>, <span class="ident">serialize_usize</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Speed</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BuildingID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>,
-    <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>,
+<span class="kw">use </span>abstutil::{deserialize_usize, serialize_usize};
+<span class="kw">use </span>geom::{Distance, Speed, Time};
+<span class="kw">use </span>map_model::{
+    BuildingID, IntersectionID, LaneID, Map, ParkingLotID, Path, PathConstraints, Position,
+    TransitRouteID, TransitStopID,
 };
-<span class="kw">use</span> <span class="ident">synthpop::TripEndpoint</span>;
+<span class="kw">use </span>synthpop::TripEndpoint;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render</span>::{
-    <span class="ident">CarStatus</span>, <span class="ident">DrawCarInput</span>, <span class="ident">DrawPedCrowdInput</span>, <span class="ident">DrawPedestrianInput</span>, <span class="ident">Intent</span>, <span class="ident">PedCrowdLocation</span>,
-    <span class="ident">UnzoomedAgent</span>,
+<span class="kw">pub use </span><span class="kw">crate</span>::render::{
+    CarStatus, DrawCarInput, DrawPedCrowdInput, DrawPedestrianInput, Intent, PedCrowdLocation,
+    UnzoomedAgent,
 };
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::analytics</span>::{<span class="ident">Analytics</span>, <span class="ident">Problem</span>, <span class="ident">ProblemType</span>, <span class="ident">SlidingWindow</span>, <span class="ident">TripPhase</span>};
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::events::Event</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::events</span>::{<span class="ident">AlertLocation</span>, <span class="ident">TripPhaseType</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::make::SimFlags</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::make</span>::{<span class="ident">StartTripArgs</span>, <span class="ident">TripSpec</span>};
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::mechanics</span>::{
-    <span class="ident">DrivingSimState</span>, <span class="ident">IntersectionSimState</span>, <span class="ident">ParkingSim</span>, <span class="ident">ParkingSimState</span>, <span class="ident">WalkingSimState</span>,
+<span class="kw">pub use </span><span class="self">self</span>::analytics::{Analytics, Problem, ProblemType, SlidingWindow, TripPhase};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::events::Event;
+<span class="kw">pub use </span><span class="self">self</span>::events::{AlertLocation, TripPhaseType};
+<span class="kw">pub use </span><span class="self">self</span>::make::SimFlags;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::make::{StartTripArgs, TripSpec};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::mechanics::{
+    DrivingSimState, IntersectionSimState, ParkingSim, ParkingSimState, WalkingSimState,
 };
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::pandemic::PandemicModel</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::prebake::PrebakeSummary</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::recorder::TrafficRecorder</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::router</span>::{<span class="ident">ActionAtEnd</span>, <span class="ident">Router</span>};
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::scheduler</span>::{<span class="ident">Command</span>, <span class="ident">Scheduler</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::sim</span>::{
-    <span class="ident">count_parked_cars_per_bldg</span>, <span class="ident">rand_dist</span>, <span class="ident">AgentProperties</span>, <span class="ident">AlertHandler</span>, <span class="ident">DelayCause</span>, <span class="ident">Sim</span>,
-    <span class="ident">SimCallback</span>, <span class="ident">SimOptions</span>,
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::pandemic::PandemicModel;
+<span class="kw">pub use </span><span class="self">self</span>::prebake::PrebakeSummary;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::recorder::TrafficRecorder;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::router::{ActionAtEnd, Router};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::scheduler::{Command, Scheduler};
+<span class="kw">pub use </span><span class="self">self</span>::sim::{
+    count_parked_cars_per_bldg, rand_dist, AgentProperties, AlertHandler, DelayCause, Sim,
+    SimCallback, SimOptions,
 };
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::transit::TransitSimState</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::trips</span>::{<span class="ident">CommutersVehiclesCounts</span>, <span class="ident">Person</span>, <span class="ident">PersonState</span>, <span class="ident">TripInfo</span>, <span class="ident">TripResult</span>};
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use</span> <span class="ident"><span class="self">self</span>::trips</span>::{<span class="ident">TripLeg</span>, <span class="ident">TripManager</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">synthpop::make</span>::{<span class="ident">fork_rng</span>, <span class="ident">BorderSpawnOverTime</span>, <span class="ident">ScenarioGenerator</span>, <span class="ident">SpawnOverTime</span>};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::transit::TransitSimState;
+<span class="kw">pub use </span><span class="self">self</span>::trips::{CommutersVehiclesCounts, Person, PersonState, TripInfo, TripResult};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::trips::{TripLeg, TripManager};
+<span class="kw">pub use </span>synthpop::make::{fork_rng, BorderSpawnOverTime, ScenarioGenerator, SpawnOverTime};
 
-<span class="kw">mod</span> <span class="ident">analytics</span>;
-<span class="kw">mod</span> <span class="ident">events</span>;
-<span class="kw">mod</span> <span class="ident">make</span>;
-<span class="kw">mod</span> <span class="ident">mechanics</span>;
-<span class="kw">mod</span> <span class="ident">pandemic</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">prebake</span>;
-<span class="kw">mod</span> <span class="ident">recorder</span>;
-<span class="kw">mod</span> <span class="ident">render</span>;
-<span class="kw">mod</span> <span class="ident">router</span>;
-<span class="kw">mod</span> <span class="ident">scheduler</span>;
-<span class="kw">mod</span> <span class="ident">sim</span>;
-<span class="kw">mod</span> <span class="ident">transit</span>;
-<span class="kw">mod</span> <span class="ident">trips</span>;
+<span class="kw">mod </span>analytics;
+<span class="kw">mod </span>events;
+<span class="kw">mod </span>make;
+<span class="kw">mod </span>mechanics;
+<span class="kw">mod </span>pandemic;
+<span class="kw">pub mod </span>prebake;
+<span class="kw">mod </span>recorder;
+<span class="kw">mod </span>render;
+<span class="kw">mod </span>router;
+<span class="kw">mod </span>scheduler;
+<span class="kw">mod </span>sim;
+<span class="kw">mod </span>transit;
+<span class="kw">mod </span>trips;
 
-<span class="comment">// http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">BIKE_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">1.8</span>);
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">MIN_CAR_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">4.5</span>);
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">MAX_CAR_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">6.5</span>);
-<span class="comment">// Note this is more than MAX_CAR_LENGTH</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">BUS_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">12.5</span>);
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">LIGHT_RAIL_LENGTH</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">60.0</span>);
+<span class="comment">// http://pccsc.net/bicycle-parking-info/ says 68 inches, which is 1.73m
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>BIKE_LENGTH: Distance = Distance::const_meters(<span class="number">1.8</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>MIN_CAR_LENGTH: Distance = Distance::const_meters(<span class="number">4.5</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>MAX_CAR_LENGTH: Distance = Distance::const_meters(<span class="number">6.5</span>);
+<span class="comment">// Note this is more than MAX_CAR_LENGTH
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>BUS_LENGTH: Distance = Distance::const_meters(<span class="number">12.5</span>);
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>LIGHT_RAIL_LENGTH: Distance = Distance::const_meters(<span class="number">60.0</span>);
 
-<span class="doccomment">/// At all speeds (including at rest), cars must be at least this far apart, measured from front of</span>
-<span class="doccomment">/// one car to the back of the other.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">FOLLOWING_DISTANCE</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">1.0</span>);
+<span class="doccomment">/// At all speeds (including at rest), cars must be at least this far apart, measured from front of
+/// one car to the back of the other.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>FOLLOWING_DISTANCE: Distance = Distance::const_meters(<span class="number">1.0</span>);
 
-<span class="doccomment">/// When spawning at borders, start the front of the vehicle this far along and gradually appear.</span>
-<span class="doccomment">/// Getting too close to EPSILON_DIST can lead to get_draw_car having no geometry at all.</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const</span> <span class="ident">SPAWN_DIST</span>: <span class="ident">Distance</span> <span class="op">=</span> <span class="ident">Distance::const_meters</span>(<span class="number">0.05</span>);
+<span class="doccomment">/// When spawning at borders, start the front of the vehicle this far along and gradually appear.
+/// Getting too close to EPSILON_DIST can lead to get_draw_car having no geometry at all.
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">const </span>SPAWN_DIST: Distance = Distance::const_meters(<span class="number">0.05</span>);
 
-<span class="comment">// TODO Implement Eq, Hash, Ord manually to guarantee this.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CarID</span> {
-    <span class="doccomment">/// The numeric ID must be globally unique, without considering VehicleType.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">usize</span>,
-    <span class="doccomment">/// VehicleType is bundled for convenience; many places need to know this without a lookup.</span>
-    <span class="kw">pub</span> <span class="ident">vehicle_type</span>: <span class="ident">VehicleType</span>,
+<span class="comment">// TODO Implement Eq, Hash, Ord manually to guarantee this.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>CarID {
+    <span class="doccomment">/// The numeric ID must be globally unique, without considering VehicleType.
+    </span><span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>id: usize,
+    <span class="doccomment">/// VehicleType is bundled for convenience; many places need to know this without a lookup.
+    </span><span class="kw">pub </span>vehicle_type: VehicleType,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">CarID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">vehicle_type</span> {
-            <span class="ident">VehicleType::Car</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Car #{}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>),
-            <span class="ident">VehicleType::Bus</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Bus #{}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>),
-            <span class="ident">VehicleType::Train</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Train #{}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>),
-            <span class="ident">VehicleType::Bike</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Bike #{}&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>CarID {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self</span>.vehicle_type {
+            VehicleType::Car =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Car #{}&quot;</span>, <span class="self">self</span>.id),
+            VehicleType::Bus =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Bus #{}&quot;</span>, <span class="self">self</span>.id),
+            VehicleType::Train =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Train #{}&quot;</span>, <span class="self">self</span>.id),
+            VehicleType::Bike =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;Bike #{}&quot;</span>, <span class="self">self</span>.id),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PedestrianID</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">usize</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>PedestrianID(
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>usize,
 );
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">PedestrianID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Pedestrian #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>PedestrianID {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Pedestrian #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AgentID</span> {
-    <span class="ident">Car</span>(<span class="ident">CarID</span>),
-    <span class="ident">Pedestrian</span>(<span class="ident">PedestrianID</span>),
-    <span class="comment">// TODO Rename...</span>
-    <span class="ident">BusPassenger</span>(<span class="ident">PersonID</span>, <span class="ident">CarID</span>),
+<span class="attribute">#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash)]
+</span><span class="kw">pub enum </span>AgentID {
+    Car(CarID),
+    Pedestrian(PedestrianID),
+    <span class="comment">// TODO Rename...
+    </span>BusPassenger(PersonID, CarID),
 }
 
-<span class="kw">impl</span> <span class="ident">AgentID</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">as_car</span>(<span class="self">self</span>) -&gt; <span class="ident">CarID</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AgentID::Car</span>(<span class="ident">id</span>) =&gt; <span class="ident">id</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Not a CarID: {:?}&quot;</span>, <span class="self">self</span>),
+<span class="kw">impl </span>AgentID {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>as_car(<span class="self">self</span>) -&gt; CarID {
+        <span class="kw">match </span><span class="self">self </span>{
+            AgentID::Car(id) =&gt; id,
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Not a CarID: {:?}&quot;</span>, <span class="self">self</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_type</span>(<span class="self">self</span>) -&gt; <span class="ident">AgentType</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AgentID::Car</span>(<span class="ident">c</span>) =&gt; <span class="kw">match</span> <span class="ident">c</span>.<span class="ident">vehicle_type</span> {
-                <span class="ident">VehicleType::Car</span> =&gt; <span class="ident">AgentType::Car</span>,
-                <span class="ident">VehicleType::Bike</span> =&gt; <span class="ident">AgentType::Bike</span>,
-                <span class="ident">VehicleType::Bus</span> =&gt; <span class="ident">AgentType::Bus</span>,
-                <span class="ident">VehicleType::Train</span> =&gt; <span class="ident">AgentType::Train</span>,
+    <span class="kw">pub fn </span>to_type(<span class="self">self</span>) -&gt; AgentType {
+        <span class="kw">match </span><span class="self">self </span>{
+            AgentID::Car(c) =&gt; <span class="kw">match </span>c.vehicle_type {
+                VehicleType::Car =&gt; AgentType::Car,
+                VehicleType::Bike =&gt; AgentType::Bike,
+                VehicleType::Bus =&gt; AgentType::Bus,
+                VehicleType::Train =&gt; AgentType::Train,
             },
-            <span class="ident">AgentID::Pedestrian</span>(<span class="kw">_</span>) =&gt; <span class="ident">AgentType::Pedestrian</span>,
-            <span class="ident">AgentID::BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">AgentType::TransitRider</span>,
+            AgentID::Pedestrian(<span class="kw">_</span>) =&gt; AgentType::Pedestrian,
+            AgentID::BusPassenger(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; AgentType::TransitRider,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_vehicle_type</span>(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">VehicleType</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AgentID::Car</span>(<span class="ident">c</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">c</span>.<span class="ident">vehicle_type</span>),
-            <span class="ident">AgentID::Pedestrian</span>(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
-            <span class="ident">AgentID::BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+    <span class="kw">pub fn </span>to_vehicle_type(<span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;VehicleType&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            AgentID::Car(c) =&gt; <span class="prelude-val">Some</span>(c.vehicle_type),
+            AgentID::Pedestrian(<span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
+            AgentID::BusPassenger(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="comment">// Convenient debugging</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_car</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">usize</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AgentID::Car</span>(<span class="ident">c</span>) =&gt; <span class="ident">c</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">id</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+    <span class="comment">// Convenient debugging
+    </span><span class="attribute">#[allow(unused)]
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_car(<span class="kw-2">&amp;</span><span class="self">self</span>, id: usize) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            AgentID::Car(c) =&gt; c.id == id,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_pedestrian</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">AgentID::Pedestrian</span>(<span class="kw">_</span>))
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_pedestrian(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="macro">matches!</span>(<span class="self">self</span>, AgentID::Pedestrian(<span class="kw">_</span>))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">AgentID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AgentID::Car</span>(<span class="ident">id</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AgentID({})&quot;</span>, <span class="ident">id</span>),
-            <span class="ident">AgentID::Pedestrian</span>(<span class="ident">id</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AgentID({})&quot;</span>, <span class="ident">id</span>),
-            <span class="ident">AgentID::BusPassenger</span>(<span class="ident">person</span>, <span class="ident">bus</span>) =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;AgentID({} on {})&quot;</span>, <span class="ident">person</span>, <span class="ident">bus</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>AgentID {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            AgentID::Car(id) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;AgentID({})&quot;</span>, id),
+            AgentID::Pedestrian(id) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;AgentID({})&quot;</span>, id),
+            AgentID::BusPassenger(person, bus) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;AgentID({} on {})&quot;</span>, person, bus),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AgentType</span> {
-    <span class="ident">Car</span>,
-    <span class="ident">Bike</span>,
-    <span class="ident">Bus</span>,
-    <span class="ident">Train</span>,
-    <span class="ident">Pedestrian</span>,
-    <span class="ident">TransitRider</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug, Hash)]
+</span><span class="kw">pub enum </span>AgentType {
+    Car,
+    Bike,
+    Bus,
+    Train,
+    Pedestrian,
+    TransitRider,
 }
 
-<span class="kw">impl</span> <span class="ident">AgentType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AgentType</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>AgentType {
+    <span class="kw">pub fn </span>all() -&gt; Vec&lt;AgentType&gt; {
         <span class="macro">vec!</span>[
-            <span class="ident">AgentType::Car</span>,
-            <span class="ident">AgentType::Bike</span>,
-            <span class="ident">AgentType::Bus</span>,
-            <span class="ident">AgentType::Train</span>,
-            <span class="ident">AgentType::Pedestrian</span>,
-            <span class="ident">AgentType::TransitRider</span>,
+            AgentType::Car,
+            AgentType::Bike,
+            AgentType::Bus,
+            AgentType::Train,
+            AgentType::Pedestrian,
+            AgentType::TransitRider,
         ]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">noun</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AgentType::Car</span> =&gt; <span class="string">&quot;Car&quot;</span>,
-            <span class="ident">AgentType::Bike</span> =&gt; <span class="string">&quot;Bike&quot;</span>,
-            <span class="ident">AgentType::Bus</span> =&gt; <span class="string">&quot;Bus&quot;</span>,
-            <span class="ident">AgentType::Train</span> =&gt; <span class="string">&quot;Train&quot;</span>,
-            <span class="ident">AgentType::Pedestrian</span> =&gt; <span class="string">&quot;Pedestrian&quot;</span>,
-            <span class="ident">AgentType::TransitRider</span> =&gt; <span class="string">&quot;Transit rider&quot;</span>,
+    <span class="kw">pub fn </span>noun(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            AgentType::Car =&gt; <span class="string">&quot;Car&quot;</span>,
+            AgentType::Bike =&gt; <span class="string">&quot;Bike&quot;</span>,
+            AgentType::Bus =&gt; <span class="string">&quot;Bus&quot;</span>,
+            AgentType::Train =&gt; <span class="string">&quot;Train&quot;</span>,
+            AgentType::Pedestrian =&gt; <span class="string">&quot;Pedestrian&quot;</span>,
+            AgentType::TransitRider =&gt; <span class="string">&quot;Transit rider&quot;</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">plural_noun</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AgentType::Car</span> =&gt; <span class="string">&quot;cars&quot;</span>,
-            <span class="ident">AgentType::Bike</span> =&gt; <span class="string">&quot;bikes&quot;</span>,
-            <span class="ident">AgentType::Bus</span> =&gt; <span class="string">&quot;buses&quot;</span>,
-            <span class="ident">AgentType::Train</span> =&gt; <span class="string">&quot;trains&quot;</span>,
-            <span class="ident">AgentType::Pedestrian</span> =&gt; <span class="string">&quot;pedestrians&quot;</span>,
-            <span class="ident">AgentType::TransitRider</span> =&gt; <span class="string">&quot;transit riders&quot;</span>,
+    <span class="kw">pub fn </span>plural_noun(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            AgentType::Car =&gt; <span class="string">&quot;cars&quot;</span>,
+            AgentType::Bike =&gt; <span class="string">&quot;bikes&quot;</span>,
+            AgentType::Bus =&gt; <span class="string">&quot;buses&quot;</span>,
+            AgentType::Train =&gt; <span class="string">&quot;trains&quot;</span>,
+            AgentType::Pedestrian =&gt; <span class="string">&quot;pedestrians&quot;</span>,
+            AgentType::TransitRider =&gt; <span class="string">&quot;transit riders&quot;</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ongoing_verb</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AgentType::Car</span> =&gt; <span class="string">&quot;driving&quot;</span>,
-            <span class="ident">AgentType::Bike</span> =&gt; <span class="string">&quot;biking&quot;</span>,
-            <span class="ident">AgentType::Bus</span> <span class="op">|</span> <span class="ident">AgentType::Train</span> =&gt; <span class="macro">unreachable!</span>(),
-            <span class="ident">AgentType::Pedestrian</span> =&gt; <span class="string">&quot;walking&quot;</span>,
-            <span class="ident">AgentType::TransitRider</span> =&gt; <span class="string">&quot;riding transit&quot;</span>,
+    <span class="kw">pub fn </span>ongoing_verb(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            AgentType::Car =&gt; <span class="string">&quot;driving&quot;</span>,
+            AgentType::Bike =&gt; <span class="string">&quot;biking&quot;</span>,
+            AgentType::Bus | AgentType::Train =&gt; <span class="macro">unreachable!</span>(),
+            AgentType::Pedestrian =&gt; <span class="string">&quot;walking&quot;</span>,
+            AgentType::TransitRider =&gt; <span class="string">&quot;riding transit&quot;</span>,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripID</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">usize</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>TripID(
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>usize,
 );
 
-<span class="kw">impl</span> <span class="ident">abstutil::CloneableAny</span> <span class="kw">for</span> <span class="ident">TripID</span> {}
+<span class="kw">impl </span>abstutil::CloneableAny <span class="kw">for </span>TripID {}
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">TripID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Trip #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>TripID {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Trip #{}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PersonID</span>(
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_usize&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_usize&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">usize</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>PersonID(
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_usize&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_usize&quot;
+    </span>)]
+    </span><span class="kw">pub </span>usize,
 );
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">PersonID</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;Person {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>PersonID {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="macro">write!</span>(f, <span class="string">&quot;Person {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Debug</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">VehicleType</span> {
-    <span class="ident">Car</span>,
-    <span class="ident">Bus</span>,
-    <span class="ident">Train</span>,
-    <span class="ident">Bike</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug, Hash, PartialOrd, Ord)]
+</span><span class="kw">pub enum </span>VehicleType {
+    Car,
+    Bus,
+    Train,
+    Bike,
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Display</span> <span class="kw">for</span> <span class="ident">VehicleType</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">VehicleType::Car</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;car&quot;</span>),
-            <span class="ident">VehicleType::Bus</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bus&quot;</span>),
-            <span class="ident">VehicleType::Train</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;train&quot;</span>),
-            <span class="ident">VehicleType::Bike</span> =&gt; <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;bike&quot;</span>),
+<span class="kw">impl </span>fmt::Display <span class="kw">for </span>VehicleType {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
+        <span class="kw">match </span><span class="self">self </span>{
+            VehicleType::Car =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;car&quot;</span>),
+            VehicleType::Bus =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;bus&quot;</span>),
+            VehicleType::Train =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;train&quot;</span>),
+            VehicleType::Bike =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;bike&quot;</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">VehicleType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_constraints</span>(<span class="self">self</span>) -&gt; <span class="ident">PathConstraints</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">VehicleType::Car</span> =&gt; <span class="ident">PathConstraints::Car</span>,
-            <span class="ident">VehicleType::Bus</span> =&gt; <span class="ident">PathConstraints::Bus</span>,
-            <span class="ident">VehicleType::Train</span> =&gt; <span class="ident">PathConstraints::Train</span>,
-            <span class="ident">VehicleType::Bike</span> =&gt; <span class="ident">PathConstraints::Bike</span>,
+<span class="kw">impl </span>VehicleType {
+    <span class="kw">pub fn </span>to_constraints(<span class="self">self</span>) -&gt; PathConstraints {
+        <span class="kw">match </span><span class="self">self </span>{
+            VehicleType::Car =&gt; PathConstraints::Car,
+            VehicleType::Bus =&gt; PathConstraints::Bus,
+            VehicleType::Train =&gt; PathConstraints::Train,
+            VehicleType::Bike =&gt; PathConstraints::Bike,
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">is_transit</span>(<span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">VehicleType::Car</span> =&gt; <span class="bool-val">false</span>,
-            <span class="ident">VehicleType::Bus</span> =&gt; <span class="bool-val">true</span>,
-            <span class="ident">VehicleType::Train</span> =&gt; <span class="bool-val">true</span>,
-            <span class="ident">VehicleType::Bike</span> =&gt; <span class="bool-val">false</span>,
-        }
-    }
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Vehicle</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">CarID</span>,
-    <span class="kw">pub</span> <span class="ident">owner</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">vehicle_type</span>: <span class="ident">VehicleType</span>,
-    <span class="kw">pub</span> <span class="ident">length</span>: <span class="ident">Distance</span>,
-    <span class="kw">pub</span> <span class="ident">max_speed</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VehicleSpec</span> {
-    <span class="kw">pub</span> <span class="ident">vehicle_type</span>: <span class="ident">VehicleType</span>,
-    <span class="kw">pub</span> <span class="ident">length</span>: <span class="ident">Distance</span>,
-    <span class="kw">pub</span> <span class="ident">max_speed</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Speed</span><span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">VehicleSpec</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">make</span>(<span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="ident">owner</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vehicle</span> {
-        <span class="macro">assert_eq!</span>(<span class="ident">id</span>.<span class="ident">vehicle_type</span>, <span class="self">self</span>.<span class="ident">vehicle_type</span>);
-        <span class="ident">Vehicle</span> {
-            <span class="ident">id</span>,
-            <span class="ident">owner</span>,
-            <span class="ident">vehicle_type</span>: <span class="self">self</span>.<span class="ident">vehicle_type</span>,
-            <span class="ident">length</span>: <span class="self">self</span>.<span class="ident">length</span>,
-            <span class="ident">max_speed</span>: <span class="self">self</span>.<span class="ident">max_speed</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>is_transit(<span class="self">self</span>) -&gt; bool {
+        <span class="kw">match </span><span class="self">self </span>{
+            VehicleType::Car =&gt; <span class="bool-val">false</span>,
+            VehicleType::Bus =&gt; <span class="bool-val">true</span>,
+            VehicleType::Train =&gt; <span class="bool-val">true</span>,
+            VehicleType::Bike =&gt; <span class="bool-val">false</span>,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ParkingSpot</span> {
-    <span class="doccomment">/// Lane and idx</span>
-    <span class="ident">Onstreet</span>(<span class="ident">LaneID</span>, <span class="ident">usize</span>),
-    <span class="doccomment">/// Building and idx (pretty meaningless)</span>
-    <span class="ident">Offstreet</span>(<span class="ident">BuildingID</span>, <span class="ident">usize</span>),
-    <span class="ident">Lot</span>(<span class="ident">ParkingLotID</span>, <span class="ident">usize</span>),
+<span class="attribute">#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>Vehicle {
+    <span class="kw">pub </span>id: CarID,
+    <span class="kw">pub </span>owner: <span class="prelude-ty">Option</span>&lt;PersonID&gt;,
+    <span class="kw">pub </span>vehicle_type: VehicleType,
+    <span class="kw">pub </span>length: Distance,
+    <span class="kw">pub </span>max_speed: <span class="prelude-ty">Option</span>&lt;Speed&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ParkedCar</span> {
-    <span class="kw">pub</span> <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
-    <span class="kw">pub</span> <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>,
-    <span class="kw">pub</span> <span class="ident">parked_since</span>: <span class="ident">Time</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>VehicleSpec {
+    <span class="kw">pub </span>vehicle_type: VehicleType,
+    <span class="kw">pub </span>length: Distance,
+    <span class="kw">pub </span>max_speed: <span class="prelude-ty">Option</span>&lt;Speed&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">DrivingGoal</span> {
-    <span class="ident">ParkNear</span>(<span class="ident">BuildingID</span>),
-    <span class="ident">Border</span>(<span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>),
+<span class="kw">impl </span>VehicleSpec {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>make(<span class="self">self</span>, id: CarID, owner: <span class="prelude-ty">Option</span>&lt;PersonID&gt;) -&gt; Vehicle {
+        <span class="macro">assert_eq!</span>(id.vehicle_type, <span class="self">self</span>.vehicle_type);
+        Vehicle {
+            id,
+            owner,
+            vehicle_type: <span class="self">self</span>.vehicle_type,
+            length: <span class="self">self</span>.length,
+            max_speed: <span class="self">self</span>.max_speed,
+        }
+    }
 }
 
-<span class="kw">impl</span> <span class="ident">DrivingGoal</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">goal_pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Position</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) =&gt; <span class="kw">match</span> <span class="ident">constraints</span> {
-                <span class="ident">PathConstraints::Car</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">driving_lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">find_driving_lane_near_building</span>(<span class="kw-2">*</span><span class="ident">b</span>);
-                    <span class="kw">let</span> <span class="ident">sidewalk_pos</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">sidewalk_pos</span>;
-                    <span class="kw">if</span> <span class="ident">driving_lane</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>().<span class="ident">road</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">sidewalk_pos</span>.<span class="ident">equiv_pos</span>(<span class="ident">driving_lane</span>, <span class="ident">map</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">Position::start</span>(<span class="ident">driving_lane</span>))
+<span class="attribute">#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>ParkingSpot {
+    <span class="doccomment">/// Lane and idx
+    </span>Onstreet(LaneID, usize),
+    <span class="doccomment">/// Building and idx (pretty meaningless)
+    </span>Offstreet(BuildingID, usize),
+    Lot(ParkingLotID, usize),
+}
+
+<span class="attribute">#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>ParkedCar {
+    <span class="kw">pub </span>vehicle: Vehicle,
+    <span class="kw">pub </span>spot: ParkingSpot,
+    <span class="kw">pub </span>parked_since: Time,
+}
+
+<span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>DrivingGoal {
+    ParkNear(BuildingID),
+    Border(IntersectionID, LaneID),
+}
+
+<span class="kw">impl </span>DrivingGoal {
+    <span class="kw">pub fn </span>goal_pos(<span class="kw-2">&amp;</span><span class="self">self</span>, constraints: PathConstraints, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;Position&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            DrivingGoal::ParkNear(b) =&gt; <span class="kw">match </span>constraints {
+                PathConstraints::Car =&gt; {
+                    <span class="kw">let </span>driving_lane = map.find_driving_lane_near_building(<span class="kw-2">*</span>b);
+                    <span class="kw">let </span>sidewalk_pos = map.get_b(<span class="kw-2">*</span>b).sidewalk_pos;
+                    <span class="kw">if </span>driving_lane.road == sidewalk_pos.lane().road {
+                        <span class="prelude-val">Some</span>(sidewalk_pos.equiv_pos(driving_lane, map))
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">Some</span>(Position::start(driving_lane))
                     }
                 }
-                <span class="ident">PathConstraints::Bike</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">biking_connection</span>(<span class="ident">map</span>)<span class="question-mark">?</span>.<span class="number">0</span>),
-                <span class="ident">PathConstraints::Bus</span> <span class="op">|</span> <span class="ident">PathConstraints::Train</span> <span class="op">|</span> <span class="ident">PathConstraints::Pedestrian</span> =&gt; {
+                PathConstraints::Bike =&gt; <span class="prelude-val">Some</span>(map.get_b(<span class="kw-2">*</span>b).biking_connection(map)<span class="question-mark">?</span>.<span class="number">0</span>),
+                PathConstraints::Bus | PathConstraints::Train | PathConstraints::Pedestrian =&gt; {
                     <span class="macro">unreachable!</span>()
                 }
             },
-            <span class="ident">DrivingGoal::Border</span>(<span class="kw">_</span>, <span class="ident">l</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">Position::end</span>(<span class="kw-2">*</span><span class="ident">l</span>, <span class="ident">map</span>)),
+            DrivingGoal::Border(<span class="kw">_</span>, l) =&gt; <span class="prelude-val">Some</span>(Position::end(<span class="kw-2">*</span>l, map)),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_router</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">owner</span>: <span class="ident">CarID</span>, <span class="ident">path</span>: <span class="ident">Path</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Router</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">owner</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
-                    <span class="ident">Router::bike_then_stop</span>(<span class="ident">owner</span>, <span class="ident">path</span>, <span class="ident">SidewalkSpot::bike_rack</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>).<span class="ident">unwrap</span>())
-                } <span class="kw">else</span> {
-                    <span class="ident">Router::park_near</span>(<span class="ident">owner</span>, <span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">b</span>)
+    <span class="kw">pub fn </span>make_router(<span class="kw-2">&amp;</span><span class="self">self</span>, owner: CarID, path: Path, map: <span class="kw-2">&amp;</span>Map) -&gt; Router {
+        <span class="kw">match </span><span class="self">self </span>{
+            DrivingGoal::ParkNear(b) =&gt; {
+                <span class="kw">if </span>owner.vehicle_type == VehicleType::Bike {
+                    Router::bike_then_stop(owner, path, SidewalkSpot::bike_rack(<span class="kw-2">*</span>b, map).unwrap())
+                } <span class="kw">else </span>{
+                    Router::park_near(owner, path, <span class="kw-2">*</span>b)
                 }
             }
-            <span class="ident">DrivingGoal::Border</span>(<span class="ident">i</span>, <span class="ident">last_lane</span>) =&gt; {
-                <span class="ident">Router::end_at_border</span>(<span class="ident">owner</span>, <span class="ident">path</span>, <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">last_lane</span>).<span class="ident">length</span>(), <span class="kw-2">*</span><span class="ident">i</span>)
+            DrivingGoal::Border(i, last_lane) =&gt; {
+                Router::end_at_border(owner, path, map.get_l(<span class="kw-2">*</span>last_lane).length(), <span class="kw-2">*</span>i)
             }
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Deserialize</span>, <span class="ident">Serialize</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">SidewalkSpot</span> {
-    <span class="kw">pub</span> <span class="ident">connection</span>: <span class="ident">SidewalkPOI</span>,
-    <span class="kw">pub</span> <span class="ident">sidewalk_pos</span>: <span class="ident">Position</span>,
+<span class="attribute">#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>SidewalkSpot {
+    <span class="kw">pub </span>connection: SidewalkPOI,
+    <span class="kw">pub </span>sidewalk_pos: Position,
 }
 
-<span class="doccomment">/// Point of interest, that is</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">SidewalkPOI</span> {
-    <span class="doccomment">/// Note that for offstreet parking, the path will be the same as the building&#39;s front path.</span>
-    <span class="ident">ParkingSpot</span>(<span class="ident">ParkingSpot</span>),
-    <span class="doccomment">/// Don&#39;t actually know where this goes yet!</span>
-    <span class="ident">DeferredParkingSpot</span>,
-    <span class="ident">Building</span>(<span class="ident">BuildingID</span>),
-    <span class="ident">TransitStop</span>(<span class="ident">TransitStopID</span>),
-    <span class="ident">Border</span>(<span class="ident">IntersectionID</span>),
-    <span class="doccomment">/// The bikeable position</span>
-    <span class="ident">BikeRack</span>(<span class="ident">Position</span>),
-    <span class="ident">SuddenlyAppear</span>,
+<span class="doccomment">/// Point of interest, that is
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>SidewalkPOI {
+    <span class="doccomment">/// Note that for offstreet parking, the path will be the same as the building&#39;s front path.
+    </span>ParkingSpot(ParkingSpot),
+    <span class="doccomment">/// Don&#39;t actually know where this goes yet!
+    </span>DeferredParkingSpot,
+    Building(BuildingID),
+    TransitStop(TransitStopID),
+    Border(IntersectionID),
+    <span class="doccomment">/// The bikeable position
+    </span>BikeRack(Position),
+    SuddenlyAppear,
 }
 
-<span class="kw">impl</span> <span class="ident">SidewalkSpot</span> {
-    <span class="doccomment">/// Pretty hacky case</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deferred_parking_spot</span>() -&gt; <span class="ident">SidewalkSpot</span> {
-        <span class="ident">SidewalkSpot</span> {
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI::DeferredParkingSpot</span>,
-            <span class="ident">sidewalk_pos</span>: <span class="ident">Position::start</span>(<span class="ident">LaneID::dummy</span>()),
+<span class="kw">impl </span>SidewalkSpot {
+    <span class="doccomment">/// Pretty hacky case
+    </span><span class="kw">pub fn </span>deferred_parking_spot() -&gt; SidewalkSpot {
+        SidewalkSpot {
+            connection: SidewalkPOI::DeferredParkingSpot,
+            sidewalk_pos: Position::start(LaneID::dummy()),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parking_spot</span>(
-        <span class="ident">spot</span>: <span class="ident">ParkingSpot</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">parking_sim</span>: <span class="kw-2">&amp;</span><span class="ident">ParkingSimState</span>,
-    ) -&gt; <span class="ident">SidewalkSpot</span> {
-        <span class="ident">SidewalkSpot</span> {
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI::ParkingSpot</span>(<span class="ident">spot</span>),
-            <span class="ident">sidewalk_pos</span>: <span class="ident">parking_sim</span>.<span class="ident">spot_to_sidewalk_pos</span>(<span class="ident">spot</span>, <span class="ident">map</span>),
+    <span class="kw">pub fn </span>parking_spot(
+        spot: ParkingSpot,
+        map: <span class="kw-2">&amp;</span>Map,
+        parking_sim: <span class="kw-2">&amp;</span>ParkingSimState,
+    ) -&gt; SidewalkSpot {
+        SidewalkSpot {
+            connection: SidewalkPOI::ParkingSpot(spot),
+            sidewalk_pos: parking_sim.spot_to_sidewalk_pos(spot, map),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">building</span>(<span class="ident">b</span>: <span class="ident">BuildingID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">SidewalkSpot</span> {
-        <span class="ident">SidewalkSpot</span> {
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI::Building</span>(<span class="ident">b</span>),
-            <span class="ident">sidewalk_pos</span>: <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">sidewalk_pos</span>,
+    <span class="kw">pub fn </span>building(b: BuildingID, map: <span class="kw-2">&amp;</span>Map) -&gt; SidewalkSpot {
+        SidewalkSpot {
+            connection: SidewalkPOI::Building(b),
+            sidewalk_pos: map.get_b(b).sidewalk_pos,
         }
     }
 
-    <span class="comment">// TODO For the case when we have to start/stop biking somewhere else, this won&#39;t match up with</span>
-    <span class="comment">// a building though!</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bike_rack</span>(<span class="ident">b</span>: <span class="ident">BuildingID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">bike_pos</span>, <span class="ident">sidewalk_pos</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">biking_connection</span>(<span class="ident">map</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">SidewalkSpot</span> {
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI::BikeRack</span>(<span class="ident">bike_pos</span>),
-            <span class="ident">sidewalk_pos</span>,
+    <span class="comment">// TODO For the case when we have to start/stop biking somewhere else, this won&#39;t match up with
+    // a building though!
+    </span><span class="kw">pub fn </span>bike_rack(b: BuildingID, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;SidewalkSpot&gt; {
+        <span class="kw">let </span>(bike_pos, sidewalk_pos) = map.get_b(b).biking_connection(map)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(SidewalkSpot {
+            connection: SidewalkPOI::BikeRack(bike_pos),
+            sidewalk_pos,
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bus_stop</span>(<span class="ident">stop</span>: <span class="ident">TransitStopID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">SidewalkSpot</span> {
-        <span class="ident">SidewalkSpot</span> {
-            <span class="ident">sidewalk_pos</span>: <span class="ident">map</span>.<span class="ident">get_ts</span>(<span class="ident">stop</span>).<span class="ident">sidewalk_pos</span>,
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI::TransitStop</span>(<span class="ident">stop</span>),
+    <span class="kw">pub fn </span>bus_stop(stop: TransitStopID, map: <span class="kw-2">&amp;</span>Map) -&gt; SidewalkSpot {
+        SidewalkSpot {
+            sidewalk_pos: map.get_ts(stop).sidewalk_pos,
+            connection: SidewalkPOI::TransitStop(stop),
         }
     }
 
-    <span class="comment">// Recall sidewalks are bidirectional.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_at_border</span>(<span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">SidewalkSpot</span> {
-            <span class="ident">sidewalk_pos</span>: <span class="ident">TripEndpoint::start_walking_at_border</span>(<span class="ident">i</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI::Border</span>(<span class="ident">i</span>),
+    <span class="comment">// Recall sidewalks are bidirectional.
+    </span><span class="kw">pub fn </span>start_at_border(i: IntersectionID, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;SidewalkSpot&gt; {
+        <span class="prelude-val">Some</span>(SidewalkSpot {
+            sidewalk_pos: TripEndpoint::start_walking_at_border(i, map)<span class="question-mark">?</span>,
+            connection: SidewalkPOI::Border(i),
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">end_at_border</span>(<span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="ident">SidewalkSpot</span> {
-            <span class="ident">sidewalk_pos</span>: <span class="ident">TripEndpoint::end_walking_at_border</span>(<span class="ident">i</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI::Border</span>(<span class="ident">i</span>),
+    <span class="kw">pub fn </span>end_at_border(i: IntersectionID, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;SidewalkSpot&gt; {
+        <span class="prelude-val">Some</span>(SidewalkSpot {
+            sidewalk_pos: TripEndpoint::end_walking_at_border(i, map)<span class="question-mark">?</span>,
+            connection: SidewalkPOI::Border(i),
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">suddenly_appear</span>(<span class="ident">pos</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">SidewalkSpot</span> {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>());
-        <span class="macro">assert!</span>(<span class="ident">lane</span>.<span class="ident">is_walkable</span>());
-        <span class="macro">assert!</span>(<span class="ident">pos</span>.<span class="ident">dist_along</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>());
-        <span class="ident">SidewalkSpot</span> {
-            <span class="ident">sidewalk_pos</span>: <span class="ident">pos</span>,
-            <span class="ident">connection</span>: <span class="ident">SidewalkPOI::SuddenlyAppear</span>,
+    <span class="kw">pub fn </span>suddenly_appear(pos: Position, map: <span class="kw-2">&amp;</span>Map) -&gt; SidewalkSpot {
+        <span class="kw">let </span>lane = map.get_l(pos.lane());
+        <span class="macro">assert!</span>(lane.is_walkable());
+        <span class="macro">assert!</span>(pos.dist_along() &lt;= lane.length());
+        SidewalkSpot {
+            sidewalk_pos: pos,
+            connection: SidewalkPOI::SuddenlyAppear,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TimeInterval</span> {
-    <span class="comment">// TODO Private fields</span>
-    <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">end</span>: <span class="ident">Time</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>TimeInterval {
+    <span class="comment">// TODO Private fields
+    </span><span class="kw">pub </span>start: Time,
+    <span class="kw">pub </span>end: Time,
 }
 
-<span class="kw">impl</span> <span class="ident">TimeInterval</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">start</span>: <span class="ident">Time</span>, <span class="ident">end</span>: <span class="ident">Time</span>) -&gt; <span class="ident">TimeInterval</span> {
-        <span class="kw">if</span> <span class="ident">end</span> <span class="op">&lt;</span> <span class="ident">start</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Bad TimeInterval {} .. {}&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>);
+<span class="kw">impl </span>TimeInterval {
+    <span class="kw">pub fn </span>new(start: Time, end: Time) -&gt; TimeInterval {
+        <span class="kw">if </span>end &lt; start {
+            <span class="macro">panic!</span>(<span class="string">&quot;Bad TimeInterval {} .. {}&quot;</span>, start, end);
         }
-        <span class="ident">TimeInterval</span> { <span class="ident">start</span>, <span class="ident">end</span> }
+        TimeInterval { start, end }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">Time</span>) -&gt; <span class="ident">f64</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">start</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">end</span> {
-            <span class="kw">return</span> <span class="number">1.0</span>;
+    <span class="kw">pub fn </span>percent(<span class="kw-2">&amp;</span><span class="self">self</span>, t: Time) -&gt; f64 {
+        <span class="kw">if </span><span class="self">self</span>.start == <span class="self">self</span>.end {
+            <span class="kw">return </span><span class="number">1.0</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="ident">t</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>);
-        <span class="macro">assert!</span>((<span class="number">0.0</span>..<span class="op">=</span><span class="number">1.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>));
-        <span class="ident">x</span>
+        <span class="kw">let </span>x = (t - <span class="self">self</span>.start) / (<span class="self">self</span>.end - <span class="self">self</span>.start);
+        <span class="macro">assert!</span>((<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>x));
+        x
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent_clamp_end</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="ident">Time</span>) -&gt; <span class="ident">f64</span> {
-        <span class="kw">if</span> <span class="ident">t</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">end</span> {
-            <span class="kw">return</span> <span class="number">1.0</span>;
+    <span class="kw">pub fn </span>percent_clamp_end(<span class="kw-2">&amp;</span><span class="self">self</span>, t: Time) -&gt; f64 {
+        <span class="kw">if </span>t &gt; <span class="self">self</span>.end {
+            <span class="kw">return </span><span class="number">1.0</span>;
         }
-        <span class="self">self</span>.<span class="ident">percent</span>(<span class="ident">t</span>)
+        <span class="self">self</span>.percent(t)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">DistanceInterval</span> {
-    <span class="comment">// TODO Private fields</span>
-    <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">Distance</span>,
-    <span class="kw">pub</span> <span class="ident">end</span>: <span class="ident">Distance</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>DistanceInterval {
+    <span class="comment">// TODO Private fields
+    </span><span class="kw">pub </span>start: Distance,
+    <span class="kw">pub </span>end: Distance,
 }
 
-<span class="kw">impl</span> <span class="ident">DistanceInterval</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_driving</span>(<span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">DistanceInterval</span> {
-        <span class="kw">if</span> <span class="ident">end</span> <span class="op">&lt;</span> <span class="ident">start</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Bad DistanceInterval {} .. {}&quot;</span>, <span class="ident">start</span>, <span class="ident">end</span>);
+<span class="kw">impl </span>DistanceInterval {
+    <span class="kw">pub fn </span>new_driving(start: Distance, end: Distance) -&gt; DistanceInterval {
+        <span class="kw">if </span>end &lt; start {
+            <span class="macro">panic!</span>(<span class="string">&quot;Bad DistanceInterval {} .. {}&quot;</span>, start, end);
         }
-        <span class="ident">DistanceInterval</span> { <span class="ident">start</span>, <span class="ident">end</span> }
+        DistanceInterval { start, end }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_walking</span>(<span class="ident">start</span>: <span class="ident">Distance</span>, <span class="ident">end</span>: <span class="ident">Distance</span>) -&gt; <span class="ident">DistanceInterval</span> {
-        <span class="comment">// start &gt; end is fine, might be contraflow.</span>
-        <span class="ident">DistanceInterval</span> { <span class="ident">start</span>, <span class="ident">end</span> }
+    <span class="kw">pub fn </span>new_walking(start: Distance, end: Distance) -&gt; DistanceInterval {
+        <span class="comment">// start &gt; end is fine, might be contraflow.
+        </span>DistanceInterval { start, end }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">lerp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Distance</span> {
-        <span class="macro">assert!</span>((<span class="number">0.0</span>..<span class="op">=</span><span class="number">1.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>));
-        <span class="self">self</span>.<span class="ident">start</span> <span class="op">+</span> <span class="ident">x</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>)
+    <span class="kw">pub fn </span>lerp(<span class="kw-2">&amp;</span><span class="self">self</span>, x: f64) -&gt; Distance {
+        <span class="macro">assert!</span>((<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>x));
+        <span class="self">self</span>.start + x * (<span class="self">self</span>.end - <span class="self">self</span>.start)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">length</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Distance</span> {
-        (<span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>).<span class="ident">abs</span>()
+    <span class="kw">pub fn </span>length(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Distance {
+        (<span class="self">self</span>.end - <span class="self">self</span>.start).abs()
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">CreatePedestrian</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">PedestrianID</span>,
-    <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>,
-    <span class="kw">pub</span> <span class="ident">speed</span>: <span class="ident">Speed</span>,
-    <span class="kw">pub</span> <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>,
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="ident">Path</span>,
-    <span class="kw">pub</span> <span class="ident">trip</span>: <span class="ident">TripID</span>,
-    <span class="kw">pub</span> <span class="ident">person</span>: <span class="ident">PersonID</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CreatePedestrian {
+    <span class="kw">pub </span>id: PedestrianID,
+    <span class="kw">pub </span>start: SidewalkSpot,
+    <span class="kw">pub </span>speed: Speed,
+    <span class="kw">pub </span>goal: SidewalkSpot,
+    <span class="kw">pub </span>path: Path,
+    <span class="kw">pub </span>trip: TripID,
+    <span class="kw">pub </span>person: PersonID,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">CreateCar</span> {
-    <span class="kw">pub</span> <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
-    <span class="kw">pub</span> <span class="ident">router</span>: <span class="ident">Router</span>,
-    <span class="kw">pub</span> <span class="ident">maybe_parked_car</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ParkedCar</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// None for buses</span>
-    <span class="kw">pub</span> <span class="ident">trip_and_person</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">PersonID</span>)<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">maybe_route</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitRouteID</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>CreateCar {
+    <span class="kw">pub </span>vehicle: Vehicle,
+    <span class="kw">pub </span>router: Router,
+    <span class="kw">pub </span>maybe_parked_car: <span class="prelude-ty">Option</span>&lt;ParkedCar&gt;,
+    <span class="doccomment">/// None for buses
+    </span><span class="kw">pub </span>trip_and_person: <span class="prelude-ty">Option</span>&lt;(TripID, PersonID)&gt;,
+    <span class="kw">pub </span>maybe_route: <span class="prelude-ty">Option</span>&lt;TransitRouteID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">CreateCar</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_appearing</span>(
-        <span class="ident">vehicle</span>: <span class="ident">Vehicle</span>,
-        <span class="ident">router</span>: <span class="ident">Router</span>,
-        <span class="ident">trip</span>: <span class="ident">TripID</span>,
-        <span class="ident">person</span>: <span class="ident">PersonID</span>,
-    ) -&gt; <span class="ident">CreateCar</span> {
-        <span class="ident">CreateCar</span> {
-            <span class="ident">vehicle</span>,
-            <span class="ident">router</span>,
-            <span class="ident">maybe_parked_car</span>: <span class="prelude-val">None</span>,
-            <span class="ident">trip_and_person</span>: <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="ident">person</span>)),
-            <span class="ident">maybe_route</span>: <span class="prelude-val">None</span>,
-        }
-    }
-
-    <span class="comment">// TODO Maybe inline in trips, the only caller.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_parked_car</span>(
-        <span class="ident">parked_car</span>: <span class="ident">ParkedCar</span>,
-        <span class="ident">router</span>: <span class="ident">Router</span>,
-        <span class="ident">trip</span>: <span class="ident">TripID</span>,
-        <span class="ident">person</span>: <span class="ident">PersonID</span>,
-    ) -&gt; <span class="ident">CreateCar</span> {
-        <span class="ident">CreateCar</span> {
-            <span class="ident">vehicle</span>: <span class="ident">parked_car</span>.<span class="ident">vehicle</span>.<span class="ident">clone</span>(),
-            <span class="ident">router</span>,
-            <span class="ident">maybe_parked_car</span>: <span class="prelude-val">Some</span>(<span class="ident">parked_car</span>),
-            <span class="ident">trip_and_person</span>: <span class="prelude-val">Some</span>((<span class="ident">trip</span>, <span class="ident">person</span>)),
-            <span class="ident">maybe_route</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>CreateCar {
+    <span class="kw">pub fn </span>for_appearing(
+        vehicle: Vehicle,
+        router: Router,
+        trip: TripID,
+        person: PersonID,
+    ) -&gt; CreateCar {
+        CreateCar {
+            vehicle,
+            router,
+            maybe_parked_car: <span class="prelude-val">None</span>,
+            trip_and_person: <span class="prelude-val">Some</span>((trip, person)),
+            maybe_route: <span class="prelude-val">None</span>,
         }
     }
+
+    <span class="comment">// TODO Maybe inline in trips, the only caller.
+    </span><span class="kw">pub fn </span>for_parked_car(
+        parked_car: ParkedCar,
+        router: Router,
+        trip: TripID,
+        person: PersonID,
+    ) -&gt; CreateCar {
+        CreateCar {
+            vehicle: parked_car.vehicle.clone(),
+            router,
+            maybe_parked_car: <span class="prelude-val">Some</span>(parked_car),
+            trip_and_person: <span class="prelude-val">Some</span>((trip, person)),
+            maybe_route: <span class="prelude-val">None</span>,
+        }
+    }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pedestrian_body_radius</span>() -&gt; <span class="ident">Distance</span> {
-    <span class="ident">map_model::SIDEWALK_THICKNESS</span> <span class="op">/</span> <span class="number">4.0</span>
-}
+<span class="kw">pub fn </span>pedestrian_body_radius() -&gt; Distance {
+    map_model::SIDEWALK_THICKNESS / <span class="number">4.0
+</span>}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

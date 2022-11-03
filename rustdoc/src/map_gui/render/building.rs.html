@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/building.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>building.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/building.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>building.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -254,261 +254,261 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>, <span class="ident">Tessellation</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Building</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">OffstreetParking</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
+<span class="kw">use </span>geom::{Angle, Distance, Line, Polygon, Pt2D, Ring, Tessellation};
+<span class="kw">use </span>map_model::{Building, BuildingID, Map, OffstreetParking};
+<span class="kw">use </span>widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colors::ColorScheme</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::options</span>::{<span class="ident">CameraAngle</span>, <span class="ident">Options</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render</span>::{<span class="ident">DrawOptions</span>, <span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
+<span class="kw">use </span><span class="kw">crate</span>::colors::ColorScheme;
+<span class="kw">use </span><span class="kw">crate</span>::options::{CameraAngle, Options};
+<span class="kw">use </span><span class="kw">crate</span>::render::{DrawOptions, Renderable, OUTLINE_THICKNESS};
+<span class="kw">use crate</span>::{AppLike, ID};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawBuilding</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">BuildingID</span>,
-    <span class="ident">label</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>DrawBuilding {
+    <span class="kw">pub </span>id: BuildingID,
+    label: RefCell&lt;<span class="prelude-ty">Option</span>&lt;Drawable&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">DrawBuilding</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">bldg</span>: <span class="kw-2">&amp;</span><span class="ident">Building</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-        <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
-        <span class="ident">bldg_batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>,
-        <span class="ident">outlines_batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>,
-    ) -&gt; <span class="ident">DrawBuilding</span> {
-        <span class="kw">let</span> <span class="ident">bldg_color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">bldg</span>.<span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">cs</span>.<span class="ident">residential_building</span>
-        } <span class="kw">else</span> {
-            <span class="ident">cs</span>.<span class="ident">commercial_building</span>
+<span class="kw">impl </span>DrawBuilding {
+    <span class="kw">pub fn </span>new(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        bldg: <span class="kw-2">&amp;</span>Building,
+        map: <span class="kw-2">&amp;</span>Map,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+        opts: <span class="kw-2">&amp;</span>Options,
+        bldg_batch: <span class="kw-2">&amp;mut </span>GeomBatch,
+        outlines_batch: <span class="kw-2">&amp;mut </span>GeomBatch,
+    ) -&gt; DrawBuilding {
+        <span class="kw">let </span>bldg_color = <span class="kw">if </span>bldg.amenities.is_empty() {
+            cs.residential_building
+        } <span class="kw">else </span>{
+            cs.commercial_building
         };
 
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">opts</span>.<span class="ident">camera_angle</span> {
-            <span class="ident">CameraAngle::TopDown</span> =&gt; {
-                <span class="ident">bldg_batch</span>.<span class="ident">push</span>(<span class="ident">bldg_color</span>, <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-                <span class="ident">outlines_batch</span>.<span class="ident">push</span>(
-                    <span class="ident">cs</span>.<span class="ident">building_outline</span>,
-                    <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.1</span>)),
+        <span class="kw">match </span><span class="kw-2">&amp;</span>opts.camera_angle {
+            CameraAngle::TopDown =&gt; {
+                bldg_batch.push(bldg_color, bldg.polygon.clone());
+                outlines_batch.push(
+                    cs.building_outline,
+                    bldg.polygon.to_outline(Distance::meters(<span class="number">0.1</span>)),
                 );
 
-                <span class="kw">let</span> <span class="ident">parking_icon</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">bldg</span>.<span class="ident">parking</span> {
-                    <span class="ident">OffstreetParking::PublicGarage</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
-                    <span class="ident">OffstreetParking::Private</span>(<span class="kw">_</span>, <span class="ident">garage</span>) =&gt; <span class="ident">garage</span>,
+                <span class="kw">let </span>parking_icon = <span class="kw">match </span>bldg.parking {
+                    OffstreetParking::PublicGarage(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="bool-val">true</span>,
+                    OffstreetParking::Private(<span class="kw">_</span>, garage) =&gt; garage,
                 };
-                <span class="kw">if</span> <span class="ident">parking_icon</span> {
-                    <span class="comment">// Might need to scale down more for some buildings, but so far, this works</span>
-                    <span class="comment">// everywhere.</span>
-                    <span class="ident">bldg_batch</span>.<span class="ident">append</span>(
-                        <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/map/parking.svg&quot;</span>)
-                            .<span class="ident">scale</span>(<span class="number">0.1</span>)
-                            .<span class="ident">centered_on</span>(<span class="ident">bldg</span>.<span class="ident">label_center</span>),
+                <span class="kw">if </span>parking_icon {
+                    <span class="comment">// Might need to scale down more for some buildings, but so far, this works
+                    // everywhere.
+                    </span>bldg_batch.append(
+                        GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/map/parking.svg&quot;</span>)
+                            .scale(<span class="number">0.1</span>)
+                            .centered_on(bldg.label_center),
                     );
                 }
             }
-            <span class="ident">CameraAngle::Abstract</span> =&gt; {
-                <span class="comment">// TODO The hitbox needs to change too</span>
-                <span class="ident">bldg_batch</span>.<span class="ident">push</span>(
-                    <span class="ident">bldg_color</span>,
-                    <span class="ident">Polygon::rectangle_centered</span>(
-                        <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">center</span>(),
-                        <span class="ident">Distance::meters</span>(<span class="number">5.0</span>),
-                        <span class="ident">Distance::meters</span>(<span class="number">5.0</span>),
+            CameraAngle::Abstract =&gt; {
+                <span class="comment">// TODO The hitbox needs to change too
+                </span>bldg_batch.push(
+                    bldg_color,
+                    Polygon::rectangle_centered(
+                        bldg.polygon.center(),
+                        Distance::meters(<span class="number">5.0</span>),
+                        Distance::meters(<span class="number">5.0</span>),
                     ),
                 );
             }
-            <span class="ident">x</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
-                    <span class="ident">CameraAngle::IsometricNE</span> =&gt; <span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">45.0</span>),
-                    <span class="ident">CameraAngle::IsometricNW</span> =&gt; <span class="ident">Angle::degrees</span>(<span class="op">-</span><span class="number">135.0</span>),
-                    <span class="ident">CameraAngle::IsometricSE</span> =&gt; <span class="ident">Angle::degrees</span>(<span class="number">45.0</span>),
-                    <span class="ident">CameraAngle::IsometricSW</span> =&gt; <span class="ident">Angle::degrees</span>(<span class="number">135.0</span>),
-                    <span class="ident">CameraAngle::TopDown</span> <span class="op">|</span> <span class="ident">CameraAngle::Abstract</span> =&gt; <span class="macro">unreachable!</span>(),
+            x =&gt; {
+                <span class="kw">let </span>angle = <span class="kw">match </span>x {
+                    CameraAngle::IsometricNE =&gt; Angle::degrees(-<span class="number">45.0</span>),
+                    CameraAngle::IsometricNW =&gt; Angle::degrees(-<span class="number">135.0</span>),
+                    CameraAngle::IsometricSE =&gt; Angle::degrees(<span class="number">45.0</span>),
+                    CameraAngle::IsometricSW =&gt; Angle::degrees(<span class="number">135.0</span>),
+                    CameraAngle::TopDown | CameraAngle::Abstract =&gt; <span class="macro">unreachable!</span>(),
                 };
 
-                <span class="kw">let</span> <span class="ident">bldg_height_per_level</span> <span class="op">=</span> <span class="number">3.5</span>;
-                <span class="comment">// In downtown areas, really tall buildings look kind of ridculous next to</span>
-                <span class="comment">// everything else. So we artificially compress the number of levels a bit.</span>
-                <span class="kw">let</span> <span class="ident">bldg_rendered_meters</span> <span class="op">=</span> <span class="ident">bldg_height_per_level</span> <span class="op">*</span> <span class="ident">bldg</span>.<span class="ident">levels</span>.<span class="ident">powf</span>(<span class="number">0.8</span>);
-                <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="ident">bldg_rendered_meters</span>);
+                <span class="kw">let </span>bldg_height_per_level = <span class="number">3.5</span>;
+                <span class="comment">// In downtown areas, really tall buildings look kind of ridculous next to
+                // everything else. So we artificially compress the number of levels a bit.
+                </span><span class="kw">let </span>bldg_rendered_meters = bldg_height_per_level * bldg.levels.powf(<span class="number">0.8</span>);
+                <span class="kw">let </span>height = Distance::meters(bldg_rendered_meters);
 
-                <span class="kw">let</span> <span class="ident">map_bounds</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">to_bounds</span>();
-                <span class="kw">let</span> (<span class="ident">map_width</span>, <span class="ident">map_height</span>) <span class="op">=</span> (<span class="ident">map_bounds</span>.<span class="ident">width</span>(), <span class="ident">map_bounds</span>.<span class="ident">height</span>());
-                <span class="kw">let</span> <span class="ident">map_length</span> <span class="op">=</span> <span class="ident">map_width</span>.<span class="ident">hypot</span>(<span class="ident">map_height</span>);
+                <span class="kw">let </span>map_bounds = map.get_gps_bounds().to_bounds();
+                <span class="kw">let </span>(map_width, map_height) = (map_bounds.width(), map_bounds.height());
+                <span class="kw">let </span>map_length = map_width.hypot(map_height);
 
-                <span class="kw">let</span> <span class="ident">distance</span> <span class="op">=</span> <span class="op">|</span><span class="ident">pt</span>: <span class="kw-2">&amp;</span><span class="ident">Pt2D</span><span class="op">|</span> {
-                    <span class="comment">// some normalization so we can compute the distance to the corner of the</span>
-                    <span class="comment">// screen from which the orthographic projection is based.</span>
-                    <span class="kw">let</span> <span class="ident">projection_origin</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">x</span> {
-                        <span class="ident">CameraAngle::IsometricNE</span> =&gt; <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="ident">map_height</span>),
-                        <span class="ident">CameraAngle::IsometricNW</span> =&gt; <span class="ident">Pt2D::new</span>(<span class="ident">map_width</span>, <span class="ident">map_height</span>),
-                        <span class="ident">CameraAngle::IsometricSE</span> =&gt; <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-                        <span class="ident">CameraAngle::IsometricSW</span> =&gt; <span class="ident">Pt2D::new</span>(<span class="ident">map_width</span>, <span class="number">0.0</span>),
-                        <span class="ident">CameraAngle::TopDown</span> <span class="op">|</span> <span class="ident">CameraAngle::Abstract</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">let </span>distance = |pt: <span class="kw-2">&amp;</span>Pt2D| {
+                    <span class="comment">// some normalization so we can compute the distance to the corner of the
+                    // screen from which the orthographic projection is based.
+                    </span><span class="kw">let </span>projection_origin = <span class="kw">match </span>x {
+                        CameraAngle::IsometricNE =&gt; Pt2D::new(<span class="number">0.0</span>, map_height),
+                        CameraAngle::IsometricNW =&gt; Pt2D::new(map_width, map_height),
+                        CameraAngle::IsometricSE =&gt; Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+                        CameraAngle::IsometricSW =&gt; Pt2D::new(map_width, <span class="number">0.0</span>),
+                        CameraAngle::TopDown | CameraAngle::Abstract =&gt; <span class="macro">unreachable!</span>(),
                     };
 
-                    <span class="kw">let</span> <span class="ident">abs_pt</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(
-                        (<span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">projection_origin</span>.<span class="ident">x</span>()).<span class="ident">abs</span>(),
-                        (<span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">projection_origin</span>.<span class="ident">y</span>()).<span class="ident">abs</span>(),
+                    <span class="kw">let </span>abs_pt = Pt2D::new(
+                        (pt.x() - projection_origin.x()).abs(),
+                        (pt.y() - projection_origin.y()).abs(),
                     );
 
-                    <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">f64::hypot</span>(<span class="ident">abs_pt</span>.<span class="ident">x</span>(), <span class="ident">abs_pt</span>.<span class="ident">y</span>());
-                    <span class="kw">let</span> <span class="ident">theta</span> <span class="op">=</span> <span class="ident">f64::atan</span>(<span class="ident">abs_pt</span>.<span class="ident">y</span>() <span class="op">/</span> <span class="ident">abs_pt</span>.<span class="ident">x</span>());
-                    <span class="kw">let</span> <span class="ident">distance</span> <span class="op">=</span> <span class="ident">a</span> <span class="op">*</span> <span class="ident">f64::sin</span>(<span class="ident">theta</span> <span class="op">+</span> <span class="ident">std::f64::consts::PI</span> <span class="op">/</span> <span class="number">4.0</span>);
-                    <span class="ident">Distance::meters</span>(<span class="ident">distance</span>)
+                    <span class="kw">let </span>a = f64::hypot(abs_pt.x(), abs_pt.y());
+                    <span class="kw">let </span>theta = f64::atan(abs_pt.y() / abs_pt.x());
+                    <span class="kw">let </span>distance = a * f64::sin(theta + std::f64::consts::PI / <span class="number">4.0</span>);
+                    Distance::meters(distance)
                 };
 
-                <span class="comment">// Things closer to the isometric axis should appear in front of things farther</span>
-                <span class="comment">// away, so we give them a higher z-index.</span>
-                <span class="comment">//</span>
-                <span class="comment">// Naively, we compute the entire building&#39;s distance as the distance from its</span>
-                <span class="comment">// closest point. This is simple and usually works, but will likely fail on more</span>
-                <span class="comment">// complex building arrangements, e.g. if a building were tightly encircled by a</span>
-                <span class="comment">// large building.</span>
-                <span class="kw">let</span> <span class="ident">closest_pt</span> <span class="op">=</span> <span class="ident">bldg</span>
-                    .<span class="ident">polygon</span>
-                    .<span class="ident">get_outer_ring</span>()
-                    .<span class="ident">points</span>()
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">min_by</span>(<span class="op">|</span><span class="ident">a</span>, <span class="ident">b</span><span class="op">|</span> <span class="ident">distance</span>(<span class="ident">a</span>).<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">distance</span>(<span class="ident">b</span>)))
-                    .<span class="ident">cloned</span>();
+                <span class="comment">// Things closer to the isometric axis should appear in front of things farther
+                // away, so we give them a higher z-index.
+                //
+                // Naively, we compute the entire building&#39;s distance as the distance from its
+                // closest point. This is simple and usually works, but will likely fail on more
+                // complex building arrangements, e.g. if a building were tightly encircled by a
+                // large building.
+                </span><span class="kw">let </span>closest_pt = bldg
+                    .polygon
+                    .get_outer_ring()
+                    .points()
+                    .iter()
+                    .min_by(|a, b| distance(a).cmp(<span class="kw-2">&amp;</span>distance(b)))
+                    .cloned();
 
-                <span class="kw">let</span> <span class="ident">distance_from_projection_axis</span> <span class="op">=</span> <span class="ident">closest_pt</span>
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">distance</span>(<span class="kw-2">&amp;</span><span class="ident">pt</span>).<span class="ident">inner_meters</span>())
-                    .<span class="ident">unwrap_or</span>(<span class="number">0.0</span>);
+                <span class="kw">let </span>distance_from_projection_axis = closest_pt
+                    .map(|pt| distance(<span class="kw-2">&amp;</span>pt).inner_meters())
+                    .unwrap_or(<span class="number">0.0</span>);
 
-                <span class="comment">// smaller z renders above larger</span>
-                <span class="kw">let</span> <span class="ident">scale_factor</span> <span class="op">=</span> <span class="ident">map_length</span>;
-                <span class="kw">let</span> <span class="ident">groundfloor_z</span> <span class="op">=</span> <span class="ident">distance_from_projection_axis</span> <span class="op">/</span> <span class="ident">scale_factor</span> <span class="op">-</span> <span class="number">1.0</span>;
-                <span class="kw">let</span> <span class="ident">roof_z</span> <span class="op">=</span> <span class="ident">groundfloor_z</span> <span class="op">-</span> <span class="ident">height</span>.<span class="ident">inner_meters</span>() <span class="op">/</span> <span class="ident">scale_factor</span>;
+                <span class="comment">// smaller z renders above larger
+                </span><span class="kw">let </span>scale_factor = map_length;
+                <span class="kw">let </span>groundfloor_z = distance_from_projection_axis / scale_factor - <span class="number">1.0</span>;
+                <span class="kw">let </span>roof_z = groundfloor_z - height.inner_meters() / scale_factor;
 
-                <span class="comment">// TODO Some buildings have holes in them</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">roof</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(
-                    <span class="ident">bldg</span>.<span class="ident">polygon</span>
-                        .<span class="ident">get_outer_ring</span>()
-                        .<span class="ident">points</span>()
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">project_away</span>(<span class="ident">height</span>, <span class="ident">angle</span>))
-                        .<span class="ident">collect</span>(),
+                <span class="comment">// TODO Some buildings have holes in them
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(roof) = Ring::new(
+                    bldg.polygon
+                        .get_outer_ring()
+                        .points()
+                        .iter()
+                        .map(|pt| pt.project_away(height, angle))
+                        .collect(),
                 ) {
-                    <span class="ident">bldg_batch</span>.<span class="ident">push</span>(<span class="ident">Color::BLACK</span>, <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.3</span>)));
+                    bldg_batch.push(Color::BLACK, bldg.polygon.to_outline(Distance::meters(<span class="number">0.3</span>)));
 
-                    <span class="comment">// In actuality, the z of the walls should start at groundfloor_z and end at</span>
-                    <span class="comment">// roof_z, but since we aren&#39;t dealing with actual 3d geometries, we have to</span>
-                    <span class="comment">// pick one value. Anecdotally, picking a value between the two seems to</span>
-                    <span class="comment">// usually looks right, but probably breaks down in certain overlap scenarios.</span>
-                    <span class="kw">let</span> <span class="ident">wall_z</span> <span class="op">=</span> (<span class="ident">groundfloor_z</span> <span class="op">+</span> <span class="ident">roof_z</span>) <span class="op">/</span> <span class="number">2.0</span>;
+                    <span class="comment">// In actuality, the z of the walls should start at groundfloor_z and end at
+                    // roof_z, but since we aren&#39;t dealing with actual 3d geometries, we have to
+                    // pick one value. Anecdotally, picking a value between the two seems to
+                    // usually looks right, but probably breaks down in certain overlap scenarios.
+                    </span><span class="kw">let </span>wall_z = (groundfloor_z + roof_z) / <span class="number">2.0</span>;
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wall_beams</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                    <span class="kw">for</span> (<span class="ident">low</span>, <span class="ident">high</span>) <span class="kw">in</span> <span class="ident">bldg</span>
-                        .<span class="ident">polygon</span>
-                        .<span class="ident">get_outer_ring</span>()
-                        .<span class="ident">points</span>()
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">zip</span>(<span class="ident">roof</span>.<span class="ident">points</span>().<span class="ident">iter</span>())
+                    <span class="kw">let </span><span class="kw-2">mut </span>wall_beams = Vec::new();
+                    <span class="kw">for </span>(low, high) <span class="kw">in </span>bldg
+                        .polygon
+                        .get_outer_ring()
+                        .points()
+                        .iter()
+                        .zip(roof.points().iter())
                     {
-                        <span class="comment">// Sometimes building height is 0!</span>
-                        <span class="comment">// https://www.openstreetmap.org/way/390547658</span>
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">Line::new</span>(<span class="kw-2">*</span><span class="ident">low</span>, <span class="kw-2">*</span><span class="ident">high</span>) {
-                            <span class="ident">wall_beams</span>.<span class="ident">push</span>(<span class="ident">l</span>);
+                        <span class="comment">// Sometimes building height is 0!
+                        // https://www.openstreetmap.org/way/390547658
+                        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(l) = Line::new(<span class="kw-2">*</span>low, <span class="kw-2">*</span>high) {
+                            wall_beams.push(l);
                         }
                     }
-                    <span class="kw">let</span> <span class="ident">wall_color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#BBBEC3&quot;</span>);
-                    <span class="kw">for</span> (<span class="ident">wall1</span>, <span class="ident">wall2</span>) <span class="kw">in</span> <span class="ident">wall_beams</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">wall_beams</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>)) {
-                        <span class="ident">bldg_batch</span>.<span class="ident">push_with_z</span>(
-                            <span class="ident">wall_color</span>,
-                            <span class="ident">Ring::must_new</span>(<span class="macro">vec!</span>[
-                                <span class="ident">wall1</span>.<span class="ident">pt1</span>(),
-                                <span class="ident">wall1</span>.<span class="ident">pt2</span>(),
-                                <span class="ident">wall2</span>.<span class="ident">pt2</span>(),
-                                <span class="ident">wall2</span>.<span class="ident">pt1</span>(),
-                                <span class="ident">wall1</span>.<span class="ident">pt1</span>(),
+                    <span class="kw">let </span>wall_color = Color::hex(<span class="string">&quot;#BBBEC3&quot;</span>);
+                    <span class="kw">for </span>(wall1, wall2) <span class="kw">in </span>wall_beams.iter().zip(wall_beams.iter().skip(<span class="number">1</span>)) {
+                        bldg_batch.push_with_z(
+                            wall_color,
+                            Ring::must_new(<span class="macro">vec!</span>[
+                                wall1.pt1(),
+                                wall1.pt2(),
+                                wall2.pt2(),
+                                wall2.pt1(),
+                                wall1.pt1(),
                             ])
-                            .<span class="ident">into_polygon</span>(),
-                            <span class="ident">wall_z</span>,
+                            .into_polygon(),
+                            wall_z,
                         );
                     }
-                    <span class="kw">for</span> <span class="ident">wall</span> <span class="kw">in</span> <span class="ident">wall_beams</span> {
-                        <span class="ident">bldg_batch</span>.<span class="ident">push_with_z</span>(
-                            <span class="ident">Color::BLACK</span>,
-                            <span class="ident">wall</span>.<span class="ident">make_polygons</span>(<span class="ident">Distance::meters</span>(<span class="number">0.1</span>)),
-                            <span class="ident">wall_z</span>,
+                    <span class="kw">for </span>wall <span class="kw">in </span>wall_beams {
+                        bldg_batch.push_with_z(
+                            Color::BLACK,
+                            wall.make_polygons(Distance::meters(<span class="number">0.1</span>)),
+                            wall_z,
                         );
                     }
 
-                    <span class="ident">bldg_batch</span>.<span class="ident">push_with_z</span>(<span class="ident">bldg_color</span>, <span class="ident">roof</span>.<span class="ident">clone</span>().<span class="ident">into_polygon</span>(), <span class="ident">roof_z</span>);
-                    <span class="ident">bldg_batch</span>.<span class="ident">push_with_z</span>(
-                        <span class="ident">Color::BLACK</span>,
-                        <span class="ident">roof</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.3</span>)),
-                        <span class="ident">roof_z</span>,
+                    bldg_batch.push_with_z(bldg_color, roof.clone().into_polygon(), roof_z);
+                    bldg_batch.push_with_z(
+                        Color::BLACK,
+                        roof.to_outline(Distance::meters(<span class="number">0.3</span>)),
+                        roof_z,
                     );
-                } <span class="kw">else</span> {
-                    <span class="ident">bldg_batch</span>.<span class="ident">push</span>(<span class="ident">bldg_color</span>, <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-                    <span class="ident">outlines_batch</span>.<span class="ident">push</span>(
-                        <span class="ident">cs</span>.<span class="ident">building_outline</span>,
-                        <span class="ident">bldg</span>.<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">Distance::meters</span>(<span class="number">0.1</span>)),
+                } <span class="kw">else </span>{
+                    bldg_batch.push(bldg_color, bldg.polygon.clone());
+                    outlines_batch.push(
+                        cs.building_outline,
+                        bldg.polygon.to_outline(Distance::meters(<span class="number">0.1</span>)),
                     );
                 }
             }
         }
 
-        <span class="ident">DrawBuilding</span> {
-            <span class="ident">id</span>: <span class="ident">bldg</span>.<span class="ident">id</span>,
-            <span class="ident">label</span>: <span class="ident">RefCell::new</span>(<span class="prelude-val">None</span>),
+        DrawBuilding {
+            id: bldg.id,
+            label: RefCell::new(<span class="prelude-val">None</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_rendering</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">label</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>clear_rendering(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw-2">*</span><span class="self">self</span>.label.borrow_mut() = <span class="prelude-val">None</span>;
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Renderable</span> <span class="kw">for</span> <span class="ident">DrawBuilding</span> {
-    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ID</span> {
-        <span class="ident">ID::Building</span>(<span class="self">self</span>.<span class="ident">id</span>)
+<span class="kw">impl </span>Renderable <span class="kw">for </span>DrawBuilding {
+    <span class="kw">fn </span>get_id(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ID {
+        ID::Building(<span class="self">self</span>.id)
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">DrawOptions</span>) {
-        <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">label_buildings</span> {
-            <span class="comment">// Labels are expensive to compute up-front, so do it lazily, since we don&#39;t really</span>
-            <span class="comment">// zoom in on all buildings in a single session anyway</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">label</span>.<span class="ident">borrow_mut</span>();
-            <span class="kw">if</span> <span class="ident">label</span>.<span class="ident">is_none</span>() {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-                <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_b</span>(<span class="self">self</span>.<span class="ident">id</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">get</span>(<span class="number">0</span>) {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(
-                        <span class="ident">Line</span>(<span class="ident">a</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>())).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, opts: <span class="kw-2">&amp;</span>DrawOptions) {
+        <span class="kw">if </span>opts.label_buildings {
+            <span class="comment">// Labels are expensive to compute up-front, so do it lazily, since we don&#39;t really
+            // zoom in on all buildings in a single session anyway
+            </span><span class="kw">let </span><span class="kw-2">mut </span>label = <span class="self">self</span>.label.borrow_mut();
+            <span class="kw">if </span>label.is_none() {
+                <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+                <span class="kw">let </span>b = app.map().get_b(<span class="self">self</span>.id);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = b.amenities.get(<span class="number">0</span>) {
+                    <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(
+                        Line(a.names.get(app.opts().language.as_ref())).fg(Color::BLACK),
                     );
-                    <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-                        <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot; (+{})&quot;</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>)).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>));
+                    <span class="kw">if </span>b.amenities.len() &gt; <span class="number">1 </span>{
+                        txt.append(Line(<span class="macro">format!</span>(<span class="string">&quot; (+{})&quot;</span>, b.amenities.len() - <span class="number">1</span>)).fg(Color::BLACK));
                     }
-                    <span class="ident">batch</span>.<span class="ident">append</span>(
-                        <span class="ident">txt</span>.<span class="ident">render_autocropped</span>(<span class="ident">g</span>)
-                            .<span class="ident">scale</span>(<span class="number">0.1</span>)
-                            .<span class="ident">centered_on</span>(<span class="ident">b</span>.<span class="ident">label_center</span>),
+                    batch.append(
+                        txt.render_autocropped(g)
+                            .scale(<span class="number">0.1</span>)
+                            .centered_on(b.label_center),
                     );
                 }
-                <span class="kw-2">*</span><span class="ident">label</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">prerender</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
+                <span class="kw-2">*</span>label = <span class="prelude-val">Some</span>(g.prerender.upload(batch));
             }
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">label</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
+            g.redraw(label.as_ref().unwrap());
         }
     }
 
-    <span class="comment">// Some buildings cover up tunnels</span>
-    <span class="kw">fn</span> <span class="ident">get_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
-        <span class="number">0</span>
+    <span class="comment">// Some buildings cover up tunnels
+    </span><span class="kw">fn </span>get_zorder(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; isize {
+        <span class="number">0
+    </span>}
+
+    <span class="kw">fn </span>get_outline(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Tessellation {
+        map.get_b(<span class="self">self</span>.id).polygon.to_outline(OUTLINE_THICKNESS)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_outline</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Tessellation</span> {
-        <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">to_outline</span>(<span class="ident">OUTLINE_THICKNESS</span>)
-    }
-
-    <span class="kw">fn</span> <span class="ident">contains_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="self">self</span>.<span class="ident">id</span>).<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>)
+    <span class="kw">fn </span>contains_pt(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+        map.get_b(<span class="self">self</span>.id).polygon.contains_pt(pt)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

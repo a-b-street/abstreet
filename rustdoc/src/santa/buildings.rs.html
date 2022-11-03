@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/buildings.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>buildings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/buildings.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>buildings.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -128,135 +128,135 @@
 <span id="128">128</span>
 <span id="129">129</span>
 <span id="130">130</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{HashMap, HashSet};
 
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AmenityType</span>, <span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">Text</span>};
+<span class="kw">use </span>map_model::{AmenityType, BuildingID, BuildingType};
+<span class="kw">use </span>widgetry::{Color, Drawable, EventCtx, GeomBatch, Line, Text};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
+<span class="kw">use </span><span class="kw">crate</span>::App;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Buildings</span> {
-    <span class="comment">// Every building in the map is here, to simplify lookup logic.</span>
-    <span class="kw">pub</span> <span class="ident">buildings</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">BldgState</span><span class="op">&gt;</span>,
-    <span class="comment">// This an unchanging base layer that can get covered up by drawing on top of it. Maybe we</span>
-    <span class="comment">// could even replace the one in DrawMap.</span>
-    <span class="kw">pub</span> <span class="ident">draw_all</span>: <span class="ident">Drawable</span>,
-    <span class="kw">pub</span> <span class="ident">total_housing_units</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">upzones</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Buildings {
+    <span class="comment">// Every building in the map is here, to simplify lookup logic.
+    </span><span class="kw">pub </span>buildings: HashMap&lt;BuildingID, BldgState&gt;,
+    <span class="comment">// This an unchanging base layer that can get covered up by drawing on top of it. Maybe we
+    // could even replace the one in DrawMap.
+    </span><span class="kw">pub </span>draw_all: Drawable,
+    <span class="kw">pub </span>total_housing_units: usize,
+    <span class="kw">pub </span>upzones: HashSet&lt;BuildingID&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BldgState</span> {
-    <span class="comment">// Score</span>
-    <span class="ident">Undelivered</span>(<span class="ident">usize</span>),
-    <span class="ident">Store</span>,
-    <span class="ident">Done</span>,
-    <span class="comment">// Not a relevant building</span>
-    <span class="ident">Ignore</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub enum </span>BldgState {
+    <span class="comment">// Score
+    </span>Undelivered(usize),
+    Store,
+    Done,
+    <span class="comment">// Not a relevant building
+    </span>Ignore,
 }
 
-<span class="kw">impl</span> <span class="ident">Buildings</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">upzones</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>) -&gt; <span class="ident">Buildings</span> {
-        <span class="kw">let</span> <span class="ident">colors</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>;
+<span class="kw">impl </span>Buildings {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, upzones: HashSet&lt;BuildingID&gt;) -&gt; Buildings {
+        <span class="kw">let </span>colors = <span class="kw-2">&amp;</span>app.session.colors;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buildings</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_housing_units</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="kw">if</span> <span class="ident">upzones</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">id</span>) {
-                <span class="ident">buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">BldgState::Store</span>);
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">colors</span>.<span class="ident">store</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-                <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">Text::from</span>(<span class="string">&quot;Upzoned&quot;</span>)
-                        .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">scale</span>(<span class="number">0.1</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">b</span>.<span class="ident">label_center</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>buildings = HashMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>total_housing_units = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>b <span class="kw">in </span>app.map.all_buildings() {
+            <span class="kw">if </span>upzones.contains(<span class="kw-2">&amp;</span>b.id) {
+                buildings.insert(b.id, BldgState::Store);
+                batch.push(colors.store, b.polygon.clone());
+                batch.append(
+                    Text::from(<span class="string">&quot;Upzoned&quot;</span>)
+                        .render_autocropped(ctx)
+                        .scale(<span class="number">0.1</span>)
+                        .centered_on(b.label_center),
                 );
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BuildingType::Residential</span> {
-                <span class="ident">num_housing_units</span>, ..
-            } <span class="op">=</span> <span class="ident">b</span>.<span class="ident">bldg_type</span>
+            <span class="kw">if let </span>BuildingType::Residential {
+                num_housing_units, ..
+            } = b.bldg_type
             {
-                <span class="comment">// There are some unused commercial buildings around!</span>
-                <span class="kw">if</span> <span class="ident">num_housing_units</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                    <span class="ident">buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">BldgState::Undelivered</span>(<span class="ident">num_housing_units</span>));
-                    <span class="ident">total_housing_units</span> <span class="op">+</span><span class="op">=</span> <span class="ident">num_housing_units</span>;
+                <span class="comment">// There are some unused commercial buildings around!
+                </span><span class="kw">if </span>num_housing_units &gt; <span class="number">0 </span>{
+                    buildings.insert(b.id, BldgState::Undelivered(num_housing_units));
+                    total_housing_units += num_housing_units;
 
-                    <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">num_housing_units</span> <span class="op">&gt;</span> <span class="number">5</span> {
-                        <span class="ident">colors</span>.<span class="ident">apartment</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">colors</span>.<span class="ident">house</span>
+                    <span class="kw">let </span>color = <span class="kw">if </span>num_housing_units &gt; <span class="number">5 </span>{
+                        colors.apartment
+                    } <span class="kw">else </span>{
+                        colors.house
                     };
-                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-                    <span class="comment">// Call out non-single family homes</span>
-                    <span class="kw">if</span> <span class="ident">num_housing_units</span> <span class="op">&gt;</span> <span class="number">1</span> {
-                        <span class="ident">batch</span>.<span class="ident">append</span>(
-                            <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">num_housing_units</span>.<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>))
-                                .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                                .<span class="ident">scale</span>(<span class="number">0.2</span>)
-                                .<span class="ident">centered_on</span>(<span class="ident">b</span>.<span class="ident">label_center</span>),
+                    batch.push(color, b.polygon.clone());
+                    <span class="comment">// Call out non-single family homes
+                    </span><span class="kw">if </span>num_housing_units &gt; <span class="number">1 </span>{
+                        batch.append(
+                            Text::from(Line(num_housing_units.to_string()).fg(Color::BLACK))
+                                .render_autocropped(ctx)
+                                .scale(<span class="number">0.2</span>)
+                                .centered_on(b.label_center),
                         );
                     }
                     <span class="kw">continue</span>;
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">amenity</span>) <span class="op">=</span> <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">at</span>) <span class="op">=</span> <span class="ident">AmenityType::categorize</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">amenity_type</span>) {
-                    <span class="ident">at</span> <span class="op">==</span> <span class="ident">AmenityType::Bar</span>
-                        <span class="op">|</span><span class="op">|</span> <span class="ident">at</span> <span class="op">==</span> <span class="ident">AmenityType::ConvenienceStore</span>
-                        <span class="op">|</span><span class="op">|</span> <span class="ident">at</span> <span class="op">==</span> <span class="ident">AmenityType::Food</span>
-                        <span class="op">|</span><span class="op">|</span> <span class="ident">at</span> <span class="op">==</span> <span class="ident">AmenityType::Supermarket</span>
-                } <span class="kw">else</span> {
-                    <span class="bool-val">false</span>
-                }
+            } <span class="kw">else if let </span><span class="prelude-val">Some</span>(amenity) = b.amenities.iter().find(|a| {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(at) = AmenityType::categorize(<span class="kw-2">&amp;</span>a.amenity_type) {
+                    at == AmenityType::Bar
+                        || at == AmenityType::ConvenienceStore
+                        || at == AmenityType::Food
+                        || at == AmenityType::Supermarket
+                } <span class="kw">else </span>{
+                    <span class="bool-val">false
+                </span>}
             }) {
-                <span class="ident">buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">BldgState::Store</span>);
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">colors</span>.<span class="ident">store</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
-                <span class="ident">batch</span>.<span class="ident">append</span>(
-                    <span class="ident">Text::from</span>(<span class="ident">amenity</span>.<span class="ident">names</span>.<span class="ident">get</span>(<span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">language</span>.<span class="ident">as_ref</span>()))
-                        .<span class="ident">render_autocropped</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">scale</span>(<span class="number">0.1</span>)
-                        .<span class="ident">centered_on</span>(<span class="ident">b</span>.<span class="ident">label_center</span>),
+                buildings.insert(b.id, BldgState::Store);
+                batch.push(colors.store, b.polygon.clone());
+                batch.append(
+                    Text::from(amenity.names.get(app.opts.language.as_ref()))
+                        .render_autocropped(ctx)
+                        .scale(<span class="number">0.1</span>)
+                        .centered_on(b.label_center),
                 );
                 <span class="kw">continue</span>;
             }
 
-            <span class="comment">// If it&#39;s not a residence or store, just blank it out.</span>
-            <span class="ident">buildings</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">BldgState::Ignore</span>);
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">colors</span>.<span class="ident">visited</span>, <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+            <span class="comment">// If it&#39;s not a residence or store, just blank it out.
+            </span>buildings.insert(b.id, BldgState::Ignore);
+            batch.push(colors.visited, b.polygon.clone());
         }
 
-        <span class="ident">Buildings</span> {
-            <span class="ident">buildings</span>,
-            <span class="ident">draw_all</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
-            <span class="ident">total_housing_units</span>,
-            <span class="ident">upzones</span>,
+        Buildings {
+            buildings,
+            draw_all: ctx.upload(batch),
+            total_housing_units,
+            upzones,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_stores</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stores</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">state</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buildings</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BldgState::Store</span> <span class="op">=</span> <span class="ident">state</span> {
-                <span class="ident">stores</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">b</span>);
+    <span class="kw">pub fn </span>all_stores(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;BuildingID&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>stores = Vec::new();
+        <span class="kw">for </span>(b, state) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.buildings {
+            <span class="kw">if let </span>BldgState::Store = state {
+                stores.push(<span class="kw-2">*</span>b);
             }
         }
-        <span class="ident">stores</span>
+        stores
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_done_houses</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Drawable</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">state</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buildings</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BldgState::Done</span> <span class="op">=</span> <span class="ident">state</span> {
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">colors</span>.<span class="ident">visited</span>,
-                    <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>(),
+    <span class="kw">pub fn </span>draw_done_houses(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Drawable {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>(b, state) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.buildings {
+            <span class="kw">if let </span>BldgState::Done = state {
+                batch.push(
+                    app.session.colors.visited,
+                    app.map.get_b(<span class="kw-2">*</span>b).polygon.clone(),
                 );
             }
         }
-        <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>)
+        ctx.upload(batch)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/session.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>session.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/session.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>session.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -166,173 +166,173 @@
 <span id="166">166</span>
 <span id="167">167</span>
 <span id="168">168</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeSet, HashMap};
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_multimap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">map_model::BuildingID</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>};
+<span class="kw">use </span>abstutil::{deserialize_multimap, serialize_multimap, MultiMap, Timer};
+<span class="kw">use </span>map_model::BuildingID;
+<span class="kw">use </span>widgetry::{Color, EventCtx};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::levels::Level</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::music::Music</span>;
+<span class="kw">use </span><span class="kw">crate</span>::levels::Level;
+<span class="kw">use </span><span class="kw">crate</span>::music::Music;
 
-<span class="doccomment">/// Persistent state that lasts across levels.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Session</span> {
-    <span class="kw">pub</span> <span class="ident">levels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Level</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Enable this to use the levels, instead of overwriting them with the version in the code.</span>
-    <span class="kw">pub</span> <span class="ident">enable_modding</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">colors</span>: <span class="ident">ColorScheme</span>,
+<span class="doccomment">/// Persistent state that lasts across levels.
+</span><span class="attribute">#[derive(Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Session {
+    <span class="kw">pub </span>levels: Vec&lt;Level&gt;,
+    <span class="doccomment">/// Enable this to use the levels, instead of overwriting them with the version in the code.
+    </span><span class="kw">pub </span>enable_modding: bool,
+    <span class="kw">pub </span>colors: ColorScheme,
 
-    <span class="doccomment">/// Level title -&gt; the top 3 scores</span>
-    <span class="kw">pub</span> <span class="ident">high_scores</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">levels_unlocked</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">current_vehicle</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">vehicles_unlocked</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">upzones_unlocked</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">upzones_explained</span>: <span class="ident">bool</span>,
-    <span class="comment">// This was added after the main release, so keep old save files working by allowing it to be</span>
-    <span class="comment">// missing.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_multimap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_multimap&quot;</span>,
-        <span class="ident">default</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">upzones_per_level</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">BuildingID</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Level title -&gt; the top 3 scores
+    </span><span class="kw">pub </span>high_scores: HashMap&lt;String, Vec&lt;usize&gt;&gt;,
+    <span class="kw">pub </span>levels_unlocked: usize,
+    <span class="kw">pub </span>current_vehicle: String,
+    <span class="kw">pub </span>vehicles_unlocked: BTreeSet&lt;String&gt;,
+    <span class="kw">pub </span>upzones_unlocked: usize,
+    <span class="kw">pub </span>upzones_explained: bool,
+    <span class="comment">// This was added after the main release, so keep old save files working by allowing it to be
+    // missing.
+    </span><span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_multimap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_multimap&quot;</span>,
+        default
+    )]
+    </span><span class="kw">pub </span>upzones_per_level: MultiMap&lt;String, BuildingID&gt;,
 
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">music</span>: <span class="ident">Music</span>,
-    <span class="kw">pub</span> <span class="ident">play_music</span>: <span class="ident">bool</span>,
+    <span class="attribute">#[serde(skip_serializing, skip_deserializing)]
+    </span><span class="kw">pub </span>music: Music,
+    <span class="kw">pub </span>play_music: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorScheme</span> {
-    <span class="kw">pub</span> <span class="ident">house</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">apartment</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">store</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">visited</span>: <span class="ident">Color</span>,
+<span class="attribute">#[derive(Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>ColorScheme {
+    <span class="kw">pub </span>house: Color,
+    <span class="kw">pub </span>apartment: Color,
+    <span class="kw">pub </span>store: Color,
+    <span class="kw">pub </span>visited: Color,
 
-    <span class="kw">pub</span> <span class="ident">score</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">energy</span>: <span class="ident">Color</span>,
-    <span class="kw">pub</span> <span class="ident">boost</span>: <span class="ident">Color</span>,
+    <span class="kw">pub </span>score: Color,
+    <span class="kw">pub </span>energy: Color,
+    <span class="kw">pub </span>boost: Color,
 }
 
-<span class="kw">impl</span> <span class="ident">Session</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>() -&gt; <span class="ident">Session</span> {
-        <span class="kw">let</span> <span class="ident">levels</span> <span class="op">=</span> <span class="ident">Level::all</span>();
+<span class="kw">impl </span>Session {
+    <span class="kw">pub fn </span>load() -&gt; Session {
+        <span class="kw">let </span>levels = Level::all();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="kw-2">mut</span> <span class="ident">session</span>) <span class="op">=</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">Session</span><span class="op">&gt;</span>(
-            <span class="ident">abstio::path_player</span>(<span class="string">&quot;santa.json&quot;</span>),
-            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="kw-2">mut </span>session) = abstio::maybe_read_json::&lt;Session&gt;(
+            abstio::path_player(<span class="string">&quot;santa.json&quot;</span>),
+            <span class="kw-2">&amp;mut </span>Timer::throwaway(),
         ) {
-            <span class="kw">if</span> <span class="ident">session</span>.<span class="ident">levels</span> <span class="op">!</span><span class="op">=</span> <span class="ident">levels</span> {
-                <span class="kw">if</span> <span class="ident">session</span>.<span class="ident">enable_modding</span> {
+            <span class="kw">if </span>session.levels != levels {
+                <span class="kw">if </span>session.enable_modding {
                     <span class="macro">warn!</span>(<span class="string">&quot;Using modified levels from the session data&quot;</span>);
-                } <span class="kw">else</span> {
+                } <span class="kw">else </span>{
                     <span class="macro">warn!</span>(<span class="string">&quot;Levels have changed; overwriting with the new version from the code&quot;</span>);
-                    <span class="ident">session</span>.<span class="ident">levels</span> <span class="op">=</span> <span class="ident">levels</span>;
+                    session.levels = levels;
                 }
             }
-            <span class="kw">return</span> <span class="ident">session</span>;
+            <span class="kw">return </span>session;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">high_scores</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> <span class="ident">level</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">levels</span> {
-            <span class="ident">high_scores</span>.<span class="ident">insert</span>(<span class="ident">level</span>.<span class="ident">title</span>.<span class="ident">clone</span>(), <span class="ident">Vec::new</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>high_scores = HashMap::new();
+        <span class="kw">for </span>level <span class="kw">in </span><span class="kw-2">&amp;</span>levels {
+            high_scores.insert(level.title.clone(), Vec::new());
         }
-        <span class="ident">Session</span> {
-            <span class="ident">levels</span>,
-            <span class="ident">enable_modding</span>: <span class="bool-val">false</span>,
-            <span class="ident">colors</span>: <span class="ident">ColorScheme</span> {
-                <span class="ident">house</span>: <span class="ident">Color::hex</span>(<span class="string">&quot;#688865&quot;</span>),
-                <span class="ident">apartment</span>: <span class="ident">Color::hex</span>(<span class="string">&quot;#C0F879&quot;</span>),
-                <span class="ident">store</span>: <span class="ident">Color::hex</span>(<span class="string">&quot;#EE702E&quot;</span>),
-                <span class="ident">visited</span>: <span class="ident">Color::BLACK</span>,
+        Session {
+            levels,
+            enable_modding: <span class="bool-val">false</span>,
+            colors: ColorScheme {
+                house: Color::hex(<span class="string">&quot;#688865&quot;</span>),
+                apartment: Color::hex(<span class="string">&quot;#C0F879&quot;</span>),
+                store: Color::hex(<span class="string">&quot;#EE702E&quot;</span>),
+                visited: Color::BLACK,
 
-                <span class="ident">score</span>: <span class="ident">Color::hex</span>(<span class="string">&quot;#83AA51&quot;</span>),
-                <span class="ident">energy</span>: <span class="ident">Color::hex</span>(<span class="string">&quot;#D8B830&quot;</span>),
-                <span class="ident">boost</span>: <span class="ident">Color::hex</span>(<span class="string">&quot;#A32015&quot;</span>),
+                score: Color::hex(<span class="string">&quot;#83AA51&quot;</span>),
+                energy: Color::hex(<span class="string">&quot;#D8B830&quot;</span>),
+                boost: Color::hex(<span class="string">&quot;#A32015&quot;</span>),
             },
 
-            <span class="ident">high_scores</span>,
-            <span class="ident">levels_unlocked</span>: <span class="number">1</span>,
-            <span class="ident">current_vehicle</span>: <span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">vehicles_unlocked</span>: <span class="macro">vec!</span>[<span class="string">&quot;bike&quot;</span>.<span class="ident">to_string</span>()].<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-            <span class="ident">upzones_unlocked</span>: <span class="number">0</span>,
-            <span class="ident">upzones_explained</span>: <span class="bool-val">false</span>,
-            <span class="ident">upzones_per_level</span>: <span class="ident">MultiMap::new</span>(),
+            high_scores,
+            levels_unlocked: <span class="number">1</span>,
+            current_vehicle: <span class="string">&quot;bike&quot;</span>.to_string(),
+            vehicles_unlocked: <span class="macro">vec!</span>[<span class="string">&quot;bike&quot;</span>.to_string()].into_iter().collect(),
+            upzones_unlocked: <span class="number">0</span>,
+            upzones_explained: <span class="bool-val">false</span>,
+            upzones_per_level: MultiMap::new(),
 
-            <span class="ident">music</span>: <span class="ident">Music::empty</span>(),
-            <span class="ident">play_music</span>: <span class="bool-val">true</span>,
+            music: Music::empty(),
+            play_music: <span class="bool-val">true</span>,
         }
     }
 
-    <span class="doccomment">/// If a message is returned, a new level and some powers were unlocked.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">record_score</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">String</span>, <span class="ident">score</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">scores</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">high_scores</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">level</span>).<span class="ident">unwrap</span>();
-        <span class="ident">scores</span>.<span class="ident">push</span>(<span class="ident">score</span>);
-        <span class="ident">scores</span>.<span class="ident">sort_unstable</span>();
-        <span class="ident">scores</span>.<span class="ident">reverse</span>();
-        <span class="ident">scores</span>.<span class="ident">truncate</span>(<span class="number">3</span>);
+    <span class="doccomment">/// If a message is returned, a new level and some powers were unlocked.
+    </span><span class="kw">pub fn </span>record_score(<span class="kw-2">&amp;mut </span><span class="self">self</span>, level: String, score: usize) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;String&gt;&gt; {
+        <span class="kw">let </span>scores = <span class="self">self</span>.high_scores.get_mut(<span class="kw-2">&amp;</span>level).unwrap();
+        scores.push(score);
+        scores.sort_unstable();
+        scores.reverse();
+        scores.truncate(<span class="number">3</span>);
 
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">levels</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">lvl</span><span class="op">|</span> <span class="ident">lvl</span>.<span class="ident">title</span> <span class="op">==</span> <span class="ident">level</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">level</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">levels</span>[<span class="ident">idx</span>];
-        <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">levels_unlocked</span> <span class="op">&amp;&amp;</span> <span class="ident">score</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">level</span>.<span class="ident">goal</span> {
-            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">levels</span>.<span class="ident">len</span>() {
+        <span class="kw">let </span>idx = <span class="self">self
+            </span>.levels
+            .iter()
+            .position(|lvl| lvl.title == level)
+            .unwrap();
+        <span class="kw">let </span>level = <span class="kw-2">&amp;</span><span class="self">self</span>.levels[idx];
+        <span class="kw">let </span>msg = <span class="kw">if </span>idx + <span class="number">1 </span>== <span class="self">self</span>.levels_unlocked &amp;&amp; score &gt;= level.goal {
+            <span class="kw">if </span>idx + <span class="number">1 </span>== <span class="self">self</span>.levels.len() {
                 <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[
-                    <span class="string">&quot;All levels complete! Nice.&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="string">&quot;Can you improve your score on other levels?&quot;</span>.<span class="ident">to_string</span>(),
+                    <span class="string">&quot;All levels complete! Nice.&quot;</span>.to_string(),
+                    <span class="string">&quot;Can you improve your score on other levels?&quot;</span>.to_string(),
                 ])
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">levels_unlocked</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">messages</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="string">&quot;New level unlocked!&quot;</span>.<span class="ident">to_string</span>()];
-                <span class="kw">if</span> <span class="ident">level</span>.<span class="ident">unlock_upzones</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                    <span class="self">self</span>.<span class="ident">upzones_unlocked</span> <span class="op">+</span><span class="op">=</span> <span class="ident">level</span>.<span class="ident">unlock_upzones</span>;
-                    <span class="ident">messages</span>.<span class="ident">push</span>(<span class="macro">format!</span>(
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.levels_unlocked += <span class="number">1</span>;
+                <span class="kw">let </span><span class="kw-2">mut </span>messages = <span class="macro">vec!</span>[<span class="string">&quot;New level unlocked!&quot;</span>.to_string()];
+                <span class="kw">if </span>level.unlock_upzones &gt; <span class="number">0 </span>{
+                    <span class="self">self</span>.upzones_unlocked += level.unlock_upzones;
+                    messages.push(<span class="macro">format!</span>(
                         <span class="string">&quot;Unlocked the ability to upzone {} buildings&quot;</span>,
-                        <span class="ident">level</span>.<span class="ident">unlock_upzones</span>
+                        level.unlock_upzones
                     ));
                 }
-                <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">level</span>.<span class="ident">unlock_vehicles</span> {
-                    <span class="self">self</span>.<span class="ident">vehicles_unlocked</span>.<span class="ident">insert</span>(<span class="ident">x</span>.<span class="ident">clone</span>());
-                    <span class="ident">messages</span>.<span class="ident">push</span>(<span class="macro">format!</span>(<span class="string">&quot;Unlocked the {}&quot;</span>, <span class="ident">x</span>));
+                <span class="kw">for </span>x <span class="kw">in </span><span class="kw-2">&amp;</span>level.unlock_vehicles {
+                    <span class="self">self</span>.vehicles_unlocked.insert(x.clone());
+                    messages.push(<span class="macro">format!</span>(<span class="string">&quot;Unlocked the {}&quot;</span>, x));
                 }
-                <span class="prelude-val">Some</span>(<span class="ident">messages</span>)
+                <span class="prelude-val">Some</span>(messages)
             }
-        } <span class="kw">else</span> {
-            <span class="comment">// Nothing new unlocked</span>
-            <span class="prelude-val">None</span>
-        };
-        <span class="self">self</span>.<span class="ident">save</span>();
-        <span class="ident">msg</span>
+        } <span class="kw">else </span>{
+            <span class="comment">// Nothing new unlocked
+            </span><span class="prelude-val">None
+        </span>};
+        <span class="self">self</span>.save();
+        msg
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unlock_all</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">upzones_unlocked</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">level</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">levels</span> {
-            <span class="self">self</span>.<span class="ident">vehicles_unlocked</span>.<span class="ident">extend</span>(<span class="ident">level</span>.<span class="ident">unlock_vehicles</span>.<span class="ident">clone</span>());
-            <span class="self">self</span>.<span class="ident">upzones_unlocked</span> <span class="op">+</span><span class="op">=</span> <span class="ident">level</span>.<span class="ident">unlock_upzones</span>;
+    <span class="kw">pub fn </span>unlock_all(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.upzones_unlocked = <span class="number">0</span>;
+        <span class="kw">for </span>level <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.levels {
+            <span class="self">self</span>.vehicles_unlocked.extend(level.unlock_vehicles.clone());
+            <span class="self">self</span>.upzones_unlocked += level.unlock_upzones;
         }
-        <span class="self">self</span>.<span class="ident">levels_unlocked</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">levels</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">upzones_explained</span> <span class="op">=</span> <span class="bool-val">true</span>;
+        <span class="self">self</span>.levels_unlocked = <span class="self">self</span>.levels.len();
+        <span class="self">self</span>.upzones_explained = <span class="bool-val">true</span>;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_music</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">let</span> <span class="ident">play_music</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">play_music</span>;
-        <span class="self">self</span>.<span class="ident">music</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">play_music</span>);
-        <span class="kw">if</span> <span class="ident">play_music</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">play_music</span> {
-            <span class="self">self</span>.<span class="ident">save</span>();
+    <span class="kw">pub fn </span>update_music(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
+        <span class="kw">let </span>play_music = <span class="self">self</span>.play_music;
+        <span class="self">self</span>.music.event(ctx, <span class="kw-2">&amp;mut </span><span class="self">self</span>.play_music);
+        <span class="kw">if </span>play_music != <span class="self">self</span>.play_music {
+            <span class="self">self</span>.save();
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="ident">abstio::write_json</span>(<span class="ident">abstio::path_player</span>(<span class="string">&quot;santa.json&quot;</span>), <span class="self">self</span>);
+    <span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        abstio::write_json(abstio::path_player(<span class="string">&quot;santa.json&quot;</span>), <span class="self">self</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

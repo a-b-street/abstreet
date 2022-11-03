@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/gtfs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gtfs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../convert_osm/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/gtfs.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>gtfs.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../convert_osm/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -260,267 +260,267 @@
 <span id="260">260</span>
 <span id="261">261</span>
 <span id="262">262</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashMap, HashSet};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">fs_err::File</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>fs_err::File;
+<span class="kw">use </span>serde::Deserialize;
 
-<span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">LonLat</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">kml</span>::{<span class="ident">ExtraShape</span>, <span class="ident">ExtraShapes</span>};
-<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">RawMap</span>, <span class="ident">RawTransitRoute</span>, <span class="ident">RawTransitStop</span>, <span class="ident">RawTransitType</span>};
+<span class="kw">use </span>abstutil::MultiMap;
+<span class="kw">use </span>geom::{LonLat, PolyLine, Pt2D};
+<span class="kw">use </span>kml::{ExtraShape, ExtraShapes};
+<span class="kw">use </span>raw_map::{RawMap, RawTransitRoute, RawTransitStop, RawTransitType};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="comment">// Collect metadata about routes</span>
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;gtfs/routes.txt&quot;</span>))<span class="question-mark">?</span>)
-        .<span class="ident">deserialize</span>()
+<span class="kw">pub fn </span>import(map: <span class="kw-2">&amp;mut </span>RawMap) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="comment">// Collect metadata about routes
+    </span><span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/routes.txt&quot;</span>))<span class="question-mark">?</span>)
+        .deserialize()
     {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Route</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="comment">// See https://developers.google.com/transit/gtfs/reference#routestxt</span>
-        <span class="kw">let</span> <span class="ident">route_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">rec</span>.<span class="ident">route_type</span> {
-            <span class="number">3</span> =&gt; <span class="ident">RawTransitType::Bus</span>,
-            <span class="comment">// These aren&#39;t distinguished in the map model yet. Trams and streetcars might</span>
-            <span class="comment">// particularly mess up...  or just fail to snap to a road later.</span>
-            <span class="number">0</span> <span class="op">|</span> <span class="number">1</span> <span class="op">|</span> <span class="number">2</span> =&gt; <span class="ident">RawTransitType::Train</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">continue</span>,
+        <span class="kw">let </span>rec: Route = rec<span class="question-mark">?</span>;
+        <span class="comment">// See https://developers.google.com/transit/gtfs/reference#routestxt
+        </span><span class="kw">let </span>route_type = <span class="kw">match </span>rec.route_type {
+            <span class="number">3 </span>=&gt; RawTransitType::Bus,
+            <span class="comment">// These aren&#39;t distinguished in the map model yet. Trams and streetcars might
+            // particularly mess up...  or just fail to snap to a road later.
+            </span><span class="number">0 </span>| <span class="number">1 </span>| <span class="number">2 </span>=&gt; RawTransitType::Train,
+            <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
         };
-        <span class="ident">map</span>.<span class="ident">transit_routes</span>.<span class="ident">push</span>(<span class="ident">RawTransitRoute</span> {
-            <span class="ident">long_name</span>: <span class="kw">if</span> <span class="ident">rec</span>.<span class="ident">route_long_name</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">rec</span>.<span class="ident">route_desc</span>
-            } <span class="kw">else</span> {
-                <span class="ident">rec</span>.<span class="ident">route_long_name</span>
+        map.transit_routes.push(RawTransitRoute {
+            long_name: <span class="kw">if </span>rec.route_long_name.is_empty() {
+                rec.route_desc
+            } <span class="kw">else </span>{
+                rec.route_long_name
             },
-            <span class="ident">short_name</span>: <span class="ident">rec</span>.<span class="ident">route_short_name</span>,
-            <span class="ident">gtfs_id</span>: <span class="ident">rec</span>.<span class="ident">route_id</span>.<span class="number">0</span>,
-            <span class="ident">shape</span>: <span class="ident">PolyLine::dummy</span>(),
-            <span class="ident">stops</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">route_type</span>,
+            short_name: rec.route_short_name,
+            gtfs_id: rec.route_id.<span class="number">0</span>,
+            shape: PolyLine::dummy(),
+            stops: Vec::new(),
+            route_type,
         });
     }
 
-    <span class="comment">// Map route_id to shape_id</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">route_to_shapes</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-    <span class="comment">// Map (route_id, shape_id) to trip_id</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">route_and_shape_to_trips</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;gtfs/trips.txt&quot;</span>))<span class="question-mark">?</span>)
-        .<span class="ident">deserialize</span>()
+    <span class="comment">// Map route_id to shape_id
+    </span><span class="kw">let </span><span class="kw-2">mut </span>route_to_shapes = MultiMap::new();
+    <span class="comment">// Map (route_id, shape_id) to trip_id
+    </span><span class="kw">let </span><span class="kw-2">mut </span>route_and_shape_to_trips = MultiMap::new();
+    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/trips.txt&quot;</span>))<span class="question-mark">?</span>)
+        .deserialize()
     {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Trip</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="ident">route_to_shapes</span>.<span class="ident">insert</span>(<span class="ident">rec</span>.<span class="ident">route_id</span>.<span class="ident">clone</span>(), <span class="ident">rec</span>.<span class="ident">shape_id</span>.<span class="ident">clone</span>());
-        <span class="ident">route_and_shape_to_trips</span>.<span class="ident">insert</span>((<span class="ident">rec</span>.<span class="ident">route_id</span>, <span class="ident">rec</span>.<span class="ident">shape_id</span>), <span class="ident">rec</span>.<span class="ident">trip_id</span>);
+        <span class="kw">let </span>rec: Trip = rec<span class="question-mark">?</span>;
+        route_to_shapes.insert(rec.route_id.clone(), rec.shape_id.clone());
+        route_and_shape_to_trips.insert((rec.route_id, rec.shape_id), rec.trip_id);
     }
 
-    <span class="comment">// Scrape all shape data. Map from shape_id to points and the sequence number</span>
-    <span class="comment">//</span>
-    <span class="comment">// If this file is missing, one idea is to just draw straight lines between stops. We only use</span>
-    <span class="comment">// the shape currently to pick an entry/exit border, so this could be a half-reasonable</span>
-    <span class="comment">// workaround.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_shapes</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">ShapeID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">usize</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;gtfs/shapes.txt&quot;</span>))<span class="question-mark">?</span>)
-        .<span class="ident">deserialize</span>()
+    <span class="comment">// Scrape all shape data. Map from shape_id to points and the sequence number
+    //
+    // If this file is missing, one idea is to just draw straight lines between stops. We only use
+    // the shape currently to pick an entry/exit border, so this could be a half-reasonable
+    // workaround.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>raw_shapes: HashMap&lt;ShapeID, Vec&lt;(Pt2D, usize)&gt;&gt; = HashMap::new();
+    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/shapes.txt&quot;</span>))<span class="question-mark">?</span>)
+        .deserialize()
     {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Shape</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="ident">rec</span>.<span class="ident">shape_pt_lon</span>, <span class="ident">rec</span>.<span class="ident">shape_pt_lat</span>).<span class="ident">to_pt</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>);
-        <span class="ident">raw_shapes</span>
-            .<span class="ident">entry</span>(<span class="ident">rec</span>.<span class="ident">shape_id</span>)
-            .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-            .<span class="ident">push</span>((<span class="ident">pt</span>, <span class="ident">rec</span>.<span class="ident">shape_pt_sequence</span>));
+        <span class="kw">let </span>rec: Shape = rec<span class="question-mark">?</span>;
+        <span class="kw">let </span>pt = LonLat::new(rec.shape_pt_lon, rec.shape_pt_lat).to_pt(<span class="kw-2">&amp;</span>map.streets.gps_bounds);
+        raw_shapes
+            .entry(rec.shape_id)
+            .or_insert_with(Vec::new)
+            .push((pt, rec.shape_pt_sequence));
     }
 
-    <span class="comment">// Build a PolyLine for every route</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transit_routes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">route_to_shape</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">route</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">transit_routes</span>.<span class="ident">drain</span>(..) {
-        <span class="kw">let</span> <span class="ident">shape_ids</span> <span class="op">=</span> <span class="ident">route_to_shapes</span>.<span class="ident">get</span>(<span class="ident">RouteID</span>(<span class="ident">route</span>.<span class="ident">gtfs_id</span>.<span class="ident">clone</span>()));
-        <span class="kw">if</span> <span class="ident">shape_ids</span>.<span class="ident">is_empty</span>() {
-            <span class="macro">warn!</span>(<span class="string">&quot;Route {} has no shape&quot;</span>, <span class="ident">route</span>.<span class="ident">gtfs_id</span>);
+    <span class="comment">// Build a PolyLine for every route
+    </span><span class="kw">let </span><span class="kw-2">mut </span>transit_routes = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>route_to_shape = HashMap::new();
+    <span class="kw">for </span><span class="kw-2">mut </span>route <span class="kw">in </span>map.transit_routes.drain(..) {
+        <span class="kw">let </span>shape_ids = route_to_shapes.get(RouteID(route.gtfs_id.clone()));
+        <span class="kw">if </span>shape_ids.is_empty() {
+            <span class="macro">warn!</span>(<span class="string">&quot;Route {} has no shape&quot;</span>, route.gtfs_id);
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="ident">shape_ids</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
+        <span class="kw">if </span>shape_ids.len() &gt; <span class="number">1 </span>{
             <span class="macro">warn!</span>(
                 <span class="string">&quot;Route {} has several shapes, choosing one arbitrarily: {:?}&quot;</span>,
-                <span class="ident">route</span>.<span class="ident">gtfs_id</span>, <span class="ident">shape_ids</span>
+                route.gtfs_id, shape_ids
             );
         }
-        <span class="kw">let</span> <span class="ident">shape_id</span> <span class="op">=</span> <span class="ident">shape_ids</span>.<span class="ident">into_iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>();
-        <span class="ident">route_to_shape</span>.<span class="ident">insert</span>(<span class="ident">RouteID</span>(<span class="ident">route</span>.<span class="ident">gtfs_id</span>.<span class="ident">clone</span>()), <span class="ident">shape_id</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pts</span>) <span class="op">=</span> <span class="ident">raw_shapes</span>.<span class="ident">remove</span>(<span class="ident">shape_id</span>) {
-            <span class="ident">pts</span>
-        } <span class="kw">else</span> {
-            <span class="macro">warn!</span>(<span class="string">&quot;Route {} is missing its shape&quot;</span>, <span class="ident">route</span>.<span class="ident">gtfs_id</span>);
+        <span class="kw">let </span>shape_id = shape_ids.into_iter().next().unwrap();
+        route_to_shape.insert(RouteID(route.gtfs_id.clone()), shape_id.clone());
+        <span class="kw">let </span><span class="kw-2">mut </span>pts = <span class="kw">if let </span><span class="prelude-val">Some</span>(pts) = raw_shapes.remove(shape_id) {
+            pts
+        } <span class="kw">else </span>{
+            <span class="macro">warn!</span>(<span class="string">&quot;Route {} is missing its shape&quot;</span>, route.gtfs_id);
             <span class="kw">continue</span>;
         };
-        <span class="comment">// Points are usually sorted, but just in case...</span>
-        <span class="ident">pts</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">seq</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">seq</span>);
-        <span class="kw">let</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">pt</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">pt</span>).<span class="ident">collect</span>();
-        <span class="kw">match</span> <span class="ident">PolyLine::new</span>(<span class="ident">pts</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) =&gt; {
-                <span class="ident">route</span>.<span class="ident">shape</span> <span class="op">=</span> <span class="ident">pl</span>;
-                <span class="ident">transit_routes</span>.<span class="ident">push</span>(<span class="ident">route</span>);
+        <span class="comment">// Points are usually sorted, but just in case...
+        </span>pts.sort_by_key(|(<span class="kw">_</span>, seq)| <span class="kw-2">*</span>seq);
+        <span class="kw">let </span>pts: Vec&lt;Pt2D&gt; = pts.into_iter().map(|(pt, <span class="kw">_</span>)| pt).collect();
+        <span class="kw">match </span>PolyLine::new(pts) {
+            <span class="prelude-val">Ok</span>(pl) =&gt; {
+                route.shape = pl;
+                transit_routes.push(route);
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="macro">warn!</span>(<span class="string">&quot;Route {} has a weird shape: {}&quot;</span>, <span class="ident">route</span>.<span class="ident">gtfs_id</span>, <span class="ident">err</span>);
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="macro">warn!</span>(<span class="string">&quot;Route {} has a weird shape: {}&quot;</span>, route.gtfs_id, err);
                 <span class="kw">continue</span>;
             }
         }
     }
-    <span class="ident">map</span>.<span class="ident">transit_routes</span> <span class="op">=</span> <span class="ident">transit_routes</span>;
+    map.transit_routes = transit_routes;
 
-    <span class="comment">// For now, every route uses exactly one trip ID, and there&#39;s no schedule. Just pick an</span>
-    <span class="comment">// arbitrary trip per route.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">route_to_trip</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">route_id</span>, <span class="ident">shape_id</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">route_to_shape</span> {
-        <span class="kw">let</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">route_and_shape_to_trips</span>.<span class="ident">get</span>((<span class="ident">route_id</span>.<span class="ident">clone</span>(), <span class="ident">shape_id</span>.<span class="ident">clone</span>()));
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">trip_id</span>) <span class="op">=</span> <span class="ident">trips</span>.<span class="ident">into_iter</span>().<span class="ident">next</span>() {
-            <span class="ident">route_to_trip</span>.<span class="ident">insert</span>(<span class="ident">route_id</span>.<span class="ident">clone</span>(), <span class="ident">trip_id</span>);
+    <span class="comment">// For now, every route uses exactly one trip ID, and there&#39;s no schedule. Just pick an
+    // arbitrary trip per route.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>route_to_trip = HashMap::new();
+    <span class="kw">for </span>(route_id, shape_id) <span class="kw">in </span><span class="kw-2">&amp;</span>route_to_shape {
+        <span class="kw">let </span>trips = route_and_shape_to_trips.get((route_id.clone(), shape_id.clone()));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(trip_id) = trips.into_iter().next() {
+            route_to_trip.insert(route_id.clone(), trip_id);
         }
     }
 
-    <span class="comment">// Scrape the trip ID -&gt; (stop ID, sequence number)</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trip_to_stops</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">StopID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span>
-        <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;gtfs/stop_times.txt&quot;</span>))<span class="question-mark">?</span>)
-            .<span class="ident">deserialize</span>()
+    <span class="comment">// Scrape the trip ID -&gt; (stop ID, sequence number)
+    </span><span class="kw">let </span><span class="kw-2">mut </span>trip_to_stops: HashMap&lt;TripID, Vec&lt;(StopID, usize)&gt;&gt; = HashMap::new();
+    <span class="kw">for </span>rec <span class="kw">in
+        </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/stop_times.txt&quot;</span>))<span class="question-mark">?</span>)
+            .deserialize()
     {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">StopTime</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="ident">trip_to_stops</span>
-            .<span class="ident">entry</span>(<span class="ident">rec</span>.<span class="ident">trip_id</span>)
-            .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-            .<span class="ident">push</span>((<span class="ident">rec</span>.<span class="ident">stop_id</span>, <span class="ident">rec</span>.<span class="ident">stop_sequence</span>));
+        <span class="kw">let </span>rec: StopTime = rec<span class="question-mark">?</span>;
+        trip_to_stops
+            .entry(rec.trip_id)
+            .or_insert_with(Vec::new)
+            .push((rec.stop_id, rec.stop_sequence));
     }
 
-    <span class="comment">// Assign the stops for every route</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stop_ids</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">transit_routes</span> {
-        <span class="kw">let</span> <span class="ident">trip_id</span> <span class="op">=</span> <span class="ident">route_to_trip</span>[<span class="kw-2">&amp;</span><span class="ident">RouteID</span>(<span class="ident">route</span>.<span class="ident">gtfs_id</span>.<span class="ident">clone</span>())];
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stops</span> <span class="op">=</span> <span class="ident">trip_to_stops</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">trip_id</span>).<span class="ident">unwrap_or_else</span>(<span class="ident">Vec::new</span>);
-        <span class="ident">stops</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">seq</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">seq</span>);
-        <span class="kw">for</span> (<span class="ident">stop_id</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">stops</span> {
-            <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">push</span>(<span class="ident">stop_id</span>.<span class="number">0</span>.<span class="ident">clone</span>());
-            <span class="ident">stop_ids</span>.<span class="ident">insert</span>(<span class="ident">stop_id</span>);
+    <span class="comment">// Assign the stops for every route
+    </span><span class="kw">let </span><span class="kw-2">mut </span>stop_ids = HashSet::new();
+    <span class="kw">for </span>route <span class="kw">in </span><span class="kw-2">&amp;mut </span>map.transit_routes {
+        <span class="kw">let </span>trip_id = route_to_trip[<span class="kw-2">&amp;</span>RouteID(route.gtfs_id.clone())];
+        <span class="kw">let </span><span class="kw-2">mut </span>stops = trip_to_stops.remove(<span class="kw-2">&amp;</span>trip_id).unwrap_or_else(Vec::new);
+        stops.sort_by_key(|(<span class="kw">_</span>, seq)| <span class="kw-2">*</span>seq);
+        <span class="kw">for </span>(stop_id, <span class="kw">_</span>) <span class="kw">in </span>stops {
+            route.stops.push(stop_id.<span class="number">0</span>.clone());
+            stop_ids.insert(stop_id);
         }
     }
 
-    <span class="comment">// Scrape stop metadata</span>
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">input_path</span>(<span class="string">&quot;gtfs/stops.txt&quot;</span>))<span class="question-mark">?</span>)
-        .<span class="ident">deserialize</span>()
+    <span class="comment">// Scrape stop metadata
+    </span><span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(map.name.city.input_path(<span class="string">&quot;gtfs/stops.txt&quot;</span>))<span class="question-mark">?</span>)
+        .deserialize()
     {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Stop</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="kw">if</span> <span class="ident">stop_ids</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">stop_id</span>) {
-            <span class="kw">let</span> <span class="ident">position</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="ident">rec</span>.<span class="ident">stop_lon</span>, <span class="ident">rec</span>.<span class="ident">stop_lat</span>).<span class="ident">to_pt</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>);
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">position</span>) {
-                <span class="ident">map</span>.<span class="ident">transit_stops</span>.<span class="ident">insert</span>(
-                    <span class="ident">rec</span>.<span class="ident">stop_id</span>.<span class="number">0</span>.<span class="ident">clone</span>(),
-                    <span class="ident">RawTransitStop</span> {
-                        <span class="ident">gtfs_id</span>: <span class="ident">rec</span>.<span class="ident">stop_id</span>.<span class="number">0</span>,
-                        <span class="ident">position</span>,
-                        <span class="ident">name</span>: <span class="ident">rec</span>.<span class="ident">stop_name</span>,
+        <span class="kw">let </span>rec: Stop = rec<span class="question-mark">?</span>;
+        <span class="kw">if </span>stop_ids.contains(<span class="kw-2">&amp;</span>rec.stop_id) {
+            <span class="kw">let </span>position = LonLat::new(rec.stop_lon, rec.stop_lat).to_pt(<span class="kw-2">&amp;</span>map.streets.gps_bounds);
+            <span class="kw">if </span>map.streets.boundary_polygon.contains_pt(position) {
+                map.transit_stops.insert(
+                    rec.stop_id.<span class="number">0</span>.clone(),
+                    RawTransitStop {
+                        gtfs_id: rec.stop_id.<span class="number">0</span>,
+                        position,
+                        name: rec.stop_name,
                     },
                 );
             }
         }
     }
 
-    <span class="comment">// Make sure all of the stops are valid and used by some route</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">used_stops</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">transit_routes</span> {
-        <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">stop_id</span><span class="op">|</span> {
-            <span class="ident">used_stops</span>.<span class="ident">insert</span>(<span class="ident">stop_id</span>.<span class="ident">clone</span>());
-            <span class="ident">map</span>.<span class="ident">transit_stops</span>.<span class="ident">contains_key</span>(<span class="ident">stop_id</span>)
+    <span class="comment">// Make sure all of the stops are valid and used by some route
+    </span><span class="kw">let </span><span class="kw-2">mut </span>used_stops = HashSet::new();
+    <span class="kw">for </span>route <span class="kw">in </span><span class="kw-2">&amp;mut </span>map.transit_routes {
+        route.stops.retain(|stop_id| {
+            used_stops.insert(stop_id.clone());
+            map.transit_stops.contains_key(stop_id)
         });
     }
-    <span class="ident">map</span>.<span class="ident">transit_routes</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">route</span><span class="op">|</span> <span class="op">!</span><span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">is_empty</span>());
-    <span class="ident">map</span>.<span class="ident">transit_stops</span>
-        .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">stop_id</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">used_stops</span>.<span class="ident">contains</span>(<span class="ident">stop_id</span>));
+    map.transit_routes.retain(|route| !route.stops.is_empty());
+    map.transit_stops
+        .retain(|stop_id, <span class="kw">_</span>| used_stops.contains(stop_id));
 
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="ident">dump_kml</span>(<span class="ident">map</span>);
+    <span class="kw">if </span><span class="bool-val">false </span>{
+        dump_kml(map);
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ShapeID</span>(<span class="ident">String</span>);
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">TripID</span>(<span class="ident">String</span>);
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">StopID</span>(<span class="ident">String</span>);
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">RouteID</span>(<span class="ident">String</span>);
+<span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
+</span><span class="kw">struct </span>ShapeID(String);
+<span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
+</span><span class="kw">struct </span>TripID(String);
+<span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
+</span><span class="kw">struct </span>StopID(String);
+<span class="attribute">#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
+</span><span class="kw">struct </span>RouteID(String);
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Route</span> {
-    <span class="ident">route_id</span>: <span class="ident">RouteID</span>,
-    <span class="ident">route_short_name</span>: <span class="ident">String</span>,
-    <span class="ident">route_long_name</span>: <span class="ident">String</span>,
-    <span class="comment">// Missing from São Paulo</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">default</span>)]</span>
-    <span class="ident">route_desc</span>: <span class="ident">String</span>,
-    <span class="ident">route_type</span>: <span class="ident">usize</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">struct </span>Route {
+    route_id: RouteID,
+    route_short_name: String,
+    route_long_name: String,
+    <span class="comment">// Missing from São Paulo
+    </span><span class="attribute">#[serde(default)]
+    </span>route_desc: String,
+    route_type: usize,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Trip</span> {
-    <span class="ident">route_id</span>: <span class="ident">RouteID</span>,
-    <span class="ident">shape_id</span>: <span class="ident">ShapeID</span>,
-    <span class="ident">trip_id</span>: <span class="ident">TripID</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">struct </span>Trip {
+    route_id: RouteID,
+    shape_id: ShapeID,
+    trip_id: TripID,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Shape</span> {
-    <span class="ident">shape_id</span>: <span class="ident">ShapeID</span>,
-    <span class="ident">shape_pt_lat</span>: <span class="ident">f64</span>,
-    <span class="ident">shape_pt_lon</span>: <span class="ident">f64</span>,
-    <span class="ident">shape_pt_sequence</span>: <span class="ident">usize</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">struct </span>Shape {
+    shape_id: ShapeID,
+    shape_pt_lat: f64,
+    shape_pt_lon: f64,
+    shape_pt_sequence: usize,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Stop</span> {
-    <span class="ident">stop_id</span>: <span class="ident">StopID</span>,
-    <span class="ident">stop_lon</span>: <span class="ident">f64</span>,
-    <span class="ident">stop_lat</span>: <span class="ident">f64</span>,
-    <span class="ident">stop_name</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">struct </span>Stop {
+    stop_id: StopID,
+    stop_lon: f64,
+    stop_lat: f64,
+    stop_name: String,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">StopTime</span> {
-    <span class="ident">trip_id</span>: <span class="ident">TripID</span>,
-    <span class="ident">stop_id</span>: <span class="ident">StopID</span>,
-    <span class="ident">stop_sequence</span>: <span class="ident">usize</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">struct </span>StopTime {
+    trip_id: TripID,
+    stop_id: StopID,
+    stop_sequence: usize,
 }
 
-<span class="kw">fn</span> <span class="ident">dump_kml</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">fn </span>dump_kml(map: <span class="kw-2">&amp;</span>RawMap) {
+    <span class="kw">let </span><span class="kw-2">mut </span>shapes = Vec::new();
 
-    <span class="comment">// One polyline per route</span>
-    <span class="kw">for</span> <span class="ident">route</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">transit_routes</span> {
-        <span class="kw">let</span> <span class="ident">points</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>.<span class="ident">convert_back</span>(<span class="ident">route</span>.<span class="ident">shape</span>.<span class="ident">points</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;long_name&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">route</span>.<span class="ident">long_name</span>.<span class="ident">clone</span>());
-        <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;short_name&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">route</span>.<span class="ident">short_name</span>.<span class="ident">clone</span>());
-        <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;gtfs_id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">route</span>.<span class="ident">gtfs_id</span>.<span class="ident">clone</span>());
-        <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;num_stops&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">len</span>().<span class="ident">to_string</span>());
-        <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;route_type&quot;</span>.<span class="ident">to_string</span>(), <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">route</span>.<span class="ident">route_type</span>));
-        <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> { <span class="ident">points</span>, <span class="ident">attributes</span> });
+    <span class="comment">// One polyline per route
+    </span><span class="kw">for </span>route <span class="kw">in </span><span class="kw-2">&amp;</span>map.transit_routes {
+        <span class="kw">let </span>points = map.streets.gps_bounds.convert_back(route.shape.points());
+        <span class="kw">let </span><span class="kw-2">mut </span>attributes = BTreeMap::new();
+        attributes.insert(<span class="string">&quot;long_name&quot;</span>.to_string(), route.long_name.clone());
+        attributes.insert(<span class="string">&quot;short_name&quot;</span>.to_string(), route.short_name.clone());
+        attributes.insert(<span class="string">&quot;gtfs_id&quot;</span>.to_string(), route.gtfs_id.clone());
+        attributes.insert(<span class="string">&quot;num_stops&quot;</span>.to_string(), route.stops.len().to_string());
+        attributes.insert(<span class="string">&quot;route_type&quot;</span>.to_string(), <span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, route.route_type));
+        shapes.push(ExtraShape { points, attributes });
     }
 
-    <span class="comment">// One point per stop</span>
-    <span class="kw">for</span> <span class="ident">stop</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">transit_stops</span>.<span class="ident">values</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">attributes</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;gtfs_id&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">stop</span>.<span class="ident">gtfs_id</span>.<span class="ident">clone</span>());
-        <span class="ident">attributes</span>.<span class="ident">insert</span>(<span class="string">&quot;name&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">stop</span>.<span class="ident">name</span>.<span class="ident">clone</span>());
-        <span class="kw">let</span> <span class="ident">points</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">stop</span>.<span class="ident">position</span>.<span class="ident">to_gps</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>)];
-        <span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">ExtraShape</span> { <span class="ident">points</span>, <span class="ident">attributes</span> });
+    <span class="comment">// One point per stop
+    </span><span class="kw">for </span>stop <span class="kw">in </span>map.transit_stops.values() {
+        <span class="kw">let </span><span class="kw-2">mut </span>attributes = BTreeMap::new();
+        attributes.insert(<span class="string">&quot;gtfs_id&quot;</span>.to_string(), stop.gtfs_id.clone());
+        attributes.insert(<span class="string">&quot;name&quot;</span>.to_string(), stop.name.clone());
+        <span class="kw">let </span>points = <span class="macro">vec!</span>[stop.position.to_gps(<span class="kw-2">&amp;</span>map.streets.gps_bounds)];
+        shapes.push(ExtraShape { points, attributes });
     }
 
-    <span class="ident">abstio::write_binary</span>(
-        <span class="ident">map</span>.<span class="ident">name</span>
-            .<span class="ident">city</span>
-            .<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;gtfs_{}.bin&quot;</span>, <span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>)),
-        <span class="kw-2">&amp;</span><span class="ident">ExtraShapes</span> { <span class="ident">shapes</span> },
+    abstio::write_binary(
+        map.name
+            .city
+            .input_path(<span class="macro">format!</span>(<span class="string">&quot;gtfs_{}.bin&quot;</span>, map.name.map)),
+        <span class="kw-2">&amp;</span>ExtraShapes { shapes },
     );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_osm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_osm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

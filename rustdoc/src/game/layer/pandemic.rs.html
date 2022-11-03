@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/pandemic.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pandemic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/layer/pandemic.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pandemic.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -229,236 +229,236 @@
 <span id="229">229</span>
 <span id="230">230</span>
 <span id="231">231</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashSet;
 
-<span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">make_heatmap</span>, <span class="ident">HeatmapOptions</span>};
-<span class="kw">use</span> <span class="ident">sim::PersonState</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::ToggleZoomed</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>geom::{Circle, Distance, Pt2D, Time};
+<span class="kw">use </span>map_gui::tools::{make_heatmap, HeatmapOptions};
+<span class="kw">use </span>sim::PersonState;
+<span class="kw">use </span>widgetry::mapspace::ToggleZoomed;
+<span class="kw">use </span>widgetry::{
+    Choice, Color, EventCtx, GfxCtx, Line, Outcome, Panel, Text, TextExt, Toggle, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer</span>::{<span class="ident">header</span>, <span class="ident">Layer</span>, <span class="ident">LayerOutcome</span>, <span class="ident">PANEL_PLACEMENT</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::layer::{header, Layer, LayerOutcome, PANEL_PLACEMENT};
 
-<span class="comment">// TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to</span>
-<span class="comment">// return this kind of data instead!</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pandemic</span> {
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">opts</span>: <span class="ident">Options</span>,
-    <span class="ident">draw</span>: <span class="ident">ToggleZoomed</span>,
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="comment">// TODO Disable drawing unzoomed agents... or alternatively, implement this by asking Sim to
+// return this kind of data instead!
+</span><span class="kw">pub struct </span>Pandemic {
+    time: Time,
+    opts: Options,
+    draw: ToggleZoomed,
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">Layer</span> <span class="kw">for</span> <span class="ident">Pandemic</span> {
-    <span class="kw">fn</span> <span class="ident">name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">impl </span>Layer <span class="kw">for </span>Pandemic {
+    <span class="kw">fn </span>name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
         <span class="prelude-val">Some</span>(<span class="string">&quot;pandemic model&quot;</span>)
     }
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LayerOutcome</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">Pandemic::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>());
-            <span class="ident">new</span>.<span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>);
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">new</span>;
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="prelude-ty">Option</span>&lt;LayerOutcome&gt; {
+        <span class="kw">if </span>app.primary.sim.time() != <span class="self">self</span>.time {
+            <span class="kw">let </span><span class="kw-2">mut </span>new = Pandemic::new(ctx, app, <span class="self">self</span>.opts.clone());
+            new.panel.restore(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.panel);
+            <span class="kw-2">*</span><span class="self">self </span>= new;
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">LayerOutcome::Close</span>);
+        <span class="kw">match </span><span class="self">self</span>.panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(LayerOutcome::Close);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="kw">_</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">new_opts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">options</span>();
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">opts</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_opts</span> {
-                    <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">Pandemic::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">new_opts</span>);
+            <span class="kw">_ </span>=&gt; {
+                <span class="kw">let </span>new_opts = <span class="self">self</span>.options();
+                <span class="kw">if </span><span class="self">self</span>.opts != new_opts {
+                    <span class="kw-2">*</span><span class="self">self </span>= Pandemic::new(ctx, app, new_opts);
                 }
             }
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
+        <span class="self">self</span>.draw.draw(g);
     }
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    }
-    <span class="kw">fn</span> <span class="ident">draw_minimap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>);
+    <span class="kw">fn </span>draw_minimap(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw.unzoomed);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Pandemic</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="ident">Options</span>) -&gt; <span class="ident">Pandemic</span> {
-        <span class="kw">let</span> <span class="ident">model</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>().<span class="ident">unwrap</span>();
+<span class="kw">impl </span>Pandemic {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, opts: Options) -&gt; Pandemic {
+        <span class="kw">let </span>model = app.primary.sim.get_pandemic_model().unwrap();
 
-        <span class="kw">let</span> <span class="ident">filter</span> <span class="op">=</span> <span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">opts</span>.<span class="ident">state</span> {
-            <span class="ident">Seir::Sane</span> =&gt; <span class="ident">model</span>.<span class="ident">is_sane</span>(<span class="ident">p</span>),
-            <span class="ident">Seir::Exposed</span> =&gt; <span class="ident">model</span>.<span class="ident">is_exposed</span>(<span class="ident">p</span>),
-            <span class="ident">Seir::Infected</span> =&gt; <span class="ident">model</span>.<span class="ident">is_exposed</span>(<span class="ident">p</span>),
-            <span class="ident">Seir::Recovered</span> =&gt; <span class="ident">model</span>.<span class="ident">is_recovered</span>(<span class="ident">p</span>),
-            <span class="ident">Seir::Dead</span> =&gt; <span class="ident">model</span>.<span class="ident">is_dead</span>(<span class="ident">p</span>),
+        <span class="kw">let </span>filter = |p| <span class="kw">match </span>opts.state {
+            Seir::Sane =&gt; model.is_sane(p),
+            Seir::Exposed =&gt; model.is_exposed(p),
+            Seir::Infected =&gt; model.is_exposed(p),
+            Seir::Recovered =&gt; model.is_recovered(p),
+            Seir::Dead =&gt; model.is_dead(p),
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="comment">// Faster to grab all agent positions than individually map trips to agent positions.</span>
-        <span class="comment">// TODO If we ever revive this simulation, need to also grab transit riders here.</span>
-        <span class="kw">for</span> <span class="ident">a</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_unzoomed_agents</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>) {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">p</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">person</span> {
-                <span class="kw">if</span> <span class="ident">filter</span>(<span class="ident">p</span>) {
-                    <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">a</span>.<span class="ident">pos</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+        <span class="comment">// Faster to grab all agent positions than individually map trips to agent positions.
+        // TODO If we ever revive this simulation, need to also grab transit riders here.
+        </span><span class="kw">for </span>a <span class="kw">in </span>app.primary.sim.get_unzoomed_agents(<span class="kw-2">&amp;</span>app.primary.map) {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(p) = a.person {
+                <span class="kw">if </span>filter(p) {
+                    pts.push(a.pos);
                 }
             }
         }
 
-        <span class="comment">// Many people are probably in the same building. If we&#39;re building a heatmap, we</span>
-        <span class="comment">// absolutely care about these repeats! If we&#39;re just drawing the simple dot map, avoid</span>
-        <span class="comment">// drawing repeat circles.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_bldgs</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">repeat_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_all_people</span>() {
-            <span class="kw">match</span> <span class="ident">person</span>.<span class="ident">state</span> {
-                <span class="comment">// Already covered above</span>
-                <span class="ident">PersonState::Trip</span>(<span class="kw">_</span>) =&gt; {}
-                <span class="ident">PersonState::Inside</span>(<span class="ident">b</span>) =&gt; {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">filter</span>(<span class="ident">person</span>.<span class="ident">id</span>) {
+        <span class="comment">// Many people are probably in the same building. If we&#39;re building a heatmap, we
+        // absolutely care about these repeats! If we&#39;re just drawing the simple dot map, avoid
+        // drawing repeat circles.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>seen_bldgs = HashSet::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>repeat_pts = Vec::new();
+        <span class="kw">for </span>person <span class="kw">in </span>app.primary.sim.get_all_people() {
+            <span class="kw">match </span>person.state {
+                <span class="comment">// Already covered above
+                </span>PersonState::Trip(<span class="kw">_</span>) =&gt; {}
+                PersonState::Inside(b) =&gt; {
+                    <span class="kw">if </span>!filter(person.id) {
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
-                    <span class="kw">if</span> <span class="ident">seen_bldgs</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>) {
-                        <span class="ident">repeat_pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
-                    } <span class="kw">else</span> {
-                        <span class="ident">seen_bldgs</span>.<span class="ident">insert</span>(<span class="ident">b</span>);
-                        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pt</span>);
+                    <span class="kw">let </span>pt = app.primary.map.get_b(b).polygon.center();
+                    <span class="kw">if </span>seen_bldgs.contains(<span class="kw-2">&amp;</span>b) {
+                        repeat_pts.push(pt);
+                    } <span class="kw">else </span>{
+                        seen_bldgs.insert(b);
+                        pts.push(pt);
                     }
                 }
-                <span class="ident">PersonState::OffMap</span> =&gt; {}
+                PersonState::OffMap =&gt; {}
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">ToggleZoomed::builder</span>();
-        <span class="kw">let</span> <span class="ident">legend</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">o</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">heatmap</span> {
-            <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">repeat_pts</span>);
-            <span class="prelude-val">Some</span>(<span class="ident">make_heatmap</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">draw</span>.<span class="ident">unzoomed</span>,
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>(),
-                <span class="ident">pts</span>,
-                <span class="ident">o</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>draw = ToggleZoomed::builder();
+        <span class="kw">let </span>legend = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>o) = opts.heatmap {
+            pts.extend(repeat_pts);
+            <span class="prelude-val">Some</span>(make_heatmap(
+                ctx,
+                <span class="kw-2">&amp;mut </span>draw.unzoomed,
+                app.primary.map.get_bounds(),
+                pts,
+                o,
             ))
-        } <span class="kw">else</span> {
-            <span class="comment">// It&#39;s quite silly to produce triangles for the same circle over and over again. ;)</span>
-            <span class="kw">let</span> <span class="ident">circle</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Distance::meters</span>(<span class="number">10.0</span>)).<span class="ident">to_polygon</span>();
-            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-                <span class="ident">draw</span>.<span class="ident">unzoomed</span>
-                    .<span class="ident">push</span>(<span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.8</span>), <span class="ident">circle</span>.<span class="ident">translate</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()));
+        } <span class="kw">else </span>{
+            <span class="comment">// It&#39;s quite silly to produce triangles for the same circle over and over again. ;)
+            </span><span class="kw">let </span>circle = Circle::new(Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>), Distance::meters(<span class="number">10.0</span>)).to_polygon();
+            <span class="kw">for </span>pt <span class="kw">in </span>pts {
+                draw.unzoomed
+                    .push(Color::RED.alpha(<span class="number">0.8</span>), circle.translate(pt.x(), pt.y()));
             }
-            <span class="prelude-val">None</span>
-        };
-        <span class="kw">let</span> <span class="ident">controls</span> <span class="op">=</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">legend</span>);
-        <span class="ident">Pandemic</span> {
-            <span class="ident">time</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">opts</span>,
-            <span class="ident">draw</span>: <span class="ident">draw</span>.<span class="ident">build</span>(<span class="ident">ctx</span>),
-            <span class="ident">panel</span>: <span class="ident">controls</span>,
+            <span class="prelude-val">None
+        </span>};
+        <span class="kw">let </span>controls = make_controls(ctx, app, <span class="kw-2">&amp;</span>opts, legend);
+        Pandemic {
+            time: app.primary.sim.time(),
+            opts,
+            draw: draw.build(ctx),
+            panel: controls,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">options</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Options</span> {
-        <span class="kw">let</span> <span class="ident">heatmap</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Show heatmap&quot;</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">HeatmapOptions::from_controls</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">panel</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        };
-        <span class="ident">Options</span> {
-            <span class="ident">heatmap</span>,
-            <span class="ident">state</span>: <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;seir&quot;</span>),
+    <span class="kw">fn </span>options(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Options {
+        <span class="kw">let </span>heatmap = <span class="kw">if </span><span class="self">self</span>.panel.is_checked(<span class="string">&quot;Show heatmap&quot;</span>) {
+            <span class="prelude-val">Some</span>(HeatmapOptions::from_controls(<span class="kw-2">&amp;</span><span class="self">self</span>.panel))
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>};
+        Options {
+            heatmap,
+            state: <span class="self">self</span>.panel.dropdown_value(<span class="string">&quot;seir&quot;</span>),
         }
     }
 }
 
-<span class="comment">// TODO This should live in sim</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Seir</span> {
-    <span class="ident">Sane</span>,
-    <span class="ident">Exposed</span>,
-    <span class="ident">Infected</span>,
-    <span class="ident">Recovered</span>,
-    <span class="ident">Dead</span>,
+<span class="comment">// TODO This should live in sim
+</span><span class="attribute">#[derive(Clone, Copy, PartialEq, Debug)]
+</span><span class="kw">pub enum </span>Seir {
+    Sane,
+    Exposed,
+    Infected,
+    Recovered,
+    Dead,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
-    <span class="comment">// If None, just a dot map</span>
-    <span class="kw">pub</span> <span class="ident">heatmap</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HeatmapOptions</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">state</span>: <span class="ident">Seir</span>,
+<span class="attribute">#[derive(Clone, PartialEq)]
+</span><span class="kw">pub struct </span>Options {
+    <span class="comment">// If None, just a dot map
+    </span><span class="kw">pub </span>heatmap: <span class="prelude-ty">Option</span>&lt;HeatmapOptions&gt;,
+    <span class="kw">pub </span>state: Seir,
 }
 
-<span class="kw">fn</span> <span class="ident">make_controls</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>, <span class="ident">legend</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span>) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="ident">model</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_pandemic_model</span>().<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> <span class="number">100.0</span> <span class="op">/</span> (<span class="ident">model</span>.<span class="ident">count_total</span>() <span class="kw">as</span> <span class="ident">f64</span>);
+<span class="kw">fn </span>make_controls(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, opts: <span class="kw-2">&amp;</span>Options, legend: <span class="prelude-ty">Option</span>&lt;Widget&gt;) -&gt; Panel {
+    <span class="kw">let </span>model = app.primary.sim.get_pandemic_model().unwrap();
+    <span class="kw">let </span>pct = <span class="number">100.0 </span>/ (model.count_total() <span class="kw">as </span>f64);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Pandemic model&quot;</span>),
-        <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[
+        header(ctx, <span class="string">&quot;Pandemic model&quot;</span>),
+        Text::from_multiline(<span class="macro">vec!</span>[
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{} Sane ({:.1}%)&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">model</span>.<span class="ident">count_sane</span>()),
-                (<span class="ident">model</span>.<span class="ident">count_sane</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">pct</span>
+                prettyprint_usize(model.count_sane()),
+                (model.count_sane() <span class="kw">as </span>f64) * pct
             )),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{} Exposed ({:.1}%)&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">model</span>.<span class="ident">count_exposed</span>()),
-                (<span class="ident">model</span>.<span class="ident">count_exposed</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">pct</span>
+                prettyprint_usize(model.count_exposed()),
+                (model.count_exposed() <span class="kw">as </span>f64) * pct
             )),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{} Infected ({:.1}%)&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">model</span>.<span class="ident">count_infected</span>()),
-                (<span class="ident">model</span>.<span class="ident">count_infected</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">pct</span>
+                prettyprint_usize(model.count_infected()),
+                (model.count_infected() <span class="kw">as </span>f64) * pct
             )),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{} Recovered ({:.1}%)&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">model</span>.<span class="ident">count_recovered</span>()),
-                (<span class="ident">model</span>.<span class="ident">count_recovered</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">pct</span>
+                prettyprint_usize(model.count_recovered()),
+                (model.count_recovered() <span class="kw">as </span>f64) * pct
             )),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{} Dead ({:.1}%)&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">model</span>.<span class="ident">count_dead</span>()),
-                (<span class="ident">model</span>.<span class="ident">count_dead</span>() <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">pct</span>
+                prettyprint_usize(model.count_dead()),
+                (model.count_dead() <span class="kw">as </span>f64) * pct
             )),
         ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="string">&quot;Filter:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::dropdown</span>(
-                <span class="ident">ctx</span>,
+        .into_widget(ctx),
+        Widget::row(<span class="macro">vec!</span>[
+            <span class="string">&quot;Filter:&quot;</span>.text_widget(ctx),
+            Widget::dropdown(
+                ctx,
                 <span class="string">&quot;seir&quot;</span>,
-                <span class="ident">opts</span>.<span class="ident">state</span>,
+                opts.state,
                 <span class="macro">vec!</span>[
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;sane&quot;</span>, <span class="ident">Seir::Sane</span>),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;exposed&quot;</span>, <span class="ident">Seir::Exposed</span>),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;infected&quot;</span>, <span class="ident">Seir::Infected</span>),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;recovered&quot;</span>, <span class="ident">Seir::Recovered</span>),
-                    <span class="ident">Choice::new</span>(<span class="string">&quot;dead&quot;</span>, <span class="ident">Seir::Dead</span>),
+                    Choice::new(<span class="string">&quot;sane&quot;</span>, Seir::Sane),
+                    Choice::new(<span class="string">&quot;exposed&quot;</span>, Seir::Exposed),
+                    Choice::new(<span class="string">&quot;infected&quot;</span>, Seir::Infected),
+                    Choice::new(<span class="string">&quot;recovered&quot;</span>, Seir::Recovered),
+                    Choice::new(<span class="string">&quot;dead&quot;</span>, Seir::Dead),
                 ],
             ),
         ]),
     ];
 
-    <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Toggle::switch</span>(
-        <span class="ident">ctx</span>,
+    col.push(Toggle::switch(
+        ctx,
         <span class="string">&quot;Show heatmap&quot;</span>,
         <span class="prelude-val">None</span>,
-        <span class="ident">opts</span>.<span class="ident">heatmap</span>.<span class="ident">is_some</span>(),
+        opts.heatmap.is_some(),
     ));
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">o</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">heatmap</span> {
-        <span class="ident">col</span>.<span class="ident">extend</span>(<span class="ident">o</span>.<span class="ident">to_controls</span>(<span class="ident">ctx</span>, <span class="ident">legend</span>.<span class="ident">unwrap</span>()));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>o) = opts.heatmap {
+        col.extend(o.to_controls(ctx, legend.unwrap()));
     }
 
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>))
-        .<span class="ident">aligned_pair</span>(<span class="ident">PANEL_PLACEMENT</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    Panel::new_builder(Widget::col(col))
+        .aligned_pair(PANEL_PLACEMENT)
+        .build(ctx)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

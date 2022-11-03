@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/parking_lot.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parking_lot.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/info/parking_lot.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>parking_lot.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -93,100 +93,100 @@
 <span id="93">93</span>
 <span id="94">94</span>
 <span id="95">95</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">map_model::ParkingLotID</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Line</span>, <span class="ident">LinePlot</span>, <span class="ident">PlotOptions</span>, <span class="ident">Series</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>map_model::ParkingLotID;
+<span class="kw">use </span>widgetry::{EventCtx, Line, LinePlot, PlotOptions, Series, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info</span>::{<span class="ident">header_btns</span>, <span class="ident">make_tabs</span>, <span class="ident">Details</span>, <span class="ident">Tab</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::info::{header_btns, make_tabs, Details, Tab};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">info</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">header</span>(<span class="ident">ctx</span>, <span class="ident">details</span>, <span class="ident">id</span>, <span class="ident">Tab::ParkingLot</span>(<span class="ident">id</span>)),
-        <span class="ident">info_body</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>).<span class="ident">tab_body</span>(<span class="ident">ctx</span>),
+<span class="kw">pub fn </span>info(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, details: <span class="kw-2">&amp;mut </span>Details, id: ParkingLotID) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        header(ctx, details, id, Tab::ParkingLot(id)),
+        info_body(ctx, app, id).tab_body(ctx),
     ])
 }
 
-<span class="kw">fn</span> <span class="ident">info_body</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rows</span> <span class="op">=</span> <span class="macro">vec!</span>[];
-    <span class="kw">let</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_pl</span>(<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">capacity</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">capacity</span>();
+<span class="kw">fn </span>info_body(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, id: ParkingLotID) -&gt; Widget {
+    <span class="kw">let </span><span class="kw-2">mut </span>rows = <span class="macro">vec!</span>[];
+    <span class="kw">let </span>pl = app.primary.map.get_pl(id);
+    <span class="kw">let </span>capacity = pl.capacity();
 
-    <span class="ident">rows</span>.<span class="ident">push</span>(
+    rows.push(
         <span class="macro">format!</span>(
             <span class="string">&quot;{} / {} spots available&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_free_lot_spots</span>(<span class="ident">pl</span>.<span class="ident">id</span>).<span class="ident">len</span>()),
-            <span class="ident">prettyprint_usize</span>(<span class="ident">capacity</span>)
+            prettyprint_usize(app.primary.sim.get_free_lot_spots(pl.id).len()),
+            prettyprint_usize(capacity)
         )
-        .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        .text_widget(ctx),
     );
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">series</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Series</span> {
-        <span class="ident">label</span>: <span class="macro">format!</span>(<span class="string">&quot;After \&quot;{}\&quot;&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>),
-        <span class="ident">color</span>: <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">after_changes</span>,
-        <span class="ident">pts</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">parking_lot_availability</span>(
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>(),
-            <span class="ident">pl</span>.<span class="ident">id</span>,
-            <span class="ident">capacity</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>series = <span class="macro">vec!</span>[Series {
+        label: <span class="macro">format!</span>(<span class="string">&quot;After \&quot;{}\&quot;&quot;</span>, app.primary.map.get_edits().edits_name),
+        color: app.cs.after_changes,
+        pts: app.primary.sim.get_analytics().parking_lot_availability(
+            app.primary.sim.time(),
+            pl.id,
+            capacity,
         ),
     }];
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_some</span>() {
-        <span class="ident">series</span>.<span class="ident">push</span>(<span class="ident">Series</span> {
-            <span class="ident">label</span>: <span class="macro">format!</span>(<span class="string">&quot;Before \&quot;{}\&quot;&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>),
-            <span class="ident">color</span>: <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">before_changes</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>),
-            <span class="ident">pts</span>: <span class="ident">app</span>.<span class="ident">prebaked</span>().<span class="ident">parking_lot_availability</span>(
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>(),
-                <span class="ident">pl</span>.<span class="ident">id</span>,
-                <span class="ident">capacity</span>,
+    <span class="kw">if </span>app.has_prebaked().is_some() {
+        series.push(Series {
+            label: <span class="macro">format!</span>(<span class="string">&quot;Before \&quot;{}\&quot;&quot;</span>, app.primary.map.get_edits().edits_name),
+            color: app.cs.before_changes.alpha(<span class="number">0.5</span>),
+            pts: app.prebaked().parking_lot_availability(
+                app.primary.sim.get_end_of_day(),
+                pl.id,
+                capacity,
             ),
         });
     }
 
-    <span class="kw">let</span> <span class="ident">section</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Parking spots available&quot;</span>)
-            .<span class="ident">small_heading</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-        <span class="ident">LinePlot::new_widget</span>(
-            <span class="ident">ctx</span>,
+    <span class="kw">let </span>section = Widget::col(<span class="macro">vec!</span>[
+        Line(<span class="string">&quot;Parking spots available&quot;</span>)
+            .small_heading()
+            .into_widget(ctx),
+        LinePlot::new_widget(
+            ctx,
             <span class="string">&quot;parking availability&quot;</span>,
-            <span class="ident">series</span>,
-            <span class="ident">PlotOptions</span> {
-                <span class="ident">max_y</span>: <span class="prelude-val">Some</span>(<span class="ident">capacity</span>),
-                ..<span class="ident">Default::default</span>()
+            series,
+            PlotOptions {
+                max_y: <span class="prelude-val">Some</span>(capacity),
+                ..Default::default()
             },
-            <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>,
+            app.opts.units,
         ),
     ])
-    .<span class="ident">padding</span>(<span class="number">10</span>)
-    .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>)
-    .<span class="ident">outline</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>);
-    <span class="ident">rows</span>.<span class="ident">push</span>(<span class="ident">section</span>);
+    .padding(<span class="number">10</span>)
+    .bg(app.cs.inner_panel_bg)
+    .outline(ctx.style().section_outline);
+    rows.push(section);
 
-    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> {
-        <span class="ident">rows</span>.<span class="ident">push</span>(
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Open OSM&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, <span class="ident">pl</span>.<span class="ident">osm_id</span>)),
+    <span class="kw">if </span>app.opts.dev {
+        rows.push(
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Open OSM&quot;</span>)
+                .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;open {}&quot;</span>, pl.osm_id)),
         );
     }
 
-    <span class="ident">Widget::col</span>(<span class="ident">rows</span>)
+    Widget::col(rows)
 }
 
-<span class="kw">fn</span> <span class="ident">header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">details</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Details</span>, <span class="ident">id</span>: <span class="ident">ParkingLotID</span>, <span class="ident">tab</span>: <span class="ident">Tab</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="ident">id</span>.<span class="ident">to_string</span>()).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">header_btns</span>(<span class="ident">ctx</span>),
+<span class="kw">fn </span>header(ctx: <span class="kw-2">&amp;</span>EventCtx, details: <span class="kw-2">&amp;mut </span>Details, id: ParkingLotID, tab: Tab) -&gt; Widget {
+    Widget::custom_col(<span class="macro">vec!</span>[
+        Widget::row(<span class="macro">vec!</span>[
+            Line(id.to_string()).small_heading().into_widget(ctx),
+            header_btns(ctx),
         ]),
-        <span class="ident">make_tabs</span>(
-            <span class="ident">ctx</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">details</span>.<span class="ident">hyperlinks</span>,
-            <span class="ident">tab</span>,
-            <span class="macro">vec!</span>[(<span class="string">&quot;Info&quot;</span>, <span class="ident">Tab::ParkingLot</span>(<span class="ident">id</span>))],
+        make_tabs(
+            ctx,
+            <span class="kw-2">&amp;mut </span>details.hyperlinks,
+            tab,
+            <span class="macro">vec!</span>[(<span class="string">&quot;Info&quot;</span>, Tab::ParkingLot(id))],
         ),
     ])
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

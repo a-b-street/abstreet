@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/pathfinder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pathfinder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/pathfinder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>pathfinder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -361,368 +361,368 @@
 <span id="361">361</span>
 <span id="362">362</span>
 <span id="363">363</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">thread_local::ThreadLocal</span>;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>thread_local::ThreadLocal;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Timer</span>, <span class="ident">VecMap</span>};
-<span class="kw">use</span> <span class="ident">geom::Duration</span>;
+<span class="kw">use </span>abstutil::{Timer, VecMap};
+<span class="kw">use </span>geom::Duration;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::engine::CreateEngine</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::vehicles::VehiclePathfinder</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::walking::SidewalkPathfinder</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">RoutingParams</span>,
-    <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>,
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::engine::CreateEngine;
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::vehicles::VehiclePathfinder;
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::walking::SidewalkPathfinder;
+<span class="kw">use crate</span>::{
+    DirectedRoadID, Map, PathConstraints, PathRequest, PathV2, Position, RoutingParams,
+    TransitRouteID, TransitStopID,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pathfinder</span> {
-    <span class="ident">car_graph</span>: <span class="ident">VehiclePathfinder</span>,
-    <span class="ident">bike_graph</span>: <span class="ident">VehiclePathfinder</span>,
-    <span class="ident">bus_graph</span>: <span class="ident">VehiclePathfinder</span>,
-    <span class="ident">train_graph</span>: <span class="ident">VehiclePathfinder</span>,
-    <span class="ident">walking_graph</span>: <span class="ident">SidewalkPathfinder</span>,
-    <span class="ident">walking_with_transit_graph</span>: <span class="ident">SidewalkPathfinder</span>,
+<span class="attribute">#[derive(Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Pathfinder {
+    car_graph: VehiclePathfinder,
+    bike_graph: VehiclePathfinder,
+    bus_graph: VehiclePathfinder,
+    train_graph: VehiclePathfinder,
+    walking_graph: SidewalkPathfinder,
+    walking_with_transit_graph: SidewalkPathfinder,
 
-    <span class="comment">// These params cover the main graphs</span>
-    <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
+    <span class="comment">// These params cover the main graphs
+    </span>params: RoutingParams,
 
-    <span class="comment">// Callers can opt into caching with pathfind_with_params</span>
-    <span class="comment">// TODO VecMap is probably fast enough. RoutingParams is annoying to implement Hash.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>, <span class="ident">skip_deserializing</span>)]</span>
-    <span class="ident">cached_alternatives</span>: <span class="ident">ThreadLocal</span><span class="op">&lt;</span><span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">VecMap</span><span class="op">&lt;</span>(<span class="ident">PathConstraints</span>, <span class="ident">RoutingParams</span>), <span class="ident">Pathfinder</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// Callers can opt into caching with pathfind_with_params
+    // TODO VecMap is probably fast enough. RoutingParams is annoying to implement Hash.
+    </span><span class="attribute">#[serde(skip_serializing, skip_deserializing)]
+    </span>cached_alternatives: ThreadLocal&lt;RefCell&lt;VecMap&lt;(PathConstraints, RoutingParams), Pathfinder&gt;&gt;&gt;,
 }
 
-<span class="doccomment">/// When pathfinding with different `RoutingParams` is done, a temporary pathfinder must be</span>
-<span class="doccomment">/// created. This specifies what type of pathfinder and whether to cache it.</span>
-<span class="comment">// TODO Deprecated</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathfinderCaching</span> {
-    <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and don&#39;t cache it</span>
-    <span class="ident">NoCache</span>,
-    <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and cache it</span>
-    <span class="ident">CacheDijkstra</span>,
-    <span class="doccomment">/// Create a slow-to-build but fast-to-use contraction hierarchy-based pathfinder and cache it</span>
-    <span class="ident">CacheCH</span>,
+<span class="doccomment">/// When pathfinding with different `RoutingParams` is done, a temporary pathfinder must be
+/// created. This specifies what type of pathfinder and whether to cache it.
+</span><span class="comment">// TODO Deprecated
+</span><span class="attribute">#[derive(Clone, Copy, PartialEq)]
+</span><span class="kw">pub enum </span>PathfinderCaching {
+    <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and don&#39;t cache it
+    </span>NoCache,
+    <span class="doccomment">/// Create a fast-to-build but slow-to-use Dijkstra-based pathfinder and cache it
+    </span>CacheDijkstra,
+    <span class="doccomment">/// Create a slow-to-build but fast-to-use contraction hierarchy-based pathfinder and cache it
+    </span>CacheCH,
 }
 
-<span class="comment">// Implemented manually to deal with the ThreadLocal</span>
-<span class="kw">impl</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Pathfinder</span> {
-    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">car_graph</span>: <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">clone</span>(),
-            <span class="ident">bike_graph</span>: <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">clone</span>(),
-            <span class="ident">bus_graph</span>: <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">clone</span>(),
-            <span class="ident">train_graph</span>: <span class="self">self</span>.<span class="ident">train_graph</span>.<span class="ident">clone</span>(),
-            <span class="ident">walking_graph</span>: <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">clone</span>(),
-            <span class="ident">walking_with_transit_graph</span>: <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span>.<span class="ident">clone</span>(),
-            <span class="ident">params</span>: <span class="self">self</span>.<span class="ident">params</span>.<span class="ident">clone</span>(),
-            <span class="ident">cached_alternatives</span>: <span class="ident">ThreadLocal::new</span>(),
+<span class="comment">// Implemented manually to deal with the ThreadLocal
+</span><span class="kw">impl </span>Clone <span class="kw">for </span>Pathfinder {
+    <span class="kw">fn </span>clone(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            car_graph: <span class="self">self</span>.car_graph.clone(),
+            bike_graph: <span class="self">self</span>.bike_graph.clone(),
+            bus_graph: <span class="self">self</span>.bus_graph.clone(),
+            train_graph: <span class="self">self</span>.train_graph.clone(),
+            walking_graph: <span class="self">self</span>.walking_graph.clone(),
+            walking_with_transit_graph: <span class="self">self</span>.walking_with_transit_graph.clone(),
+            params: <span class="self">self</span>.params.clone(),
+            cached_alternatives: ThreadLocal::new(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Pathfinder</span> {
-    <span class="doccomment">/// Quickly create an invalid pathfinder, just to make borrow checking / initialization order</span>
-    <span class="doccomment">/// work.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Pathfinder</span> {
-        <span class="ident">Pathfinder</span> {
-            <span class="ident">car_graph</span>: <span class="ident">VehiclePathfinder::empty</span>(),
-            <span class="ident">bike_graph</span>: <span class="ident">VehiclePathfinder::empty</span>(),
-            <span class="ident">bus_graph</span>: <span class="ident">VehiclePathfinder::empty</span>(),
-            <span class="ident">train_graph</span>: <span class="ident">VehiclePathfinder::empty</span>(),
-            <span class="ident">walking_graph</span>: <span class="ident">SidewalkPathfinder::empty</span>(),
-            <span class="ident">walking_with_transit_graph</span>: <span class="ident">SidewalkPathfinder::empty</span>(),
-            <span class="ident">params</span>: <span class="ident">RoutingParams::default</span>(),
-            <span class="ident">cached_alternatives</span>: <span class="ident">ThreadLocal::new</span>(),
+<span class="kw">impl </span>Pathfinder {
+    <span class="doccomment">/// Quickly create an invalid pathfinder, just to make borrow checking / initialization order
+    /// work.
+    </span><span class="kw">pub fn </span>empty() -&gt; Pathfinder {
+        Pathfinder {
+            car_graph: VehiclePathfinder::empty(),
+            bike_graph: VehiclePathfinder::empty(),
+            bus_graph: VehiclePathfinder::empty(),
+            train_graph: VehiclePathfinder::empty(),
+            walking_graph: SidewalkPathfinder::empty(),
+            walking_with_transit_graph: SidewalkPathfinder::empty(),
+            params: RoutingParams::default(),
+            cached_alternatives: ThreadLocal::new(),
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
-        <span class="ident">engine</span>: <span class="kw-2">&amp;</span><span class="ident">CreateEngine</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="ident">Pathfinder</span> {
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;prepare pathfinding for cars&quot;</span>);
-        <span class="kw">let</span> <span class="ident">car_graph</span> <span class="op">=</span> <span class="ident">VehiclePathfinder::new</span>(<span class="ident">map</span>, <span class="ident">PathConstraints::Car</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>, <span class="ident">engine</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;prepare pathfinding for cars&quot;</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        map: <span class="kw-2">&amp;</span>Map,
+        params: RoutingParams,
+        engine: <span class="kw-2">&amp;</span>CreateEngine,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; Pathfinder {
+        timer.start(<span class="string">&quot;prepare pathfinding for cars&quot;</span>);
+        <span class="kw">let </span>car_graph = VehiclePathfinder::new(map, PathConstraints::Car, <span class="kw-2">&amp;</span>params, engine);
+        timer.stop(<span class="string">&quot;prepare pathfinding for cars&quot;</span>);
 
-        <span class="comment">// The edge weights for bikes are so different from the driving graph that reusing the node</span>
-        <span class="comment">// ordering actually hurts!</span>
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;prepare pathfinding for bikes&quot;</span>);
-        <span class="kw">let</span> <span class="ident">bike_graph</span> <span class="op">=</span> <span class="ident">VehiclePathfinder::new</span>(<span class="ident">map</span>, <span class="ident">PathConstraints::Bike</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>, <span class="ident">engine</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;prepare pathfinding for bikes&quot;</span>);
+        <span class="comment">// The edge weights for bikes are so different from the driving graph that reusing the node
+        // ordering actually hurts!
+        </span>timer.start(<span class="string">&quot;prepare pathfinding for bikes&quot;</span>);
+        <span class="kw">let </span>bike_graph = VehiclePathfinder::new(map, PathConstraints::Bike, <span class="kw-2">&amp;</span>params, engine);
+        timer.stop(<span class="string">&quot;prepare pathfinding for bikes&quot;</span>);
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;prepare pathfinding for buses&quot;</span>);
-        <span class="kw">let</span> <span class="ident">bus_graph</span> <span class="op">=</span> <span class="ident">VehiclePathfinder::new</span>(
-            <span class="ident">map</span>,
-            <span class="ident">PathConstraints::Bus</span>,
-            <span class="kw-2">&amp;</span><span class="ident">params</span>,
-            <span class="kw-2">&amp;</span><span class="ident">car_graph</span>.<span class="ident">engine</span>.<span class="ident">reuse_ordering</span>(),
+        timer.start(<span class="string">&quot;prepare pathfinding for buses&quot;</span>);
+        <span class="kw">let </span>bus_graph = VehiclePathfinder::new(
+            map,
+            PathConstraints::Bus,
+            <span class="kw-2">&amp;</span>params,
+            <span class="kw-2">&amp;</span>car_graph.engine.reuse_ordering(),
         );
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;prepare pathfinding for buses&quot;</span>);
+        timer.stop(<span class="string">&quot;prepare pathfinding for buses&quot;</span>);
 
-        <span class="comment">// Light rail networks are absolutely tiny; using a contraction hierarchy for them is</span>
-        <span class="comment">// overkill. And in fact, it costs a bit of memory and file size, so don&#39;t do it!</span>
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;prepare pathfinding for trains&quot;</span>);
-        <span class="kw">let</span> <span class="ident">train_graph</span> <span class="op">=</span> <span class="ident">VehiclePathfinder::new</span>(
-            <span class="ident">map</span>,
-            <span class="ident">PathConstraints::Train</span>,
-            <span class="kw-2">&amp;</span><span class="ident">params</span>,
-            <span class="kw-2">&amp;</span><span class="ident">CreateEngine::Dijkstra</span>,
+        <span class="comment">// Light rail networks are absolutely tiny; using a contraction hierarchy for them is
+        // overkill. And in fact, it costs a bit of memory and file size, so don&#39;t do it!
+        </span>timer.start(<span class="string">&quot;prepare pathfinding for trains&quot;</span>);
+        <span class="kw">let </span>train_graph = VehiclePathfinder::new(
+            map,
+            PathConstraints::Train,
+            <span class="kw-2">&amp;</span>params,
+            <span class="kw-2">&amp;</span>CreateEngine::Dijkstra,
         );
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;prepare pathfinding for trains&quot;</span>);
+        timer.stop(<span class="string">&quot;prepare pathfinding for trains&quot;</span>);
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;prepare pathfinding for pedestrians&quot;</span>);
-        <span class="kw">let</span> <span class="ident">walking_graph</span> <span class="op">=</span> <span class="ident">SidewalkPathfinder::new</span>(<span class="ident">map</span>, <span class="prelude-val">None</span>, <span class="ident">engine</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;prepare pathfinding for pedestrians&quot;</span>);
+        timer.start(<span class="string">&quot;prepare pathfinding for pedestrians&quot;</span>);
+        <span class="kw">let </span>walking_graph = SidewalkPathfinder::new(map, <span class="prelude-val">None</span>, engine);
+        timer.stop(<span class="string">&quot;prepare pathfinding for pedestrians&quot;</span>);
 
-        <span class="comment">// Transit routes haven&#39;t been created yet, so defer this step</span>
-        <span class="kw">let</span> <span class="ident">walking_with_transit_graph</span> <span class="op">=</span> <span class="ident">SidewalkPathfinder::empty</span>();
+        <span class="comment">// Transit routes haven&#39;t been created yet, so defer this step
+        </span><span class="kw">let </span>walking_with_transit_graph = SidewalkPathfinder::empty();
 
-        <span class="ident">Pathfinder</span> {
-            <span class="ident">car_graph</span>,
-            <span class="ident">bike_graph</span>,
-            <span class="ident">bus_graph</span>,
-            <span class="ident">train_graph</span>,
-            <span class="ident">walking_graph</span>,
-            <span class="ident">walking_with_transit_graph</span>,
+        Pathfinder {
+            car_graph,
+            bike_graph,
+            bus_graph,
+            train_graph,
+            walking_graph,
+            walking_with_transit_graph,
 
-            <span class="ident">params</span>,
-            <span class="ident">cached_alternatives</span>: <span class="ident">ThreadLocal::new</span>(),
+            params,
+            cached_alternatives: ThreadLocal::new(),
         }
     }
 
-    <span class="doccomment">/// Create a new Pathfinder with custom routing params that can only serve some modes. Fast to</span>
-    <span class="doccomment">/// create, slow to use.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_dijkstra</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
-        <span class="ident">modes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new_limited</span>(<span class="ident">map</span>, <span class="ident">params</span>, <span class="ident">CreateEngine::Dijkstra</span>, <span class="ident">modes</span>, <span class="ident">timer</span>)
+    <span class="doccomment">/// Create a new Pathfinder with custom routing params that can only serve some modes. Fast to
+    /// create, slow to use.
+    </span><span class="kw">pub fn </span>new_dijkstra(
+        map: <span class="kw-2">&amp;</span>Map,
+        params: RoutingParams,
+        modes: Vec&lt;PathConstraints&gt;,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_limited(map, params, CreateEngine::Dijkstra, modes, timer)
     }
 
-    <span class="doccomment">/// Create a new Pathfinder with custom routing params that can only serve some modes. Slow to</span>
-    <span class="doccomment">/// create, fast to use. Doesn&#39;t re-use the node ordering when building the CH.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_ch</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
-        <span class="ident">modes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new_limited</span>(<span class="ident">map</span>, <span class="ident">params</span>, <span class="ident">CreateEngine::CH</span>, <span class="ident">modes</span>, <span class="ident">timer</span>)
+    <span class="doccomment">/// Create a new Pathfinder with custom routing params that can only serve some modes. Slow to
+    /// create, fast to use. Doesn&#39;t re-use the node ordering when building the CH.
+    </span><span class="kw">pub fn </span>new_ch(
+        map: <span class="kw-2">&amp;</span>Map,
+        params: RoutingParams,
+        modes: Vec&lt;PathConstraints&gt;,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new_limited(map, params, CreateEngine::CH, modes, timer)
     }
 
-    <span class="doccomment">/// Create a new Pathfinder with custom routing params that can only serve some modes.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new_limited</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
-        <span class="ident">engine</span>: <span class="ident">CreateEngine</span>,
-        <span class="ident">modes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="ident">Pathfinder</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Pathfinder::empty</span>();
-        <span class="kw">for</span> <span class="ident">constraints</span> <span class="kw">in</span> <span class="ident">modes</span> {
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;prepare pathfinding for just {:?}&quot;</span>, <span class="ident">constraints</span>));
-            <span class="kw">match</span> <span class="ident">constraints</span> {
-                <span class="ident">PathConstraints::Pedestrian</span> =&gt; {
-                    <span class="ident">p</span>.<span class="ident">walking_graph</span> <span class="op">=</span> <span class="ident">SidewalkPathfinder::new</span>(<span class="ident">map</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">engine</span>);
+    <span class="doccomment">/// Create a new Pathfinder with custom routing params that can only serve some modes.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new_limited(
+        map: <span class="kw-2">&amp;</span>Map,
+        params: RoutingParams,
+        engine: CreateEngine,
+        modes: Vec&lt;PathConstraints&gt;,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; Pathfinder {
+        <span class="kw">let </span><span class="kw-2">mut </span>p = Pathfinder::empty();
+        <span class="kw">for </span>constraints <span class="kw">in </span>modes {
+            timer.start(<span class="macro">format!</span>(<span class="string">&quot;prepare pathfinding for just {:?}&quot;</span>, constraints));
+            <span class="kw">match </span>constraints {
+                PathConstraints::Pedestrian =&gt; {
+                    p.walking_graph = SidewalkPathfinder::new(map, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>engine);
                 }
-                <span class="ident">PathConstraints::Car</span> =&gt; {
-                    <span class="ident">p</span>.<span class="ident">car_graph</span> <span class="op">=</span> <span class="ident">VehiclePathfinder::new</span>(<span class="ident">map</span>, <span class="ident">constraints</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="ident">engine</span>);
+                PathConstraints::Car =&gt; {
+                    p.car_graph = VehiclePathfinder::new(map, constraints, <span class="kw-2">&amp;</span>params, <span class="kw-2">&amp;</span>engine);
                 }
-                <span class="ident">PathConstraints::Bike</span> =&gt; {
-                    <span class="ident">p</span>.<span class="ident">bike_graph</span> <span class="op">=</span> <span class="ident">VehiclePathfinder::new</span>(<span class="ident">map</span>, <span class="ident">constraints</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="ident">engine</span>);
+                PathConstraints::Bike =&gt; {
+                    p.bike_graph = VehiclePathfinder::new(map, constraints, <span class="kw-2">&amp;</span>params, <span class="kw-2">&amp;</span>engine);
                 }
-                <span class="ident">PathConstraints::Bus</span> =&gt; {
-                    <span class="ident">p</span>.<span class="ident">bus_graph</span> <span class="op">=</span> <span class="ident">VehiclePathfinder::new</span>(<span class="ident">map</span>, <span class="ident">constraints</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="ident">engine</span>);
+                PathConstraints::Bus =&gt; {
+                    p.bus_graph = VehiclePathfinder::new(map, constraints, <span class="kw-2">&amp;</span>params, <span class="kw-2">&amp;</span>engine);
                 }
-                <span class="ident">PathConstraints::Train</span> =&gt; {
-                    <span class="ident">p</span>.<span class="ident">train_graph</span> <span class="op">=</span> <span class="ident">VehiclePathfinder::new</span>(<span class="ident">map</span>, <span class="ident">constraints</span>, <span class="kw-2">&amp;</span><span class="ident">params</span>, <span class="kw-2">&amp;</span><span class="ident">engine</span>);
+                PathConstraints::Train =&gt; {
+                    p.train_graph = VehiclePathfinder::new(map, constraints, <span class="kw-2">&amp;</span>params, <span class="kw-2">&amp;</span>engine);
                 }
             }
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;prepare pathfinding for just {:?}&quot;</span>, <span class="ident">constraints</span>));
+            timer.stop(<span class="macro">format!</span>(<span class="string">&quot;prepare pathfinding for just {:?}&quot;</span>, constraints));
         }
-        <span class="ident">p</span>.<span class="ident">params</span> <span class="op">=</span> <span class="ident">params</span>;
-        <span class="ident">p</span>
+        p.params = params;
+        p
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">finalize_transit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">engine</span>: <span class="kw-2">&amp;</span><span class="ident">CreateEngine</span>) {
-        <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span> <span class="op">=</span>
-            <span class="ident">SidewalkPathfinder::new</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_graph</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">train_graph</span>)), <span class="ident">engine</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>finalize_transit(<span class="kw-2">&amp;mut </span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, engine: <span class="kw-2">&amp;</span>CreateEngine) {
+        <span class="self">self</span>.walking_with_transit_graph =
+            SidewalkPathfinder::new(map, <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.bus_graph, <span class="kw-2">&amp;</span><span class="self">self</span>.train_graph)), engine);
     }
 
-    <span class="doccomment">/// Finds a path from a start to an end for a certain type of agent.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">map</span>.<span class="ident">routing_params</span>(), <span class="ident">PathfinderCaching::NoCache</span>, <span class="ident">map</span>)
+    <span class="doccomment">/// Finds a path from a start to an end for a certain type of agent.
+    </span><span class="kw">pub fn </span>pathfind(<span class="kw-2">&amp;</span><span class="self">self</span>, req: PathRequest, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;PathV2&gt; {
+        <span class="self">self</span>.pathfind_with_params(req, map.routing_params(), PathfinderCaching::NoCache, map)
     }
 
-    <span class="doccomment">/// Finds a path from a start to an end for a certain type of agent. Uses the RoutingParams</span>
-    <span class="doccomment">/// built into this Pathfinder.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_v2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">constraints</span> {
-            <span class="ident">PathConstraints::Pedestrian</span> =&gt; <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
-            <span class="ident">PathConstraints::Car</span> =&gt; <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
-            <span class="ident">PathConstraints::Bike</span> =&gt; <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
-            <span class="ident">PathConstraints::Bus</span> =&gt; <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
-            <span class="ident">PathConstraints::Train</span> =&gt; <span class="self">self</span>.<span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
+    <span class="doccomment">/// Finds a path from a start to an end for a certain type of agent. Uses the RoutingParams
+    /// built into this Pathfinder.
+    </span><span class="kw">pub fn </span>pathfind_v2(<span class="kw-2">&amp;</span><span class="self">self</span>, req: PathRequest, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;PathV2&gt; {
+        <span class="kw">match </span>req.constraints {
+            PathConstraints::Pedestrian =&gt; <span class="self">self</span>.walking_graph.pathfind(req, map),
+            PathConstraints::Car =&gt; <span class="self">self</span>.car_graph.pathfind(req, map),
+            PathConstraints::Bike =&gt; <span class="self">self</span>.bike_graph.pathfind(req, map),
+            PathConstraints::Bus =&gt; <span class="self">self</span>.bus_graph.pathfind(req, map),
+            PathConstraints::Train =&gt; <span class="self">self</span>.train_graph.pathfind(req, map),
         }
     }
 
-    <span class="doccomment">/// Finds a path from a start to an end for a certain type of agent. May use custom routing</span>
-    <span class="doccomment">/// parameters. If caching is requested and custom routing parameters are used, then the</span>
-    <span class="doccomment">/// intermediate graph is saved to speed up future calls with the same routing parameters.</span>
-    <span class="comment">// TODO Deprecated</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_with_params</span>(
+    <span class="doccomment">/// Finds a path from a start to an end for a certain type of agent. May use custom routing
+    /// parameters. If caching is requested and custom routing parameters are used, then the
+    /// intermediate graph is saved to speed up future calls with the same routing parameters.
+    </span><span class="comment">// TODO Deprecated
+    </span><span class="kw">pub fn </span>pathfind_with_params(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
-        <span class="ident">cache_custom</span>: <span class="ident">PathfinderCaching</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="ident">req</span>.<span class="ident">constraints</span>;
-        <span class="kw">if</span> <span class="ident">params</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">params</span> {
-            <span class="kw">return</span> <span class="kw">match</span> <span class="ident">constraints</span> {
-                <span class="ident">PathConstraints::Pedestrian</span> =&gt; <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
-                <span class="ident">PathConstraints::Car</span> =&gt; <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
-                <span class="ident">PathConstraints::Bike</span> =&gt; <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
-                <span class="ident">PathConstraints::Bus</span> =&gt; <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
-                <span class="ident">PathConstraints::Train</span> =&gt; <span class="self">self</span>.<span class="ident">train_graph</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>, <span class="ident">map</span>),
+        req: PathRequest,
+        params: <span class="kw-2">&amp;</span>RoutingParams,
+        cache_custom: PathfinderCaching,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;PathV2&gt; {
+        <span class="kw">let </span>constraints = req.constraints;
+        <span class="kw">if </span>params == <span class="kw-2">&amp;</span><span class="self">self</span>.params {
+            <span class="kw">return match </span>constraints {
+                PathConstraints::Pedestrian =&gt; <span class="self">self</span>.walking_graph.pathfind(req, map),
+                PathConstraints::Car =&gt; <span class="self">self</span>.car_graph.pathfind(req, map),
+                PathConstraints::Bike =&gt; <span class="self">self</span>.bike_graph.pathfind(req, map),
+                PathConstraints::Bus =&gt; <span class="self">self</span>.bus_graph.pathfind(req, map),
+                PathConstraints::Train =&gt; <span class="self">self</span>.train_graph.pathfind(req, map),
             };
         }
 
-        <span class="comment">// If the params differ from the ones baked into the map, the CHs won&#39;t match. Do we have a</span>
-        <span class="comment">// cached alternative?</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">alt</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">cached_alternatives</span>
-            .<span class="ident">get_or</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RefCell::new</span>(<span class="ident">VecMap::new</span>()))
-            .<span class="ident">borrow</span>()
-            .<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">constraints</span>, <span class="ident">params</span>.<span class="ident">clone</span>()))
+        <span class="comment">// If the params differ from the ones baked into the map, the CHs won&#39;t match. Do we have a
+        // cached alternative?
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(alt) = <span class="self">self
+            </span>.cached_alternatives
+            .get_or(|| RefCell::new(VecMap::new()))
+            .borrow()
+            .get(<span class="kw-2">&amp;</span>(constraints, params.clone()))
         {
-            <span class="kw">return</span> <span class="ident">alt</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">PathfinderCaching::NoCache</span>, <span class="ident">map</span>);
+            <span class="kw">return </span>alt.pathfind_with_params(req, params, PathfinderCaching::NoCache, map);
         }
 
-        <span class="comment">// If somebody&#39;s repeatedly calling this without caching, log very obnoxiously.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="macro">format!</span>(<span class="string">&quot;Pathfinding slowly for {} with custom params&quot;</span>, <span class="ident">req</span>));
-        <span class="kw">let</span> <span class="ident">tmp_pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_limited</span>(
-            <span class="ident">map</span>,
-            <span class="ident">params</span>.<span class="ident">clone</span>(),
-            <span class="kw">match</span> <span class="ident">cache_custom</span> {
-                <span class="ident">PathfinderCaching::NoCache</span> <span class="op">|</span> <span class="ident">PathfinderCaching::CacheDijkstra</span> =&gt; {
-                    <span class="ident">CreateEngine::Dijkstra</span>
+        <span class="comment">// If somebody&#39;s repeatedly calling this without caching, log very obnoxiously.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(<span class="string">&quot;Pathfinding slowly for {} with custom params&quot;</span>, req));
+        <span class="kw">let </span>tmp_pathfinder = Pathfinder::new_limited(
+            map,
+            params.clone(),
+            <span class="kw">match </span>cache_custom {
+                PathfinderCaching::NoCache | PathfinderCaching::CacheDijkstra =&gt; {
+                    CreateEngine::Dijkstra
                 }
-                <span class="comment">// TODO Can we pick the right seed?</span>
-                <span class="ident">PathfinderCaching::CacheCH</span> =&gt; <span class="ident">CreateEngine::CH</span>,
+                <span class="comment">// TODO Can we pick the right seed?
+                </span>PathfinderCaching::CacheCH =&gt; CreateEngine::CH,
             },
-            <span class="macro">vec!</span>[<span class="ident">constraints</span>],
-            <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>,
+            <span class="macro">vec!</span>[constraints],
+            <span class="kw-2">&amp;mut </span>timer,
         );
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
-            <span class="ident">tmp_pathfinder</span>.<span class="ident">pathfind_with_params</span>(<span class="ident">req</span>, <span class="ident">params</span>, <span class="ident">PathfinderCaching::NoCache</span>, <span class="ident">map</span>);
-        <span class="kw">if</span> <span class="ident">cache_custom</span> <span class="op">!</span><span class="op">=</span> <span class="ident">PathfinderCaching::NoCache</span> {
-            <span class="self">self</span>.<span class="ident">cached_alternatives</span>
-                .<span class="ident">get_or</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">RefCell::new</span>(<span class="ident">VecMap::new</span>()))
-                .<span class="ident">borrow_mut</span>()
-                .<span class="ident">push</span>((<span class="ident">constraints</span>, <span class="ident">params</span>.<span class="ident">clone</span>()), <span class="ident">tmp_pathfinder</span>);
+        <span class="kw">let </span>result =
+            tmp_pathfinder.pathfind_with_params(req, params, PathfinderCaching::NoCache, map);
+        <span class="kw">if </span>cache_custom != PathfinderCaching::NoCache {
+            <span class="self">self</span>.cached_alternatives
+                .get_or(|| RefCell::new(VecMap::new()))
+                .borrow_mut()
+                .push((constraints, params.clone()), tmp_pathfinder);
         }
-        <span class="ident">result</span>
+        result
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(
+    <span class="kw">pub fn </span>all_costs_from(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Duration</span>, <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">req_cost</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>)<span class="question-mark">?</span>.<span class="ident">get_cost</span>();
-        <span class="kw">let</span> <span class="ident">all_costs</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">req</span>.<span class="ident">constraints</span> {
-            <span class="ident">PathConstraints::Pedestrian</span> =&gt; <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">all_costs_from</span>(<span class="ident">req</span>.<span class="ident">start</span>, <span class="ident">map</span>),
-            <span class="ident">PathConstraints::Car</span> =&gt; <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">all_costs_from</span>(<span class="ident">req</span>.<span class="ident">start</span>, <span class="ident">map</span>),
-            <span class="ident">PathConstraints::Bike</span> =&gt; <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">all_costs_from</span>(<span class="ident">req</span>.<span class="ident">start</span>, <span class="ident">map</span>),
-            <span class="ident">PathConstraints::Bus</span> <span class="op">|</span> <span class="ident">PathConstraints::Train</span> =&gt; <span class="macro">unreachable!</span>(),
+        req: PathRequest,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(Duration, HashMap&lt;DirectedRoadID, Duration&gt;)&gt; {
+        <span class="kw">let </span>req_cost = <span class="self">self</span>.pathfind(req.clone(), map)<span class="question-mark">?</span>.get_cost();
+        <span class="kw">let </span>all_costs = <span class="kw">match </span>req.constraints {
+            PathConstraints::Pedestrian =&gt; <span class="self">self</span>.walking_graph.all_costs_from(req.start, map),
+            PathConstraints::Car =&gt; <span class="self">self</span>.car_graph.all_costs_from(req.start, map),
+            PathConstraints::Bike =&gt; <span class="self">self</span>.bike_graph.all_costs_from(req.start, map),
+            PathConstraints::Bus | PathConstraints::Train =&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="prelude-val">Some</span>((<span class="ident">req_cost</span>, <span class="ident">all_costs</span>))
+        <span class="prelude-val">Some</span>((req_cost, all_costs))
     }
 
-    <span class="comment">// TODO Consider returning the walking-only path in the failure case, to avoid wasting work</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">should_use_transit</span>(
+    <span class="comment">// TODO Consider returning the walking-only path in the failure case, to avoid wasting work
+    </span><span class="kw">pub fn </span>should_use_transit(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">start</span>: <span class="ident">Position</span>,
-        <span class="ident">end</span>: <span class="ident">Position</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TransitStopID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>, <span class="ident">TransitRouteID</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span>
-            .<span class="ident">should_use_transit</span>(<span class="ident">map</span>, <span class="ident">start</span>, <span class="ident">end</span>)
+        map: <span class="kw-2">&amp;</span>Map,
+        start: Position,
+        end: Position,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(TransitStopID, <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;, TransitRouteID)&gt; {
+        <span class="self">self</span>.walking_with_transit_graph
+            .should_use_transit(map, start, end)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">apply_edits</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">car_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>apply_edits(<span class="kw-2">&amp;mut </span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        timer.start(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
+        <span class="self">self</span>.car_graph.apply_edits(map);
+        timer.stop(<span class="string">&quot;apply edits to car pathfinding&quot;</span>);
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">bike_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
+        timer.start(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
+        <span class="self">self</span>.bike_graph.apply_edits(map);
+        timer.stop(<span class="string">&quot;apply edits to bike pathfinding&quot;</span>);
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">bus_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
+        timer.start(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
+        <span class="self">self</span>.bus_graph.apply_edits(map);
+        timer.stop(<span class="string">&quot;apply edits to bus pathfinding&quot;</span>);
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to train pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">train_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to train pathfinding&quot;</span>);
+        timer.start(<span class="string">&quot;apply edits to train pathfinding&quot;</span>);
+        <span class="self">self</span>.train_graph.apply_edits(map);
+        timer.stop(<span class="string">&quot;apply edits to train pathfinding&quot;</span>);
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">walking_graph</span>.<span class="ident">apply_edits</span>(<span class="ident">map</span>, <span class="prelude-val">None</span>);
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
+        timer.start(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
+        <span class="self">self</span>.walking_graph.apply_edits(map, <span class="prelude-val">None</span>);
+        timer.stop(<span class="string">&quot;apply edits to pedestrian pathfinding&quot;</span>);
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
-        <span class="self">self</span>.<span class="ident">walking_with_transit_graph</span>
-            .<span class="ident">apply_edits</span>(<span class="ident">map</span>, <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">bus_graph</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">train_graph</span>)));
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
+        timer.start(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
+        <span class="self">self</span>.walking_with_transit_graph
+            .apply_edits(map, <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="self">self</span>.bus_graph, <span class="kw-2">&amp;</span><span class="self">self</span>.train_graph)));
+        timer.stop(<span class="string">&quot;apply edits to pedestrian using transit pathfinding&quot;</span>);
     }
 }
 
-<span class="doccomment">/// For callers needing to request paths with a variety of RoutingParams. The caller is in charge</span>
-<span class="doccomment">/// of the lifetime, so they can clear it out when appropriate.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PathfinderCache</span> {
-    <span class="ident">cache</span>: <span class="ident">VecMap</span><span class="op">&lt;</span>(<span class="ident">PathConstraints</span>, <span class="ident">RoutingParams</span>), <span class="ident">Pathfinder</span><span class="op">&gt;</span>,
+<span class="doccomment">/// For callers needing to request paths with a variety of RoutingParams. The caller is in charge
+/// of the lifetime, so they can clear it out when appropriate.
+</span><span class="kw">pub struct </span>PathfinderCache {
+    cache: VecMap&lt;(PathConstraints, RoutingParams), Pathfinder&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PathfinderCache</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">cache</span>: <span class="ident">VecMap::new</span>(),
+<span class="kw">impl </span>PathfinderCache {
+    <span class="kw">pub fn </span>new() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            cache: VecMap::new(),
         }
     }
 
-    <span class="doccomment">/// New pathfinders will be created as-needed using Dijkstra&#39;s, no spammy logging</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind_with_params</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pathfinder</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">params</span>.<span class="ident">clone</span>())) {
-            <span class="kw">return</span> <span class="ident">pathfinder</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>, <span class="ident">map</span>);
+    <span class="doccomment">/// New pathfinders will be created as-needed using Dijkstra&#39;s, no spammy logging
+    </span><span class="kw">pub fn </span>pathfind_with_params(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        map: <span class="kw-2">&amp;</span>Map,
+        req: PathRequest,
+        params: RoutingParams,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;PathV2&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(pathfinder) = <span class="self">self</span>.cache.get(<span class="kw-2">&amp;</span>(req.constraints, params.clone())) {
+            <span class="kw">return </span>pathfinder.pathfind_v2(req, map);
         }
 
-        <span class="kw">let</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_limited</span>(
-            <span class="ident">map</span>,
-            <span class="ident">params</span>.<span class="ident">clone</span>(),
-            <span class="ident">CreateEngine::Dijkstra</span>,
-            <span class="macro">vec!</span>[<span class="ident">req</span>.<span class="ident">constraints</span>],
-            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+        <span class="kw">let </span>pathfinder = Pathfinder::new_limited(
+            map,
+            params.clone(),
+            CreateEngine::Dijkstra,
+            <span class="macro">vec!</span>[req.constraints],
+            <span class="kw-2">&amp;mut </span>Timer::throwaway(),
         );
-        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">pathfinder</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>);
-        <span class="self">self</span>.<span class="ident">cache</span>.<span class="ident">push</span>((<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">params</span>), <span class="ident">pathfinder</span>);
-        <span class="ident">result</span>
+        <span class="kw">let </span>result = pathfinder.pathfind_v2(req.clone(), map);
+        <span class="self">self</span>.cache.push((req.constraints, params), pathfinder);
+        result
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

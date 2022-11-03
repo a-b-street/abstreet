@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -132,139 +132,139 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
-</pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">choose_something</span>;
-<span class="kw">mod</span> <span class="ident">colors</span>;
-<span class="kw">mod</span> <span class="ident">lasso</span>;
-<span class="kw">mod</span> <span class="ident">load</span>;
-<span class="kw">mod</span> <span class="ident">popup</span>;
-<span class="kw">mod</span> <span class="ident">prompt_input</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">screenshot</span>;
-<span class="kw">mod</span> <span class="ident">url</span>;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod</span> <span class="ident">warper</span>;
+</pre><pre class="rust"><code><span class="kw">mod </span>choose_something;
+<span class="kw">mod </span>colors;
+<span class="kw">mod </span>lasso;
+<span class="kw">mod </span>load;
+<span class="kw">mod </span>popup;
+<span class="kw">mod </span>prompt_input;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>screenshot;
+<span class="kw">mod </span>url;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">mod </span>warper;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use </span>anyhow::Result;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">choose_something::ChooseSomething</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">colors</span>::{<span class="ident">ColorLegend</span>, <span class="ident">ColorScale</span>, <span class="ident">DivergingScale</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">lasso</span>::{<span class="ident">Lasso</span>, <span class="ident">PolyLineLasso</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">load</span>::{<span class="ident">FileLoader</span>, <span class="ident">FutureLoader</span>, <span class="ident">RawBytes</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">popup::PopupMsg</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">prompt_input::PromptInput</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">url::URLManager</span>;
+<span class="kw">pub use </span>choose_something::ChooseSomething;
+<span class="kw">pub use </span>colors::{ColorLegend, ColorScale, DivergingScale};
+<span class="kw">pub use </span>lasso::{Lasso, PolyLineLasso};
+<span class="kw">pub use </span>load::{FileLoader, FutureLoader, RawBytes};
+<span class="kw">pub use </span>popup::PopupMsg;
+<span class="kw">pub use </span>prompt_input::PromptInput;
+<span class="kw">pub use </span>url::URLManager;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">GfxCtx</span>};
-<span class="kw">use</span> <span class="ident">geom::Polygon</span>;
+<span class="kw">use crate</span>::{Color, GfxCtx};
+<span class="kw">use </span>geom::Polygon;
 
-<span class="doccomment">/// Store a cached key/value pair, only recalculating when the key changes.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="ident">contents</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// Store a cached key/value pair, only recalculating when the key changes.
+</span><span class="kw">pub struct </span>Cached&lt;K: PartialEq + Clone, V&gt; {
+    contents: <span class="prelude-ty">Option</span>&lt;(K, V)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="ident">Cached</span> { <span class="ident">contents</span>: <span class="prelude-val">None</span> }
+<span class="kw">impl</span>&lt;K: PartialEq + Clone, V&gt; Cached&lt;K, V&gt; {
+    <span class="kw">pub fn </span>new() -&gt; Cached&lt;K, V&gt; {
+        Cached { contents: <span class="prelude-val">None </span>}
     }
 
-    <span class="doccomment">/// Get the current key.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">contents</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">k</span>.<span class="ident">clone</span>())
+    <span class="doccomment">/// Get the current key.
+    </span><span class="kw">pub fn </span>key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;K&gt; {
+        <span class="self">self</span>.contents.as_ref().map(|(k, <span class="kw">_</span>)| k.clone())
     }
 
-    <span class="doccomment">/// Get the current value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">contents</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">v</span>)<span class="op">|</span> <span class="ident">v</span>)
+    <span class="doccomment">/// Get the current value.
+    </span><span class="kw">pub fn </span>value(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt; {
+        <span class="self">self</span>.contents.as_ref().map(|(<span class="kw">_</span>, v)| v)
     }
 
-    <span class="doccomment">/// Get the current value, mutably.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">value_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">contents</span>.<span class="ident">as_mut</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">v</span>)<span class="op">|</span> <span class="ident">v</span>)
+    <span class="doccomment">/// Get the current value, mutably.
+    </span><span class="kw">pub fn </span>value_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>V&gt; {
+        <span class="self">self</span>.contents.as_mut().map(|(<span class="kw">_</span>, v)| v)
     }
 
-    <span class="doccomment">/// Update the value if the key has changed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="ident">K</span>) -&gt; <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>, <span class="kw-2">mut</span> <span class="ident">produce_value</span>: <span class="ident">F</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">new_key</span>) <span class="op">=</span> <span class="ident">key</span> {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">key</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_key</span>.<span class="ident">clone</span>()) {
-                <span class="self">self</span>.<span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">new_key</span>.<span class="ident">clone</span>(), <span class="ident">produce_value</span>(<span class="ident">new_key</span>)));
+    <span class="doccomment">/// Update the value if the key has changed.
+    </span><span class="kw">pub fn </span>update&lt;F: FnMut(K) -&gt; V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="prelude-ty">Option</span>&lt;K&gt;, <span class="kw-2">mut </span>produce_value: F) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(new_key) = key {
+            <span class="kw">if </span><span class="self">self</span>.key() != <span class="prelude-val">Some</span>(new_key.clone()) {
+                <span class="self">self</span>.contents = <span class="prelude-val">Some</span>((new_key.clone(), produce_value(new_key)));
             }
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.contents = <span class="prelude-val">None</span>;
         }
     }
 
-    <span class="doccomment">/// `update` is preferred, but sometimes `produce_value` needs to borrow the same struct that</span>
-    <span class="doccomment">/// owns this `Cached`. In that case, the caller can manually check `key` and call this.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) {
-        <span class="self">self</span>.<span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">key</span>, <span class="ident">value</span>));
+    <span class="doccomment">/// `update` is preferred, but sometimes `produce_value` needs to borrow the same struct that
+    /// owns this `Cached`. In that case, the caller can manually check `key` and call this.
+    </span><span class="kw">pub fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) {
+        <span class="self">self</span>.contents = <span class="prelude-val">Some</span>((key, value));
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">contents</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.contents = <span class="prelude-val">None</span>;
     }
 
-    <span class="doccomment">/// Clears the current pair and returns it.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">contents</span>.<span class="ident">take</span>()
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Cached</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Cached::new</span>()
+    <span class="doccomment">/// Clears the current pair and returns it.
+    </span><span class="kw">pub fn </span>take(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;(K, V)&gt; {
+        <span class="self">self</span>.contents.take()
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open_browser</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">url</span>: <span class="ident">I</span>) {
-    <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">webbrowser::open</span>(<span class="ident">url</span>.<span class="ident">as_ref</span>());
+<span class="kw">impl</span>&lt;K: PartialEq + Clone, V&gt; Default <span class="kw">for </span>Cached&lt;K, V&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        Cached::new()
+    }
 }
 
-<span class="kw">fn</span> <span class="ident">grey_out_map</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-    <span class="comment">// This is a copy of grey_out_map from map_gui, with no dependencies on App</span>
-    <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
-    <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-        <span class="ident">Color::BLACK</span>.<span class="ident">alpha</span>(<span class="number">0.6</span>),
-        <span class="ident">Polygon::rectangle</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
+<span class="kw">pub fn </span>open_browser&lt;I: AsRef&lt;str&gt;&gt;(url: I) {
+    <span class="kw">let _ </span>= webbrowser::open(url.as_ref());
+}
+
+<span class="kw">fn </span>grey_out_map(g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+    <span class="comment">// This is a copy of grey_out_map from map_gui, with no dependencies on App
+    </span>g.fork_screenspace();
+    g.draw_polygon(
+        Color::BLACK.alpha(<span class="number">0.6</span>),
+        Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
     );
-    <span class="ident">g</span>.<span class="ident">unfork</span>();
+    g.unfork();
 }
 
-<span class="doccomment">/// Only works on native</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_clipboard</span>(<span class="ident">x</span>: <span class="ident">String</span>) {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-    {
-        <span class="kw">use</span> <span class="ident">clipboard</span>::{<span class="ident">ClipboardContext</span>, <span class="ident">ClipboardProvider</span>};
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span>
-            <span class="ident">ClipboardProvider::new</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">ClipboardContext</span><span class="op">|</span> <span class="ident">ctx</span>.<span class="ident">set_contents</span>(<span class="ident">x</span>))
+<span class="doccomment">/// Only works on native
+</span><span class="kw">pub fn </span>set_clipboard(x: String) {
+    <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    </span>{
+        <span class="kw">use </span>clipboard::{ClipboardContext, ClipboardProvider};
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) =
+            ClipboardProvider::new().and_then(|<span class="kw-2">mut </span>ctx: ClipboardContext| ctx.set_contents(x))
         {
-            <span class="macro">error!</span>(<span class="string">&quot;Copying to clipboard broke: {}&quot;</span>, <span class="ident">err</span>);
+            <span class="macro">error!</span>(<span class="string">&quot;Copying to clipboard broke: {}&quot;</span>, err);
         }
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-    {
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">x</span>;
+    <span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    </span>{
+        <span class="kw">let _ </span>= x;
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_clipboard</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-    {
-        <span class="kw">use</span> <span class="ident">clipboard</span>::{<span class="ident">ClipboardContext</span>, <span class="ident">ClipboardProvider</span>};
-        <span class="comment">// TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctx</span>: <span class="ident">ClipboardContext</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ClipboardProvider::new</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">ctx</span>) =&gt; <span class="ident">ctx</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
+<span class="kw">pub fn </span>get_clipboard() -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+    </span>{
+        <span class="kw">use </span>clipboard::{ClipboardContext, ClipboardProvider};
+        <span class="comment">// TODO The clipboard crate uses old nightly Errors. Converting to anyhow is weird.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>ctx: ClipboardContext = <span class="kw">match </span>ClipboardProvider::new() {
+            <span class="prelude-val">Ok</span>(ctx) =&gt; ctx,
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, err),
         };
-        <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">get_contents</span>() {
-            <span class="prelude-val">Ok</span>(<span class="ident">contents</span>) =&gt; <span class="ident">contents</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">err</span>),
+        <span class="kw">let </span>contents = <span class="kw">match </span>ctx.get_contents() {
+            <span class="prelude-val">Ok</span>(contents) =&gt; contents,
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">bail!</span>(<span class="string">&quot;{}&quot;</span>, err),
         };
-        <span class="prelude-val">Ok</span>(<span class="ident">contents</span>)
+        <span class="prelude-val">Ok</span>(contents)
     }
 
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-    {
+    <span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+    </span>{
         <span class="macro">bail!</span>(<span class="string">&quot;Unsupported on web&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `raw_map/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../raw_map/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `raw_map/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../raw_map/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -165,172 +165,172 @@
 <span id="165">165</span>
 <span id="166">166</span>
 <span id="167">167</span>
-</pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate</span>
-<span class="doccomment">//! structure is useful to iterate quickly on parts of the map importing pipeline without having to</span>
-<span class="doccomment">//! constantly read .osm files, and to visualize the intermediate state with map_editor.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The convert_osm crate produces a RawMap from OSM and other data. Storing this intermediate
+//! structure is useful to iterate quickly on parts of the map importing pipeline without having to
+//! constantly read .osm files, and to visualize the intermediate state with map_editor.
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</span><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">osm</span>, <span class="ident">StreetNetwork</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>osm2streets::{osm, StreetNetwork};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil</span>::{
-    <span class="ident">deserialize_btreemap</span>, <span class="ident">deserialize_multimap</span>, <span class="ident">serialize_btreemap</span>, <span class="ident">serialize_multimap</span>, <span class="ident">MultiMap</span>,
-    <span class="ident">Tags</span>,
+<span class="kw">use </span>abstio::{CityName, MapName};
+<span class="kw">use </span>abstutil::{
+    deserialize_btreemap, deserialize_multimap, serialize_btreemap, serialize_multimap, MultiMap,
+    Tags,
 };
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>geom::{PolyLine, Polygon, Pt2D};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::types</span>::{<span class="ident">Amenity</span>, <span class="ident">AmenityType</span>, <span class="ident">AreaType</span>};
+<span class="kw">pub use </span><span class="self">self</span>::types::{Amenity, AmenityType, AreaType};
 
-<span class="kw">mod</span> <span class="ident">types</span>;
+<span class="kw">mod </span>types;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawMap</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">MapName</span>,
-    <span class="kw">pub</span> <span class="ident">streets</span>: <span class="ident">StreetNetwork</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">buildings</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span>, <span class="ident">RawBuilding</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawArea</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">parking_lots</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawParkingLot</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">parking_aisles</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">osm::WayID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">transit_routes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RawTransitRoute</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">transit_stops</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">RawTransitStop</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Per road, what bus routes run along it?</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is scraped from OSM relations for every map, unlike the more detailed `transit_routes`</span>
-    <span class="doccomment">/// above, which come from GTFS only for a few maps. This is used only to identify roads part</span>
-    <span class="doccomment">/// of bus routes. It&#39;s best-effort and not robust to edits or transformations.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_multimap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_multimap&quot;</span>
-    )]</span>
-    <span class="kw">pub</span> <span class="ident">bus_routes_on_roads</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">osm::WayID</span>, <span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>RawMap {
+    <span class="kw">pub </span>name: MapName,
+    <span class="kw">pub </span>streets: StreetNetwork,
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+    </span>)]
+    </span><span class="kw">pub </span>buildings: BTreeMap&lt;osm::OsmID, RawBuilding&gt;,
+    <span class="kw">pub </span>areas: Vec&lt;RawArea&gt;,
+    <span class="kw">pub </span>parking_lots: Vec&lt;RawParkingLot&gt;,
+    <span class="kw">pub </span>parking_aisles: Vec&lt;(osm::WayID, Vec&lt;Pt2D&gt;)&gt;,
+    <span class="kw">pub </span>transit_routes: Vec&lt;RawTransitRoute&gt;,
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+    </span>)]
+    </span><span class="kw">pub </span>transit_stops: BTreeMap&lt;String, RawTransitStop&gt;,
+    <span class="doccomment">/// Per road, what bus routes run along it?
+    ///
+    /// This is scraped from OSM relations for every map, unlike the more detailed `transit_routes`
+    /// above, which come from GTFS only for a few maps. This is used only to identify roads part
+    /// of bus routes. It&#39;s best-effort and not robust to edits or transformations.
+    </span><span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_multimap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_multimap&quot;
+    </span>)]
+    </span><span class="kw">pub </span>bus_routes_on_roads: MultiMap&lt;osm::WayID, String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">RawMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">blank</span>(<span class="ident">name</span>: <span class="ident">MapName</span>) -&gt; <span class="ident">RawMap</span> {
-        <span class="ident">RawMap</span> {
-            <span class="ident">name</span>,
-            <span class="ident">streets</span>: <span class="ident">StreetNetwork::blank</span>(),
-            <span class="ident">buildings</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">areas</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">parking_lots</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">parking_aisles</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">transit_routes</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">transit_stops</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">bus_routes_on_roads</span>: <span class="ident">MultiMap::new</span>(),
+<span class="kw">impl </span>RawMap {
+    <span class="kw">pub fn </span>blank(name: MapName) -&gt; RawMap {
+        RawMap {
+            name,
+            streets: StreetNetwork::blank(),
+            buildings: BTreeMap::new(),
+            areas: Vec::new(),
+            parking_lots: Vec::new(),
+            parking_aisles: Vec::new(),
+            transit_routes: Vec::new(),
+            transit_stops: BTreeMap::new(),
+            bus_routes_on_roads: MultiMap::new(),
         }
     }
 
-    <span class="comment">// TODO Almost gone...</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_osm_way_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">i64</span>) -&gt; <span class="ident">osm::WayID</span> {
-        <span class="macro">assert!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="number">0</span>);
-        <span class="comment">// Slow, but deterministic.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_way_id</span> <span class="op">=</span> <span class="ident">start</span>;
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">candidate</span> <span class="op">=</span> <span class="ident">osm::WayID</span>(<span class="ident">osm_way_id</span>);
-            <span class="comment">// TODO Doesn&#39;t handle collisions with areas or parking lots</span>
-            <span class="kw">if</span> <span class="self">self</span>
-                .<span class="ident">streets</span>
-                .<span class="ident">roads</span>
-                .<span class="ident">keys</span>()
-                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">osm_way_id</span>)
-                <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
-                    .<span class="ident">buildings</span>
-                    .<span class="ident">keys</span>()
-                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">b</span><span class="op">|</span> <span class="ident">b</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">osm::OsmID::Way</span>(<span class="ident">candidate</span>))
+    <span class="comment">// TODO Almost gone...
+    </span><span class="kw">pub fn </span>new_osm_way_id(<span class="kw-2">&amp;</span><span class="self">self</span>, start: i64) -&gt; osm::WayID {
+        <span class="macro">assert!</span>(start &lt; <span class="number">0</span>);
+        <span class="comment">// Slow, but deterministic.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>osm_way_id = start;
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>candidate = osm::WayID(osm_way_id);
+            <span class="comment">// TODO Doesn&#39;t handle collisions with areas or parking lots
+            </span><span class="kw">if </span><span class="self">self
+                </span>.streets
+                .roads
+                .keys()
+                .any(|r| r.osm_way_id.<span class="number">0 </span>== osm_way_id)
+                || <span class="self">self
+                    </span>.buildings
+                    .keys()
+                    .any(|b| b == <span class="kw-2">&amp;</span>osm::OsmID::Way(candidate))
             {
-                <span class="ident">osm_way_id</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">candidate</span>;
+                osm_way_id -= <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">return </span>candidate;
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_osm_node_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">i64</span>) -&gt; <span class="ident">osm::NodeID</span> {
-        <span class="macro">assert!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="number">0</span>);
-        <span class="comment">// Slow, but deterministic.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">osm_node_id</span> <span class="op">=</span> <span class="ident">start</span>;
-        <span class="kw">loop</span> {
-            <span class="kw">if</span> <span class="self">self</span>
-                .<span class="ident">streets</span>
-                .<span class="ident">intersections</span>
-                .<span class="ident">keys</span>()
-                .<span class="ident">any</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">i</span>.<span class="number">0</span> <span class="op">==</span> <span class="ident">osm_node_id</span>)
+    <span class="kw">pub fn </span>new_osm_node_id(<span class="kw-2">&amp;</span><span class="self">self</span>, start: i64) -&gt; osm::NodeID {
+        <span class="macro">assert!</span>(start &lt; <span class="number">0</span>);
+        <span class="comment">// Slow, but deterministic.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>osm_node_id = start;
+        <span class="kw">loop </span>{
+            <span class="kw">if </span><span class="self">self
+                </span>.streets
+                .intersections
+                .keys()
+                .any(|i| i.<span class="number">0 </span>== osm_node_id)
             {
-                <span class="ident">osm_node_id</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">osm::NodeID</span>(<span class="ident">osm_node_id</span>);
+                osm_node_id -= <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">return </span>osm::NodeID(osm_node_id);
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="ident">abstio::write_binary</span>(<span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>), <span class="self">self</span>)
+    <span class="kw">pub fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        abstio::write_binary(abstio::path_raw_map(<span class="kw-2">&amp;</span><span class="self">self</span>.name), <span class="self">self</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_city_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">CityName</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">name</span>.<span class="ident">city</span>
+    <span class="kw">pub fn </span>get_city_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>CityName {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.name.city
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawBuilding</span> {
-    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
-    <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
-    <span class="kw">pub</span> <span class="ident">public_garage_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">num_parking_spots</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Amenity</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>RawBuilding {
+    <span class="kw">pub </span>polygon: Polygon,
+    <span class="kw">pub </span>osm_tags: Tags,
+    <span class="kw">pub </span>public_garage_name: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="kw">pub </span>num_parking_spots: usize,
+    <span class="kw">pub </span>amenities: Vec&lt;Amenity&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawArea</span> {
-    <span class="kw">pub</span> <span class="ident">area_type</span>: <span class="ident">AreaType</span>,
-    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
-    <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
-    <span class="kw">pub</span> <span class="ident">osm_id</span>: <span class="ident">osm::OsmID</span>,
+<span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>RawArea {
+    <span class="kw">pub </span>area_type: AreaType,
+    <span class="kw">pub </span>polygon: Polygon,
+    <span class="kw">pub </span>osm_tags: Tags,
+    <span class="kw">pub </span>osm_id: osm::OsmID,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawParkingLot</span> {
-    <span class="kw">pub</span> <span class="ident">osm_id</span>: <span class="ident">osm::OsmID</span>,
-    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
-    <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
+<span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>RawParkingLot {
+    <span class="kw">pub </span>osm_id: osm::OsmID,
+    <span class="kw">pub </span>polygon: Polygon,
+    <span class="kw">pub </span>osm_tags: Tags,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawTransitRoute</span> {
-    <span class="kw">pub</span> <span class="ident">long_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">short_name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">gtfs_id</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// This may begin and/or end inside or outside the map boundary.</span>
-    <span class="kw">pub</span> <span class="ident">shape</span>: <span class="ident">PolyLine</span>,
-    <span class="doccomment">/// Entries into transit_stops</span>
-    <span class="kw">pub</span> <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">route_type</span>: <span class="ident">RawTransitType</span>,
-    <span class="comment">// TODO Schedule</span>
+<span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>RawTransitRoute {
+    <span class="kw">pub </span>long_name: String,
+    <span class="kw">pub </span>short_name: String,
+    <span class="kw">pub </span>gtfs_id: String,
+    <span class="doccomment">/// This may begin and/or end inside or outside the map boundary.
+    </span><span class="kw">pub </span>shape: PolyLine,
+    <span class="doccomment">/// Entries into transit_stops
+    </span><span class="kw">pub </span>stops: Vec&lt;String&gt;,
+    <span class="kw">pub </span>route_type: RawTransitType,
+    <span class="comment">// TODO Schedule
+</span>}
+
+<span class="attribute">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>RawTransitType {
+    Bus,
+    Train,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">RawTransitType</span> {
-    <span class="ident">Bus</span>,
-    <span class="ident">Train</span>,
-}
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RawTransitStop</span> {
-    <span class="kw">pub</span> <span class="ident">gtfs_id</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Only stops within a map&#39;s boundary are kept</span>
-    <span class="kw">pub</span> <span class="ident">position</span>: <span class="ident">Pt2D</span>,
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>RawTransitStop {
+    <span class="kw">pub </span>gtfs_id: String,
+    <span class="doccomment">/// Only stops within a map&#39;s boundary are kept
+    </span><span class="kw">pub </span>position: Pt2D,
+    <span class="kw">pub </span>name: String,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="raw_map" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="raw_map" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/traffic_signals/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../map_model/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/traffic_signals/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../map_model/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -500,507 +500,507 @@
 <span id="500">500</span>
 <span id="501">501</span>
 <span id="502">502</span>
-</pre><pre class="rust"><code><span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we</span>
-<span class="doccomment">//! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method</span>
-<span class="doccomment">//! in each generator file, which is called to generate a traffic signal of a particular flavor.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! For example, lagging_green.rs contains a one public fn:</span>
-<span class="doccomment">//!     pub fn make_traffic_signal(map: &amp;Map, i: IntersectionID)-&gt;Option&lt;ControlTrafficSignal&gt;</span>
+</pre><pre class="rust"><code><span class="doccomment">//! The various traffic signal generators live in the traffic signal module. Eventually, we
+//! might want to move to a trait. For now, there&#39;s a single make_traffic_signal static method
+//! in each generator file, which is called to generate a traffic signal of a particular flavor.
+//!
+//! For example, lagging_green.rs contains a one public fn:
+//!     pub fn make_traffic_signal(map: &amp;Map, i: IntersectionID)-&gt;Option&lt;ControlTrafficSignal&gt;
 
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
+</span><span class="kw">use </span>std::collections::{BTreeSet, HashSet};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">ControlTrafficSignal</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>,
-    <span class="ident">MapConfig</span>, <span class="ident">MovementID</span>, <span class="ident">RoadID</span>, <span class="ident">Stage</span>, <span class="ident">StageType</span>, <span class="ident">TurnPriority</span>, <span class="ident">TurnType</span>,
+<span class="kw">use crate</span>::{
+    ControlTrafficSignal, DrivingSide, Intersection, IntersectionCluster, IntersectionID, Map,
+    MapConfig, MovementID, RoadID, Stage, StageType, TurnPriority, TurnType,
 };
-<span class="kw">use</span> <span class="ident">geom::Duration</span>;
+<span class="kw">use </span>geom::Duration;
 
-<span class="kw">mod</span> <span class="ident">lagging_green</span>;
+<span class="kw">mod </span>lagging_green;
 
-<span class="doccomment">/// Applies a bunch of heuristics to a single intersection, returning the valid results in</span>
-<span class="doccomment">/// best-first order. The signal configuration is only based on the roads connected to the</span>
-<span class="doccomment">/// intersection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If `enforce_manual_signals` is true, then any data from the `traffic_signal_data` crate that</span>
-<span class="doccomment">/// matches the map will be validated against the current map. If the config is out-of-date, this</span>
-<span class="doccomment">/// method will panic, so that whoever is running the importer can immediately fix the config.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_possible_policies</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
-    <span class="ident">enforce_manual_signals</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">ControlTrafficSignal</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="doccomment">/// Applies a bunch of heuristics to a single intersection, returning the valid results in
+/// best-first order. The signal configuration is only based on the roads connected to the
+/// intersection.
+///
+/// If `enforce_manual_signals` is true, then any data from the `traffic_signal_data` crate that
+/// matches the map will be validated against the current map. If the config is out-of-date, this
+/// method will panic, so that whoever is running the importer can immediately fix the config.
+</span><span class="kw">pub fn </span>get_possible_policies(
+    map: <span class="kw-2">&amp;</span>Map,
+    id: IntersectionID,
+    enforce_manual_signals: bool,
+) -&gt; Vec&lt;(String, ControlTrafficSignal)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
 
-    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">id</span>);
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">raw</span>) <span class="op">=</span> <span class="ident">traffic_signal_data::load_all_data</span>()
-        .<span class="ident">unwrap</span>()
-        .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>)
+    <span class="kw">let </span>i = map.get_i(id);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(raw) = traffic_signal_data::load_all_data()
+        .unwrap()
+        .remove(<span class="kw-2">&amp;</span>i.orig_id.<span class="number">0</span>)
     {
-        <span class="kw">match</span> <span class="ident">ControlTrafficSignal::import</span>(<span class="ident">raw</span>, <span class="ident">id</span>, <span class="ident">map</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">ts</span><span class="op">|</span> <span class="ident">ts</span>.<span class="ident">validate</span>(<span class="ident">i</span>).<span class="ident">map</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">ts</span>)) {
-            <span class="prelude-val">Ok</span>(<span class="ident">ts</span>) =&gt; {
-                <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;manually specified settings&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
+        <span class="kw">match </span>ControlTrafficSignal::import(raw, id, map).and_then(|ts| ts.validate(i).map(|<span class="kw">_</span>| ts)) {
+            <span class="prelude-val">Ok</span>(ts) =&gt; {
+                results.push((<span class="string">&quot;manually specified settings&quot;</span>.to_string(), ts));
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="kw">if</span> <span class="ident">enforce_manual_signals</span> {
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="kw">if </span>enforce_manual_signals {
                     <span class="macro">panic!</span>(
                         <span class="string">&quot;traffic_signal_data data for {} ({}) out of date, go update it: {}&quot;</span>,
-                        <span class="ident">i</span>.<span class="ident">orig_id</span>,
-                        <span class="ident">i</span>.<span class="ident">name</span>(<span class="prelude-val">None</span>, <span class="ident">map</span>),
-                        <span class="ident">err</span>
+                        i.orig_id,
+                        i.name(<span class="prelude-val">None</span>, map),
+                        err
                     );
-                } <span class="kw">else</span> {
+                } <span class="kw">else </span>{
                     <span class="macro">warn!</span>(
                         <span class="string">&quot;traffic_signal_data data for {} no longer valid with map edits: {}&quot;</span>,
-                        <span class="ident">i</span>.<span class="ident">orig_id</span>, <span class="ident">err</span>
+                        i.orig_id, err
                     );
                 }
             }
         }
     }
 
-    <span class="comment">// As long as we&#39;re using silly heuristics for these by default, prefer shorter cycle</span>
-    <span class="comment">// length.</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">four_way_two_stage</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
-        <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;two-stage&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
+    <span class="comment">// As long as we&#39;re using silly heuristics for these by default, prefer shorter cycle
+    // length.
+    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = four_way_two_stage(map, i) {
+        results.push((<span class="string">&quot;two-stage&quot;</span>.to_string(), ts));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">three_way</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
-        <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;three-stage&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = three_way(map, i) {
+        results.push((<span class="string">&quot;three-stage&quot;</span>.to_string(), ts));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">four_way_four_stage</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
-        <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;four-stage&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = four_way_four_stage(map, i) {
+        results.push((<span class="string">&quot;four-stage&quot;</span>.to_string(), ts));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">half_signal</span>(<span class="ident">i</span>) {
-        <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;half signal (2 roads with crosswalk)&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = half_signal(i) {
+        results.push((<span class="string">&quot;half signal (2 roads with crosswalk)&quot;</span>.to_string(), ts));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">degenerate</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
-        <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;degenerate (2 roads)&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = degenerate(map, i) {
+        results.push((<span class="string">&quot;degenerate (2 roads)&quot;</span>.to_string(), ts));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">lagging_green::make_traffic_signal</span>(<span class="ident">map</span>, <span class="ident">i</span>) {
-        <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;lagging green&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">ts</span>));
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(ts) = lagging_green::make_traffic_signal(map, i) {
+        results.push((<span class="string">&quot;lagging green&quot;</span>.to_string(), ts));
     }
-    <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;stage per road&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">stage_per_road</span>(<span class="ident">map</span>, <span class="ident">i</span>)));
-    <span class="ident">results</span>.<span class="ident">push</span>((<span class="string">&quot;arbitrary assignment&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">greedy_assignment</span>(<span class="ident">i</span>)));
-    <span class="ident">results</span>.<span class="ident">push</span>((
-        <span class="string">&quot;all walk, then free-for-all yield&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">all_walk_all_yield</span>(<span class="ident">i</span>),
+    results.push((<span class="string">&quot;stage per road&quot;</span>.to_string(), stage_per_road(map, i)));
+    results.push((<span class="string">&quot;arbitrary assignment&quot;</span>.to_string(), greedy_assignment(i)));
+    results.push((
+        <span class="string">&quot;all walk, then free-for-all yield&quot;</span>.to_string(),
+        all_walk_all_yield(i),
     ));
 
-    <span class="comment">// Make sure all possible policies have a minimum crosswalk time enforced</span>
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">signal</span>) <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">results</span> {
-        <span class="kw">for</span> <span class="ident">stage</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">signal</span>.<span class="ident">stages</span> {
-            <span class="kw">let</span> <span class="ident">crosswalks</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">stage</span>
-                .<span class="ident">protected_movements</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">crosswalk</span>)
-                .<span class="ident">cloned</span>()
-                .<span class="ident">collect</span>();
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">crosswalks</span> {
-                <span class="ident">stage</span>.<span class="ident">enforce_minimum_crosswalk_time</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>]);
+    <span class="comment">// Make sure all possible policies have a minimum crosswalk time enforced
+    </span><span class="kw">for </span>(<span class="kw">_</span>, signal) <span class="kw">in </span><span class="kw-2">&amp;mut </span>results {
+        <span class="kw">for </span>stage <span class="kw">in </span><span class="kw-2">&amp;mut </span>signal.stages {
+            <span class="kw">let </span>crosswalks: Vec&lt;MovementID&gt; = stage
+                .protected_movements
+                .iter()
+                .filter(|id| id.crosswalk)
+                .cloned()
+                .collect();
+            <span class="kw">for </span>id <span class="kw">in </span>crosswalks {
+                stage.enforce_minimum_crosswalk_time(<span class="kw-2">&amp;</span>i.movements[<span class="kw-2">&amp;</span>id]);
             }
         }
     }
 
-    <span class="ident">results</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>.<span class="ident">validate</span>(<span class="ident">i</span>).<span class="ident">is_ok</span>());
-    <span class="ident">results</span>
+    results.retain(|pair| pair.<span class="number">1</span>.validate(i).is_ok());
+    results
 }
 
-<span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">IntersectionID</span>) -&gt; <span class="ident">ControlTrafficSignal</span> {
-    <span class="ident">ControlTrafficSignal</span> {
-        <span class="ident">id</span>,
-        <span class="ident">stages</span>: <span class="ident">Vec::new</span>(),
-        <span class="ident">offset</span>: <span class="ident">Duration::ZERO</span>,
+<span class="kw">fn </span>new(id: IntersectionID) -&gt; ControlTrafficSignal {
+    ControlTrafficSignal {
+        id,
+        stages: Vec::new(),
+        offset: Duration::ZERO,
     }
 }
 
-<span class="kw">fn</span> <span class="ident">greedy_assignment</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="ident">ControlTrafficSignal</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
+<span class="kw">fn </span>greedy_assignment(i: <span class="kw-2">&amp;</span>Intersection) -&gt; ControlTrafficSignal {
+    <span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
 
-    <span class="comment">// Greedily partition movements into stages that only have protected movements.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remaining_movements</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-    <span class="kw">loop</span> {
-        <span class="kw">let</span> <span class="ident">add</span> <span class="op">=</span> <span class="ident">remaining_movements</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">g</span><span class="op">|</span> <span class="ident">current_stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">g</span>, <span class="ident">i</span>));
-        <span class="kw">match</span> <span class="ident">add</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">idx</span>) =&gt; {
-                <span class="ident">current_stage</span>
-                    .<span class="ident">protected_movements</span>
-                    .<span class="ident">insert</span>(<span class="ident">remaining_movements</span>.<span class="ident">remove</span>(<span class="ident">idx</span>));
+    <span class="comment">// Greedily partition movements into stages that only have protected movements.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>remaining_movements: Vec&lt;MovementID&gt; = i.movements.keys().cloned().collect();
+    <span class="kw">let </span><span class="kw-2">mut </span>current_stage = Stage::new();
+    <span class="kw">loop </span>{
+        <span class="kw">let </span>add = remaining_movements
+            .iter()
+            .position(|<span class="kw-2">&amp;</span>g| current_stage.could_be_protected(g, i));
+        <span class="kw">match </span>add {
+            <span class="prelude-val">Some</span>(idx) =&gt; {
+                current_stage
+                    .protected_movements
+                    .insert(remaining_movements.remove(idx));
             }
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">current_stage</span>.<span class="ident">protected_movements</span>.<span class="ident">is_empty</span>());
-                <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">current_stage</span>);
-                <span class="ident">current_stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-                <span class="kw">if</span> <span class="ident">remaining_movements</span>.<span class="ident">is_empty</span>() {
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="macro">assert!</span>(!current_stage.protected_movements.is_empty());
+                ts.stages.push(current_stage);
+                current_stage = Stage::new();
+                <span class="kw">if </span>remaining_movements.is_empty() {
                     <span class="kw">break</span>;
                 }
             }
         }
     }
 
-    <span class="ident">expand_all_stages</span>(<span class="kw-2">&amp;mut</span> <span class="ident">ts</span>, <span class="ident">i</span>);
+    expand_all_stages(<span class="kw-2">&amp;mut </span>ts, i);
 
-    <span class="ident">ts</span>
+    ts
 }
 
-<span class="kw">fn</span> <span class="ident">degenerate</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
-    <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>degenerate(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;ControlTrafficSignal&gt; {
+    <span class="kw">let </span>roads = i.get_sorted_incoming_roads(map);
+    <span class="kw">if </span>roads.len() != <span class="number">2 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="kw">let</span> (<span class="ident">r1</span>, <span class="ident">r2</span>) <span class="op">=</span> (<span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>]);
+    <span class="kw">let </span>(r1, r2) = (roads[<span class="number">0</span>], roads[<span class="number">1</span>]);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
-    <span class="ident">make_stages</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">ts</span>,
-        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>,
-        <span class="ident">i</span>,
-        <span class="macro">vec!</span>[<span class="macro">vec!</span>[(<span class="macro">vec!</span>[<span class="ident">r1</span>, <span class="ident">r2</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>)]],
+    <span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
+    make_stages(
+        <span class="kw-2">&amp;mut </span>ts,
+        <span class="kw-2">&amp;</span>map.config,
+        i,
+        <span class="macro">vec!</span>[<span class="macro">vec!</span>[(<span class="macro">vec!</span>[r1, r2], TurnType::Straight, PROTECTED)]],
     );
-    <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
+    <span class="prelude-val">Some</span>(ts)
 }
 
-<span class="kw">fn</span> <span class="ident">half_signal</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">2</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>half_signal(i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;ControlTrafficSignal&gt; {
+    <span class="kw">if </span>i.roads.len() != <span class="number">2 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vehicle_stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ped_stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">movement</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">movements</span> {
-        <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">crosswalk</span> {
-            <span class="ident">ped_stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority::Protected</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">vehicle_stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority::Protected</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
+    <span class="kw">let </span><span class="kw-2">mut </span>vehicle_stage = Stage::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>ped_stage = Stage::new();
+    <span class="kw">for </span>(id, movement) <span class="kw">in </span><span class="kw-2">&amp;</span>i.movements {
+        <span class="kw">if </span>id.crosswalk {
+            ped_stage.edit_movement(movement, TurnPriority::Protected);
+        } <span class="kw">else </span>{
+            vehicle_stage.edit_movement(movement, TurnPriority::Protected);
         }
     }
-    <span class="ident">vehicle_stage</span>.<span class="ident">stage_type</span> <span class="op">=</span> <span class="ident">StageType::Fixed</span>(<span class="ident">Duration::minutes</span>(<span class="number">1</span>));
-    <span class="ident">ped_stage</span>.<span class="ident">stage_type</span> <span class="op">=</span> <span class="ident">StageType::Fixed</span>(<span class="ident">Duration::seconds</span>(<span class="number">10.0</span>));
+    vehicle_stage.stage_type = StageType::Fixed(Duration::minutes(<span class="number">1</span>));
+    ped_stage.stage_type = StageType::Fixed(Duration::seconds(<span class="number">10.0</span>));
 
-    <span class="ident">ts</span>.<span class="ident">stages</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">vehicle_stage</span>, <span class="ident">ped_stage</span>];
-    <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
+    ts.stages = <span class="macro">vec!</span>[vehicle_stage, ped_stage];
+    <span class="prelude-val">Some</span>(ts)
 }
 
-<span class="kw">fn</span> <span class="ident">three_way</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
-    <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>three_way(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;ControlTrafficSignal&gt; {
+    <span class="kw">let </span>roads = i.get_sorted_incoming_roads(map);
+    <span class="kw">if </span>roads.len() != <span class="number">3 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
 
-    <span class="comment">// Picture a T intersection. Use turn angles to figure out the &quot;main&quot; two roads.</span>
-    <span class="kw">let</span> <span class="ident">straight</span> <span class="op">=</span> <span class="ident">i</span>
-        .<span class="ident">movements</span>
-        .<span class="ident">values</span>()
-        .<span class="ident">find</span>(<span class="op">|</span><span class="ident">g</span><span class="op">|</span> <span class="ident">g</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::Straight</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> (<span class="ident">north</span>, <span class="ident">south</span>) <span class="op">=</span> (<span class="ident">straight</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span>, <span class="ident">straight</span>.<span class="ident">id</span>.<span class="ident">to</span>.<span class="ident">road</span>);
-    <span class="kw">let</span> <span class="ident">east</span> <span class="op">=</span> <span class="ident">roads</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">!</span><span class="op">=</span> <span class="ident">north</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">!</span><span class="op">=</span> <span class="ident">south</span>)
-        .<span class="ident">unwrap</span>();
+    <span class="comment">// Picture a T intersection. Use turn angles to figure out the &quot;main&quot; two roads.
+    </span><span class="kw">let </span>straight = i
+        .movements
+        .values()
+        .find(|g| g.turn_type == TurnType::Straight)<span class="question-mark">?</span>;
+    <span class="kw">let </span>(north, south) = (straight.id.from.road, straight.id.to.road);
+    <span class="kw">let </span>east = roads
+        .into_iter()
+        .find(|r| <span class="kw-2">*</span>r != north &amp;&amp; <span class="kw-2">*</span>r != south)
+        .unwrap();
 
-    <span class="comment">// Two-stage with no protected lefts, right turn on red, turning cars yield to peds</span>
-    <span class="ident">make_stages</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">ts</span>,
-        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>,
-        <span class="ident">i</span>,
+    <span class="comment">// Two-stage with no protected lefts, right turn on red, turning cars yield to peds
+    </span>make_stages(
+        <span class="kw-2">&amp;mut </span>ts,
+        <span class="kw-2">&amp;</span>map.config,
+        i,
         <span class="macro">vec!</span>[
             <span class="macro">vec!</span>[
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Left</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Crosswalk</span>, <span class="ident">PROTECTED</span>),
-                <span class="comment">// TODO Maybe UnmarkedCrossing should yield</span>
-                (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::UnmarkedCrossing</span>, <span class="ident">PROTECTED</span>),
+                (<span class="macro">vec!</span>[north, south], TurnType::Straight, PROTECTED),
+                (<span class="macro">vec!</span>[north, south], TurnType::Right, YIELD),
+                (<span class="macro">vec!</span>[north, south], TurnType::Left, YIELD),
+                (<span class="macro">vec!</span>[east], TurnType::Right, YIELD),
+                (<span class="macro">vec!</span>[east], TurnType::Crosswalk, PROTECTED),
+                <span class="comment">// TODO Maybe UnmarkedCrossing should yield
+                </span>(<span class="macro">vec!</span>[east], TurnType::UnmarkedCrossing, PROTECTED),
             ],
             <span class="macro">vec!</span>[
-                (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>], <span class="ident">TurnType::Left</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Crosswalk</span>, <span class="ident">PROTECTED</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::UnmarkedCrossing</span>, <span class="ident">PROTECTED</span>),
+                (<span class="macro">vec!</span>[east], TurnType::Straight, PROTECTED),
+                (<span class="macro">vec!</span>[east], TurnType::Right, YIELD),
+                (<span class="macro">vec!</span>[east], TurnType::Left, YIELD),
+                (<span class="macro">vec!</span>[north, south], TurnType::Right, YIELD),
+                (<span class="macro">vec!</span>[north, south], TurnType::Crosswalk, PROTECTED),
+                (<span class="macro">vec!</span>[north, south], TurnType::UnmarkedCrossing, PROTECTED),
             ],
         ],
     );
 
-    <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
+    <span class="prelude-val">Some</span>(ts)
 }
 
-<span class="kw">fn</span> <span class="ident">four_way_four_stage</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
-    <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>four_way_four_stage(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;ControlTrafficSignal&gt; {
+    <span class="kw">let </span>roads = i.get_sorted_incoming_roads(map);
+    <span class="kw">if </span>roads.len() != <span class="number">4 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.</span>
-    <span class="kw">let</span> (<span class="ident">north</span>, <span class="ident">west</span>, <span class="ident">south</span>, <span class="ident">east</span>) <span class="op">=</span> (<span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>], <span class="ident">roads</span>[<span class="number">2</span>], <span class="ident">roads</span>[<span class="number">3</span>]);
+    <span class="comment">// Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
+    </span><span class="kw">let </span>(north, west, south, east) = (roads[<span class="number">0</span>], roads[<span class="number">1</span>], roads[<span class="number">2</span>], roads[<span class="number">3</span>]);
 
-    <span class="comment">// Four-stage with protected lefts, right turn on red (except for the protected lefts),</span>
-    <span class="comment">// turning cars yield to peds</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
-    <span class="ident">make_stages</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">ts</span>,
-        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>,
-        <span class="ident">i</span>,
+    <span class="comment">// Four-stage with protected lefts, right turn on red (except for the protected lefts),
+    // turning cars yield to peds
+    </span><span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
+    make_stages(
+        <span class="kw-2">&amp;mut </span>ts,
+        <span class="kw-2">&amp;</span>map.config,
+        i,
         <span class="macro">vec!</span>[
             <span class="macro">vec!</span>[
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>, <span class="ident">west</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
+                (<span class="macro">vec!</span>[north, south], TurnType::Straight, PROTECTED),
+                (<span class="macro">vec!</span>[north, south], TurnType::Right, YIELD),
+                (<span class="macro">vec!</span>[east, west], TurnType::Right, YIELD),
             ],
-            <span class="macro">vec!</span>[(<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Left</span>, <span class="ident">PROTECTED</span>)],
+            <span class="macro">vec!</span>[(<span class="macro">vec!</span>[north, south], TurnType::Left, PROTECTED)],
             <span class="macro">vec!</span>[
-                (<span class="macro">vec!</span>[<span class="ident">east</span>, <span class="ident">west</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>, <span class="ident">west</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
+                (<span class="macro">vec!</span>[east, west], TurnType::Straight, PROTECTED),
+                (<span class="macro">vec!</span>[east, west], TurnType::Right, YIELD),
+                (<span class="macro">vec!</span>[north, south], TurnType::Right, YIELD),
             ],
-            <span class="macro">vec!</span>[(<span class="macro">vec!</span>[<span class="ident">east</span>, <span class="ident">west</span>], <span class="ident">TurnType::Left</span>, <span class="ident">PROTECTED</span>)],
+            <span class="macro">vec!</span>[(<span class="macro">vec!</span>[east, west], TurnType::Left, PROTECTED)],
         ],
     );
-    <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
+    <span class="prelude-val">Some</span>(ts)
 }
 
-<span class="kw">fn</span> <span class="ident">four_way_two_stage</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ControlTrafficSignal</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_sorted_incoming_roads</span>(<span class="ident">map</span>);
-    <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+<span class="kw">fn </span>four_way_two_stage(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; <span class="prelude-ty">Option</span>&lt;ControlTrafficSignal&gt; {
+    <span class="kw">let </span>roads = i.get_sorted_incoming_roads(map);
+    <span class="kw">if </span>roads.len() != <span class="number">4 </span>{
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="comment">// Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.</span>
-    <span class="kw">let</span> (<span class="ident">north</span>, <span class="ident">west</span>, <span class="ident">south</span>, <span class="ident">east</span>) <span class="op">=</span> (<span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>], <span class="ident">roads</span>[<span class="number">2</span>], <span class="ident">roads</span>[<span class="number">3</span>]);
+    <span class="comment">// Just to refer to these easily, label with directions. Imagine an axis-aligned four-way.
+    </span><span class="kw">let </span>(north, west, south, east) = (roads[<span class="number">0</span>], roads[<span class="number">1</span>], roads[<span class="number">2</span>], roads[<span class="number">3</span>]);
 
-    <span class="comment">// Two-stage with no protected lefts, right turn on red, turning cars yielding to peds</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
-    <span class="ident">make_stages</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">ts</span>,
-        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">config</span>,
-        <span class="ident">i</span>,
+    <span class="comment">// Two-stage with no protected lefts, right turn on red, turning cars yielding to peds
+    </span><span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
+    make_stages(
+        <span class="kw-2">&amp;mut </span>ts,
+        <span class="kw-2">&amp;</span>map.config,
+        i,
         <span class="macro">vec!</span>[
             <span class="macro">vec!</span>[
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Left</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>, <span class="ident">west</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
+                (<span class="macro">vec!</span>[north, south], TurnType::Straight, PROTECTED),
+                (<span class="macro">vec!</span>[north, south], TurnType::Right, YIELD),
+                (<span class="macro">vec!</span>[north, south], TurnType::Left, YIELD),
+                (<span class="macro">vec!</span>[east, west], TurnType::Right, YIELD),
             ],
             <span class="macro">vec!</span>[
-                (<span class="macro">vec!</span>[<span class="ident">east</span>, <span class="ident">west</span>], <span class="ident">TurnType::Straight</span>, <span class="ident">PROTECTED</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>, <span class="ident">west</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">east</span>, <span class="ident">west</span>], <span class="ident">TurnType::Left</span>, <span class="ident">YIELD</span>),
-                (<span class="macro">vec!</span>[<span class="ident">north</span>, <span class="ident">south</span>], <span class="ident">TurnType::Right</span>, <span class="ident">YIELD</span>),
+                (<span class="macro">vec!</span>[east, west], TurnType::Straight, PROTECTED),
+                (<span class="macro">vec!</span>[east, west], TurnType::Right, YIELD),
+                (<span class="macro">vec!</span>[east, west], TurnType::Left, YIELD),
+                (<span class="macro">vec!</span>[north, south], TurnType::Right, YIELD),
             ],
         ],
     );
-    <span class="prelude-val">Some</span>(<span class="ident">ts</span>)
+    <span class="prelude-val">Some</span>(ts)
 }
 
-<span class="kw">fn</span> <span class="ident">all_walk_all_yield</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="ident">ControlTrafficSignal</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
+<span class="kw">fn </span>all_walk_all_yield(i: <span class="kw-2">&amp;</span>Intersection) -&gt; ControlTrafficSignal {
+    <span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_walk</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_yield</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>all_walk = Stage::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>all_yield = Stage::new();
 
-    <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
-        <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
-            <span class="ident">all_walk</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">all_yield</span>.<span class="ident">yield_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
+    <span class="kw">for </span>movement <span class="kw">in </span>i.movements.values() {
+        <span class="kw">if </span>movement.turn_type.pedestrian_crossing() {
+            all_walk.protected_movements.insert(movement.id);
+        } <span class="kw">else </span>{
+            all_yield.yield_movements.insert(movement.id);
         }
     }
 
-    <span class="ident">ts</span>.<span class="ident">stages</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">all_walk</span>, <span class="ident">all_yield</span>];
-    <span class="ident">ts</span>
+    ts.stages = <span class="macro">vec!</span>[all_walk, all_yield];
+    ts
 }
 
-<span class="kw">fn</span> <span class="ident">stage_per_road</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="ident">ControlTrafficSignal</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">new</span>(<span class="ident">i</span>.<span class="ident">id</span>);
+<span class="kw">fn </span>stage_per_road(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; ControlTrafficSignal {
+    <span class="kw">let </span><span class="kw-2">mut </span>ts = new(i.id);
 
-    <span class="kw">let</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
-    <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">sorted_roads</span>.<span class="ident">len</span>() {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">sorted_roads</span>[<span class="ident">idx</span>];
-        <span class="kw">let</span> <span class="ident">adj1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">abstutil::wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">sorted_roads</span>, (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">-</span> <span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">adj2</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">abstutil::wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">sorted_roads</span>, (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span>) <span class="op">+</span> <span class="number">1</span>);
+    <span class="kw">let </span>sorted_roads = i.get_roads_sorted_by_incoming_angle(map);
+    <span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..sorted_roads.len() {
+        <span class="kw">let </span>r = sorted_roads[idx];
+        <span class="kw">let </span>adj1 = <span class="kw-2">*</span>abstutil::wraparound_get(<span class="kw-2">&amp;</span>sorted_roads, (idx <span class="kw">as </span>isize) - <span class="number">1</span>);
+        <span class="kw">let </span>adj2 = <span class="kw-2">*</span>abstutil::wraparound_get(<span class="kw-2">&amp;</span>sorted_roads, (idx <span class="kw">as </span>isize) + <span class="number">1</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-        <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
-            <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
-                <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">adj1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">adj2</span> {
-                    <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>stage = Stage::new();
+        <span class="kw">for </span>movement <span class="kw">in </span>i.movements.values() {
+            <span class="kw">if </span>movement.turn_type.pedestrian_crossing() {
+                <span class="kw">if </span>movement.id.from.road == adj1 || movement.id.from.road == adj2 {
+                    stage.protected_movements.insert(movement.id);
                 }
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">r</span> {
-                <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">insert</span>(<span class="ident">movement</span>.<span class="ident">id</span>);
+            } <span class="kw">else if </span>movement.id.from.road == r {
+                stage.yield_movements.insert(movement.id);
             }
         }
-        <span class="comment">// Might have a one-way outgoing road. Skip it.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">is_empty</span>() {
-            <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">stage</span>);
+        <span class="comment">// Might have a one-way outgoing road. Skip it.
+        </span><span class="kw">if </span>!stage.yield_movements.is_empty() {
+            ts.stages.push(stage);
         }
     }
-    <span class="ident">ts</span>
+    ts
 }
 
-<span class="comment">// Add all possible protected movements to existing stages.</span>
-<span class="kw">fn</span> <span class="ident">expand_all_stages</span>(<span class="ident">ts</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ControlTrafficSignal</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) {
-    <span class="kw">for</span> <span class="ident">stage</span> <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">iter_mut</span>() {
-        <span class="kw">for</span> <span class="ident">g</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">keys</span>() {
-            <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="kw-2">*</span><span class="ident">g</span>, <span class="ident">i</span>) {
-                <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">g</span>);
+<span class="comment">// Add all possible protected movements to existing stages.
+</span><span class="kw">fn </span>expand_all_stages(ts: <span class="kw-2">&amp;mut </span>ControlTrafficSignal, i: <span class="kw-2">&amp;</span>Intersection) {
+    <span class="kw">for </span>stage <span class="kw">in </span>ts.stages.iter_mut() {
+        <span class="kw">for </span>g <span class="kw">in </span>i.movements.keys() {
+            <span class="kw">if </span>stage.could_be_protected(<span class="kw-2">*</span>g, i) {
+                stage.protected_movements.insert(<span class="kw-2">*</span>g);
             }
         }
     }
 }
 
-<span class="kw">const</span> <span class="ident">PROTECTED</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">true</span>;
-<span class="kw">const</span> <span class="ident">YIELD</span>: <span class="ident">bool</span> <span class="op">=</span> <span class="bool-val">false</span>;
+<span class="kw">const </span>PROTECTED: bool = <span class="bool-val">true</span>;
+<span class="kw">const </span>YIELD: bool = <span class="bool-val">false</span>;
 
-<span class="kw">fn</span> <span class="ident">make_stages</span>(
-    <span class="ident">ts</span>: <span class="kw-2">&amp;mut</span> <span class="ident">ControlTrafficSignal</span>,
-    <span class="ident">map_config</span>: <span class="kw-2">&amp;</span><span class="ident">MapConfig</span>,
-    <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>,
-    <span class="ident">stage_specs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">TurnType</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">fn </span>make_stages(
+    ts: <span class="kw-2">&amp;mut </span>ControlTrafficSignal,
+    map_config: <span class="kw-2">&amp;</span>MapConfig,
+    i: <span class="kw-2">&amp;</span>Intersection,
+    stage_specs: Vec&lt;Vec&lt;(Vec&lt;RoadID&gt;, TurnType, bool)&gt;&gt;,
 ) {
-    <span class="kw">for</span> <span class="ident">specs</span> <span class="kw">in</span> <span class="ident">stage_specs</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stage</span> <span class="op">=</span> <span class="ident">Stage::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">explicit_crosswalks</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">for</span> (<span class="ident">roads</span>, <span class="kw-2">mut</span> <span class="ident">turn_type</span>, <span class="ident">protected</span>) <span class="kw">in</span> <span class="ident">specs</span>.<span class="ident">iter</span>() {
-            <span class="comment">// The heuristics are written assuming right turns are easy and lefts are hard, so</span>
-            <span class="comment">// invert in the UK.</span>
-            <span class="kw">if</span> <span class="ident">map_config</span>.<span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Left</span> {
-                <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::Right</span> {
-                    <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::Left</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::Left</span> {
-                    <span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::Right</span>;
+    <span class="kw">for </span>specs <span class="kw">in </span>stage_specs {
+        <span class="kw">let </span><span class="kw-2">mut </span>stage = Stage::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>explicit_crosswalks = <span class="bool-val">false</span>;
+        <span class="kw">for </span>(roads, <span class="kw-2">mut </span>turn_type, protected) <span class="kw">in </span>specs.iter() {
+            <span class="comment">// The heuristics are written assuming right turns are easy and lefts are hard, so
+            // invert in the UK.
+            </span><span class="kw">if </span>map_config.driving_side == DrivingSide::Left {
+                <span class="kw">if </span>turn_type == TurnType::Right {
+                    turn_type = TurnType::Left;
+                } <span class="kw">else if </span>turn_type == TurnType::Left {
+                    turn_type = TurnType::Right;
                 }
             }
-            <span class="kw">if</span> <span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
-                <span class="ident">explicit_crosswalks</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="kw">if </span>turn_type.pedestrian_crossing() {
+                explicit_crosswalks = <span class="bool-val">true</span>;
             }
 
-            <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">turn_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">movement</span>.<span class="ident">turn_type</span> {
+            <span class="kw">for </span>movement <span class="kw">in </span>i.movements.values() {
+                <span class="kw">if </span>!roads.contains(<span class="kw-2">&amp;</span>movement.id.from.road) || turn_type != movement.turn_type {
                     <span class="kw">continue</span>;
                 }
 
-                <span class="comment">// If turn on red is banned, ignore movements when the stage has</span>
-                <span class="comment">// no protected (green) movement from that road</span>
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">map_config</span>.<span class="ident">turn_on_red</span>
-                    <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">specs</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">other_roads</span>, <span class="kw">_</span>, <span class="ident">other_protected</span>)<span class="op">|</span> {
-                        <span class="kw-2">*</span><span class="ident">other_protected</span> <span class="op">&amp;&amp;</span> <span class="ident">other_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">movement</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span>)
+                <span class="comment">// If turn on red is banned, ignore movements when the stage has
+                // no protected (green) movement from that road
+                </span><span class="kw">if </span>!map_config.turn_on_red
+                    &amp;&amp; !specs.iter().any(|(other_roads, <span class="kw">_</span>, other_protected)| {
+                        <span class="kw-2">*</span>other_protected &amp;&amp; other_roads.contains(<span class="kw-2">&amp;</span>movement.id.from.road)
                     })
                 {
                     <span class="kw">continue</span>;
                 }
 
-                <span class="ident">stage</span>.<span class="ident">edit_movement</span>(
-                    <span class="ident">movement</span>,
-                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">protected</span> {
-                        <span class="ident">TurnPriority::Protected</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">TurnPriority::Yield</span>
+                stage.edit_movement(
+                    movement,
+                    <span class="kw">if </span><span class="kw-2">*</span>protected {
+                        TurnPriority::Protected
+                    } <span class="kw">else </span>{
+                        TurnPriority::Yield
                     },
                 );
             }
         }
 
-        <span class="comment">// If the specification didn&#39;t explicitly include crosswalks, add them in here. Some</span>
-        <span class="comment">// crosswalks stretch across multiple roads when some parts of a road are missing a</span>
-        <span class="comment">// sidewalk, so it&#39;s hard to specify them in all cases.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">explicit_crosswalks</span> {
-            <span class="comment">// TODO If a stage has no protected turns at all, this adds the crosswalk to multiple</span>
-            <span class="comment">// stages in a pretty weird way. It&#39;d be better to add to just one stage -- the one</span>
-            <span class="comment">// with the least conflicting yields.</span>
-            <span class="kw">for</span> <span class="ident">movement</span> <span class="kw">in</span> <span class="ident">i</span>.<span class="ident">movements</span>.<span class="ident">values</span>() {
-                <span class="kw">if</span> <span class="ident">movement</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>()
-                    <span class="op">&amp;&amp;</span> <span class="ident">stage</span>.<span class="ident">could_be_protected</span>(<span class="ident">movement</span>.<span class="ident">id</span>, <span class="ident">i</span>)
+        <span class="comment">// If the specification didn&#39;t explicitly include crosswalks, add them in here. Some
+        // crosswalks stretch across multiple roads when some parts of a road are missing a
+        // sidewalk, so it&#39;s hard to specify them in all cases.
+        </span><span class="kw">if </span>!explicit_crosswalks {
+            <span class="comment">// TODO If a stage has no protected turns at all, this adds the crosswalk to multiple
+            // stages in a pretty weird way. It&#39;d be better to add to just one stage -- the one
+            // with the least conflicting yields.
+            </span><span class="kw">for </span>movement <span class="kw">in </span>i.movements.values() {
+                <span class="kw">if </span>movement.turn_type.pedestrian_crossing()
+                    &amp;&amp; stage.could_be_protected(movement.id, i)
                 {
-                    <span class="ident">stage</span>.<span class="ident">edit_movement</span>(<span class="ident">movement</span>, <span class="ident">TurnPriority::Protected</span>);
+                    stage.edit_movement(movement, TurnPriority::Protected);
                 }
             }
         }
 
-        <span class="comment">// Filter out empty stages if they happen.</span>
-        <span class="kw">if</span> <span class="ident">stage</span>.<span class="ident">protected_movements</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">stage</span>.<span class="ident">yield_movements</span>.<span class="ident">is_empty</span>() {
+        <span class="comment">// Filter out empty stages if they happen.
+        </span><span class="kw">if </span>stage.protected_movements.is_empty() &amp;&amp; stage.yield_movements.is_empty() {
             <span class="kw">continue</span>;
         }
 
-        <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">push</span>(<span class="ident">stage</span>);
+        ts.stages.push(stage);
     }
 
-    <span class="kw">if</span> <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-        <span class="comment">// At intersections of one-ways like Terry and Denny, we could get away with a single stage.</span>
-        <span class="comment">// Really weak form of this now, just collapsing the one smallest stage.</span>
-        <span class="kw">let</span> <span class="ident">smallest</span> <span class="op">=</span> <span class="ident">ts</span>
-            .<span class="ident">stages</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">protected_movements</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">p</span>.<span class="ident">yield_movements</span>.<span class="ident">len</span>())
-            .<span class="ident">cloned</span>()
-            .<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> {
-            <span class="ident">p</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">smallest</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">smallest</span>
-                    .<span class="ident">protected_movements</span>
-                    .<span class="ident">is_subset</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">protected_movements</span>)
-                <span class="op">&amp;&amp;</span> <span class="ident">smallest</span>.<span class="ident">yield_movements</span>.<span class="ident">is_subset</span>(<span class="kw-2">&amp;</span><span class="ident">p</span>.<span class="ident">yield_movements</span>)
+    <span class="kw">if </span>ts.stages.len() &gt; <span class="number">1 </span>{
+        <span class="comment">// At intersections of one-ways like Terry and Denny, we could get away with a single stage.
+        // Really weak form of this now, just collapsing the one smallest stage.
+        </span><span class="kw">let </span>smallest = ts
+            .stages
+            .iter()
+            .min_by_key(|p| p.protected_movements.len() + p.yield_movements.len())
+            .cloned()
+            .unwrap();
+        <span class="kw">if </span>ts.stages.iter().any(|p| {
+            p != <span class="kw-2">&amp;</span>smallest
+                &amp;&amp; smallest
+                    .protected_movements
+                    .is_subset(<span class="kw-2">&amp;</span>p.protected_movements)
+                &amp;&amp; smallest.yield_movements.is_subset(<span class="kw-2">&amp;</span>p.yield_movements)
         }) {
-            <span class="ident">ts</span>.<span class="ident">stages</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">smallest</span>);
+            ts.stages.retain(|p| p != <span class="kw-2">&amp;</span>smallest);
         }
     }
 }
 
-<span class="doccomment">/// Simple second-pass after generating all signals. Find pairs of traffic signals very close to</span>
-<span class="doccomment">/// each other with 2 stages each, see if the primary movement of the first stages lead to each</span>
-<span class="doccomment">/// other, and flip the order of stages if not. This is often wrong when the most common movement is</span>
-<span class="doccomment">/// actually turning left then going straight (near Mercer for example), but not sure how we could</span>
-<span class="doccomment">/// know that without demand data.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">synchronize</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Map</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pairs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="ident">handmapped</span> <span class="op">=</span> <span class="ident">traffic_signal_data::load_all_data</span>().<span class="ident">unwrap</span>();
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">id</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">handmapped</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">orig_id</span>.<span class="number">0</span>) {
+<span class="doccomment">/// Simple second-pass after generating all signals. Find pairs of traffic signals very close to
+/// each other with 2 stages each, see if the primary movement of the first stages lead to each
+/// other, and flip the order of stages if not. This is often wrong when the most common movement is
+/// actually turning left then going straight (near Mercer for example), but not sure how we could
+/// know that without demand data.
+</span><span class="kw">pub fn </span>synchronize(map: <span class="kw-2">&amp;mut </span>Map) {
+    <span class="kw">let </span><span class="kw-2">mut </span>seen = HashSet::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>pairs = Vec::new();
+    <span class="kw">let </span>handmapped = traffic_signal_data::load_all_data().unwrap();
+    <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
+        <span class="kw">if </span>!i.is_traffic_signal() || seen.contains(<span class="kw-2">&amp;</span>i.id) || handmapped.contains_key(<span class="kw-2">&amp;</span>i.orig_id.<span class="number">0</span>) {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">IntersectionCluster::autodetect</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">map</span>) {
-            <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">list</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-            <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">list</span>[<span class="number">0</span>]).<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">list</span>[<span class="number">1</span>]).<span class="ident">stages</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span>
-            {
-                <span class="ident">pairs</span>.<span class="ident">push</span>((<span class="ident">list</span>[<span class="number">0</span>], <span class="ident">list</span>[<span class="number">1</span>]));
-                <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">list</span>[<span class="number">0</span>]);
-                <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">list</span>[<span class="number">1</span>]);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(list) = IntersectionCluster::autodetect(i.id, map) {
+            <span class="kw">let </span>list = list.into_iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+            <span class="kw">if </span>list.len() == <span class="number">2
+                </span>&amp;&amp; map.get_traffic_signal(list[<span class="number">0</span>]).stages.len() == <span class="number">2
+                </span>&amp;&amp; map.get_traffic_signal(list[<span class="number">1</span>]).stages.len() == <span class="number">2
+            </span>{
+                pairs.push((list[<span class="number">0</span>], list[<span class="number">1</span>]));
+                seen.insert(list[<span class="number">0</span>]);
+                seen.insert(list[<span class="number">1</span>]);
             }
         }
     }
 
-    <span class="kw">for</span> (<span class="ident">i1</span>, <span class="ident">i2</span>) <span class="kw">in</span> <span class="ident">pairs</span> {
-        <span class="kw">let</span> <span class="ident">ts1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i1</span>);
-        <span class="kw">let</span> <span class="ident">ts2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_traffic_signal</span>(<span class="ident">i2</span>);
-        <span class="kw">let</span> <span class="ident">flip1</span> <span class="op">=</span> <span class="ident">ts1</span>.<span class="ident">stages</span>[<span class="number">0</span>].<span class="ident">protected_movements</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">m1</span><span class="op">|</span> {
-            <span class="op">!</span><span class="ident">m1</span>.<span class="ident">crosswalk</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">ts2</span>.<span class="ident">stages</span>[<span class="number">1</span>]
-                    .<span class="ident">protected_movements</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">m2</span><span class="op">|</span> <span class="op">!</span><span class="ident">m2</span>.<span class="ident">crosswalk</span> <span class="op">&amp;&amp;</span> (<span class="ident">m1</span>.<span class="ident">to</span> <span class="op">==</span> <span class="ident">m2</span>.<span class="ident">from</span> <span class="op">|</span><span class="op">|</span> <span class="ident">m1</span>.<span class="ident">from</span> <span class="op">==</span> <span class="ident">m2</span>.<span class="ident">to</span>))
+    <span class="kw">for </span>(i1, i2) <span class="kw">in </span>pairs {
+        <span class="kw">let </span>ts1 = map.get_traffic_signal(i1);
+        <span class="kw">let </span>ts2 = map.get_traffic_signal(i2);
+        <span class="kw">let </span>flip1 = ts1.stages[<span class="number">0</span>].protected_movements.iter().any(|m1| {
+            !m1.crosswalk
+                &amp;&amp; ts2.stages[<span class="number">1</span>]
+                    .protected_movements
+                    .iter()
+                    .any(|m2| !m2.crosswalk &amp;&amp; (m1.to == m2.from || m1.from == m2.to))
         });
-        <span class="kw">let</span> <span class="ident">flip2</span> <span class="op">=</span> <span class="ident">ts1</span>.<span class="ident">stages</span>[<span class="number">1</span>].<span class="ident">protected_movements</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">m1</span><span class="op">|</span> {
-            <span class="op">!</span><span class="ident">m1</span>.<span class="ident">crosswalk</span>
-                <span class="op">&amp;&amp;</span> <span class="ident">ts2</span>.<span class="ident">stages</span>[<span class="number">0</span>]
-                    .<span class="ident">protected_movements</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">any</span>(<span class="op">|</span><span class="ident">m2</span><span class="op">|</span> <span class="op">!</span><span class="ident">m2</span>.<span class="ident">crosswalk</span> <span class="op">&amp;&amp;</span> (<span class="ident">m1</span>.<span class="ident">to</span> <span class="op">==</span> <span class="ident">m2</span>.<span class="ident">from</span> <span class="op">|</span><span class="op">|</span> <span class="ident">m1</span>.<span class="ident">from</span> <span class="op">==</span> <span class="ident">m2</span>.<span class="ident">to</span>))
+        <span class="kw">let </span>flip2 = ts1.stages[<span class="number">1</span>].protected_movements.iter().any(|m1| {
+            !m1.crosswalk
+                &amp;&amp; ts2.stages[<span class="number">0</span>]
+                    .protected_movements
+                    .iter()
+                    .any(|m2| !m2.crosswalk &amp;&amp; (m1.to == m2.from || m1.from == m2.to))
         });
-        <span class="kw">if</span> <span class="ident">flip1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">flip2</span> {
+        <span class="kw">if </span>flip1 || flip2 {
             <span class="macro">info!</span>(
                 <span class="string">&quot;Flipping stage order of {} and {} to synchronize them&quot;</span>,
-                <span class="ident">i1</span>, <span class="ident">i2</span>
+                i1, i2
             );
-            <span class="ident">map</span>.<span class="ident">traffic_signals</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">i1</span>).<span class="ident">unwrap</span>().<span class="ident">stages</span>.<span class="ident">swap</span>(<span class="number">0</span>, <span class="number">1</span>);
+            map.traffic_signals.get_mut(<span class="kw-2">&amp;</span>i1).unwrap().stages.swap(<span class="number">0</span>, <span class="number">1</span>);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

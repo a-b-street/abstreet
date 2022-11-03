@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/od.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>od.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../popdat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/od.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>od.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../popdat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -406,413 +406,413 @@
 <span id="406">406</span>
 <span id="407">407</span>
 <span id="408">408</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This is a standalone pipeline for generating a Scenario, starting from origin-destination data</span>
-<span class="doccomment">//! (also called desire lines), which gives a count of commuters between two zones, breaking down</span>
-<span class="doccomment">//! by mode.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This is a standalone pipeline for generating a Scenario, starting from origin-destination data
+//! (also called desire lines), which gives a count of commuters between two zones, breaking down
+//! by mode.
 
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</span><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand::Rng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use </span>rand::seq::SliceRandom;
+<span class="kw">use </span>rand::Rng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Percent</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">BuildingType</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">IndividTrip</span>, <span class="ident">MapBorders</span>, <span class="ident">PersonSpec</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::{Duration, Percent, PolyLine, Polygon, Pt2D, Time};
+<span class="kw">use </span>map_model::{BuildingID, BuildingType, Map};
+<span class="kw">use </span>synthpop::{IndividTrip, MapBorders, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
-<span class="doccomment">/// This describes some number of commuters living in some named zone, working in another (or the</span>
-<span class="doccomment">/// same zone), and commuting using some mode.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DesireLine</span> {
-    <span class="kw">pub</span> <span class="ident">home_zone</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">work_zone</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-    <span class="kw">pub</span> <span class="ident">number_commuters</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// This describes some number of commuters living in some named zone, working in another (or the
+/// same zone), and commuting using some mode.
+</span><span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>DesireLine {
+    <span class="kw">pub </span>home_zone: String,
+    <span class="kw">pub </span>work_zone: String,
+    <span class="kw">pub </span>mode: TripMode,
+    <span class="kw">pub </span>number_commuters: usize,
 }
 
-<span class="comment">// TODO Percentage of taking a lunch trip, when to do it, how far to venture out, what mode to</span>
-<span class="comment">// use...</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Options</span> {
-    <span class="doccomment">/// When should somebody depart from home to work?</span>
-    <span class="kw">pub</span> <span class="ident">departure_time</span>: <span class="ident">NormalDistribution</span>,
-    <span class="doccomment">/// How long should somebody work before returning home?</span>
-    <span class="kw">pub</span> <span class="ident">work_duration</span>: <span class="ident">NormalDistribution</span>,
-    <span class="kw">pub</span> <span class="ident">include_zones</span>: <span class="ident">IncludeZonePolicy</span>,
+<span class="comment">// TODO Percentage of taking a lunch trip, when to do it, how far to venture out, what mode to
+// use...
+</span><span class="kw">pub struct </span>Options {
+    <span class="doccomment">/// When should somebody depart from home to work?
+    </span><span class="kw">pub </span>departure_time: NormalDistribution,
+    <span class="doccomment">/// How long should somebody work before returning home?
+    </span><span class="kw">pub </span>work_duration: NormalDistribution,
+    <span class="kw">pub </span>include_zones: IncludeZonePolicy,
 }
 
-<span class="kw">impl</span> <span class="ident">Options</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Options</span> {
-        <span class="ident">Options</span> {
-            <span class="ident">departure_time</span>: <span class="ident">NormalDistribution::new</span>(
-                <span class="ident">Duration::hours</span>(<span class="number">8</span>) <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
-                <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
+<span class="kw">impl </span>Options {
+    <span class="kw">pub fn </span>default() -&gt; Options {
+        Options {
+            departure_time: NormalDistribution::new(
+                Duration::hours(<span class="number">8</span>) + Duration::minutes(<span class="number">30</span>),
+                Duration::minutes(<span class="number">30</span>),
             ),
-            <span class="ident">work_duration</span>: <span class="ident">NormalDistribution::new</span>(<span class="ident">Duration::hours</span>(<span class="number">9</span>), <span class="ident">Duration::hours</span>(<span class="number">1</span>)),
-            <span class="ident">include_zones</span>: <span class="ident">IncludeZonePolicy::AllowRemote</span>,
+            work_duration: NormalDistribution::new(Duration::hours(<span class="number">9</span>), Duration::hours(<span class="number">1</span>)),
+            include_zones: IncludeZonePolicy::AllowRemote,
         }
     }
 }
 
-<span class="doccomment">/// Only desire lines starting and ending in zones matching this policy will be used.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">IncludeZonePolicy</span> {
-    <span class="doccomment">/// Keep zones that at least partially overlap the map&#39;s boundary. Note this doesn&#39;t mean no</span>
-    <span class="doccomment">/// off-map trips will occur -- if a zone only partly overlaps the map, then some trips will</span>
-    <span class="doccomment">/// snap to a border.</span>
-    <span class="ident">MustOverlap</span>,
-    <span class="doccomment">/// Keep all zones. When looking at desire lines between two remote zones, filter by those</span>
-    <span class="doccomment">/// whose straight-line segment between zone centroids intersects the map boundary</span>
-    <span class="ident">AllowRemote</span>,
+<span class="doccomment">/// Only desire lines starting and ending in zones matching this policy will be used.
+</span><span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">pub enum </span>IncludeZonePolicy {
+    <span class="doccomment">/// Keep zones that at least partially overlap the map&#39;s boundary. Note this doesn&#39;t mean no
+    /// off-map trips will occur -- if a zone only partly overlaps the map, then some trips will
+    /// snap to a border.
+    </span>MustOverlap,
+    <span class="doccomment">/// Keep all zones. When looking at desire lines between two remote zones, filter by those
+    /// whose straight-line segment between zone centroids intersects the map boundary
+    </span>AllowRemote,
 }
 
-<span class="doccomment">/// Generates a scenario from aggregated origin/destination data (DesireLines). The input describes</span>
-<span class="doccomment">/// an exact number of people, who live in one zone and work in another (possibly the same) and</span>
-<span class="doccomment">/// commute using some mode. For each of them, we just need to pick a specific home and workplace</span>
-<span class="doccomment">/// from the zones, and use the Options to pick departure times. We&#39;ll wind up creating people who</span>
-<span class="doccomment">/// just take two trips daily: home -&gt; work -&gt; home.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// The home and workplace may be a specific building, or they&#39;re snapped to a map border,</span>
-<span class="doccomment">/// resulting in trips that begin and/or end off-map. The amount of the zone that overlaps with the</span>
-<span class="doccomment">/// map boundary determines this. If the zone and map boundary overlap 50% by area, then half of</span>
-<span class="doccomment">/// the people to/from this zone will pick buildings, and half will pick borders.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">disaggregate</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">zones</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Polygon</span><span class="op">&gt;</span>,
-    <span class="ident">desire_lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DesireLine</span><span class="op">&gt;</span>,
-    <span class="ident">opts</span>: <span class="ident">Options</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span> {
-    <span class="comment">// First decide which zones are relevant for our map. Match homes, shops, and border</span>
-    <span class="comment">// intersections to each zone.</span>
-    <span class="kw">let</span> <span class="ident">zones</span> <span class="op">=</span> <span class="ident">create_zones</span>(<span class="ident">map</span>, <span class="ident">zones</span>, <span class="ident">opts</span>.<span class="ident">include_zones</span>, <span class="ident">timer</span>);
+<span class="doccomment">/// Generates a scenario from aggregated origin/destination data (DesireLines). The input describes
+/// an exact number of people, who live in one zone and work in another (possibly the same) and
+/// commute using some mode. For each of them, we just need to pick a specific home and workplace
+/// from the zones, and use the Options to pick departure times. We&#39;ll wind up creating people who
+/// just take two trips daily: home -&gt; work -&gt; home.
+///
+/// The home and workplace may be a specific building, or they&#39;re snapped to a map border,
+/// resulting in trips that begin and/or end off-map. The amount of the zone that overlaps with the
+/// map boundary determines this. If the zone and map boundary overlap 50% by area, then half of
+/// the people to/from this zone will pick buildings, and half will pick borders.
+</span><span class="kw">pub fn </span>disaggregate(
+    map: <span class="kw-2">&amp;</span>Map,
+    zones: HashMap&lt;String, Polygon&gt;,
+    desire_lines: Vec&lt;DesireLine&gt;,
+    opts: Options,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; Vec&lt;PersonSpec&gt; {
+    <span class="comment">// First decide which zones are relevant for our map. Match homes, shops, and border
+    // intersections to each zone.
+    </span><span class="kw">let </span>zones = create_zones(map, zones, opts.include_zones, timer);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">on_map_only</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lives_on_map</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">works_on_map</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pass_through</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>people = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>on_map_only = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>lives_on_map = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>works_on_map = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>pass_through = <span class="number">0</span>;
 
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;create people per desire line&quot;</span>, <span class="ident">desire_lines</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> <span class="ident">desire</span> <span class="kw">in</span> <span class="ident">desire_lines</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="comment">// Skip if we filtered out either zone.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">zones</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">home_zone</span>) <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">zones</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">work_zone</span>) {
+    timer.start_iter(<span class="string">&quot;create people per desire line&quot;</span>, desire_lines.len());
+    <span class="kw">for </span>desire <span class="kw">in </span>desire_lines {
+        timer.next();
+        <span class="comment">// Skip if we filtered out either zone.
+        </span><span class="kw">if </span>!zones.contains_key(<span class="kw-2">&amp;</span>desire.home_zone) || !zones.contains_key(<span class="kw-2">&amp;</span>desire.work_zone) {
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">home_zone</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">zones</span>[<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">home_zone</span>];
-        <span class="kw">let</span> <span class="ident">work_zone</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">zones</span>[<span class="kw-2">&amp;</span><span class="ident">desire</span>.<span class="ident">work_zone</span>];
+        <span class="kw">let </span>home_zone = <span class="kw-2">&amp;</span>zones[<span class="kw-2">&amp;</span>desire.home_zone];
+        <span class="kw">let </span>work_zone = <span class="kw-2">&amp;</span>zones[<span class="kw-2">&amp;</span>desire.work_zone];
 
-        <span class="comment">// If both are remote, make sure the desire line intersects the map</span>
-        <span class="kw">if</span> <span class="ident">home_zone</span>.<span class="ident">is_remote</span>() <span class="op">&amp;&amp;</span> <span class="ident">work_zone</span>.<span class="ident">is_remote</span>() {
-            <span class="kw">if</span> <span class="ident">desire</span>.<span class="ident">home_zone</span> <span class="op">==</span> <span class="ident">desire</span>.<span class="ident">work_zone</span> {
+        <span class="comment">// If both are remote, make sure the desire line intersects the map
+        </span><span class="kw">if </span>home_zone.is_remote() &amp;&amp; work_zone.is_remote() {
+            <span class="kw">if </span>desire.home_zone == desire.work_zone {
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>
-                .<span class="ident">get_boundary_polygon</span>()
-                .<span class="ident">intersects_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-                    <span class="ident">home_zone</span>.<span class="ident">center</span>,
-                    <span class="ident">work_zone</span>.<span class="ident">center</span>,
+            <span class="kw">if </span>!map
+                .get_boundary_polygon()
+                .intersects_polyline(<span class="kw-2">&amp;</span>PolyLine::must_new(<span class="macro">vec!</span>[
+                    home_zone.center,
+                    work_zone.center,
                 ]))
             {
                 <span class="kw">continue</span>;
             }
         }
 
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">desire</span>.<span class="ident">number_commuters</span> {
-            <span class="comment">// Pick a specific home and workplace. It might be off-map, depending on how much the</span>
-            <span class="comment">// zone overlaps the map.</span>
-            <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>((<span class="ident">leave_home</span>, <span class="ident">goto_home</span>)), <span class="prelude-val">Some</span>((<span class="ident">leave_work</span>, <span class="ident">goto_work</span>))) <span class="op">=</span> (
-                <span class="ident">home_zone</span>.<span class="ident">pick_home</span>(<span class="ident">desire</span>.<span class="ident">mode</span>, <span class="ident">map</span>, <span class="ident">rng</span>),
-                <span class="ident">work_zone</span>.<span class="ident">pick_workplace</span>(<span class="ident">desire</span>.<span class="ident">mode</span>, <span class="ident">map</span>, <span class="ident">rng</span>),
+        <span class="kw">for _ in </span><span class="number">0</span>..desire.number_commuters {
+            <span class="comment">// Pick a specific home and workplace. It might be off-map, depending on how much the
+            // zone overlaps the map.
+            </span><span class="kw">if let </span>(<span class="prelude-val">Some</span>((leave_home, goto_home)), <span class="prelude-val">Some</span>((leave_work, goto_work))) = (
+                home_zone.pick_home(desire.mode, map, rng),
+                work_zone.pick_workplace(desire.mode, map, rng),
             ) {
-                <span class="comment">// remove_weird_schedules would clean this up later, but simpler to skip upfront</span>
-                <span class="kw">if</span> <span class="ident">leave_home</span> <span class="op">==</span> <span class="ident">goto_work</span> <span class="op">|</span><span class="op">|</span> <span class="ident">leave_work</span> <span class="op">==</span> <span class="ident">goto_home</span> {
+                <span class="comment">// remove_weird_schedules would clean this up later, but simpler to skip upfront
+                </span><span class="kw">if </span>leave_home == goto_work || leave_work == goto_home {
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">match</span> (<span class="ident">goto_home</span>, <span class="ident">goto_work</span>) {
-                    (<span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>)) =&gt; {
-                        <span class="ident">on_map_only</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">match </span>(goto_home, goto_work) {
+                    (TripEndpoint::Building(<span class="kw">_</span>), TripEndpoint::Building(<span class="kw">_</span>)) =&gt; {
+                        on_map_only += <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>)) =&gt; {
-                        <span class="ident">lives_on_map</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    (TripEndpoint::Building(<span class="kw">_</span>), TripEndpoint::Border(<span class="kw">_</span>)) =&gt; {
+                        lives_on_map += <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint::Building</span>(<span class="kw">_</span>)) =&gt; {
-                        <span class="ident">works_on_map</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    (TripEndpoint::Border(<span class="kw">_</span>), TripEndpoint::Building(<span class="kw">_</span>)) =&gt; {
+                        works_on_map += <span class="number">1</span>;
                     }
-                    (<span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>), <span class="ident">TripEndpoint::Border</span>(<span class="kw">_</span>)) =&gt; {
-                        <span class="ident">pass_through</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                    (TripEndpoint::Border(<span class="kw">_</span>), TripEndpoint::Border(<span class="kw">_</span>)) =&gt; {
+                        pass_through += <span class="number">1</span>;
                     }
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
 
-                <span class="comment">// Create their schedule</span>
-                <span class="kw">let</span> <span class="ident">goto_work_time</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">opts</span>.<span class="ident">departure_time</span>.<span class="ident">sample</span>(<span class="ident">rng</span>);
-                <span class="kw">let</span> <span class="ident">return_home_time</span> <span class="op">=</span> <span class="ident">goto_work_time</span> <span class="op">+</span> <span class="ident">opts</span>.<span class="ident">work_duration</span>.<span class="ident">sample</span>(<span class="ident">rng</span>);
-                <span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
-                    <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">trips</span>: <span class="macro">vec!</span>[
-                        <span class="ident">IndividTrip::new</span>(
-                            <span class="ident">goto_work_time</span>,
-                            <span class="ident">TripPurpose::Work</span>,
-                            <span class="ident">leave_home</span>,
-                            <span class="ident">goto_work</span>,
-                            <span class="ident">desire</span>.<span class="ident">mode</span>,
+                <span class="comment">// Create their schedule
+                </span><span class="kw">let </span>goto_work_time = Time::START_OF_DAY + opts.departure_time.sample(rng);
+                <span class="kw">let </span>return_home_time = goto_work_time + opts.work_duration.sample(rng);
+                people.push(PersonSpec {
+                    orig_id: <span class="prelude-val">None</span>,
+                    trips: <span class="macro">vec!</span>[
+                        IndividTrip::new(
+                            goto_work_time,
+                            TripPurpose::Work,
+                            leave_home,
+                            goto_work,
+                            desire.mode,
                         ),
-                        <span class="ident">IndividTrip::new</span>(
-                            <span class="ident">return_home_time</span>,
-                            <span class="ident">TripPurpose::Home</span>,
-                            <span class="ident">leave_work</span>,
-                            <span class="ident">goto_home</span>,
-                            <span class="ident">desire</span>.<span class="ident">mode</span>,
+                        IndividTrip::new(
+                            return_home_time,
+                            TripPurpose::Home,
+                            leave_work,
+                            goto_home,
+                            desire.mode,
                         ),
                     ],
                 });
             }
         }
     }
-    <span class="kw">let</span> <span class="ident">total</span> <span class="op">=</span> <span class="ident">on_map_only</span> <span class="op">+</span> <span class="ident">lives_on_map</span> <span class="op">+</span> <span class="ident">works_on_map</span> <span class="op">+</span> <span class="ident">pass_through</span>;
-    <span class="kw">for</span> (<span class="ident">x</span>, <span class="ident">label</span>) <span class="kw">in</span> [
-        (<span class="ident">on_map_only</span>, <span class="string">&quot;live and work on-map&quot;</span>),
-        (<span class="ident">lives_on_map</span>, <span class="string">&quot;live on-map, work remote&quot;</span>),
-        (<span class="ident">works_on_map</span>, <span class="string">&quot;live remote, work on-map&quot;</span>),
-        (<span class="ident">pass_through</span>, <span class="string">&quot;just pass through&quot;</span>),
+    <span class="kw">let </span>total = on_map_only + lives_on_map + works_on_map + pass_through;
+    <span class="kw">for </span>(x, label) <span class="kw">in </span>[
+        (on_map_only, <span class="string">&quot;live and work on-map&quot;</span>),
+        (lives_on_map, <span class="string">&quot;live on-map, work remote&quot;</span>),
+        (works_on_map, <span class="string">&quot;live remote, work on-map&quot;</span>),
+        (pass_through, <span class="string">&quot;just pass through&quot;</span>),
     ] {
         <span class="macro">info!</span>(
             <span class="string">&quot;{} people ({}) {}&quot;</span>,
-            <span class="ident">prettyprint_usize</span>(<span class="ident">x</span>),
-            <span class="ident">Percent::of</span>(<span class="ident">x</span>, <span class="ident">total</span>),
-            <span class="ident">label</span>
+            prettyprint_usize(x),
+            Percent::of(x, total),
+            label
         );
     }
 
-    <span class="ident">people</span>
+    people
 }
 
-<span class="kw">struct</span> <span class="ident">Zone</span> {
-    <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
-    <span class="ident">center</span>: <span class="ident">Pt2D</span>,
-    <span class="ident">pct_overlap</span>: <span class="ident">f64</span>,
-    <span class="comment">// For each building, have a value describing how many people live or work there. The exact</span>
-    <span class="comment">// value doesn&#39;t matter; it&#39;s just a relative weighting. This way, we can use a weighted sample</span>
-    <span class="comment">// and match more people to larger homes/stores.</span>
-    <span class="ident">homes</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">BuildingID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    <span class="ident">workplaces</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">BuildingID</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
-    <span class="ident">borders</span>: <span class="ident">MapBorders</span>,
+<span class="kw">struct </span>Zone {
+    polygon: Polygon,
+    center: Pt2D,
+    pct_overlap: f64,
+    <span class="comment">// For each building, have a value describing how many people live or work there. The exact
+    // value doesn&#39;t matter; it&#39;s just a relative weighting. This way, we can use a weighted sample
+    // and match more people to larger homes/stores.
+    </span>homes: Vec&lt;(BuildingID, usize)&gt;,
+    workplaces: Vec&lt;(BuildingID, usize)&gt;,
+    borders: MapBorders,
 }
 
-<span class="kw">impl</span> <span class="ident">Zone</span> {
-    <span class="kw">fn</span> <span class="ident">is_remote</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">pct_overlap</span> <span class="op">==</span> <span class="number">0.0</span>
-    }
+<span class="kw">impl </span>Zone {
+    <span class="kw">fn </span>is_remote(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.pct_overlap == <span class="number">0.0
+    </span>}
 }
 
-<span class="kw">fn</span> <span class="ident">create_zones</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">input</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Polygon</span><span class="op">&gt;</span>,
-    <span class="ident">include_zones</span>: <span class="ident">IncludeZonePolicy</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Zone</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">all_borders</span> <span class="op">=</span> <span class="ident">MapBorders::new</span>(<span class="ident">map</span>);
+<span class="kw">fn </span>create_zones(
+    map: <span class="kw-2">&amp;</span>Map,
+    input: HashMap&lt;String, Polygon&gt;,
+    include_zones: IncludeZonePolicy,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; HashMap&lt;String, Zone&gt; {
+    <span class="kw">let </span>all_borders = MapBorders::new(map);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">normal_zones</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">remote_zones</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">zone</span>) <span class="kw">in</span> <span class="ident">timer</span>
-        .<span class="ident">parallelize</span>(
+    <span class="kw">let </span><span class="kw-2">mut </span>normal_zones = HashMap::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>remote_zones = HashMap::new();
+    <span class="kw">for </span>(name, zone) <span class="kw">in </span>timer
+        .parallelize(
             <span class="string">&quot;create zones&quot;</span>,
-            <span class="ident">input</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-            <span class="op">|</span>(<span class="ident">name</span>, <span class="ident">polygon</span>)<span class="op">|</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">overlapping_area</span> <span class="op">=</span> <span class="number">0.0</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">intersection</span>(<span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>()) {
-                    <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">list</span> {
-                        <span class="ident">overlapping_area</span> <span class="op">+</span><span class="op">=</span> <span class="ident">p</span>.<span class="ident">area</span>();
+            input.into_iter().collect(),
+            |(name, polygon)| {
+                <span class="kw">let </span><span class="kw-2">mut </span>overlapping_area = <span class="number">0.0</span>;
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(list) = polygon.intersection(map.get_boundary_polygon()) {
+                    <span class="kw">for </span>p <span class="kw">in </span>list {
+                        overlapping_area += p.area();
                     }
                 }
-                <span class="comment">// Sometimes this is slightly over 100%, because funky things happen with the polygon</span>
-                <span class="comment">// intersection.</span>
-                <span class="kw">let</span> <span class="ident">pct_overlap</span> <span class="op">=</span> (<span class="ident">overlapping_area</span> <span class="op">/</span> <span class="ident">polygon</span>.<span class="ident">area</span>()).<span class="ident">min</span>(<span class="number">1.0</span>);
-                <span class="kw">let</span> <span class="ident">is_remote</span> <span class="op">=</span> <span class="ident">pct_overlap</span> <span class="op">==</span> <span class="number">0.0</span>;
+                <span class="comment">// Sometimes this is slightly over 100%, because funky things happen with the polygon
+                // intersection.
+                </span><span class="kw">let </span>pct_overlap = (overlapping_area / polygon.area()).min(<span class="number">1.0</span>);
+                <span class="kw">let </span>is_remote = pct_overlap == <span class="number">0.0</span>;
 
-                <span class="kw">if</span> <span class="ident">is_remote</span> <span class="op">&amp;&amp;</span> <span class="ident">include_zones</span> <span class="op">==</span> <span class="ident">IncludeZonePolicy::MustOverlap</span> {
-                    <span class="prelude-val">None</span>
-                } <span class="kw">else</span> {
-                    <span class="comment">// Multiple zones might all use the same border.</span>
-                    <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">polygon</span>.<span class="ident">center</span>();
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">all_borders</span>.<span class="ident">clone</span>();
-                    <span class="comment">// TODO For remote zones, we should at least prune for borders on the correct</span>
-                    <span class="comment">// &quot;side&quot; of the map. Or we can let fast_dist later take care of it.</span>
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">is_remote</span> {
-                        <span class="kw">for</span> <span class="ident">list</span> <span class="kw">in</span> <span class="macro">vec!</span>[
-                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_walking</span>,
-                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_driving</span>,
-                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">incoming_biking</span>,
-                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_walking</span>,
-                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_driving</span>,
-                            <span class="kw-2">&amp;mut</span> <span class="ident">borders</span>.<span class="ident">outgoing_biking</span>,
+                <span class="kw">if </span>is_remote &amp;&amp; include_zones == IncludeZonePolicy::MustOverlap {
+                    <span class="prelude-val">None
+                </span>} <span class="kw">else </span>{
+                    <span class="comment">// Multiple zones might all use the same border.
+                    </span><span class="kw">let </span>center = polygon.center();
+                    <span class="kw">let </span><span class="kw-2">mut </span>borders = all_borders.clone();
+                    <span class="comment">// TODO For remote zones, we should at least prune for borders on the correct
+                    // &quot;side&quot; of the map. Or we can let fast_dist later take care of it.
+                    </span><span class="kw">if </span>!is_remote {
+                        <span class="kw">for </span>list <span class="kw">in </span><span class="macro">vec!</span>[
+                            <span class="kw-2">&amp;mut </span>borders.incoming_walking,
+                            <span class="kw-2">&amp;mut </span>borders.incoming_driving,
+                            <span class="kw-2">&amp;mut </span>borders.incoming_biking,
+                            <span class="kw-2">&amp;mut </span>borders.outgoing_walking,
+                            <span class="kw-2">&amp;mut </span>borders.outgoing_driving,
+                            <span class="kw-2">&amp;mut </span>borders.outgoing_biking,
                         ] {
-                            <span class="comment">// If the zone partly overlaps, only keep borders physically in the</span>
-                            <span class="comment">// zone polygon</span>
-                            <span class="comment">// TODO If the intersection geometry happens to leak out of the map</span>
-                            <span class="comment">// boundary a bit, this could be wrong!</span>
-                            <span class="ident">list</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">border</span>.<span class="ident">pos</span>));
+                            <span class="comment">// If the zone partly overlaps, only keep borders physically in the
+                            // zone polygon
+                            // TODO If the intersection geometry happens to leak out of the map
+                            // boundary a bit, this could be wrong!
+                            </span>list.retain(|border| polygon.contains_pt(border.pos));
                         }
                     }
                     <span class="prelude-val">Some</span>((
-                        <span class="ident">name</span>,
-                        <span class="ident">Zone</span> {
-                            <span class="ident">polygon</span>,
-                            <span class="ident">center</span>,
-                            <span class="ident">pct_overlap</span>,
-                            <span class="ident">homes</span>: <span class="ident">Vec::new</span>(),
-                            <span class="ident">workplaces</span>: <span class="ident">Vec::new</span>(),
-                            <span class="ident">borders</span>,
+                        name,
+                        Zone {
+                            polygon,
+                            center,
+                            pct_overlap,
+                            homes: Vec::new(),
+                            workplaces: Vec::new(),
+                            borders,
                         },
                     ))
                 }
             },
         )
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">flatten</span>()
+        .into_iter()
+        .flatten()
     {
-        <span class="kw">if</span> <span class="ident">zone</span>.<span class="ident">is_remote</span>() {
-            <span class="ident">remote_zones</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">zone</span>);
-        } <span class="kw">else</span> {
-            <span class="ident">normal_zones</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">zone</span>);
+        <span class="kw">if </span>zone.is_remote() {
+            remote_zones.insert(name, zone);
+        } <span class="kw">else </span>{
+            normal_zones.insert(name, zone);
         }
     }
 
     <span class="macro">info!</span>(
         <span class="string">&quot;{} zones partly in the map boundary, {} remote zones&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">normal_zones</span>.<span class="ident">len</span>()),
-        <span class="ident">prettyprint_usize</span>(<span class="ident">remote_zones</span>.<span class="ident">len</span>())
+        prettyprint_usize(normal_zones.len()),
+        prettyprint_usize(remote_zones.len())
     );
 
-    <span class="comment">// Match all buildings to a normal zone.</span>
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;assign buildings to zones&quot;</span>, <span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">len</span>());
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>();
-        <span class="comment">// We&#39;re assuming zones don&#39;t overlap each other, so just look for the first match.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">zone</span>)) <span class="op">=</span> <span class="ident">normal_zones</span>
-            .<span class="ident">iter_mut</span>()
-            .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">z</span>)<span class="op">|</span> <span class="ident">z</span>.<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">center</span>))
+    <span class="comment">// Match all buildings to a normal zone.
+    </span>timer.start_iter(<span class="string">&quot;assign buildings to zones&quot;</span>, map.all_buildings().len());
+    <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+        timer.next();
+        <span class="kw">let </span>center = b.polygon.center();
+        <span class="comment">// We&#39;re assuming zones don&#39;t overlap each other, so just look for the first match.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, zone)) = normal_zones
+            .iter_mut()
+            .find(|(<span class="kw">_</span>, z)| z.polygon.contains_pt(center))
         {
-            <span class="kw">match</span> <span class="ident">b</span>.<span class="ident">bldg_type</span> {
-                <span class="comment">// The current heuristics for num_residents sometimes assign 0 people to a</span>
-                <span class="comment">// building. We never want that, so just scale them all up.</span>
-                <span class="ident">BuildingType::Residential</span> { <span class="ident">num_residents</span>, .. } =&gt; {
-                    <span class="ident">zone</span>.<span class="ident">homes</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">num_residents</span> <span class="op">+</span> <span class="number">1</span>));
+            <span class="kw">match </span>b.bldg_type {
+                <span class="comment">// The current heuristics for num_residents sometimes assign 0 people to a
+                // building. We never want that, so just scale them all up.
+                </span>BuildingType::Residential { num_residents, .. } =&gt; {
+                    zone.homes.push((b.id, num_residents + <span class="number">1</span>));
                 }
-                <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="ident">num_residents</span>, <span class="kw">_</span>) =&gt; {
-                    <span class="ident">zone</span>.<span class="ident">homes</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">num_residents</span> <span class="op">+</span> <span class="number">1</span>));
-                    <span class="comment">// We know how many different stores are located in each building, according to</span>
-                    <span class="comment">// OSM. A big mall might have 10 amenities, while standalone</span>
-                    <span class="comment">// shops just have 1.</span>
-                    <span class="ident">zone</span>.<span class="ident">workplaces</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>()));
+                BuildingType::ResidentialCommercial(num_residents, <span class="kw">_</span>) =&gt; {
+                    zone.homes.push((b.id, num_residents + <span class="number">1</span>));
+                    <span class="comment">// We know how many different stores are located in each building, according to
+                    // OSM. A big mall might have 10 amenities, while standalone
+                    // shops just have 1.
+                    </span>zone.workplaces.push((b.id, b.amenities.len()));
                 }
-                <span class="ident">BuildingType::Commercial</span>(<span class="kw">_</span>) =&gt; {
-                    <span class="ident">zone</span>.<span class="ident">workplaces</span>.<span class="ident">push</span>((<span class="ident">b</span>.<span class="ident">id</span>, <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">len</span>()));
+                BuildingType::Commercial(<span class="kw">_</span>) =&gt; {
+                    zone.workplaces.push((b.id, b.amenities.len()));
                 }
-                <span class="ident">BuildingType::Empty</span> =&gt; {}
+                BuildingType::Empty =&gt; {}
             }
         }
     }
 
-    <span class="ident">normal_zones</span>.<span class="ident">extend</span>(<span class="ident">remote_zones</span>);
-    <span class="ident">normal_zones</span>
+    normal_zones.extend(remote_zones);
+    normal_zones
 }
 
-<span class="kw">impl</span> <span class="ident">Zone</span> {
-    <span class="doccomment">/// Returns endpoints to (leave home, goto home). These&#39;re usually the same, except in some</span>
-    <span class="doccomment">/// cases of border trips using divided one-ways.</span>
-    <span class="kw">fn</span> <span class="ident">pick_home</span>(
+<span class="kw">impl </span>Zone {
+    <span class="doccomment">/// Returns endpoints to (leave home, goto home). These&#39;re usually the same, except in some
+    /// cases of border trips using divided one-ways.
+    </span><span class="kw">fn </span>pick_home(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="ident">TripEndpoint</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="self">self</span>.<span class="ident">pct_overlap</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">homes</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">homes</span>.<span class="ident">choose_weighted</span>(<span class="ident">rng</span>, <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">n</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
-            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>), <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>)));
+        mode: TripMode,
+        map: <span class="kw-2">&amp;</span>Map,
+        rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(TripEndpoint, TripEndpoint)&gt; {
+        <span class="kw">if </span>rng.gen_bool(<span class="self">self</span>.pct_overlap) &amp;&amp; !<span class="self">self</span>.homes.is_empty() {
+            <span class="kw">let </span>b = <span class="self">self</span>.homes.choose_weighted(rng, |(<span class="kw">_</span>, n)| <span class="kw-2">*</span>n).unwrap().<span class="number">0</span>;
+            <span class="kw">return </span><span class="prelude-val">Some</span>((TripEndpoint::Building(b), TripEndpoint::Building(b)));
         }
-        <span class="self">self</span>.<span class="ident">pick_borders</span>(<span class="ident">mode</span>, <span class="ident">map</span>, <span class="ident">rng</span>)
+        <span class="self">self</span>.pick_borders(mode, map, rng)
     }
 
-    <span class="doccomment">/// Returns endpoints to (leave work, goto work). These&#39;re usually the same, except in some</span>
-    <span class="doccomment">/// cases of border trips using divided one-ways.</span>
-    <span class="kw">fn</span> <span class="ident">pick_workplace</span>(
+    <span class="doccomment">/// Returns endpoints to (leave work, goto work). These&#39;re usually the same, except in some
+    /// cases of border trips using divided one-ways.
+    </span><span class="kw">fn </span>pick_workplace(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="ident">TripEndpoint</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="self">self</span>.<span class="ident">pct_overlap</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">workplaces</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">workplaces</span>.<span class="ident">choose_weighted</span>(<span class="ident">rng</span>, <span class="op">|</span>(<span class="kw">_</span>, <span class="ident">n</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">n</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
-            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>), <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>)));
+        mode: TripMode,
+        map: <span class="kw-2">&amp;</span>Map,
+        rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(TripEndpoint, TripEndpoint)&gt; {
+        <span class="kw">if </span>rng.gen_bool(<span class="self">self</span>.pct_overlap) &amp;&amp; !<span class="self">self</span>.workplaces.is_empty() {
+            <span class="kw">let </span>b = <span class="self">self</span>.workplaces.choose_weighted(rng, |(<span class="kw">_</span>, n)| <span class="kw-2">*</span>n).unwrap().<span class="number">0</span>;
+            <span class="kw">return </span><span class="prelude-val">Some</span>((TripEndpoint::Building(b), TripEndpoint::Building(b)));
         }
-        <span class="self">self</span>.<span class="ident">pick_borders</span>(<span class="ident">mode</span>, <span class="ident">map</span>, <span class="ident">rng</span>)
+        <span class="self">self</span>.pick_borders(mode, map, rng)
     }
 
-    <span class="kw">fn</span> <span class="ident">pick_borders</span>(
+    <span class="kw">fn </span>pick_borders(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">TripEndpoint</span>, <span class="ident">TripEndpoint</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> (<span class="ident">incoming</span>, <span class="ident">outgoing</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">borders</span>.<span class="ident">for_mode</span>(<span class="ident">mode</span>);
+        mode: TripMode,
+        map: <span class="kw-2">&amp;</span>Map,
+        rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;(TripEndpoint, TripEndpoint)&gt; {
+        <span class="kw">let </span>(incoming, outgoing) = <span class="self">self</span>.borders.for_mode(mode);
 
-        <span class="kw">let</span> <span class="ident">leave_i</span> <span class="op">=</span> <span class="ident">incoming</span>
-            .<span class="ident">choose_weighted</span>(<span class="ident">rng</span>, <span class="op">|</span><span class="ident">border</span><span class="op">|</span> {
-                (<span class="ident">border</span>.<span class="ident">weight</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">center</span>.<span class="ident">fast_dist</span>(<span class="ident">border</span>.<span class="ident">pos</span>).<span class="ident">into_inner</span>()
+        <span class="kw">let </span>leave_i = incoming
+            .choose_weighted(rng, |border| {
+                (border.weight <span class="kw">as </span>f64) * <span class="self">self</span>.center.fast_dist(border.pos).into_inner()
             })
-            .<span class="ident">ok</span>()<span class="question-mark">?</span>
-            .<span class="ident">i</span>;
+            .ok()<span class="question-mark">?
+            </span>.i;
 
-        <span class="comment">// If we can use the same border on the way back, prefer that.</span>
-        <span class="kw">if</span> <span class="ident">outgoing</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">border</span>.<span class="ident">i</span> <span class="op">==</span> <span class="ident">leave_i</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">TripEndpoint::Border</span>(<span class="ident">leave_i</span>), <span class="ident">TripEndpoint::Border</span>(<span class="ident">leave_i</span>)));
+        <span class="comment">// If we can use the same border on the way back, prefer that.
+        </span><span class="kw">if </span>outgoing.iter().any(|border| border.i == leave_i) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>((TripEndpoint::Border(leave_i), TripEndpoint::Border(leave_i)));
         }
-        <span class="comment">// Otherwise, we might have to use a separate border to re-enter. Prefer the one closest to</span>
-        <span class="comment">// the first, to have a better chance of matching up divided one-ways.</span>
-        <span class="kw">let</span> <span class="ident">leave_pt</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">leave_i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>();
-        <span class="kw">let</span> <span class="ident">goto_i</span> <span class="op">=</span> <span class="ident">outgoing</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">border</span>.<span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>().<span class="ident">dist_to</span>(<span class="ident">leave_pt</span>))<span class="question-mark">?</span>
-            .<span class="ident">i</span>;
-        <span class="prelude-val">Some</span>((<span class="ident">TripEndpoint::Border</span>(<span class="ident">leave_i</span>), <span class="ident">TripEndpoint::Border</span>(<span class="ident">goto_i</span>)))
+        <span class="comment">// Otherwise, we might have to use a separate border to re-enter. Prefer the one closest to
+        // the first, to have a better chance of matching up divided one-ways.
+        </span><span class="kw">let </span>leave_pt = map.get_i(leave_i).polygon.center();
+        <span class="kw">let </span>goto_i = outgoing
+            .iter()
+            .min_by_key(|border| map.get_i(border.i).polygon.center().dist_to(leave_pt))<span class="question-mark">?
+            </span>.i;
+        <span class="prelude-val">Some</span>((TripEndpoint::Border(leave_i), TripEndpoint::Border(goto_i)))
     }
 }
 
-<span class="doccomment">/// A normal distribution of Durations.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NormalDistribution</span> {
-    <span class="kw">pub</span> <span class="ident">mean</span>: <span class="ident">Duration</span>,
-    <span class="kw">pub</span> <span class="ident">std_deviation</span>: <span class="ident">Duration</span>,
+<span class="doccomment">/// A normal distribution of Durations.
+</span><span class="kw">pub struct </span>NormalDistribution {
+    <span class="kw">pub </span>mean: Duration,
+    <span class="kw">pub </span>std_deviation: Duration,
 }
 
-<span class="kw">impl</span> <span class="ident">NormalDistribution</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">mean</span>: <span class="ident">Duration</span>, <span class="ident">std_deviation</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">NormalDistribution</span> {
-        <span class="ident">NormalDistribution</span> {
-            <span class="ident">mean</span>,
-            <span class="ident">std_deviation</span>,
+<span class="kw">impl </span>NormalDistribution {
+    <span class="kw">pub fn </span>new(mean: Duration, std_deviation: Duration) -&gt; NormalDistribution {
+        NormalDistribution {
+            mean,
+            std_deviation,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="kw">use</span> <span class="ident">rand_distr</span>::{<span class="ident">Distribution</span>, <span class="ident">Normal</span>};
+    <span class="kw">pub fn </span>sample(<span class="kw-2">&amp;</span><span class="self">self</span>, rng: <span class="kw-2">&amp;mut </span>XorShiftRng) -&gt; Duration {
+        <span class="kw">use </span>rand_distr::{Distribution, Normal};
 
-        <span class="ident">Duration::seconds</span>(
-            <span class="ident">Normal::new</span>(
-                <span class="self">self</span>.<span class="ident">mean</span>.<span class="ident">inner_seconds</span>(),
-                <span class="self">self</span>.<span class="ident">std_deviation</span>.<span class="ident">inner_seconds</span>(),
+        Duration::seconds(
+            Normal::new(
+                <span class="self">self</span>.mean.inner_seconds(),
+                <span class="self">self</span>.std_deviation.inner_seconds(),
             )
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">sample</span>(<span class="ident">rng</span>),
+            .unwrap()
+            .sample(rng),
         )
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

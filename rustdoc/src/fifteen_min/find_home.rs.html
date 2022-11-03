@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/fifteen_min/src/find_home.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>find_home.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fifteen_min/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fifteen_min/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fifteen_min/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/fifteen_min/src/find_home.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>find_home.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fifteen_min/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fifteen_min/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fifteen_min/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -195,202 +195,202 @@
 <span id="195">195</span>
 <span id="196">196</span>
 <span id="197">197</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom::Percent</span>;
-<span class="kw">use</span> <span class="ident">map_model::connectivity::Spot</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AmenityType</span>, <span class="ident">BuildingID</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>,
-    <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Transition</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span><span class="kw">crate</span>::App;
+<span class="kw">use </span>abstutil::{prettyprint_usize, Counter, Timer};
+<span class="kw">use </span>geom::Percent;
+<span class="kw">use </span>map_model::connectivity::Spot;
+<span class="kw">use </span>map_model::{AmenityType, BuildingID};
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, HorizontalAlignment, Key, Line, Panel,
+    SimpleState, State, TextExt, Toggle, Transition, VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::isochrone::Options</span>;
+<span class="kw">use </span><span class="kw">crate</span>::isochrone::Options;
 
-<span class="doccomment">/// Ask what types of amenities are necessary to be within a walkshed, then rank every house with</span>
-<span class="doccomment">/// how many of those needs are satisfied.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FindHome</span> {
-    <span class="ident">options</span>: <span class="ident">Options</span>,
+<span class="doccomment">/// Ask what types of amenities are necessary to be within a walkshed, then rank every house with
+/// how many of those needs are satisfied.
+</span><span class="kw">pub struct </span>FindHome {
+    options: Options,
 }
 
-<span class="kw">impl</span> <span class="ident">FindHome</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">options</span>: <span class="ident">Options</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Find your walkable home&quot;</span>)
-                    .<span class="ident">small_heading</span>()
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+<span class="kw">impl </span>FindHome {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, options: Options) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Find your walkable home&quot;</span>)
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="comment">// TODO Adjust text to say bikeshed, or otherwise reflect the options chosen</span>
-            <span class="string">&quot;Select the types of businesses you want within a 15 minute walkshed.&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::custom_row</span>(
-                <span class="ident">AmenityType::all</span>()
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">at</span><span class="op">|</span> <span class="ident">Toggle::switch</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">at</span>.<span class="ident">to_string</span>(), <span class="prelude-val">None</span>, <span class="bool-val">false</span>))
-                    .<span class="ident">collect</span>(),
+            <span class="comment">// TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
+            </span><span class="string">&quot;Select the types of businesses you want within a 15 minute walkshed.&quot;</span>.text_widget(ctx),
+            Widget::custom_row(
+                AmenityType::all()
+                    .into_iter()
+                    .map(|at| Toggle::switch(ctx, <span class="kw-2">&amp;</span>at.to_string(), <span class="prelude-val">None</span>, <span class="bool-val">false</span>))
+                    .collect(),
             )
-            .<span class="ident">flex_wrap</span>(<span class="ident">ctx</span>, <span class="ident">Percent::int</span>(<span class="number">50</span>)),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Search&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            .flex_wrap(ctx, Percent::int(<span class="number">50</span>)),
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Search&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .build(ctx);
 
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">FindHome</span> { <span class="ident">options</span> }))
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(panel, Box::new(FindHome { options }))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FindHome</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Search&quot;</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AmenityType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">AmenityType::all</span>()
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">at</span><span class="op">|</span> <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="kw-2">&amp;</span><span class="ident">at</span>.<span class="ident">to_string</span>()))
-                    .<span class="ident">collect</span>();
-                <span class="kw">if</span> <span class="ident">amenities</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                        <span class="ident">ctx</span>,
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>FindHome {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition&lt;App&gt; {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;Search&quot; </span>=&gt; {
+                <span class="kw">let </span>amenities: Vec&lt;AmenityType&gt; = AmenityType::all()
+                    .into_iter()
+                    .filter(|at| panel.is_checked(<span class="kw-2">&amp;</span>at.to_string()))
+                    .collect();
+                <span class="kw">if </span>amenities.is_empty() {
+                    <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
+                        ctx,
                         <span class="string">&quot;No amenities selected&quot;</span>,
                         <span class="macro">vec!</span>[<span class="string">&quot;Please select at least one amenity that you want in your walkshd&quot;</span>],
                     ));
                 }
 
-                <span class="kw">let</span> <span class="ident">scores</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;search for houses&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-                    <span class="ident">score_houses</span>(<span class="ident">app</span>, <span class="ident">amenities</span>.<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">options</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>)
+                <span class="kw">let </span>scores = ctx.loading_screen(<span class="string">&quot;search for houses&quot;</span>, |<span class="kw">_</span>, timer| {
+                    score_houses(app, amenities.clone(), <span class="self">self</span>.options.clone(), timer)
                 });
-                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Results::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">scores</span>, <span class="ident">amenities</span>));
+                <span class="kw">return </span>Transition::Push(Results::new_state(ctx, app, scores, amenities));
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 }
 
-<span class="doccomment">/// For every house in the map, return the percent of amenities located within a 15min walkshed. A</span>
-<span class="doccomment">/// single matching business per category is enough to count as satisfied.</span>
-<span class="kw">fn</span> <span class="ident">score_houses</span>(
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AmenityType</span><span class="op">&gt;</span>,
-    <span class="ident">options</span>: <span class="ident">Options</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">Percent</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">num_categories</span> <span class="op">=</span> <span class="ident">amenities</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">satisfied_per_bldg</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
+<span class="doccomment">/// For every house in the map, return the percent of amenities located within a 15min walkshed. A
+/// single matching business per category is enough to count as satisfied.
+</span><span class="kw">fn </span>score_houses(
+    app: <span class="kw-2">&amp;</span>App,
+    amenities: Vec&lt;AmenityType&gt;,
+    options: Options,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; HashMap&lt;BuildingID, Percent&gt; {
+    <span class="kw">let </span>num_categories = amenities.len();
+    <span class="kw">let </span><span class="kw-2">mut </span>satisfied_per_bldg: Counter&lt;BuildingID&gt; = Counter::new();
 
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">map</span>;
-    <span class="kw">for</span> <span class="ident">times</span> <span class="kw">in</span> <span class="ident">timer</span>.<span class="ident">parallelize</span>(<span class="string">&quot;find houses close to amenities&quot;</span>, <span class="ident">amenities</span>, <span class="op">|</span><span class="ident">category</span><span class="op">|</span> {
-        <span class="comment">// For each category, find all matching stores</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stores</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">has_amenity</span>(<span class="ident">category</span>) {
-                <span class="ident">stores</span>.<span class="ident">push</span>(<span class="ident">Spot::Building</span>(<span class="ident">b</span>.<span class="ident">id</span>));
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.map;
+    <span class="kw">for </span>times <span class="kw">in </span>timer.parallelize(<span class="string">&quot;find houses close to amenities&quot;</span>, amenities, |category| {
+        <span class="comment">// For each category, find all matching stores
+        </span><span class="kw">let </span><span class="kw-2">mut </span>stores = Vec::new();
+        <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+            <span class="kw">if </span>b.has_amenity(category) {
+                stores.push(Spot::Building(b.id));
             }
         }
-        <span class="ident">options</span>.<span class="ident">movement</span>.<span class="ident">clone</span>().<span class="ident">times_from</span>(<span class="ident">map</span>, <span class="ident">stores</span>)
+        options.movement.clone().times_from(map, stores)
     }) {
-        <span class="kw">for</span> (<span class="ident">b</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">times</span> {
-            <span class="ident">satisfied_per_bldg</span>.<span class="ident">inc</span>(<span class="ident">b</span>);
+        <span class="kw">for </span>(b, <span class="kw">_</span>) <span class="kw">in </span>times {
+            satisfied_per_bldg.inc(b);
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scores</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">cnt</span>) <span class="kw">in</span> <span class="ident">satisfied_per_bldg</span>.<span class="ident">consume</span>() {
-        <span class="ident">scores</span>.<span class="ident">insert</span>(<span class="ident">b</span>, <span class="ident">Percent::of</span>(<span class="ident">cnt</span>, <span class="ident">num_categories</span>));
+    <span class="kw">let </span><span class="kw-2">mut </span>scores = HashMap::new();
+    <span class="kw">for </span>(b, cnt) <span class="kw">in </span>satisfied_per_bldg.consume() {
+        scores.insert(b, Percent::of(cnt, num_categories));
     }
-    <span class="ident">scores</span>
+    scores
 }
 
-<span class="comment">// TODO Show the matching amenities.</span>
-<span class="comment">// TODO As you hover over a building, show the nearest amenity of each type</span>
-<span class="kw">struct</span> <span class="ident">Results</span> {
-    <span class="ident">draw_houses</span>: <span class="ident">Drawable</span>,
+<span class="comment">// TODO Show the matching amenities.
+// TODO As you hover over a building, show the nearest amenity of each type
+</span><span class="kw">struct </span>Results {
+    draw_houses: Drawable,
 }
 
-<span class="kw">impl</span> <span class="ident">Results</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">scores</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">Percent</span><span class="op">&gt;</span>,
-        <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AmenityType</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO Show imperfect matches with different colors.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="ident">b</span>, <span class="ident">pct</span>) <span class="kw">in</span> <span class="ident">scores</span> {
-            <span class="kw">if</span> <span class="ident">pct</span> <span class="op">==</span> <span class="ident">Percent::int</span>(<span class="number">100</span>) {
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">Color::RED</span>, <span class="ident">app</span>.<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
-                <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+<span class="kw">impl </span>Results {
+    <span class="kw">fn </span>new_state(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        scores: HashMap&lt;BuildingID, Percent&gt;,
+        amenities: Vec&lt;AmenityType&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="comment">// TODO Show imperfect matches with different colors.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>count = <span class="number">0</span>;
+        <span class="kw">for </span>(b, pct) <span class="kw">in </span>scores {
+            <span class="kw">if </span>pct == Percent::int(<span class="number">100</span>) {
+                batch.push(Color::RED, app.map.get_b(b).polygon.clone());
+                count += <span class="number">1</span>;
             }
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Results for your walkable home&quot;</span>)
-                .<span class="ident">small_heading</span>()
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="comment">// TODO Adjust text to say bikeshed, or otherwise reflect the options chosen</span>
-            <span class="macro">format!</span>(<span class="string">&quot;{} houses match&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">count</span>)).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Results for your walkable home&quot;</span>)
+                .small_heading()
+                .into_widget(ctx),
+            <span class="comment">// TODO Adjust text to say bikeshed, or otherwise reflect the options chosen
+            </span><span class="macro">format!</span>(<span class="string">&quot;{} houses match&quot;</span>, prettyprint_usize(count)).text_widget(ctx),
             <span class="macro">format!</span>(
                 <span class="string">&quot;Containing at least 1 of each: {}&quot;</span>,
-                <span class="ident">amenities</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>())
-                    .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-                    .<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>)
+                amenities
+                    .into_iter()
+                    .map(|x| x.to_string())
+                    .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;()
+                    .join(<span class="string">&quot;, &quot;</span>)
             )
-            .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_outline</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Back&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            .text_widget(ctx),
+            ctx.style()
+                .btn_outline
+                .text(<span class="string">&quot;Back&quot;</span>)
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ]))
-        .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::RightInset</span>, <span class="ident">VerticalAlignment::TopInset</span>)
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
+        .aligned(HorizontalAlignment::RightInset, VerticalAlignment::TopInset)
+        .build(ctx);
 
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-            <span class="ident">panel</span>,
-            <span class="ident">Box::new</span>(<span class="ident">Results</span> {
-                <span class="ident">draw_houses</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(
+            panel,
+            Box::new(Results {
+                draw_houses: ctx.upload(batch),
             }),
         )
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Results</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;Back&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>Results {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition&lt;App&gt; {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;Back&quot; </span>=&gt; Transition::Pop,
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">other_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
-        <span class="ident">Transition::Keep</span>
+    <span class="kw">fn </span>other_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>App) -&gt; Transition&lt;App&gt; {
+        ctx.canvas_movement();
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_houses</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_houses);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fifteen_min" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fifteen_min" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

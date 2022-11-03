@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/zone.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>zone.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/zone.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>zone.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -91,98 +91,98 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Zones and AccessRestrictions are used to model things like:</span>
-<span class="doccomment">//! 1) gated communities, where only trips beginning or ending at a building in the neighborhood may</span>
-<span class="doccomment">//!    use any of the private roads</span>
-<span class="doccomment">//! 2) Stay Healthy Streets, where most car traffic is banned, except for trips beginning/ending in</span>
-<span class="doccomment">//!    the zone</span>
-<span class="doccomment">//! 3) Congestion capping, where only so many cars per hour can enter the zone</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Zones and AccessRestrictions are used to model things like:
+//! 1) gated communities, where only trips beginning or ending at a building in the neighborhood may
+//!    use any of the private roads
+//! 2) Stay Healthy Streets, where most car traffic is banned, except for trips beginning/ending in
+//!    the zone
+//! 3) Congestion capping, where only so many cars per hour can enter the zone
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</span><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">enumset::EnumSet</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>enumset::EnumSet;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CommonEndpoint</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>};
+<span class="kw">use crate</span>::{CommonEndpoint, IntersectionID, Map, PathConstraints, RoadID};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AccessRestrictions</span> {
-    <span class="kw">pub</span> <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+</span><span class="kw">pub struct </span>AccessRestrictions {
+    <span class="kw">pub </span>allow_through_traffic: EnumSet&lt;PathConstraints&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">AccessRestrictions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">AccessRestrictions</span> {
-        <span class="ident">AccessRestrictions</span> {
-            <span class="ident">allow_through_traffic</span>: <span class="ident">EnumSet::all</span>(),
+<span class="kw">impl </span>AccessRestrictions {
+    <span class="kw">pub fn </span>new() -&gt; AccessRestrictions {
+        AccessRestrictions {
+            allow_through_traffic: EnumSet::all(),
         }
     }
 }
 
-<span class="doccomment">/// A contiguous set of roads with access restrictions. This is derived from all the map&#39;s roads and</span>
-<span class="doccomment">/// kept cached for performance.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Zone</span> {
-    <span class="kw">pub</span> <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">borders</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">restrictions</span>: <span class="ident">AccessRestrictions</span>,
+<span class="doccomment">/// A contiguous set of roads with access restrictions. This is derived from all the map&#39;s roads and
+/// kept cached for performance.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>Zone {
+    <span class="kw">pub </span>members: BTreeSet&lt;RoadID&gt;,
+    <span class="kw">pub </span>borders: BTreeSet&lt;IntersectionID&gt;,
+    <span class="kw">pub </span>restrictions: AccessRestrictions,
 }
 
-<span class="kw">impl</span> <span class="ident">Zone</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_all</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Zone</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_private</span>() {
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+<span class="kw">impl </span>Zone {
+    <span class="kw">pub fn </span>make_all(map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;Zone&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>queue = Vec::new();
+        <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+            <span class="kw">if </span>r.is_private() {
+                queue.push(r.id);
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zones</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>zones = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>seen = BTreeSet::new();
+        <span class="kw">while </span>!queue.is_empty() {
+            <span class="kw">let </span>start = queue.pop().unwrap();
+            <span class="kw">if </span>seen.contains(<span class="kw-2">&amp;</span>start) {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">zone</span> <span class="op">=</span> <span class="ident">floodfill</span>(<span class="ident">map</span>, <span class="ident">start</span>);
-            <span class="ident">seen</span>.<span class="ident">extend</span>(<span class="ident">zone</span>.<span class="ident">members</span>.<span class="ident">clone</span>());
-            <span class="ident">zones</span>.<span class="ident">push</span>(<span class="ident">zone</span>);
+            <span class="kw">let </span>zone = floodfill(map, start);
+            seen.extend(zone.members.clone());
+            zones.push(zone);
         }
 
-        <span class="ident">zones</span>
+        zones
     }
 }
 
-<span class="kw">fn</span> <span class="ident">floodfill</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">Zone</span> {
-    <span class="kw">let</span> <span class="ident">match_constraints</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">start</span>).<span class="ident">access_restrictions</span>.<span class="ident">clone</span>();
-    <span class="kw">let</span> <span class="ident">merge_zones</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">merge_zones</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">start</span>];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">members</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-    <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>) {
+<span class="kw">fn </span>floodfill(map: <span class="kw-2">&amp;</span>Map, start: RoadID) -&gt; Zone {
+    <span class="kw">let </span>match_constraints = map.get_r(start).access_restrictions.clone();
+    <span class="kw">let </span>merge_zones = map.get_edits().merge_zones;
+    <span class="kw">let </span><span class="kw-2">mut </span>queue = <span class="macro">vec!</span>[start];
+    <span class="kw">let </span><span class="kw-2">mut </span>members = BTreeSet::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>borders = BTreeSet::new();
+    <span class="kw">while </span>!queue.is_empty() {
+        <span class="kw">let </span>current = queue.pop().unwrap();
+        <span class="kw">if </span>members.contains(<span class="kw-2">&amp;</span>current) {
             <span class="kw">continue</span>;
         }
-        <span class="ident">members</span>.<span class="ident">insert</span>(<span class="ident">current</span>);
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_next_roads</span>(<span class="ident">current</span>) {
-            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">access_restrictions</span> <span class="op">==</span> <span class="ident">match_constraints</span> <span class="op">&amp;&amp;</span> <span class="ident">merge_zones</span> {
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">r</span>.<span class="ident">id</span>);
-            } <span class="kw">else</span> {
-                <span class="comment">// TODO Handle other cases</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">CommonEndpoint::One</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">current</span>).<span class="ident">common_endpoint</span>(<span class="ident">r</span>) {
-                    <span class="ident">borders</span>.<span class="ident">insert</span>(<span class="ident">i</span>);
+        members.insert(current);
+        <span class="kw">for </span>r <span class="kw">in </span>map.get_next_roads(current) {
+            <span class="kw">let </span>r = map.get_r(r);
+            <span class="kw">if </span>r.access_restrictions == match_constraints &amp;&amp; merge_zones {
+                queue.push(r.id);
+            } <span class="kw">else </span>{
+                <span class="comment">// TODO Handle other cases
+                </span><span class="kw">if let </span>CommonEndpoint::One(i) = map.get_r(current).common_endpoint(r) {
+                    borders.insert(i);
                 }
             }
         }
     }
-    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">members</span>.<span class="ident">is_empty</span>());
-    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">borders</span>.<span class="ident">is_empty</span>());
-    <span class="ident">Zone</span> {
-        <span class="ident">members</span>,
-        <span class="ident">borders</span>,
-        <span class="ident">restrictions</span>: <span class="ident">match_constraints</span>,
+    <span class="macro">assert!</span>(!members.is_empty());
+    <span class="macro">assert!</span>(!borders.is_empty());
+    Zone {
+        members,
+        borders,
+        restrictions: match_constraints,
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

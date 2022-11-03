@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/connectivity/walking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/connectivity/walking.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -190,197 +190,197 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BinaryHeap, HashMap, HashSet};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">PriorityQueueItem</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>};
+<span class="kw">use </span>abstutil::{MultiMap, PriorityQueueItem};
+<span class="kw">use </span>geom::{Duration, Speed};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connectivity::Spot</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{<span class="ident">zone_cost</span>, <span class="ident">WalkingNode</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">BuildingID</span>, <span class="ident">Lane</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathStep</span>};
+<span class="kw">use </span><span class="kw">crate</span>::connectivity::Spot;
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::{zone_cost, WalkingNode};
+<span class="kw">use crate</span>::{BuildingID, Lane, LaneType, Map, PathConstraints, PathStep};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WalkingOptions</span> {
-    <span class="doccomment">/// If true, allow walking on shoulders.</span>
-    <span class="kw">pub</span> <span class="ident">allow_shoulders</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">walking_speed</span>: <span class="ident">Speed</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>WalkingOptions {
+    <span class="doccomment">/// If true, allow walking on shoulders.
+    </span><span class="kw">pub </span>allow_shoulders: bool,
+    <span class="kw">pub </span>walking_speed: Speed,
 }
 
-<span class="kw">impl</span> <span class="ident">WalkingOptions</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">WalkingOptions</span> {
-        <span class="ident">WalkingOptions</span> {
-            <span class="ident">allow_shoulders</span>: <span class="bool-val">true</span>,
-            <span class="ident">walking_speed</span>: <span class="ident">WalkingOptions::default_speed</span>(),
+<span class="kw">impl </span>WalkingOptions {
+    <span class="kw">pub fn </span>default() -&gt; WalkingOptions {
+        WalkingOptions {
+            allow_shoulders: <span class="bool-val">true</span>,
+            walking_speed: WalkingOptions::default_speed(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">common_speeds</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>, <span class="ident">Speed</span>)<span class="op">&gt;</span> {
+    <span class="kw">pub fn </span>common_speeds() -&gt; Vec&lt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str, Speed)&gt; {
         <span class="macro">vec!</span>[
-            (<span class="string">&quot;3 mph (average for an adult)&quot;</span>, <span class="ident">Speed::miles_per_hour</span>(<span class="number">3.0</span>)),
-            (<span class="string">&quot;1 mph (manual wheelchair)&quot;</span>, <span class="ident">Speed::miles_per_hour</span>(<span class="number">1.0</span>)),
-            (<span class="string">&quot;5 mph (moderate jog)&quot;</span>, <span class="ident">Speed::miles_per_hour</span>(<span class="number">5.0</span>)),
+            (<span class="string">&quot;3 mph (average for an adult)&quot;</span>, Speed::miles_per_hour(<span class="number">3.0</span>)),
+            (<span class="string">&quot;1 mph (manual wheelchair)&quot;</span>, Speed::miles_per_hour(<span class="number">1.0</span>)),
+            (<span class="string">&quot;5 mph (moderate jog)&quot;</span>, Speed::miles_per_hour(<span class="number">5.0</span>)),
         ]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_speed</span>() -&gt; <span class="ident">Speed</span> {
-        <span class="ident">WalkingOptions::common_speeds</span>()[<span class="number">0</span>].<span class="number">1</span>
-    }
+    <span class="kw">pub fn </span>default_speed() -&gt; Speed {
+        WalkingOptions::common_speeds()[<span class="number">0</span>].<span class="number">1
+    </span>}
 }
 
-<span class="doccomment">/// Starting from some initial buildings, calculate the cost to all others. If a destination isn&#39;t</span>
-<span class="doccomment">/// reachable, it won&#39;t be included in the results. Ignore results greater than the time_limit</span>
-<span class="doccomment">/// away.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// If all of the start buildings are on the shoulder of a road and `!opts.allow_shoulders`, then</span>
-<span class="doccomment">/// the results will always be empty.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_walking_costs_from</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">starts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Spot</span><span class="op">&gt;</span>,
-    <span class="ident">time_limit</span>: <span class="ident">Duration</span>,
-    <span class="ident">opts</span>: <span class="ident">WalkingOptions</span>,
-) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">PriorityQueueItem</span><span class="op">&lt;</span><span class="ident">Duration</span>, <span class="ident">WalkingNode</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BinaryHeap::new</span>();
+<span class="doccomment">/// Starting from some initial buildings, calculate the cost to all others. If a destination isn&#39;t
+/// reachable, it won&#39;t be included in the results. Ignore results greater than the time_limit
+/// away.
+///
+/// If all of the start buildings are on the shoulder of a road and `!opts.allow_shoulders`, then
+/// the results will always be empty.
+</span><span class="kw">pub fn </span>all_walking_costs_from(
+    map: <span class="kw-2">&amp;</span>Map,
+    starts: Vec&lt;Spot&gt;,
+    time_limit: Duration,
+    opts: WalkingOptions,
+) -&gt; HashMap&lt;BuildingID, Duration&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>queue: BinaryHeap&lt;PriorityQueueItem&lt;Duration, WalkingNode&gt;&gt; = BinaryHeap::new();
 
-    <span class="kw">for</span> <span class="ident">spot</span> <span class="kw">in</span> <span class="ident">starts</span> {
-        <span class="kw">match</span> <span class="ident">spot</span> {
-            <span class="ident">Spot::Building</span>(<span class="ident">b_id</span>) =&gt; {
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
-                    <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
-                    <span class="ident">value</span>: <span class="ident">WalkingNode::closest</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b_id</span>).<span class="ident">sidewalk_pos</span>, <span class="ident">map</span>),
+    <span class="kw">for </span>spot <span class="kw">in </span>starts {
+        <span class="kw">match </span>spot {
+            Spot::Building(b_id) =&gt; {
+                queue.push(PriorityQueueItem {
+                    cost: Duration::ZERO,
+                    value: WalkingNode::closest(map.get_b(b_id).sidewalk_pos, map),
                 });
             }
-            <span class="ident">Spot::Border</span>(<span class="ident">i_id</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">intersection</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i_id</span>);
-                <span class="kw">let</span> <span class="ident">incoming_lanes</span> <span class="op">=</span> <span class="ident">intersection</span>.<span class="ident">incoming_lanes</span>.<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">outgoing_lanes</span> <span class="op">=</span> <span class="ident">intersection</span>.<span class="ident">outgoing_lanes</span>.<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_lanes</span> <span class="op">=</span> <span class="ident">incoming_lanes</span>;
-                <span class="ident">all_lanes</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">outgoing_lanes</span>);
-                <span class="kw">let</span> <span class="ident">walkable_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">all_lanes</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l_id</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l_id</span>))
-                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>())
-                    .<span class="ident">collect</span>();
-                <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="ident">walkable_lanes</span> {
-                    <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
-                        <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
-                        <span class="ident">value</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(
-                            <span class="ident">lane</span>.<span class="ident">get_directed_parent</span>(),
-                            <span class="ident">lane</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i_id</span>,
+            Spot::Border(i_id) =&gt; {
+                <span class="kw">let </span>intersection = map.get_i(i_id);
+                <span class="kw">let </span>incoming_lanes = intersection.incoming_lanes.clone();
+                <span class="kw">let </span><span class="kw-2">mut </span>outgoing_lanes = intersection.outgoing_lanes.clone();
+                <span class="kw">let </span><span class="kw-2">mut </span>all_lanes = incoming_lanes;
+                all_lanes.append(<span class="kw-2">&amp;mut </span>outgoing_lanes);
+                <span class="kw">let </span>walkable_lanes: Vec&lt;<span class="kw-2">&amp;</span>Lane&gt; = all_lanes
+                    .into_iter()
+                    .map(|l_id| map.get_l(l_id))
+                    .filter(|l| l.is_walkable())
+                    .collect();
+                <span class="kw">for </span>lane <span class="kw">in </span>walkable_lanes {
+                    queue.push(PriorityQueueItem {
+                        cost: Duration::ZERO,
+                        value: WalkingNode::SidewalkEndpoint(
+                            lane.get_directed_parent(),
+                            lane.src_i == i_id,
                         ),
                     });
                 }
             }
-            <span class="ident">Spot::DirectedRoad</span>(<span class="ident">dr</span>) =&gt; {
-                <span class="comment">// Start from either end</span>
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
-                    <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
-                    <span class="ident">value</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="bool-val">false</span>),
+            Spot::DirectedRoad(dr) =&gt; {
+                <span class="comment">// Start from either end
+                </span>queue.push(PriorityQueueItem {
+                    cost: Duration::ZERO,
+                    value: WalkingNode::SidewalkEndpoint(dr, <span class="bool-val">false</span>),
                 });
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
-                    <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
-                    <span class="ident">value</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="bool-val">true</span>),
+                queue.push(PriorityQueueItem {
+                    cost: Duration::ZERO,
+                    value: WalkingNode::SidewalkEndpoint(dr, <span class="bool-val">true</span>),
                 });
             }
         }
     }
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">allow_shoulders</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shoulder_endpoint</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">q</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">queue</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dir_r</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">q</span>.<span class="ident">value</span> {
-                <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dir_r</span>.<span class="ident">road</span>).<span class="ident">lanes</span> {
-                    <span class="ident">shoulder_endpoint</span>.<span class="ident">push</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Shoulder</span>);
+    <span class="kw">if </span>!opts.allow_shoulders {
+        <span class="kw">let </span><span class="kw-2">mut </span>shoulder_endpoint = Vec::new();
+        <span class="kw">for </span>q <span class="kw">in </span><span class="kw-2">&amp;</span>queue {
+            <span class="kw">if let </span>WalkingNode::SidewalkEndpoint(dir_r, <span class="kw">_</span>) = q.value {
+                <span class="kw">for </span>lane <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_r(dir_r.road).lanes {
+                    shoulder_endpoint.push(lane.lane_type == LaneType::Shoulder);
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">shoulder_endpoint</span>.<span class="ident">into_iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>) {
-            <span class="kw">return</span> <span class="ident">HashMap::new</span>();
+        <span class="kw">if </span>shoulder_endpoint.into_iter().all(|x| x) {
+            <span class="kw">return </span>HashMap::new();
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sidewalk_to_bldgs</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="ident">sidewalk_to_bldgs</span>.<span class="ident">insert</span>(<span class="ident">b</span>.<span class="ident">sidewalk</span>(), <span class="ident">b</span>.<span class="ident">id</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>sidewalk_to_bldgs = MultiMap::new();
+    <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+        sidewalk_to_bldgs.insert(b.sidewalk(), b.id);
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>results = HashMap::new();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited_nodes</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-    <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>() {
-        <span class="kw">if</span> <span class="ident">visited_nodes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>.<span class="ident">value</span>) {
+    <span class="kw">let </span><span class="kw-2">mut </span>visited_nodes = HashSet::new();
+    <span class="kw">while let </span><span class="prelude-val">Some</span>(current) = queue.pop() {
+        <span class="kw">if </span>visited_nodes.contains(<span class="kw-2">&amp;</span>current.value) {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">&gt;</span> <span class="ident">time_limit</span> {
+        <span class="kw">if </span>current.cost &gt; time_limit {
             <span class="kw">continue</span>;
         }
-        <span class="ident">visited_nodes</span>.<span class="ident">insert</span>(<span class="ident">current</span>.<span class="ident">value</span>);
+        visited_nodes.insert(current.value);
 
-        <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">is_dst_i</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">current</span>.<span class="ident">value</span> {
-            <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="ident">is_dst_i</span>) =&gt; (<span class="ident">r</span>, <span class="ident">is_dst_i</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+        <span class="kw">let </span>(r, is_dst_i) = <span class="kw">match </span>current.value {
+            WalkingNode::SidewalkEndpoint(r, is_dst_i) =&gt; (r, is_dst_i),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>));
-        <span class="comment">// Cross the lane</span>
-        <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">allow_shoulders</span> <span class="op">|</span><span class="op">|</span> <span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Shoulder</span> {
-            <span class="kw">let</span> <span class="ident">sidewalk_len</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">length</span>();
-            <span class="kw">let</span> <span class="ident">step</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_dst_i</span> {
-                <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">lane</span>.<span class="ident">id</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">PathStep::Lane</span>(<span class="ident">lane</span>.<span class="ident">id</span>)
+        <span class="kw">let </span>lane = map.get_l(r.must_get_sidewalk(map));
+        <span class="comment">// Cross the lane
+        </span><span class="kw">if </span>opts.allow_shoulders || lane.lane_type != LaneType::Shoulder {
+            <span class="kw">let </span>sidewalk_len = lane.length();
+            <span class="kw">let </span>step = <span class="kw">if </span>is_dst_i {
+                PathStep::ContraflowLane(lane.id)
+            } <span class="kw">else </span>{
+                PathStep::Lane(lane.id)
             };
-            <span class="kw">let</span> <span class="ident">speed</span> <span class="op">=</span>
-                <span class="ident">step</span>.<span class="ident">max_speed_along</span>(<span class="prelude-val">Some</span>(<span class="ident">opts</span>.<span class="ident">walking_speed</span>), <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>);
-            <span class="kw">let</span> <span class="ident">cross_to_node</span> <span class="op">=</span> <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="op">!</span><span class="ident">is_dst_i</span>);
+            <span class="kw">let </span>speed =
+                step.max_speed_along(<span class="prelude-val">Some</span>(opts.walking_speed), PathConstraints::Pedestrian, map);
+            <span class="kw">let </span>cross_to_node = WalkingNode::SidewalkEndpoint(r, !is_dst_i);
 
-            <span class="comment">// We&#39;re crossing the sidewalk from one end to the other. If we haven&#39;t already found a</span>
-            <span class="comment">// shorter path to the other end of this sidewalk, then fill out the exact distance to</span>
-            <span class="comment">// each building. We need to know the direction along the sidewalk we&#39;re moving to fill</span>
-            <span class="comment">// this out properly, so that&#39;s why the order of graph nodes visited matters and we&#39;re</span>
-            <span class="comment">// doing this work here.</span>
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">visited_nodes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">cross_to_node</span>) {
-                <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">sidewalk_to_bldgs</span>.<span class="ident">get</span>(<span class="ident">lane</span>.<span class="ident">id</span>) {
-                    <span class="kw">let</span> <span class="ident">bldg_dist_along</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="kw-2">*</span><span class="ident">b</span>).<span class="ident">sidewalk_pos</span>.<span class="ident">dist_along</span>();
-                    <span class="kw">let</span> <span class="ident">dist_to_bldg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_dst_i</span> {
-                        <span class="comment">// Crossing from the end of the sidewalk to the beginning</span>
-                        <span class="ident">sidewalk_len</span> <span class="op">-</span> <span class="ident">bldg_dist_along</span>
-                    } <span class="kw">else</span> {
-                        <span class="ident">bldg_dist_along</span>
+            <span class="comment">// We&#39;re crossing the sidewalk from one end to the other. If we haven&#39;t already found a
+            // shorter path to the other end of this sidewalk, then fill out the exact distance to
+            // each building. We need to know the direction along the sidewalk we&#39;re moving to fill
+            // this out properly, so that&#39;s why the order of graph nodes visited matters and we&#39;re
+            // doing this work here.
+            </span><span class="kw">if </span>!visited_nodes.contains(<span class="kw-2">&amp;</span>cross_to_node) {
+                <span class="kw">for </span>b <span class="kw">in </span>sidewalk_to_bldgs.get(lane.id) {
+                    <span class="kw">let </span>bldg_dist_along = map.get_b(<span class="kw-2">*</span>b).sidewalk_pos.dist_along();
+                    <span class="kw">let </span>dist_to_bldg = <span class="kw">if </span>is_dst_i {
+                        <span class="comment">// Crossing from the end of the sidewalk to the beginning
+                        </span>sidewalk_len - bldg_dist_along
+                    } <span class="kw">else </span>{
+                        bldg_dist_along
                     };
-                    <span class="kw">let</span> <span class="ident">bldg_cost</span> <span class="op">=</span> <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">+</span> <span class="ident">dist_to_bldg</span> <span class="op">/</span> <span class="ident">speed</span>;
-                    <span class="kw">if</span> <span class="ident">bldg_cost</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">time_limit</span> {
-                        <span class="ident">results</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">bldg_cost</span>);
+                    <span class="kw">let </span>bldg_cost = current.cost + dist_to_bldg / speed;
+                    <span class="kw">if </span>bldg_cost &lt;= time_limit {
+                        results.insert(<span class="kw-2">*</span>b, bldg_cost);
                     }
                 }
 
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
-                    <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">+</span> <span class="ident">sidewalk_len</span> <span class="op">/</span> <span class="ident">speed</span>,
-                    <span class="ident">value</span>: <span class="ident">cross_to_node</span>,
+                queue.push(PriorityQueueItem {
+                    cost: current.cost + sidewalk_len / speed,
+                    value: cross_to_node,
                 });
             }
         }
-        <span class="comment">// All turns from the lane</span>
-        <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">lane</span>.<span class="ident">id</span>, <span class="ident">PathConstraints::Pedestrian</span>) {
-            <span class="kw">if</span> (<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span> <span class="op">==</span> <span class="ident">lane</span>.<span class="ident">dst_i</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">is_dst_i</span> {
+        <span class="comment">// All turns from the lane
+        </span><span class="kw">for </span>turn <span class="kw">in </span>map.get_turns_for(lane.id, PathConstraints::Pedestrian) {
+            <span class="kw">if </span>(turn.id.parent == lane.dst_i) != is_dst_i {
                 <span class="kw">continue</span>;
             }
-            <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
-                <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span>
-                    <span class="op">+</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
-                        <span class="op">/</span> <span class="ident">PathStep::Turn</span>(<span class="ident">turn</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(
-                            <span class="prelude-val">Some</span>(<span class="ident">opts</span>.<span class="ident">walking_speed</span>),
-                            <span class="ident">PathConstraints::Pedestrian</span>,
-                            <span class="ident">map</span>,
+            queue.push(PriorityQueueItem {
+                cost: current.cost
+                    + turn.geom.length()
+                        / PathStep::Turn(turn.id).max_speed_along(
+                            <span class="prelude-val">Some</span>(opts.walking_speed),
+                            PathConstraints::Pedestrian,
+                            map,
                         )
-                    <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>), <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>),
-                <span class="ident">value</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(
-                    <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>(),
-                    <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>,
+                    + zone_cost(turn.id.to_movement(map), PathConstraints::Pedestrian, map),
+                value: WalkingNode::SidewalkEndpoint(
+                    map.get_l(turn.id.dst).get_directed_parent(),
+                    map.get_l(turn.id.dst).dst_i == turn.id.parent,
                 ),
             });
         }
     }
 
-    <span class="ident">results</span>
+    results
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

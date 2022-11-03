@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/find_closest.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>find_closest.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/find_closest.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>find_closest.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -109,116 +109,116 @@
 <span id="109">109</span>
 <span id="110">110</span>
 <span id="111">111</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree::geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
-<span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">ClosestPoint</span>, <span class="ident">Contains</span>, <span class="ident">EuclideanDistance</span>, <span class="ident">Intersects</span>};
+<span class="kw">use </span>aabb_quadtree::geom::{Point, Rect};
+<span class="kw">use </span>aabb_quadtree::QuadTree;
+<span class="kw">use </span>geo::{ClosestPoint, Contains, EuclideanDistance, Intersects};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversions::pts_to_line_string</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span><span class="kw">crate</span>::conversions::pts_to_line_string;
+<span class="kw">use crate</span>::{Bounds, Distance, Polygon, Pt2D};
 
-<span class="comment">// TODO Maybe use https://crates.io/crates/spatial-join proximity maps</span>
+<span class="comment">// TODO Maybe use https://crates.io/crates/spatial-join proximity maps
 
-<span class="doccomment">/// A quad-tree to quickly find the closest points to some polylines.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> {
-    <span class="comment">// TODO maybe any type of geo:: thing</span>
-    <span class="ident">geometries</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">geo::LineString</span><span class="op">&gt;</span>,
-    <span class="ident">quadtree</span>: <span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
+</span><span class="doccomment">/// A quad-tree to quickly find the closest points to some polylines.
+</span><span class="kw">pub struct </span>FindClosest&lt;K&gt; {
+    <span class="comment">// TODO maybe any type of geo:: thing
+    </span>geometries: BTreeMap&lt;K, geo::LineString&gt;,
+    quadtree: QuadTree&lt;K&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">std::fmt::Debug</span>,
+<span class="kw">impl</span>&lt;K&gt; FindClosest&lt;K&gt;
+<span class="kw">where
+    </span>K: Clone + Ord + std::fmt::Debug,
 {
-    <span class="doccomment">/// Creates the quad-tree, limited to points contained in the boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">bounds</span>: <span class="kw-2">&amp;</span><span class="ident">Bounds</span>) -&gt; <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> {
-        <span class="ident">FindClosest</span> {
-            <span class="ident">geometries</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">quadtree</span>: <span class="ident">QuadTree::default</span>(<span class="ident">bounds</span>.<span class="ident">as_bbox</span>()),
+    <span class="doccomment">/// Creates the quad-tree, limited to points contained in the boundary.
+    </span><span class="kw">pub fn </span>new(bounds: <span class="kw-2">&amp;</span>Bounds) -&gt; FindClosest&lt;K&gt; {
+        FindClosest {
+            geometries: BTreeMap::new(),
+            quadtree: QuadTree::default(bounds.as_bbox()),
         }
     }
 
-    <span class="doccomment">/// Add an object to the quadtree, remembering some key associated with the points.</span>
-    <span class="doccomment">/// TODO This doesn&#39;t properly handle single points, and will silently fail by never returning</span>
-    <span class="doccomment">/// any matches.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) {
-        <span class="self">self</span>.<span class="ident">geometries</span>.<span class="ident">insert</span>(<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="ident">pts_to_line_string</span>(<span class="ident">pts</span>));
-        <span class="self">self</span>.<span class="ident">quadtree</span>
-            .<span class="ident">insert_with_box</span>(<span class="ident">key</span>, <span class="ident">Bounds::from</span>(<span class="ident">pts</span>).<span class="ident">as_bbox</span>());
+    <span class="doccomment">/// Add an object to the quadtree, remembering some key associated with the points.
+    /// TODO This doesn&#39;t properly handle single points, and will silently fail by never returning
+    /// any matches.
+    </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, pts: <span class="kw-2">&amp;</span>[Pt2D]) {
+        <span class="self">self</span>.geometries.insert(key.clone(), pts_to_line_string(pts));
+        <span class="self">self</span>.quadtree
+            .insert_with_box(key, Bounds::from(pts).as_bbox());
     }
 
-    <span class="doccomment">/// Adds the outer ring of a polygon to the quadtree.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_polygon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">polygon</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>) {
-        <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">key</span>, <span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">points</span>());
+    <span class="doccomment">/// Adds the outer ring of a polygon to the quadtree.
+    </span><span class="kw">pub fn </span>add_polygon(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, polygon: <span class="kw-2">&amp;</span>Polygon) {
+        <span class="self">self</span>.add(key, polygon.get_outer_ring().points());
     }
 
-    <span class="doccomment">/// For every object within some distance of a query point, return the (object&#39;s key, point on</span>
-    <span class="doccomment">/// the object&#39;s polyline, distance away).</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_close_pts</span>(
+    <span class="doccomment">/// For every object within some distance of a query point, return the (object&#39;s key, point on
+    /// the object&#39;s polyline, distance away).
+    </span><span class="kw">pub fn </span>all_close_pts(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">query_pt</span>: <span class="ident">Pt2D</span>,
-        <span class="ident">max_dist_away</span>: <span class="ident">Distance</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">Pt2D</span>, <span class="ident">Distance</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">query_geom</span> <span class="op">=</span> <span class="ident">geo::Point::new</span>(<span class="ident">query_pt</span>.<span class="ident">x</span>(), <span class="ident">query_pt</span>.<span class="ident">y</span>());
-        <span class="kw">let</span> <span class="ident">query_bbox</span> <span class="op">=</span> <span class="ident">Rect</span> {
-            <span class="ident">top_left</span>: <span class="ident">Point</span> {
-                <span class="ident">x</span>: (<span class="ident">query_pt</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">max_dist_away</span>.<span class="ident">inner_meters</span>()) <span class="kw">as</span> <span class="ident">f32</span>,
-                <span class="ident">y</span>: (<span class="ident">query_pt</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">max_dist_away</span>.<span class="ident">inner_meters</span>()) <span class="kw">as</span> <span class="ident">f32</span>,
+        query_pt: Pt2D,
+        max_dist_away: Distance,
+    ) -&gt; Vec&lt;(K, Pt2D, Distance)&gt; {
+        <span class="kw">let </span>query_geom = geo::Point::new(query_pt.x(), query_pt.y());
+        <span class="kw">let </span>query_bbox = Rect {
+            top_left: Point {
+                x: (query_pt.x() - max_dist_away.inner_meters()) <span class="kw">as </span>f32,
+                y: (query_pt.y() - max_dist_away.inner_meters()) <span class="kw">as </span>f32,
             },
-            <span class="ident">bottom_right</span>: <span class="ident">Point</span> {
-                <span class="ident">x</span>: (<span class="ident">query_pt</span>.<span class="ident">x</span>() <span class="op">+</span> <span class="ident">max_dist_away</span>.<span class="ident">inner_meters</span>()) <span class="kw">as</span> <span class="ident">f32</span>,
-                <span class="ident">y</span>: (<span class="ident">query_pt</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="ident">max_dist_away</span>.<span class="ident">inner_meters</span>()) <span class="kw">as</span> <span class="ident">f32</span>,
+            bottom_right: Point {
+                x: (query_pt.x() + max_dist_away.inner_meters()) <span class="kw">as </span>f32,
+                y: (query_pt.y() + max_dist_away.inner_meters()) <span class="kw">as </span>f32,
             },
         };
 
-        <span class="self">self</span>.<span class="ident">quadtree</span>
-            .<span class="ident">query</span>(<span class="ident">query_bbox</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">geo::Closest::SinglePoint</span>(<span class="ident">pt</span>) <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">geometries</span>[<span class="ident">key</span>].<span class="ident">closest_point</span>(<span class="kw-2">&amp;</span><span class="ident">query_geom</span>)
+        <span class="self">self</span>.quadtree
+            .query(query_bbox)
+            .into_iter()
+            .filter_map(|(key, <span class="kw">_</span>, <span class="kw">_</span>)| {
+                <span class="kw">if let </span>geo::Closest::SinglePoint(pt) =
+                    <span class="self">self</span>.geometries[key].closest_point(<span class="kw-2">&amp;</span>query_geom)
                 {
-                    <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="ident">pt</span>.<span class="ident">euclidean_distance</span>(<span class="kw-2">&amp;</span><span class="ident">query_geom</span>));
-                    <span class="kw">if</span> <span class="ident">dist</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">max_dist_away</span> {
-                        <span class="prelude-val">Some</span>((<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="ident">Pt2D::new</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()), <span class="ident">dist</span>))
-                    } <span class="kw">else</span> {
-                        <span class="prelude-val">None</span>
-                    }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">geometries</span>[<span class="ident">key</span>].<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">query_geom</span>) {
-                    <span class="comment">// TODO Yay, FindClosest has a bug. :P</span>
-                    <span class="prelude-val">Some</span>((<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="ident">query_pt</span>, <span class="ident">Distance::ZERO</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+                    <span class="kw">let </span>dist = Distance::meters(pt.euclidean_distance(<span class="kw-2">&amp;</span>query_geom));
+                    <span class="kw">if </span>dist &lt;= max_dist_away {
+                        <span class="prelude-val">Some</span>((key.clone(), Pt2D::new(pt.x(), pt.y()), dist))
+                    } <span class="kw">else </span>{
+                        <span class="prelude-val">None
+                    </span>}
+                } <span class="kw">else if </span><span class="self">self</span>.geometries[key].contains(<span class="kw-2">&amp;</span>query_geom) {
+                    <span class="comment">// TODO Yay, FindClosest has a bug. :P
+                    </span><span class="prelude-val">Some</span>((key.clone(), query_pt, Distance::ZERO))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 
-    <span class="doccomment">/// Finds the closest point on the existing geometry to the query pt.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">closest_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query_pt</span>: <span class="ident">Pt2D</span>, <span class="ident">max_dist_away</span>: <span class="ident">Distance</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">Pt2D</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">all_close_pts</span>(<span class="ident">query_pt</span>, <span class="ident">max_dist_away</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">dist</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">dist</span>)
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">pt</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="ident">k</span>, <span class="ident">pt</span>))
+    <span class="doccomment">/// Finds the closest point on the existing geometry to the query pt.
+    </span><span class="kw">pub fn </span>closest_pt(<span class="kw-2">&amp;</span><span class="self">self</span>, query_pt: Pt2D, max_dist_away: Distance) -&gt; <span class="prelude-ty">Option</span>&lt;(K, Pt2D)&gt; {
+        <span class="self">self</span>.all_close_pts(query_pt, max_dist_away)
+            .into_iter()
+            .min_by_key(|(<span class="kw">_</span>, <span class="kw">_</span>, dist)| <span class="kw-2">*</span>dist)
+            .map(|(k, pt, <span class="kw">_</span>)| (k, pt))
     }
 
-    <span class="doccomment">/// Find all objects with a point inside the query polygon</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_points_inside</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">query_geo</span>: <span class="ident">geo::Polygon</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
+    <span class="doccomment">/// Find all objects with a point inside the query polygon
+    </span><span class="kw">pub fn </span>all_points_inside(<span class="kw-2">&amp;</span><span class="self">self</span>, query: <span class="kw-2">&amp;</span>Polygon) -&gt; Vec&lt;K&gt; {
+        <span class="kw">let </span>query_geo: geo::Polygon = query.clone().into();
 
-        <span class="self">self</span>.<span class="ident">quadtree</span>
-            .<span class="ident">query</span>(<span class="ident">query</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>())
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">geometries</span>[<span class="ident">key</span>].<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">query_geo</span>) {
-                    <span class="prelude-val">Some</span>(<span class="ident">key</span>.<span class="ident">clone</span>())
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+        <span class="self">self</span>.quadtree
+            .query(query.get_bounds().as_bbox())
+            .into_iter()
+            .filter_map(|(key, <span class="kw">_</span>, <span class="kw">_</span>)| {
+                <span class="kw">if </span><span class="self">self</span>.geometries[key].intersects(<span class="kw-2">&amp;</span>query_geo) {
+                    <span class="prelude-val">Some</span>(key.clone())
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

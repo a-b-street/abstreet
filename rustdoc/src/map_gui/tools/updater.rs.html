@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/updater.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>updater.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/updater.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>updater.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -154,92 +154,92 @@
 <span id="154">154</span>
 <span id="155">155</span>
 <span id="156">156</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">fs_err::File</span>;
-<span class="kw">use</span> <span class="ident">futures_channel::mpsc</span>;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>fs_err::File;
+<span class="kw">use </span>futures_channel::mpsc;
 
-<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">DataPacks</span>, <span class="ident">Manifest</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil::prettyprint_bytes</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">FutureLoader</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Transition</span>};
+<span class="kw">use </span>abstio::{DataPacks, Manifest, MapName};
+<span class="kw">use </span>abstutil::prettyprint_bytes;
+<span class="kw">use </span>widgetry::tools::{ChooseSomething, FutureLoader, PopupMsg};
+<span class="kw">use </span>widgetry::{EventCtx, Key, Transition};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="comment">// For each city, how many total bytes do the runtime files cost to download?</span>
+<span class="comment">// For each city, how many total bytes do the runtime files cost to download?
 
-<span class="doccomment">/// How many bytes to download for a city?</span>
-<span class="kw">fn</span> <span class="ident">size_of_city</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="ident">u64</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data_packs</span> <span class="op">=</span> <span class="ident">DataPacks</span> {
-        <span class="ident">runtime</span>: <span class="ident">BTreeSet::new</span>(),
-        <span class="ident">input</span>: <span class="ident">BTreeSet::new</span>(),
+</span><span class="doccomment">/// How many bytes to download for a city?
+</span><span class="kw">fn </span>size_of_city(map: <span class="kw-2">&amp;</span>MapName) -&gt; u64 {
+    <span class="kw">let </span><span class="kw-2">mut </span>data_packs = DataPacks {
+        runtime: BTreeSet::new(),
+        input: BTreeSet::new(),
     };
-    <span class="ident">data_packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">to_data_pack_name</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="ident">Manifest::load</span>().<span class="ident">filter</span>(<span class="ident">data_packs</span>);
-    <span class="comment">// Don&#39;t download files that already exist</span>
-    <span class="ident">manifest</span>
-        .<span class="ident">entries</span>
-        .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">path</span>, <span class="kw">_</span><span class="op">|</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::path</span>(<span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;data/&quot;</span>).<span class="ident">unwrap</span>())));
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">entry</span>) <span class="kw">in</span> <span class="ident">manifest</span>.<span class="ident">entries</span> {
-        <span class="ident">bytes</span> <span class="op">+</span><span class="op">=</span> <span class="ident">entry</span>.<span class="ident">compressed_size_bytes</span>;
+    data_packs.runtime.insert(map.to_data_pack_name());
+    <span class="kw">let </span><span class="kw-2">mut </span>manifest = Manifest::load().filter(data_packs);
+    <span class="comment">// Don&#39;t download files that already exist
+    </span>manifest
+        .entries
+        .retain(|path, <span class="kw">_</span>| !abstio::file_exists(<span class="kw-2">&amp;</span>abstio::path(path.strip_prefix(<span class="string">&quot;data/&quot;</span>).unwrap())));
+    <span class="kw">let </span><span class="kw-2">mut </span>bytes = <span class="number">0</span>;
+    <span class="kw">for </span>(<span class="kw">_</span>, entry) <span class="kw">in </span>manifest.entries {
+        bytes += entry.compressed_size_bytes;
     }
-    <span class="ident">bytes</span>
+    bytes
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">prompt_to_download_missing_data</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">map_name</span>: <span class="ident">MapName</span>,
-    <span class="ident">on_load</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="ident">Transition::Push</span>(<span class="ident">ChooseSomething::new_state</span>(
-        <span class="ident">ctx</span>,
+<span class="kw">pub fn </span>prompt_to_download_missing_data&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt;(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    map_name: MapName,
+    on_load: Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>A) -&gt; Transition&lt;A&gt;&gt;,
+) -&gt; Transition&lt;A&gt; {
+    Transition::Push(ChooseSomething::new_state(
+        ctx,
         <span class="macro">format!</span>(
             <span class="string">&quot;Missing data. Download {} for {}?&quot;</span>,
-            <span class="ident">prettyprint_bytes</span>(<span class="ident">size_of_city</span>(<span class="kw-2">&amp;</span><span class="ident">map_name</span>)),
-            <span class="ident">map_name</span>.<span class="ident">city</span>.<span class="ident">describe</span>()
+            prettyprint_bytes(size_of_city(<span class="kw-2">&amp;</span>map_name)),
+            map_name.city.describe()
         ),
         <span class="macro">vec!</span>[
-            <span class="ident">widgetry::Choice::string</span>(<span class="string">&quot;Yes, download&quot;</span>),
-            <span class="ident">widgetry::Choice::string</span>(<span class="string">&quot;Never mind&quot;</span>).<span class="ident">key</span>(<span class="ident">Key::Escape</span>),
+            widgetry::Choice::string(<span class="string">&quot;Yes, download&quot;</span>),
+            widgetry::Choice::string(<span class="string">&quot;Never mind&quot;</span>).key(Key::Escape),
         ],
-        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">resp</span>, <span class="ident">ctx</span>, <span class="kw">_</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">resp</span> <span class="op">==</span> <span class="string">&quot;Never mind&quot;</span> {
-                <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        Box::new(<span class="kw">move </span>|resp, ctx, <span class="kw">_</span>| {
+            <span class="kw">if </span>resp == <span class="string">&quot;Never mind&quot; </span>{
+                <span class="kw">return </span>Transition::Pop;
             }
 
-            <span class="kw">let</span> <span class="ident">cities</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">map_name</span>.<span class="ident">to_data_pack_name</span>()];
+            <span class="kw">let </span>cities = <span class="macro">vec!</span>[map_name.to_data_pack_name()];
 
-            <span class="comment">// Adjust the updater&#39;s config, in case the user also runs that.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">packs</span> <span class="op">=</span> <span class="ident">DataPacks::load_or_create</span>();
-            <span class="ident">packs</span>.<span class="ident">runtime</span>.<span class="ident">insert</span>(<span class="ident">cities</span>[<span class="number">0</span>].<span class="ident">clone</span>());
-            <span class="ident">packs</span>.<span class="ident">save</span>();
+            <span class="comment">// Adjust the updater&#39;s config, in case the user also runs that.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>packs = DataPacks::load_or_create();
+            packs.runtime.insert(cities[<span class="number">0</span>].clone());
+            packs.save();
 
-            <span class="kw">let</span> (<span class="ident">outer_progress_tx</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1000</span>);
-            <span class="kw">let</span> (<span class="ident">inner_progress_tx</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1000</span>);
-            <span class="ident">Transition::Replace</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">Box::pin</span>(<span class="kw">async</span> {
-                    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span>
-                        <span class="ident">download_cities</span>(<span class="ident">cities</span>, <span class="ident">outer_progress_tx</span>, <span class="ident">inner_progress_tx</span>).<span class="kw">await</span>;
-                    <span class="kw">let</span> <span class="ident">wrap</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span>
-                        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">A</span><span class="op">|</span> <span class="ident">result</span>);
-                    <span class="prelude-val">Ok</span>(<span class="ident">wrap</span>)
+            <span class="kw">let </span>(outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(<span class="number">1000</span>);
+            <span class="kw">let </span>(inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(<span class="number">1000</span>);
+            Transition::Replace(FutureLoader::&lt;A, <span class="prelude-ty">Result</span>&lt;()&gt;&gt;::new_state(
+                ctx,
+                Box::pin(<span class="kw">async </span>{
+                    <span class="kw">let </span>result =
+                        download_cities(cities, outer_progress_tx, inner_progress_tx).<span class="kw">await</span>;
+                    <span class="kw">let </span>wrap: Box&lt;<span class="kw">dyn </span>Send + FnOnce(<span class="kw-2">&amp;</span>A) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt;&gt; =
+                        Box::new(<span class="kw">move </span>|<span class="kw">_</span>: <span class="kw-2">&amp;</span>A| result);
+                    <span class="prelude-val">Ok</span>(wrap)
                 }),
-                <span class="ident">outer_progress_rx</span>,
-                <span class="ident">inner_progress_rx</span>,
+                outer_progress_rx,
+                inner_progress_rx,
                 <span class="string">&quot;Downloading missing files&quot;</span>,
-                <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_result</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">error_msg</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">maybe_result</span> {
+                Box::new(|ctx, app, maybe_result| {
+                    <span class="kw">let </span>error_msg = <span class="kw">match </span>maybe_result {
                         <span class="prelude-val">Ok</span>(<span class="prelude-val">Ok</span>(())) =&gt; <span class="prelude-val">None</span>,
-                        <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(<span class="ident">err</span>)) =&gt; <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">to_string</span>()),
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Something went very wrong: {}&quot;</span>, <span class="ident">err</span>)),
+                        <span class="prelude-val">Ok</span>(<span class="prelude-val">Err</span>(err)) =&gt; <span class="prelude-val">Some</span>(err.to_string()),
+                        <span class="prelude-val">Err</span>(err) =&gt; <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Something went very wrong: {}&quot;</span>, err)),
                     };
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">error_msg</span> {
-                        <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Download failed&quot;</span>, <span class="macro">vec!</span>[<span class="ident">err</span>]))
-                    } <span class="kw">else</span> {
-                        <span class="ident">on_load</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = error_msg {
+                        Transition::Replace(PopupMsg::new_state(ctx, <span class="string">&quot;Download failed&quot;</span>, <span class="macro">vec!</span>[err]))
+                    } <span class="kw">else </span>{
+                        on_load(ctx, app)
                     }
                 }),
             ))
@@ -247,68 +247,68 @@
     ))
 }
 
-<span class="kw">async</span> <span class="kw">fn</span> <span class="ident">download_cities</span>(
-    <span class="ident">cities</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw-2">mut</span> <span class="ident">outer_progress</span>: <span class="ident">mpsc::Sender</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="kw-2">mut</span> <span class="ident">inner_progress</span>: <span class="ident">mpsc::Sender</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data_packs</span> <span class="op">=</span> <span class="ident">DataPacks</span> {
-        <span class="ident">runtime</span>: <span class="ident">BTreeSet::new</span>(),
-        <span class="ident">input</span>: <span class="ident">BTreeSet::new</span>(),
+<span class="kw">async fn </span>download_cities(
+    cities: Vec&lt;String&gt;,
+    <span class="kw-2">mut </span>outer_progress: mpsc::Sender&lt;String&gt;,
+    <span class="kw-2">mut </span>inner_progress: mpsc::Sender&lt;String&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>data_packs = DataPacks {
+        runtime: BTreeSet::new(),
+        input: BTreeSet::new(),
     };
-    <span class="ident">data_packs</span>.<span class="ident">runtime</span>.<span class="ident">extend</span>(<span class="ident">cities</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">manifest</span> <span class="op">=</span> <span class="ident">Manifest::load</span>().<span class="ident">filter</span>(<span class="ident">data_packs</span>);
-    <span class="comment">// Don&#39;t download files that already exist</span>
-    <span class="ident">manifest</span>
-        .<span class="ident">entries</span>
-        .<span class="ident">retain</span>(<span class="op">|</span><span class="ident">path</span>, <span class="kw">_</span><span class="op">|</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::path</span>(<span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;data/&quot;</span>).<span class="ident">unwrap</span>())));
+    data_packs.runtime.extend(cities);
+    <span class="kw">let </span><span class="kw-2">mut </span>manifest = Manifest::load().filter(data_packs);
+    <span class="comment">// Don&#39;t download files that already exist
+    </span>manifest
+        .entries
+        .retain(|path, <span class="kw">_</span>| !abstio::file_exists(<span class="kw-2">&amp;</span>abstio::path(path.strip_prefix(<span class="string">&quot;data/&quot;</span>).unwrap())));
 
-    <span class="kw">let</span> <span class="ident">num_files</span> <span class="op">=</span> <span class="ident">manifest</span>.<span class="ident">entries</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">messages</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">files_so_far</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">let </span>num_files = manifest.entries.len();
+    <span class="kw">let </span><span class="kw-2">mut </span>messages = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>files_so_far = <span class="number">0</span>;
 
-    <span class="kw">for</span> (<span class="ident">path</span>, <span class="ident">entry</span>) <span class="kw">in</span> <span class="ident">manifest</span>.<span class="ident">entries</span> {
-        <span class="ident">files_so_far</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">let</span> <span class="ident">local_path</span> <span class="op">=</span> <span class="ident">abstio::path</span>(<span class="ident">path</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;data/&quot;</span>).<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(
+    <span class="kw">for </span>(path, entry) <span class="kw">in </span>manifest.entries {
+        files_so_far += <span class="number">1</span>;
+        <span class="kw">let </span>local_path = abstio::path(path.strip_prefix(<span class="string">&quot;data/&quot;</span>).unwrap());
+        <span class="kw">let </span>url = <span class="macro">format!</span>(
             <span class="string">&quot;http://play.abstreet.org/{}/{}.gz&quot;</span>,
-            <span class="ident"><span class="kw">crate</span>::tools::version</span>(),
-            <span class="ident">path</span>
+            <span class="kw">crate</span>::tools::version(),
+            path
         );
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">outer_progress</span>.<span class="ident">try_send</span>(<span class="macro">format!</span>(
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = outer_progress.try_send(<span class="macro">format!</span>(
             <span class="string">&quot;Downloading file {}/{}: {} ({})&quot;</span>,
-            <span class="ident">files_so_far</span>,
-            <span class="ident">num_files</span>,
-            <span class="ident">url</span>,
-            <span class="ident">prettyprint_bytes</span>(<span class="ident">entry</span>.<span class="ident">compressed_size_bytes</span>)
+            files_so_far,
+            num_files,
+            url,
+            prettyprint_bytes(entry.compressed_size_bytes)
         )) {
-            <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t send progress: {}&quot;</span>, <span class="ident">err</span>);
+            <span class="macro">warn!</span>(<span class="string">&quot;Couldn&#39;t send progress: {}&quot;</span>, err);
         }
 
-        <span class="kw">match</span> <span class="ident">abstio::download_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut</span> <span class="ident">inner_progress</span>)
-            .<span class="kw">await</span>
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">bytes</span><span class="op">|</span> {
-                <span class="comment">// TODO Instead of holding everything in memory like this, we could also try to</span>
-                <span class="comment">// stream the gunzipping and output writing</span>
-                <span class="macro">info!</span>(<span class="string">&quot;Decompressing {}&quot;</span>, <span class="ident">path</span>);
-                <span class="ident">fs_err::create_dir_all</span>(<span class="ident">std::path::Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">local_path</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
-                    .<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="kw-2">&amp;</span><span class="ident">local_path</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">decoder</span> <span class="op">=</span> <span class="ident">flate2::read::GzDecoder::new</span>(<span class="kw-2">&amp;</span><span class="ident">bytes</span>[..]);
-                <span class="ident">std::io::copy</span>(<span class="kw-2">&amp;mut</span> <span class="ident">decoder</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>())
+        <span class="kw">match </span>abstio::download_bytes(<span class="kw-2">&amp;</span>url, <span class="prelude-val">None</span>, <span class="kw-2">&amp;mut </span>inner_progress)
+            .<span class="kw">await
+            </span>.and_then(|bytes| {
+                <span class="comment">// TODO Instead of holding everything in memory like this, we could also try to
+                // stream the gunzipping and output writing
+                </span><span class="macro">info!</span>(<span class="string">&quot;Decompressing {}&quot;</span>, path);
+                fs_err::create_dir_all(std::path::Path::new(<span class="kw-2">&amp;</span>local_path).parent().unwrap())
+                    .unwrap();
+                <span class="kw">let </span><span class="kw-2">mut </span>out = File::create(<span class="kw-2">&amp;</span>local_path).unwrap();
+                <span class="kw">let </span><span class="kw-2">mut </span>decoder = flate2::read::GzDecoder::new(<span class="kw-2">&amp;</span>bytes[..]);
+                std::io::copy(<span class="kw-2">&amp;mut </span>decoder, <span class="kw-2">&amp;mut </span>out).map_err(|err| err.into())
             }) {
             <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; {}
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Problem with {}: {}&quot;</span>, <span class="ident">url</span>, <span class="ident">err</span>);
-                <span class="macro">error!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">msg</span>);
-                <span class="ident">messages</span>.<span class="ident">push</span>(<span class="ident">msg</span>);
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="kw">let </span>msg = <span class="macro">format!</span>(<span class="string">&quot;Problem with {}: {}&quot;</span>, url, err);
+                <span class="macro">error!</span>(<span class="string">&quot;{}&quot;</span>, msg);
+                messages.push(msg);
             }
         }
     }
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">messages</span>.<span class="ident">is_empty</span>() {
-        <span class="macro">bail!</span>(<span class="string">&quot;{} errors: {}&quot;</span>, <span class="ident">messages</span>.<span class="ident">len</span>(), <span class="ident">messages</span>.<span class="ident">join</span>(<span class="string">&quot;, &quot;</span>));
+    <span class="kw">if </span>!messages.is_empty() {
+        <span class="macro">bail!</span>(<span class="string">&quot;{} errors: {}&quot;</span>, messages.len(), messages.join(<span class="string">&quot;, &quot;</span>));
     }
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

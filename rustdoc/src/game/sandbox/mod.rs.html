@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -744,545 +744,545 @@
 <span id="744">744</span>
 <span id="745">745</span>
 <span id="746">746</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">maplit::btreeset</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>maplit::btreeset;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::colors::ColorSchemeChoice</span>;
-<span class="kw">use</span> <span class="ident">map_gui::load::MapLoader</span>;
-<span class="kw">use</span> <span class="ident">map_gui::options::OptionsPanel</span>;
-<span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">unzoomed_agent_radius</span>, <span class="ident">UnzoomedAgents</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">Minimap</span>, <span class="ident">TurnExplorer</span>};
-<span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
-<span class="kw">use</span> <span class="ident">sim::Analytics</span>;
-<span class="kw">use</span> <span class="ident">synthpop::Scenario</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">ChooseSomething</span>, <span class="ident">FileLoader</span>, <span class="ident">FutureLoader</span>, <span class="ident">URLManager</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">UpdateType</span>};
+<span class="kw">use </span>geom::{Circle, Distance, Time};
+<span class="kw">use </span>map_gui::colors::ColorSchemeChoice;
+<span class="kw">use </span>map_gui::load::MapLoader;
+<span class="kw">use </span>map_gui::options::OptionsPanel;
+<span class="kw">use </span>map_gui::render::{unzoomed_agent_radius, UnzoomedAgents};
+<span class="kw">use </span>map_gui::tools::{Minimap, TurnExplorer};
+<span class="kw">use </span>map_gui::{AppLike, ID};
+<span class="kw">use </span>sim::Analytics;
+<span class="kw">use </span>synthpop::Scenario;
+<span class="kw">use </span>widgetry::tools::{ChooseSomething, FileLoader, FutureLoader, URLManager};
+<span class="kw">use </span>widgetry::{lctrl, Choice, EventCtx, GfxCtx, Key, Outcome, Panel, State, UpdateType};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::gameplay</span>::{<span class="ident">spawn_agents_around</span>, <span class="ident">GameplayMode</span>, <span class="ident">TutorialPointer</span>, <span class="ident">TutorialState</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::minimap::MinimapController</span>;
-<span class="kw">use</span> <span class="ident"><span class="self">self</span>::misc_tools</span>::{<span class="ident">RoutePreview</span>, <span class="ident">TrafficRecorder</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::speed</span>::{<span class="ident">SpeedSetting</span>, <span class="ident">TimePanel</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::time_warp::TimeWarpScreen</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">tool_panel</span>, <span class="ident">CommonState</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::debug::DebugMode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{
-    <span class="ident">can_edit_lane</span>, <span class="ident">EditMode</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>, <span class="ident">StopSignEditor</span>, <span class="ident">TrafficSignalEditor</span>,
+<span class="kw">pub use </span><span class="self">self</span>::gameplay::{spawn_agents_around, GameplayMode, TutorialPointer, TutorialState};
+<span class="kw">pub use </span><span class="self">self</span>::minimap::MinimapController;
+<span class="kw">use </span><span class="self">self</span>::misc_tools::{RoutePreview, TrafficRecorder};
+<span class="kw">pub use </span><span class="self">self</span>::speed::{SpeedSetting, TimePanel};
+<span class="kw">pub use </span><span class="self">self</span>::time_warp::TimeWarpScreen;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::{tool_panel, CommonState};
+<span class="kw">use </span><span class="kw">crate</span>::debug::DebugMode;
+<span class="kw">use </span><span class="kw">crate</span>::edit::{
+    can_edit_lane, EditMode, RoadEditor, SaveEdits, StopSignEditor, TrafficSignalEditor,
 };
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::info::ContextualActions</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer::favorites</span>::{<span class="ident">Favorites</span>, <span class="ident">ShowFavorites</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer::PickLayer</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pregame::TitleScreen</span>;
+<span class="kw">use </span><span class="kw">crate</span>::info::ContextualActions;
+<span class="kw">use </span><span class="kw">crate</span>::layer::favorites::{Favorites, ShowFavorites};
+<span class="kw">use </span><span class="kw">crate</span>::layer::PickLayer;
+<span class="kw">use </span><span class="kw">crate</span>::pregame::TitleScreen;
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dashboards</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gameplay</span>;
-<span class="kw">mod</span> <span class="ident">minimap</span>;
-<span class="kw">mod</span> <span class="ident">misc_tools</span>;
-<span class="kw">mod</span> <span class="ident">speed</span>;
-<span class="kw">mod</span> <span class="ident">time_warp</span>;
+<span class="kw">pub mod </span>dashboards;
+<span class="kw">pub mod </span>gameplay;
+<span class="kw">mod </span>minimap;
+<span class="kw">mod </span>misc_tools;
+<span class="kw">mod </span>speed;
+<span class="kw">mod </span>time_warp;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SandboxMode</span> {
-    <span class="ident">gameplay</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">gameplay::GameplayState</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">gameplay_mode</span>: <span class="ident">GameplayMode</span>,
+<span class="kw">pub struct </span>SandboxMode {
+    gameplay: Box&lt;<span class="kw">dyn </span>gameplay::GameplayState&gt;,
+    <span class="kw">pub </span>gameplay_mode: GameplayMode,
 
-    <span class="kw">pub</span> <span class="ident">controls</span>: <span class="ident">SandboxControls</span>,
+    <span class="kw">pub </span>controls: SandboxControls,
 
-    <span class="ident">recalc_unzoomed_agent</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="ident">last_cs</span>: <span class="ident">ColorSchemeChoice</span>,
+    recalc_unzoomed_agent: <span class="prelude-ty">Option</span>&lt;Time&gt;,
+    last_cs: ColorSchemeChoice,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SandboxControls</span> {
-    <span class="kw">pub</span> <span class="ident">common</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CommonState</span><span class="op">&gt;</span>,
-    <span class="ident">route_preview</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RoutePreview</span><span class="op">&gt;</span>,
-    <span class="ident">tool_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Panel</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">time_panel</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TimePanel</span><span class="op">&gt;</span>,
-    <span class="ident">minimap</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Minimap</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">MinimapController</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>SandboxControls {
+    <span class="kw">pub </span>common: <span class="prelude-ty">Option</span>&lt;CommonState&gt;,
+    route_preview: <span class="prelude-ty">Option</span>&lt;RoutePreview&gt;,
+    tool_panel: <span class="prelude-ty">Option</span>&lt;Panel&gt;,
+    <span class="kw">pub </span>time_panel: <span class="prelude-ty">Option</span>&lt;TimePanel&gt;,
+    minimap: <span class="prelude-ty">Option</span>&lt;Minimap&lt;App, MinimapController&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SandboxMode</span> {
-    <span class="doccomment">/// If you don&#39;t need to chain any transitions after the SandboxMode that rely on its resources</span>
-    <span class="doccomment">/// being loaded, use this. Otherwise, see `async_new`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">mode</span>: <span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">SandboxMode::async_new</span>(<span class="ident">app</span>, <span class="ident">mode</span>, <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Vec::new</span>()))
+<span class="kw">impl </span>SandboxMode {
+    <span class="doccomment">/// If you don&#39;t need to chain any transitions after the SandboxMode that rely on its resources
+    /// being loaded, use this. Otherwise, see `async_new`.
+    </span><span class="kw">pub fn </span>simple_new(app: <span class="kw-2">&amp;mut </span>App, mode: GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        SandboxMode::async_new(app, mode, Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| Vec::new()))
     }
 
-    <span class="doccomment">/// This does not immediately initialize anything (like loading the correct map, instantiating</span>
-    <span class="doccomment">/// the scenario, etc). That means if you&#39;re chaining this call with other transitions, you</span>
-    <span class="doccomment">/// probably need to defer running them using `finalize`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">async_new</span>(
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-        <span class="ident">finalize</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">clear_sim</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">secondary</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">secondary</span> {
-            <span class="ident">secondary</span>.<span class="ident">clear_sim</span>();
+    <span class="doccomment">/// This does not immediately initialize anything (like loading the correct map, instantiating
+    /// the scenario, etc). That means if you&#39;re chaining this call with other transitions, you
+    /// probably need to defer running them using `finalize`.
+    </span><span class="kw">pub fn </span>async_new(
+        app: <span class="kw-2">&amp;mut </span>App,
+        mode: GameplayMode,
+        finalize: Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>App) -&gt; Vec&lt;Transition&gt;&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        app.primary.clear_sim();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>secondary) = app.secondary {
+            secondary.clear_sim();
         }
-        <span class="ident">Box::new</span>(<span class="ident">SandboxLoader</span> {
-            <span class="ident">stage</span>: <span class="prelude-val">Some</span>(<span class="ident">LoadStage::LoadingMap</span>),
-            <span class="ident">mode</span>,
-            <span class="ident">finalize</span>: <span class="prelude-val">Some</span>(<span class="ident">finalize</span>),
+        Box::new(SandboxLoader {
+            stage: <span class="prelude-val">Some</span>(LoadStage::LoadingMap),
+            mode,
+            finalize: <span class="prelude-val">Some</span>(finalize),
         })
     }
 
-    <span class="doccomment">/// Assumes that the map and simulation have already been set up, and starts by loading</span>
-    <span class="doccomment">/// prebaked data.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">start_from_savestate</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">scenario_name</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_run_name</span>().<span class="ident">to_string</span>();
-        <span class="ident">Box::new</span>(<span class="ident">SandboxLoader</span> {
-            <span class="ident">stage</span>: <span class="prelude-val">Some</span>(<span class="ident">LoadStage::LoadingPrebaked</span>(<span class="ident">scenario_name</span>.<span class="ident">clone</span>())),
-            <span class="ident">mode</span>: <span class="ident">GameplayMode::PlayScenario</span>(
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                <span class="ident">scenario_name</span>,
-                <span class="ident">Vec::new</span>(),
+    <span class="doccomment">/// Assumes that the map and simulation have already been set up, and starts by loading
+    /// prebaked data.
+    </span><span class="kw">pub fn </span>start_from_savestate(app: <span class="kw-2">&amp;</span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>scenario_name = app.primary.sim.get_run_name().to_string();
+        Box::new(SandboxLoader {
+            stage: <span class="prelude-val">Some</span>(LoadStage::LoadingPrebaked(scenario_name.clone())),
+            mode: GameplayMode::PlayScenario(
+                app.primary.map.get_name().clone(),
+                scenario_name,
+                Vec::new(),
             ),
-            <span class="ident">finalize</span>: <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">Vec::new</span>())),
+            finalize: <span class="prelude-val">Some</span>(Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| Vec::new())),
         })
     }
 
-    <span class="comment">// Just for Warping</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contextual_actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Actions</span> {
-        <span class="ident">Actions</span> {
-            <span class="ident">is_paused</span>: <span class="self">self</span>
-                .<span class="ident">controls</span>
-                .<span class="ident">time_panel</span>
-                .<span class="ident">as_ref</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">is_paused</span>())
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>),
-            <span class="ident">can_interact</span>: <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">can_examine_objects</span>(),
-            <span class="ident">gameplay</span>: <span class="self">self</span>.<span class="ident">gameplay_mode</span>.<span class="ident">clone</span>(),
+    <span class="comment">// Just for Warping
+    </span><span class="kw">pub fn </span>contextual_actions(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Actions {
+        Actions {
+            is_paused: <span class="self">self
+                </span>.controls
+                .time_panel
+                .as_ref()
+                .map(|s| s.is_paused())
+                .unwrap_or(<span class="bool-val">true</span>),
+            can_interact: <span class="self">self</span>.gameplay.can_examine_objects(),
+            gameplay: <span class="self">self</span>.gameplay_mode.clone(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SandboxMode</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">toggle_day_night_colors</span> {
-            <span class="kw">if</span> <span class="ident">is_daytime</span>(<span class="ident">app</span>) {
-                <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="ident">ColorSchemeChoice::DayMode</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="ident">ColorSchemeChoice::NightMode</span>)
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>SandboxMode {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if </span>app.opts.toggle_day_night_colors {
+            <span class="kw">if </span>is_daytime(app) {
+                app.change_color_scheme(ctx, ColorSchemeChoice::DayMode)
+            } <span class="kw">else </span>{
+                app.change_color_scheme(ctx, ColorSchemeChoice::NightMode)
             };
         }
 
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">last_cs</span> {
-            <span class="self">self</span>.<span class="ident">last_cs</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span>;
-            <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if </span>app.opts.color_scheme != <span class="self">self</span>.last_cs {
+            <span class="self">self</span>.last_cs = app.opts.color_scheme;
+            <span class="self">self</span>.controls.recreate_panels(ctx, app);
+            <span class="self">self</span>.gameplay.recreate_panels(ctx, app);
         }
 
-        <span class="comment">// Do this before gameplay</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">can_move_canvas</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>() {
-            <span class="ident">URLManager::update_url_cam</span>(<span class="ident">ctx</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
+        <span class="comment">// Do this before gameplay
+        </span><span class="kw">if </span><span class="self">self</span>.gameplay.can_move_canvas() &amp;&amp; ctx.canvas_movement() {
+            URLManager::update_url_cam(ctx, app.primary.map.get_gps_bounds());
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">contextual_actions</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">gameplay</span>
-            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">controls</span>, <span class="kw-2">&amp;mut</span> <span class="ident">actions</span>)
+        <span class="kw">let </span><span class="kw-2">mut </span>actions = <span class="self">self</span>.contextual_actions();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = <span class="self">self
+            </span>.gameplay
+            .event(ctx, app, <span class="kw-2">&amp;mut </span><span class="self">self</span>.controls, <span class="kw-2">&amp;mut </span>actions)
         {
-            <span class="kw">return</span> <span class="ident">t</span>;
+            <span class="kw">return </span>t;
         }
 
-        <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
+        <span class="kw">if </span>ctx.redo_mouseover() {
+            app.recalculate_current_selection(ctx);
         }
 
-        <span class="comment">// Order here is pretty arbitrary</span>
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">input</span>.<span class="ident">pressed</span>(<span class="ident">lctrl</span>(<span class="ident">Key::D</span>)) {
-            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">DebugMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+        <span class="comment">// Order here is pretty arbitrary
+        </span><span class="kw">if </span>app.opts.dev &amp;&amp; ctx.input.pressed(lctrl(Key::D)) {
+            <span class="kw">return </span>Transition::Push(DebugMode::new_state(ctx, app));
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">m</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">minimap</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">m</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-                <span class="kw">return</span> <span class="ident">t</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>m) = <span class="self">self</span>.controls.minimap {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = m.event(ctx, app) {
+                <span class="kw">return </span>t;
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">PickLayer::update</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-                <span class="kw">return</span> <span class="ident">t</span>;
-            }
-        }
-
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">tp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">time_panel</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">tp</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gameplay_mode</span>)) {
-                <span class="kw">return</span> <span class="ident">t</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = PickLayer::update(ctx, app) {
+                <span class="kw">return </span>t;
             }
         }
 
-        <span class="comment">// We need to recalculate unzoomed agent mouseover when the mouse is still and time passes</span>
-        <span class="comment">// (since something could move beneath the cursor), or when the mouse moves.</span>
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">is_none</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_unzoomed</span>()
-            <span class="op">&amp;&amp;</span> (<span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>()
-                <span class="op">|</span><span class="op">|</span> <span class="self">self</span>
-                    .<span class="ident">recalc_unzoomed_agent</span>
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>())
-                    .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>))
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>tp) = <span class="self">self</span>.controls.time_panel {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = tp.event(ctx, app, <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.gameplay_mode)) {
+                <span class="kw">return </span>t;
+            }
+        }
+
+        <span class="comment">// We need to recalculate unzoomed agent mouseover when the mouse is still and time passes
+        // (since something could move beneath the cursor), or when the mouse moves.
+        </span><span class="kw">if </span>app.primary.current_selection.is_none()
+            &amp;&amp; ctx.canvas.is_unzoomed()
+            &amp;&amp; (ctx.redo_mouseover()
+                || <span class="self">self
+                    </span>.recalc_unzoomed_agent
+                    .map(|t| t != app.primary.sim.time())
+                    .unwrap_or(<span class="bool-val">true</span>))
         {
-            <span class="ident">mouseover_unzoomed_agent_circle</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            mouseover_unzoomed_agent_circle(ctx, app);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">r</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">route_preview</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">r</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>) {
-                <span class="kw">return</span> <span class="ident">t</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>r) = <span class="self">self</span>.controls.route_preview {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = r.event(ctx, app) {
+                <span class="kw">return </span>t;
             }
         }
 
-        <span class="comment">// Fragile ordering. Let this work before tool_panel, so Key::Escape from the info panel</span>
-        <span class="comment">// beats the one to quit. And let speed update the sim before we update the info panel.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">common</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">c</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;mut</span> <span class="ident">actions</span>) {
-                <span class="kw">return</span> <span class="ident">t</span>;
+        <span class="comment">// Fragile ordering. Let this work before tool_panel, so Key::Escape from the info panel
+        // beats the one to quit. And let speed update the sim before we update the info panel.
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>c) = <span class="self">self</span>.controls.common {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = c.event(ctx, app, <span class="kw-2">&amp;mut </span>actions) {
+                <span class="kw">return </span>t;
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">tp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">tool_panel</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">tp</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-                <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                    <span class="string">&quot;back&quot;</span> =&gt; {
-                        <span class="kw">return</span> <span class="ident">maybe_exit_sandbox</span>(<span class="ident">ctx</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>tp) = <span class="self">self</span>.controls.tool_panel {
+            <span class="kw">if let </span>Outcome::Clicked(x) = tp.event(ctx) {
+                <span class="kw">match </span>x.as_ref() {
+                    <span class="string">&quot;back&quot; </span>=&gt; {
+                        <span class="kw">return </span>maybe_exit_sandbox(ctx);
                     }
-                    <span class="string">&quot;settings&quot;</span> =&gt; {
-                        <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">OptionsPanel::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+                    <span class="string">&quot;settings&quot; </span>=&gt; {
+                        <span class="kw">return </span>Transition::Push(OptionsPanel::new_state(ctx, app));
                     }
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
             }
         }
 
-        <span class="kw">if</span> <span class="self">self</span>
-            .<span class="ident">controls</span>
-            .<span class="ident">time_panel</span>
-            .<span class="ident">as_ref</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">is_paused</span>())
-            .<span class="ident">unwrap_or</span>(<span class="bool-val">true</span>)
+        <span class="kw">if </span><span class="self">self
+            </span>.controls
+            .time_panel
+            .as_ref()
+            .map(|s| s.is_paused())
+            .unwrap_or(<span class="bool-val">true</span>)
         {
-            <span class="ident">Transition::Keep</span>
-        } <span class="kw">else</span> {
-            <span class="ident">ctx</span>.<span class="ident">request_update</span>(<span class="ident">UpdateType::Game</span>);
-            <span class="ident">Transition::Keep</span>
+            Transition::Keep
+        } <span class="kw">else </span>{
+            ctx.request_update(UpdateType::Game);
+            Transition::Keep
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">l</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> {
-            <span class="ident">l</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>l) = app.primary.layer {
+            l.draw(g, app);
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">minimal_controls</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">common</span> {
-                <span class="ident">c</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
-            } <span class="kw">else</span> {
-                <span class="ident">CommonState::draw_osd</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="kw">if </span>!app.opts.minimal_controls {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>c) = <span class="self">self</span>.controls.common {
+                c.draw(g, app);
+            } <span class="kw">else </span>{
+                CommonState::draw_osd(g, app);
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">tp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">tool_panel</span> {
-                <span class="ident">tp</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>tp) = <span class="self">self</span>.controls.tool_panel {
+                tp.draw(g);
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">tp</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">time_panel</span> {
-            <span class="ident">tp</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>tp) = <span class="self">self</span>.controls.time_panel {
+            tp.draw(g);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">m</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">minimap</span> {
-            <span class="ident">m</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>m) = <span class="self">self</span>.controls.minimap {
+            m.draw(g, app);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">r</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">controls</span>.<span class="ident">route_preview</span> {
-            <span class="ident">r</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>r) = <span class="self">self</span>.controls.route_preview {
+            r.draw(g);
         }
 
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">minimal_controls</span> {
-            <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+        <span class="kw">if </span>!app.opts.minimal_controls {
+            <span class="self">self</span>.gameplay.draw(g, app);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">on_destroy</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>().<span class="ident">unzoomed_agents</span> <span class="op">=</span> <span class="ident">UnzoomedAgents::new</span>();
-        <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">on_destroy</span>(<span class="ident">app</span>);
+    <span class="kw">fn </span>on_destroy(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+        app.primary.layer = <span class="prelude-val">None</span>;
+        app.primary.agents.borrow_mut().unzoomed_agents = UnzoomedAgents::new();
+        <span class="self">self</span>.gameplay.on_destroy(app);
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_exit_sandbox</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Transition</span> {
-    <span class="ident">Transition::Push</span>(<span class="ident">ChooseSomething::new_state</span>(
-        <span class="ident">ctx</span>,
+<span class="kw">pub fn </span>maybe_exit_sandbox(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Transition {
+    Transition::Push(ChooseSomething::new_state(
+        ctx,
         <span class="string">&quot;Are you ready to leave this mode?&quot;</span>,
         <span class="macro">vec!</span>[
-            <span class="ident">Choice::string</span>(<span class="string">&quot;keep playing&quot;</span>),
-            <span class="ident">Choice::string</span>(<span class="string">&quot;quit to main screen&quot;</span>).<span class="ident">key</span>(<span class="ident">Key::Q</span>),
+            Choice::string(<span class="string">&quot;keep playing&quot;</span>),
+            Choice::string(<span class="string">&quot;quit to main screen&quot;</span>).key(Key::Q),
         ],
-        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">resp</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">resp</span> <span class="op">==</span> <span class="string">&quot;keep playing&quot;</span> {
-                <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+        Box::new(|resp, ctx, app| {
+            <span class="kw">if </span>resp == <span class="string">&quot;keep playing&quot; </span>{
+                <span class="kw">return </span>Transition::Pop;
             }
 
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">unsaved_edits</span>() {
-                <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Push</span>(<span class="ident">Box::new</span>(<span class="ident">BackToTitleScreen</span>)),
-                    <span class="ident">Transition::Push</span>(<span class="ident">SaveEdits::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
+            <span class="kw">if </span>app.primary.map.unsaved_edits() {
+                <span class="kw">return </span>Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Push(Box::new(BackToTitleScreen)),
+                    Transition::Push(SaveEdits::new_state(
+                        ctx,
+                        app,
                         <span class="string">&quot;Do you want to save your proposal first?&quot;</span>,
                         <span class="bool-val">true</span>,
                         <span class="prelude-val">None</span>,
-                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {}),
+                        Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {}),
                     )),
                 ]);
             }
-            <span class="ident">Transition::Replace</span>(<span class="ident">Box::new</span>(<span class="ident">BackToTitleScreen</span>))
+            Transition::Replace(Box::new(BackToTitleScreen))
         }),
     ))
 }
 
-<span class="kw">struct</span> <span class="ident">BackToTitleScreen</span>;
+<span class="kw">struct </span>BackToTitleScreen;
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BackToTitleScreen</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">app</span>.<span class="ident">change_color_scheme</span>(<span class="ident">ctx</span>, <span class="ident">ColorSchemeChoice::DayMode</span>);
-        <span class="ident">app</span>.<span class="ident">clear_everything</span>(<span class="ident">ctx</span>);
-        <span class="ident">Transition::Clear</span>(<span class="macro">vec!</span>[<span class="ident">TitleScreen::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)])
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>BackToTitleScreen {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        app.change_color_scheme(ctx, ColorSchemeChoice::DayMode);
+        app.clear_everything(ctx);
+        Transition::Clear(<span class="macro">vec!</span>[TitleScreen::new_state(ctx, app)])
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {}
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {}
 }
 
-<span class="comment">// pub for Warping</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Actions</span> {
-    <span class="ident">is_paused</span>: <span class="ident">bool</span>,
-    <span class="ident">can_interact</span>: <span class="ident">bool</span>,
-    <span class="ident">gameplay</span>: <span class="ident">GameplayMode</span>,
+<span class="comment">// pub for Warping
+</span><span class="kw">pub struct </span>Actions {
+    is_paused: bool,
+    can_interact: bool,
+    gameplay: GameplayMode,
 }
-<span class="kw">impl</span> <span class="ident">ContextualActions</span> <span class="kw">for</span> <span class="ident">Actions</span> {
-    <span class="kw">fn</span> <span class="ident">actions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">id</span>: <span class="ident">ID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Key</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">actions</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">can_interact</span> {
-            <span class="kw">match</span> <span class="ident">id</span> {
-                <span class="ident">ID::Intersection</span>(<span class="ident">i</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_traffic_signal</span>() {
-                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::E</span>, <span class="string">&quot;edit traffic signal&quot;</span>.<span class="ident">to_string</span>()));
+<span class="kw">impl </span>ContextualActions <span class="kw">for </span>Actions {
+    <span class="kw">fn </span>actions(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App, id: ID) -&gt; Vec&lt;(Key, String)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>actions = Vec::new();
+        <span class="kw">if </span><span class="self">self</span>.can_interact {
+            <span class="kw">match </span>id {
+                ID::Intersection(i) =&gt; {
+                    <span class="kw">if </span>app.primary.map.get_i(i).is_traffic_signal() {
+                        actions.push((Key::E, <span class="string">&quot;edit traffic signal&quot;</span>.to_string()));
                     }
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">is_stop_sign</span>()
-                        <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">can_edit_stop_signs</span>()
+                    <span class="kw">if </span>app.primary.map.get_i(i).is_stop_sign()
+                        &amp;&amp; <span class="self">self</span>.gameplay.can_edit_stop_signs()
                     {
-                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::E</span>, <span class="string">&quot;edit stop sign&quot;</span>.<span class="ident">to_string</span>()));
+                        actions.push((Key::E, <span class="string">&quot;edit stop sign&quot;</span>.to_string()));
                     }
-                    <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span> <span class="op">&amp;&amp;</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_recorded_trips</span>().<span class="ident">is_none</span>() {
-                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::R</span>, <span class="string">&quot;record traffic here&quot;</span>.<span class="ident">to_string</span>()));
-                    }
-                }
-                <span class="ident">ID::Lane</span>(<span class="ident">l</span>) =&gt; {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_turns_from_lane</span>(<span class="ident">l</span>).<span class="ident">is_empty</span>() {
-                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::Z</span>, <span class="string">&quot;explore turns from this lane&quot;</span>.<span class="ident">to_string</span>()));
-                    }
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">can_edit_roads</span>() <span class="op">&amp;&amp;</span> <span class="ident">can_edit_lane</span>(<span class="ident">app</span>, <span class="ident">l</span>) {
-                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::E</span>, <span class="string">&quot;edit lane&quot;</span>.<span class="ident">to_string</span>()));
+                    <span class="kw">if </span>app.opts.dev &amp;&amp; app.primary.sim.num_recorded_trips().is_none() {
+                        actions.push((Key::R, <span class="string">&quot;record traffic here&quot;</span>.to_string()));
                     }
                 }
-                <span class="ident">ID::Building</span>(<span class="ident">b</span>) =&gt; {
-                    <span class="kw">if</span> <span class="ident">Favorites::contains</span>(<span class="ident">app</span>, <span class="ident">b</span>) {
-                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::F</span>, <span class="string">&quot;remove this building from favorites&quot;</span>.<span class="ident">to_string</span>()));
-                    } <span class="kw">else</span> {
-                        <span class="ident">actions</span>.<span class="ident">push</span>((<span class="ident">Key::F</span>, <span class="string">&quot;add this building to favorites&quot;</span>.<span class="ident">to_string</span>()));
+                ID::Lane(l) =&gt; {
+                    <span class="kw">if </span>!app.primary.map.get_turns_from_lane(l).is_empty() {
+                        actions.push((Key::Z, <span class="string">&quot;explore turns from this lane&quot;</span>.to_string()));
+                    }
+                    <span class="kw">if </span><span class="self">self</span>.gameplay.can_edit_roads() &amp;&amp; can_edit_lane(app, l) {
+                        actions.push((Key::E, <span class="string">&quot;edit lane&quot;</span>.to_string()));
                     }
                 }
-                <span class="kw">_</span> =&gt; {}
+                ID::Building(b) =&gt; {
+                    <span class="kw">if </span>Favorites::contains(app, b) {
+                        actions.push((Key::F, <span class="string">&quot;remove this building from favorites&quot;</span>.to_string()));
+                    } <span class="kw">else </span>{
+                        actions.push((Key::F, <span class="string">&quot;add this building to favorites&quot;</span>.to_string()));
+                    }
+                }
+                <span class="kw">_ </span>=&gt; {}
             }
         }
-        <span class="ident">actions</span>.<span class="ident">extend</span>(<span class="kw">match</span> <span class="self">self</span>.<span class="ident">gameplay</span> {
-            <span class="ident">GameplayMode::Freeform</span>(<span class="kw">_</span>) =&gt; <span class="ident">gameplay::freeform::actions</span>(<span class="ident">app</span>, <span class="ident">id</span>),
-            <span class="ident">GameplayMode::Tutorial</span>(<span class="kw">_</span>) =&gt; <span class="ident">gameplay::tutorial::actions</span>(<span class="ident">app</span>, <span class="ident">id</span>),
-            <span class="kw">_</span> =&gt; <span class="ident">Vec::new</span>(),
+        actions.extend(<span class="kw">match </span><span class="self">self</span>.gameplay {
+            GameplayMode::Freeform(<span class="kw">_</span>) =&gt; gameplay::freeform::actions(app, id),
+            GameplayMode::Tutorial(<span class="kw">_</span>) =&gt; gameplay::tutorial::actions(app, id),
+            <span class="kw">_ </span>=&gt; Vec::new(),
         });
-        <span class="ident">actions</span>
+        actions
     }
-    <span class="kw">fn</span> <span class="ident">execute</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">id</span>: <span class="ident">ID</span>,
-        <span class="ident">action</span>: <span class="ident">String</span>,
-        <span class="ident">close_panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> (<span class="ident">id</span>, <span class="ident">action</span>.<span class="ident">as_ref</span>()) {
-            (<span class="ident">ID::Intersection</span>(<span class="ident">i</span>), <span class="string">&quot;edit traffic signal&quot;</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                <span class="ident">Transition::Push</span>(<span class="ident">EditMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
-                <span class="ident">Transition::Push</span>(<span class="ident">TrafficSignalEditor::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="macro">btreeset!</span> {<span class="ident">i</span>},
-                    <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>(),
+    <span class="kw">fn </span>execute(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        id: ID,
+        action: String,
+        close_panel: <span class="kw-2">&amp;mut </span>bool,
+    ) -&gt; Transition {
+        <span class="kw">match </span>(id, action.as_ref()) {
+            (ID::Intersection(i), <span class="string">&quot;edit traffic signal&quot;</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                Transition::Push(EditMode::new_state(ctx, app, <span class="self">self</span>.gameplay.clone())),
+                Transition::Push(TrafficSignalEditor::new_state(
+                    ctx,
+                    app,
+                    <span class="macro">btreeset! </span>{i},
+                    <span class="self">self</span>.gameplay.clone(),
                 )),
             ]),
-            (<span class="ident">ID::Intersection</span>(<span class="ident">i</span>), <span class="string">&quot;edit stop sign&quot;</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                <span class="ident">Transition::Push</span>(<span class="ident">EditMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
-                <span class="ident">Transition::Push</span>(<span class="ident">StopSignEditor::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="ident">i</span>,
-                    <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>(),
+            (ID::Intersection(i), <span class="string">&quot;edit stop sign&quot;</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                Transition::Push(EditMode::new_state(ctx, app, <span class="self">self</span>.gameplay.clone())),
+                Transition::Push(StopSignEditor::new_state(
+                    ctx,
+                    app,
+                    i,
+                    <span class="self">self</span>.gameplay.clone(),
                 )),
             ]),
-            (<span class="ident">ID::Intersection</span>(<span class="ident">i</span>), <span class="string">&quot;record traffic here&quot;</span>) =&gt; {
-                <span class="ident">Transition::Push</span>(<span class="ident">TrafficRecorder::new_state</span>(<span class="ident">ctx</span>, <span class="macro">btreeset!</span> {<span class="ident">i</span>}))
+            (ID::Intersection(i), <span class="string">&quot;record traffic here&quot;</span>) =&gt; {
+                Transition::Push(TrafficRecorder::new_state(ctx, <span class="macro">btreeset! </span>{i}))
             }
-            (<span class="ident">ID::Lane</span>(<span class="ident">l</span>), <span class="string">&quot;explore turns from this lane&quot;</span>) =&gt; {
-                <span class="ident">Transition::Push</span>(<span class="ident">TurnExplorer::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>))
+            (ID::Lane(l), <span class="string">&quot;explore turns from this lane&quot;</span>) =&gt; {
+                Transition::Push(TurnExplorer::new_state(ctx, app, l))
             }
-            (<span class="ident">ID::Lane</span>(<span class="ident">l</span>), <span class="string">&quot;edit lane&quot;</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                <span class="ident">Transition::Push</span>(<span class="ident">EditMode::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>())),
-                <span class="ident">Transition::Push</span>(<span class="ident">RoadEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>)),
+            (ID::Lane(l), <span class="string">&quot;edit lane&quot;</span>) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                Transition::Push(EditMode::new_state(ctx, app, <span class="self">self</span>.gameplay.clone())),
+                Transition::Push(RoadEditor::new_state(ctx, app, l)),
             ]),
-            (<span class="ident">ID::Building</span>(<span class="ident">b</span>), <span class="string">&quot;add this building to favorites&quot;</span>) =&gt; {
-                <span class="ident">Favorites::add</span>(<span class="ident">app</span>, <span class="ident">b</span>);
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">ShowFavorites::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
-                <span class="ident">Transition::Keep</span>
+            (ID::Building(b), <span class="string">&quot;add this building to favorites&quot;</span>) =&gt; {
+                Favorites::add(app, b);
+                app.primary.layer = <span class="prelude-val">Some</span>(Box::new(ShowFavorites::new(ctx, app)));
+                Transition::Keep
             }
-            (<span class="ident">ID::Building</span>(<span class="ident">b</span>), <span class="string">&quot;remove this building from favorites&quot;</span>) =&gt; {
-                <span class="ident">Favorites::remove</span>(<span class="ident">app</span>, <span class="ident">b</span>);
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">ShowFavorites::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
-                <span class="ident">Transition::Keep</span>
+            (ID::Building(b), <span class="string">&quot;remove this building from favorites&quot;</span>) =&gt; {
+                Favorites::remove(app, b);
+                app.primary.layer = <span class="prelude-val">Some</span>(Box::new(ShowFavorites::new(ctx, app)));
+                Transition::Keep
             }
             (<span class="kw">_</span>, <span class="string">&quot;follow (run the simulation)&quot;</span>) =&gt; {
-                <span class="kw-2">*</span><span class="ident">close_panel</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">time_panel</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">controls</span>.<span class="ident">time_panel</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
-                    <span class="macro">assert!</span>(<span class="ident">time_panel</span>.<span class="ident">is_paused</span>());
-                    <span class="ident">time_panel</span>.<span class="ident">resume</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">SpeedSetting::Realtime</span>);
+                <span class="kw-2">*</span>close_panel = <span class="bool-val">false</span>;
+                Transition::ModifyState(Box::new(|state, ctx, app| {
+                    <span class="kw">let </span>mode = state.downcast_mut::&lt;SandboxMode&gt;().unwrap();
+                    <span class="kw">let </span>time_panel = mode.controls.time_panel.as_mut().unwrap();
+                    <span class="macro">assert!</span>(time_panel.is_paused());
+                    time_panel.resume(ctx, app, SpeedSetting::Realtime);
                 }))
             }
             (<span class="kw">_</span>, <span class="string">&quot;unfollow (pause the simulation)&quot;</span>) =&gt; {
-                <span class="kw-2">*</span><span class="ident">close_panel</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxMode</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                    <span class="kw">let</span> <span class="ident">time_panel</span> <span class="op">=</span> <span class="ident">mode</span>.<span class="ident">controls</span>.<span class="ident">time_panel</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>();
-                    <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">time_panel</span>.<span class="ident">is_paused</span>());
-                    <span class="ident">time_panel</span>.<span class="ident">pause</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="kw-2">*</span>close_panel = <span class="bool-val">false</span>;
+                Transition::ModifyState(Box::new(|state, ctx, app| {
+                    <span class="kw">let </span>mode = state.downcast_mut::&lt;SandboxMode&gt;().unwrap();
+                    <span class="kw">let </span>time_panel = mode.controls.time_panel.as_mut().unwrap();
+                    <span class="macro">assert!</span>(!time_panel.is_paused());
+                    time_panel.pause(ctx, app);
                 }))
             }
-            (<span class="ident">id</span>, <span class="ident">action</span>) =&gt; <span class="kw">match</span> <span class="self">self</span>.<span class="ident">gameplay</span> {
-                <span class="ident">GameplayMode::Freeform</span>(<span class="kw">_</span>) =&gt; <span class="ident">gameplay::freeform::execute</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">action</span>),
-                <span class="ident">GameplayMode::Tutorial</span>(<span class="kw">_</span>) =&gt; <span class="ident">gameplay::tutorial::execute</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">id</span>, <span class="ident">action</span>),
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            (id, action) =&gt; <span class="kw">match </span><span class="self">self</span>.gameplay {
+                GameplayMode::Freeform(<span class="kw">_</span>) =&gt; gameplay::freeform::execute(ctx, app, id, action),
+                GameplayMode::Tutorial(<span class="kw">_</span>) =&gt; gameplay::tutorial::execute(ctx, app, id, action),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
         }
     }
-    <span class="kw">fn</span> <span class="ident">is_paused</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">is_paused</span>
+    <span class="kw">fn </span>is_paused(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.is_paused
     }
-    <span class="kw">fn</span> <span class="ident">gameplay_mode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">GameplayMode</span> {
-        <span class="self">self</span>.<span class="ident">gameplay</span>.<span class="ident">clone</span>()
+    <span class="kw">fn </span>gameplay_mode(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; GameplayMode {
+        <span class="self">self</span>.gameplay.clone()
     }
 }
 
-<span class="comment">// TODO Setting SandboxMode up is quite convoluted, all in order to support asynchronously loading</span>
-<span class="comment">// files on the web. Each LoadStage is followed in order, with some optional short-circuiting.</span>
-<span class="comment">//</span>
-<span class="comment">// Ideally there&#39;d be a much simpler way to express this using Rust&#39;s async, to let the compiler</span>
-<span class="comment">// express this state machine for us.</span>
+<span class="comment">// TODO Setting SandboxMode up is quite convoluted, all in order to support asynchronously loading
+// files on the web. Each LoadStage is followed in order, with some optional short-circuiting.
+//
+// Ideally there&#39;d be a much simpler way to express this using Rust&#39;s async, to let the compiler
+// express this state machine for us.
 
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::large_enum_variant</span>)]</span>
-<span class="kw">enum</span> <span class="ident">LoadStage</span> {
-    <span class="ident">LoadingMap</span>,
-    <span class="ident">LoadingScenario</span>,
-    <span class="ident">GotScenario</span>(<span class="ident">Scenario</span>),
-    <span class="comment">// Scenario name</span>
-    <span class="ident">LoadingPrebaked</span>(<span class="ident">String</span>),
-    <span class="comment">// Scenario name, maybe prebaked data</span>
-    <span class="ident">GotPrebaked</span>(<span class="ident">String</span>, <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Analytics</span><span class="op">&gt;</span>),
-    <span class="ident">Finalizing</span>,
+</span><span class="attribute">#[allow(clippy::large_enum_variant)]
+</span><span class="kw">enum </span>LoadStage {
+    LoadingMap,
+    LoadingScenario,
+    GotScenario(Scenario),
+    <span class="comment">// Scenario name
+    </span>LoadingPrebaked(String),
+    <span class="comment">// Scenario name, maybe prebaked data
+    </span>GotPrebaked(String, <span class="prelude-ty">Result</span>&lt;Analytics&gt;),
+    Finalizing,
 }
 
-<span class="kw">struct</span> <span class="ident">SandboxLoader</span> {
-    <span class="comment">// Always exists, just a way to avoid clones</span>
-    <span class="ident">stage</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LoadStage</span><span class="op">&gt;</span>,
-    <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    <span class="ident">finalize</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>SandboxLoader {
+    <span class="comment">// Always exists, just a way to avoid clones
+    </span>stage: <span class="prelude-ty">Option</span>&lt;LoadStage&gt;,
+    mode: GameplayMode,
+    finalize: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>FnOnce(<span class="kw-2">&amp;mut </span>EventCtx, <span class="kw-2">&amp;mut </span>App) -&gt; Vec&lt;Transition&gt;&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SandboxLoader</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">loop</span> {
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">stage</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>() {
-                <span class="ident">LoadStage::LoadingMap</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">MapLoader::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">map_name</span>(),
-                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                            <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                <span class="ident">Transition::Pop</span>,
-                                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                                    <span class="kw">let</span> <span class="ident">loader</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxLoader</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                    <span class="ident">loader</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::LoadingScenario</span>);
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>SandboxLoader {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">loop </span>{
+            <span class="kw">match </span><span class="self">self</span>.stage.take().unwrap() {
+                LoadStage::LoadingMap =&gt; {
+                    <span class="kw">return </span>Transition::Push(MapLoader::new_state(
+                        ctx,
+                        app,
+                        <span class="self">self</span>.mode.map_name(),
+                        Box::new(|<span class="kw">_</span>, <span class="kw">_</span>| {
+                            Transition::Multi(<span class="macro">vec!</span>[
+                                Transition::Pop,
+                                Transition::ModifyState(Box::new(|state, <span class="kw">_</span>, <span class="kw">_</span>| {
+                                    <span class="kw">let </span>loader = state.downcast_mut::&lt;SandboxLoader&gt;().unwrap();
+                                    loader.stage = <span class="prelude-val">Some</span>(LoadStage::LoadingScenario);
                                 })),
                             ])
                         }),
                     ));
                 }
-                <span class="ident">LoadStage::LoadingScenario</span> =&gt; {
-                    <span class="comment">// TODO Can we cache the dynamically generated scenarios, like home_to_work, and</span>
-                    <span class="comment">// avoid regenerating with this call?</span>
-                    <span class="kw">match</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;load scenario&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">scenario</span>(
-                            <span class="ident">app</span>,
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>(),
-                            <span class="ident">timer</span>,
+                LoadStage::LoadingScenario =&gt; {
+                    <span class="comment">// TODO Can we cache the dynamically generated scenarios, like home_to_work, and
+                    // avoid regenerating with this call?
+                    </span><span class="kw">match </span>ctx.loading_screen(<span class="string">&quot;load scenario&quot;</span>, |<span class="kw">_</span>, timer| {
+                        <span class="self">self</span>.mode.scenario(
+                            app,
+                            app.primary.current_flags.sim_flags.make_rng(),
+                            timer,
                         )
                     }) {
-                        <span class="ident">gameplay::LoadScenario::Nothing</span> =&gt; {
-                            <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
-                            <span class="self">self</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::Finalizing</span>);
+                        gameplay::LoadScenario::Nothing =&gt; {
+                            app.set_prebaked(<span class="prelude-val">None</span>);
+                            <span class="self">self</span>.stage = <span class="prelude-val">Some</span>(LoadStage::Finalizing);
                             <span class="kw">continue</span>;
                         }
-                        <span class="ident">gameplay::LoadScenario::Scenario</span>(<span class="ident">scenario</span>) =&gt; {
-                            <span class="comment">// TODO Consider using the cached app.primary.scenario, if possible.</span>
-                            <span class="self">self</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::GotScenario</span>(<span class="ident">scenario</span>));
+                        gameplay::LoadScenario::Scenario(scenario) =&gt; {
+                            <span class="comment">// TODO Consider using the cached app.primary.scenario, if possible.
+                            </span><span class="self">self</span>.stage = <span class="prelude-val">Some</span>(LoadStage::GotScenario(scenario));
                             <span class="kw">continue</span>;
                         }
-                        <span class="ident">gameplay::LoadScenario::Future</span>(<span class="ident">future</span>) =&gt; {
-                            <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-                            <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-                            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Scenario</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">Box::pin</span>(<span class="ident">future</span>),
-                                <span class="ident">outer_progress_rx</span>,
-                                <span class="ident">inner_progress_rx</span>,
+                        gameplay::LoadScenario::Future(future) =&gt; {
+                            <span class="kw">let </span>(<span class="kw">_</span>, outer_progress_rx) = futures_channel::mpsc::channel(<span class="number">1</span>);
+                            <span class="kw">let </span>(<span class="kw">_</span>, inner_progress_rx) = futures_channel::mpsc::channel(<span class="number">1</span>);
+                            <span class="kw">return </span>Transition::Push(FutureLoader::&lt;App, Scenario&gt;::new_state(
+                                ctx,
+                                Box::pin(future),
+                                outer_progress_rx,
+                                inner_progress_rx,
                                 <span class="string">&quot;Loading Scenario&quot;</span>,
-                                <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">scenario</span><span class="op">|</span> {
-                                    <span class="comment">// TODO show error/retry alert?</span>
-                                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span>
-                                        <span class="ident">scenario</span>.<span class="ident">expect</span>(<span class="string">&quot;failed to load scenario from future&quot;</span>);
-                                    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                        <span class="ident">Transition::Pop</span>,
-                                        <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                                            <span class="kw">let</span> <span class="ident">loader</span> <span class="op">=</span>
-                                                <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxLoader</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                            <span class="ident">loader</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::GotScenario</span>(<span class="ident">scenario</span>));
+                                Box::new(|<span class="kw">_</span>, <span class="kw">_</span>, scenario| {
+                                    <span class="comment">// TODO show error/retry alert?
+                                    </span><span class="kw">let </span>scenario =
+                                        scenario.expect(<span class="string">&quot;failed to load scenario from future&quot;</span>);
+                                    Transition::Multi(<span class="macro">vec!</span>[
+                                        Transition::Pop,
+                                        Transition::ModifyState(Box::new(|state, <span class="kw">_</span>, <span class="kw">_</span>| {
+                                            <span class="kw">let </span>loader =
+                                                state.downcast_mut::&lt;SandboxLoader&gt;().unwrap();
+                                            loader.stage = <span class="prelude-val">Some</span>(LoadStage::GotScenario(scenario));
                                         })),
                                     ])
                                 }),
                             ));
                         }
-                        <span class="ident">gameplay::LoadScenario::Path</span>(<span class="ident">path</span>) =&gt; {
-                            <span class="comment">// Reuse the cached scenario, if possible.</span>
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">scenario</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">scenario</span> {
-                                <span class="kw">if</span> <span class="ident">scenario</span>.<span class="ident">scenario_name</span> <span class="op">==</span> <span class="ident">abstutil::basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
-                                    <span class="self">self</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::GotScenario</span>(<span class="ident">scenario</span>.<span class="ident">clone</span>()));
+                        gameplay::LoadScenario::Path(path) =&gt; {
+                            <span class="comment">// Reuse the cached scenario, if possible.
+                            </span><span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>scenario) = app.primary.scenario {
+                                <span class="kw">if </span>scenario.scenario_name == abstutil::basename(<span class="kw-2">&amp;</span>path) {
+                                    <span class="self">self</span>.stage = <span class="prelude-val">Some</span>(LoadStage::GotScenario(scenario.clone()));
                                     <span class="kw">continue</span>;
                                 }
                             }
 
-                            <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Scenario</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-                                <span class="ident">ctx</span>,
-                                <span class="ident">path</span>,
-                                <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">scenario</span><span class="op">|</span> {
-                                    <span class="comment">// TODO Handle corrupt files</span>
-                                    <span class="kw">let</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">unwrap</span>();
-                                    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                        <span class="ident">Transition::Pop</span>,
-                                        <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">state</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                                            <span class="kw">let</span> <span class="ident">loader</span> <span class="op">=</span>
-                                                <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxLoader</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                            <span class="ident">loader</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::GotScenario</span>(<span class="ident">scenario</span>));
+                            <span class="kw">return </span>Transition::Push(FileLoader::&lt;App, Scenario&gt;::new_state(
+                                ctx,
+                                path,
+                                Box::new(|<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, scenario| {
+                                    <span class="comment">// TODO Handle corrupt files
+                                    </span><span class="kw">let </span>scenario = scenario.unwrap();
+                                    Transition::Multi(<span class="macro">vec!</span>[
+                                        Transition::Pop,
+                                        Transition::ModifyState(Box::new(|state, <span class="kw">_</span>, <span class="kw">_</span>| {
+                                            <span class="kw">let </span>loader =
+                                                state.downcast_mut::&lt;SandboxLoader&gt;().unwrap();
+                                            loader.stage = <span class="prelude-val">Some</span>(LoadStage::GotScenario(scenario));
                                         })),
                                     ])
                                 }),
@@ -1290,205 +1290,205 @@
                         }
                     }
                 }
-                <span class="ident">LoadStage::GotScenario</span>(<span class="kw-2">mut</span> <span class="ident">scenario</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">scenario_name</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>();
-                    <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;instantiate scenario&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">scenario</span>.<span class="ident">clone</span>());
+                LoadStage::GotScenario(<span class="kw-2">mut </span>scenario) =&gt; {
+                    <span class="kw">let </span>scenario_name = scenario.scenario_name.clone();
+                    ctx.loading_screen(<span class="string">&quot;instantiate scenario&quot;</span>, |<span class="kw">_</span>, timer| {
+                        app.primary.scenario = <span class="prelude-val">Some</span>(scenario.clone());
 
-                        <span class="comment">// Use the same RNG as we apply scenario modifiers and instantiate the</span>
-                        <span class="comment">// scenario. One unexpected effect will be that parked car seeding (during</span>
-                        <span class="comment">// scenario instantiation) may spuriously change if a scenario modifier</span>
-                        <span class="comment">// uses the RNG. This is at least consistent with the tests, headless mode,</span>
-                        <span class="comment">// and instantiating a scenario from CLI flags.</span>
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>();
+                        <span class="comment">// Use the same RNG as we apply scenario modifiers and instantiate the
+                        // scenario. One unexpected effect will be that parked car seeding (during
+                        // scenario instantiation) may spuriously change if a scenario modifier
+                        // uses the RNG. This is at least consistent with the tests, headless mode,
+                        // and instantiating a scenario from CLI flags.
+                        </span><span class="kw">let </span><span class="kw-2">mut </span>rng = app.primary.current_flags.sim_flags.make_rng();
 
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">GameplayMode::PlayScenario</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">modifiers</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span> {
-                            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">modifiers</span> {
-                                <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+                        <span class="kw">if let </span>GameplayMode::PlayScenario(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw-2">ref </span>modifiers) = <span class="self">self</span>.mode {
+                            <span class="kw">for </span>m <span class="kw">in </span>modifiers {
+                                scenario = m.apply(<span class="kw-2">&amp;</span>app.primary.map, scenario, <span class="kw-2">&amp;mut </span>rng);
                             }
                         }
 
-                        <span class="ident">app</span>.<span class="ident">primary</span>
-                            .<span class="ident">sim</span>
-                            .<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>);
-                        <span class="ident">app</span>.<span class="ident">primary</span>
-                            .<span class="ident">sim</span>
-                            .<span class="ident">tiny_step</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>);
+                        app.primary
+                            .sim
+                            .instantiate(<span class="kw-2">&amp;</span>scenario, <span class="kw-2">&amp;</span>app.primary.map, <span class="kw-2">&amp;mut </span>rng, timer);
+                        app.primary
+                            .sim
+                            .tiny_step(<span class="kw-2">&amp;</span>app.primary.map, <span class="kw-2">&amp;mut </span>app.primary.sim_cb);
 
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">secondary</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">secondary</span> {
-                            <span class="comment">// TODO Modifiers already applied</span>
-                            <span class="ident">secondary</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">scenario</span>.<span class="ident">clone</span>());
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>secondary) = app.secondary {
+                            <span class="comment">// TODO Modifiers already applied
+                            </span>secondary.scenario = <span class="prelude-val">Some</span>(scenario.clone());
 
-                            <span class="ident">secondary</span>.<span class="ident">sim</span>.<span class="ident">instantiate</span>(
-                                <span class="kw-2">&amp;</span><span class="ident">scenario</span>,
-                                <span class="kw-2">&amp;</span><span class="ident">secondary</span>.<span class="ident">map</span>,
-                                <span class="comment">// Start fresh here. This will match up with the primary sim,</span>
-                                <span class="comment">// unless modifiers used the RNG</span>
-                                <span class="kw-2">&amp;mut</span> <span class="ident">secondary</span>.<span class="ident">current_flags</span>.<span class="ident">sim_flags</span>.<span class="ident">make_rng</span>(),
-                                <span class="ident">timer</span>,
+                            secondary.sim.instantiate(
+                                <span class="kw-2">&amp;</span>scenario,
+                                <span class="kw-2">&amp;</span>secondary.map,
+                                <span class="comment">// Start fresh here. This will match up with the primary sim,
+                                // unless modifiers used the RNG
+                                </span><span class="kw-2">&amp;mut </span>secondary.current_flags.sim_flags.make_rng(),
+                                timer,
                             );
-                            <span class="ident">secondary</span>
-                                .<span class="ident">sim</span>
-                                .<span class="ident">tiny_step</span>(<span class="kw-2">&amp;</span><span class="ident">secondary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">secondary</span>.<span class="ident">sim_cb</span>);
+                            secondary
+                                .sim
+                                .tiny_step(<span class="kw-2">&amp;</span>secondary.map, <span class="kw-2">&amp;mut </span>secondary.sim_cb);
                         }
                     });
 
-                    <span class="self">self</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::LoadingPrebaked</span>(<span class="ident">scenario_name</span>));
+                    <span class="self">self</span>.stage = <span class="prelude-val">Some</span>(LoadStage::LoadingPrebaked(scenario_name));
                     <span class="kw">continue</span>;
                 }
-                <span class="ident">LoadStage::LoadingPrebaked</span>(<span class="ident">scenario_name</span>) =&gt; {
-                    <span class="comment">// Maybe we&#39;ve already got prebaked data for this map+scenario.</span>
-                    <span class="kw">if</span> <span class="ident">app</span>
-                        .<span class="ident">has_prebaked</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">m</span>, <span class="ident">s</span>)<span class="op">|</span> <span class="ident">m</span> <span class="op">==</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">&amp;&amp;</span> <span class="ident">s</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">scenario_name</span>)
-                        .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+                LoadStage::LoadingPrebaked(scenario_name) =&gt; {
+                    <span class="comment">// Maybe we&#39;ve already got prebaked data for this map+scenario.
+                    </span><span class="kw">if </span>app
+                        .has_prebaked()
+                        .map(|(m, s)| m == app.primary.map.get_name() &amp;&amp; s == <span class="kw-2">&amp;</span>scenario_name)
+                        .unwrap_or(<span class="bool-val">false</span>)
                     {
-                        <span class="self">self</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::Finalizing</span>);
+                        <span class="self">self</span>.stage = <span class="prelude-val">Some</span>(LoadStage::Finalizing);
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Analytics</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">abstio::path_prebaked_results</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">scenario_name</span>),
-                        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">prebaked</span><span class="op">|</span> {
-                            <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                                <span class="ident">Transition::Pop</span>,
-                                <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                                    <span class="kw">let</span> <span class="ident">loader</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">SandboxLoader</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                                    <span class="ident">loader</span>.<span class="ident">stage</span> <span class="op">=</span>
-                                        <span class="prelude-val">Some</span>(<span class="ident">LoadStage::GotPrebaked</span>(<span class="ident">scenario_name</span>, <span class="ident">prebaked</span>));
+                    <span class="kw">return </span>Transition::Push(FileLoader::&lt;App, Analytics&gt;::new_state(
+                        ctx,
+                        abstio::path_prebaked_results(app.primary.map.get_name(), <span class="kw-2">&amp;</span>scenario_name),
+                        Box::new(<span class="kw">move </span>|<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, prebaked| {
+                            Transition::Multi(<span class="macro">vec!</span>[
+                                Transition::Pop,
+                                Transition::ModifyState(Box::new(<span class="kw">move </span>|state, <span class="kw">_</span>, <span class="kw">_</span>| {
+                                    <span class="kw">let </span>loader = state.downcast_mut::&lt;SandboxLoader&gt;().unwrap();
+                                    loader.stage =
+                                        <span class="prelude-val">Some</span>(LoadStage::GotPrebaked(scenario_name, prebaked));
                                 })),
                             ])
                         }),
                     ));
                 }
-                <span class="ident">LoadStage::GotPrebaked</span>(<span class="ident">scenario_name</span>, <span class="ident">prebaked</span>) =&gt; {
-                    <span class="kw">match</span> <span class="ident">prebaked</span> {
-                        <span class="prelude-val">Ok</span>(<span class="ident">prebaked</span>) =&gt; {
-                            <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">Some</span>((
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                                <span class="ident">scenario_name</span>,
-                                <span class="ident">prebaked</span>,
+                LoadStage::GotPrebaked(scenario_name, prebaked) =&gt; {
+                    <span class="kw">match </span>prebaked {
+                        <span class="prelude-val">Ok</span>(prebaked) =&gt; {
+                            app.set_prebaked(<span class="prelude-val">Some</span>((
+                                app.primary.map.get_name().clone(),
+                                scenario_name,
+                                prebaked,
                             )));
                         }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
+                        <span class="prelude-val">Err</span>(err) =&gt; {
                             <span class="macro">warn!</span>(
                                 <span class="string">&quot;No prebaked simulation results for \&quot;{}\&quot; scenario on {} map. \
                                  This means trip dashboards can&#39;t compare current times to any \
                                  kind of baseline: {}&quot;</span>,
-                                <span class="ident">scenario_name</span>,
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">describe</span>(),
-                                <span class="ident">err</span>
+                                scenario_name,
+                                app.primary.map.get_name().describe(),
+                                err
                             );
-                            <span class="ident">app</span>.<span class="ident">set_prebaked</span>(<span class="prelude-val">None</span>);
+                            app.set_prebaked(<span class="prelude-val">None</span>);
                         }
                     }
-                    <span class="self">self</span>.<span class="ident">stage</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LoadStage::Finalizing</span>);
+                    <span class="self">self</span>.stage = <span class="prelude-val">Some</span>(LoadStage::Finalizing);
                     <span class="kw">continue</span>;
                 }
-                <span class="ident">LoadStage::Finalizing</span> =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gameplay</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">initialize</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="ident">gameplay</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="kw">let</span> <span class="ident">sandbox</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">SandboxMode</span> {
-                        <span class="ident">controls</span>: <span class="ident">SandboxControls::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">gameplay</span>.<span class="ident">as_ref</span>()),
-                        <span class="ident">gameplay</span>,
-                        <span class="ident">gameplay_mode</span>: <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
-                        <span class="ident">recalc_unzoomed_agent</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">last_cs</span>: <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">color_scheme</span>,
+                LoadStage::Finalizing =&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>gameplay = <span class="self">self</span>.mode.initialize(ctx, app);
+                    gameplay.recreate_panels(ctx, app);
+                    <span class="kw">let </span>sandbox = Box::new(SandboxMode {
+                        controls: SandboxControls::new(ctx, app, gameplay.as_ref()),
+                        gameplay,
+                        gameplay_mode: <span class="self">self</span>.mode.clone(),
+                        recalc_unzoomed_agent: <span class="prelude-val">None</span>,
+                        last_cs: app.opts.color_scheme,
                     });
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">transitions</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Transition::Replace</span>(<span class="ident">sandbox</span>)];
-                    <span class="ident">transitions</span>.<span class="ident">extend</span>((<span class="self">self</span>.<span class="ident">finalize</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>())(<span class="ident">ctx</span>, <span class="ident">app</span>));
-                    <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="ident">transitions</span>);
+                    <span class="kw">let </span><span class="kw-2">mut </span>transitions = <span class="macro">vec!</span>[Transition::Replace(sandbox)];
+                    transitions.extend((<span class="self">self</span>.finalize.take().unwrap())(ctx, app));
+                    <span class="kw">return </span>Transition::Multi(transitions);
                 }
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {}
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {}
 }
 
-<span class="kw">fn</span> <span class="ident">mouseover_unzoomed_agent_circle</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-    <span class="kw">let</span> <span class="ident">cursor</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>() {
-        <span class="ident">pt</span>
-    } <span class="kw">else</span> {
+<span class="kw">fn </span>mouseover_unzoomed_agent_circle(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+    <span class="kw">let </span>cursor = <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = ctx.canvas.get_cursor_in_map_space() {
+        pt
+    } <span class="kw">else </span>{
         <span class="kw">return</span>;
     };
 
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">app</span>
-        .<span class="ident">primary</span>
-        .<span class="ident">agents</span>
-        .<span class="ident">borrow_mut</span>()
-        .<span class="ident">calculate_unzoomed_agents</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>)
-        .<span class="ident">query</span>(
-            <span class="ident">Circle::new</span>(<span class="ident">cursor</span>, <span class="ident">Distance::meters</span>(<span class="number">3.0</span>))
-                .<span class="ident">get_bounds</span>()
-                .<span class="ident">as_bbox</span>(),
+    <span class="kw">for </span>(id, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span>app
+        .primary
+        .agents
+        .borrow_mut()
+        .calculate_unzoomed_agents(ctx, <span class="kw-2">&amp;</span>app.primary.map, <span class="kw-2">&amp;</span>app.primary.sim, <span class="kw-2">&amp;</span>app.cs)
+        .query(
+            Circle::new(cursor, Distance::meters(<span class="number">3.0</span>))
+                .get_bounds()
+                .as_bbox(),
         )
     {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">primary</span>
-            .<span class="ident">sim</span>
-            .<span class="ident">canonical_pt_for_agent</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>)
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(pt) = app
+            .primary
+            .sim
+            .canonical_pt_for_agent(<span class="kw-2">*</span>id, <span class="kw-2">&amp;</span>app.primary.map)
         {
-            <span class="kw">if</span> <span class="ident">Circle::new</span>(<span class="ident">pt</span>, <span class="ident">unzoomed_agent_radius</span>(<span class="ident">id</span>.<span class="ident">to_vehicle_type</span>())).<span class="ident">contains_pt</span>(<span class="ident">cursor</span>) {
-                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ID::from_agent</span>(<span class="kw-2">*</span><span class="ident">id</span>));
+            <span class="kw">if </span>Circle::new(pt, unzoomed_agent_radius(id.to_vehicle_type())).contains_pt(cursor) {
+                app.primary.current_selection = <span class="prelude-val">Some</span>(ID::from_agent(<span class="kw-2">*</span>id));
             }
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">is_daytime</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="ident">hours</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">get_hours</span>() <span class="op">%</span> <span class="number">24</span>;
-    (<span class="number">6</span>..<span class="number">18</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">hours</span>)
+<span class="kw">fn </span>is_daytime(app: <span class="kw-2">&amp;</span>App) -&gt; bool {
+    <span class="kw">let </span>hours = app.primary.sim.time().get_hours() % <span class="number">24</span>;
+    (<span class="number">6</span>..<span class="number">18</span>).contains(<span class="kw-2">&amp;</span>hours)
 }
 
-<span class="kw">impl</span> <span class="ident">SandboxControls</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">gameplay</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">gameplay::GameplayState</span>,
-    ) -&gt; <span class="ident">SandboxControls</span> {
-        <span class="ident">SandboxControls</span> {
-            <span class="ident">common</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_common</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">CommonState::new</span>())
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
-            <span class="ident">route_preview</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">can_examine_objects</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">RoutePreview::new</span>())
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
-            <span class="ident">tool_panel</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_tool_panel</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">tool_panel</span>(<span class="ident">ctx</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
-            <span class="ident">time_panel</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_time_panel</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">TimePanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
-            <span class="ident">minimap</span>: <span class="kw">if</span> <span class="ident">gameplay</span>.<span class="ident">has_minimap</span>() {
-                <span class="prelude-val">Some</span>(<span class="ident">Minimap::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">MinimapController</span>))
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            },
+<span class="kw">impl </span>SandboxControls {
+    <span class="kw">pub fn </span>new(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        gameplay: <span class="kw-2">&amp;</span><span class="kw">dyn </span>gameplay::GameplayState,
+    ) -&gt; SandboxControls {
+        SandboxControls {
+            common: <span class="kw">if </span>gameplay.has_common() {
+                <span class="prelude-val">Some</span>(CommonState::new())
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>},
+            route_preview: <span class="kw">if </span>gameplay.can_examine_objects() {
+                <span class="prelude-val">Some</span>(RoutePreview::new())
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>},
+            tool_panel: <span class="kw">if </span>gameplay.has_tool_panel() {
+                <span class="prelude-val">Some</span>(tool_panel(ctx))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>},
+            time_panel: <span class="kw">if </span>gameplay.has_time_panel() {
+                <span class="prelude-val">Some</span>(TimePanel::new(ctx, app))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>},
+            minimap: <span class="kw">if </span>gameplay.has_minimap() {
+                <span class="prelude-val">Some</span>(Minimap::new(ctx, app, MinimapController))
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>},
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tool_panel</span>.<span class="ident">is_some</span>() {
-            <span class="self">self</span>.<span class="ident">tool_panel</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">tool_panel</span>(<span class="ident">ctx</span>));
+    <span class="kw">fn </span>recreate_panels(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if </span><span class="self">self</span>.tool_panel.is_some() {
+            <span class="self">self</span>.tool_panel = <span class="prelude-val">Some</span>(tool_panel(ctx));
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">speed</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">time_panel</span> {
-            <span class="ident">speed</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>speed) = <span class="self">self</span>.time_panel {
+            speed.recreate_panel(ctx, app);
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">minimap</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">minimap</span> {
-            <span class="ident">minimap</span>.<span class="ident">recreate_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>minimap) = <span class="self">self</span>.minimap {
+            minimap.recreate_panel(ctx, app);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

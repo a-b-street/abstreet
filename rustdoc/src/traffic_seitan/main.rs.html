@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `traffic_seitan/src/main.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../traffic_seitan/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../traffic_seitan/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../traffic_seitan/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `traffic_seitan/src/main.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>main.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../traffic_seitan/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../traffic_seitan/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../traffic_seitan/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -145,130 +145,130 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This is a tool that runs a simulation, constantly interrupting to apply random map edits to the</span>
-<span class="doccomment">//! live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This is a tool that runs a simulation, constantly interrupting to apply random map edits to the
+//! live sim without resetting to midnight. The purpose is to trigger crashes and find bugs.
 
-<span class="comment">// TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.</span>
+</span><span class="comment">// TODO Eventually rewrite this to go through the public API. Faster to iterate in Rust for now.
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+</span><span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
+<span class="kw">use </span>rand::seq::SliceRandom;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
+<span class="kw">use </span>structopt::StructOpt;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom::Duration</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">LaneID</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">sim::Sim</span>;
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::Duration;
+<span class="kw">use </span>map_model::{LaneID, LaneType, Map, MapEdits};
+<span class="kw">use </span>sim::Sim;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
-<span class="attribute">#[<span class="ident">structopt</span>(
-    <span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;traffic_seitan&quot;</span>,
-    <span class="ident">about</span> <span class="op">=</span> <span class="string">&quot;Automated fuzz testing for live map edits&quot;</span>
-)]</span>
-<span class="kw">struct</span> <span class="ident">Args</span> {
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-    <span class="ident">flags</span>: <span class="ident">sim::SimFlags</span>,
+<span class="attribute">#[derive(StructOpt)]
+#[structopt(
+    name = <span class="string">&quot;traffic_seitan&quot;</span>,
+    about = <span class="string">&quot;Automated fuzz testing for live map edits&quot;
+</span>)]
+</span><span class="kw">struct </span>Args {
+    <span class="attribute">#[structopt(flatten)]
+    </span>flags: sim::SimFlags,
 }
 
-<span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="ident">abstutil::logger::setup</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim_flags</span> <span class="op">=</span> <span class="ident">Args::from_args</span>().<span class="ident">flags</span>;
-    <span class="ident">sim_flags</span>.<span class="ident">initialize</span>();
+<span class="kw">fn </span>main() {
+    abstutil::logger::setup();
+    <span class="kw">let </span><span class="kw-2">mut </span>sim_flags = Args::from_args().flags;
+    sim_flags.initialize();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::throwaway</span>();
-    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">map</span>, <span class="kw-2">mut</span> <span class="ident">sim</span>, <span class="kw-2">mut</span> <span class="ident">rng</span>) <span class="op">=</span> <span class="ident">sim_flags</span>.<span class="ident">load_synchronously</span>(<span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::throwaway();
+    <span class="kw">let </span>(<span class="kw-2">mut </span>map, <span class="kw-2">mut </span>sim, <span class="kw-2">mut </span>rng) = sim_flags.load_synchronously(<span class="kw-2">&amp;mut </span>timer);
 
-    <span class="comment">// Set the edits name up-front, so that the savestates get named reasonably too.</span>
-    {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-        <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="string">&quot;traffic_seitan&quot;</span>.<span class="ident">to_string</span>();
-        <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-        <span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-        <span class="ident">sim</span>.<span class="ident">handle_live_edits</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+    <span class="comment">// Set the edits name up-front, so that the savestates get named reasonably too.
+    </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>edits = map.get_edits().clone();
+        edits.edits_name = <span class="string">&quot;traffic_seitan&quot;</span>.to_string();
+        map.must_apply_edits(edits, <span class="kw-2">&amp;mut </span>timer);
+        map.recalculate_pathfinding_after_edits(<span class="kw-2">&amp;mut </span>timer);
+        sim.handle_live_edits(<span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;mut </span>timer);
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">std::panic::catch_unwind</span>(<span class="ident">std::panic::AssertUnwindSafe</span>(<span class="op">|</span><span class="op">|</span> {
-        <span class="ident">run</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">sim</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+    <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        run(<span class="kw-2">&amp;mut </span>map, <span class="kw-2">&amp;mut </span>sim, <span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;mut </span>timer);
     })) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-        <span class="ident">edits</span>.<span class="ident">edits_name</span> <span class="op">=</span> <span class="string">&quot;traffic_seitan_crash&quot;</span>.<span class="ident">to_string</span>();
-        <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-        <span class="ident">map</span>.<span class="ident">save_edits</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>edits = map.get_edits().clone();
+        edits.edits_name = <span class="string">&quot;traffic_seitan_crash&quot;</span>.to_string();
+        map.must_apply_edits(edits, <span class="kw-2">&amp;mut </span>timer);
+        map.save_edits();
 
-        <span class="macro">println!</span>(<span class="string">&quot;Crashed at {}&quot;</span>, <span class="ident">sim</span>.<span class="ident">time</span>());
+        <span class="macro">println!</span>(<span class="string">&quot;Crashed at {}&quot;</span>, sim.time());
 
-        <span class="ident">std::panic::resume_unwind</span>(<span class="ident">err</span>)
+        std::panic::resume_unwind(err)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Map</span>, <span class="ident">sim</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Sim</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">let</span> <span class="ident">edit_frequency</span> <span class="op">=</span> <span class="ident">Duration::minutes</span>(<span class="number">5</span>);
+<span class="kw">fn </span>run(map: <span class="kw-2">&amp;mut </span>Map, sim: <span class="kw-2">&amp;mut </span>Sim, rng: <span class="kw-2">&amp;mut </span>XorShiftRng, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="kw">let </span>edit_frequency = Duration::minutes(<span class="number">5</span>);
 
-    <span class="kw">while</span> <span class="op">!</span><span class="ident">sim</span>.<span class="ident">is_done</span>() {
+    <span class="kw">while </span>!sim.is_done() {
         <span class="macro">println!</span>();
-        <span class="ident">sim</span>.<span class="ident">timed_step</span>(<span class="ident">map</span>, <span class="ident">edit_frequency</span>, <span class="kw-2">&amp;mut</span> <span class="prelude-val">None</span>, <span class="ident">timer</span>);
-        <span class="ident">sim</span>.<span class="ident">save</span>();
-        <span class="ident">map</span>.<span class="ident">save_edits</span>();
+        sim.timed_step(map, edit_frequency, <span class="kw-2">&amp;mut </span><span class="prelude-val">None</span>, timer);
+        sim.save();
+        map.save_edits();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-        <span class="ident">nuke_random_parking</span>(<span class="ident">map</span>, <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">edits</span>);
-        <span class="ident">alter_turn_destinations</span>(<span class="ident">sim</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">edits</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>edits = map.get_edits().clone();
+        nuke_random_parking(map, rng, <span class="kw-2">&amp;mut </span>edits);
+        alter_turn_destinations(sim, map, rng, <span class="kw-2">&amp;mut </span>edits);
 
-        <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
-        <span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
-        <span class="ident">sim</span>.<span class="ident">handle_live_edited_traffic_signals</span>(<span class="ident">map</span>);
-        <span class="ident">sim</span>.<span class="ident">handle_live_edits</span>(<span class="ident">map</span>, <span class="ident">timer</span>);
+        map.must_apply_edits(edits, timer);
+        map.recalculate_pathfinding_after_edits(timer);
+        sim.handle_live_edited_traffic_signals(map);
+        sim.handle_live_edits(map, timer);
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cancelled</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> (<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">get_analytics</span>().<span class="ident">finished_trips</span> {
-        <span class="kw">if</span> <span class="ident">maybe_dt</span>.<span class="ident">is_some</span>() {
-            <span class="ident">finished</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">cancelled</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>finished = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>cancelled = <span class="number">0</span>;
+    <span class="kw">for </span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>, maybe_dt) <span class="kw">in </span><span class="kw-2">&amp;</span>sim.get_analytics().finished_trips {
+        <span class="kw">if </span>maybe_dt.is_some() {
+            finished += <span class="number">1</span>;
+        } <span class="kw">else </span>{
+            cancelled += <span class="number">1</span>;
         }
     }
     <span class="macro">println!</span>(
         <span class="string">&quot;\nDone! {} finished trips, {} cancelled&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">finished</span>),
-        <span class="ident">prettyprint_usize</span>(<span class="ident">cancelled</span>)
+        prettyprint_usize(finished),
+        prettyprint_usize(cancelled)
     );
 }
 
-<span class="kw">fn</span> <span class="ident">alter_turn_destinations</span>(<span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">edits</span>: <span class="kw-2">&amp;mut</span> <span class="ident">MapEdits</span>) {
-    <span class="kw">let</span> <span class="ident">num_edits</span> <span class="op">=</span> <span class="number">3</span>;
+<span class="kw">fn </span>alter_turn_destinations(sim: <span class="kw-2">&amp;</span>Sim, map: <span class="kw-2">&amp;</span>Map, rng: <span class="kw-2">&amp;mut </span>XorShiftRng, edits: <span class="kw-2">&amp;mut </span>MapEdits) {
+    <span class="kw">let </span>num_edits = <span class="number">3</span>;
 
-    <span class="comment">// Find active turns</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">active_destinations</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">t</span>) <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_accepted_agents</span>(<span class="ident">i</span>.<span class="ident">id</span>) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">dst</span>).<span class="ident">is_walkable</span>() {
-                <span class="ident">active_destinations</span>.<span class="ident">push</span>(<span class="ident">t</span>.<span class="ident">dst</span>);
+    <span class="comment">// Find active turns
+    </span><span class="kw">let </span><span class="kw-2">mut </span>active_destinations = Vec::new();
+    <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
+        <span class="kw">for </span>(<span class="kw">_</span>, t) <span class="kw">in </span>sim.get_accepted_agents(i.id) {
+            <span class="kw">if </span>!map.get_l(t.dst).is_walkable() {
+                active_destinations.push(t.dst);
             }
         }
     }
-    <span class="ident">active_destinations</span>.<span class="ident">sort</span>();
-    <span class="ident">active_destinations</span>.<span class="ident">dedup</span>();
-    <span class="ident">active_destinations</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
+    active_destinations.sort();
+    active_destinations.dedup();
+    active_destinations.shuffle(rng);
 
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">active_destinations</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">num_edits</span>) {
-        <span class="macro">info!</span>(<span class="string">&quot;Closing someone&#39;s target {}&quot;</span>, <span class="ident">l</span>);
-        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">l</span>.<span class="ident">road</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">l</span>.<span class="ident">offset</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Construction</span>;
+    <span class="kw">for </span>l <span class="kw">in </span>active_destinations.into_iter().take(num_edits) {
+        <span class="macro">info!</span>(<span class="string">&quot;Closing someone&#39;s target {}&quot;</span>, l);
+        edits.commands.push(map.edit_road_cmd(l.road, |new| {
+            new.lanes_ltr[l.offset].lt = LaneType::Construction;
 
-            <span class="comment">// If we&#39;re getting rid of the last driving lane, also remove any parking lanes. This</span>
-            <span class="comment">// mimics the check that the UI does.</span>
-            <span class="kw">if</span> <span class="ident">new</span>
-                .<span class="ident">lanes_ltr</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">all</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Driving</span>)
+            <span class="comment">// If we&#39;re getting rid of the last driving lane, also remove any parking lanes. This
+            // mimics the check that the UI does.
+            </span><span class="kw">if </span>new
+                .lanes_ltr
+                .iter()
+                .all(|spec| spec.lt != LaneType::Driving)
             {
-                <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span> {
-                    <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Parking</span> {
-                        <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Construction</span>;
+                <span class="kw">for </span>spec <span class="kw">in </span><span class="kw-2">&amp;mut </span>new.lanes_ltr {
+                    <span class="kw">if </span>spec.lt == LaneType::Parking {
+                        spec.lt = LaneType::Construction;
                     }
                 }
             }
@@ -276,21 +276,21 @@
     }
 }
 
-<span class="kw">fn</span> <span class="ident">nuke_random_parking</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">edits</span>: <span class="kw-2">&amp;mut</span> <span class="ident">MapEdits</span>) {
-    <span class="kw">let</span> <span class="ident">num_edits</span> <span class="op">=</span> <span class="number">5</span>;
+<span class="kw">fn </span>nuke_random_parking(map: <span class="kw-2">&amp;</span>Map, rng: <span class="kw-2">&amp;mut </span>XorShiftRng, edits: <span class="kw-2">&amp;mut </span>MapEdits) {
+    <span class="kw">let </span>num_edits = <span class="number">5</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking_lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">map</span>
-        .<span class="ident">all_lanes</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">is_parking</span>())
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">id</span>)
-        .<span class="ident">collect</span>();
-    <span class="ident">parking_lanes</span>.<span class="ident">shuffle</span>(<span class="ident">rng</span>);
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">parking_lanes</span>.<span class="ident">into_iter</span>().<span class="ident">take</span>(<span class="ident">num_edits</span>) {
-        <span class="macro">info!</span>(<span class="string">&quot;Closing parking {}&quot;</span>, <span class="ident">l</span>);
-        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="ident">l</span>.<span class="ident">road</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">l</span>.<span class="ident">offset</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Construction</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>parking_lanes: Vec&lt;LaneID&gt; = map
+        .all_lanes()
+        .filter(|l| l.is_parking())
+        .map(|l| l.id)
+        .collect();
+    parking_lanes.shuffle(rng);
+    <span class="kw">for </span>l <span class="kw">in </span>parking_lanes.into_iter().take(num_edits) {
+        <span class="macro">info!</span>(<span class="string">&quot;Closing parking {}&quot;</span>, l);
+        edits.commands.push(map.edit_road_cmd(l.road, |new| {
+            new.lanes_ltr[l.offset].lt = LaneType::Construction;
         }));
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="traffic_seitan" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="traffic_seitan" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

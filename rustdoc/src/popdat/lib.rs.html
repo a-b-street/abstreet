@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../popdat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `popdat/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../popdat/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../popdat/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -131,138 +131,138 @@
 <span id="131">131</span>
 <span id="132">132</span>
 <span id="133">133</span>
-</pre><pre class="rust"><code><span class="doccomment">//! popdat (&quot;population data&quot;) generates `Scenarios` given a map and some external census data.</span>
-<span class="doccomment">//! Some of this functionality should maybe be reorganized or incorporated into the importer crate,</span>
-<span class="doccomment">//! but for now, it&#39;s convenient to organize it here.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! All of the types and methods here are tied to a single `Map`. Even if a city is chopped up into</span>
-<span class="doccomment">//! multiple pieces, for now, let&#39;s assume we&#39;re just dealing with one map at a time. That lets us</span>
-<span class="doccomment">//! use the map&#39;s coordinate system, building IDs, etc.</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! These types form a pipeline:</span>
-<span class="doccomment">//!</span>
-<span class="doccomment">//! 1) For a given map, find some census data that describes how many people live in different</span>
-<span class="doccomment">//!    areas of the city. (CensusArea)</span>
-<span class="doccomment">//! 2) Take the CensusAreas and turn them into individual CensusPersons, by randomly choosing a</span>
-<span class="doccomment">//!    specific building on the map as their home, and assigning specific attributes based on the</span>
-<span class="doccomment">//!    census data&#39;s distribution.</span>
-<span class="doccomment">//! 3) For each CensusPerson, classify them into a PersonType, then generate a Schedule of</span>
-<span class="doccomment">//!    different Activities throughout the day.</span>
-<span class="doccomment">//! 4) Pick specific buildings to visit to satisfy the Schedule.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! popdat (&quot;population data&quot;) generates `Scenarios` given a map and some external census data.
+//! Some of this functionality should maybe be reorganized or incorporated into the importer crate,
+//! but for now, it&#39;s convenient to organize it here.
+//!
+//! All of the types and methods here are tied to a single `Map`. Even if a city is chopped up into
+//! multiple pieces, for now, let&#39;s assume we&#39;re just dealing with one map at a time. That lets us
+//! use the map&#39;s coordinate system, building IDs, etc.
+//!
+//! These types form a pipeline:
+//!
+//! 1) For a given map, find some census data that describes how many people live in different
+//!    areas of the city. (CensusArea)
+//! 2) Take the CensusAreas and turn them into individual CensusPersons, by randomly choosing a
+//!    specific building on the map as their home, and assigning specific attributes based on the
+//!    census data&#39;s distribution.
+//! 3) For each CensusPerson, classify them into a PersonType, then generate a Schedule of
+//!    different Activities throughout the day.
+//! 4) Pick specific buildings to visit to satisfy the Schedule.
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+</span><span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>anyhow;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">synthpop::Scenario</span>;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{Distance, Time};
+<span class="kw">use </span>map_model::{BuildingID, Map};
+<span class="kw">use </span>synthpop::Scenario;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::distribute_people::distribute_population_to_homes</span>;
+<span class="kw">pub use </span><span class="self">self</span>::distribute_people::distribute_population_to_homes;
 
-<span class="kw">mod</span> <span class="ident">activities</span>;
-<span class="kw">mod</span> <span class="ident">distribute_people</span>;
-<span class="kw">mod</span> <span class="ident">import_census</span>;
-<span class="kw">mod</span> <span class="ident">make_person</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">od</span>;
+<span class="kw">mod </span>activities;
+<span class="kw">mod </span>distribute_people;
+<span class="kw">mod </span>import_census;
+<span class="kw">mod </span>make_person;
+<span class="kw">pub mod </span>od;
 
-<span class="doccomment">/// Represents aggregate demographic data for some part of a city. These could be census tracts or</span>
-<span class="doccomment">/// blocks, depending what data we find. All of the areas should roughly partition the map -- we</span>
-<span class="doccomment">/// probably don&#39;t need to guarantee we cover every single building, but we definitely shouldn&#39;t</span>
-<span class="doccomment">/// have two overlapping areas.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CensusArea</span> {
-    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">geo::Polygon</span>,
-    <span class="kw">pub</span> <span class="ident">population</span>: <span class="ident">usize</span>,
-    <span class="comment">// TODO Not sure what goes here, whatever census data actually has that could be useful</span>
+<span class="doccomment">/// Represents aggregate demographic data for some part of a city. These could be census tracts or
+/// blocks, depending what data we find. All of the areas should roughly partition the map -- we
+/// probably don&#39;t need to guarantee we cover every single building, but we definitely shouldn&#39;t
+/// have two overlapping areas.
+</span><span class="attribute">#[derive(Debug, PartialEq)]
+</span><span class="kw">pub struct </span>CensusArea {
+    <span class="kw">pub </span>polygon: geo::Polygon,
+    <span class="kw">pub </span>population: usize,
+    <span class="comment">// TODO Not sure what goes here, whatever census data actually has that could be useful
+</span>}
+
+<span class="doccomment">/// Demographic information for a single person
+</span><span class="kw">pub struct </span>CensusPerson {
+    <span class="kw">pub </span>home: BuildingID,
+    <span class="kw">pub </span>age: usize,
+    <span class="kw">pub </span>employed: bool,
+    <span class="kw">pub </span>owns_car: bool,
 }
 
-<span class="doccomment">/// Demographic information for a single person</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CensusPerson</span> {
-    <span class="kw">pub</span> <span class="ident">home</span>: <span class="ident">BuildingID</span>,
-    <span class="kw">pub</span> <span class="ident">age</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">employed</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">owns_car</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// It might be useful to classify a CensusPerson into different categories to figure out their
+/// Schedule.
+</span><span class="kw">pub enum </span>PersonType {
+    Student,
+    Worker,
 }
 
-<span class="doccomment">/// It might be useful to classify a CensusPerson into different categories to figure out their</span>
-<span class="doccomment">/// Schedule.</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PersonType</span> {
-    <span class="ident">Student</span>,
-    <span class="ident">Worker</span>,
+<span class="doccomment">/// A single person&#39;s daily schedule. It&#39;s assumed that someone always starts at home. And for most
+/// people, the last entry should probably be Activity::Home.
+</span><span class="kw">pub struct </span>Schedule {
+    <span class="kw">pub </span>activities: Vec&lt;(Time, Activity)&gt;,
 }
 
-<span class="doccomment">/// A single person&#39;s daily schedule. It&#39;s assumed that someone always starts at home. And for most</span>
-<span class="doccomment">/// people, the last entry should probably be Activity::Home.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Schedule</span> {
-    <span class="kw">pub</span> <span class="ident">activities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Activity</span>)<span class="op">&gt;</span>,
+<span class="doccomment">/// Different things people might do in the day. Maybe it&#39;s more clear to call this a
+/// DestinationType or similar.
+</span><span class="attribute">#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
+</span><span class="kw">pub enum </span>Activity {
+    Breakfast,
+    Lunch,
+    Dinner,
+    School,
+    Entertainment,
+    Errands,
+    Financial,
+    Healthcare,
+    Home,
+    Work,
 }
 
-<span class="doccomment">/// Different things people might do in the day. Maybe it&#39;s more clear to call this a</span>
-<span class="doccomment">/// DestinationType or similar.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Activity</span> {
-    <span class="ident">Breakfast</span>,
-    <span class="ident">Lunch</span>,
-    <span class="ident">Dinner</span>,
-    <span class="ident">School</span>,
-    <span class="ident">Entertainment</span>,
-    <span class="ident">Errands</span>,
-    <span class="ident">Financial</span>,
-    <span class="ident">Healthcare</span>,
-    <span class="ident">Home</span>,
-    <span class="ident">Work</span>,
+<span class="doccomment">/// Any arbitrarily chosen parameters needed should be put here, so they can be controlled from the
+/// UI or tuned for different cities.
+</span><span class="kw">pub struct </span>Config {
+    <span class="kw">pub </span>walk_for_distances_shorter_than: Distance,
+    <span class="kw">pub </span>walk_or_bike_for_distances_shorter_than: Distance,
 }
 
-<span class="doccomment">/// Any arbitrarily chosen parameters needed should be put here, so they can be controlled from the</span>
-<span class="doccomment">/// UI or tuned for different cities.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Config</span> {
-    <span class="kw">pub</span> <span class="ident">walk_for_distances_shorter_than</span>: <span class="ident">Distance</span>,
-    <span class="kw">pub</span> <span class="ident">walk_or_bike_for_distances_shorter_than</span>: <span class="ident">Distance</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">Config</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Config</span> {
-        <span class="ident">Config</span> {
-            <span class="ident">walk_for_distances_shorter_than</span>: <span class="ident">Distance::miles</span>(<span class="number">0.5</span>),
-            <span class="ident">walk_or_bike_for_distances_shorter_than</span>: <span class="ident">Distance::miles</span>(<span class="number">3.0</span>),
+<span class="kw">impl </span>Config {
+    <span class="kw">pub fn </span>default() -&gt; Config {
+        Config {
+            walk_for_distances_shorter_than: Distance::miles(<span class="number">0.5</span>),
+            walk_or_bike_for_distances_shorter_than: Distance::miles(<span class="number">3.0</span>),
         }
     }
 }
 
-<span class="doccomment">/// Wires together all the pieces, so you can just hand this any map, and it&#39;ll automatically find</span>
-<span class="doccomment">/// appropriate census data, and use it to produce a Scenario.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate_scenario</span>(
-    <span class="ident">scenario_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">CensusArea</span><span class="op">&gt;</span>,
-    <span class="ident">config</span>: <span class="ident">Config</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-) -&gt; <span class="ident">Scenario</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;building scenario&quot;</span>);
+<span class="doccomment">/// Wires together all the pieces, so you can just hand this any map, and it&#39;ll automatically find
+/// appropriate census data, and use it to produce a Scenario.
+</span><span class="kw">pub fn </span>generate_scenario(
+    scenario_name: <span class="kw-2">&amp;</span>str,
+    areas: Vec&lt;CensusArea&gt;,
+    config: Config,
+    map: <span class="kw-2">&amp;</span>Map,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+) -&gt; Scenario {
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;building scenario&quot;</span>);
 
-    <span class="comment">// find_data_for_map may return an error. If so, just plumb it back to the caller using the ?</span>
-    <span class="comment">// operator</span>
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;assigning people to houses&quot;</span>);
-    <span class="kw">let</span> <span class="ident">people</span> <span class="op">=</span> <span class="ident">distribute_people::assign_people_to_houses</span>(<span class="ident">areas</span>, <span class="ident">map</span>, <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>);
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;assigning people to houses&quot;</span>);
+    <span class="comment">// find_data_for_map may return an error. If so, just plumb it back to the caller using the ?
+    // operator
+    </span>timer.start(<span class="string">&quot;assigning people to houses&quot;</span>);
+    <span class="kw">let </span>people = distribute_people::assign_people_to_houses(areas, map, rng, <span class="kw-2">&amp;</span>config);
+    timer.stop(<span class="string">&quot;assigning people to houses&quot;</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="ident">scenario_name</span>);
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;building people&quot;</span>);
-    <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">extend</span>(<span class="ident">make_person::make_people</span>(
-        <span class="ident">people</span>, <span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>, <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="ident">config</span>,
+    <span class="kw">let </span><span class="kw-2">mut </span>scenario = Scenario::empty(map, scenario_name);
+    timer.start(<span class="string">&quot;building people&quot;</span>);
+    scenario.people.extend(make_person::make_people(
+        people, map, <span class="kw-2">&amp;mut </span>timer, rng, <span class="kw-2">&amp;</span>config,
     ));
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;building people&quot;</span>);
+    timer.stop(<span class="string">&quot;building people&quot;</span>);
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;removing weird schedules&quot;</span>);
-    <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">remove_weird_schedules</span>(<span class="bool-val">true</span>);
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;removing weird schedules&quot;</span>);
+    timer.start(<span class="string">&quot;removing weird schedules&quot;</span>);
+    scenario = scenario.remove_weird_schedules(<span class="bool-val">true</span>);
+    timer.stop(<span class="string">&quot;removing weird schedules&quot;</span>);
 
-    <span class="ident">scenario</span>
+    scenario
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="popdat" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

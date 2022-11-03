@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/assets.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>assets.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/assets.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>assets.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -178,185 +178,185 @@
 <span id="178">178</span>
 <span id="179">179</span>
 <span id="180">180</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
+<span class="kw">use </span>std::collections::{HashMap, HashSet};
 
-<span class="kw">use</span> <span class="ident">lru::LruCache</span>;
-<span class="kw">use</span> <span class="ident">usvg::fontdb</span>;
-<span class="kw">use</span> <span class="ident">usvg::Options</span>;
+<span class="kw">use </span>lru::LruCache;
+<span class="kw">use </span>usvg::fontdb;
+<span class="kw">use </span>usvg::Options;
 
-<span class="kw">use</span> <span class="ident">geom::Bounds</span>;
+<span class="kw">use </span>geom::Bounds;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::text::Font</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">text</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Prerender</span>, <span class="ident">Style</span>};
+<span class="kw">use </span><span class="kw">crate</span>::text::Font;
+<span class="kw">use crate</span>::{text, EventCtx, GeomBatch, GfxCtx, Prerender, Style};
 
-<span class="comment">// TODO We don&#39;t need refcell maybe? Can we take &amp;mut Assets?</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Assets</span> {
-    <span class="kw">pub</span> <span class="ident">default_line_height</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>,
-    <span class="ident">text_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">LruCache</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">GeomBatch</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">line_height_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">Font</span>, <span class="ident">usize</span>), <span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="comment">// Keyed by filename</span>
-    <span class="ident">svg_cache</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">font_to_id</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Font</span>, <span class="ident">fontdb::ID</span><span class="op">&gt;</span>,
-    <span class="ident">extra_fonts</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">style</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Style</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">text_opts</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">Options</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">base_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">are_gzipped</span>: <span class="ident">bool</span>,
+<span class="comment">// TODO We don&#39;t need refcell maybe? Can we take &amp;mut Assets?
+</span><span class="kw">pub struct </span>Assets {
+    <span class="kw">pub </span>default_line_height: RefCell&lt;f64&gt;,
+    text_cache: RefCell&lt;LruCache&lt;String, GeomBatch&gt;&gt;,
+    line_height_cache: RefCell&lt;HashMap&lt;(Font, usize), f64&gt;&gt;,
+    <span class="comment">// Keyed by filename
+    </span>svg_cache: RefCell&lt;HashMap&lt;String, (GeomBatch, Bounds)&gt;&gt;,
+    font_to_id: HashMap&lt;Font, fontdb::ID&gt;,
+    extra_fonts: RefCell&lt;HashSet&lt;String&gt;&gt;,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) style: RefCell&lt;Style&gt;,
+    <span class="kw">pub </span>text_opts: RefCell&lt;Options&gt;,
+    <span class="kw">pub </span>read_svg: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>str) -&gt; Vec&lt;u8&gt;&gt;,
+    base_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    are_gzipped: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">Assets</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">style</span>: <span class="ident">Style</span>,
-        <span class="ident">base_url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-        <span class="ident">are_gzipped</span>: <span class="ident">bool</span>,
-        <span class="ident">read_svg</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Assets</span> {
-        <span class="comment">// Many fonts are statically bundled with the library right now, on both native and web.</span>
-        <span class="comment">// ctx.is_font_loaded and ctx.load_font can be used to dynamically add more later.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb::Database::new</span>();
-        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/BungeeInline-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/Bungee-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/Overpass-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/OverpassMono-Bold.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/Overpass-Regular.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/Overpass-SemiBold.ttf&quot;</span>).<span class="ident">to_vec</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">Assets</span> {
-            <span class="ident">default_line_height</span>: <span class="ident">RefCell::new</span>(<span class="number">0.0</span>),
-            <span class="ident">text_cache</span>: <span class="ident">RefCell::new</span>(<span class="ident">LruCache::new</span>(<span class="number">500</span>)),
-            <span class="ident">line_height_cache</span>: <span class="ident">RefCell::new</span>(<span class="ident">HashMap::new</span>()),
-            <span class="ident">svg_cache</span>: <span class="ident">RefCell::new</span>(<span class="ident">HashMap::new</span>()),
-            <span class="ident">font_to_id</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">extra_fonts</span>: <span class="ident">RefCell::new</span>(<span class="ident">HashSet::new</span>()),
-            <span class="ident">text_opts</span>: <span class="ident">RefCell::new</span>(<span class="ident">Options::default</span>()),
-            <span class="ident">style</span>: <span class="ident">RefCell::new</span>(<span class="ident">style</span>),
-            <span class="ident">base_url</span>,
-            <span class="ident">are_gzipped</span>,
-            <span class="ident">read_svg</span>,
+<span class="kw">impl </span>Assets {
+    <span class="kw">pub fn </span>new(
+        style: Style,
+        base_url: <span class="prelude-ty">Option</span>&lt;String&gt;,
+        are_gzipped: bool,
+        read_svg: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;</span>str) -&gt; Vec&lt;u8&gt;&gt;,
+    ) -&gt; Assets {
+        <span class="comment">// Many fonts are statically bundled with the library right now, on both native and web.
+        // ctx.is_font_loaded and ctx.load_font can be used to dynamically add more later.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>fontdb = fontdb::Database::new();
+        fontdb.load_font_data(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/BungeeInline-Regular.ttf&quot;</span>).to_vec());
+        fontdb.load_font_data(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/Bungee-Regular.ttf&quot;</span>).to_vec());
+        fontdb.load_font_data(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/Overpass-Bold.ttf&quot;</span>).to_vec());
+        fontdb.load_font_data(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/OverpassMono-Bold.ttf&quot;</span>).to_vec());
+        fontdb.load_font_data(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/Overpass-Regular.ttf&quot;</span>).to_vec());
+        fontdb.load_font_data(<span class="macro">include_bytes!</span>(<span class="string">&quot;../fonts/Overpass-SemiBold.ttf&quot;</span>).to_vec());
+        <span class="kw">let </span><span class="kw-2">mut </span>a = Assets {
+            default_line_height: RefCell::new(<span class="number">0.0</span>),
+            text_cache: RefCell::new(LruCache::new(<span class="number">500</span>)),
+            line_height_cache: RefCell::new(HashMap::new()),
+            svg_cache: RefCell::new(HashMap::new()),
+            font_to_id: HashMap::new(),
+            extra_fonts: RefCell::new(HashSet::new()),
+            text_opts: RefCell::new(Options::default()),
+            style: RefCell::new(style),
+            base_url,
+            are_gzipped,
+            read_svg,
         };
-        <span class="ident">a</span>.<span class="ident">text_opts</span>.<span class="ident">borrow_mut</span>().<span class="ident">fontdb</span> <span class="op">=</span> <span class="ident">fontdb</span>;
-        <span class="kw">for</span> <span class="ident">font</span> <span class="kw">in</span> [
-            <span class="ident">Font::BungeeInlineRegular</span>,
-            <span class="ident">Font::BungeeRegular</span>,
-            <span class="ident">Font::OverpassBold</span>,
-            <span class="ident">Font::OverpassRegular</span>,
-            <span class="ident">Font::OverpassSemiBold</span>,
-            <span class="ident">Font::OverpassMonoBold</span>,
+        a.text_opts.borrow_mut().fontdb = fontdb;
+        <span class="kw">for </span>font <span class="kw">in </span>[
+            Font::BungeeInlineRegular,
+            Font::BungeeRegular,
+            Font::OverpassBold,
+            Font::OverpassRegular,
+            Font::OverpassSemiBold,
+            Font::OverpassMonoBold,
         ] {
-            <span class="ident">a</span>.<span class="ident">font_to_id</span>.<span class="ident">insert</span>(
-                <span class="ident">font</span>,
-                <span class="ident">a</span>.<span class="ident">text_opts</span>
-                    .<span class="ident">borrow</span>()
-                    .<span class="ident">fontdb</span>
-                    .<span class="ident">query</span>(<span class="kw-2">&amp;</span><span class="ident">fontdb::Query</span> {
-                        <span class="ident">families</span>: <span class="kw-2">&amp;</span>[<span class="ident">fontdb::Family::Name</span>(<span class="ident">font</span>.<span class="ident">family</span>())],
-                        <span class="ident">weight</span>: <span class="kw">match</span> <span class="ident">font</span> {
-                            <span class="ident">Font::OverpassBold</span> <span class="op">|</span> <span class="ident">Font::OverpassMonoBold</span> =&gt; <span class="ident">fontdb::Weight::BOLD</span>,
-                            <span class="ident">Font::OverpassSemiBold</span> =&gt; <span class="ident">fontdb::Weight::SEMIBOLD</span>,
-                            <span class="kw">_</span> =&gt; <span class="ident">fontdb::Weight::NORMAL</span>,
+            a.font_to_id.insert(
+                font,
+                a.text_opts
+                    .borrow()
+                    .fontdb
+                    .query(<span class="kw-2">&amp;</span>fontdb::Query {
+                        families: <span class="kw-2">&amp;</span>[fontdb::Family::Name(font.family())],
+                        weight: <span class="kw">match </span>font {
+                            Font::OverpassBold | Font::OverpassMonoBold =&gt; fontdb::Weight::BOLD,
+                            Font::OverpassSemiBold =&gt; fontdb::Weight::SEMIBOLD,
+                            <span class="kw">_ </span>=&gt; fontdb::Weight::NORMAL,
                         },
-                        <span class="ident">stretch</span>: <span class="ident">fontdb::Stretch::Normal</span>,
-                        <span class="ident">style</span>: <span class="ident">fontdb::Style::Normal</span>,
+                        stretch: fontdb::Stretch::Normal,
+                        style: fontdb::Style::Normal,
                     })
-                    .<span class="ident">unwrap</span>(),
+                    .unwrap(),
             );
         }
-        <span class="kw-2">*</span><span class="ident">a</span>.<span class="ident">default_line_height</span>.<span class="ident">borrow_mut</span>() <span class="op">=</span>
-            <span class="ident">a</span>.<span class="ident">line_height</span>(<span class="ident">text::DEFAULT_FONT</span>, <span class="ident">text::DEFAULT_FONT_SIZE</span>);
-        <span class="ident">a</span>
+        <span class="kw-2">*</span>a.default_line_height.borrow_mut() =
+            a.line_height(text::DEFAULT_FONT, text::DEFAULT_FONT_SIZE);
+        a
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">base_url</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">base_url</span>.<span class="ident">as_deref</span>()
+    <span class="kw">pub fn </span>base_url(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt; {
+        <span class="self">self</span>.base_url.as_deref()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">are_gzipped</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">are_gzipped</span>
+    <span class="kw">pub fn </span>are_gzipped(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.are_gzipped
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_font_loaded</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">extra_fonts</span>.<span class="ident">borrow</span>().<span class="ident">contains</span>(<span class="ident">filename</span>)
+    <span class="kw">pub fn </span>is_font_loaded(<span class="kw-2">&amp;</span><span class="self">self</span>, filename: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="self">self</span>.extra_fonts.borrow().contains(filename)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_font</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>) {
-        <span class="macro">info!</span>(<span class="string">&quot;Loaded extra font {}&quot;</span>, <span class="ident">filename</span>);
-        <span class="self">self</span>.<span class="ident">extra_fonts</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert</span>(<span class="ident">filename</span>.<span class="ident">to_string</span>());
-        <span class="self">self</span>.<span class="ident">text_opts</span>.<span class="ident">borrow_mut</span>().<span class="ident">fontdb</span>.<span class="ident">load_font_data</span>(<span class="ident">bytes</span>);
-        <span class="comment">// We don&#39;t need to fill out font_to_id, because we can&#39;t directly create text using this</span>
-        <span class="comment">// font.</span>
-    }
+    <span class="kw">pub fn </span>load_font(<span class="kw-2">&amp;</span><span class="self">self</span>, filename: <span class="kw-2">&amp;</span>str, bytes: Vec&lt;u8&gt;) {
+        <span class="macro">info!</span>(<span class="string">&quot;Loaded extra font {}&quot;</span>, filename);
+        <span class="self">self</span>.extra_fonts.borrow_mut().insert(filename.to_string());
+        <span class="self">self</span>.text_opts.borrow_mut().fontdb.load_font_data(bytes);
+        <span class="comment">// We don&#39;t need to fill out font_to_id, because we can&#39;t directly create text using this
+        // font.
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">line_height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>, <span class="ident">font_size</span>: <span class="ident">usize</span>) -&gt; <span class="ident">f64</span> {
-        <span class="kw">let</span> <span class="ident">key</span> <span class="op">=</span> (<span class="ident">font</span>, <span class="ident">font_size</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">line_height_cache</span>.<span class="ident">borrow</span>().<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
-            <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">height</span>;
+    <span class="kw">pub fn </span>line_height(<span class="kw-2">&amp;</span><span class="self">self</span>, font: Font, font_size: usize) -&gt; f64 {
+        <span class="kw">let </span>key = (font, font_size);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(height) = <span class="self">self</span>.line_height_cache.borrow().get(<span class="kw-2">&amp;</span>key) {
+            <span class="kw">return </span><span class="kw-2">*</span>height;
         }
 
-        <span class="comment">// This seems to be missing line_gap, and line_gap is 0, so manually adjust here.</span>
-        <span class="kw">let</span> <span class="ident">line_height</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">text_opts</span>
-            .<span class="ident">borrow</span>()
-            .<span class="ident">fontdb</span>
-            .<span class="ident">with_face_data</span>(<span class="self">self</span>.<span class="ident">font_to_id</span>[<span class="kw-2">&amp;</span><span class="ident">font</span>], <span class="op">|</span><span class="ident">data</span>, <span class="ident">face_index</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">font</span> <span class="op">=</span> <span class="ident">ttf_parser::Face::from_slice</span>(<span class="ident">data</span>, <span class="ident">face_index</span>).<span class="ident">unwrap</span>();
-                <span class="kw">let</span> <span class="ident">units_per_em</span> <span class="op">=</span> <span class="ident">font</span>.<span class="ident">units_per_em</span>();
-                <span class="kw">let</span> <span class="ident">ascent</span> <span class="op">=</span> <span class="ident">font</span>.<span class="ident">ascender</span>();
-                <span class="kw">let</span> <span class="ident">descent</span> <span class="op">=</span> <span class="ident">font</span>.<span class="ident">descender</span>();
-                <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> (<span class="ident">font_size</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> (<span class="ident">units_per_em</span> <span class="kw">as</span> <span class="ident">f64</span>);
-                ((<span class="ident">ascent</span> <span class="op">-</span> <span class="ident">descent</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">scale</span>
+        <span class="comment">// This seems to be missing line_gap, and line_gap is 0, so manually adjust here.
+        </span><span class="kw">let </span>line_height = <span class="self">self
+            </span>.text_opts
+            .borrow()
+            .fontdb
+            .with_face_data(<span class="self">self</span>.font_to_id[<span class="kw-2">&amp;</span>font], |data, face_index| {
+                <span class="kw">let </span>font = ttf_parser::Face::from_slice(data, face_index).unwrap();
+                <span class="kw">let </span>units_per_em = font.units_per_em();
+                <span class="kw">let </span>ascent = font.ascender();
+                <span class="kw">let </span>descent = font.descender();
+                <span class="kw">let </span>scale = (font_size <span class="kw">as </span>f64) / (units_per_em <span class="kw">as </span>f64);
+                ((ascent - descent) <span class="kw">as </span>f64) * scale
             })
-            .<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">text::SCALE_LINE_HEIGHT</span> <span class="op">*</span> <span class="ident">line_height</span>;
+            .unwrap();
+        <span class="kw">let </span>height = text::SCALE_LINE_HEIGHT * line_height;
 
-        <span class="self">self</span>.<span class="ident">line_height_cache</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">height</span>);
-        <span class="ident">height</span>
+        <span class="self">self</span>.line_height_cache.borrow_mut().insert(key, height);
+        height
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::ptr_arg</span>)]</span> <span class="comment">// &amp;[str] does not work with `LruCache`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cached_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">GeomBatch</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">text_cache</span>.<span class="ident">borrow_mut</span>().<span class="ident">get</span>(<span class="ident">key</span>).<span class="ident">cloned</span>()
+    <span class="attribute">#[allow(clippy::ptr_arg)] </span><span class="comment">// &amp;[str] does not work with `LruCache`
+    </span><span class="kw">pub fn </span>get_cached_text(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>String) -&gt; <span class="prelude-ty">Option</span>&lt;GeomBatch&gt; {
+        <span class="self">self</span>.text_cache.borrow_mut().get(key).cloned()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cache_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">String</span>, <span class="ident">geom</span>: <span class="ident">GeomBatch</span>) {
-        <span class="self">self</span>.<span class="ident">text_cache</span>.<span class="ident">borrow_mut</span>().<span class="ident">put</span>(<span class="ident">key</span>, <span class="ident">geom</span>);
+    <span class="kw">pub fn </span>cache_text(<span class="kw-2">&amp;</span><span class="self">self</span>, key: String, geom: GeomBatch) {
+        <span class="self">self</span>.text_cache.borrow_mut().put(key, geom);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_text_cache</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">text_cache</span>.<span class="ident">borrow_mut</span>().<span class="ident">clear</span>()
+    <span class="kw">pub fn </span>clear_text_cache(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.text_cache.borrow_mut().clear()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cached_svg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">svg_cache</span>.<span class="ident">borrow</span>().<span class="ident">get</span>(<span class="ident">key</span>).<span class="ident">cloned</span>()
+    <span class="kw">pub fn </span>get_cached_svg(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;(GeomBatch, Bounds)&gt; {
+        <span class="self">self</span>.svg_cache.borrow().get(key).cloned()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cache_svg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">String</span>, <span class="ident">geom</span>: <span class="ident">GeomBatch</span>, <span class="ident">bounds</span>: <span class="ident">Bounds</span>) {
-        <span class="self">self</span>.<span class="ident">svg_cache</span>.<span class="ident">borrow_mut</span>().<span class="ident">insert</span>(<span class="ident">key</span>, (<span class="ident">geom</span>, <span class="ident">bounds</span>));
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GfxCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>
+    <span class="kw">pub fn </span>cache_svg(<span class="kw-2">&amp;</span><span class="self">self</span>, key: String, geom: GeomBatch, bounds: Bounds) {
+        <span class="self">self</span>.svg_cache.borrow_mut().insert(key, (geom, bounds));
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">EventCtx</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>
+<span class="kw">impl </span>std::convert::AsRef&lt;Assets&gt; <span class="kw">for </span>GfxCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Assets {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.prerender.assets
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Prerender</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">assets</span>
+<span class="kw">impl </span>std::convert::AsRef&lt;Assets&gt; <span class="kw">for </span>EventCtx&lt;<span class="lifetime">&#39;_</span>&gt; {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Assets {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.prerender.assets
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::convert::AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Assets</span> {
-    <span class="kw">fn</span> <span class="ident">as_ref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Assets</span> {
-        <span class="self">self</span>
+<span class="kw">impl </span>std::convert::AsRef&lt;Assets&gt; <span class="kw">for </span>Prerender {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Assets {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.assets
     }
+}
+
+<span class="kw">impl </span>std::convert::AsRef&lt;Assets&gt; <span class="kw">for </span>Assets {
+    <span class="kw">fn </span>as_ref(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Assets {
+        <span class="self">self
+    </span>}
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

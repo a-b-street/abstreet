@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/one_step_import.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>one_step_import.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/one_step_import.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>one_step_import.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -74,81 +74,81 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use</span> <span class="ident">abstio::CityName</span>;
-<span class="kw">use</span> <span class="ident">geom::LonLat</span>;
+<span class="kw">use </span>abstio::CityName;
+<span class="kw">use </span>geom::LonLat;
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">run</span>(
-    <span class="ident">geojson_path</span>: <span class="ident">String</span>,
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="ident">driving_side</span>: <span class="ident">map_model::DrivingSide</span>,
-    <span class="ident">use_geofabrik</span>: <span class="ident">bool</span>,
-    <span class="ident">filter_crosswalks</span>: <span class="ident">bool</span>,
-    <span class="ident">create_uk_travel_demand_model</span>: <span class="ident">bool</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">contains</span>(<span class="string">&#39; &#39;</span>) <span class="op">|</span><span class="op">|</span> <span class="ident">name</span>.<span class="ident">is_empty</span>() {
+<span class="kw">pub async fn </span>run(
+    geojson_path: String,
+    name: String,
+    driving_side: map_model::DrivingSide,
+    use_geofabrik: bool,
+    filter_crosswalks: bool,
+    create_uk_travel_demand_model: bool,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">if </span>name.contains(<span class="string">&#39; &#39;</span>) || name.is_empty() {
         <span class="macro">panic!</span>(
             <span class="string">&quot;--map_name must be non-empty and contain no spaces: {}&quot;</span>,
-            <span class="ident">name</span>
+            name
         );
     }
 
-    <span class="kw">let</span> <span class="ident">city</span> <span class="op">=</span> <span class="ident">CityName::new</span>(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>);
-    <span class="kw">let</span> <span class="ident">osm</span>;
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">use_geofabrik</span> {
+    <span class="kw">let </span>city = CityName::new(<span class="string">&quot;zz&quot;</span>, <span class="string">&quot;oneshot&quot;</span>);
+    <span class="kw">let </span>osm;
+    <span class="kw">if </span>!use_geofabrik {
         <span class="macro">println!</span>(<span class="string">&quot;Downloading OSM data from Overpass...&quot;</span>);
-        <span class="ident">osm</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>));
+        osm = city.input_path(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, name));
 
-        <span class="kw">let</span> <span class="ident">geojson</span> <span class="op">=</span> <span class="ident">abstio::slurp_file</span>(<span class="ident">geojson_path</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">LonLat::parse_geojson_polygons</span>(<span class="ident">String::from_utf8</span>(<span class="ident">geojson</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">filter</span> <span class="op">=</span> <span class="string">&quot;poly:\&quot;&quot;</span>.<span class="ident">to_string</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">polygons</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="number">0</span> {
-            <span class="ident">filter</span>.<span class="ident">push_str</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} {} &quot;</span>, <span class="ident">pt</span>.<span class="ident">y</span>(), <span class="ident">pt</span>.<span class="ident">x</span>()));
+        <span class="kw">let </span>geojson = abstio::slurp_file(geojson_path.clone())<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>polygons = LonLat::parse_geojson_polygons(String::from_utf8(geojson)<span class="question-mark">?</span>)<span class="question-mark">?</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>filter = <span class="string">&quot;poly:\&quot;&quot;</span>.to_string();
+        <span class="kw">for </span>pt <span class="kw">in </span>polygons.pop().unwrap().<span class="number">0 </span>{
+            filter.push_str(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} {} &quot;</span>, pt.y(), pt.x()));
         }
-        <span class="ident">filter</span>.<span class="ident">pop</span>();
-        <span class="ident">filter</span>.<span class="ident">push</span>(<span class="string">&#39;&quot;&#39;</span>);
-        <span class="comment">// See https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL</span>
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="macro">format!</span>(
+        filter.pop();
+        filter.push(<span class="string">&#39;&quot;&#39;</span>);
+        <span class="comment">// See https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL
+        </span><span class="kw">let </span>query = <span class="macro">format!</span>(
             <span class="string">&quot;(\n   nwr({});\n     node(w)-&gt;.x;\n   &lt;;\n);\nout meta;\n&quot;</span>,
-            <span class="ident">filter</span>
+            filter
         );
-        <span class="ident">abstio::download_to_file</span>(<span class="string">&quot;https://overpass-api.de/api/interpreter&quot;</span>, <span class="prelude-val">Some</span>(<span class="ident">query</span>), <span class="kw-2">&amp;</span><span class="ident">osm</span>)
+        abstio::download_to_file(<span class="string">&quot;https://overpass-api.de/api/interpreter&quot;</span>, <span class="prelude-val">Some</span>(query), <span class="kw-2">&amp;</span>osm)
             .<span class="kw">await</span><span class="question-mark">?</span>;
-    } <span class="kw">else</span> {
+    } <span class="kw">else </span>{
         <span class="macro">println!</span>(<span class="string">&quot;Figuring out what Geofabrik file contains your boundary&quot;</span>);
-        <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="ident">importer::pick_geofabrik</span>(<span class="ident">geojson_path</span>.<span class="ident">clone</span>()).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="kw">let </span>url = importer::pick_geofabrik(geojson_path.clone()).<span class="kw">await</span><span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="ident">pbf</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.pbf&quot;</span>, <span class="ident">abstutil::basename</span>(<span class="kw-2">&amp;</span><span class="ident">url</span>)));
-        <span class="ident">osm</span> <span class="op">=</span> <span class="ident">city</span>.<span class="ident">input_path</span>(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, <span class="ident">name</span>));
-        <span class="ident">fs_err::create_dir_all</span>(<span class="ident">std::path::Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">osm</span>).<span class="ident">parent</span>().<span class="ident">unwrap</span>())
-            .<span class="ident">expect</span>(<span class="string">&quot;Creating parent dir failed&quot;</span>);
+        <span class="kw">let </span>pbf = city.input_path(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.pbf&quot;</span>, abstutil::basename(<span class="kw-2">&amp;</span>url)));
+        osm = city.input_path(<span class="macro">format!</span>(<span class="string">&quot;osm/{}.osm&quot;</span>, name));
+        fs_err::create_dir_all(std::path::Path::new(<span class="kw-2">&amp;</span>osm).parent().unwrap())
+            .expect(<span class="string">&quot;Creating parent dir failed&quot;</span>);
 
-        <span class="comment">// Download it!</span>
-        <span class="comment">// TODO This is timing out. Also, really could use progress bars.</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">abstio::file_exists</span>(<span class="kw-2">&amp;</span><span class="ident">pbf</span>) {
-            <span class="macro">println!</span>(<span class="string">&quot;Downloading {}&quot;</span>, <span class="ident">url</span>);
-            <span class="ident">abstio::download_to_file</span>(<span class="ident">url</span>, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span><span class="ident">pbf</span>).<span class="kw">await</span><span class="question-mark">?</span>;
+        <span class="comment">// Download it!
+        // TODO This is timing out. Also, really could use progress bars.
+        </span><span class="kw">if </span>!abstio::file_exists(<span class="kw-2">&amp;</span>pbf) {
+            <span class="macro">println!</span>(<span class="string">&quot;Downloading {}&quot;</span>, url);
+            abstio::download_to_file(url, <span class="prelude-val">None</span>, <span class="kw-2">&amp;</span>pbf).<span class="kw">await</span><span class="question-mark">?</span>;
         }
 
-        <span class="comment">// Clip it</span>
-        <span class="macro">println!</span>(<span class="string">&quot;Clipping osm.pbf file to your boundary&quot;</span>);
-        <span class="ident"><span class="kw">crate</span>::clip_osm::run</span>(<span class="ident">pbf</span>, <span class="ident">geojson_path</span>.<span class="ident">clone</span>(), <span class="ident">osm</span>.<span class="ident">clone</span>())<span class="question-mark">?</span>;
+        <span class="comment">// Clip it
+        </span><span class="macro">println!</span>(<span class="string">&quot;Clipping osm.pbf file to your boundary&quot;</span>);
+        <span class="kw">crate</span>::clip_osm::run(pbf, geojson_path.clone(), osm.clone())<span class="question-mark">?</span>;
     }
 
-    <span class="comment">// Import!</span>
-    <span class="macro">println!</span>(<span class="string">&quot;Running importer&quot;</span>);
-    <span class="ident">importer::oneshot</span>(
-        <span class="ident">osm</span>,
-        <span class="prelude-val">Some</span>(<span class="ident">geojson_path</span>),
-        <span class="ident">driving_side</span>,
-        <span class="ident">filter_crosswalks</span>,
-        <span class="ident">create_uk_travel_demand_model</span>,
-        <span class="ident">map_model::RawToMapOptions::default</span>(),
+    <span class="comment">// Import!
+    </span><span class="macro">println!</span>(<span class="string">&quot;Running importer&quot;</span>);
+    importer::oneshot(
+        osm,
+        <span class="prelude-val">Some</span>(geojson_path),
+        driving_side,
+        filter_crosswalks,
+        create_uk_travel_demand_model,
+        map_model::RawToMapOptions::default(),
     )
     .<span class="kw">await</span>;
 
     <span class="prelude-val">Ok</span>(())
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

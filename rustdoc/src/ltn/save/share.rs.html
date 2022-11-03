@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/save/share.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>share.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/save/share.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>share.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -212,219 +212,219 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::URLManager</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">open_browser</span>, <span class="ident">FutureLoader</span>, <span class="ident">PopupMsg</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>map_gui::tools::grey_out_map;
+<span class="kw">use </span>widgetry::tools::URLManager;
+<span class="kw">use </span>widgetry::tools::{open_browser, FutureLoader, PopupMsg};
+<span class="kw">use </span>widgetry::{
+    DrawBaselayer, EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget,
 };
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use crate</span>::{App, Transition};
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PROPOSAL_HOST_URL</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;https://aorta-routes.appspot.com/v1&quot;</span>;
+<span class="kw">pub const </span>PROPOSAL_HOST_URL: <span class="kw-2">&amp;</span>str = <span class="string">&quot;https://aorta-routes.appspot.com/v1&quot;</span>;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShareProposal</span> {
-    <span class="ident">url</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>ShareProposal {
+    url: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ShareProposal</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">checksum</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">current_proposal</span>.<span class="ident">checksum</span>(<span class="ident">app</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">checksum</span>) =&gt; <span class="ident">checksum</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="kw">return</span> <span class="ident">PopupMsg::new_state</span>(
-                    <span class="ident">ctx</span>,
+<span class="kw">impl </span>ShareProposal {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span>checksum = <span class="kw">match </span>app.per_map.proposals.current_proposal.checksum(app) {
+            <span class="prelude-val">Ok</span>(checksum) =&gt; checksum,
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="kw">return </span>PopupMsg::new_state(
+                    ctx,
                     <span class="string">&quot;Error&quot;</span>,
-                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Can&#39;t save this proposal: {}&quot;</span>, <span class="ident">err</span>)],
+                    <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Can&#39;t save this proposal: {}&quot;</span>, err)],
                 );
             }
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">url</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">col</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Share this proposal&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>url = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>col = <span class="macro">vec!</span>[Widget::row(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Share this proposal&quot;</span>).small_heading().into_widget(ctx),
+            ctx.style().btn_close_widget(ctx),
         ])];
-        <span class="kw">if</span> <span class="ident">UploadedProposals::load</span>().<span class="ident">md5sums</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">checksum</span>) {
-            <span class="kw">let</span> <span class="ident">map_path</span> <span class="op">=</span> <span class="ident">app</span>
-                .<span class="ident">per_map</span>
-                .<span class="ident">map</span>
-                .<span class="ident">get_name</span>()
-                .<span class="ident">path</span>()
-                .<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::path</span>(<span class="string">&quot;&quot;</span>))
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">to_string</span>();
-            <span class="kw">let</span> <span class="ident">consultation</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation_id</span> {
+        <span class="kw">if </span>UploadedProposals::load().md5sums.contains(<span class="kw-2">&amp;</span>checksum) {
+            <span class="kw">let </span>map_path = app
+                .per_map
+                .map
+                .get_name()
+                .path()
+                .strip_prefix(<span class="kw-2">&amp;</span>abstio::path(<span class="string">&quot;&quot;</span>))
+                .unwrap()
+                .to_string();
+            <span class="kw">let </span>consultation = <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>x) = app.per_map.consultation_id {
                 <span class="macro">format!</span>(<span class="string">&quot;&amp;--consultation={x}&quot;</span>)
-            } <span class="kw">else</span> {
-                <span class="ident">String::new</span>()
+            } <span class="kw">else </span>{
+                String::new()
             };
-            <span class="ident">url</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="macro">format!</span>(
+            url = <span class="prelude-val">Some</span>(<span class="macro">format!</span>(
                 <span class="string">&quot;http://play.abstreet.org/{}/ltn.html?{}&amp;--proposal=remote/{}{}&quot;</span>,
-                <span class="ident">map_gui::tools::version</span>(),
-                <span class="ident">map_path</span>,
-                <span class="ident">checksum</span>,
-                <span class="ident">consultation</span>
+                map_gui::tools::version(),
+                map_path,
+                checksum,
+                consultation
             ));
 
-            <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Proposal uploaded! Share your browser&#39;s URL.&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="string">&quot;Proposal uploaded! Share the URL below.&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>));
+            <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
+                col.push(<span class="string">&quot;Proposal uploaded! Share your browser&#39;s URL.&quot;</span>.text_widget(ctx));
+            } <span class="kw">else </span>{
+                col.push(<span class="string">&quot;Proposal uploaded! Share the URL below.&quot;</span>.text_widget(ctx));
             }
-            <span class="ident">col</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">btn</span>()
-                    .<span class="ident">label_underlined_text</span>(<span class="ident">url</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;open in browser&quot;</span>),
+            col.push(
+                ctx.style()
+                    .btn_plain
+                    .btn()
+                    .label_underlined_text(url.as_ref().unwrap())
+                    .build_widget(ctx, <span class="string">&quot;open in browser&quot;</span>),
             );
 
-            <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>) {
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;Back&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_solid_primary</span>
-                        .<span class="ident">text</span>(<span class="string">&quot;Copy URL to clipboard&quot;</span>)
-                        .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;Back&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            <span class="kw">if </span><span class="macro">cfg!</span>(target_arch = <span class="string">&quot;wasm32&quot;</span>) {
+                col.push(ctx.style().btn_plain.text(<span class="string">&quot;Back&quot;</span>).build_def(ctx));
+            } <span class="kw">else </span>{
+                col.push(Widget::row(<span class="macro">vec!</span>[
+                    ctx.style()
+                        .btn_solid_primary
+                        .text(<span class="string">&quot;Copy URL to clipboard&quot;</span>)
+                        .build_def(ctx),
+                    ctx.style().btn_plain.text(<span class="string">&quot;Back&quot;</span>).build_def(ctx),
                 ]));
             }
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-            <span class="comment">// The Creative Commons licenses all require attribution, but we have no user accounts</span>
-            <span class="comment">// or ways of proving identity yet!</span>
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(
+        } <span class="kw">else </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+            <span class="comment">// The Creative Commons licenses all require attribution, but we have no user accounts
+            // or ways of proving identity yet!
+            </span>txt.add_line(Line(
                 <span class="string">&quot;You&#39;ll upload this proposal anonymously, in the public domain&quot;</span>,
             ));
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;You can&#39;t delete or edit it after uploading&quot;</span>));
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(
+            txt.add_line(Line(<span class="string">&quot;You can&#39;t delete or edit it after uploading&quot;</span>));
+            txt.add_line(Line(
                 <span class="string">&quot;(But you can upload and share new versions of the proposal)&quot;</span>,
             ));
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
-            <span class="ident">col</span>.<span class="ident">push</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_primary</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;Upload&quot;</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain</span>.<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            col.push(txt.into_widget(ctx));
+            col.push(Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_solid_primary
+                    .text(<span class="string">&quot;Upload&quot;</span>)
+                    .hotkey(Key::Enter)
+                    .build_def(ctx),
+                ctx.style().btn_plain.text(<span class="string">&quot;Cancel&quot;</span>).build_def(ctx),
             ]));
         }
 
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="ident">col</span>)).<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">ShareProposal</span> { <span class="ident">url</span> }))
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(col)).build(ctx);
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(panel, Box::new(ShareProposal { url }))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ShareProposal</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> <span class="op">|</span> <span class="string">&quot;Cancel&quot;</span> <span class="op">|</span> <span class="string">&quot;Back&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Upload&quot;</span> =&gt; {
-                <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-                <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-                <span class="kw">let</span> <span class="ident">proposal_contents</span> <span class="op">=</span> <span class="ident">app</span>
-                    .<span class="ident">per_map</span>
-                    .<span class="ident">proposals</span>
-                    .<span class="ident">current_proposal</span>
-                    .<span class="ident">to_gzipped_bytes</span>(<span class="ident">app</span>)
-                    .<span class="ident">unwrap</span>();
-                <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">String</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-                        <span class="comment">// We don&#39;t really need this ID from the API; it&#39;s the md5sum.</span>
-                        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">abstio::http_post</span>(
-                            <span class="macro">format!</span>(<span class="string">&quot;{}/create-ltn&quot;</span>, <span class="ident">PROPOSAL_HOST_URL</span>),
-                            <span class="ident">proposal_contents</span>,
+<span class="kw">impl </span>SimpleState&lt;App&gt; <span class="kw">for </span>ShareProposal {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        x: <span class="kw-2">&amp;</span>str,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>| <span class="string">&quot;Cancel&quot; </span>| <span class="string">&quot;Back&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;Upload&quot; </span>=&gt; {
+                <span class="kw">let </span>(<span class="kw">_</span>, outer_progress_rx) = futures_channel::mpsc::channel(<span class="number">1</span>);
+                <span class="kw">let </span>(<span class="kw">_</span>, inner_progress_rx) = futures_channel::mpsc::channel(<span class="number">1</span>);
+                <span class="kw">let </span>proposal_contents = app
+                    .per_map
+                    .proposals
+                    .current_proposal
+                    .to_gzipped_bytes(app)
+                    .unwrap();
+                <span class="kw">return </span>Transition::Replace(FutureLoader::&lt;App, String&gt;::new_state(
+                    ctx,
+                    Box::pin(<span class="kw">async move </span>{
+                        <span class="comment">// We don&#39;t really need this ID from the API; it&#39;s the md5sum.
+                        </span><span class="kw">let </span>id = abstio::http_post(
+                            <span class="macro">format!</span>(<span class="string">&quot;{}/create-ltn&quot;</span>, PROPOSAL_HOST_URL),
+                            proposal_contents,
                         )
                         .<span class="kw">await</span><span class="question-mark">?</span>;
-                        <span class="comment">// TODO I&#39;m so lost in this type magic</span>
-                        <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">String</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">id</span>);
-                        <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
+                        <span class="comment">// TODO I&#39;m so lost in this type magic
+                        </span><span class="kw">let </span>wrapper: Box&lt;<span class="kw">dyn </span>Send + FnOnce(<span class="kw-2">&amp;</span>App) -&gt; String&gt; = Box::new(<span class="kw">move </span>|<span class="kw">_</span>| id);
+                        <span class="prelude-val">Ok</span>(wrapper)
                     }),
-                    <span class="ident">outer_progress_rx</span>,
-                    <span class="ident">inner_progress_rx</span>,
+                    outer_progress_rx,
+                    inner_progress_rx,
                     <span class="string">&quot;Uploading proposal&quot;</span>,
-                    <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">result</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">result</span> {
-                        <span class="prelude-val">Ok</span>(<span class="ident">id</span>) =&gt; {
-                            <span class="ident">URLManager::update_url_param</span>(
-                                <span class="string">&quot;--proposal&quot;</span>.<span class="ident">to_string</span>(),
-                                <span class="macro">format!</span>(<span class="string">&quot;remote/{}&quot;</span>, <span class="ident">id</span>),
+                    Box::new(<span class="kw">move </span>|ctx, app, result| <span class="kw">match </span>result {
+                        <span class="prelude-val">Ok</span>(id) =&gt; {
+                            URLManager::update_url_param(
+                                <span class="string">&quot;--proposal&quot;</span>.to_string(),
+                                <span class="macro">format!</span>(<span class="string">&quot;remote/{}&quot;</span>, id),
                             );
-                            <span class="macro">info!</span>(<span class="string">&quot;Proposal uploaded! {}/get-ltn?id={}&quot;</span>, <span class="ident">PROPOSAL_HOST_URL</span>, <span class="ident">id</span>);
-                            <span class="ident">UploadedProposals::proposal_uploaded</span>(<span class="ident">id</span>);
-                            <span class="ident">Transition::Replace</span>(<span class="ident">ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+                            <span class="macro">info!</span>(<span class="string">&quot;Proposal uploaded! {}/get-ltn?id={}&quot;</span>, PROPOSAL_HOST_URL, id);
+                            UploadedProposals::proposal_uploaded(id);
+                            Transition::Replace(ShareProposal::new_state(ctx, app))
                         }
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Transition::Pop</span>,
-                            <span class="ident">Transition::Push</span>(<span class="ident">ShareProposal::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-                            <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                                <span class="ident">ctx</span>,
+                        <span class="prelude-val">Err</span>(err) =&gt; Transition::Multi(<span class="macro">vec!</span>[
+                            Transition::Pop,
+                            Transition::Push(ShareProposal::new_state(ctx, app)),
+                            Transition::Push(PopupMsg::new_state(
+                                ctx,
                                 <span class="string">&quot;Failure&quot;</span>,
-                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t upload proposal: {}&quot;</span>, <span class="ident">err</span>)],
+                                <span class="macro">vec!</span>[<span class="macro">format!</span>(<span class="string">&quot;Couldn&#39;t upload proposal: {}&quot;</span>, err)],
                             )),
                         ]),
                     }),
                 ));
             }
-            <span class="string">&quot;Copy URL to clipboard&quot;</span> =&gt; {
-                <span class="ident">widgetry::tools::set_clipboard</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">clone</span>().<span class="ident">unwrap</span>());
-                <span class="ident">Transition::Keep</span>
+            <span class="string">&quot;Copy URL to clipboard&quot; </span>=&gt; {
+                widgetry::tools::set_clipboard(<span class="self">self</span>.url.clone().unwrap());
+                Transition::Keep
             }
-            <span class="string">&quot;open in browser&quot;</span> =&gt; {
-                <span class="ident">open_browser</span>(<span class="self">self</span>.<span class="ident">url</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
-                <span class="ident">Transition::Keep</span>
+            <span class="string">&quot;open in browser&quot; </span>=&gt; {
+                open_browser(<span class="self">self</span>.url.as_ref().unwrap());
+                Transition::Keep
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_baselayer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DrawBaselayer</span> {
-        <span class="ident">DrawBaselayer::PreviousState</span>
+    <span class="kw">fn </span>draw_baselayer(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DrawBaselayer {
+        DrawBaselayer::PreviousState
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        grey_out_map(g, app);
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UploadedProposals</span> {
-    <span class="kw">pub</span> <span class="ident">md5sums</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Debug)]
+</span><span class="kw">pub struct </span>UploadedProposals {
+    <span class="kw">pub </span>md5sums: BTreeSet&lt;String&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">UploadedProposals</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load</span>() -&gt; <span class="ident">UploadedProposals</span> {
-        <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">UploadedProposals</span><span class="op">&gt;</span>(
-            <span class="ident">abstio::path_player</span>(<span class="string">&quot;uploaded_ltn_proposals.json&quot;</span>),
-            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+<span class="kw">impl </span>UploadedProposals {
+    <span class="kw">pub fn </span>load() -&gt; UploadedProposals {
+        abstio::maybe_read_json::&lt;UploadedProposals&gt;(
+            abstio::path_player(<span class="string">&quot;uploaded_ltn_proposals.json&quot;</span>),
+            <span class="kw-2">&amp;mut </span>Timer::throwaway(),
         )
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">UploadedProposals</span> {
-            <span class="ident">md5sums</span>: <span class="ident">BTreeSet::new</span>(),
+        .unwrap_or_else(|<span class="kw">_</span>| UploadedProposals {
+            md5sums: BTreeSet::new(),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">proposal_uploaded</span>(<span class="ident">checksum</span>: <span class="ident">String</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uploaded</span> <span class="op">=</span> <span class="ident">UploadedProposals::load</span>();
-        <span class="ident">uploaded</span>.<span class="ident">md5sums</span>.<span class="ident">insert</span>(<span class="ident">checksum</span>);
-        <span class="ident">abstio::write_json</span>(
-            <span class="ident">abstio::path_player</span>(<span class="string">&quot;uploaded_ltn_proposals.json&quot;</span>),
-            <span class="kw-2">&amp;</span><span class="ident">uploaded</span>,
+    <span class="kw">fn </span>proposal_uploaded(checksum: String) {
+        <span class="kw">let </span><span class="kw-2">mut </span>uploaded = UploadedProposals::load();
+        uploaded.md5sums.insert(checksum);
+        abstio::write_json(
+            abstio::path_player(<span class="string">&quot;uploaded_ltn_proposals.json&quot;</span>),
+            <span class="kw-2">&amp;</span>uploaded,
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

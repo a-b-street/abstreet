@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/make/generator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../synthpop/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/make/generator.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>generator.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../synthpop/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -198,205 +198,205 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
-</pre><pre class="rust"><code><span class="doccomment">//! This is a much more primitive way to randomly generate trips. activity_model.rs has something</span>
-<span class="doccomment">//! more realistic.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! This is a much more primitive way to randomly generate trips. activity_model.rs has something
+//! more realistic.
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</span><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">rand::seq::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand::Rng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>rand::seq::SliceRandom;
+<span class="kw">use </span>rand::Rng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{Duration, Time};
+<span class="kw">use </span>map_model::{IntersectionID, Map};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use crate</span>::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
-<span class="comment">// TODO This can be simplified dramatically.</span>
+<span class="comment">// TODO This can be simplified dramatically.
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ScenarioGenerator</span> {
-    <span class="kw">pub</span> <span class="ident">scenario_name</span>: <span class="ident">String</span>,
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize, Debug)]
+</span><span class="kw">pub struct </span>ScenarioGenerator {
+    <span class="kw">pub </span>scenario_name: String,
 
-    <span class="kw">pub</span> <span class="ident">only_seed_buses</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">spawn_over_time</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">SpawnOverTime</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">border_spawn_over_time</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BorderSpawnOverTime</span><span class="op">&gt;</span>,
+    <span class="kw">pub </span>only_seed_buses: <span class="prelude-ty">Option</span>&lt;BTreeSet&lt;String&gt;&gt;,
+    <span class="kw">pub </span>spawn_over_time: Vec&lt;SpawnOverTime&gt;,
+    <span class="kw">pub </span>border_spawn_over_time: Vec&lt;BorderSpawnOverTime&gt;,
 }
 
-<span class="comment">// SpawnOverTime and BorderSpawnOverTime should be kept separate. Agents in SpawnOverTime pick</span>
-<span class="comment">// their mode (use a car, walk, bus) based on the situation. When spawning directly a border,</span>
-<span class="comment">// agents have to start as a car or pedestrian already.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SpawnOverTime</span> {
-    <span class="kw">pub</span> <span class="ident">num_agents</span>: <span class="ident">usize</span>,
-    <span class="comment">// TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html</span>
-    <span class="kw">pub</span> <span class="ident">start_time</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">stop_time</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">goal</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">percent_driving</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">percent_biking</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">percent_use_transit</span>: <span class="ident">f64</span>,
+<span class="comment">// SpawnOverTime and BorderSpawnOverTime should be kept separate. Agents in SpawnOverTime pick
+// their mode (use a car, walk, bus) based on the situation. When spawning directly a border,
+// agents have to start as a car or pedestrian already.
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize, Debug)]
+</span><span class="kw">pub struct </span>SpawnOverTime {
+    <span class="kw">pub </span>num_agents: usize,
+    <span class="comment">// TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
+    </span><span class="kw">pub </span>start_time: Time,
+    <span class="kw">pub </span>stop_time: Time,
+    <span class="kw">pub </span>goal: <span class="prelude-ty">Option</span>&lt;TripEndpoint&gt;,
+    <span class="kw">pub </span>percent_driving: f64,
+    <span class="kw">pub </span>percent_biking: f64,
+    <span class="kw">pub </span>percent_use_transit: f64,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BorderSpawnOverTime</span> {
-    <span class="kw">pub</span> <span class="ident">num_peds</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">num_cars</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">num_bikes</span>: <span class="ident">usize</span>,
-    <span class="kw">pub</span> <span class="ident">percent_use_transit</span>: <span class="ident">f64</span>,
-    <span class="comment">// TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html</span>
-    <span class="kw">pub</span> <span class="ident">start_time</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">stop_time</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">start_from_border</span>: <span class="ident">IntersectionID</span>,
-    <span class="kw">pub</span> <span class="ident">goal</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, Serialize, Deserialize, Debug)]
+</span><span class="kw">pub struct </span>BorderSpawnOverTime {
+    <span class="kw">pub </span>num_peds: usize,
+    <span class="kw">pub </span>num_cars: usize,
+    <span class="kw">pub </span>num_bikes: usize,
+    <span class="kw">pub </span>percent_use_transit: f64,
+    <span class="comment">// TODO use https://docs.rs/rand/0.5.5/rand/distributions/struct.Normal.html
+    </span><span class="kw">pub </span>start_time: Time,
+    <span class="kw">pub </span>stop_time: Time,
+    <span class="kw">pub </span>start_from_border: IntersectionID,
+    <span class="kw">pub </span>goal: <span class="prelude-ty">Option</span>&lt;TripEndpoint&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">ScenarioGenerator</span> {
-    <span class="comment">// TODO may need to fork the RNG a bit more</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">generate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Scenario</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_name</span>);
-        <span class="ident">scenario</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">only_seed_buses</span>.<span class="ident">clone</span>();
+<span class="kw">impl </span>ScenarioGenerator {
+    <span class="comment">// TODO may need to fork the RNG a bit more
+    </span><span class="kw">pub fn </span>generate(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, rng: <span class="kw-2">&amp;mut </span>XorShiftRng, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; Scenario {
+        <span class="kw">let </span><span class="kw-2">mut </span>scenario = Scenario::empty(map, <span class="kw-2">&amp;</span><span class="self">self</span>.scenario_name);
+        scenario.only_seed_buses = <span class="self">self</span>.only_seed_buses.clone();
 
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;Generating scenario {}&quot;</span>, <span class="self">self</span>.<span class="ident">scenario_name</span>));
+        timer.start(<span class="macro">format!</span>(<span class="string">&quot;Generating scenario {}&quot;</span>, <span class="self">self</span>.scenario_name));
 
-        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">spawn_over_time</span> {
-            <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;SpawnOverTime each agent&quot;</span>, <span class="ident">s</span>.<span class="ident">num_agents</span>);
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">s</span>.<span class="ident">num_agents</span> {
-                <span class="ident">timer</span>.<span class="ident">next</span>();
-                <span class="ident">s</span>.<span class="ident">spawn_agent</span>(<span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>, <span class="ident">map</span>);
+        <span class="kw">for </span>s <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.spawn_over_time {
+            timer.start_iter(<span class="string">&quot;SpawnOverTime each agent&quot;</span>, s.num_agents);
+            <span class="kw">for _ in </span><span class="number">0</span>..s.num_agents {
+                timer.next();
+                s.spawn_agent(rng, <span class="kw-2">&amp;mut </span>scenario, map);
             }
         }
 
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;BorderSpawnOverTime&quot;</span>, <span class="self">self</span>.<span class="ident">border_spawn_over_time</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> <span class="ident">s</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">border_spawn_over_time</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">s</span>.<span class="ident">num_peds</span> {
-                <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="ident">s</span>.<span class="ident">percent_use_transit</span>) {
-                    <span class="ident">TripMode::Transit</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">TripMode::Walk</span>
+        timer.start_iter(<span class="string">&quot;BorderSpawnOverTime&quot;</span>, <span class="self">self</span>.border_spawn_over_time.len());
+        <span class="kw">for </span>s <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.border_spawn_over_time {
+            timer.next();
+            <span class="kw">for _ in </span><span class="number">0</span>..s.num_peds {
+                <span class="kw">let </span>mode = <span class="kw">if </span>rng.gen_bool(s.percent_use_transit) {
+                    TripMode::Transit
+                } <span class="kw">else </span>{
+                    TripMode::Walk
                 };
-                <span class="ident">s</span>.<span class="ident">spawn</span>(<span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>, <span class="ident">mode</span>, <span class="ident">map</span>);
+                s.spawn(rng, <span class="kw-2">&amp;mut </span>scenario, mode, map);
             }
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">s</span>.<span class="ident">num_cars</span> {
-                <span class="ident">s</span>.<span class="ident">spawn</span>(<span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>, <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>);
+            <span class="kw">for _ in </span><span class="number">0</span>..s.num_cars {
+                s.spawn(rng, <span class="kw-2">&amp;mut </span>scenario, TripMode::Drive, map);
             }
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">s</span>.<span class="ident">num_bikes</span> {
-                <span class="ident">s</span>.<span class="ident">spawn</span>(<span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>, <span class="ident">TripMode::Bike</span>, <span class="ident">map</span>);
+            <span class="kw">for _ in </span><span class="number">0</span>..s.num_bikes {
+                s.spawn(rng, <span class="kw-2">&amp;mut </span>scenario, TripMode::Bike, map);
             }
         }
 
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;Generating scenario {}&quot;</span>, <span class="self">self</span>.<span class="ident">scenario_name</span>));
-        <span class="ident">scenario</span>.<span class="ident">remove_weird_schedules</span>(<span class="bool-val">true</span>)
+        timer.stop(<span class="macro">format!</span>(<span class="string">&quot;Generating scenario {}&quot;</span>, <span class="self">self</span>.scenario_name));
+        scenario.remove_weird_schedules(<span class="bool-val">true</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_run</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">ScenarioGenerator</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">ScenarioGenerator</span> {
-            <span class="ident">scenario_name</span>: <span class="string">&quot;small_run&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">only_seed_buses</span>: <span class="prelude-val">None</span>,
-            <span class="ident">spawn_over_time</span>: <span class="macro">vec!</span>[<span class="ident">SpawnOverTime</span> {
-                <span class="ident">num_agents</span>: <span class="number">100</span>,
-                <span class="ident">start_time</span>: <span class="ident">Time::START_OF_DAY</span>,
-                <span class="ident">stop_time</span>: <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">5.0</span>),
-                <span class="ident">goal</span>: <span class="prelude-val">None</span>,
-                <span class="ident">percent_driving</span>: <span class="number">0.5</span>,
-                <span class="ident">percent_biking</span>: <span class="number">0.5</span>,
-                <span class="ident">percent_use_transit</span>: <span class="number">0.5</span>,
+    <span class="kw">pub fn </span>small_run(map: <span class="kw-2">&amp;</span>Map) -&gt; ScenarioGenerator {
+        <span class="kw">let </span><span class="kw-2">mut </span>s = ScenarioGenerator {
+            scenario_name: <span class="string">&quot;small_run&quot;</span>.to_string(),
+            only_seed_buses: <span class="prelude-val">None</span>,
+            spawn_over_time: <span class="macro">vec!</span>[SpawnOverTime {
+                num_agents: <span class="number">100</span>,
+                start_time: Time::START_OF_DAY,
+                stop_time: Time::START_OF_DAY + Duration::seconds(<span class="number">5.0</span>),
+                goal: <span class="prelude-val">None</span>,
+                percent_driving: <span class="number">0.5</span>,
+                percent_biking: <span class="number">0.5</span>,
+                percent_use_transit: <span class="number">0.5</span>,
             }],
-            <span class="comment">// If there are no sidewalks/driving lanes at a border, scenario instantiation will</span>
-            <span class="comment">// just warn and skip them.</span>
-            <span class="ident">border_spawn_over_time</span>: <span class="ident">map</span>
-                .<span class="ident">all_incoming_borders</span>()
-                .<span class="ident">into_iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> <span class="ident">BorderSpawnOverTime</span> {
-                    <span class="ident">num_peds</span>: <span class="number">10</span>,
-                    <span class="ident">num_cars</span>: <span class="number">10</span>,
-                    <span class="ident">num_bikes</span>: <span class="number">10</span>,
-                    <span class="ident">start_time</span>: <span class="ident">Time::START_OF_DAY</span>,
-                    <span class="ident">stop_time</span>: <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">5.0</span>),
-                    <span class="ident">start_from_border</span>: <span class="ident">i</span>.<span class="ident">id</span>,
-                    <span class="ident">goal</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">percent_use_transit</span>: <span class="number">0.5</span>,
+            <span class="comment">// If there are no sidewalks/driving lanes at a border, scenario instantiation will
+            // just warn and skip them.
+            </span>border_spawn_over_time: map
+                .all_incoming_borders()
+                .into_iter()
+                .map(|i| BorderSpawnOverTime {
+                    num_peds: <span class="number">10</span>,
+                    num_cars: <span class="number">10</span>,
+                    num_bikes: <span class="number">10</span>,
+                    start_time: Time::START_OF_DAY,
+                    stop_time: Time::START_OF_DAY + Duration::seconds(<span class="number">5.0</span>),
+                    start_from_border: i.id,
+                    goal: <span class="prelude-val">None</span>,
+                    percent_use_transit: <span class="number">0.5</span>,
                 })
-                .<span class="ident">collect</span>(),
+                .collect(),
         };
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_outgoing_borders</span>() {
-            <span class="ident">s</span>.<span class="ident">spawn_over_time</span>.<span class="ident">push</span>(<span class="ident">SpawnOverTime</span> {
-                <span class="ident">num_agents</span>: <span class="number">10</span>,
-                <span class="ident">start_time</span>: <span class="ident">Time::START_OF_DAY</span>,
-                <span class="ident">stop_time</span>: <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">5.0</span>),
-                <span class="ident">goal</span>: <span class="prelude-val">Some</span>(<span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>.<span class="ident">id</span>)),
-                <span class="ident">percent_driving</span>: <span class="number">0.5</span>,
-                <span class="ident">percent_biking</span>: <span class="number">0.5</span>,
-                <span class="ident">percent_use_transit</span>: <span class="number">0.5</span>,
+        <span class="kw">for </span>i <span class="kw">in </span>map.all_outgoing_borders() {
+            s.spawn_over_time.push(SpawnOverTime {
+                num_agents: <span class="number">10</span>,
+                start_time: Time::START_OF_DAY,
+                stop_time: Time::START_OF_DAY + Duration::seconds(<span class="number">5.0</span>),
+                goal: <span class="prelude-val">Some</span>(TripEndpoint::Border(i.id)),
+                percent_driving: <span class="number">0.5</span>,
+                percent_biking: <span class="number">0.5</span>,
+                percent_use_transit: <span class="number">0.5</span>,
             });
         }
-        <span class="ident">s</span>
+        s
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">ScenarioGenerator</span> {
-        <span class="ident">ScenarioGenerator</span> {
-            <span class="ident">scenario_name</span>: <span class="ident">name</span>.<span class="ident">to_string</span>(),
-            <span class="ident">only_seed_buses</span>: <span class="prelude-val">Some</span>(<span class="ident">BTreeSet::new</span>()),
-            <span class="ident">spawn_over_time</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">border_spawn_over_time</span>: <span class="ident">Vec::new</span>(),
+    <span class="kw">pub fn </span>empty(name: <span class="kw-2">&amp;</span>str) -&gt; ScenarioGenerator {
+        ScenarioGenerator {
+            scenario_name: name.to_string(),
+            only_seed_buses: <span class="prelude-val">Some</span>(BTreeSet::new()),
+            spawn_over_time: Vec::new(),
+            border_spawn_over_time: Vec::new(),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SpawnOverTime</span> {
-    <span class="kw">fn</span> <span class="ident">spawn_agent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">scenario</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scenario</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">let</span> <span class="ident">depart</span> <span class="op">=</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>, <span class="self">self</span>.<span class="ident">start_time</span>, <span class="self">self</span>.<span class="ident">stop_time</span>);
-        <span class="comment">// Note that it&#39;s fine for agents to start/end at the same building. Later we might</span>
-        <span class="comment">// want a better assignment of people per household, or workers per office building.</span>
-        <span class="kw">let</span> <span class="ident">from_bldg</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>;
-        <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="self">self</span>.<span class="ident">percent_driving</span>) {
-            <span class="ident">TripMode::Drive</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="self">self</span>.<span class="ident">percent_biking</span>) {
-            <span class="ident">TripMode::Bike</span>
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="self">self</span>.<span class="ident">percent_use_transit</span>) {
-            <span class="ident">TripMode::Transit</span>
-        } <span class="kw">else</span> {
-            <span class="ident">TripMode::Walk</span>
+<span class="kw">impl </span>SpawnOverTime {
+    <span class="kw">fn </span>spawn_agent(<span class="kw-2">&amp;</span><span class="self">self</span>, rng: <span class="kw-2">&amp;mut </span>XorShiftRng, scenario: <span class="kw-2">&amp;mut </span>Scenario, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="kw">let </span>depart = rand_time(rng, <span class="self">self</span>.start_time, <span class="self">self</span>.stop_time);
+        <span class="comment">// Note that it&#39;s fine for agents to start/end at the same building. Later we might
+        // want a better assignment of people per household, or workers per office building.
+        </span><span class="kw">let </span>from_bldg = map.all_buildings().choose(rng).unwrap().id;
+        <span class="kw">let </span>mode = <span class="kw">if </span>rng.gen_bool(<span class="self">self</span>.percent_driving) {
+            TripMode::Drive
+        } <span class="kw">else if </span>rng.gen_bool(<span class="self">self</span>.percent_biking) {
+            TripMode::Bike
+        } <span class="kw">else if </span>rng.gen_bool(<span class="self">self</span>.percent_use_transit) {
+            TripMode::Transit
+        } <span class="kw">else </span>{
+            TripMode::Walk
         };
-        <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
-            <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">trips</span>: <span class="macro">vec!</span>[<span class="ident">IndividTrip::new</span>(
-                <span class="ident">depart</span>,
-                <span class="ident">TripPurpose::Shopping</span>,
-                <span class="ident">TripEndpoint::Building</span>(<span class="ident">from_bldg</span>),
-                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>)
+        scenario.people.push(PersonSpec {
+            orig_id: <span class="prelude-val">None</span>,
+            trips: <span class="macro">vec!</span>[IndividTrip::new(
+                depart,
+                TripPurpose::Shopping,
+                TripEndpoint::Building(from_bldg),
+                <span class="self">self</span>.goal.unwrap_or_else(|| {
+                    TripEndpoint::Building(map.all_buildings().choose(rng).unwrap().id)
                 }),
-                <span class="ident">mode</span>,
+                mode,
             )],
         });
     }
 }
 
-<span class="kw">impl</span> <span class="ident">BorderSpawnOverTime</span> {
-    <span class="kw">fn</span> <span class="ident">spawn</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">scenario</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scenario</span>, <span class="ident">mode</span>: <span class="ident">TripMode</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">let</span> <span class="ident">depart</span> <span class="op">=</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>, <span class="self">self</span>.<span class="ident">start_time</span>, <span class="self">self</span>.<span class="ident">stop_time</span>);
-        <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">push</span>(<span class="ident">PersonSpec</span> {
-            <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-            <span class="ident">trips</span>: <span class="macro">vec!</span>[<span class="ident">IndividTrip::new</span>(
-                <span class="ident">depart</span>,
-                <span class="ident">TripPurpose::Shopping</span>,
-                <span class="ident">TripEndpoint::Border</span>(<span class="self">self</span>.<span class="ident">start_from_border</span>),
-                <span class="self">self</span>.<span class="ident">goal</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">map</span>.<span class="ident">all_buildings</span>().<span class="ident">choose</span>(<span class="ident">rng</span>).<span class="ident">unwrap</span>().<span class="ident">id</span>)
+<span class="kw">impl </span>BorderSpawnOverTime {
+    <span class="kw">fn </span>spawn(<span class="kw-2">&amp;</span><span class="self">self</span>, rng: <span class="kw-2">&amp;mut </span>XorShiftRng, scenario: <span class="kw-2">&amp;mut </span>Scenario, mode: TripMode, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="kw">let </span>depart = rand_time(rng, <span class="self">self</span>.start_time, <span class="self">self</span>.stop_time);
+        scenario.people.push(PersonSpec {
+            orig_id: <span class="prelude-val">None</span>,
+            trips: <span class="macro">vec!</span>[IndividTrip::new(
+                depart,
+                TripPurpose::Shopping,
+                TripEndpoint::Border(<span class="self">self</span>.start_from_border),
+                <span class="self">self</span>.goal.unwrap_or_else(|| {
+                    TripEndpoint::Building(map.all_buildings().choose(rng).unwrap().id)
                 }),
-                <span class="ident">mode</span>,
+                mode,
             )],
         });
     }
 }
 
-<span class="kw">fn</span> <span class="ident">rand_time</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Time</span>, <span class="ident">high</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Time</span> {
-    <span class="macro">assert!</span>(<span class="ident">high</span> <span class="op">&gt;</span> <span class="ident">low</span>);
-    <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>()..<span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
+<span class="kw">fn </span>rand_time(rng: <span class="kw-2">&amp;mut </span>XorShiftRng, low: Time, high: Time) -&gt; Time {
+    <span class="macro">assert!</span>(high &gt; low);
+    Time::START_OF_DAY + Duration::seconds(rng.gen_range(low.inner_seconds()..high.inner_seconds()))
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

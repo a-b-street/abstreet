@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/city.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>city.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_model/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/city.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>city.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_model/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -120,127 +120,127 @@
 <span id="120">120</span>
 <span id="121">121</span>
 <span id="122">122</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">CityName</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>};
+<span class="kw">use </span>abstio::{CityName, MapName};
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{GPSBounds, LonLat, Polygon, Ring};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AreaType</span>, <span class="ident">Map</span>};
+<span class="kw">use crate</span>::{AreaType, Map};
 
-<span class="comment">// Hand-tuned. I think this is in units of meters?</span>
-<span class="kw">const</span> <span class="ident">POLYGON_EPSILON</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1000.0</span>;
+<span class="comment">// Hand-tuned. I think this is in units of meters?
+</span><span class="kw">const </span>POLYGON_EPSILON: f64 = <span class="number">1000.0</span>;
 
-<span class="doccomment">/// A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,</span>
-<span class="doccomment">/// ballard, downtown, etc). The load map screen uses this struct to display the entire city.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">City</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">CityName</span>,
-    <span class="kw">pub</span> <span class="ident">boundary</span>: <span class="ident">Polygon</span>,
-    <span class="kw">pub</span> <span class="ident">areas</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AreaType</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
-    <span class="doccomment">/// The individual maps</span>
-    <span class="kw">pub</span> <span class="ident">districts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">Polygon</span>)<span class="op">&gt;</span>,
-    <span class="comment">// TODO Move nice_map_name from game into here?</span>
-}
+<span class="doccomment">/// A single city (like Seattle) can be broken down into multiple boundary polygons (udistrict,
+/// ballard, downtown, etc). The load map screen uses this struct to display the entire city.
+</span><span class="attribute">#[derive(Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>City {
+    <span class="kw">pub </span>name: CityName,
+    <span class="kw">pub </span>boundary: Polygon,
+    <span class="kw">pub </span>areas: Vec&lt;(AreaType, Polygon)&gt;,
+    <span class="doccomment">/// The individual maps
+    </span><span class="kw">pub </span>districts: Vec&lt;(MapName, Polygon)&gt;,
+    <span class="comment">// TODO Move nice_map_name from game into here?
+</span>}
 
-<span class="kw">impl</span> <span class="ident">City</span> {
-    <span class="doccomment">/// If there&#39;s a single map covering all the smaller maps, use this.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_huge_map</span>(<span class="ident">huge_map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">City</span> {
-        <span class="kw">let</span> <span class="ident">city_name</span> <span class="op">=</span> <span class="ident">huge_map</span>.<span class="ident">get_city_name</span>().<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">districts</span> <span class="op">=</span> <span class="ident">abstio::list_dir</span>(<span class="macro">format!</span>(
+<span class="kw">impl </span>City {
+    <span class="doccomment">/// If there&#39;s a single map covering all the smaller maps, use this.
+    </span><span class="kw">pub fn </span>from_huge_map(huge_map: <span class="kw-2">&amp;</span>Map) -&gt; City {
+        <span class="kw">let </span>city_name = huge_map.get_city_name().clone();
+        <span class="kw">let </span><span class="kw-2">mut </span>districts = abstio::list_dir(<span class="macro">format!</span>(
             <span class="string">&quot;importer/config/{}/{}&quot;</span>,
-            <span class="ident">city_name</span>.<span class="ident">country</span>, <span class="ident">city_name</span>.<span class="ident">city</span>
+            city_name.country, city_name.city
         ))
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.geojson&quot;</span>))
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">LonLat::read_geojson_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">unwrap</span>();
+        .into_iter()
+        .filter(|path| path.ends_with(<span class="string">&quot;.geojson&quot;</span>))
+        .map(|path| {
+            <span class="kw">let </span>pts = LonLat::read_geojson_polygon(<span class="kw-2">&amp;</span>path).unwrap();
             (
-                <span class="ident">MapName::from_city</span>(<span class="kw-2">&amp;</span><span class="ident">city_name</span>, <span class="kw-2">&amp;</span><span class="ident">abstutil::basename</span>(<span class="ident">path</span>)),
-                <span class="ident">Ring::must_new</span>(<span class="ident">huge_map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">into_polygon</span>(),
+                MapName::from_city(<span class="kw-2">&amp;</span>city_name, <span class="kw-2">&amp;</span>abstutil::basename(path)),
+                Ring::must_new(huge_map.get_gps_bounds().convert(<span class="kw-2">&amp;</span>pts)).into_polygon(),
             )
         })
-        .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="comment">// Just a sort of z-ordering hack so that the largest encompassing district isn&#39;t first</span>
-        <span class="comment">// later in the UI picker.</span>
-        <span class="ident">districts</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">poly</span>)<span class="op">|</span> <span class="ident">poly</span>.<span class="ident">get_bounds</span>().<span class="ident">width</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+        .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        <span class="comment">// Just a sort of z-ordering hack so that the largest encompassing district isn&#39;t first
+        // later in the UI picker.
+        </span>districts.sort_by_key(|(<span class="kw">_</span>, poly)| poly.get_bounds().width() <span class="kw">as </span>usize);
 
-        <span class="ident">City</span> {
-            <span class="ident">name</span>: <span class="ident">city_name</span>,
-            <span class="ident">boundary</span>: <span class="ident">huge_map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">clone</span>(),
-            <span class="ident">areas</span>: <span class="ident">huge_map</span>
-                .<span class="ident">all_areas</span>()
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> (<span class="ident">a</span>.<span class="ident">area_type</span>, <span class="ident">a</span>.<span class="ident">polygon</span>.<span class="ident">simplify</span>(<span class="ident">POLYGON_EPSILON</span>)))
-                .<span class="ident">collect</span>(),
-            <span class="ident">districts</span>,
+        City {
+            name: city_name,
+            boundary: huge_map.get_boundary_polygon().clone(),
+            areas: huge_map
+                .all_areas()
+                .iter()
+                .map(|a| (a.area_type, a.polygon.simplify(POLYGON_EPSILON)))
+                .collect(),
+            districts,
         }
     }
 
-    <span class="doccomment">/// Generate a city from a bunch of smaller, individual maps. The boundaries of those maps</span>
-    <span class="doccomment">/// may overlap and may have gaps between them.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_individual_maps</span>(<span class="ident">city_name</span>: <span class="kw-2">&amp;</span><span class="ident">CityName</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">City</span> {
-        <span class="kw">let</span> <span class="ident">boundary_per_district</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">MapName</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">abstio::list_dir</span>(<span class="macro">format!</span>(
+    <span class="doccomment">/// Generate a city from a bunch of smaller, individual maps. The boundaries of those maps
+    /// may overlap and may have gaps between them.
+    </span><span class="kw">pub fn </span>from_individual_maps(city_name: <span class="kw-2">&amp;</span>CityName, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; City {
+        <span class="kw">let </span>boundary_per_district: Vec&lt;(MapName, Vec&lt;LonLat&gt;)&gt; = abstio::list_dir(<span class="macro">format!</span>(
             <span class="string">&quot;importer/config/{}/{}&quot;</span>,
-            <span class="ident">city_name</span>.<span class="ident">country</span>, <span class="ident">city_name</span>.<span class="ident">city</span>
+            city_name.country, city_name.city
         ))
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.geojson&quot;</span>))
-        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> {
+        .into_iter()
+        .filter(|path| path.ends_with(<span class="string">&quot;.geojson&quot;</span>))
+        .map(|path| {
             (
-                <span class="ident">MapName::from_city</span>(<span class="ident">city_name</span>, <span class="kw-2">&amp;</span><span class="ident">abstutil::basename</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>)),
-                <span class="ident">LonLat::read_geojson_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">unwrap</span>(),
+                MapName::from_city(city_name, <span class="kw-2">&amp;</span>abstutil::basename(<span class="kw-2">&amp;</span>path)),
+                LonLat::read_geojson_polygon(<span class="kw-2">&amp;</span>path).unwrap(),
             )
         })
-        .<span class="ident">collect</span>();
-        <span class="comment">// Figure out the total bounds for all the maps</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">GPSBounds::new</span>();
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">pts</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">boundary_per_district</span> {
-            <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-                <span class="ident">gps_bounds</span>.<span class="ident">update</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
+        .collect();
+        <span class="comment">// Figure out the total bounds for all the maps
+        </span><span class="kw">let </span><span class="kw-2">mut </span>gps_bounds = GPSBounds::new();
+        <span class="kw">for </span>(<span class="kw">_</span>, pts) <span class="kw">in </span><span class="kw-2">&amp;</span>boundary_per_district {
+            <span class="kw">for </span>pt <span class="kw">in </span>pts {
+                gps_bounds.update(<span class="kw-2">*</span>pt);
             }
         }
-        <span class="kw">let</span> <span class="ident">boundary</span> <span class="op">=</span> <span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>().<span class="ident">get_rectangle</span>();
+        <span class="kw">let </span>boundary = gps_bounds.to_bounds().get_rectangle();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">districts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">pts</span>) <span class="kw">in</span> <span class="ident">boundary_per_district</span> {
-            <span class="ident">districts</span>.<span class="ident">push</span>((
-                <span class="ident">name</span>,
-                <span class="ident">Ring::must_new</span>(<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">into_polygon</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>districts = Vec::new();
+        <span class="kw">for </span>(name, pts) <span class="kw">in </span>boundary_per_district {
+            districts.push((
+                name,
+                Ring::must_new(gps_bounds.convert(<span class="kw-2">&amp;</span>pts)).into_polygon(),
             ));
         }
-        <span class="comment">// Just a sort of z-ordering hack so that the largest encompassing district isn&#39;t first</span>
-        <span class="comment">// later in the UI picker.</span>
-        <span class="ident">districts</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">poly</span>)<span class="op">|</span> <span class="ident">poly</span>.<span class="ident">get_bounds</span>().<span class="ident">width</span>() <span class="kw">as</span> <span class="ident">usize</span>);
+        <span class="comment">// Just a sort of z-ordering hack so that the largest encompassing district isn&#39;t first
+        // later in the UI picker.
+        </span>districts.sort_by_key(|(<span class="kw">_</span>, poly)| poly.get_bounds().width() <span class="kw">as </span>usize);
 
-        <span class="comment">// Add areas from every map. It&#39;s fine if they partly overlap.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">areas</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">abstio::list_dir</span>(<span class="ident">abstio::path</span>(<span class="macro">format!</span>(
+        <span class="comment">// Add areas from every map. It&#39;s fine if they partly overlap.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>areas = Vec::new();
+        <span class="kw">for </span>path <span class="kw">in </span>abstio::list_dir(abstio::path(<span class="macro">format!</span>(
             <span class="string">&quot;system/{}/{}/maps&quot;</span>,
-            <span class="ident">city_name</span>.<span class="ident">country</span>, <span class="ident">city_name</span>.<span class="ident">city</span>
+            city_name.country, city_name.city
         ))) {
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">path</span>, <span class="ident">timer</span>);
-            <span class="kw">for</span> <span class="ident">area</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_areas</span>() {
-                <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">map</span>
-                    .<span class="ident">gps_bounds</span>
-                    .<span class="ident">convert_back</span>(<span class="ident">area</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">points</span>());
-                <span class="comment">// TODO Holes in the polygons get lost</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)) {
-                    <span class="ident">areas</span>.<span class="ident">push</span>((
-                        <span class="ident">area</span>.<span class="ident">area_type</span>,
-                        <span class="ident">ring</span>.<span class="ident">into_polygon</span>().<span class="ident">simplify</span>(<span class="ident">POLYGON_EPSILON</span>),
+            <span class="kw">let </span>map = Map::load_synchronously(path, timer);
+            <span class="kw">for </span>area <span class="kw">in </span>map.all_areas() {
+                <span class="kw">let </span>pts = map
+                    .gps_bounds
+                    .convert_back(area.polygon.get_outer_ring().points());
+                <span class="comment">// TODO Holes in the polygons get lost
+                </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(ring) = Ring::new(gps_bounds.convert(<span class="kw-2">&amp;</span>pts)) {
+                    areas.push((
+                        area.area_type,
+                        ring.into_polygon().simplify(POLYGON_EPSILON),
                     ));
                 }
             }
         }
 
-        <span class="ident">City</span> {
-            <span class="ident">name</span>: <span class="ident">city_name</span>.<span class="ident">clone</span>(),
-            <span class="ident">boundary</span>,
-            <span class="ident">areas</span>,
-            <span class="ident">districts</span>,
+        City {
+            name: city_name.clone(),
+            boundary,
+            areas,
+            districts,
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

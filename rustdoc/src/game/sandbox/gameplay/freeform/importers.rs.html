@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/freeform/importers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>importers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../game/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/freeform/importers.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>importers.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../../normalize.css"><link rel="stylesheet" href="../../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../../dark.css" disabled><link rel="stylesheet" href="../../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../../storage.js"></script><script defer src="../../../../../source-script.js"></script><script defer src="../../../../../source-files.js"></script><script defer src="../../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../../game/index.html"><img class="rust-logo" src="../../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -114,121 +114,121 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
-</pre><pre class="rust"><code><span class="comment">// TODO This doesn&#39;t really belong in gameplay/freeform</span>
+</pre><pre class="rust"><code><span class="comment">// TODO This doesn&#39;t really belong in gameplay/freeform
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+</span><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::Deserialize;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">find_exe</span>, <span class="ident">FilePicker</span>, <span class="ident">RunCommand</span>};
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">ExternalPerson</span>, <span class="ident">Scenario</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry::EventCtx</span>;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>map_gui::tools::{find_exe, FilePicker, RunCommand};
+<span class="kw">use </span>map_model::Map;
+<span class="kw">use </span>synthpop::{ExternalPerson, Scenario};
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::EventCtx;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::Transition</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::gameplay::GameplayMode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::SandboxMode</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::Transition;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::gameplay::GameplayMode;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::SandboxMode;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import_grid2demand</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Transition</span> {
-    <span class="ident">Transition::Push</span>(<span class="ident">FilePicker::new_state</span>(
-        <span class="ident">ctx</span>,
+<span class="kw">pub fn </span>import_grid2demand(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Transition {
+    Transition::Push(FilePicker::new_state(
+        ctx,
         <span class="prelude-val">None</span>,
-        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_path</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">path</span>)) <span class="op">=</span> <span class="ident">maybe_path</span> {
-                <span class="ident">Transition::Replace</span>(<span class="ident">RunCommand::new_state</span>(
-                    <span class="ident">ctx</span>,
+        Box::new(|ctx, app, maybe_path| {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(path)) = maybe_path {
+                Transition::Replace(RunCommand::new_state(
+                    ctx,
                     <span class="bool-val">true</span>,
                     <span class="macro">vec!</span>[
-                        <span class="ident">find_exe</span>(<span class="string">&quot;cli&quot;</span>),
-                        <span class="string">&quot;import-grid2-demand&quot;</span>.<span class="ident">to_string</span>(),
-                        <span class="macro">format!</span>(<span class="string">&quot;--map={}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">path</span>()),
-                        <span class="macro">format!</span>(<span class="string">&quot;--input={}&quot;</span>, <span class="ident">path</span>),
+                        find_exe(<span class="string">&quot;cli&quot;</span>),
+                        <span class="string">&quot;import-grid2-demand&quot;</span>.to_string(),
+                        <span class="macro">format!</span>(<span class="string">&quot;--map={}&quot;</span>, app.primary.map.get_name().path()),
+                        <span class="macro">format!</span>(<span class="string">&quot;--input={}&quot;</span>, path),
                     ],
-                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">app</span>, <span class="ident">success</span>, <span class="kw">_</span><span class="op">|</span> {
-                        <span class="kw">if</span> <span class="ident">success</span> {
-                            <span class="comment">// Clear out the cached scenario. If we repeatedly use this import, the</span>
-                            <span class="comment">// scenario name is always the same, but the file is changing.</span>
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                            <span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::simple_new</span>(
-                                <span class="ident">app</span>,
-                                <span class="ident">GameplayMode::PlayScenario</span>(
-                                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                                    <span class="string">&quot;grid2demand&quot;</span>.<span class="ident">to_string</span>(),
-                                    <span class="ident">Vec::new</span>(),
+                    Box::new(|<span class="kw">_</span>, app, success, <span class="kw">_</span>| {
+                        <span class="kw">if </span>success {
+                            <span class="comment">// Clear out the cached scenario. If we repeatedly use this import, the
+                            // scenario name is always the same, but the file is changing.
+                            </span>app.primary.scenario = <span class="prelude-val">None</span>;
+                            Transition::Replace(SandboxMode::simple_new(
+                                app,
+                                GameplayMode::PlayScenario(
+                                    app.primary.map.get_name().clone(),
+                                    <span class="string">&quot;grid2demand&quot;</span>.to_string(),
+                                    Vec::new(),
                                 ),
                             ))
-                        } <span class="kw">else</span> {
-                            <span class="comment">// The popup already explained the failure</span>
-                            <span class="ident">Transition::Keep</span>
+                        } <span class="kw">else </span>{
+                            <span class="comment">// The popup already explained the failure
+                            </span>Transition::Keep
                         }
                     }),
                 ))
-            } <span class="kw">else</span> {
-                <span class="comment">// The user didn&#39;t pick a file, so stay on the scenario picker</span>
-                <span class="ident">Transition::Pop</span>
+            } <span class="kw">else </span>{
+                <span class="comment">// The user didn&#39;t pick a file, so stay on the scenario picker
+                </span>Transition::Pop
             }
         }),
     ))
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import_json</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Transition</span> {
-    <span class="ident">Transition::Push</span>(<span class="ident">FilePicker::new_state</span>(
-        <span class="ident">ctx</span>,
+<span class="kw">pub fn </span>import_json(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Transition {
+    Transition::Push(FilePicker::new_state(
+        ctx,
         <span class="prelude-val">None</span>,
-        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">maybe_path</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(<span class="ident">path</span>)) <span class="op">=</span> <span class="ident">maybe_path</span> {
-                <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;import JSON scenario&quot;</span>, <span class="op">|</span><span class="kw">_</span>, <span class="ident">timer</span><span class="op">|</span> {
-                    <span class="ident">import_json_scenario</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="ident">path</span>, <span class="ident">timer</span>)
+        Box::new(|ctx, app, maybe_path| {
+            <span class="kw">if let </span><span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(path)) = maybe_path {
+                <span class="kw">let </span>result = ctx.loading_screen(<span class="string">&quot;import JSON scenario&quot;</span>, |<span class="kw">_</span>, timer| {
+                    import_json_scenario(<span class="kw-2">&amp;</span>app.primary.map, path, timer)
                 });
-                <span class="kw">match</span> <span class="ident">result</span> {
-                    <span class="prelude-val">Ok</span>(<span class="ident">scenario_name</span>) =&gt; {
-                        <span class="comment">// Clear out the cached scenario. If we repeatedly use this import, the</span>
-                        <span class="comment">// scenario name is always the same, but the file is changing.</span>
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">scenario</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                        <span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::simple_new</span>(
-                            <span class="ident">app</span>,
-                            <span class="ident">GameplayMode::PlayScenario</span>(
-                                <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-                                <span class="ident">scenario_name</span>,
-                                <span class="ident">Vec::new</span>(),
+                <span class="kw">match </span>result {
+                    <span class="prelude-val">Ok</span>(scenario_name) =&gt; {
+                        <span class="comment">// Clear out the cached scenario. If we repeatedly use this import, the
+                        // scenario name is always the same, but the file is changing.
+                        </span>app.primary.scenario = <span class="prelude-val">None</span>;
+                        Transition::Replace(SandboxMode::simple_new(
+                            app,
+                            GameplayMode::PlayScenario(
+                                app.primary.map.get_name().clone(),
+                                scenario_name,
+                                Vec::new(),
                             ),
                         ))
                     }
-                    <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
-                        <span class="ident">ctx</span>,
+                    <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
+                        ctx,
                         <span class="string">&quot;Error&quot;</span>,
-                        <span class="macro">vec!</span>[<span class="ident">err</span>.<span class="ident">to_string</span>()],
+                        <span class="macro">vec!</span>[err.to_string()],
                     )),
                 }
-            } <span class="kw">else</span> {
-                <span class="comment">// The user didn&#39;t pick a file, so stay on the scenario picker</span>
-                <span class="ident">Transition::Pop</span>
+            } <span class="kw">else </span>{
+                <span class="comment">// The user didn&#39;t pick a file, so stay on the scenario picker
+                </span>Transition::Pop
             }
         }),
     ))
 }
 
-<span class="comment">// This works the same as importer/src/bin/import_traffic.rs. We should decide how to share</span>
-<span class="comment">// behavior between UI and CLI tools.</span>
-<span class="kw">fn</span> <span class="ident">import_json_scenario</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">input</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">skip_problems</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">let</span> <span class="ident">input</span>: <span class="ident">Input</span> <span class="op">=</span> <span class="ident">abstio::maybe_read_json</span>(<span class="ident">input</span>, <span class="ident">timer</span>)<span class="question-mark">?</span>;
+<span class="comment">// This works the same as importer/src/bin/import_traffic.rs. We should decide how to share
+// behavior between UI and CLI tools.
+</span><span class="kw">fn </span>import_json_scenario(map: <span class="kw-2">&amp;</span>Map, input: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="kw">let </span>skip_problems = <span class="bool-val">true</span>;
+    <span class="kw">let </span>input: Input = abstio::maybe_read_json(input, timer)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">input</span>.<span class="ident">scenario_name</span>);
-    <span class="comment">// Include all buses/trains</span>
-    <span class="ident">s</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="ident">s</span>.<span class="ident">people</span> <span class="op">=</span> <span class="ident">ExternalPerson::import</span>(<span class="ident">map</span>, <span class="ident">input</span>.<span class="ident">people</span>, <span class="ident">skip_problems</span>)<span class="question-mark">?</span>;
-    <span class="comment">// Always clean up people with no-op trips (going between the same buildings)</span>
-    <span class="ident">s</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">remove_weird_schedules</span>(<span class="bool-val">true</span>);
-    <span class="ident">s</span>.<span class="ident">save</span>();
-    <span class="prelude-val">Ok</span>(<span class="ident">s</span>.<span class="ident">scenario_name</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>s = Scenario::empty(map, <span class="kw-2">&amp;</span>input.scenario_name);
+    <span class="comment">// Include all buses/trains
+    </span>s.only_seed_buses = <span class="prelude-val">None</span>;
+    s.people = ExternalPerson::import(map, input.people, skip_problems)<span class="question-mark">?</span>;
+    <span class="comment">// Always clean up people with no-op trips (going between the same buildings)
+    </span>s = s.remove_weird_schedules(<span class="bool-val">true</span>);
+    s.save();
+    <span class="prelude-val">Ok</span>(s.scenario_name)
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Input</span> {
-    <span class="ident">scenario_name</span>: <span class="ident">String</span>,
-    <span class="ident">people</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">struct </span>Input {
+    scenario_name: String,
+    people: Vec&lt;ExternalPerson&gt;,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

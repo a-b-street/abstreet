@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/agents.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>agents.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/render/agents.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>agents.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -241,248 +241,248 @@
 <span id="241">241</span>
 <span id="242">242</span>
 <span id="243">243</span>
-</pre><pre class="rust"><code><span class="comment">// TODO I&#39;ve considered moving this out of map_gui completely, to remove all dependencies on the</span>
-<span class="comment">// sim crate. If that&#39;s desirable, get_obj in DrawMap is the only dependency.</span>
+</pre><pre class="rust"><code><span class="comment">// TODO I&#39;ve considered moving this out of map_gui completely, to remove all dependencies on the
+// sim crate. If that&#39;s desirable, get_obj in DrawMap is the only dependency.
 
-<span class="kw">use</span> <span class="ident">std::borrow::Borrow</span>;
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</span><span class="kw">use </span>std::borrow::Borrow;
+<span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
+<span class="kw">use </span>aabb_quadtree::QuadTree;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">Traversable</span>};
-<span class="kw">use</span> <span class="ident">sim</span>::{<span class="ident">AgentID</span>, <span class="ident">Sim</span>, <span class="ident">UnzoomedAgent</span>, <span class="ident">VehicleType</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Panel</span>, <span class="ident">Prerender</span>};
+<span class="kw">use </span>geom::{Circle, Pt2D, Time};
+<span class="kw">use </span>map_model::{Map, Traversable};
+<span class="kw">use </span>sim::{AgentID, Sim, UnzoomedAgent, VehicleType};
+<span class="kw">use </span>widgetry::{Color, Drawable, GeomBatch, GfxCtx, Panel, Prerender};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colors::ColorScheme</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::options::Options</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::render</span>::{
-    <span class="ident">draw_vehicle</span>, <span class="ident">unzoomed_agent_radius</span>, <span class="ident">DrawPedCrowd</span>, <span class="ident">DrawPedestrian</span>, <span class="ident">Renderable</span>,
+<span class="kw">use </span><span class="kw">crate</span>::colors::ColorScheme;
+<span class="kw">use </span><span class="kw">crate</span>::options::Options;
+<span class="kw">use </span><span class="kw">crate</span>::render::{
+    draw_vehicle, unzoomed_agent_radius, DrawPedCrowd, DrawPedestrian, Renderable,
 };
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">AgentCache</span> {
-    <span class="doccomment">/// This is controlled almost entirely by the minimap panel. It has no meaning in edit mode.</span>
-    <span class="kw">pub</span> <span class="ident">unzoomed_agents</span>: <span class="ident">UnzoomedAgents</span>,
+<span class="kw">pub struct </span>AgentCache {
+    <span class="doccomment">/// This is controlled almost entirely by the minimap panel. It has no meaning in edit mode.
+    </span><span class="kw">pub </span>unzoomed_agents: UnzoomedAgents,
 
-    <span class="comment">// This time applies to agents_per_on. unzoomed has its own possibly separate Time!</span>
-    <span class="ident">time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="ident">agents_per_on</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">Traversable</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="comment">// when either of (time, unzoomed agent filters) change, recalculate (a quadtree of all agents,</span>
-    <span class="comment">// draw all agents)</span>
-    <span class="ident">unzoomed</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">UnzoomedAgents</span>, <span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span>, <span class="ident">Drawable</span>)<span class="op">&gt;</span>,
+    <span class="comment">// This time applies to agents_per_on. unzoomed has its own possibly separate Time!
+    </span>time: <span class="prelude-ty">Option</span>&lt;Time&gt;,
+    agents_per_on: HashMap&lt;Traversable, Vec&lt;Box&lt;<span class="kw">dyn </span>Renderable&gt;&gt;&gt;,
+    <span class="comment">// when either of (time, unzoomed agent filters) change, recalculate (a quadtree of all agents,
+    // draw all agents)
+    </span>unzoomed: <span class="prelude-ty">Option</span>&lt;(Time, UnzoomedAgents, QuadTree&lt;AgentID&gt;, Drawable)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">AgentCache</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">AgentCache</span> {
-        <span class="ident">AgentCache</span> {
-            <span class="ident">unzoomed_agents</span>: <span class="ident">UnzoomedAgents::new</span>(),
-            <span class="ident">time</span>: <span class="prelude-val">None</span>,
-            <span class="ident">agents_per_on</span>: <span class="ident">HashMap::new</span>(),
-            <span class="ident">unzoomed</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>AgentCache {
+    <span class="kw">pub fn </span>new() -&gt; AgentCache {
+        AgentCache {
+            unzoomed_agents: UnzoomedAgents::new(),
+            time: <span class="prelude-val">None</span>,
+            agents_per_on: HashMap::new(),
+            unzoomed: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">on</span>: <span class="ident">Traversable</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">agents_per_on</span>[<span class="kw-2">&amp;</span><span class="ident">on</span>]
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">obj</span><span class="op">|</span> <span class="ident">obj</span>.<span class="ident">borrow</span>())
-            .<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, on: Traversable) -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="kw">dyn </span>Renderable&gt; {
+        <span class="self">self</span>.agents_per_on[<span class="kw-2">&amp;</span>on]
+            .iter()
+            .map(|obj| obj.borrow())
+            .collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">populate_if_needed</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">on</span>: <span class="ident">Traversable</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
-        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-        <span class="ident">prerender</span>: <span class="kw-2">&amp;</span><span class="ident">Prerender</span>,
+    <span class="kw">pub fn </span>populate_if_needed(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        on: Traversable,
+        map: <span class="kw-2">&amp;</span>Map,
+        sim: <span class="kw-2">&amp;</span>Sim,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+        prerender: <span class="kw-2">&amp;</span>Prerender,
     ) {
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">time</span>();
-        <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">now</span>) <span class="op">==</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">agents_per_on</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">on</span>) {
+        <span class="kw">let </span>now = sim.time();
+        <span class="kw">if </span><span class="prelude-val">Some</span>(now) == <span class="self">self</span>.time &amp;&amp; <span class="self">self</span>.agents_per_on.contains_key(<span class="kw-2">&amp;</span>on) {
             <span class="kw">return</span>;
         }
-        <span class="kw">let</span> <span class="ident">step_count</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">step_count</span>();
+        <span class="kw">let </span>step_count = sim.step_count();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Renderable</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_draw_cars</span>(<span class="ident">on</span>, <span class="ident">map</span>).<span class="ident">into_iter</span>() {
-            <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">draw_vehicle</span>(<span class="ident">c</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>list: Vec&lt;Box&lt;<span class="kw">dyn </span>Renderable&gt;&gt; = Vec::new();
+        <span class="kw">for </span>c <span class="kw">in </span>sim.get_draw_cars(on, map).into_iter() {
+            list.push(draw_vehicle(c, map, sim, prerender, cs));
         }
-        <span class="kw">let</span> (<span class="ident">loners</span>, <span class="ident">crowds</span>) <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_draw_peds</span>(<span class="ident">on</span>, <span class="ident">map</span>);
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">loners</span> {
-            <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">Box::new</span>(<span class="ident">DrawPedestrian::new</span>(
-                <span class="ident">p</span>, <span class="ident">step_count</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>,
+        <span class="kw">let </span>(loners, crowds) = sim.get_draw_peds(on, map);
+        <span class="kw">for </span>p <span class="kw">in </span>loners {
+            list.push(Box::new(DrawPedestrian::new(
+                p, step_count, map, sim, prerender, cs,
             )));
         }
-        <span class="kw">for</span> <span class="ident">c</span> <span class="kw">in</span> <span class="ident">crowds</span> {
-            <span class="ident">list</span>.<span class="ident">push</span>(<span class="ident">Box::new</span>(<span class="ident">DrawPedCrowd::new</span>(<span class="ident">c</span>, <span class="ident">map</span>, <span class="ident">prerender</span>, <span class="ident">cs</span>)));
+        <span class="kw">for </span>c <span class="kw">in </span>crowds {
+            list.push(Box::new(DrawPedCrowd::new(c, map, prerender, cs)));
         }
 
-        <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">now</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">time</span> {
-            <span class="self">self</span>.<span class="ident">agents_per_on</span>.<span class="ident">clear</span>();
-            <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">now</span>);
+        <span class="kw">if </span><span class="prelude-val">Some</span>(now) != <span class="self">self</span>.time {
+            <span class="self">self</span>.agents_per_on.clear();
+            <span class="self">self</span>.time = <span class="prelude-val">Some</span>(now);
         }
 
-        <span class="self">self</span>.<span class="ident">agents_per_on</span>.<span class="ident">insert</span>(<span class="ident">on</span>, <span class="ident">list</span>);
+        <span class="self">self</span>.agents_per_on.insert(on, list);
     }
 
-    <span class="doccomment">/// If the sim time has changed or the unzoomed agent filters have been modified, recalculate</span>
-    <span class="doccomment">/// the quadtree and drawable for all unzoomed agents.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_unzoomed_agents</span><span class="op">&lt;</span><span class="ident">P</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Prerender</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">prerender</span>: <span class="kw-2">&amp;mut</span> <span class="ident">P</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
-        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-    ) -&gt; <span class="kw-2">&amp;</span><span class="ident">QuadTree</span><span class="op">&lt;</span><span class="ident">AgentID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">time</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">time</span>, <span class="kw-2">ref</span> <span class="ident">orig_agents</span>, <span class="kw">_</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unzoomed</span> {
-            <span class="kw">if</span> <span class="ident">now</span> <span class="op">==</span> <span class="ident">time</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">unzoomed_agents</span> <span class="op">==</span> <span class="ident">orig_agents</span>.<span class="ident">clone</span>() {
-                <span class="ident">recalc</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="doccomment">/// If the sim time has changed or the unzoomed agent filters have been modified, recalculate
+    /// the quadtree and drawable for all unzoomed agents.
+    </span><span class="kw">pub fn </span>calculate_unzoomed_agents&lt;P: AsRef&lt;Prerender&gt;&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        prerender: <span class="kw-2">&amp;mut </span>P,
+        map: <span class="kw-2">&amp;</span>Map,
+        sim: <span class="kw-2">&amp;</span>Sim,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+    ) -&gt; <span class="kw-2">&amp;</span>QuadTree&lt;AgentID&gt; {
+        <span class="kw">let </span>now = sim.time();
+        <span class="kw">let </span><span class="kw-2">mut </span>recalc = <span class="bool-val">true</span>;
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((time, <span class="kw-2">ref </span>orig_agents, <span class="kw">_</span>, <span class="kw">_</span>)) = <span class="self">self</span>.unzoomed {
+            <span class="kw">if </span>now == time &amp;&amp; <span class="self">self</span>.unzoomed_agents == orig_agents.clone() {
+                recalc = <span class="bool-val">false</span>;
             }
         }
 
-        <span class="kw">if</span> <span class="ident">recalc</span> {
-            <span class="kw">let</span> <span class="ident">highlighted</span> <span class="op">=</span> <span class="ident">sim</span>.<span class="ident">get_highlighted_people</span>();
+        <span class="kw">if </span>recalc {
+            <span class="kw">let </span>highlighted = sim.get_highlighted_people();
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">quadtree</span> <span class="op">=</span> <span class="ident">QuadTree::default</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-            <span class="comment">// It&#39;s quite silly to produce triangles for the same circle over and over again. ;)</span>
-            <span class="kw">let</span> <span class="ident">car_circle</span> <span class="op">=</span> <span class="ident">Circle::new</span>(
-                <span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>),
-                <span class="ident">unzoomed_agent_radius</span>(<span class="prelude-val">Some</span>(<span class="ident">VehicleType::Car</span>)),
+            <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+            <span class="kw">let </span><span class="kw-2">mut </span>quadtree = QuadTree::default(map.get_bounds().as_bbox());
+            <span class="comment">// It&#39;s quite silly to produce triangles for the same circle over and over again. ;)
+            </span><span class="kw">let </span>car_circle = Circle::new(
+                Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>),
+                unzoomed_agent_radius(<span class="prelude-val">Some</span>(VehicleType::Car)),
             )
-            .<span class="ident">to_polygon</span>();
-            <span class="kw">let</span> <span class="ident">ped_circle</span> <span class="op">=</span>
-                <span class="ident">Circle::new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">unzoomed_agent_radius</span>(<span class="prelude-val">None</span>)).<span class="ident">to_polygon</span>();
+            .to_polygon();
+            <span class="kw">let </span>ped_circle =
+                Circle::new(Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>), unzoomed_agent_radius(<span class="prelude-val">None</span>)).to_polygon();
 
-            <span class="kw">for</span> <span class="ident">agent</span> <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_unzoomed_agents</span>(<span class="ident">map</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">color</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">color</span>(<span class="kw-2">&amp;</span><span class="ident">agent</span>, <span class="ident">cs</span>) {
-                    <span class="comment">// If the sim has highlighted people, then fade all others out.</span>
-                    <span class="kw">if</span> <span class="ident">highlighted</span>
-                        .<span class="ident">as_ref</span>()
-                        .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">h</span><span class="op">|</span> <span class="ident">agent</span>.<span class="ident">person</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="op">!</span><span class="ident">h</span>.<span class="ident">contains</span>(<span class="ident">p</span>)))
-                        .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+            <span class="kw">for </span>agent <span class="kw">in </span>sim.get_unzoomed_agents(map) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>color) = <span class="self">self</span>.unzoomed_agents.color(<span class="kw-2">&amp;</span>agent, cs) {
+                    <span class="comment">// If the sim has highlighted people, then fade all others out.
+                    </span><span class="kw">if </span>highlighted
+                        .as_ref()
+                        .and_then(|h| agent.person.as_ref().map(|p| !h.contains(p)))
+                        .unwrap_or(<span class="bool-val">false</span>)
                     {
-                        <span class="comment">// TODO Tune. How&#39;s this look at night?</span>
-                        <span class="ident">color</span> <span class="op">=</span> <span class="ident">color</span>.<span class="ident">tint</span>(<span class="number">0.5</span>);
+                        <span class="comment">// TODO Tune. How&#39;s this look at night?
+                        </span>color = color.tint(<span class="number">0.5</span>);
                     }
 
-                    <span class="kw">let</span> <span class="ident">circle</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">agent</span>.<span class="ident">id</span>.<span class="ident">to_vehicle_type</span>().<span class="ident">is_some</span>() {
-                        <span class="ident">car_circle</span>.<span class="ident">translate</span>(<span class="ident">agent</span>.<span class="ident">pos</span>.<span class="ident">x</span>(), <span class="ident">agent</span>.<span class="ident">pos</span>.<span class="ident">y</span>())
-                    } <span class="kw">else</span> {
-                        <span class="ident">ped_circle</span>.<span class="ident">translate</span>(<span class="ident">agent</span>.<span class="ident">pos</span>.<span class="ident">x</span>(), <span class="ident">agent</span>.<span class="ident">pos</span>.<span class="ident">y</span>())
+                    <span class="kw">let </span>circle = <span class="kw">if </span>agent.id.to_vehicle_type().is_some() {
+                        car_circle.translate(agent.pos.x(), agent.pos.y())
+                    } <span class="kw">else </span>{
+                        ped_circle.translate(agent.pos.x(), agent.pos.y())
                     };
-                    <span class="ident">quadtree</span>.<span class="ident">insert_with_box</span>(<span class="ident">agent</span>.<span class="ident">id</span>, <span class="ident">circle</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>());
-                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">circle</span>);
+                    quadtree.insert_with_box(agent.id, circle.get_bounds().as_bbox());
+                    batch.push(color, circle);
                 }
             }
 
-            <span class="kw">let</span> <span class="ident">draw</span> <span class="op">=</span> <span class="ident">prerender</span>.<span class="ident">as_ref</span>().<span class="ident">upload</span>(<span class="ident">batch</span>);
+            <span class="kw">let </span>draw = prerender.as_ref().upload(batch);
 
-            <span class="self">self</span>.<span class="ident">unzoomed</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">now</span>, <span class="self">self</span>.<span class="ident">unzoomed_agents</span>.<span class="ident">clone</span>(), <span class="ident">quadtree</span>, <span class="ident">draw</span>));
+            <span class="self">self</span>.unzoomed = <span class="prelude-val">Some</span>((now, <span class="self">self</span>.unzoomed_agents.clone(), quadtree, draw));
         }
 
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unzoomed</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">2</span>
-    }
+        <span class="kw-2">&amp;</span><span class="self">self</span>.unzoomed.as_ref().unwrap().<span class="number">2
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_unzoomed_agents</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">sim</span>: <span class="kw-2">&amp;</span><span class="ident">Sim</span>,
-        <span class="ident">cs</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>,
-        <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
+    <span class="kw">pub fn </span>draw_unzoomed_agents(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        g: <span class="kw-2">&amp;mut </span>GfxCtx,
+        map: <span class="kw-2">&amp;</span>Map,
+        sim: <span class="kw-2">&amp;</span>Sim,
+        cs: <span class="kw-2">&amp;</span>ColorScheme,
+        opts: <span class="kw-2">&amp;</span>Options,
     ) {
-        <span class="self">self</span>.<span class="ident">calculate_unzoomed_agents</span>(<span class="ident">g</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">cs</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">unzoomed</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="number">3</span>);
+        <span class="self">self</span>.calculate_unzoomed_agents(g, map, sim, cs);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.unzoomed.as_ref().unwrap().<span class="number">3</span>);
 
-        <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">debug_all_agents</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">for</span> <span class="ident">input</span> <span class="kw">in</span> <span class="ident">sim</span>.<span class="ident">get_all_draw_cars</span>(<span class="ident">map</span>) {
-                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">draw_vehicle</span>(<span class="ident">input</span>, <span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">g</span>.<span class="ident">prerender</span>, <span class="ident">cs</span>);
+        <span class="kw">if </span>opts.debug_all_agents {
+            <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
+            <span class="kw">for </span>input <span class="kw">in </span>sim.get_all_draw_cars(map) {
+                cnt += <span class="number">1</span>;
+                draw_vehicle(input, map, sim, g.prerender, cs);
             }
             <span class="macro">println!</span>(
                 <span class="string">&quot;At {}, debugged {} cars&quot;</span>,
-                <span class="ident">sim</span>.<span class="ident">time</span>(),
-                <span class="ident">abstutil::prettyprint_usize</span>(<span class="ident">cnt</span>)
+                sim.time(),
+                abstutil::prettyprint_usize(cnt)
             );
-            <span class="comment">// Pedestrians aren&#39;t the ones crashing</span>
-        }
+            <span class="comment">// Pedestrians aren&#39;t the ones crashing
+        </span>}
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UnzoomedAgents</span> {
-    <span class="ident">cars</span>: <span class="ident">bool</span>,
-    <span class="ident">bikes</span>: <span class="ident">bool</span>,
-    <span class="ident">buses_and_trains</span>: <span class="ident">bool</span>,
-    <span class="ident">peds</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(PartialEq, Clone)]
+</span><span class="kw">pub struct </span>UnzoomedAgents {
+    cars: bool,
+    bikes: bool,
+    buses_and_trains: bool,
+    peds: bool,
 }
 
-<span class="kw">impl</span> <span class="ident">UnzoomedAgents</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">UnzoomedAgents</span> {
-        <span class="ident">UnzoomedAgents</span> {
-            <span class="ident">cars</span>: <span class="bool-val">true</span>,
-            <span class="ident">bikes</span>: <span class="bool-val">true</span>,
-            <span class="ident">buses_and_trains</span>: <span class="bool-val">true</span>,
-            <span class="ident">peds</span>: <span class="bool-val">true</span>,
+<span class="kw">impl </span>UnzoomedAgents {
+    <span class="kw">pub fn </span>new() -&gt; UnzoomedAgents {
+        UnzoomedAgents {
+            cars: <span class="bool-val">true</span>,
+            bikes: <span class="bool-val">true</span>,
+            buses_and_trains: <span class="bool-val">true</span>,
+            peds: <span class="bool-val">true</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cars</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">cars</span>
+    <span class="kw">pub fn </span>cars(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.cars
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bikes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">bikes</span>
+    <span class="kw">pub fn </span>bikes(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.bikes
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buses_and_trains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">buses_and_trains</span>
+    <span class="kw">pub fn </span>buses_and_trains(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.buses_and_trains
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">peds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">peds</span>
+    <span class="kw">pub fn </span>peds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.peds
     }
 
-    <span class="kw">fn</span> <span class="ident">color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">agent</span>: <span class="kw-2">&amp;</span><span class="ident">UnzoomedAgent</span>, <span class="ident">color_scheme</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScheme</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">agent</span>.<span class="ident">id</span>.<span class="ident">to_vehicle_type</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">VehicleType::Car</span>) =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">cars</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">color_scheme</span>.<span class="ident">unzoomed_car</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+    <span class="kw">fn </span>color(<span class="kw-2">&amp;</span><span class="self">self</span>, agent: <span class="kw-2">&amp;</span>UnzoomedAgent, color_scheme: <span class="kw-2">&amp;</span>ColorScheme) -&gt; <span class="prelude-ty">Option</span>&lt;Color&gt; {
+        <span class="kw">match </span>agent.id.to_vehicle_type() {
+            <span class="prelude-val">Some</span>(VehicleType::Car) =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.cars {
+                    <span class="prelude-val">Some</span>(color_scheme.unzoomed_car)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
-            <span class="prelude-val">Some</span>(<span class="ident">VehicleType::Bike</span>) =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bikes</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">color_scheme</span>.<span class="ident">unzoomed_bike</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+            <span class="prelude-val">Some</span>(VehicleType::Bike) =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.bikes {
+                    <span class="prelude-val">Some</span>(color_scheme.unzoomed_bike)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
-            <span class="prelude-val">Some</span>(<span class="ident">VehicleType::Bus</span>) <span class="op">|</span> <span class="prelude-val">Some</span>(<span class="ident">VehicleType::Train</span>) =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">buses_and_trains</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">color_scheme</span>.<span class="ident">unzoomed_bus</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+            <span class="prelude-val">Some</span>(VehicleType::Bus) | <span class="prelude-val">Some</span>(VehicleType::Train) =&gt; {
+                <span class="kw">if </span><span class="self">self</span>.buses_and_trains {
+                    <span class="prelude-val">Some</span>(color_scheme.unzoomed_bus)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">peds</span> {
-                    <span class="prelude-val">Some</span>(<span class="ident">color_scheme</span>.<span class="ident">unzoomed_pedestrian</span>)
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+            <span class="prelude-val">None </span>=&gt; {
+                <span class="kw">if </span><span class="self">self</span>.peds {
+                    <span class="prelude-val">Some</span>(color_scheme.unzoomed_pedestrian)
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
-        <span class="self">self</span>.<span class="ident">cars</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Car&quot;</span>);
-        <span class="self">self</span>.<span class="ident">bikes</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Bike&quot;</span>);
-        <span class="self">self</span>.<span class="ident">buses_and_trains</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Bus&quot;</span>);
-        <span class="self">self</span>.<span class="ident">peds</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Walk&quot;</span>);
+    <span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, panel: <span class="kw-2">&amp;</span>Panel) {
+        <span class="self">self</span>.cars = panel.is_checked(<span class="string">&quot;Car&quot;</span>);
+        <span class="self">self</span>.bikes = panel.is_checked(<span class="string">&quot;Bike&quot;</span>);
+        <span class="self">self</span>.buses_and_trains = panel.is_checked(<span class="string">&quot;Bus&quot;</span>);
+        <span class="self">self</span>.peds = panel.is_checked(<span class="string">&quot;Walk&quot;</span>);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

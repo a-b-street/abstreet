@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/analytics.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>analytics.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/analytics.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>analytics.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -893,900 +893,900 @@
 <span id="893">893</span>
 <span id="894">894</span>
 <span id="895">895</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>, <span class="ident">VecDeque</span>};
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet, VecDeque};
+<span class="kw">use </span>std::fmt::Write;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::Counter</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">CompressedMovementID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">ParkingLotID</span>, <span class="ident">Path</span>, <span class="ident">PathRequest</span>,
-    <span class="ident">RoadID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>, <span class="ident">Traversable</span>, <span class="ident">TurnID</span>,
+<span class="kw">use </span>abstutil::Counter;
+<span class="kw">use </span>geom::{Duration, Pt2D, Time};
+<span class="kw">use </span>map_model::{
+    CompressedMovementID, IntersectionID, LaneID, Map, MovementID, ParkingLotID, Path, PathRequest,
+    RoadID, TransitRouteID, TransitStopID, Traversable, TurnID,
 };
-<span class="kw">use</span> <span class="ident">synthpop::TripMode</span>;
+<span class="kw">use </span>synthpop::TripMode;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">AgentType</span>, <span class="ident">AlertLocation</span>, <span class="ident">CarID</span>, <span class="ident">Event</span>, <span class="ident">ParkingSpot</span>, <span class="ident">TripID</span>, <span class="ident">TripPhaseType</span>};
+<span class="kw">use crate</span>::{AgentID, AgentType, AlertLocation, CarID, Event, ParkingSpot, TripID, TripPhaseType};
 
-<span class="doccomment">/// As a simulation runs, different pieces emit Events. The Analytics object listens to these,</span>
-<span class="doccomment">/// organizing and storing some information from them. The UI queries Analytics to draw time-series</span>
-<span class="doccomment">/// and display statistics.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// For all maps whose weekday scenario fully runs, the game&#39;s release includes some &quot;prebaked</span>
-<span class="doccomment">/// results.&quot; These are just serialized Analytics after running the simulation on a map without any</span>
-<span class="doccomment">/// edits for the full day. This is the basis of A/B testing -- the player can edit the map, start</span>
-<span class="doccomment">/// running the simulation, and compare the live Analytics to the prebaked baseline Analytics.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Analytics</span> {
-    <span class="kw">pub</span> <span class="ident">road_thruput</span>: <span class="ident">TimeSeriesCount</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">intersection_thruput</span>: <span class="ident">TimeSeriesCount</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="comment">// TODO For traffic signals, intersection_thruput could theoretically use this. But that</span>
-    <span class="comment">// requires occasionally expensive or complicated summing or merging over all directions of an</span>
-    <span class="comment">// intersection. So for now, eat the file size cost.</span>
-    <span class="kw">pub</span> <span class="ident">traffic_signal_thruput</span>: <span class="ident">TimeSeriesCount</span><span class="op">&lt;</span><span class="ident">CompressedMovementID</span><span class="op">&gt;</span>,
+<span class="doccomment">/// As a simulation runs, different pieces emit Events. The Analytics object listens to these,
+/// organizing and storing some information from them. The UI queries Analytics to draw time-series
+/// and display statistics.
+///
+/// For all maps whose weekday scenario fully runs, the game&#39;s release includes some &quot;prebaked
+/// results.&quot; These are just serialized Analytics after running the simulation on a map without any
+/// edits for the full day. This is the basis of A/B testing -- the player can edit the map, start
+/// running the simulation, and compare the live Analytics to the prebaked baseline Analytics.
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Analytics {
+    <span class="kw">pub </span>road_thruput: TimeSeriesCount&lt;RoadID&gt;,
+    <span class="kw">pub </span>intersection_thruput: TimeSeriesCount&lt;IntersectionID&gt;,
+    <span class="comment">// TODO For traffic signals, intersection_thruput could theoretically use this. But that
+    // requires occasionally expensive or complicated summing or merging over all directions of an
+    // intersection. So for now, eat the file size cost.
+    </span><span class="kw">pub </span>traffic_signal_thruput: TimeSeriesCount&lt;CompressedMovementID&gt;,
 
-    <span class="doccomment">/// Most fields in Analytics are cumulative over time, but this is just for the current moment</span>
-    <span class="doccomment">/// in time.</span>
-    <span class="kw">pub</span> <span class="ident">demand</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Most fields in Analytics are cumulative over time, but this is just for the current moment
+    /// in time.
+    </span><span class="kw">pub </span>demand: BTreeMap&lt;MovementID, usize&gt;,
 
-    <span class="comment">// TODO Reconsider this one</span>
-    <span class="kw">pub</span> <span class="ident">bus_arrivals</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">CarID</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>)<span class="op">&gt;</span>,
-    <span class="doccomment">/// For each passenger boarding, how long did they wait at the stop?</span>
-    <span class="kw">pub</span> <span class="ident">passengers_boarding</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TransitRouteID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">passengers_alighting</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TransitRouteID</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// TODO Reconsider this one
+    </span><span class="kw">pub </span>bus_arrivals: Vec&lt;(Time, CarID, TransitRouteID, TransitStopID)&gt;,
+    <span class="doccomment">/// For each passenger boarding, how long did they wait at the stop?
+    </span><span class="kw">pub </span>passengers_boarding: BTreeMap&lt;TransitStopID, Vec&lt;(Time, TransitRouteID, Duration)&gt;&gt;,
+    <span class="kw">pub </span>passengers_alighting: BTreeMap&lt;TransitStopID, Vec&lt;(Time, TransitRouteID)&gt;&gt;,
 
-    <span class="kw">pub</span> <span class="ident">started_trips</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Finish time, ID, mode, trip duration if successful (or None if cancelled)</span>
-    <span class="kw">pub</span> <span class="ident">finished_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TripID</span>, <span class="ident">TripMode</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub </span>started_trips: BTreeMap&lt;TripID, Time&gt;,
+    <span class="doccomment">/// Finish time, ID, mode, trip duration if successful (or None if cancelled)
+    </span><span class="kw">pub </span>finished_trips: Vec&lt;(Time, TripID, TripMode, <span class="prelude-ty">Option</span>&lt;Duration&gt;)&gt;,
 
-    <span class="doccomment">/// Record different problems that each trip encounters.</span>
-    <span class="kw">pub</span> <span class="ident">problems_per_trip</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">Problem</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Record different problems that each trip encounters.
+    </span><span class="kw">pub </span>problems_per_trip: BTreeMap&lt;TripID, Vec&lt;(Time, Problem)&gt;&gt;,
 
-    <span class="comment">// TODO This subsumes finished_trips</span>
-    <span class="kw">pub</span> <span class="ident">trip_log</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">TripID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>, <span class="ident">TripPhaseType</span>)<span class="op">&gt;</span>,
+    <span class="comment">// TODO This subsumes finished_trips
+    </span><span class="kw">pub </span>trip_log: Vec&lt;(Time, TripID, <span class="prelude-ty">Option</span>&lt;PathRequest&gt;, TripPhaseType)&gt;,
 
-    <span class="comment">// TODO Transit riders aren&#39;t represented here yet, just the vehicle they&#39;re riding.</span>
-    <span class="doccomment">/// Only for traffic signals. The u8 is the movement index from a CompressedMovementID.</span>
-    <span class="kw">pub</span> <span class="ident">intersection_delays</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">u8</span>, <span class="ident">Time</span>, <span class="ident">Duration</span>, <span class="ident">AgentType</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="comment">// TODO Transit riders aren&#39;t represented here yet, just the vehicle they&#39;re riding.
+    </span><span class="doccomment">/// Only for traffic signals. The u8 is the movement index from a CompressedMovementID.
+    </span><span class="kw">pub </span>intersection_delays: BTreeMap&lt;IntersectionID, Vec&lt;(u8, Time, Duration, AgentType)&gt;&gt;,
 
-    <span class="doccomment">/// Per parking lane or lot, when does a spot become filled (true) or free (false)</span>
-    <span class="kw">pub</span> <span class="ident">parking_lane_changes</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">LaneID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">parking_lot_changes</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">ParkingLotID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">bool</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="doccomment">/// Per parking lane or lot, when does a spot become filled (true) or free (false)
+    </span><span class="kw">pub </span>parking_lane_changes: BTreeMap&lt;LaneID, Vec&lt;(Time, bool)&gt;&gt;,
+    <span class="kw">pub </span>parking_lot_changes: BTreeMap&lt;ParkingLotID, Vec&lt;(Time, bool)&gt;&gt;,
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">alerts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">AlertLocation</span>, <span class="ident">String</span>)<span class="op">&gt;</span>,
+    <span class="kw">pub</span>(<span class="kw">crate</span>) alerts: Vec&lt;(Time, AlertLocation, String)&gt;,
 
-    <span class="doccomment">/// For benchmarking, we may want to disable collecting data.</span>
-    <span class="ident">record_anything</span>: <span class="ident">bool</span>,
+    <span class="doccomment">/// For benchmarking, we may want to disable collecting data.
+    </span>record_anything: bool,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Problem</span> {
-    <span class="doccomment">/// A vehicle waited &gt;30s, or a pedestrian waited &gt;15s.</span>
-    <span class="ident">IntersectionDelay</span>(<span class="ident">IntersectionID</span>, <span class="ident">Duration</span>),
-    <span class="doccomment">/// A cyclist crossed an intersection with &gt;4 connecting roads.</span>
-    <span class="ident">ComplexIntersectionCrossing</span>(<span class="ident">IntersectionID</span>),
-    <span class="doccomment">/// A pedestrian crossed an intersection with an Arterial street</span>
-    <span class="ident">ArterialIntersectionCrossing</span>(<span class="ident">TurnID</span>),
-    <span class="doccomment">/// Another vehicle wanted to over-take this cyclist somewhere on this lane or turn.</span>
-    <span class="ident">OvertakeDesired</span>(<span class="ident">Traversable</span>),
-    <span class="doccomment">/// Too many people are crossing the same sidewalk or crosswalk at the same time.</span>
-    <span class="ident">PedestrianOvercrowding</span>(<span class="ident">Traversable</span>),
+<span class="attribute">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>Problem {
+    <span class="doccomment">/// A vehicle waited &gt;30s, or a pedestrian waited &gt;15s.
+    </span>IntersectionDelay(IntersectionID, Duration),
+    <span class="doccomment">/// A cyclist crossed an intersection with &gt;4 connecting roads.
+    </span>ComplexIntersectionCrossing(IntersectionID),
+    <span class="doccomment">/// A pedestrian crossed an intersection with an Arterial street
+    </span>ArterialIntersectionCrossing(TurnID),
+    <span class="doccomment">/// Another vehicle wanted to over-take this cyclist somewhere on this lane or turn.
+    </span>OvertakeDesired(Traversable),
+    <span class="doccomment">/// Too many people are crossing the same sidewalk or crosswalk at the same time.
+    </span>PedestrianOvercrowding(Traversable),
 }
 
-<span class="kw">impl</span> <span class="ident">Problem</span> {
-    <span class="doccomment">/// Returns the rough location where the problem occurred -- just at the granularity of an</span>
-    <span class="doccomment">/// entire lane, turn, or intersection.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">point</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Problem::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="ident">i</span>) =&gt; {
-                <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()
+<span class="kw">impl </span>Problem {
+    <span class="doccomment">/// Returns the rough location where the problem occurred -- just at the granularity of an
+    /// entire lane, turn, or intersection.
+    </span><span class="kw">pub fn </span>point(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Pt2D {
+        <span class="kw">match </span><span class="self">self </span>{
+            Problem::IntersectionDelay(i, <span class="kw">_</span>) | Problem::ComplexIntersectionCrossing(i) =&gt; {
+                map.get_i(<span class="kw-2">*</span>i).polygon.center()
             }
-            <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) <span class="op">|</span> <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="ident">on</span>) =&gt; {
-                <span class="ident">on</span>.<span class="ident">get_polyline</span>(<span class="ident">map</span>).<span class="ident">middle</span>()
+            Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) =&gt; {
+                on.get_polyline(map).middle()
             }
-            <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="ident">t</span>) =&gt; <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">geom</span>.<span class="ident">middle</span>(),
+            Problem::ArterialIntersectionCrossing(t) =&gt; map.get_t(<span class="kw-2">*</span>t).geom.middle(),
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ProblemType</span> {
-    <span class="ident">IntersectionDelay</span>,
-    <span class="ident">ComplexIntersectionCrossing</span>,
-    <span class="ident">OvertakeDesired</span>,
-    <span class="ident">ArterialIntersectionCrossing</span>,
-    <span class="ident">PedestrianOvercrowding</span>,
+<span class="attribute">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+</span><span class="kw">pub enum </span>ProblemType {
+    IntersectionDelay,
+    ComplexIntersectionCrossing,
+    OvertakeDesired,
+    ArterialIntersectionCrossing,
+    PedestrianOvercrowding,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Problem</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ProblemType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">problem</span>: <span class="kw-2">&amp;</span><span class="ident">Problem</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">match</span> <span class="ident">problem</span> {
-            <span class="ident">Problem::IntersectionDelay</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::IntersectionDelay</span>,
-            <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::ComplexIntersectionCrossing</span>,
-            <span class="ident">Problem::OvertakeDesired</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::OvertakeDesired</span>,
-            <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::ArterialIntersectionCrossing</span>,
-            <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="kw">_</span>) =&gt; <span class="ident"><span class="self">Self</span>::PedestrianOvercrowding</span>,
+<span class="kw">impl </span>From&lt;<span class="kw-2">&amp;</span>Problem&gt; <span class="kw">for </span>ProblemType {
+    <span class="kw">fn </span>from(problem: <span class="kw-2">&amp;</span>Problem) -&gt; <span class="self">Self </span>{
+        <span class="kw">match </span>problem {
+            Problem::IntersectionDelay(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="self">Self</span>::IntersectionDelay,
+            Problem::ComplexIntersectionCrossing(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::ComplexIntersectionCrossing,
+            Problem::OvertakeDesired(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::OvertakeDesired,
+            Problem::ArterialIntersectionCrossing(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::ArterialIntersectionCrossing,
+            Problem::PedestrianOvercrowding(<span class="kw">_</span>) =&gt; <span class="self">Self</span>::PedestrianOvercrowding,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">ProblemType</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="self">self</span>, <span class="ident">problems</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Time</span>, <span class="ident">Problem</span>)]) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-            <span class="kw">if</span> <span class="self">self</span> <span class="op">==</span> <span class="ident">ProblemType::from</span>(<span class="ident">problem</span>) {
-                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+<span class="kw">impl </span>ProblemType {
+    <span class="kw">pub fn </span>count(<span class="self">self</span>, problems: <span class="kw-2">&amp;</span>[(Time, Problem)]) -&gt; usize {
+        <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
+        <span class="kw">for </span>(<span class="kw">_</span>, problem) <span class="kw">in </span>problems {
+            <span class="kw">if </span><span class="self">self </span>== ProblemType::from(problem) {
+                cnt += <span class="number">1</span>;
             }
         }
-        <span class="ident">cnt</span>
+        cnt
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ProblemType</span><span class="op">&gt;</span> {
+    <span class="kw">pub fn </span>all() -&gt; Vec&lt;ProblemType&gt; {
         <span class="macro">vec!</span>[
-            <span class="ident">ProblemType::IntersectionDelay</span>,
-            <span class="ident">ProblemType::ComplexIntersectionCrossing</span>,
-            <span class="ident">ProblemType::OvertakeDesired</span>,
-            <span class="ident">ProblemType::ArterialIntersectionCrossing</span>,
-            <span class="ident">ProblemType::PedestrianOvercrowding</span>,
+            ProblemType::IntersectionDelay,
+            ProblemType::ComplexIntersectionCrossing,
+            ProblemType::OvertakeDesired,
+            ProblemType::ArterialIntersectionCrossing,
+            ProblemType::PedestrianOvercrowding,
         ]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">name</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">ProblemType::IntersectionDelay</span> =&gt; <span class="string">&quot;delays&quot;</span>,
-            <span class="ident">ProblemType::ComplexIntersectionCrossing</span> =&gt; {
-                <span class="string">&quot;where cyclists cross complex intersections&quot;</span>
-            }
-            <span class="ident">ProblemType::OvertakeDesired</span> =&gt; <span class="string">&quot;where cars want to overtake cyclists&quot;</span>,
-            <span class="ident">ProblemType::ArterialIntersectionCrossing</span> =&gt; {
-                <span class="string">&quot;where pedestrians cross arterial intersections&quot;</span>
-            }
-            <span class="ident">ProblemType::PedestrianOvercrowding</span> =&gt; <span class="string">&quot;where pedestrians are over-crowded&quot;</span>,
+    <span class="kw">pub fn </span>name(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            ProblemType::IntersectionDelay =&gt; <span class="string">&quot;delays&quot;</span>,
+            ProblemType::ComplexIntersectionCrossing =&gt; {
+                <span class="string">&quot;where cyclists cross complex intersections&quot;
+            </span>}
+            ProblemType::OvertakeDesired =&gt; <span class="string">&quot;where cars want to overtake cyclists&quot;</span>,
+            ProblemType::ArterialIntersectionCrossing =&gt; {
+                <span class="string">&quot;where pedestrians cross arterial intersections&quot;
+            </span>}
+            ProblemType::PedestrianOvercrowding =&gt; <span class="string">&quot;where pedestrians are over-crowded&quot;</span>,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Analytics</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">record_anything</span>: <span class="ident">bool</span>) -&gt; <span class="ident">Analytics</span> {
-        <span class="ident">Analytics</span> {
-            <span class="ident">road_thruput</span>: <span class="ident">TimeSeriesCount::new</span>(),
-            <span class="ident">intersection_thruput</span>: <span class="ident">TimeSeriesCount::new</span>(),
-            <span class="ident">traffic_signal_thruput</span>: <span class="ident">TimeSeriesCount::new</span>(),
-            <span class="ident">demand</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">bus_arrivals</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">passengers_boarding</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">passengers_alighting</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">started_trips</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">finished_trips</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">problems_per_trip</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">trip_log</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">intersection_delays</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">parking_lane_changes</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">parking_lot_changes</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">alerts</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">record_anything</span>,
+<span class="kw">impl </span>Analytics {
+    <span class="kw">pub fn </span>new(record_anything: bool) -&gt; Analytics {
+        Analytics {
+            road_thruput: TimeSeriesCount::new(),
+            intersection_thruput: TimeSeriesCount::new(),
+            traffic_signal_thruput: TimeSeriesCount::new(),
+            demand: BTreeMap::new(),
+            bus_arrivals: Vec::new(),
+            passengers_boarding: BTreeMap::new(),
+            passengers_alighting: BTreeMap::new(),
+            started_trips: BTreeMap::new(),
+            finished_trips: Vec::new(),
+            problems_per_trip: BTreeMap::new(),
+            trip_log: Vec::new(),
+            intersection_delays: BTreeMap::new(),
+            parking_lane_changes: BTreeMap::new(),
+            parking_lot_changes: BTreeMap::new(),
+            alerts: Vec::new(),
+            record_anything,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ev</span>: <span class="ident">Event</span>, <span class="ident">time</span>: <span class="ident">Time</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">record_anything</span> {
+    <span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ev: Event, time: Time, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="kw">if </span>!<span class="self">self</span>.record_anything {
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// Throughput</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::AgentEntersTraversable</span>(<span class="ident">a</span>, <span class="kw">_</span>, <span class="ident">to</span>, <span class="ident">passengers</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="kw">match</span> <span class="ident">to</span> {
-                <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">road_thruput</span>.<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">l</span>.<span class="ident">road</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">passengers</span> {
-                        <span class="self">self</span>.<span class="ident">road_thruput</span>
-                            .<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">l</span>.<span class="ident">road</span>, <span class="ident">AgentType::TransitRider</span>, <span class="ident">n</span>);
+        <span class="comment">// Throughput
+        </span><span class="kw">if let </span>Event::AgentEntersTraversable(a, <span class="kw">_</span>, to, passengers) = ev {
+            <span class="kw">match </span>to {
+                Traversable::Lane(l) =&gt; {
+                    <span class="self">self</span>.road_thruput.record(time, l.road, a.to_type(), <span class="number">1</span>);
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = passengers {
+                        <span class="self">self</span>.road_thruput
+                            .record(time, l.road, AgentType::TransitRider, n);
                     }
                 }
-                <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) =&gt; {
-                    <span class="self">self</span>.<span class="ident">intersection_thruput</span>
-                        .<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">t</span>.<span class="ident">parent</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">passengers</span> {
-                        <span class="self">self</span>.<span class="ident">intersection_thruput</span>.<span class="ident">record</span>(
-                            <span class="ident">time</span>,
-                            <span class="ident">t</span>.<span class="ident">parent</span>,
-                            <span class="ident">AgentType::TransitRider</span>,
-                            <span class="ident">n</span>,
+                Traversable::Turn(t) =&gt; {
+                    <span class="self">self</span>.intersection_thruput
+                        .record(time, t.parent, a.to_type(), <span class="number">1</span>);
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = passengers {
+                        <span class="self">self</span>.intersection_thruput.record(
+                            time,
+                            t.parent,
+                            AgentType::TransitRider,
+                            n,
                         );
                     }
 
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="ident">compressed</span>)) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_movement_for_traffic_signal</span>(<span class="ident">t</span>) {
-                        <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">demand</span>.<span class="ident">entry</span>(<span class="ident">id</span>).<span class="ident">or_insert</span>(<span class="number">0</span>) <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-                        <span class="self">self</span>.<span class="ident">traffic_signal_thruput</span>
-                            .<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">compressed</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=</span> <span class="ident">passengers</span> {
-                            <span class="self">self</span>.<span class="ident">traffic_signal_thruput</span>.<span class="ident">record</span>(
-                                <span class="ident">time</span>,
-                                <span class="ident">compressed</span>,
-                                <span class="ident">AgentType::TransitRider</span>,
-                                <span class="ident">n</span>,
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>((id, compressed)) = map.get_movement_for_traffic_signal(t) {
+                        <span class="kw-2">*</span><span class="self">self</span>.demand.entry(id).or_insert(<span class="number">0</span>) -= <span class="number">1</span>;
+                        <span class="self">self</span>.traffic_signal_thruput
+                            .record(time, compressed, a.to_type(), <span class="number">1</span>);
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(n) = passengers {
+                            <span class="self">self</span>.traffic_signal_thruput.record(
+                                time,
+                                compressed,
+                                AgentType::TransitRider,
+                                n,
                             );
                         }
                     }
                 }
             };
         }
-        <span class="kw">match</span> <span class="ident">ev</span> {
-            <span class="ident">Event::PersonLeavesMap</span>(<span class="kw">_</span>, <span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="ident">i</span>) =&gt; {
-                <span class="comment">// Ignore cancelled trips</span>
-                <span class="self">self</span>.<span class="ident">intersection_thruput</span>.<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">i</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
+        <span class="kw">match </span>ev {
+            Event::PersonLeavesMap(<span class="kw">_</span>, <span class="prelude-val">Some</span>(a), i) =&gt; {
+                <span class="comment">// Ignore cancelled trips
+                </span><span class="self">self</span>.intersection_thruput.record(time, i, a.to_type(), <span class="number">1</span>);
             }
-            <span class="ident">Event::PersonEntersMap</span>(<span class="kw">_</span>, <span class="ident">a</span>, <span class="ident">i</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">intersection_thruput</span>.<span class="ident">record</span>(<span class="ident">time</span>, <span class="ident">i</span>, <span class="ident">a</span>.<span class="ident">to_type</span>(), <span class="number">1</span>);
+            Event::PersonEntersMap(<span class="kw">_</span>, a, i) =&gt; {
+                <span class="self">self</span>.intersection_thruput.record(time, i, a.to_type(), <span class="number">1</span>);
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="comment">// Bus arrivals</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::BusArrivedAtStop</span>(<span class="ident">bus</span>, <span class="ident">route</span>, <span class="ident">stop</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="self">self</span>.<span class="ident">bus_arrivals</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">bus</span>, <span class="ident">route</span>, <span class="ident">stop</span>));
+        <span class="comment">// Bus arrivals
+        </span><span class="kw">if let </span>Event::BusArrivedAtStop(bus, route, stop) = ev {
+            <span class="self">self</span>.bus_arrivals.push((time, bus, route, stop));
         }
 
-        <span class="comment">// Passengers boarding/alighting</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::PassengerBoardsTransit</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">route</span>, <span class="ident">stop</span>, <span class="ident">waiting</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="self">self</span>.<span class="ident">passengers_boarding</span>
-                .<span class="ident">entry</span>(<span class="ident">stop</span>)
-                .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">route</span>, <span class="ident">waiting</span>));
+        <span class="comment">// Passengers boarding/alighting
+        </span><span class="kw">if let </span>Event::PassengerBoardsTransit(<span class="kw">_</span>, <span class="kw">_</span>, route, stop, waiting) = ev {
+            <span class="self">self</span>.passengers_boarding
+                .entry(stop)
+                .or_insert_with(Vec::new)
+                .push((time, route, waiting));
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::PassengerAlightsTransit</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">route</span>, <span class="ident">stop</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="self">self</span>.<span class="ident">passengers_alighting</span>
-                .<span class="ident">entry</span>(<span class="ident">stop</span>)
-                .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">route</span>));
-        }
-
-        <span class="comment">// Started trips</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::TripPhaseStarting</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="self">self</span>.<span class="ident">started_trips</span>.<span class="ident">entry</span>(<span class="ident">id</span>).<span class="ident">or_insert</span>(<span class="ident">time</span>);
+        <span class="kw">if let </span>Event::PassengerAlightsTransit(<span class="kw">_</span>, <span class="kw">_</span>, route, stop) = ev {
+            <span class="self">self</span>.passengers_alighting
+                .entry(stop)
+                .or_insert_with(Vec::new)
+                .push((time, route));
         }
 
-        <span class="comment">// Finished trips</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::TripFinished</span> {
-            <span class="ident">trip</span>,
-            <span class="ident">mode</span>,
-            <span class="ident">total_time</span>,
+        <span class="comment">// Started trips
+        </span><span class="kw">if let </span>Event::TripPhaseStarting(id, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) = ev {
+            <span class="self">self</span>.started_trips.entry(id).or_insert(time);
+        }
+
+        <span class="comment">// Finished trips
+        </span><span class="kw">if let </span>Event::TripFinished {
+            trip,
+            mode,
+            total_time,
             ..
-        } <span class="op">=</span> <span class="ident">ev</span>
+        } = ev
         {
-            <span class="self">self</span>.<span class="ident">finished_trips</span>
-                .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">trip</span>, <span class="ident">mode</span>, <span class="prelude-val">Some</span>(<span class="ident">total_time</span>)));
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::TripCancelled</span>(<span class="ident">id</span>, <span class="ident">mode</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="self">self</span>.<span class="ident">started_trips</span>.<span class="ident">entry</span>(<span class="ident">id</span>).<span class="ident">or_insert</span>(<span class="ident">time</span>);
-            <span class="self">self</span>.<span class="ident">finished_trips</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">id</span>, <span class="ident">mode</span>, <span class="prelude-val">None</span>));
+            <span class="self">self</span>.finished_trips
+                .push((time, trip, mode, <span class="prelude-val">Some</span>(total_time)));
+        } <span class="kw">else if let </span>Event::TripCancelled(id, mode) = ev {
+            <span class="self">self</span>.started_trips.entry(id).or_insert(time);
+            <span class="self">self</span>.finished_trips.push((time, id, mode, <span class="prelude-val">None</span>));
         }
 
-        <span class="comment">// Intersection delay</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::IntersectionDelayMeasured</span>(<span class="ident">trip_id</span>, <span class="ident">turn_id</span>, <span class="ident">agent</span>, <span class="ident">delay</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="kw">let</span> <span class="ident">threshold</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">agent</span> {
-                <span class="ident">AgentID::Car</span>(<span class="kw">_</span>) =&gt; <span class="ident">Duration::seconds</span>(<span class="number">30.0</span>),
-                <span class="ident">AgentID::Pedestrian</span>(<span class="kw">_</span>) =&gt; <span class="ident">Duration::seconds</span>(<span class="number">15.0</span>),
-                <span class="comment">// Don&#39;t record for riders</span>
-                <span class="ident">AgentID::BusPassenger</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; <span class="ident">Duration::hours</span>(<span class="number">24</span>),
+        <span class="comment">// Intersection delay
+        </span><span class="kw">if let </span>Event::IntersectionDelayMeasured(trip_id, turn_id, agent, delay) = ev {
+            <span class="kw">let </span>threshold = <span class="kw">match </span>agent {
+                AgentID::Car(<span class="kw">_</span>) =&gt; Duration::seconds(<span class="number">30.0</span>),
+                AgentID::Pedestrian(<span class="kw">_</span>) =&gt; Duration::seconds(<span class="number">15.0</span>),
+                <span class="comment">// Don&#39;t record for riders
+                </span>AgentID::BusPassenger(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; Duration::hours(<span class="number">24</span>),
             };
-            <span class="kw">if</span> <span class="ident">delay</span> <span class="op">&gt;</span> <span class="ident">threshold</span> {
-                <span class="self">self</span>.<span class="ident">problems_per_trip</span>
-                    .<span class="ident">entry</span>(<span class="ident">trip_id</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">Problem::IntersectionDelay</span>(<span class="ident">turn_id</span>.<span class="ident">parent</span>, <span class="ident">delay</span>)));
+            <span class="kw">if </span>delay &gt; threshold {
+                <span class="self">self</span>.problems_per_trip
+                    .entry(trip_id)
+                    .or_insert_with(Vec::new)
+                    .push((time, Problem::IntersectionDelay(turn_id.parent, delay)));
             }
 
-            <span class="comment">// Save memory and space by only storing these measurements at traffic signals, for</span>
-            <span class="comment">// turns that actually conflict (so no SharedSidewalkCorners).</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">compressed</span>)) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_movement_for_traffic_signal</span>(<span class="ident">turn_id</span>) {
-                <span class="self">self</span>.<span class="ident">intersection_delays</span>
-                    .<span class="ident">entry</span>(<span class="ident">turn_id</span>.<span class="ident">parent</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">compressed</span>.<span class="ident">idx</span>, <span class="ident">time</span>, <span class="ident">delay</span>, <span class="ident">agent</span>.<span class="ident">to_type</span>()));
+            <span class="comment">// Save memory and space by only storing these measurements at traffic signals, for
+            // turns that actually conflict (so no SharedSidewalkCorners).
+            </span><span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, compressed)) = map.get_movement_for_traffic_signal(turn_id) {
+                <span class="self">self</span>.intersection_delays
+                    .entry(turn_id.parent)
+                    .or_insert_with(Vec::new)
+                    .push((compressed.idx, time, delay, agent.to_type()));
             }
         }
 
-        <span class="comment">// Parking spot changes</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::CarReachedParkingSpot</span>(<span class="kw">_</span>, <span class="ident">spot</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParkingSpot::Onstreet</span>(<span class="ident">l</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">spot</span> {
-                <span class="self">self</span>.<span class="ident">parking_lane_changes</span>
-                    .<span class="ident">entry</span>(<span class="ident">l</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="bool-val">true</span>));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParkingSpot::Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">spot</span> {
-                <span class="self">self</span>.<span class="ident">parking_lot_changes</span>
-                    .<span class="ident">entry</span>(<span class="ident">pl</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="bool-val">true</span>));
+        <span class="comment">// Parking spot changes
+        </span><span class="kw">if let </span>Event::CarReachedParkingSpot(<span class="kw">_</span>, spot) = ev {
+            <span class="kw">if let </span>ParkingSpot::Onstreet(l, <span class="kw">_</span>) = spot {
+                <span class="self">self</span>.parking_lane_changes
+                    .entry(l)
+                    .or_insert_with(Vec::new)
+                    .push((time, <span class="bool-val">true</span>));
+            } <span class="kw">else if let </span>ParkingSpot::Lot(pl, <span class="kw">_</span>) = spot {
+                <span class="self">self</span>.parking_lot_changes
+                    .entry(pl)
+                    .or_insert_with(Vec::new)
+                    .push((time, <span class="bool-val">true</span>));
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::CarLeftParkingSpot</span>(<span class="kw">_</span>, <span class="ident">spot</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParkingSpot::Onstreet</span>(<span class="ident">l</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">spot</span> {
-                <span class="self">self</span>.<span class="ident">parking_lane_changes</span>
-                    .<span class="ident">entry</span>(<span class="ident">l</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="bool-val">false</span>));
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="ident">ParkingSpot::Lot</span>(<span class="ident">pl</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">spot</span> {
-                <span class="self">self</span>.<span class="ident">parking_lot_changes</span>
-                    .<span class="ident">entry</span>(<span class="ident">pl</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="bool-val">false</span>));
-            }
-        }
-
-        <span class="comment">// Safety metrics</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::AgentEntersTraversable</span>(<span class="ident">a</span>, <span class="prelude-val">Some</span>(<span class="ident">trip</span>), <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>), <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">to_type</span>() <span class="op">==</span> <span class="ident">AgentType::Bike</span> <span class="op">&amp;&amp;</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">t</span>.<span class="ident">parent</span>).<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">4</span> {
-                <span class="comment">// Defining a &quot;large intersection&quot; is tricky. If a road is split into two one-ways,</span>
-                <span class="comment">// should we count it as two roads? If we haven&#39;t consolidated some crazy</span>
-                <span class="comment">// intersection, we won&#39;t see it.</span>
-                <span class="self">self</span>.<span class="ident">problems_per_trip</span>
-                    .<span class="ident">entry</span>(<span class="ident">trip</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="ident">t</span>.<span class="ident">parent</span>)));
+        <span class="kw">if let </span>Event::CarLeftParkingSpot(<span class="kw">_</span>, spot) = ev {
+            <span class="kw">if let </span>ParkingSpot::Onstreet(l, <span class="kw">_</span>) = spot {
+                <span class="self">self</span>.parking_lane_changes
+                    .entry(l)
+                    .or_insert_with(Vec::new)
+                    .push((time, <span class="bool-val">false</span>));
+            } <span class="kw">else if let </span>ParkingSpot::Lot(pl, <span class="kw">_</span>) = spot {
+                <span class="self">self</span>.parking_lot_changes
+                    .entry(pl)
+                    .or_insert_with(Vec::new)
+                    .push((time, <span class="bool-val">false</span>));
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::AgentEntersTraversable</span>(<span class="ident">a</span>, <span class="prelude-val">Some</span>(<span class="ident">trip</span>), <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>), <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">t</span>);
-            <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">to_type</span>() <span class="op">==</span> <span class="ident">AgentType::Pedestrian</span> <span class="op">&amp;&amp;</span> <span class="ident">turn</span>.<span class="ident">is_crossing_arterial_intersection</span>(<span class="ident">map</span>) {
-                <span class="self">self</span>.<span class="ident">problems_per_trip</span>
-                    .<span class="ident">entry</span>(<span class="ident">trip</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="ident">turn</span>.<span class="ident">id</span>)));
+        <span class="comment">// Safety metrics
+        </span><span class="kw">if let </span>Event::AgentEntersTraversable(a, <span class="prelude-val">Some</span>(trip), Traversable::Turn(t), <span class="kw">_</span>) = ev {
+            <span class="kw">if </span>a.to_type() == AgentType::Bike &amp;&amp; map.get_i(t.parent).roads.len() &gt; <span class="number">4 </span>{
+                <span class="comment">// Defining a &quot;large intersection&quot; is tricky. If a road is split into two one-ways,
+                // should we count it as two roads? If we haven&#39;t consolidated some crazy
+                // intersection, we won&#39;t see it.
+                </span><span class="self">self</span>.problems_per_trip
+                    .entry(trip)
+                    .or_insert_with(Vec::new)
+                    .push((time, Problem::ComplexIntersectionCrossing(t.parent)));
             }
         }
 
-        <span class="comment">// TODO Kinda hacky, but these all consume the event, so kinda bundle em.</span>
-        <span class="kw">match</span> <span class="ident">ev</span> {
-            <span class="ident">Event::TripPhaseStarting</span>(<span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">maybe_req</span>, <span class="ident">phase_type</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">trip_log</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">id</span>, <span class="ident">maybe_req</span>, <span class="ident">phase_type</span>));
+        <span class="kw">if let </span>Event::AgentEntersTraversable(a, <span class="prelude-val">Some</span>(trip), Traversable::Turn(t), <span class="kw">_</span>) = ev {
+            <span class="kw">let </span>turn = map.get_t(t);
+            <span class="kw">if </span>a.to_type() == AgentType::Pedestrian &amp;&amp; turn.is_crossing_arterial_intersection(map) {
+                <span class="self">self</span>.problems_per_trip
+                    .entry(trip)
+                    .or_insert_with(Vec::new)
+                    .push((time, Problem::ArterialIntersectionCrossing(turn.id)));
             }
-            <span class="ident">Event::TripCancelled</span>(<span class="ident">id</span>, <span class="kw">_</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">trip_log</span>
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">id</span>, <span class="prelude-val">None</span>, <span class="ident">TripPhaseType::Cancelled</span>));
+        }
+
+        <span class="comment">// TODO Kinda hacky, but these all consume the event, so kinda bundle em.
+        </span><span class="kw">match </span>ev {
+            Event::TripPhaseStarting(id, <span class="kw">_</span>, maybe_req, phase_type) =&gt; {
+                <span class="self">self</span>.trip_log.push((time, id, maybe_req, phase_type));
             }
-            <span class="ident">Event::TripFinished</span> { <span class="ident">trip</span>, .. } =&gt; {
-                <span class="self">self</span>.<span class="ident">trip_log</span>
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">trip</span>, <span class="prelude-val">None</span>, <span class="ident">TripPhaseType::Finished</span>));
+            Event::TripCancelled(id, <span class="kw">_</span>) =&gt; {
+                <span class="self">self</span>.trip_log
+                    .push((time, id, <span class="prelude-val">None</span>, TripPhaseType::Cancelled));
             }
-            <span class="ident">Event::PathAmended</span>(<span class="ident">path</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">record_demand</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">map</span>);
+            Event::TripFinished { trip, .. } =&gt; {
+                <span class="self">self</span>.trip_log
+                    .push((time, trip, <span class="prelude-val">None</span>, TripPhaseType::Finished));
             }
-            <span class="ident">Event::Alert</span>(<span class="ident">loc</span>, <span class="ident">msg</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">alerts</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">loc</span>, <span class="ident">msg</span>));
+            Event::PathAmended(path) =&gt; {
+                <span class="self">self</span>.record_demand(<span class="kw-2">&amp;</span>path, map);
             }
-            <span class="ident">Event::ProblemEncountered</span>(<span class="ident">trip</span>, <span class="ident">problem</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">problems_per_trip</span>
-                    .<span class="ident">entry</span>(<span class="ident">trip</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">problem</span>));
+            Event::Alert(loc, msg) =&gt; {
+                <span class="self">self</span>.alerts.push((time, loc, msg));
             }
-            <span class="kw">_</span> =&gt; {}
+            Event::ProblemEncountered(trip, problem) =&gt; {
+                <span class="self">self</span>.problems_per_trip
+                    .entry(trip)
+                    .or_insert_with(Vec::new)
+                    .push((time, problem));
+            }
+            <span class="kw">_ </span>=&gt; {}
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">record_demand</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span>.<span class="ident">as_traversable</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_movement_for_traffic_signal</span>(<span class="ident">t</span>) {
-                    <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">demand</span>.<span class="ident">entry</span>(<span class="ident">id</span>).<span class="ident">or_insert</span>(<span class="number">0</span>) <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">pub fn </span>record_demand(<span class="kw-2">&amp;mut </span><span class="self">self</span>, path: <span class="kw-2">&amp;</span>Path, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="kw">for </span>step <span class="kw">in </span>path.get_steps() {
+            <span class="kw">if let </span>Traversable::Turn(t) = step.as_traversable() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((id, <span class="kw">_</span>)) = map.get_movement_for_traffic_signal(t) {
+                    <span class="kw-2">*</span><span class="self">self</span>.demand.entry(id).or_insert(<span class="number">0</span>) += <span class="number">1</span>;
                 }
             }
         }
     }
 
-    <span class="comment">// TODO If these ever need to be speeded up, just cache the histogram and index in the events</span>
-    <span class="comment">// list.</span>
+    <span class="comment">// TODO If these ever need to be speeded up, just cache the histogram and index in the events
+    // list.
 
-    <span class="doccomment">/// Ignores the current time. Returns None for cancelled trips.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">finished_trip_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">trip</span>: <span class="ident">TripID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO This is so inefficient!</span>
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">finished_trips</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">==</span> <span class="ident">trip</span> {
-                <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">maybe_dt</span>;
+    </span><span class="doccomment">/// Ignores the current time. Returns None for cancelled trips.
+    </span><span class="kw">pub fn </span>finished_trip_time(<span class="kw-2">&amp;</span><span class="self">self</span>, trip: TripID) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
+        <span class="comment">// TODO This is so inefficient!
+        </span><span class="kw">for </span>(<span class="kw">_</span>, id, <span class="kw">_</span>, maybe_dt) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.finished_trips {
+            <span class="kw">if </span><span class="kw-2">*</span>id == trip {
+                <span class="kw">return </span><span class="kw-2">*</span>maybe_dt;
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="doccomment">/// Returns pairs of trip times for finished trips in both worlds. (ID, before, after, mode)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">both_finished_trips</span>(
+    <span class="doccomment">/// Returns pairs of trip times for finished trips in both worlds. (ID, before, after, mode)
+    </span><span class="kw">pub fn </span>both_finished_trips(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">before</span>: <span class="kw-2">&amp;</span><span class="ident">Analytics</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">TripID</span>, <span class="ident">Duration</span>, <span class="ident">Duration</span>, <span class="ident">TripMode</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">id</span>, <span class="kw">_</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">finished_trips</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+        now: Time,
+        before: <span class="kw-2">&amp;</span>Analytics,
+    ) -&gt; Vec&lt;(TripID, Duration, Duration, TripMode)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>a = BTreeMap::new();
+        <span class="kw">for </span>(t, id, <span class="kw">_</span>, maybe_dt) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.finished_trips {
+            <span class="kw">if </span><span class="kw-2">*</span>t &gt; now {
                 <span class="kw">break</span>;
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">maybe_dt</span> {
-                <span class="ident">a</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">dt</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(dt) = maybe_dt {
+                a.insert(<span class="kw-2">*</span>id, <span class="kw-2">*</span>dt);
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">id</span>, <span class="ident">mode</span>, <span class="ident">maybe_dt</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">before</span>.<span class="ident">finished_trips</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+        <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+        <span class="kw">for </span>(t, id, mode, maybe_dt) <span class="kw">in </span><span class="kw-2">&amp;</span>before.finished_trips {
+            <span class="kw">if </span><span class="kw-2">*</span>t &gt; now {
                 <span class="kw">break</span>;
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt</span>) <span class="op">=</span> <span class="ident">maybe_dt</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dt1</span>) <span class="op">=</span> <span class="ident">a</span>.<span class="ident">remove</span>(<span class="ident">id</span>) {
-                    <span class="ident">results</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">dt</span>, <span class="ident">dt1</span>, <span class="kw-2">*</span><span class="ident">mode</span>));
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(dt) = maybe_dt {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(dt1) = a.remove(id) {
+                    results.push((<span class="kw-2">*</span>id, <span class="kw-2">*</span>dt, dt1, <span class="kw-2">*</span>mode));
                 }
             }
         }
-        <span class="ident">results</span>
+        results
     }
 
-    <span class="doccomment">/// If calling on prebaked Analytics, be careful to pass in an unedited map, to match how the</span>
-    <span class="doccomment">/// simulation was originally run. Otherwise the paths may be nonsense.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_trip_phases</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">trip</span>: <span class="ident">TripID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">phases</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">id</span>, <span class="ident">maybe_req</span>, <span class="ident">phase_type</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trip_log</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">id</span> <span class="op">!</span><span class="op">=</span> <span class="ident">trip</span> {
+    <span class="doccomment">/// If calling on prebaked Analytics, be careful to pass in an unedited map, to match how the
+    /// simulation was originally run. Otherwise the paths may be nonsense.
+    </span><span class="kw">pub fn </span>get_trip_phases(<span class="kw-2">&amp;</span><span class="self">self</span>, trip: TripID, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;TripPhase&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>phases: Vec&lt;TripPhase&gt; = Vec::new();
+        <span class="kw">for </span>(t, id, maybe_req, phase_type) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.trip_log {
+            <span class="kw">if </span><span class="kw-2">*</span>id != trip {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">last</span>) <span class="op">=</span> <span class="ident">phases</span>.<span class="ident">last_mut</span>() {
-                <span class="ident">last</span>.<span class="ident">end_time</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>last) = phases.last_mut() {
+                last.end_time = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>t);
             }
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">==</span> <span class="ident">TripPhaseType::Finished</span> <span class="op">|</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">==</span> <span class="ident">TripPhaseType::Cancelled</span> {
+            <span class="kw">if </span><span class="kw-2">*</span>phase_type == TripPhaseType::Finished || <span class="kw-2">*</span>phase_type == TripPhaseType::Cancelled {
                 <span class="kw">break</span>;
             }
-            <span class="ident">phases</span>.<span class="ident">push</span>(<span class="ident">TripPhase</span> {
-                <span class="ident">start_time</span>: <span class="kw-2">*</span><span class="ident">t</span>,
-                <span class="ident">end_time</span>: <span class="prelude-val">None</span>,
-                <span class="ident">path</span>: <span class="ident">maybe_req</span>.<span class="ident">clone</span>().<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">pathfind</span>(<span class="ident">req</span>).<span class="ident">ok</span>()),
-                <span class="ident">has_path_req</span>: <span class="ident">maybe_req</span>.<span class="ident">is_some</span>(),
-                <span class="ident">phase_type</span>: <span class="kw-2">*</span><span class="ident">phase_type</span>,
+            phases.push(TripPhase {
+                start_time: <span class="kw-2">*</span>t,
+                end_time: <span class="prelude-val">None</span>,
+                path: maybe_req.clone().and_then(|req| map.pathfind(req).ok()),
+                has_path_req: maybe_req.is_some(),
+                phase_type: <span class="kw-2">*</span>phase_type,
             })
         }
-        <span class="ident">phases</span>
+        phases
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_all_trip_phases</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TripID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trips</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">id</span>, <span class="ident">maybe_req</span>, <span class="ident">phase_type</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">trip_log</span> {
-            <span class="kw">let</span> <span class="ident">phases</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripPhase</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">trips</span>.<span class="ident">entry</span>(<span class="kw-2">*</span><span class="ident">id</span>).<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">last</span>) <span class="op">=</span> <span class="ident">phases</span>.<span class="ident">last_mut</span>() {
-                <span class="ident">last</span>.<span class="ident">end_time</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
+    <span class="kw">pub fn </span>get_all_trip_phases(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; BTreeMap&lt;TripID, Vec&lt;TripPhase&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>trips = BTreeMap::new();
+        <span class="kw">for </span>(t, id, maybe_req, phase_type) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.trip_log {
+            <span class="kw">let </span>phases: <span class="kw-2">&amp;mut </span>Vec&lt;TripPhase&gt; = trips.entry(<span class="kw-2">*</span>id).or_insert_with(Vec::new);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>last) = phases.last_mut() {
+                last.end_time = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>t);
             }
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">==</span> <span class="ident">TripPhaseType::Finished</span> {
+            <span class="kw">if </span><span class="kw-2">*</span>phase_type == TripPhaseType::Finished {
                 <span class="kw">continue</span>;
             }
-            <span class="comment">// Remove cancelled trips</span>
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">phase_type</span> <span class="op">==</span> <span class="ident">TripPhaseType::Cancelled</span> {
-                <span class="ident">trips</span>.<span class="ident">remove</span>(<span class="ident">id</span>);
+            <span class="comment">// Remove cancelled trips
+            </span><span class="kw">if </span><span class="kw-2">*</span>phase_type == TripPhaseType::Cancelled {
+                trips.remove(id);
                 <span class="kw">continue</span>;
             }
-            <span class="ident">phases</span>.<span class="ident">push</span>(<span class="ident">TripPhase</span> {
-                <span class="ident">start_time</span>: <span class="kw-2">*</span><span class="ident">t</span>,
-                <span class="ident">end_time</span>: <span class="prelude-val">None</span>,
-                <span class="comment">// Don&#39;t compute any paths</span>
-                <span class="ident">path</span>: <span class="prelude-val">None</span>,
-                <span class="ident">has_path_req</span>: <span class="ident">maybe_req</span>.<span class="ident">is_some</span>(),
-                <span class="ident">phase_type</span>: <span class="kw-2">*</span><span class="ident">phase_type</span>,
+            phases.push(TripPhase {
+                start_time: <span class="kw-2">*</span>t,
+                end_time: <span class="prelude-val">None</span>,
+                <span class="comment">// Don&#39;t compute any paths
+                </span>path: <span class="prelude-val">None</span>,
+                has_path_req: maybe_req.is_some(),
+                phase_type: <span class="kw-2">*</span>phase_type,
             })
         }
-        <span class="ident">trips</span>
+        trips
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_agents</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">starts_stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">bool</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">started_trips</span>.<span class="ident">values</span>() {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">now</span> {
-                <span class="ident">starts_stops</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">t</span>, <span class="bool-val">false</span>));
+    <span class="kw">pub fn </span>active_agents(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time) -&gt; Vec&lt;(Time, usize)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>starts_stops: Vec&lt;(Time, bool)&gt; = Vec::new();
+        <span class="kw">for </span>t <span class="kw">in </span><span class="self">self</span>.started_trips.values() {
+            <span class="kw">if </span><span class="kw-2">*</span>t &lt;= now {
+                starts_stops.push((<span class="kw-2">*</span>t, <span class="bool-val">false</span>));
             }
         }
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">finished_trips</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+        <span class="kw">for </span>(t, <span class="kw">_</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.finished_trips {
+            <span class="kw">if </span><span class="kw-2">*</span>t &gt; now {
                 <span class="kw">break</span>;
             }
-            <span class="ident">starts_stops</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">t</span>, <span class="bool-val">true</span>));
+            starts_stops.push((<span class="kw-2">*</span>t, <span class="bool-val">true</span>));
         }
-        <span class="comment">// Make sure the start events get sorted before the stops.</span>
-        <span class="ident">starts_stops</span>.<span class="ident">sort</span>();
+        <span class="comment">// Make sure the start events get sorted before the stops.
+        </span>starts_stops.sort();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_t</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span>;
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">ended</span>) <span class="kw">in</span> <span class="ident">starts_stops</span> {
-            <span class="kw">if</span> <span class="ident">t</span> <span class="op">!</span><span class="op">=</span> <span class="ident">last_t</span> {
-                <span class="comment">// Step functions. Don&#39;t interpolate.</span>
-                <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">last_t</span>, <span class="ident">cnt</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>last_t = Time::START_OF_DAY;
+        <span class="kw">for </span>(t, ended) <span class="kw">in </span>starts_stops {
+            <span class="kw">if </span>t != last_t {
+                <span class="comment">// Step functions. Don&#39;t interpolate.
+                </span>pts.push((last_t, cnt));
             }
-            <span class="ident">last_t</span> <span class="op">=</span> <span class="ident">t</span>;
-            <span class="kw">if</span> <span class="ident">ended</span> {
-                <span class="comment">// release mode disables this check, so...</span>
-                <span class="kw">if</span> <span class="ident">cnt</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="macro">panic!</span>(<span class="string">&quot;active_agents at {} has more ended trips than started&quot;</span>, <span class="ident">t</span>);
+            last_t = t;
+            <span class="kw">if </span>ended {
+                <span class="comment">// release mode disables this check, so...
+                </span><span class="kw">if </span>cnt == <span class="number">0 </span>{
+                    <span class="macro">panic!</span>(<span class="string">&quot;active_agents at {} has more ended trips than started&quot;</span>, t);
                 }
-                <span class="ident">cnt</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                cnt -= <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                cnt += <span class="number">1</span>;
             }
         }
-        <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">last_t</span>, <span class="ident">cnt</span>));
-        <span class="kw">if</span> <span class="ident">last_t</span> <span class="op">!</span><span class="op">=</span> <span class="ident">now</span> {
-            <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">now</span>, <span class="ident">cnt</span>));
+        pts.push((last_t, cnt));
+        <span class="kw">if </span>last_t != now {
+            pts.push((now, cnt));
         }
-        <span class="ident">pts</span>
+        pts
     }
 
-    <span class="doccomment">/// Returns the free spots over time</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parking_lane_availability</span>(
+    <span class="doccomment">/// Returns the free spots over time
+    </span><span class="kw">pub fn </span>parking_lane_availability(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">l</span>: <span class="ident">LaneID</span>,
-        <span class="ident">capacity</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">changes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parking_lane_changes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">l</span>) {
-            <span class="ident">Analytics::parking_spot_availability</span>(<span class="ident">now</span>, <span class="ident">changes</span>, <span class="ident">capacity</span>)
-        } <span class="kw">else</span> {
-            <span class="macro">vec!</span>[(<span class="ident">Time::START_OF_DAY</span>, <span class="ident">capacity</span>), (<span class="ident">now</span>, <span class="ident">capacity</span>)]
+        now: Time,
+        l: LaneID,
+        capacity: usize,
+    ) -&gt; Vec&lt;(Time, usize)&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(changes) = <span class="self">self</span>.parking_lane_changes.get(<span class="kw-2">&amp;</span>l) {
+            Analytics::parking_spot_availability(now, changes, capacity)
+        } <span class="kw">else </span>{
+            <span class="macro">vec!</span>[(Time::START_OF_DAY, capacity), (now, capacity)]
         }
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parking_lot_availability</span>(
+    <span class="kw">pub fn </span>parking_lot_availability(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">pl</span>: <span class="ident">ParkingLotID</span>,
-        <span class="ident">capacity</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">changes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">parking_lot_changes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">pl</span>) {
-            <span class="ident">Analytics::parking_spot_availability</span>(<span class="ident">now</span>, <span class="ident">changes</span>, <span class="ident">capacity</span>)
-        } <span class="kw">else</span> {
-            <span class="macro">vec!</span>[(<span class="ident">Time::START_OF_DAY</span>, <span class="ident">capacity</span>), (<span class="ident">now</span>, <span class="ident">capacity</span>)]
+        now: Time,
+        pl: ParkingLotID,
+        capacity: usize,
+    ) -&gt; Vec&lt;(Time, usize)&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(changes) = <span class="self">self</span>.parking_lot_changes.get(<span class="kw-2">&amp;</span>pl) {
+            Analytics::parking_spot_availability(now, changes, capacity)
+        } <span class="kw">else </span>{
+            <span class="macro">vec!</span>[(Time::START_OF_DAY, capacity), (now, capacity)]
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">parking_spot_availability</span>(
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">changes</span>: <span class="kw-2">&amp;</span>[(<span class="ident">Time</span>, <span class="ident">bool</span>)],
-        <span class="ident">capacity</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">capacity</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_t</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span>;
+    <span class="kw">fn </span>parking_spot_availability(
+        now: Time,
+        changes: <span class="kw-2">&amp;</span>[(Time, bool)],
+        capacity: usize,
+    ) -&gt; Vec&lt;(Time, usize)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>cnt = capacity;
+        <span class="kw">let </span><span class="kw-2">mut </span>last_t = Time::START_OF_DAY;
 
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">filled</span>) <span class="kw">in</span> <span class="ident">changes</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+        <span class="kw">for </span>(t, filled) <span class="kw">in </span>changes {
+            <span class="kw">if </span><span class="kw-2">*</span>t &gt; now {
                 <span class="kw">break</span>;
             }
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">!</span><span class="op">=</span> <span class="ident">last_t</span> {
-                <span class="comment">// Step functions. Don&#39;t interpolate.</span>
-                <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">last_t</span>, <span class="ident">cnt</span>));
+            <span class="kw">if </span><span class="kw-2">*</span>t != last_t {
+                <span class="comment">// Step functions. Don&#39;t interpolate.
+                </span>pts.push((last_t, cnt));
             }
-            <span class="ident">last_t</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">t</span>;
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">filled</span> {
-                <span class="kw">if</span> <span class="ident">cnt</span> <span class="op">==</span> <span class="number">0</span> {
-                    <span class="macro">panic!</span>(<span class="string">&quot;parking_spot_availability at {} went below 0&quot;</span>, <span class="ident">t</span>);
+            last_t = <span class="kw-2">*</span>t;
+            <span class="kw">if </span><span class="kw-2">*</span>filled {
+                <span class="kw">if </span>cnt == <span class="number">0 </span>{
+                    <span class="macro">panic!</span>(<span class="string">&quot;parking_spot_availability at {} went below 0&quot;</span>, t);
                 }
-                <span class="ident">cnt</span> <span class="op">-</span><span class="op">=</span> <span class="number">1</span>;
-            } <span class="kw">else</span> {
-                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                cnt -= <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                cnt += <span class="number">1</span>;
             }
         }
-        <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">last_t</span>, <span class="ident">cnt</span>));
-        <span class="kw">if</span> <span class="ident">last_t</span> <span class="op">!</span><span class="op">=</span> <span class="ident">now</span> {
-            <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">now</span>, <span class="ident">cnt</span>));
+        pts.push((last_t, cnt));
+        <span class="kw">if </span>last_t != now {
+            pts.push((now, cnt));
         }
-        <span class="ident">pts</span>
+        pts
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">problems_per_intersection</span>(
+    <span class="kw">pub fn </span>problems_per_intersection(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">id</span>: <span class="ident">IntersectionID</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ProblemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">window_size</span> <span class="op">=</span> <span class="ident">Duration::minutes</span>(<span class="number">15</span>);
+        now: Time,
+        id: IntersectionID,
+    ) -&gt; Vec&lt;(ProblemType, Vec&lt;(Time, usize)&gt;)&gt; {
+        <span class="kw">let </span>window_size = Duration::minutes(<span class="number">15</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_per_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">ProblemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">for</span> <span class="ident">problem_type</span> <span class="kw">in</span> <span class="ident">ProblemType::all</span>() {
-            <span class="ident">raw_per_type</span>.<span class="ident">insert</span>(<span class="ident">problem_type</span>, <span class="ident">Vec::new</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>raw_per_type: BTreeMap&lt;ProblemType, Vec&lt;Time&gt;&gt; = BTreeMap::new();
+        <span class="kw">for </span>problem_type <span class="kw">in </span>ProblemType::all() {
+            raw_per_type.insert(problem_type, Vec::new());
         }
 
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problems</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">problems_per_trip</span> {
-            <span class="kw">for</span> (<span class="ident">time</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">time</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+        <span class="kw">for </span>(<span class="kw">_</span>, problems) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.problems_per_trip {
+            <span class="kw">for </span>(time, problem) <span class="kw">in </span>problems {
+                <span class="kw">if </span><span class="kw-2">*</span>time &gt; now {
                     <span class="kw">break</span>;
                 }
-                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">problem</span> {
-                    <span class="ident">Problem::IntersectionDelay</span>(<span class="ident">i</span>, <span class="kw">_</span>) <span class="op">|</span> <span class="ident">Problem::ComplexIntersectionCrossing</span>(<span class="ident">i</span>) =&gt; {
-                        <span class="kw-2">*</span><span class="ident">i</span>
+                <span class="kw">let </span>i = <span class="kw">match </span>problem {
+                    Problem::IntersectionDelay(i, <span class="kw">_</span>) | Problem::ComplexIntersectionCrossing(i) =&gt; {
+                        <span class="kw-2">*</span>i
                     }
-                    <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) <span class="op">|</span> <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="ident">on</span>) =&gt; {
-                        <span class="kw">match</span> <span class="ident">on</span> {
-                            <span class="ident">Traversable::Turn</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>.<span class="ident">parent</span>,
-                            <span class="kw">_</span> =&gt; {
+                    Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) =&gt; {
+                        <span class="kw">match </span>on {
+                            Traversable::Turn(t) =&gt; t.parent,
+                            <span class="kw">_ </span>=&gt; {
                                 <span class="kw">continue</span>;
                             }
                         }
                     }
-                    <span class="ident">Problem::ArterialIntersectionCrossing</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>.<span class="ident">parent</span>,
+                    Problem::ArterialIntersectionCrossing(t) =&gt; t.parent,
                 };
-                <span class="kw">if</span> <span class="ident">id</span> <span class="op">==</span> <span class="ident">i</span> {
-                    <span class="ident">raw_per_type</span>
-                        .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">ProblemType::from</span>(<span class="ident">problem</span>))
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">time</span>);
+                <span class="kw">if </span>id == i {
+                    raw_per_type
+                        .get_mut(<span class="kw-2">&amp;</span>ProblemType::from(problem))
+                        .unwrap()
+                        .push(<span class="kw-2">*</span>time);
                 }
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">problem_type</span>, <span class="kw-2">mut</span> <span class="ident">raw</span>) <span class="kw">in</span> <span class="ident">raw_per_type</span> {
-            <span class="ident">raw</span>.<span class="ident">sort</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="ident">Time::START_OF_DAY</span>, <span class="number">0</span>)];
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">SlidingWindow::new</span>(<span class="ident">window_size</span>);
-            <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">raw</span> {
-                <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">add</span>(<span class="ident">t</span>);
-                <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">count</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
+        <span class="kw">for </span>(problem_type, <span class="kw-2">mut </span>raw) <span class="kw">in </span>raw_per_type {
+            raw.sort();
+            <span class="kw">let </span><span class="kw-2">mut </span>pts = <span class="macro">vec!</span>[(Time::START_OF_DAY, <span class="number">0</span>)];
+            <span class="kw">let </span><span class="kw-2">mut </span>window = SlidingWindow::new(window_size);
+            <span class="kw">for </span>t <span class="kw">in </span>raw {
+                <span class="kw">let </span>count = window.add(t);
+                pts.push((t, count));
             }
-            <span class="ident">window</span>.<span class="ident">close_off_pts</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pts</span>, <span class="ident">now</span>);
-            <span class="ident">result</span>.<span class="ident">push</span>((<span class="ident">problem_type</span>, <span class="ident">pts</span>));
+            window.close_off_pts(<span class="kw-2">&amp;mut </span>pts, now);
+            result.push((problem_type, pts));
         }
-        <span class="ident">result</span>
+        result
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">problems_per_lane</span>(
+    <span class="kw">pub fn </span>problems_per_lane(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">id</span>: <span class="ident">LaneID</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">ProblemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">window_size</span> <span class="op">=</span> <span class="ident">Duration::minutes</span>(<span class="number">15</span>);
+        now: Time,
+        id: LaneID,
+    ) -&gt; Vec&lt;(ProblemType, Vec&lt;(Time, usize)&gt;)&gt; {
+        <span class="kw">let </span>window_size = Duration::minutes(<span class="number">15</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">raw_per_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">ProblemType</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">for</span> <span class="ident">problem_type</span> <span class="kw">in</span> <span class="ident">ProblemType::all</span>() {
-            <span class="ident">raw_per_type</span>.<span class="ident">insert</span>(<span class="ident">problem_type</span>, <span class="ident">Vec::new</span>());
+        <span class="kw">let </span><span class="kw-2">mut </span>raw_per_type: BTreeMap&lt;ProblemType, Vec&lt;Time&gt;&gt; = BTreeMap::new();
+        <span class="kw">for </span>problem_type <span class="kw">in </span>ProblemType::all() {
+            raw_per_type.insert(problem_type, Vec::new());
         }
 
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">problems</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">problems_per_trip</span> {
-            <span class="kw">for</span> (<span class="ident">time</span>, <span class="ident">problem</span>) <span class="kw">in</span> <span class="ident">problems</span> {
-                <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">time</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+        <span class="kw">for </span>(<span class="kw">_</span>, problems) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.problems_per_trip {
+            <span class="kw">for </span>(time, problem) <span class="kw">in </span>problems {
+                <span class="kw">if </span><span class="kw-2">*</span>time &gt; now {
                     <span class="kw">break</span>;
                 }
-                <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">problem</span> {
-                    <span class="ident">Problem::OvertakeDesired</span>(<span class="ident">on</span>) <span class="op">|</span> <span class="ident">Problem::PedestrianOvercrowding</span>(<span class="ident">on</span>) =&gt; {
-                        <span class="kw">match</span> <span class="ident">on</span> {
-                            <span class="ident">Traversable::Lane</span>(<span class="ident">l</span>) =&gt; <span class="kw-2">*</span><span class="ident">l</span>,
-                            <span class="kw">_</span> =&gt; {
+                <span class="kw">let </span>l = <span class="kw">match </span>problem {
+                    Problem::OvertakeDesired(on) | Problem::PedestrianOvercrowding(on) =&gt; {
+                        <span class="kw">match </span>on {
+                            Traversable::Lane(l) =&gt; <span class="kw-2">*</span>l,
+                            <span class="kw">_ </span>=&gt; {
                                 <span class="kw">continue</span>;
                             }
                         }
                     }
-                    <span class="kw">_</span> =&gt; {
+                    <span class="kw">_ </span>=&gt; {
                         <span class="kw">continue</span>;
                     }
                 };
-                <span class="kw">if</span> <span class="ident">id</span> <span class="op">==</span> <span class="ident">l</span> {
-                    <span class="ident">raw_per_type</span>
-                        .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">ProblemType::from</span>(<span class="ident">problem</span>))
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">time</span>);
+                <span class="kw">if </span>id == l {
+                    raw_per_type
+                        .get_mut(<span class="kw-2">&amp;</span>ProblemType::from(problem))
+                        .unwrap()
+                        .push(<span class="kw-2">*</span>time);
                 }
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">problem_type</span>, <span class="kw-2">mut</span> <span class="ident">raw</span>) <span class="kw">in</span> <span class="ident">raw_per_type</span> {
-            <span class="ident">raw</span>.<span class="ident">sort</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="macro">vec!</span>[(<span class="ident">Time::START_OF_DAY</span>, <span class="number">0</span>)];
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">SlidingWindow::new</span>(<span class="ident">window_size</span>);
-            <span class="kw">for</span> <span class="ident">t</span> <span class="kw">in</span> <span class="ident">raw</span> {
-                <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">window</span>.<span class="ident">add</span>(<span class="ident">t</span>);
-                <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="ident">count</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
+        <span class="kw">for </span>(problem_type, <span class="kw-2">mut </span>raw) <span class="kw">in </span>raw_per_type {
+            raw.sort();
+            <span class="kw">let </span><span class="kw-2">mut </span>pts = <span class="macro">vec!</span>[(Time::START_OF_DAY, <span class="number">0</span>)];
+            <span class="kw">let </span><span class="kw-2">mut </span>window = SlidingWindow::new(window_size);
+            <span class="kw">for </span>t <span class="kw">in </span>raw {
+                <span class="kw">let </span>count = window.add(t);
+                pts.push((t, count));
             }
-            <span class="ident">window</span>.<span class="ident">close_off_pts</span>(<span class="kw-2">&amp;mut</span> <span class="ident">pts</span>, <span class="ident">now</span>);
-            <span class="ident">result</span>.<span class="ident">push</span>((<span class="ident">problem_type</span>, <span class="ident">pts</span>));
+            window.close_off_pts(<span class="kw-2">&amp;mut </span>pts, now);
+            result.push((problem_type, pts));
         }
-        <span class="ident">result</span>
+        result
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Analytics</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Analytics</span> {
-        <span class="ident">Analytics::new</span>(<span class="bool-val">false</span>)
+<span class="kw">impl </span>Default <span class="kw">for </span>Analytics {
+    <span class="kw">fn </span>default() -&gt; Analytics {
+        Analytics::new(<span class="bool-val">false</span>)
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripPhase</span> {
-    <span class="kw">pub</span> <span class="ident">start_time</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">end_time</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">has_path_req</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">phase_type</span>: <span class="ident">TripPhaseType</span>,
+<span class="attribute">#[derive(Debug)]
+</span><span class="kw">pub struct </span>TripPhase {
+    <span class="kw">pub </span>start_time: Time,
+    <span class="kw">pub </span>end_time: <span class="prelude-ty">Option</span>&lt;Time&gt;,
+    <span class="kw">pub </span>path: <span class="prelude-ty">Option</span>&lt;Path&gt;,
+    <span class="kw">pub </span>has_path_req: bool,
+    <span class="kw">pub </span>phase_type: TripPhaseType,
 }
 
-<span class="doccomment">/// See https://github.com/a-b-street/abstreet/issues/85</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TimeSeriesCount</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> {
-    <span class="doccomment">/// (Road or intersection, type, hour block) -&gt; count for that hour</span>
-    <span class="kw">pub</span> <span class="ident">counts</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span>(<span class="ident">X</span>, <span class="ident">AgentType</span>, <span class="ident">usize</span>), <span class="ident">usize</span><span class="op">&gt;</span>,
+<span class="doccomment">/// See https://github.com/a-b-street/abstreet/issues/85
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>TimeSeriesCount&lt;X: Ord + Clone&gt; {
+    <span class="doccomment">/// (Road or intersection, type, hour block) -&gt; count for that hour
+    </span><span class="kw">pub </span>counts: BTreeMap&lt;(X, AgentType, usize), usize&gt;,
 
-    <span class="doccomment">/// Very expensive to store, so it&#39;s optional. But useful to flag on to experiment with</span>
-    <span class="doccomment">/// representations better than the hour count above.</span>
-    <span class="kw">pub</span> <span class="ident">raw</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">AgentType</span>, <span class="ident">X</span>)<span class="op">&gt;</span>,
+    <span class="doccomment">/// Very expensive to store, so it&#39;s optional. But useful to flag on to experiment with
+    /// representations better than the hour count above.
+    </span><span class="kw">pub </span>raw: Vec&lt;(Time, AgentType, X)&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">X</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">TimeSeriesCount</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">TimeSeriesCount</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span> {
-        <span class="ident">TimeSeriesCount</span> {
-            <span class="ident">counts</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">raw</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl</span>&lt;X: Ord + Clone&gt; TimeSeriesCount&lt;X&gt; {
+    <span class="kw">fn </span>new() -&gt; TimeSeriesCount&lt;X&gt; {
+        TimeSeriesCount {
+            counts: BTreeMap::new(),
+            raw: Vec::new(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">record</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">time</span>: <span class="ident">Time</span>, <span class="ident">id</span>: <span class="ident">X</span>, <span class="ident">agent_type</span>: <span class="ident">AgentType</span>, <span class="ident">count</span>: <span class="ident">usize</span>) {
-        <span class="comment">// TODO Manually change flag</span>
-        <span class="kw">if</span> <span class="bool-val">false</span> {
-            <span class="comment">// TODO Woo, handling transit passengers is even more expensive in this already</span>
-            <span class="comment">// expensive representation...</span>
-            <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">count</span> {
-                <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">push</span>((<span class="ident">time</span>, <span class="ident">agent_type</span>, <span class="ident">id</span>.<span class="ident">clone</span>()));
+    <span class="kw">fn </span>record(<span class="kw-2">&amp;mut </span><span class="self">self</span>, time: Time, id: X, agent_type: AgentType, count: usize) {
+        <span class="comment">// TODO Manually change flag
+        </span><span class="kw">if </span><span class="bool-val">false </span>{
+            <span class="comment">// TODO Woo, handling transit passengers is even more expensive in this already
+            // expensive representation...
+            </span><span class="kw">for _ in </span><span class="number">0</span>..count {
+                <span class="self">self</span>.raw.push((time, agent_type, id.clone()));
             }
         }
 
-        <span class="kw-2">*</span><span class="self">self</span>
-            .<span class="ident">counts</span>
-            .<span class="ident">entry</span>((<span class="ident">id</span>, <span class="ident">agent_type</span>, <span class="ident">time</span>.<span class="ident">get_hours</span>()))
-            .<span class="ident">or_insert</span>(<span class="number">0</span>) <span class="op">+</span><span class="op">=</span> <span class="ident">count</span>;
+        <span class="kw-2">*</span><span class="self">self
+            </span>.counts
+            .entry((id, agent_type, time.get_hours()))
+            .or_insert(<span class="number">0</span>) += count;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">total_for</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">X</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">total_for_with_agent_types</span>(<span class="ident">id</span>, <span class="ident">AgentType::all</span>().<span class="ident">into_iter</span>().<span class="ident">collect</span>())
+    <span class="kw">pub fn </span>total_for(<span class="kw-2">&amp;</span><span class="self">self</span>, id: X) -&gt; usize {
+        <span class="self">self</span>.total_for_with_agent_types(id, AgentType::all().into_iter().collect())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">total_for_with_agent_types</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">X</span>, <span class="ident">agent_types</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">AgentType</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">agent_type</span> <span class="kw">in</span> <span class="ident">agent_types</span> {
-            <span class="comment">// TODO Hmm</span>
-            <span class="kw">for</span> <span class="ident">hour</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">24</span> {
-                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">counts</span>
-                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="ident">agent_type</span>, <span class="ident">hour</span>))
-                    .<span class="ident">cloned</span>()
-                    .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+    <span class="kw">pub fn </span>total_for_with_agent_types(<span class="kw-2">&amp;</span><span class="self">self</span>, id: X, agent_types: BTreeSet&lt;AgentType&gt;) -&gt; usize {
+        <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
+        <span class="kw">for </span>agent_type <span class="kw">in </span>agent_types {
+            <span class="comment">// TODO Hmm
+            </span><span class="kw">for </span>hour <span class="kw">in </span><span class="number">0</span>..<span class="number">24 </span>{
+                cnt += <span class="self">self
+                    </span>.counts
+                    .get(<span class="kw-2">&amp;</span>(id.clone(), agent_type, hour))
+                    .cloned()
+                    .unwrap_or(<span class="number">0</span>);
             }
         }
-        <span class="ident">cnt</span>
+        cnt
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">total_for_by_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">X</span>, <span class="ident">now</span>: <span class="ident">Time</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">agent_type</span> <span class="kw">in</span> <span class="ident">AgentType::all</span>() {
-            <span class="kw">for</span> <span class="ident">hour</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">now</span>.<span class="ident">get_hours</span>() {
-                <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">counts</span>
-                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="ident">agent_type</span>, <span class="ident">hour</span>))
-                    .<span class="ident">cloned</span>()
-                    .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
+    <span class="kw">pub fn </span>total_for_by_time(<span class="kw-2">&amp;</span><span class="self">self</span>, id: X, now: Time) -&gt; usize {
+        <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
+        <span class="kw">for </span>agent_type <span class="kw">in </span>AgentType::all() {
+            <span class="kw">for </span>hour <span class="kw">in </span><span class="number">0</span>..=now.get_hours() {
+                cnt += <span class="self">self
+                    </span>.counts
+                    .get(<span class="kw-2">&amp;</span>(id.clone(), agent_type, hour))
+                    .cloned()
+                    .unwrap_or(<span class="number">0</span>);
             }
         }
-        <span class="ident">cnt</span>
+        cnt
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_total_counts</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">agent_types</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">AgentType</span><span class="op">&gt;</span>) -&gt; <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">X</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">for</span> ((<span class="ident">id</span>, <span class="ident">agent_type</span>, <span class="kw">_</span>), <span class="ident">value</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts</span> {
-            <span class="kw">if</span> <span class="ident">agent_types</span>.<span class="ident">contains</span>(<span class="ident">agent_type</span>) {
-                <span class="ident">cnt</span>.<span class="ident">add</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">value</span>);
+    <span class="kw">pub fn </span>all_total_counts(<span class="kw-2">&amp;</span><span class="self">self</span>, agent_types: <span class="kw-2">&amp;</span>BTreeSet&lt;AgentType&gt;) -&gt; Counter&lt;X&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>cnt = Counter::new();
+        <span class="kw">for </span>((id, agent_type, <span class="kw">_</span>), value) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.counts {
+            <span class="kw">if </span>agent_types.contains(agent_type) {
+                cnt.add(id.clone(), <span class="kw-2">*</span>value);
             }
         }
-        <span class="ident">cnt</span>
+        cnt
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_per_hour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">X</span>, <span class="ident">time</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">hour</span> <span class="op">=</span> <span class="ident">time</span>.<span class="ident">get_hours</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">agent_type</span> <span class="kw">in</span> <span class="ident">AgentType::all</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">hour</span> <span class="kw">in</span> <span class="number">0</span>..<span class="op">=</span><span class="ident">hour</span> {
-                <span class="kw">let</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">counts</span>
-                    .<span class="ident">get</span>(<span class="kw-2">&amp;</span>(<span class="ident">id</span>.<span class="ident">clone</span>(), <span class="ident">agent_type</span>, <span class="ident">hour</span>))
-                    .<span class="ident">cloned</span>()
-                    .<span class="ident">unwrap_or</span>(<span class="number">0</span>);
-                <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="ident">hour</span>), <span class="ident">cnt</span>));
-                <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="ident">hour</span> <span class="op">+</span> <span class="number">1</span>), <span class="ident">cnt</span>));
+    <span class="kw">pub fn </span>count_per_hour(<span class="kw-2">&amp;</span><span class="self">self</span>, id: X, time: Time) -&gt; Vec&lt;(AgentType, Vec&lt;(Time, usize)&gt;)&gt; {
+        <span class="kw">let </span>hour = time.get_hours();
+        <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+        <span class="kw">for </span>agent_type <span class="kw">in </span>AgentType::all() {
+            <span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+            <span class="kw">for </span>hour <span class="kw">in </span><span class="number">0</span>..=hour {
+                <span class="kw">let </span>cnt = <span class="self">self
+                    </span>.counts
+                    .get(<span class="kw-2">&amp;</span>(id.clone(), agent_type, hour))
+                    .cloned()
+                    .unwrap_or(<span class="number">0</span>);
+                pts.push((Time::START_OF_DAY + Duration::hours(hour), cnt));
+                pts.push((Time::START_OF_DAY + Duration::hours(hour + <span class="number">1</span>), cnt));
             }
-            <span class="ident">pts</span>.<span class="ident">pop</span>();
-            <span class="ident">results</span>.<span class="ident">push</span>((<span class="ident">agent_type</span>, <span class="ident">pts</span>));
+            pts.pop();
+            results.push((agent_type, pts));
         }
-        <span class="ident">results</span>
+        results
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_throughput</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">id</span>: <span class="ident">X</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">window_size</span> <span class="op">=</span> <span class="ident">Duration::hours</span>(<span class="number">1</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts_per_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentType</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">windows_per_type</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">AgentType</span>, <span class="ident">SlidingWindow</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">for</span> <span class="ident">agent_type</span> <span class="kw">in</span> <span class="ident">AgentType::all</span>() {
-            <span class="ident">pts_per_type</span>.<span class="ident">insert</span>(<span class="ident">agent_type</span>, <span class="macro">vec!</span>[(<span class="ident">Time::START_OF_DAY</span>, <span class="number">0</span>)]);
-            <span class="ident">windows_per_type</span>.<span class="ident">insert</span>(<span class="ident">agent_type</span>, <span class="ident">SlidingWindow::new</span>(<span class="ident">window_size</span>));
+    <span class="kw">pub fn </span>raw_throughput(<span class="kw-2">&amp;</span><span class="self">self</span>, now: Time, id: X) -&gt; Vec&lt;(AgentType, Vec&lt;(Time, usize)&gt;)&gt; {
+        <span class="kw">let </span>window_size = Duration::hours(<span class="number">1</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>pts_per_type: BTreeMap&lt;AgentType, Vec&lt;(Time, usize)&gt;&gt; = BTreeMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>windows_per_type: BTreeMap&lt;AgentType, SlidingWindow&gt; = BTreeMap::new();
+        <span class="kw">for </span>agent_type <span class="kw">in </span>AgentType::all() {
+            pts_per_type.insert(agent_type, <span class="macro">vec!</span>[(Time::START_OF_DAY, <span class="number">0</span>)]);
+            windows_per_type.insert(agent_type, SlidingWindow::new(window_size));
         }
 
-        <span class="kw">for</span> (<span class="ident">t</span>, <span class="ident">agent_type</span>, <span class="ident">x</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">raw</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">!</span><span class="op">=</span> <span class="ident">id</span> {
+        <span class="kw">for </span>(t, agent_type, x) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.raw {
+            <span class="kw">if </span><span class="kw-2">*</span>x != id {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">t</span> <span class="op">&gt;</span> <span class="ident">now</span> {
+            <span class="kw">if </span><span class="kw-2">*</span>t &gt; now {
                 <span class="kw">break</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">windows_per_type</span>.<span class="ident">get_mut</span>(<span class="ident">agent_type</span>).<span class="ident">unwrap</span>().<span class="ident">add</span>(<span class="kw-2">*</span><span class="ident">t</span>);
-            <span class="ident">pts_per_type</span>.<span class="ident">get_mut</span>(<span class="ident">agent_type</span>).<span class="ident">unwrap</span>().<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">t</span>, <span class="ident">count</span>));
+            <span class="kw">let </span>count = windows_per_type.get_mut(agent_type).unwrap().add(<span class="kw-2">*</span>t);
+            pts_per_type.get_mut(agent_type).unwrap().push((<span class="kw-2">*</span>t, count));
         }
 
-        <span class="kw">for</span> (<span class="ident">agent_type</span>, <span class="ident">pts</span>) <span class="kw">in</span> <span class="ident">pts_per_type</span>.<span class="ident">iter_mut</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">windows_per_type</span>.<span class="ident">remove</span>(<span class="ident">agent_type</span>).<span class="ident">unwrap</span>();
+        <span class="kw">for </span>(agent_type, pts) <span class="kw">in </span>pts_per_type.iter_mut() {
+            <span class="kw">let </span><span class="kw-2">mut </span>window = windows_per_type.remove(agent_type).unwrap();
 
-            <span class="ident">window</span>.<span class="ident">close_off_pts</span>(<span class="ident">pts</span>, <span class="ident">now</span>);
+            window.close_off_pts(pts, now);
         }
 
-        <span class="ident">pts_per_type</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
+        pts_per_type.into_iter().collect()
     }
 
-    <span class="doccomment">/// Returns the contents of a CSV file</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">export_csv</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;</span><span class="ident">X</span>) -&gt; <span class="ident">usize</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">extract_id</span>: <span class="ident">F</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">out</span> <span class="op">=</span> <span class="ident">String::new</span>();
-        <span class="macro">writeln!</span>(<span class="ident">out</span>, <span class="string">&quot;id,agent_type,hour,count&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="kw">for</span> ((<span class="ident">id</span>, <span class="ident">agent_type</span>, <span class="ident">hour</span>), <span class="ident">count</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">counts</span> {
+    <span class="doccomment">/// Returns the contents of a CSV file
+    </span><span class="kw">pub fn </span>export_csv&lt;F: Fn(<span class="kw-2">&amp;</span>X) -&gt; usize&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, extract_id: F) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>out = String::new();
+        <span class="macro">writeln!</span>(out, <span class="string">&quot;id,agent_type,hour,count&quot;</span>).unwrap();
+        <span class="kw">for </span>((id, agent_type, hour), count) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.counts {
             <span class="macro">writeln!</span>(
-                <span class="ident">out</span>,
+                out,
                 <span class="string">&quot;{},{:?},{},{}&quot;</span>,
-                <span class="ident">extract_id</span>(<span class="ident">id</span>),
-                <span class="ident">agent_type</span>,
-                <span class="ident">hour</span>,
-                <span class="ident">count</span>
+                extract_id(id),
+                agent_type,
+                hour,
+                count
             )
-            .<span class="ident">unwrap</span>();
+            .unwrap();
         }
-        <span class="ident">out</span>
+        out
     }
 }
 
-<span class="doccomment">/// A sliding window, used to count something over time</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SlidingWindow</span> {
-    <span class="ident">times</span>: <span class="ident">VecDeque</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="ident">window_size</span>: <span class="ident">Duration</span>,
+<span class="doccomment">/// A sliding window, used to count something over time
+</span><span class="kw">pub struct </span>SlidingWindow {
+    times: VecDeque&lt;Time&gt;,
+    window_size: Duration,
 }
 
-<span class="kw">impl</span> <span class="ident">SlidingWindow</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">window_size</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">SlidingWindow</span> {
-        <span class="ident">SlidingWindow</span> {
-            <span class="ident">times</span>: <span class="ident">VecDeque::new</span>(),
-            <span class="ident">window_size</span>,
+<span class="kw">impl </span>SlidingWindow {
+    <span class="kw">pub fn </span>new(window_size: Duration) -&gt; SlidingWindow {
+        SlidingWindow {
+            times: VecDeque::new(),
+            window_size,
         }
     }
 
-    <span class="doccomment">/// Returns the count at time</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">time</span>: <span class="ident">Time</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">times</span>.<span class="ident">push_back</span>(<span class="ident">time</span>);
-        <span class="self">self</span>.<span class="ident">count</span>(<span class="ident">time</span>)
+    <span class="doccomment">/// Returns the count at time
+    </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, time: Time) -&gt; usize {
+        <span class="self">self</span>.times.push_back(time);
+        <span class="self">self</span>.count(time)
     }
 
-    <span class="doccomment">/// Grab the count at this time, but don&#39;t add a new time</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">end</span>: <span class="ident">Time</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">while</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">times</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="ident">end</span> <span class="op">-</span> <span class="kw-2">*</span><span class="self">self</span>.<span class="ident">times</span>.<span class="ident">front</span>().<span class="ident">unwrap</span>() <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">window_size</span> {
-            <span class="self">self</span>.<span class="ident">times</span>.<span class="ident">pop_front</span>();
+    <span class="doccomment">/// Grab the count at this time, but don&#39;t add a new time
+    </span><span class="kw">pub fn </span>count(<span class="kw-2">&amp;mut </span><span class="self">self</span>, end: Time) -&gt; usize {
+        <span class="kw">while </span>!<span class="self">self</span>.times.is_empty() &amp;&amp; end - <span class="kw-2">*</span><span class="self">self</span>.times.front().unwrap() &gt; <span class="self">self</span>.window_size {
+            <span class="self">self</span>.times.pop_front();
         }
-        <span class="self">self</span>.<span class="ident">times</span>.<span class="ident">len</span>()
+        <span class="self">self</span>.times.len()
     }
 
-    <span class="doccomment">/// Ensure the points cover up to `end_time`. The last event may occur before then, and it&#39;s</span>
-    <span class="doccomment">/// necessary to draw more points to show the count drop off.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">close_off_pts</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Time</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>, <span class="ident">end_time</span>: <span class="ident">Time</span>) {
-        <span class="comment">// Add a drop-off after window_size (+ a little epsilon!)</span>
-        <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> (<span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">window_size</span> <span class="op">+</span> <span class="ident">Duration::seconds</span>(<span class="number">0.1</span>)).<span class="ident">min</span>(<span class="ident">end_time</span>);
-        <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span> <span class="op">!</span><span class="op">=</span> <span class="ident">t</span> {
-            <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">t</span>, <span class="self">self</span>.<span class="ident">count</span>(<span class="ident">t</span>)));
+    <span class="doccomment">/// Ensure the points cover up to `end_time`. The last event may occur before then, and it&#39;s
+    /// necessary to draw more points to show the count drop off.
+    </span><span class="kw">pub fn </span>close_off_pts(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pts: <span class="kw-2">&amp;mut </span>Vec&lt;(Time, usize)&gt;, end_time: Time) {
+        <span class="comment">// Add a drop-off after window_size (+ a little epsilon!)
+        </span><span class="kw">let </span>t = (pts.last().unwrap().<span class="number">0 </span>+ <span class="self">self</span>.window_size + Duration::seconds(<span class="number">0.1</span>)).min(end_time);
+        <span class="kw">if </span>pts.last().unwrap().<span class="number">0 </span>!= t {
+            pts.push((t, <span class="self">self</span>.count(t)));
         }
 
-        <span class="kw">if</span> <span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="number">0</span> <span class="op">!</span><span class="op">=</span> <span class="ident">end_time</span> {
-            <span class="ident">pts</span>.<span class="ident">push</span>((<span class="ident">end_time</span>, <span class="self">self</span>.<span class="ident">count</span>(<span class="ident">end_time</span>)));
+        <span class="kw">if </span>pts.last().unwrap().<span class="number">0 </span>!= end_time {
+            pts.push((end_time, <span class="self">self</span>.count(end_time)));
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

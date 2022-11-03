@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/text.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/text.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>text.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -617,624 +617,624 @@
 <span id="617">617</span>
 <span id="618">618</span>
 <span id="619">619</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::hash_map::DefaultHasher</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Write</span>;
-<span class="kw">use</span> <span class="ident">std::hash::Hasher</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::hash_map::DefaultHasher;
+<span class="kw">use </span>std::fmt::Write;
+<span class="kw">use </span>std::hash::Hasher;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
+<span class="kw">use </span>geom::{PolyLine, Polygon};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::assets::Assets</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">svg</span>, <span class="ident">Color</span>, <span class="ident">DeferDraw</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">JustDraw</span>, <span class="ident">MultiKey</span>, <span class="ident">ScreenDims</span>, <span class="ident">Style</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span><span class="kw">crate</span>::assets::Assets;
+<span class="kw">use crate</span>::{
+    svg, Color, DeferDraw, EventCtx, GeomBatch, JustDraw, MultiKey, ScreenDims, Style, Widget,
 };
 
-<span class="comment">// Same as body()</span>
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DEFAULT_FONT</span>: <span class="ident">Font</span> <span class="op">=</span> <span class="ident">Font::OverpassRegular</span>;
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DEFAULT_FONT_SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">21</span>;
+<span class="comment">// Same as body()
+</span><span class="kw">pub const </span>DEFAULT_FONT: Font = Font::OverpassRegular;
+<span class="kw">pub const </span>DEFAULT_FONT_SIZE: usize = <span class="number">21</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">SCALE_LINE_HEIGHT</span>: <span class="ident">f64</span> <span class="op">=</span> <span class="number">1.2</span>;
+<span class="kw">pub const </span>SCALE_LINE_HEIGHT: f64 = <span class="number">1.2</span>;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Font</span> {
-    <span class="ident">BungeeInlineRegular</span>,
-    <span class="ident">BungeeRegular</span>,
-    <span class="ident">OverpassBold</span>,
-    <span class="ident">OverpassRegular</span>,
-    <span class="ident">OverpassSemiBold</span>,
-    <span class="ident">OverpassMonoBold</span>,
+<span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+</span><span class="kw">pub enum </span>Font {
+    BungeeInlineRegular,
+    BungeeRegular,
+    OverpassBold,
+    OverpassRegular,
+    OverpassSemiBold,
+    OverpassMonoBold,
 }
 
-<span class="kw">impl</span> <span class="ident">Font</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">family</span>(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Font::BungeeInlineRegular</span> =&gt; <span class="string">&quot;Bungee Inline&quot;</span>,
-            <span class="ident">Font::BungeeRegular</span> =&gt; <span class="string">&quot;Bungee&quot;</span>,
-            <span class="ident">Font::OverpassBold</span> =&gt; <span class="string">&quot;Overpass&quot;</span>,
-            <span class="ident">Font::OverpassRegular</span> =&gt; <span class="string">&quot;Overpass&quot;</span>,
-            <span class="ident">Font::OverpassSemiBold</span> =&gt; <span class="string">&quot;Overpass&quot;</span>,
-            <span class="ident">Font::OverpassMonoBold</span> =&gt; <span class="string">&quot;Overpass Mono&quot;</span>,
+<span class="kw">impl </span>Font {
+    <span class="kw">pub fn </span>family(<span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+        <span class="kw">match </span><span class="self">self </span>{
+            Font::BungeeInlineRegular =&gt; <span class="string">&quot;Bungee Inline&quot;</span>,
+            Font::BungeeRegular =&gt; <span class="string">&quot;Bungee&quot;</span>,
+            Font::OverpassBold =&gt; <span class="string">&quot;Overpass&quot;</span>,
+            Font::OverpassRegular =&gt; <span class="string">&quot;Overpass&quot;</span>,
+            Font::OverpassSemiBold =&gt; <span class="string">&quot;Overpass&quot;</span>,
+            Font::OverpassMonoBold =&gt; <span class="string">&quot;Overpass Mono&quot;</span>,
         }
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TextSpan</span> {
-    <span class="ident">text</span>: <span class="ident">String</span>,
-    <span class="ident">fg_color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
-    <span class="ident">outline_color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
-    <span class="ident">size</span>: <span class="ident">usize</span>,
-    <span class="ident">font</span>: <span class="ident">Font</span>,
-    <span class="ident">underlined</span>: <span class="ident">bool</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>TextSpan {
+    text: String,
+    fg_color: <span class="prelude-ty">Option</span>&lt;Color&gt;,
+    outline_color: <span class="prelude-ty">Option</span>&lt;Color&gt;,
+    size: usize,
+    font: Font,
+    underlined: bool,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AsStrRef</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AsStrRef</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">TextSpan</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line</span>: <span class="ident">AsStrRef</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">Line</span>(<span class="ident">line</span>.<span class="ident">as_ref</span>())
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">TextSpan</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">fg_color</span>, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>);
-        <span class="self">self</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">fg_color</span>, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">color</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fg_color_for_style</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">style</span>: <span class="kw-2">&amp;</span><span class="ident">Style</span>) -&gt; <span class="ident">Color</span> {
-        <span class="self">self</span>.<span class="ident">fg_color</span>.<span class="ident">unwrap_or</span>(<span class="ident">style</span>.<span class="ident">text_primary_color</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">outlined</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">color</span>: <span class="ident">Color</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">outline_color</span>, <span class="prelude-val">None</span>);
-        <span class="self">self</span>.<span class="ident">outline_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>);
-        <span class="self">self</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Text::from</span>(<span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Text::from</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
-    }
-
-    <span class="comment">// Yuwen&#39;s new styles, defined in Figma. Should document them in Github better.</span>
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">display_title</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::BungeeInlineRegular</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">64</span>;
-        <span class="self">self</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_heading_styled</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::BungeeRegular</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">32</span>;
-        <span class="self">self</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_heading_plain</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::OverpassBold</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">32</span>;
-        <span class="self">self</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_heading</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::OverpassSemiBold</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">26</span>;
-        <span class="self">self</span>
-    }
-    <span class="comment">// The default</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">body</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::OverpassRegular</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">21</span>;
-        <span class="self">self</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bold_body</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::OverpassBold</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">21</span>;
-        <span class="self">self</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">secondary</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::OverpassRegular</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">21</span>;
-        <span class="comment">// TODO This should be per-theme</span>
-        <span class="self">self</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#A3A3A3&quot;</span>));
-        <span class="self">self</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::OverpassRegular</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">16</span>;
-        <span class="self">self</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">big_monospaced</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::OverpassMonoBold</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">32</span>;
-        <span class="self">self</span>
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">small_monospaced</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">Font::OverpassMonoBold</span>;
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="number">16</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">underlined</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">underlined</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">size</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">usize</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">size</span> <span class="op">=</span> <span class="ident">size</span>;
-        <span class="self">self</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">font</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">font</span>: <span class="ident">Font</span>) -&gt; <span class="ident">TextSpan</span> {
-        <span class="self">self</span>.<span class="ident">font</span> <span class="op">=</span> <span class="ident">font</span>;
-        <span class="self">self</span>
+<span class="kw">impl</span>&lt;AsStrRef: AsRef&lt;str&gt;&gt; From&lt;AsStrRef&gt; <span class="kw">for </span>TextSpan {
+    <span class="kw">fn </span>from(line: AsStrRef) -&gt; <span class="self">Self </span>{
+        Line(line.as_ref())
     }
 }
 
-<span class="comment">// TODO What&#39;s the better way of doing this? Also &quot;Line&quot; is a bit of a misnomer</span>
-<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">Line</span><span class="op">&lt;</span><span class="ident">S</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">text</span>: <span class="ident">S</span>) -&gt; <span class="ident">TextSpan</span> {
-    <span class="ident">TextSpan</span> {
-        <span class="ident">text</span>: <span class="ident">text</span>.<span class="ident">into</span>(),
-        <span class="ident">fg_color</span>: <span class="prelude-val">None</span>,
-        <span class="ident">outline_color</span>: <span class="prelude-val">None</span>,
-        <span class="ident">size</span>: <span class="ident">DEFAULT_FONT_SIZE</span>,
-        <span class="ident">font</span>: <span class="ident">DEFAULT_FONT</span>,
-        <span class="ident">underlined</span>: <span class="bool-val">false</span>,
+<span class="kw">impl </span>TextSpan {
+    <span class="kw">pub fn </span>fg(<span class="kw-2">mut </span><span class="self">self</span>, color: Color) -&gt; TextSpan {
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.fg_color, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.fg_color = <span class="prelude-val">Some</span>(color);
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>maybe_fg(<span class="kw-2">mut </span><span class="self">self</span>, color: <span class="prelude-ty">Option</span>&lt;Color&gt;) -&gt; TextSpan {
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.fg_color, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.fg_color = color;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>fg_color_for_style(<span class="kw-2">&amp;</span><span class="self">self</span>, style: <span class="kw-2">&amp;</span>Style) -&gt; Color {
+        <span class="self">self</span>.fg_color.unwrap_or(style.text_primary_color)
+    }
+
+    <span class="kw">pub fn </span>outlined(<span class="kw-2">mut </span><span class="self">self</span>, color: Color) -&gt; TextSpan {
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.outline_color, <span class="prelude-val">None</span>);
+        <span class="self">self</span>.outline_color = <span class="prelude-val">Some</span>(color);
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>into_widget(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        Text::from(<span class="self">self</span>).into_widget(ctx)
+    }
+    <span class="kw">pub fn </span>batch(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        Text::from(<span class="self">self</span>).batch(ctx)
+    }
+
+    <span class="comment">// Yuwen&#39;s new styles, defined in Figma. Should document them in Github better.
+
+    </span><span class="kw">pub fn </span>display_title(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::BungeeInlineRegular;
+        <span class="self">self</span>.size = <span class="number">64</span>;
+        <span class="self">self
+    </span>}
+    <span class="kw">pub fn </span>big_heading_styled(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::BungeeRegular;
+        <span class="self">self</span>.size = <span class="number">32</span>;
+        <span class="self">self
+    </span>}
+    <span class="kw">pub fn </span>big_heading_plain(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::OverpassBold;
+        <span class="self">self</span>.size = <span class="number">32</span>;
+        <span class="self">self
+    </span>}
+    <span class="kw">pub fn </span>small_heading(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::OverpassSemiBold;
+        <span class="self">self</span>.size = <span class="number">26</span>;
+        <span class="self">self
+    </span>}
+    <span class="comment">// The default
+    </span><span class="kw">pub fn </span>body(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::OverpassRegular;
+        <span class="self">self</span>.size = <span class="number">21</span>;
+        <span class="self">self
+    </span>}
+    <span class="kw">pub fn </span>bold_body(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::OverpassBold;
+        <span class="self">self</span>.size = <span class="number">21</span>;
+        <span class="self">self
+    </span>}
+    <span class="kw">pub fn </span>secondary(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::OverpassRegular;
+        <span class="self">self</span>.size = <span class="number">21</span>;
+        <span class="comment">// TODO This should be per-theme
+        </span><span class="self">self</span>.fg_color = <span class="prelude-val">Some</span>(Color::hex(<span class="string">&quot;#A3A3A3&quot;</span>));
+        <span class="self">self
+    </span>}
+    <span class="kw">pub fn </span>small(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::OverpassRegular;
+        <span class="self">self</span>.size = <span class="number">16</span>;
+        <span class="self">self
+    </span>}
+    <span class="kw">pub fn </span>big_monospaced(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::OverpassMonoBold;
+        <span class="self">self</span>.size = <span class="number">32</span>;
+        <span class="self">self
+    </span>}
+    <span class="kw">pub fn </span>small_monospaced(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.font = Font::OverpassMonoBold;
+        <span class="self">self</span>.size = <span class="number">16</span>;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>underlined(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; TextSpan {
+        <span class="self">self</span>.underlined = <span class="bool-val">true</span>;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>size(<span class="kw-2">mut </span><span class="self">self</span>, size: usize) -&gt; TextSpan {
+        <span class="self">self</span>.size = size;
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>font(<span class="kw-2">mut </span><span class="self">self</span>, font: Font) -&gt; TextSpan {
+        <span class="self">self</span>.font = font;
+        <span class="self">self
+    </span>}
+}
+
+<span class="comment">// TODO What&#39;s the better way of doing this? Also &quot;Line&quot; is a bit of a misnomer
+</span><span class="attribute">#[allow(non_snake_case)]
+</span><span class="kw">pub fn </span>Line&lt;S: Into&lt;String&gt;&gt;(text: S) -&gt; TextSpan {
+    TextSpan {
+        text: text.into(),
+        fg_color: <span class="prelude-val">None</span>,
+        outline_color: <span class="prelude-val">None</span>,
+        size: DEFAULT_FONT_SIZE,
+        font: DEFAULT_FONT,
+        underlined: <span class="bool-val">false</span>,
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Text</span> {
-    <span class="comment">// The bg_color will cover the entire block, but some lines can have extra highlighting.</span>
-    <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="comment">// TODO Stop using this as much as possible.</span>
-    <span class="ident">bg_color</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Clone)]
+</span><span class="kw">pub struct </span>Text {
+    <span class="comment">// The bg_color will cover the entire block, but some lines can have extra highlighting.
+    </span>lines: Vec&lt;(<span class="prelude-ty">Option</span>&lt;Color&gt;, Vec&lt;TextSpan&gt;)&gt;,
+    <span class="comment">// TODO Stop using this as much as possible.
+    </span>bg_color: <span class="prelude-ty">Option</span>&lt;Color&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Text</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line</span>: <span class="ident">TextSpan</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
-        <span class="ident">txt</span>
+<span class="kw">impl </span>From&lt;TextSpan&gt; <span class="kw">for </span>Text {
+    <span class="kw">fn </span>from(line: TextSpan) -&gt; Text {
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+        txt.add_line(line);
+        txt
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">AsStrRef</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">AsStrRef</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Text</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">line</span>: <span class="ident">AsStrRef</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="ident">line</span>.<span class="ident">as_ref</span>()));
-        <span class="ident">txt</span>
+<span class="kw">impl</span>&lt;AsStrRef: AsRef&lt;str&gt;&gt; From&lt;AsStrRef&gt; <span class="kw">for </span>Text {
+    <span class="kw">fn </span>from(line: AsStrRef) -&gt; Text {
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+        txt.add_line(Line(line.as_ref()));
+        txt
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Text</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Text</span> {
-        <span class="ident">Text</span> {
-            <span class="ident">lines</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">bg_color</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>Text {
+    <span class="kw">pub fn </span>new() -&gt; Text {
+        Text {
+            lines: Vec::new(),
+            bg_color: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_all</span>(<span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
-            <span class="ident">txt</span>.<span class="ident">append</span>(<span class="ident">l</span>);
+    <span class="kw">pub fn </span>from_all(lines: Vec&lt;TextSpan&gt;) -&gt; Text {
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+        <span class="kw">for </span>l <span class="kw">in </span>lines {
+            txt.append(l);
         }
-        <span class="ident">txt</span>
+        txt
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_multiline</span>(<span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span><span class="op">&gt;</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
-            <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">l</span>.<span class="ident">into</span>());
+    <span class="kw">pub fn </span>from_multiline(lines: Vec&lt;<span class="kw">impl </span>Into&lt;TextSpan&gt;&gt;) -&gt; Text {
+        <span class="kw">let </span><span class="kw-2">mut </span>txt = Text::new();
+        <span class="kw">for </span>l <span class="kw">in </span>lines {
+            txt.add_line(l.into());
         }
-        <span class="ident">txt</span>
+        txt
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">bg</span>: <span class="ident">Color</span>) -&gt; <span class="ident">Text</span> {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">bg_color</span>.<span class="ident">is_none</span>());
-        <span class="self">self</span>.<span class="ident">bg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">bg</span>);
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>bg(<span class="kw-2">mut </span><span class="self">self</span>, bg: Color) -&gt; Text {
+        <span class="macro">assert!</span>(<span class="self">self</span>.bg_color.is_none());
+        <span class="self">self</span>.bg_color = <span class="prelude-val">Some</span>(bg);
+        <span class="self">self
+    </span>}
 
-    <span class="comment">// TODO Not exactly sure this is the right place for this, but better than code duplication</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tooltip</span><span class="op">&lt;</span><span class="ident">MK</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MultiKey</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">hotkey</span>: <span class="ident">MK</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">key</span>) <span class="op">=</span> <span class="ident">hotkey</span>.<span class="ident">into</span>() {
-            <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="ident">key</span>.<span class="ident">describe</span>())
-                    .<span class="ident">fg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_hotkey_color</span>)
-                    .<span class="ident">small</span>(),
-                <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot; - {}&quot;</span>, <span class="ident">action</span>)).<span class="ident">small</span>(),
+    <span class="comment">// TODO Not exactly sure this is the right place for this, but better than code duplication
+    </span><span class="kw">pub fn </span>tooltip&lt;MK: Into&lt;<span class="prelude-ty">Option</span>&lt;MultiKey&gt;&gt;&gt;(ctx: <span class="kw-2">&amp;</span>EventCtx, hotkey: MK, action: <span class="kw-2">&amp;</span>str) -&gt; Text {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>key) = hotkey.into() {
+            Text::from_all(<span class="macro">vec!</span>[
+                Line(key.describe())
+                    .fg(ctx.style().text_hotkey_color)
+                    .small(),
+                Line(<span class="macro">format!</span>(<span class="string">&quot; - {}&quot;</span>, action)).small(),
             ])
-        } <span class="kw">else</span> {
-            <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">action</span>).<span class="ident">small</span>())
+        } <span class="kw">else </span>{
+            Text::from(Line(action).small())
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fg</span>: <span class="ident">Color</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">spans</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">iter_mut</span>() {
-            <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
-                <span class="ident">span</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">fg</span>);
+    <span class="kw">pub fn </span>change_fg(<span class="kw-2">mut </span><span class="self">self</span>, fg: Color) -&gt; Text {
+        <span class="kw">for </span>(<span class="kw">_</span>, spans) <span class="kw">in </span><span class="self">self</span>.lines.iter_mut() {
+            <span class="kw">for </span>span <span class="kw">in </span>spans {
+                span.fg_color = <span class="prelude-val">Some</span>(fg);
             }
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">default_fg</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">fg</span>: <span class="ident">Color</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">for</span> (<span class="kw">_</span>, <span class="ident">spans</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">iter_mut</span>() {
-            <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
-                <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">fg_color</span>.<span class="ident">is_none</span>() {
-                    <span class="ident">span</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">fg</span>);
+    <span class="kw">pub fn </span>default_fg(<span class="kw-2">mut </span><span class="self">self</span>, fg: Color) -&gt; Text {
+        <span class="kw">for </span>(<span class="kw">_</span>, spans) <span class="kw">in </span><span class="self">self</span>.lines.iter_mut() {
+            <span class="kw">for </span>span <span class="kw">in </span>spans {
+                <span class="kw">if </span>span.fg_color.is_none() {
+                    span.fg_color = <span class="prelude-val">Some</span>(fg);
                 }
             }
         }
-        <span class="self">self</span>
+        <span class="self">self
+    </span>}
+
+    <span class="kw">pub fn </span>add_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>, line: <span class="kw">impl </span>Into&lt;TextSpan&gt;) {
+        <span class="self">self</span>.lines.push((<span class="prelude-val">None</span>, <span class="macro">vec!</span>[line.into()]));
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">push</span>((<span class="prelude-val">None</span>, <span class="macro">vec!</span>[<span class="ident">line</span>.<span class="ident">into</span>()]));
+    <span class="comment">// TODO Just one user...
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>highlight_last_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>, highlight: Color) {
+        <span class="self">self</span>.lines.last_mut().unwrap().<span class="number">0 </span>= <span class="prelude-val">Some</span>(highlight);
     }
 
-    <span class="comment">// TODO Just one user...</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">highlight_last_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">highlight</span>: <span class="ident">Color</span>) {
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>().<span class="number">0</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">highlight</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">line</span>: <span class="ident">TextSpan</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">add_line</span>(<span class="ident">line</span>);
+    <span class="kw">pub fn </span>append(<span class="kw-2">&amp;mut </span><span class="self">self</span>, line: TextSpan) {
+        <span class="kw">if </span><span class="self">self</span>.lines.is_empty() {
+            <span class="self">self</span>.add_line(line);
             <span class="kw">return</span>;
         }
 
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>().<span class="number">1</span>.<span class="ident">push</span>(<span class="ident">line</span>);
+        <span class="self">self</span>.lines.last_mut().unwrap().<span class="number">1</span>.push(line);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_appended</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">l</span>) <span class="kw">in</span> <span class="ident">lines</span>.<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="self">self</span>.<span class="ident">add_line</span>(<span class="ident">l</span>);
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">append</span>(<span class="ident">l</span>);
+    <span class="kw">pub fn </span>add_appended(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lines: Vec&lt;TextSpan&gt;) {
+        <span class="kw">for </span>(idx, l) <span class="kw">in </span>lines.into_iter().enumerate() {
+            <span class="kw">if </span>idx == <span class="number">0 </span>{
+                <span class="self">self</span>.add_line(l);
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.append(l);
             }
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">append_all</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">lines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>) {
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lines</span> {
-            <span class="self">self</span>.<span class="ident">append</span>(<span class="ident">l</span>);
+    <span class="kw">pub fn </span>append_all(<span class="kw-2">&amp;mut </span><span class="self">self</span>, lines: Vec&lt;TextSpan&gt;) {
+        <span class="kw">for </span>l <span class="kw">in </span>lines {
+            <span class="self">self</span>.append(l);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove_colors_from_last_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">spans</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>();
-        <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
-            <span class="ident">span</span>.<span class="ident">fg_color</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="ident">span</span>.<span class="ident">outline_color</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>remove_colors_from_last_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>(<span class="kw">_</span>, spans) = <span class="self">self</span>.lines.last_mut().unwrap();
+        <span class="kw">for </span>span <span class="kw">in </span>spans {
+            span.fg_color = <span class="prelude-val">None</span>;
+            span.outline_color = <span class="prelude-val">None</span>;
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">is_empty</span>()
+    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.lines.is_empty()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Text</span>) {
-        <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">lines</span>);
+    <span class="kw">pub fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Text) {
+        <span class="self">self</span>.lines.extend(other.lines);
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">dims</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">assets</span>).<span class="ident">get_dims</span>()
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>dims(<span class="self">self</span>, assets: <span class="kw-2">&amp;</span>Assets) -&gt; ScreenDims {
+        <span class="self">self</span>.render(assets).get_dims()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rendered_width</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">dims</span>(<span class="ident">assets</span>.<span class="ident">as_ref</span>()).<span class="ident">width</span>
+    <span class="kw">pub fn </span>rendered_width&lt;A: AsRef&lt;Assets&gt;&gt;(<span class="self">self</span>, assets: <span class="kw-2">&amp;</span>A) -&gt; f64 {
+        <span class="self">self</span>.dims(assets.as_ref()).width
     }
 
-    <span class="doccomment">/// Render the text, without any autocropping. You can pass in an `EventCtx` or `GfxCtx`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">let</span> <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span> <span class="op">=</span> <span class="ident">assets</span>.<span class="ident">as_ref</span>();
-        <span class="self">self</span>.<span class="ident">inner_render</span>(<span class="ident">assets</span>, <span class="ident">svg::HIGH_QUALITY</span>)
+    <span class="doccomment">/// Render the text, without any autocropping. You can pass in an `EventCtx` or `GfxCtx`.
+    </span><span class="kw">pub fn </span>render&lt;A: AsRef&lt;Assets&gt;&gt;(<span class="self">self</span>, assets: <span class="kw-2">&amp;</span>A) -&gt; GeomBatch {
+        <span class="kw">let </span>assets: <span class="kw-2">&amp;</span>Assets = assets.as_ref();
+        <span class="self">self</span>.inner_render(assets, svg::HIGH_QUALITY)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">inner_render</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>, <span class="ident">tolerance</span>: <span class="ident">f32</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">let</span> <span class="ident">hash_key</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hash_key</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">batch</span>) <span class="op">=</span> <span class="ident">assets</span>.<span class="ident">get_cached_text</span>(<span class="kw-2">&amp;</span><span class="ident">hash_key</span>) {
-            <span class="kw">return</span> <span class="ident">batch</span>;
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>inner_render(<span class="self">self</span>, assets: <span class="kw-2">&amp;</span>Assets, tolerance: f32) -&gt; GeomBatch {
+        <span class="kw">let </span>hash_key = <span class="self">self</span>.hash_key();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(batch) = assets.get_cached_text(<span class="kw-2">&amp;</span>hash_key) {
+            <span class="kw">return </span>batch;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">master_batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>output_batch = GeomBatch::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>master_batch = GeomBatch::new();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">y</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">max_width</span> <span class="op">=</span> <span class="number">0.0_f64</span>;
-        <span class="comment">// TODO Can we make usvg do the work of layouting multiple lines too?</span>
-        <span class="comment">// https://www.oreilly.com/library/view/svg-text-layout/9781491933817/ch04.html</span>
-        <span class="kw">for</span> (<span class="ident">line_color</span>, <span class="ident">line</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span> {
-            <span class="comment">// In case size changes mid-line, take the max of every span.</span>
-            <span class="comment">// (f64 isn&#39;t Ord, so no max(), so do this manually.)</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">line_height</span> <span class="op">=</span> <span class="number">0.0_f64</span>;
-            <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">line</span> {
-                <span class="ident">line_height</span> <span class="op">=</span> <span class="ident">line_height</span>.<span class="ident">max</span>(<span class="ident">assets</span>.<span class="ident">line_height</span>(<span class="ident">span</span>.<span class="ident">font</span>, <span class="ident">span</span>.<span class="ident">size</span>));
+        <span class="kw">let </span><span class="kw-2">mut </span>y = <span class="number">0.0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>max_width = <span class="number">0.0_f64</span>;
+        <span class="comment">// TODO Can we make usvg do the work of layouting multiple lines too?
+        // https://www.oreilly.com/library/view/svg-text-layout/9781491933817/ch04.html
+        </span><span class="kw">for </span>(line_color, line) <span class="kw">in </span><span class="self">self</span>.lines {
+            <span class="comment">// In case size changes mid-line, take the max of every span.
+            // (f64 isn&#39;t Ord, so no max(), so do this manually.)
+            </span><span class="kw">let </span><span class="kw-2">mut </span>line_height = <span class="number">0.0_f64</span>;
+            <span class="kw">for </span>span <span class="kw">in </span><span class="kw-2">&amp;</span>line {
+                line_height = line_height.max(assets.line_height(span.font, span.size));
             }
 
-            <span class="kw">let</span> <span class="ident">line_batch</span> <span class="op">=</span> <span class="ident">render_line</span>(<span class="ident">line</span>, <span class="ident">tolerance</span>, <span class="ident">assets</span>);
-            <span class="kw">let</span> <span class="ident">line_dims</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">line_batch</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">ScreenDims::new</span>(<span class="number">0.0</span>, <span class="ident">line_height</span>)
-            } <span class="kw">else</span> {
-                <span class="comment">// Also lie a little about width to make things look reasonable. TODO Probably</span>
-                <span class="comment">// should tune based on font size.</span>
-                <span class="ident">ScreenDims::new</span>(<span class="ident">line_batch</span>.<span class="ident">get_dims</span>().<span class="ident">width</span> <span class="op">+</span> <span class="number">5.0</span>, <span class="ident">line_height</span>)
+            <span class="kw">let </span>line_batch = render_line(line, tolerance, assets);
+            <span class="kw">let </span>line_dims = <span class="kw">if </span>line_batch.is_empty() {
+                ScreenDims::new(<span class="number">0.0</span>, line_height)
+            } <span class="kw">else </span>{
+                <span class="comment">// Also lie a little about width to make things look reasonable. TODO Probably
+                // should tune based on font size.
+                </span>ScreenDims::new(line_batch.get_dims().width + <span class="number">5.0</span>, line_height)
             };
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">line_color</span> {
-                <span class="ident">master_batch</span>.<span class="ident">push</span>(
-                    <span class="ident">c</span>,
-                    <span class="ident">Polygon::rectangle</span>(<span class="ident">line_dims</span>.<span class="ident">width</span>, <span class="ident">line_dims</span>.<span class="ident">height</span>).<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="ident">y</span>),
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = line_color {
+                master_batch.push(
+                    c,
+                    Polygon::rectangle(line_dims.width, line_dims.height).translate(<span class="number">0.0</span>, y),
                 );
             }
 
-            <span class="ident">y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">line_dims</span>.<span class="ident">height</span>;
+            y += line_dims.height;
 
-            <span class="comment">// Add all of the padding at the bottom of the line.</span>
-            <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">line_height</span> <span class="op">/</span> <span class="ident">SCALE_LINE_HEIGHT</span> <span class="op">*</span> <span class="number">0.2</span>;
-            <span class="ident">master_batch</span>.<span class="ident">append</span>(<span class="ident">line_batch</span>.<span class="ident">translate</span>(<span class="number">0.0</span>, <span class="ident">y</span> <span class="op">-</span> <span class="ident">offset</span>));
+            <span class="comment">// Add all of the padding at the bottom of the line.
+            </span><span class="kw">let </span>offset = line_height / SCALE_LINE_HEIGHT * <span class="number">0.2</span>;
+            master_batch.append(line_batch.translate(<span class="number">0.0</span>, y - offset));
 
-            <span class="ident">max_width</span> <span class="op">=</span> <span class="ident">max_width</span>.<span class="ident">max</span>(<span class="ident">line_dims</span>.<span class="ident">width</span>);
+            max_width = max_width.max(line_dims.width);
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bg_color</span> {
-            <span class="ident">output_batch</span>.<span class="ident">push</span>(<span class="ident">c</span>, <span class="ident">Polygon::rectangle</span>(<span class="ident">max_width</span>, <span class="ident">y</span>));
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.bg_color {
+            output_batch.push(c, Polygon::rectangle(max_width, y));
         }
-        <span class="ident">output_batch</span>.<span class="ident">append</span>(<span class="ident">master_batch</span>);
-        <span class="ident">output_batch</span>.<span class="ident">autocrop_dims</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        output_batch.append(master_batch);
+        output_batch.autocrop_dims = <span class="bool-val">false</span>;
 
-        <span class="ident">assets</span>.<span class="ident">cache_text</span>(<span class="ident">hash_key</span>, <span class="ident">output_batch</span>.<span class="ident">clone</span>());
-        <span class="ident">output_batch</span>
+        assets.cache_text(hash_key, output_batch.clone());
+        output_batch
     }
 
-    <span class="doccomment">/// Render the text, autocropping blank space out of the result. You can pass in an `EventCtx`</span>
-    <span class="doccomment">/// or `GfxCtx`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_autocropped</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">assets</span>);
-        <span class="ident">batch</span>.<span class="ident">autocrop_dims</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="ident">batch</span>.<span class="ident">autocrop</span>()
+    <span class="doccomment">/// Render the text, autocropping blank space out of the result. You can pass in an `EventCtx`
+    /// or `GfxCtx`.
+    </span><span class="kw">pub fn </span>render_autocropped&lt;A: AsRef&lt;Assets&gt;&gt;(<span class="self">self</span>, assets: <span class="kw-2">&amp;</span>A) -&gt; GeomBatch {
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = <span class="self">self</span>.render(assets);
+        batch.autocrop_dims = <span class="bool-val">true</span>;
+        batch.autocrop()
     }
 
-    <span class="kw">fn</span> <span class="ident">hash_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hasher</span> <span class="op">=</span> <span class="ident">DefaultHasher::new</span>();
-        <span class="ident">hasher</span>.<span class="ident">write</span>(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>).<span class="ident">as_ref</span>());
-        <span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, <span class="ident">hasher</span>.<span class="ident">finish</span>())
+    <span class="kw">fn </span>hash_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>hasher = DefaultHasher::new();
+        hasher.write(<span class="macro">format!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>).as_ref());
+        <span class="macro">format!</span>(<span class="string">&quot;{:x}&quot;</span>, hasher.finish())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">JustDraw::wrap</span>(<span class="ident">ctx</span>, <span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>))
+    <span class="kw">pub fn </span>into_widget(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        JustDraw::wrap(ctx, <span class="self">self</span>.render(ctx))
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">batch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">DeferDraw::new_widget</span>(<span class="self">self</span>.<span class="ident">render</span>(<span class="ident">ctx</span>))
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap_to_pct</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">pct</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Text</span> {
-        <span class="self">self</span>.<span class="ident">wrap_to_pixels</span>(<span class="ident">ctx</span>, (<span class="ident">pct</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> <span class="number">100.0</span> <span class="op">*</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>)
+    <span class="kw">pub fn </span>batch(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        DeferDraw::new_widget(<span class="self">self</span>.render(ctx))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap_to_pixels</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">limit</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Text</span> {
-        <span class="self">self</span>.<span class="ident">inner_wrap_to_pixels</span>(<span class="ident">limit</span>, <span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">prerender</span>.<span class="ident">assets</span>)
+    <span class="kw">pub fn </span>wrap_to_pct(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, pct: usize) -&gt; Text {
+        <span class="self">self</span>.wrap_to_pixels(ctx, (pct <span class="kw">as </span>f64) / <span class="number">100.0 </span>* ctx.canvas.window_width)
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">inner_wrap_to_pixels</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">limit</span>: <span class="ident">f64</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) -&gt; <span class="ident">Text</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">bg</span>, <span class="ident">spans</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">lines</span>.<span class="ident">drain</span>(..) {
-            <span class="comment">// First optimistically assume everything just fits.</span>
-            <span class="kw">if</span> <span class="ident">render_line</span>(<span class="ident">spans</span>.<span class="ident">clone</span>(), <span class="ident">svg::LOW_QUALITY</span>, <span class="ident">assets</span>)
-                .<span class="ident">get_dims</span>()
-                .<span class="ident">width</span>
-                <span class="op">&lt;</span> <span class="ident">limit</span>
+    <span class="kw">pub fn </span>wrap_to_pixels(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, limit: f64) -&gt; Text {
+        <span class="self">self</span>.inner_wrap_to_pixels(limit, <span class="kw-2">&amp;</span>ctx.prerender.assets)
+    }
+
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>inner_wrap_to_pixels(<span class="kw-2">mut </span><span class="self">self</span>, limit: f64, assets: <span class="kw-2">&amp;</span>Assets) -&gt; Text {
+        <span class="kw">let </span><span class="kw-2">mut </span>lines = Vec::new();
+        <span class="kw">for </span>(bg, spans) <span class="kw">in </span><span class="self">self</span>.lines.drain(..) {
+            <span class="comment">// First optimistically assume everything just fits.
+            </span><span class="kw">if </span>render_line(spans.clone(), svg::LOW_QUALITY, assets)
+                .get_dims()
+                .width
+                &lt; limit
             {
-                <span class="ident">lines</span>.<span class="ident">push</span>((<span class="ident">bg</span>, <span class="ident">spans</span>));
+                lines.push((bg, spans));
                 <span class="kw">continue</span>;
             }
 
-            <span class="comment">// Greedy approach, fit as many words on a line as possible. Don&#39;t do all of that</span>
-            <span class="comment">// hyphenation nonsense.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width_left</span> <span class="op">=</span> <span class="ident">limit</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_line</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_span</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">clone</span>();
-                <span class="ident">current_span</span>.<span class="ident">text</span> <span class="op">=</span> <span class="ident">String::new</span>();
-                <span class="kw">for</span> <span class="ident">word</span> <span class="kw">in</span> <span class="ident">span</span>.<span class="ident">text</span>.<span class="ident">split_whitespace</span>() {
-                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">render_line</span>(
-                        <span class="macro">vec!</span>[<span class="ident">TextSpan</span> {
-                            <span class="ident">text</span>: <span class="ident">word</span>.<span class="ident">to_string</span>(),
-                            <span class="ident">size</span>: <span class="ident">span</span>.<span class="ident">size</span>,
-                            <span class="ident">font</span>: <span class="ident">span</span>.<span class="ident">font</span>,
-                            <span class="ident">fg_color</span>: <span class="ident">span</span>.<span class="ident">fg_color</span>,
-                            <span class="ident">outline_color</span>: <span class="ident">span</span>.<span class="ident">outline_color</span>,
-                            <span class="ident">underlined</span>: <span class="ident">span</span>.<span class="ident">underlined</span>,
+            <span class="comment">// Greedy approach, fit as many words on a line as possible. Don&#39;t do all of that
+            // hyphenation nonsense.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>width_left = limit;
+            <span class="kw">let </span><span class="kw-2">mut </span>current_line = Vec::new();
+            <span class="kw">for </span>span <span class="kw">in </span>spans {
+                <span class="kw">let </span><span class="kw-2">mut </span>current_span = span.clone();
+                current_span.text = String::new();
+                <span class="kw">for </span>word <span class="kw">in </span>span.text.split_whitespace() {
+                    <span class="kw">let </span>width = render_line(
+                        <span class="macro">vec!</span>[TextSpan {
+                            text: word.to_string(),
+                            size: span.size,
+                            font: span.font,
+                            fg_color: span.fg_color,
+                            outline_color: span.outline_color,
+                            underlined: span.underlined,
                         }],
-                        <span class="ident">svg::LOW_QUALITY</span>,
-                        <span class="ident">assets</span>,
+                        svg::LOW_QUALITY,
+                        assets,
                     )
-                    .<span class="ident">get_dims</span>()
-                    .<span class="ident">width</span>;
-                    <span class="kw">if</span> <span class="ident">width_left</span> <span class="op">&gt;</span> <span class="ident">width</span> {
-                        <span class="ident">current_span</span>.<span class="ident">text</span>.<span class="ident">push</span>(<span class="string">&#39; &#39;</span>);
-                        <span class="ident">current_span</span>.<span class="ident">text</span>.<span class="ident">push_str</span>(<span class="ident">word</span>);
-                        <span class="ident">width_left</span> <span class="op">-</span><span class="op">=</span> <span class="ident">width</span>;
-                    } <span class="kw">else</span> {
-                        <span class="ident">current_line</span>.<span class="ident">push</span>(<span class="ident">current_span</span>);
-                        <span class="ident">lines</span>.<span class="ident">push</span>((<span class="ident">bg</span>, <span class="ident">current_line</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>()));
+                    .get_dims()
+                    .width;
+                    <span class="kw">if </span>width_left &gt; width {
+                        current_span.text.push(<span class="string">&#39; &#39;</span>);
+                        current_span.text.push_str(word);
+                        width_left -= width;
+                    } <span class="kw">else </span>{
+                        current_line.push(current_span);
+                        lines.push((bg, current_line.drain(..).collect()));
 
-                        <span class="ident">current_span</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">clone</span>();
-                        <span class="ident">current_span</span>.<span class="ident">text</span> <span class="op">=</span> <span class="ident">word</span>.<span class="ident">to_string</span>();
-                        <span class="ident">width_left</span> <span class="op">=</span> <span class="ident">limit</span>;
+                        current_span = span.clone();
+                        current_span.text = word.to_string();
+                        width_left = limit;
                     }
                 }
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">current_span</span>.<span class="ident">text</span>.<span class="ident">is_empty</span>() {
-                    <span class="ident">current_line</span>.<span class="ident">push</span>(<span class="ident">current_span</span>);
+                <span class="kw">if </span>!current_span.text.is_empty() {
+                    current_line.push(current_span);
                 }
             }
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">current_line</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">lines</span>.<span class="ident">push</span>((<span class="ident">bg</span>, <span class="ident">current_line</span>));
+            <span class="kw">if </span>!current_line.is_empty() {
+                lines.push((bg, current_line));
             }
         }
-        <span class="self">self</span>.<span class="ident">lines</span> <span class="op">=</span> <span class="ident">lines</span>;
-        <span class="self">self</span>
-    }
+        <span class="self">self</span>.lines = lines;
+        <span class="self">self
+    </span>}
 }
 
-<span class="kw">fn</span> <span class="ident">render_line</span>(<span class="ident">spans</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TextSpan</span><span class="op">&gt;</span>, <span class="ident">tolerance</span>: <span class="ident">f32</span>, <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">Assets</span>) -&gt; <span class="ident">GeomBatch</span> {
-    <span class="comment">// Just set a sufficiently large view box</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg</span> <span class="op">=</span> <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.<span class="ident">to_string</span>();
+<span class="kw">fn </span>render_line(spans: Vec&lt;TextSpan&gt;, tolerance: f32, assets: <span class="kw-2">&amp;</span>Assets) -&gt; GeomBatch {
+    <span class="comment">// Just set a sufficiently large view box
+    </span><span class="kw">let </span><span class="kw-2">mut </span>svg = <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.to_string();
 
-    <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg</span>, <span class="string">r##&quot;&lt;text x=&quot;0&quot; y=&quot;0&quot; xml:space=&quot;preserve&quot;&gt;&quot;##</span>,).<span class="ident">unwrap</span>();
+    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">r##&quot;&lt;text x=&quot;0&quot; y=&quot;0&quot; xml:space=&quot;preserve&quot;&gt;&quot;##</span>,).unwrap();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">String::new</span>();
-    <span class="kw">for</span> <span class="ident">span</span> <span class="kw">in</span> <span class="ident">spans</span> {
-        <span class="kw">let</span> <span class="ident">fg_color</span> <span class="op">=</span> <span class="ident">span</span>.<span class="ident">fg_color_for_style</span>(<span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">style</span>.<span class="ident">borrow</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>contents = String::new();
+    <span class="kw">for </span>span <span class="kw">in </span>spans {
+        <span class="kw">let </span>fg_color = span.fg_color_for_style(<span class="kw-2">&amp;</span>assets.style.borrow());
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">contents</span>,
+            <span class="kw-2">&amp;mut </span>contents,
             <span class="string">r##&quot;&lt;tspan font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; {}{}&gt;{}&lt;/tspan&gt;&quot;##</span>,
-            <span class="ident">span</span>.<span class="ident">size</span>,
-            <span class="ident">span</span>.<span class="ident">font</span>.<span class="ident">family</span>(),
-            <span class="kw">match</span> <span class="ident">span</span>.<span class="ident">font</span> {
-                <span class="ident">Font::OverpassBold</span> =&gt; <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
-                <span class="ident">Font::OverpassSemiBold</span> =&gt; <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
-                <span class="kw">_</span> =&gt; <span class="string">&quot;&quot;</span>,
+            span.size,
+            span.font.family(),
+            <span class="kw">match </span>span.font {
+                Font::OverpassBold =&gt; <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
+                Font::OverpassSemiBold =&gt; <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
+                <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
             },
-            <span class="ident">fg_color</span>.<span class="ident">as_hex</span>(),
-            <span class="ident">fg_color</span>.<span class="ident">a</span>,
-            <span class="kw">if</span> <span class="ident">span</span>.<span class="ident">underlined</span> {
-                <span class="string">&quot;text-decoration=\&quot;underline\&quot;&quot;</span>
-            } <span class="kw">else</span> {
-                <span class="string">&quot;&quot;</span>
+            fg_color.as_hex(),
+            fg_color.a,
+            <span class="kw">if </span>span.underlined {
+                <span class="string">&quot;text-decoration=\&quot;underline\&quot;&quot;
+            </span>} <span class="kw">else </span>{
+                <span class="string">&quot;&quot;
+            </span>},
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = span.outline_color {
+                <span class="macro">format!</span>(<span class="string">&quot;stroke=\&quot;{}\&quot;&quot;</span>, c.as_hex())
+            } <span class="kw">else </span>{
+                String::new()
             },
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="ident">span</span>.<span class="ident">outline_color</span> {
-                <span class="macro">format!</span>(<span class="string">&quot;stroke=\&quot;{}\&quot;&quot;</span>, <span class="ident">c</span>.<span class="ident">as_hex</span>())
-            } <span class="kw">else</span> {
-                <span class="ident">String::new</span>()
-            },
-            <span class="ident">htmlescape::encode_minimal</span>(<span class="kw-2">&amp;</span><span class="ident">span</span>.<span class="ident">text</span>)
+            htmlescape::encode_minimal(<span class="kw-2">&amp;</span>span.text)
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
     }
-    <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg</span>, <span class="string">&quot;{}&lt;/text&gt;&lt;/svg&gt;&quot;</span>, <span class="ident">contents</span>).<span class="ident">unwrap</span>();
+    <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">&quot;{}&lt;/text&gt;&lt;/svg&gt;&quot;</span>, contents).unwrap();
 
-    <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">usvg::Tree::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">svg</span>, <span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">text_opts</span>.<span class="ident">borrow</span>().<span class="ident">to_ref</span>()) {
-        <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, <span class="ident">contents</span>, <span class="ident">err</span>),
+    <span class="kw">let </span>svg_tree = <span class="kw">match </span>usvg::Tree::from_str(<span class="kw-2">&amp;</span>svg, <span class="kw-2">&amp;</span>assets.text_opts.borrow().to_ref()) {
+        <span class="prelude-val">Ok</span>(t) =&gt; t,
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, contents, err),
     };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-    <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::svg::add_svg_inner</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
-        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="ident">batch</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, <span class="ident">contents</span>, <span class="ident">err</span>),
+    <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+    <span class="kw">match </span><span class="kw">crate</span>::svg::add_svg_inner(<span class="kw-2">&amp;mut </span>batch, svg_tree, tolerance) {
+        <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; batch,
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;render_line({}): {}&quot;</span>, contents, err),
     }
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TextExt</span> {
-    <span class="kw">fn</span> <span class="ident">text_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span>;
-    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span>;
+<span class="kw">pub trait </span>TextExt {
+    <span class="kw">fn </span>text_widget(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget;
+    <span class="kw">fn </span>batch_text(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget;
 }
 
-<span class="kw">impl</span> <span class="ident">TextExt</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
-    <span class="kw">fn</span> <span class="ident">text_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
+<span class="kw">impl </span>TextExt <span class="kw">for </span><span class="kw-2">&amp;</span>str {
+    <span class="kw">fn </span>text_widget(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        Line(<span class="self">self</span>).into_widget(ctx)
     }
-    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">TextExt</span> <span class="kw">for</span> <span class="ident">String</span> {
-    <span class="kw">fn</span> <span class="ident">text_widget</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-    }
-    <span class="kw">fn</span> <span class="ident">batch_text</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">Line</span>(<span class="self">self</span>).<span class="ident">batch</span>(<span class="ident">ctx</span>)
+    <span class="kw">fn </span>batch_text(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        Line(<span class="self">self</span>).batch(ctx)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">TextSpan</span> {
-    <span class="comment">// TODO Copies from render_line a fair amount</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render_curvey</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">Assets</span><span class="op">&gt;</span><span class="op">&gt;</span>(
+<span class="kw">impl </span>TextExt <span class="kw">for </span>String {
+    <span class="kw">fn </span>text_widget(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        Line(<span class="self">self</span>).into_widget(ctx)
+    }
+    <span class="kw">fn </span>batch_text(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+        Line(<span class="self">self</span>).batch(ctx)
+    }
+}
+
+<span class="kw">impl </span>TextSpan {
+    <span class="comment">// TODO Copies from render_line a fair amount
+    </span><span class="kw">pub fn </span>render_curvey&lt;A: AsRef&lt;Assets&gt;&gt;(
         <span class="self">self</span>,
-        <span class="ident">assets</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>,
-        <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">PolyLine</span>,
-        <span class="ident">scale</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">let</span> <span class="ident">assets</span> <span class="op">=</span> <span class="ident">assets</span>.<span class="ident">as_ref</span>();
-        <span class="kw">let</span> <span class="ident">tolerance</span> <span class="op">=</span> <span class="ident">svg::HIGH_QUALITY</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">stroke_parameters</span> <span class="op">=</span> <span class="ident">String::new</span>();
+        assets: <span class="kw-2">&amp;</span>A,
+        path: <span class="kw-2">&amp;</span>PolyLine,
+        scale: f64,
+    ) -&gt; GeomBatch {
+        <span class="kw">let </span>assets = assets.as_ref();
+        <span class="kw">let </span>tolerance = svg::HIGH_QUALITY;
+        <span class="kw">let </span><span class="kw-2">mut </span>stroke_parameters = String::new();
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">outline_color</span> {
-            <span class="ident">stroke_parameters</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;stroke=\&quot;{}\&quot; stroke-width=\&quot;.1\&quot;&quot;</span>, <span class="ident">c</span>.<span class="ident">as_hex</span>());
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = <span class="self">self</span>.outline_color {
+            stroke_parameters = <span class="macro">format!</span>(<span class="string">&quot;stroke=\&quot;{}\&quot; stroke-width=\&quot;.1\&quot;&quot;</span>, c.as_hex());
         };
 
-        <span class="comment">// Just set a sufficiently large view box</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">svg</span> <span class="op">=</span> <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.<span class="ident">to_string</span>();
+        <span class="comment">// Just set a sufficiently large view box
+        </span><span class="kw">let </span><span class="kw-2">mut </span>svg = <span class="string">r##&quot;&lt;svg width=&quot;9999&quot; height=&quot;9999&quot; viewBox=&quot;0 0 9999 9999&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&quot;##</span>.to_string();
 
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
-            <span class="string">r##&quot;&lt;path id=&quot;txtpath&quot; fill=&quot;none&quot; stroke=&quot;none&quot; d=&quot;&quot;##</span>
-        )
-        .<span class="ident">unwrap</span>();
+            <span class="kw-2">&amp;mut </span>svg,
+            <span class="string">r##&quot;&lt;path id=&quot;txtpath&quot; fill=&quot;none&quot; stroke=&quot;none&quot; d=&quot;&quot;##
+        </span>)
+        .unwrap();
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
+            <span class="kw-2">&amp;mut </span>svg,
             <span class="string">&quot;M {} {}&quot;</span>,
-            <span class="ident">path</span>.<span class="ident">points</span>()[<span class="number">0</span>].<span class="ident">x</span>(),
-            <span class="ident">path</span>.<span class="ident">points</span>()[<span class="number">0</span>].<span class="ident">y</span>()
+            path.points()[<span class="number">0</span>].x(),
+            path.points()[<span class="number">0</span>].y()
         )
-        .<span class="ident">unwrap</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>) {
-            <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg</span>, <span class="string">&quot; L {} {}&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()).<span class="ident">unwrap</span>();
+        .unwrap();
+        <span class="kw">for </span>pt <span class="kw">in </span>path.points().iter().skip(<span class="number">1</span>) {
+            <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">&quot; L {} {}&quot;</span>, pt.x(), pt.y()).unwrap();
         }
-        <span class="macro">write!</span>(<span class="kw-2">&amp;mut</span> <span class="ident">svg</span>, <span class="string">&quot;\&quot; /&gt;&quot;</span>).<span class="ident">unwrap</span>();
-        <span class="comment">// We need to subtract and account for the length of the text</span>
-        <span class="kw">let</span> <span class="ident">start_offset</span> <span class="op">=</span> (<span class="ident">path</span>.<span class="ident">length</span>().<span class="ident">inner_meters</span>()
-            <span class="op">-</span> <span class="ident">scale</span> <span class="op">*</span> <span class="ident">Text::from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">text</span>).<span class="ident">rendered_width</span>(<span class="kw-2">&amp;</span><span class="ident">assets</span>))
-            <span class="op">/</span> <span class="number">2.0</span>;
+        <span class="macro">write!</span>(<span class="kw-2">&amp;mut </span>svg, <span class="string">&quot;\&quot; /&gt;&quot;</span>).unwrap();
+        <span class="comment">// We need to subtract and account for the length of the text
+        </span><span class="kw">let </span>start_offset = (path.length().inner_meters()
+            - scale * Text::from(<span class="kw-2">&amp;</span><span class="self">self</span>.text).rendered_width(<span class="kw-2">&amp;</span>assets))
+            / <span class="number">2.0</span>;
 
-        <span class="kw">let</span> <span class="ident">fg_color</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">fg_color_for_style</span>(<span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">style</span>.<span class="ident">borrow</span>());
+        <span class="kw">let </span>fg_color = <span class="self">self</span>.fg_color_for_style(<span class="kw-2">&amp;</span>assets.style.borrow());
 
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
+            <span class="kw-2">&amp;mut </span>svg,
             <span class="string">r##&quot;&lt;text xml:space=&quot;preserve&quot; font-size=&quot;{}&quot; font-family=&quot;{}&quot; {} fill=&quot;{}&quot; fill-opacity=&quot;{}&quot; startOffset=&quot;{}&quot; {}&gt;&quot;##</span>,
-            <span class="comment">// This is seemingly the easiest way to do this. We could .scale() the whole batch</span>
-            <span class="comment">// after, but then we have to re-translate it to the proper spot</span>
-            (<span class="self">self</span>.<span class="ident">size</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">scale</span>,
-            <span class="self">self</span>.<span class="ident">font</span>.<span class="ident">family</span>(),
-            <span class="kw">match</span> <span class="self">self</span>.<span class="ident">font</span> {
-                <span class="ident">Font::OverpassBold</span> =&gt; <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
-                <span class="ident">Font::OverpassSemiBold</span> =&gt; <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
-                <span class="kw">_</span> =&gt; <span class="string">&quot;&quot;</span>,
+            <span class="comment">// This is seemingly the easiest way to do this. We could .scale() the whole batch
+            // after, but then we have to re-translate it to the proper spot
+            </span>(<span class="self">self</span>.size <span class="kw">as </span>f64) * scale,
+            <span class="self">self</span>.font.family(),
+            <span class="kw">match </span><span class="self">self</span>.font {
+                Font::OverpassBold =&gt; <span class="string">&quot;font-weight=\&quot;bold\&quot;&quot;</span>,
+                Font::OverpassSemiBold =&gt; <span class="string">&quot;font-weight=\&quot;600\&quot;&quot;</span>,
+                <span class="kw">_ </span>=&gt; <span class="string">&quot;&quot;</span>,
             },
-            <span class="ident">fg_color</span>.<span class="ident">as_hex</span>(),
-            <span class="ident">fg_color</span>.<span class="ident">a</span>,
-            <span class="ident">start_offset</span>,
-            <span class="ident">stroke_parameters</span>,
+            fg_color.as_hex(),
+            fg_color.a,
+            start_offset,
+            stroke_parameters,
         )
-            .<span class="ident">unwrap</span>();
+            .unwrap();
 
         <span class="macro">write!</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">svg</span>,
+            <span class="kw-2">&amp;mut </span>svg,
             <span class="string">r##&quot;&lt;textPath href=&quot;#txtpath&quot;&gt;{}&lt;/textPath&gt;&lt;/text&gt;&lt;/svg&gt;&quot;##</span>,
-            <span class="ident">htmlescape::encode_minimal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">text</span>)
+            htmlescape::encode_minimal(<span class="kw-2">&amp;</span><span class="self">self</span>.text)
         )
-        .<span class="ident">unwrap</span>();
+        .unwrap();
 
-        <span class="kw">let</span> <span class="ident">svg_tree</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">usvg::Tree::from_str</span>(<span class="kw-2">&amp;</span><span class="ident">svg</span>, <span class="kw-2">&amp;</span><span class="ident">assets</span>.<span class="ident">text_opts</span>.<span class="ident">borrow</span>().<span class="ident">to_ref</span>()) {
-            <span class="prelude-val">Ok</span>(<span class="ident">t</span>) =&gt; <span class="ident">t</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
+        <span class="kw">let </span>svg_tree = <span class="kw">match </span>usvg::Tree::from_str(<span class="kw-2">&amp;</span>svg, <span class="kw-2">&amp;</span>assets.text_opts.borrow().to_ref()) {
+            <span class="prelude-val">Ok</span>(t) =&gt; t,
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.text, err),
         };
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">match</span> <span class="ident"><span class="kw">crate</span>::svg::add_svg_inner</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">svg_tree</span>, <span class="ident">tolerance</span>) {
-            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="ident">batch</span>,
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.<span class="ident">text</span>, <span class="ident">err</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">match </span><span class="kw">crate</span>::svg::add_svg_inner(<span class="kw-2">&amp;mut </span>batch, svg_tree, tolerance) {
+            <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; batch,
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;curvey({}): {}&quot;</span>, <span class="self">self</span>.text, err),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/walking_turns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking_turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/make/walking_turns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>walking_turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -345,352 +345,352 @@
 <span id="345">345</span>
 <span id="346">346</span>
 <span id="347">347</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">EPSILON_DIST</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Distance, PolyLine, Pt2D, EPSILON_DIST};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Direction</span>, <span class="ident">DrivingSide</span>, <span class="ident">Intersection</span>, <span class="ident">IntersectionID</span>, <span class="ident">Lane</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">Turn</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>,
+<span class="kw">use crate</span>::{
+    Direction, DrivingSide, Intersection, IntersectionID, Lane, LaneID, Map, Turn, TurnID, TurnType,
 };
 
-<span class="doccomment">/// Looks at all sidewalks (or lack thereof) in counter-clockwise order around an intersection.</span>
-<span class="doccomment">/// Based on adjacency, create a SharedSidewalkCorner or a Crosswalk.</span>
-<span class="doccomment">/// UnmarkedCrossings are not generated here; another process later &quot;downgrades&quot; crosswalks to</span>
-<span class="doccomment">/// unmarked.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_walking_turns</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">driving_side</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">config</span>.<span class="ident">driving_side</span>;
+<span class="doccomment">/// Looks at all sidewalks (or lack thereof) in counter-clockwise order around an intersection.
+/// Based on adjacency, create a SharedSidewalkCorner or a Crosswalk.
+/// UnmarkedCrossings are not generated here; another process later &quot;downgrades&quot; crosswalks to
+/// unmarked.
+</span><span class="kw">pub fn </span>make_walking_turns(map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; Vec&lt;Turn&gt; {
+    <span class="kw">let </span>driving_side = map.config.driving_side;
 
-    <span class="comment">// Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather</span>
-    <span class="comment">// those in order, remembering what roads don&#39;t have them.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lanes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_roads_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
-    <span class="comment">// And for left-handed driving, we need to walk around in the opposite order.</span>
-    <span class="kw">if</span> <span class="ident">driving_side</span> <span class="op">==</span> <span class="ident">DrivingSide::Left</span> {
-        <span class="ident">sorted_roads</span>.<span class="ident">reverse</span>();
+    <span class="comment">// Consider all roads in counter-clockwise order. Every road has up to two sidewalks. Gather
+    // those in order, remembering what roads don&#39;t have them.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>lanes: Vec&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Lane&gt;&gt; = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>sorted_roads = i.get_roads_sorted_by_incoming_angle(map);
+    <span class="comment">// And for left-handed driving, we need to walk around in the opposite order.
+    </span><span class="kw">if </span>driving_side == DrivingSide::Left {
+        sorted_roads.reverse();
     }
 
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">sorted_roads</span> {
-        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fwd</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">back</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
-            <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">lane_type</span>.<span class="ident">is_walkable</span>() {
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
-                    <span class="ident">fwd</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">back</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
+    <span class="kw">for </span>r <span class="kw">in </span>sorted_roads {
+        <span class="kw">let </span>road = map.get_r(r);
+        <span class="kw">let </span><span class="kw-2">mut </span>fwd = <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>back = <span class="prelude-val">None</span>;
+        <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span>road.lanes {
+            <span class="kw">if </span>l.lane_type.is_walkable() {
+                <span class="kw">if </span>l.dir == Direction::Fwd {
+                    fwd = <span class="prelude-val">Some</span>(l);
+                } <span class="kw">else </span>{
+                    back = <span class="prelude-val">Some</span>(l);
                 }
             }
         }
 
-        <span class="kw">let</span> (<span class="ident">in_lane</span>, <span class="ident">out_lane</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span>.<span class="ident">id</span> {
-            (<span class="ident">back</span>, <span class="ident">fwd</span>)
-        } <span class="kw">else</span> {
-            (<span class="ident">fwd</span>, <span class="ident">back</span>)
+        <span class="kw">let </span>(in_lane, out_lane) = <span class="kw">if </span>road.src_i == i.id {
+            (back, fwd)
+        } <span class="kw">else </span>{
+            (fwd, back)
         };
 
-        <span class="comment">// Don&#39;t add None entries for footways even if they only have one lane</span>
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>).<span class="ident">is_footway</span>() {
-            <span class="kw">if</span> <span class="ident">in_lane</span>.<span class="ident">is_some</span>() {
-                <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">in_lane</span>);
+        <span class="comment">// Don&#39;t add None entries for footways even if they only have one lane
+        </span><span class="kw">if </span>map.get_r(r).is_footway() {
+            <span class="kw">if </span>in_lane.is_some() {
+                lanes.push(in_lane);
             }
-            <span class="kw">if</span> <span class="ident">out_lane</span>.<span class="ident">is_some</span>() {
-                <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">out_lane</span>);
+            <span class="kw">if </span>out_lane.is_some() {
+                lanes.push(out_lane);
             }
-        } <span class="kw">else</span> {
-            <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">in_lane</span>);
-            <span class="ident">lanes</span>.<span class="ident">push</span>(<span class="ident">out_lane</span>);
+        } <span class="kw">else </span>{
+            lanes.push(in_lane);
+            lanes.push(out_lane);
         }
     }
 
-    <span class="comment">// If there are 0 or 1 sidewalks there are no turns to be made</span>
-    <span class="kw">if</span> <span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">is_some</span>()).<span class="ident">count</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="kw">return</span> <span class="ident">Vec::new</span>();
+    <span class="comment">// If there are 0 or 1 sidewalks there are no turns to be made
+    </span><span class="kw">if </span>lanes.iter().filter(|l| l.is_some()).count() &lt;= <span class="number">1 </span>{
+        <span class="kw">return </span>Vec::new();
     }
 
-    <span class="comment">// At a deadend make only one SharedSidewalkCorner</span>
-    <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend_for_everyone</span>() {
-        <span class="kw">let</span> (<span class="ident">l1</span>, <span class="ident">l2</span>) <span class="op">=</span> (<span class="ident">lanes</span>[<span class="number">0</span>].<span class="ident">unwrap</span>(), <span class="ident">lanes</span>[<span class="number">1</span>].<span class="ident">unwrap</span>());
-        <span class="kw">return</span> <span class="macro">vec!</span>[<span class="ident">Turn</span> {
-            <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
-            <span class="ident">turn_type</span>: <span class="ident">TurnType::SharedSidewalkCorner</span>,
-            <span class="ident">geom</span>: <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>),
+    <span class="comment">// At a deadend make only one SharedSidewalkCorner
+    </span><span class="kw">if </span>i.is_deadend_for_everyone() {
+        <span class="kw">let </span>(l1, l2) = (lanes[<span class="number">0</span>].unwrap(), lanes[<span class="number">1</span>].unwrap());
+        <span class="kw">return </span><span class="macro">vec!</span>[Turn {
+            id: turn_id(i.id, l1.id, l2.id),
+            turn_type: TurnType::SharedSidewalkCorner,
+            geom: make_shared_sidewalk_corner(i, l1, l2),
         }];
     }
 
-    <span class="comment">// Make sure we start with a sidewalk.</span>
-    <span class="kw">while</span> <span class="ident">lanes</span>[<span class="number">0</span>].<span class="ident">is_none</span>() {
-        <span class="ident">lanes</span>.<span class="ident">rotate_left</span>(<span class="number">1</span>);
+    <span class="comment">// Make sure we start with a sidewalk.
+    </span><span class="kw">while </span>lanes[<span class="number">0</span>].is_none() {
+        lanes.rotate_left(<span class="number">1</span>);
     }
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>result: Vec&lt;Turn&gt; = Vec::new();
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">from</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Lane</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">lanes</span>[<span class="number">0</span>];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">adj</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">skip</span>(<span class="number">1</span>).<span class="ident">chain</span>(<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="number">1</span>)) {
-        <span class="kw">if</span> <span class="ident">from</span>.<span class="ident">is_none</span>() {
-            <span class="ident">from</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">l</span>;
-            <span class="ident">adj</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>from: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>Lane&gt; = lanes[<span class="number">0</span>];
+    <span class="kw">let </span><span class="kw-2">mut </span>adj = <span class="bool-val">true</span>;
+    <span class="kw">for </span>l <span class="kw">in </span>lanes.iter().skip(<span class="number">1</span>).chain(lanes.iter().take(<span class="number">1</span>)) {
+        <span class="kw">if </span>from.is_none() {
+            from = <span class="kw-2">*</span>l;
+            adj = <span class="bool-val">true</span>;
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">l1</span> <span class="op">=</span> <span class="ident">from</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>l1 = from.unwrap();
 
-        <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">is_none</span>() {
-            <span class="ident">adj</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">if </span>l.is_none() {
+            adj = <span class="bool-val">false</span>;
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">l2</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">unwrap</span>();
+        <span class="kw">let </span>l2 = l.unwrap();
 
-        <span class="kw">if</span> <span class="ident">adj</span> <span class="op">&amp;&amp;</span> <span class="ident">l1</span>.<span class="ident">id</span>.<span class="ident">road</span> <span class="op">!</span><span class="op">=</span> <span class="ident">l2</span>.<span class="ident">id</span>.<span class="ident">road</span> {
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Turn</span> {
-                <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
-                <span class="ident">turn_type</span>: <span class="ident">TurnType::SharedSidewalkCorner</span>,
-                <span class="ident">geom</span>: <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>),
+        <span class="kw">if </span>adj &amp;&amp; l1.id.road != l2.id.road {
+            result.push(Turn {
+                id: turn_id(i.id, l1.id, l2.id),
+                turn_type: TurnType::SharedSidewalkCorner,
+                geom: make_shared_sidewalk_corner(i, l1, l2),
             });
 
-            <span class="ident">from</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>);
-        <span class="comment">// adj stays true</span>
-        } <span class="kw">else</span> {
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">Turn</span> {
-                <span class="ident">id</span>: <span class="ident">turn_id</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>),
-                <span class="ident">turn_type</span>: <span class="ident">TurnType::Crosswalk</span>,
-                <span class="ident">geom</span>: <span class="ident">make_crosswalk</span>(<span class="ident">i</span>, <span class="ident">l1</span>, <span class="ident">l2</span>),
+            from = <span class="prelude-val">Some</span>(l2);
+        <span class="comment">// adj stays true
+        </span>} <span class="kw">else </span>{
+            result.push(Turn {
+                id: turn_id(i.id, l1.id, l2.id),
+                turn_type: TurnType::Crosswalk,
+                geom: make_crosswalk(i, l1, l2),
             });
-            <span class="ident">from</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l2</span>);
-            <span class="ident">adj</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            from = <span class="prelude-val">Some</span>(l2);
+            adj = <span class="bool-val">true</span>;
         }
     }
 
-    <span class="comment">// If there are exactly two crosswalks they must be connected or opposite, so delete one.</span>
-    <span class="comment">// This happens at degenerate intersections with sidewalks on both sides or where a</span>
-    <span class="comment">//  footway crosses a road without sidewalks.</span>
-    <span class="comment">// If there is one crosswalk it must be opposite to a SharedSidewalkCorner, because the</span>
-    <span class="comment">//  above could never create just one turn and starts and ends in the same place.</span>
-    <span class="comment">// This happens at degenerate intersections with sidewalks on one side.</span>
-    <span class="kw">match</span> <span class="ident">result</span>
-        .<span class="ident">iter</span>()
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::Crosswalk</span>)
-        .<span class="ident">count</span>()
+    <span class="comment">// If there are exactly two crosswalks they must be connected or opposite, so delete one.
+    // This happens at degenerate intersections with sidewalks on both sides or where a
+    //  footway crosses a road without sidewalks.
+    // If there is one crosswalk it must be opposite to a SharedSidewalkCorner, because the
+    //  above could never create just one turn and starts and ends in the same place.
+    // This happens at degenerate intersections with sidewalks on one side.
+    </span><span class="kw">match </span>result
+        .iter()
+        .filter(|t| t.turn_type == TurnType::Crosswalk)
+        .count()
     {
-        <span class="number">1</span> <span class="op">|</span> <span class="number">2</span> =&gt; {
-            <span class="ident">result</span>.<span class="ident">remove</span>(
-                <span class="ident">result</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">position</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">turn_type</span> <span class="op">==</span> <span class="ident">TurnType::Crosswalk</span>)
-                    .<span class="ident">unwrap</span>(),
+        <span class="number">1 </span>| <span class="number">2 </span>=&gt; {
+            result.remove(
+                result
+                    .iter()
+                    .position(|t| t.turn_type == TurnType::Crosswalk)
+                    .unwrap(),
             );
         }
-        <span class="kw">_</span> =&gt; {}
+        <span class="kw">_ </span>=&gt; {}
     }
 
-    <span class="ident">result</span>
+    result
 }
 
-<span class="doccomment">/// Filter out crosswalks on really short roads. In reality, these roads are usually located within</span>
-<span class="doccomment">/// an intersection, which isn&#39;t a valid place for a pedestrian crossing.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// And if the road is marked as having no crosswalks at an end, downgrade them to unmarked</span>
-<span class="doccomment">/// crossings.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">filter_turns</span>(<span class="kw-2">mut</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span> {
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
-        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_extremely_short</span>() {
-            <span class="ident">input</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> {
-                <span class="op">!</span>(<span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">src</span>.<span class="ident">road</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">id</span>.<span class="ident">dst</span>.<span class="ident">road</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">r</span> <span class="op">&amp;&amp;</span> <span class="ident">t</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>())
+<span class="doccomment">/// Filter out crosswalks on really short roads. In reality, these roads are usually located within
+/// an intersection, which isn&#39;t a valid place for a pedestrian crossing.
+///
+/// And if the road is marked as having no crosswalks at an end, downgrade them to unmarked
+/// crossings.
+</span><span class="kw">pub fn </span>filter_turns(<span class="kw-2">mut </span>input: Vec&lt;Turn&gt;, map: <span class="kw-2">&amp;</span>Map, i: <span class="kw-2">&amp;</span>Intersection) -&gt; Vec&lt;Turn&gt; {
+    <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>i.roads {
+        <span class="kw">if </span>map.get_r(<span class="kw-2">*</span>r).is_extremely_short() {
+            input.retain(|t| {
+                !(t.id.src.road == <span class="kw-2">*</span>r &amp;&amp; t.id.dst.road == <span class="kw-2">*</span>r &amp;&amp; t.turn_type.pedestrian_crossing())
             });
         }
     }
 
-    <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">input</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dr</span>) <span class="op">=</span> <span class="ident">turn</span>.<span class="ident">crosswalk_over_road</span>(<span class="ident">map</span>) {
-            <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>);
-            <span class="kw">let</span> <span class="ident">keep</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
-                <span class="ident">road</span>.<span class="ident">crosswalk_forward</span>
-            } <span class="kw">else</span> {
-                <span class="ident">road</span>.<span class="ident">crosswalk_backward</span>
+    <span class="kw">for </span>turn <span class="kw">in </span><span class="kw-2">&amp;mut </span>input {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(dr) = turn.crosswalk_over_road(map) {
+            <span class="kw">let </span>road = map.get_r(dr.road);
+            <span class="kw">let </span>keep = <span class="kw">if </span>dr.dir == Direction::Fwd {
+                road.crosswalk_forward
+            } <span class="kw">else </span>{
+                road.crosswalk_backward
             };
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">keep</span> {
-                <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::UnmarkedCrossing</span>;
+            <span class="kw">if </span>!keep {
+                turn.turn_type = TurnType::UnmarkedCrossing;
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
-            <span class="comment">// We have a crosswalk over multiple roads (or sometimes, just one road that only has a</span>
-            <span class="comment">// walkable lane on one side of it). We can&#39;t yet detect all the roads crossed. So for</span>
-            <span class="comment">// now, it&#39;s more often correct to assume that if any nearby roads don&#39;t have a</span>
-            <span class="comment">// crossing snapped to both ends, then there&#39;s probably no crosswalk here.</span>
-            <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> [<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>, <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>] {
-                <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">l</span>);
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">crosswalk_forward</span> <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">road</span>.<span class="ident">crosswalk_backward</span> {
-                    <span class="ident">turn</span>.<span class="ident">turn_type</span> <span class="op">=</span> <span class="ident">TurnType::UnmarkedCrossing</span>;
+        } <span class="kw">else if </span>turn.turn_type.pedestrian_crossing() {
+            <span class="comment">// We have a crosswalk over multiple roads (or sometimes, just one road that only has a
+            // walkable lane on one side of it). We can&#39;t yet detect all the roads crossed. So for
+            // now, it&#39;s more often correct to assume that if any nearby roads don&#39;t have a
+            // crossing snapped to both ends, then there&#39;s probably no crosswalk here.
+            </span><span class="kw">for </span>l <span class="kw">in </span>[turn.id.src, turn.id.dst] {
+                <span class="kw">let </span>road = map.get_parent(l);
+                <span class="kw">if </span>!road.crosswalk_forward || !road.crosswalk_backward {
+                    turn.turn_type = TurnType::UnmarkedCrossing;
                 }
             }
         }
     }
 
-    <span class="ident">input</span>
+    input
 }
 
-<span class="kw">fn</span> <span class="ident">make_crosswalk</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">l1</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">l2</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>) -&gt; <span class="ident">PolyLine</span> {
-    <span class="kw">let</span> <span class="ident">l1_line</span> <span class="op">=</span> <span class="ident">l1</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>);
-    <span class="kw">let</span> <span class="ident">l2_line</span> <span class="op">=</span> <span class="ident">l2</span>.<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>);
+<span class="kw">fn </span>make_crosswalk(i: <span class="kw-2">&amp;</span>Intersection, l1: <span class="kw-2">&amp;</span>Lane, l2: <span class="kw-2">&amp;</span>Lane) -&gt; PolyLine {
+    <span class="kw">let </span>l1_line = l1.end_line(i.id);
+    <span class="kw">let </span>l2_line = l2.end_line(i.id);
 
-    <span class="comment">// Jut out a bit into the intersection, cross over, then jut back in.</span>
-    <span class="comment">// Put degenerate intersection crosswalks in the middle (DEGENERATE_HALF_LENGTH).</span>
-    <span class="ident">PolyLine::deduping_new</span>(<span class="macro">vec!</span>[
-        <span class="ident">l1_line</span>.<span class="ident">pt2</span>(),
-        <span class="ident">l1_line</span>.<span class="ident">unbounded_dist_along</span>(
-            <span class="ident">l1_line</span>.<span class="ident">length</span>()
-                <span class="op">+</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_degenerate</span>() {
-                    <span class="ident">Distance::const_meters</span>(<span class="number">2.5</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>
-                },
+    <span class="comment">// Jut out a bit into the intersection, cross over, then jut back in.
+    // Put degenerate intersection crosswalks in the middle (DEGENERATE_HALF_LENGTH).
+    </span>PolyLine::deduping_new(<span class="macro">vec!</span>[
+        l1_line.pt2(),
+        l1_line.unbounded_dist_along(
+            l1_line.length()
+                + <span class="kw">if </span>i.is_degenerate() {
+                    Distance::const_meters(<span class="number">2.5</span>)
+                } <span class="kw">else </span>{
+                    l1.width / <span class="number">2.0
+                </span>},
         ),
-        <span class="ident">l2_line</span>.<span class="ident">unbounded_dist_along</span>(
-            <span class="ident">l2_line</span>.<span class="ident">length</span>()
-                <span class="op">+</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_degenerate</span>() {
-                    <span class="ident">Distance::const_meters</span>(<span class="number">2.5</span>)
-                } <span class="kw">else</span> {
-                    <span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>
-                },
+        l2_line.unbounded_dist_along(
+            l2_line.length()
+                + <span class="kw">if </span>i.is_degenerate() {
+                    Distance::const_meters(<span class="number">2.5</span>)
+                } <span class="kw">else </span>{
+                    l2.width / <span class="number">2.0
+                </span>},
         ),
-        <span class="ident">l2_line</span>.<span class="ident">pt2</span>(),
+        l2_line.pt2(),
     ])
-    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">baseline_geometry</span>(<span class="ident">l1</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>), <span class="ident">l2</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>)))
+    .unwrap_or_else(|<span class="kw">_</span>| baseline_geometry(l1.endpoint(i.id), l2.endpoint(i.id)))
 }
 
-<span class="comment">// TODO This doesn&#39;t handle sidewalk/shoulder transitions</span>
-<span class="kw">fn</span> <span class="ident">make_shared_sidewalk_corner</span>(<span class="ident">i</span>: <span class="kw-2">&amp;</span><span class="ident">Intersection</span>, <span class="ident">l1</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>, <span class="ident">l2</span>: <span class="kw-2">&amp;</span><span class="ident">Lane</span>) -&gt; <span class="ident">PolyLine</span> {
-    <span class="comment">// We&#39;ll fallback to this if the fancier geometry fails.</span>
-    <span class="kw">let</span> <span class="ident">baseline</span> <span class="op">=</span> <span class="ident">baseline_geometry</span>(<span class="ident">l1</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>), <span class="ident">l2</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>));
+<span class="comment">// TODO This doesn&#39;t handle sidewalk/shoulder transitions
+</span><span class="kw">fn </span>make_shared_sidewalk_corner(i: <span class="kw-2">&amp;</span>Intersection, l1: <span class="kw-2">&amp;</span>Lane, l2: <span class="kw-2">&amp;</span>Lane) -&gt; PolyLine {
+    <span class="comment">// We&#39;ll fallback to this if the fancier geometry fails.
+    </span><span class="kw">let </span>baseline = baseline_geometry(l1.endpoint(i.id), l2.endpoint(i.id));
 
-    <span class="comment">// Is point2 counter-clockwise of point1?</span>
-    <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span>
-        .<span class="ident">polygon</span>
-        .<span class="ident">center</span>()
-        .<span class="ident">angle_to</span>(<span class="ident">l1</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>))
-        .<span class="ident">simple_shortest_rotation_towards</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>().<span class="ident">angle_to</span>(<span class="ident">l2</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>)))
-        <span class="op">&gt;</span> <span class="number">0.0</span>
-    {
-        <span class="number">1.0</span>
-    } <span class="kw">else</span> {
-        <span class="op">-</span><span class="number">1.0</span>
-        <span class="comment">// For deadends, go the long way around</span>
-    } <span class="op">*</span> <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_deadend_for_everyone</span>() {
-        <span class="op">-</span><span class="number">1.0</span>
-    } <span class="kw">else</span> {
-        <span class="number">1.0</span>
-    };
-    <span class="comment">// Find all of the points on the intersection polygon between the two sidewalks. Assumes</span>
-    <span class="comment">// sidewalks are the same length.</span>
-    <span class="kw">let</span> <span class="ident">corner1</span> <span class="op">=</span> <span class="ident">l1</span>
-        .<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>)
-        .<span class="ident">shift_either_direction</span>(<span class="ident">dir</span> <span class="op">*</span> <span class="ident">l1</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-        .<span class="ident">pt2</span>();
-    <span class="kw">let</span> <span class="ident">corner2</span> <span class="op">=</span> <span class="ident">l2</span>
-        .<span class="ident">end_line</span>(<span class="ident">i</span>.<span class="ident">id</span>)
-        .<span class="ident">shift_either_direction</span>(<span class="op">-</span><span class="ident">dir</span> <span class="op">*</span> <span class="ident">l2</span>.<span class="ident">width</span> <span class="op">/</span> <span class="number">2.0</span>)
-        .<span class="ident">pt2</span>();
+    <span class="comment">// Is point2 counter-clockwise of point1?
+    </span><span class="kw">let </span>dir = <span class="kw">if </span>i
+        .polygon
+        .center()
+        .angle_to(l1.endpoint(i.id))
+        .simple_shortest_rotation_towards(i.polygon.center().angle_to(l2.endpoint(i.id)))
+        &gt; <span class="number">0.0
+    </span>{
+        <span class="number">1.0
+    </span>} <span class="kw">else </span>{
+        -<span class="number">1.0
+        </span><span class="comment">// For deadends, go the long way around
+    </span>} * <span class="kw">if </span>i.is_deadend_for_everyone() {
+        -<span class="number">1.0
+    </span>} <span class="kw">else </span>{
+        <span class="number">1.0
+    </span>};
+    <span class="comment">// Find all of the points on the intersection polygon between the two sidewalks. Assumes
+    // sidewalks are the same length.
+    </span><span class="kw">let </span>corner1 = l1
+        .end_line(i.id)
+        .shift_either_direction(dir * l1.width / <span class="number">2.0</span>)
+        .pt2();
+    <span class="kw">let </span>corner2 = l2
+        .end_line(i.id)
+        .shift_either_direction(-dir * l2.width / <span class="number">2.0</span>)
+        .pt2();
 
-    <span class="comment">// TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.</span>
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="kw">return</span> <span class="ident">i</span>
-            .<span class="ident">polygon</span>
-            .<span class="ident">get_outer_ring</span>()
-            .<span class="ident">get_shorter_slice_btwn</span>(<span class="ident">corner1</span>, <span class="ident">corner2</span>)
-            .<span class="ident">unwrap</span>();
+    <span class="comment">// TODO Something like this will be MUCH simpler and avoid going around the long way sometimes.
+    </span><span class="kw">if </span><span class="bool-val">false </span>{
+        <span class="kw">return </span>i
+            .polygon
+            .get_outer_ring()
+            .get_shorter_slice_btwn(corner1, corner2)
+            .unwrap();
     }
 
-    <span class="comment">// The order of the points here seems backwards, but it&#39;s because we scan from corner2</span>
-    <span class="comment">// to corner1 below.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts_between</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">l2</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>)];
-    <span class="comment">// Intersection polygons are constructed in clockwise order, so do corner2 to corner1.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i_pts</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>().<span class="ident">clone</span>().<span class="ident">into_points</span>();
+    <span class="comment">// The order of the points here seems backwards, but it&#39;s because we scan from corner2
+    // to corner1 below.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>pts_between = <span class="macro">vec!</span>[l2.endpoint(i.id)];
+    <span class="comment">// Intersection polygons are constructed in clockwise order, so do corner2 to corner1.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>i_pts = i.polygon.get_outer_ring().clone().into_points();
 
-    <span class="comment">// last pt = first_pt</span>
-    <span class="ident">i_pts</span>.<span class="ident">pop</span>();
+    <span class="comment">// last pt = first_pt
+    </span>i_pts.pop();
 
-    <span class="kw">if</span> <span class="ident">dir</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-        <span class="ident">i_pts</span>.<span class="ident">reverse</span>();
+    <span class="kw">if </span>dir &lt; <span class="number">0.0 </span>{
+        i_pts.reverse();
     }
 
-    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">i_pts</span>.<span class="ident">len</span>() {
-        <span class="kw">if</span> <span class="ident">i_pts</span>[<span class="number">0</span>].<span class="ident">approx_eq</span>(<span class="ident">corner2</span>, <span class="ident">Distance::meters</span>(<span class="number">0.5</span>)) {
+    <span class="kw">for _ in </span><span class="number">0</span>..i_pts.len() {
+        <span class="kw">if </span>i_pts[<span class="number">0</span>].approx_eq(corner2, Distance::meters(<span class="number">0.5</span>)) {
             <span class="kw">break</span>;
         }
-        <span class="ident">i_pts</span>.<span class="ident">rotate_left</span>(<span class="number">1</span>);
+        i_pts.rotate_left(<span class="number">1</span>);
     }
 
-    <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">i_pts</span>.<span class="ident">len</span>() {
-        <span class="kw">if</span> <span class="ident">i_pts</span>[<span class="ident">idx</span>].<span class="ident">approx_eq</span>(<span class="ident">corner1</span>, <span class="ident">Distance::meters</span>(<span class="number">0.5</span>)) {
-            <span class="ident">i_pts</span>.<span class="ident">truncate</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
+    <span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..i_pts.len() {
+        <span class="kw">if </span>i_pts[idx].approx_eq(corner1, Distance::meters(<span class="number">0.5</span>)) {
+            i_pts.truncate(idx + <span class="number">1</span>);
             <span class="kw">break</span>;
         }
     }
 
-    <span class="kw">if</span> <span class="ident">i_pts</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-        <span class="comment">// no intermediate points, so just do a straight line</span>
-        <span class="kw">return</span> <span class="ident">baseline</span>;
+    <span class="kw">if </span>i_pts.len() &lt; <span class="number">2 </span>{
+        <span class="comment">// no intermediate points, so just do a straight line
+        </span><span class="kw">return </span>baseline;
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span>
-        <span class="ident">PolyLine::must_new</span>(<span class="ident">i_pts</span>).<span class="ident">shift_either_direction</span>(<span class="ident">dir</span> <span class="op">*</span> <span class="ident">l1</span>.<span class="ident">width</span>.<span class="ident">min</span>(<span class="ident">l2</span>.<span class="ident">width</span>) <span class="op">/</span> <span class="number">2.0</span>)
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) =
+        PolyLine::must_new(i_pts).shift_either_direction(dir * l1.width.min(l2.width) / <span class="number">2.0</span>)
     {
-        <span class="comment">// The first and last points should be approximately l2&#39;s and l1&#39;s endpoints</span>
-        <span class="ident">pts_between</span>.<span class="ident">extend</span>(<span class="ident">pl</span>.<span class="ident">points</span>().<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">pl</span>.<span class="ident">points</span>().<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>).<span class="ident">skip</span>(<span class="number">1</span>));
-    } <span class="kw">else</span> {
+        <span class="comment">// The first and last points should be approximately l2&#39;s and l1&#39;s endpoints
+        </span>pts_between.extend(pl.points().iter().take(pl.points().len() - <span class="number">1</span>).skip(<span class="number">1</span>));
+    } <span class="kw">else </span>{
         <span class="macro">warn!</span>(
             <span class="string">&quot;SharedSidewalkCorner between {} and {} has weird collapsing geometry, so \
                 just doing straight line&quot;</span>,
-            <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>
+            l1.id, l2.id
         );
-        <span class="kw">return</span> <span class="ident">baseline</span>;
+        <span class="kw">return </span>baseline;
     }
 
-    <span class="ident">pts_between</span>.<span class="ident">push</span>(<span class="ident">l1</span>.<span class="ident">endpoint</span>(<span class="ident">i</span>.<span class="ident">id</span>));
-    <span class="ident">pts_between</span>.<span class="ident">dedup</span>();
+    pts_between.push(l1.endpoint(i.id));
+    pts_between.dedup();
 
-    <span class="ident">pts_between</span>.<span class="ident">reverse</span>();
+    pts_between.reverse();
 
-    <span class="kw">if</span> <span class="ident">abstutil::contains_duplicates</span>(
-        <span class="kw-2">&amp;</span><span class="ident">pts_between</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_hashable</span>())
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-    ) <span class="op">|</span><span class="op">|</span> <span class="ident">pts_between</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span>
-    {
+    <span class="kw">if </span>abstutil::contains_duplicates(
+        <span class="kw-2">&amp;</span>pts_between
+            .iter()
+            .map(|pt| pt.to_hashable())
+            .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+    ) || pts_between.len() &lt; <span class="number">2
+    </span>{
         <span class="macro">warn!</span>(
             <span class="string">&quot;SharedSidewalkCorner between {} and {} has weird duplicate geometry, so just doing \
              straight line&quot;</span>,
-            <span class="ident">l1</span>.<span class="ident">id</span>, <span class="ident">l2</span>.<span class="ident">id</span>
+            l1.id, l2.id
         );
-        <span class="kw">return</span> <span class="ident">baseline</span>;
+        <span class="kw">return </span>baseline;
     }
-    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">PolyLine::must_new</span>(<span class="ident">pts_between</span>);
-    <span class="kw">if</span> <span class="ident">result</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="number">10.0</span> <span class="op">*</span> <span class="ident">baseline</span>.<span class="ident">length</span>() {
+    <span class="kw">let </span>result = PolyLine::must_new(pts_between);
+    <span class="kw">if </span>result.length() &gt; <span class="number">10.0 </span>* baseline.length() {
         <span class="macro">warn!</span>(
             <span class="string">&quot;SharedSidewalkCorner between {} and {} explodes to {} long, so just doing straight \
              line&quot;</span>,
-            <span class="ident">l1</span>.<span class="ident">id</span>,
-            <span class="ident">l2</span>.<span class="ident">id</span>,
-            <span class="ident">result</span>.<span class="ident">length</span>()
+            l1.id,
+            l2.id,
+            result.length()
         );
-        <span class="kw">return</span> <span class="ident">baseline</span>;
+        <span class="kw">return </span>baseline;
     }
-    <span class="ident">result</span>
+    result
 }
 
-<span class="comment">// Never in any circumstance should we produce a polyline with only one point (or two points</span>
-<span class="comment">// that&#39;re equal), because it&#39;ll just crash downstream rendering logic and make a mess elsewhere.</span>
-<span class="comment">// Avoid that here. The result is unlikely to look correct (or be easily visible at all).</span>
-<span class="comment">//</span>
-<span class="comment">// TODO Proper fix is likely to make a turn&#39;s geometry optional.</span>
-<span class="kw">fn</span> <span class="ident">baseline_geometry</span>(<span class="ident">pt1</span>: <span class="ident">Pt2D</span>, <span class="ident">pt2</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">PolyLine</span> {
-    <span class="ident">PolyLine::new</span>(<span class="macro">vec!</span>[<span class="ident">pt1</span>, <span class="ident">pt2</span>]).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-        <span class="ident">PolyLine::must_new</span>(<span class="macro">vec!</span>[
-            <span class="ident">pt1</span>,
-            <span class="ident">pt1</span>.<span class="ident">offset</span>(<span class="ident">EPSILON_DIST</span>.<span class="ident">inner_meters</span>(), <span class="ident">EPSILON_DIST</span>.<span class="ident">inner_meters</span>()),
+<span class="comment">// Never in any circumstance should we produce a polyline with only one point (or two points
+// that&#39;re equal), because it&#39;ll just crash downstream rendering logic and make a mess elsewhere.
+// Avoid that here. The result is unlikely to look correct (or be easily visible at all).
+//
+// TODO Proper fix is likely to make a turn&#39;s geometry optional.
+</span><span class="kw">fn </span>baseline_geometry(pt1: Pt2D, pt2: Pt2D) -&gt; PolyLine {
+    PolyLine::new(<span class="macro">vec!</span>[pt1, pt2]).unwrap_or_else(|<span class="kw">_</span>| {
+        PolyLine::must_new(<span class="macro">vec!</span>[
+            pt1,
+            pt1.offset(EPSILON_DIST.inner_meters(), EPSILON_DIST.inner_meters()),
         ])
     })
 }
 
-<span class="kw">fn</span> <span class="ident">turn_id</span>(<span class="ident">parent</span>: <span class="ident">IntersectionID</span>, <span class="ident">src</span>: <span class="ident">LaneID</span>, <span class="ident">dst</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">TurnID</span> {
-    <span class="ident">TurnID</span> { <span class="ident">parent</span>, <span class="ident">src</span>, <span class="ident">dst</span> }
+<span class="kw">fn </span>turn_id(parent: IntersectionID, src: LaneID, dst: LaneID) -&gt; TurnID {
+    TurnID { parent, src, dst }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

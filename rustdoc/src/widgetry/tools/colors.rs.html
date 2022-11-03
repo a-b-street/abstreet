@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/colors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>colors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/tools/colors.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>colors.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -225,232 +225,232 @@
 <span id="225">225</span>
 <span id="226">226</span>
 <span id="227">227</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Tessellation</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Circle, Distance, Line, Polygon, Pt2D, Tessellation};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">Fill</span>, <span class="ident">GeomBatch</span>, <span class="ident">Line</span>, <span class="ident">LinearGradient</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
+<span class="kw">use crate</span>::{Color, EventCtx, Fill, GeomBatch, Line, LinearGradient, Text, Widget};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorLegend</span> {}
+<span class="kw">pub struct </span>ColorLegend {}
 
-<span class="kw">impl</span> <span class="ident">ColorLegend</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">row</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">color</span>: <span class="ident">Color</span>, <span class="ident">label</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">radius</span> <span class="op">=</span> <span class="number">15.0</span>;
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(
-                <span class="ident">color</span>,
-                <span class="ident">Circle::new</span>(<span class="ident">Pt2D::new</span>(<span class="ident">radius</span>, <span class="ident">radius</span>), <span class="ident">Distance::meters</span>(<span class="ident">radius</span>)).<span class="ident">to_polygon</span>(),
+<span class="kw">impl </span>ColorLegend {
+    <span class="kw">pub fn </span>row(ctx: <span class="kw-2">&amp;</span>EventCtx, color: Color, label: <span class="kw">impl </span>AsRef&lt;str&gt;) -&gt; Widget {
+        <span class="kw">let </span>radius = <span class="number">15.0</span>;
+        Widget::row(<span class="macro">vec!</span>[
+            GeomBatch::from(<span class="macro">vec!</span>[(
+                color,
+                Circle::new(Pt2D::new(radius, radius), Distance::meters(radius)).to_polygon(),
             )])
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
-            <span class="ident">Text::from</span>(<span class="ident">label</span>).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">35</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            .into_widget(ctx)
+            .centered_vert(),
+            Text::from(label).wrap_to_pct(ctx, <span class="number">35</span>).into_widget(ctx),
         ])
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gradient_with_width</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">scale</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScale</span>,
-        <span class="ident">labels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
-        <span class="ident">width</span>: <span class="ident">f64</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="macro">assert!</span>(<span class="ident">scale</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>);
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">scale</span>.<span class="number">0</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="ident">width_each</span> <span class="op">=</span> <span class="ident">width</span> <span class="op">/</span> ((<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-        <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="ident">Fill::LinearGradient</span>(<span class="ident">LinearGradient</span> {
-                <span class="ident">line</span>: <span class="ident">Line::must_new</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>), <span class="ident">Pt2D::new</span>(<span class="ident">width</span>, <span class="number">0.0</span>)),
-                <span class="ident">stops</span>: <span class="ident">scale</span>
-                    .<span class="number">0</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">enumerate</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">idx</span>, <span class="ident">color</span>)<span class="op">|</span> ((<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">/</span> ((<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>), <span class="kw-2">*</span><span class="ident">color</span>))
-                    .<span class="ident">collect</span>(),
+    <span class="kw">pub fn </span>gradient_with_width&lt;I: Into&lt;String&gt;&gt;(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        scale: <span class="kw-2">&amp;</span>ColorScale,
+        labels: Vec&lt;I&gt;,
+        width: f64,
+    ) -&gt; Widget {
+        <span class="macro">assert!</span>(scale.<span class="number">0</span>.len() &gt;= <span class="number">2</span>);
+        <span class="kw">let </span>n = scale.<span class="number">0</span>.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">let </span>width_each = width / ((n - <span class="number">1</span>) <span class="kw">as </span>f64);
+        batch.push(
+            Fill::LinearGradient(LinearGradient {
+                line: Line::must_new(Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>), Pt2D::new(width, <span class="number">0.0</span>)),
+                stops: scale
+                    .<span class="number">0
+                    </span>.iter()
+                    .enumerate()
+                    .map(|(idx, color)| ((idx <span class="kw">as </span>f64) / ((n - <span class="number">1</span>) <span class="kw">as </span>f64), <span class="kw-2">*</span>color))
+                    .collect(),
             }),
-            <span class="ident">Tessellation::union_all</span>(
-                (<span class="number">0</span>..<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>)
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-                        <span class="ident">Tessellation::from</span>(
-                            <span class="ident">Polygon::rectangle</span>(<span class="ident">width_each</span>, <span class="number">32.0</span>)
-                                .<span class="ident">translate</span>((<span class="ident">i</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">width_each</span>, <span class="number">0.0</span>),
+            Tessellation::union_all(
+                (<span class="number">0</span>..n - <span class="number">1</span>)
+                    .map(|i| {
+                        Tessellation::from(
+                            Polygon::rectangle(width_each, <span class="number">32.0</span>)
+                                .translate((i <span class="kw">as </span>f64) * width_each, <span class="number">0.0</span>),
                         )
                     })
-                    .<span class="ident">collect</span>(),
+                    .collect(),
             ),
         );
-        <span class="comment">// Extra wrapping to make the labels stretch against just the scale, not everything else</span>
-        <span class="comment">// TODO Long labels aren&#39;t nicely lined up with the boundaries between buckets</span>
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::custom_row</span>(
-                <span class="ident">labels</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span><span class="ident">lbl</span><span class="op">|</span> <span class="ident">Line</span>(<span class="ident">lbl</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>))
-                    .<span class="ident">collect</span>(),
+        <span class="comment">// Extra wrapping to make the labels stretch against just the scale, not everything else
+        // TODO Long labels aren&#39;t nicely lined up with the boundaries between buckets
+        </span>Widget::col(<span class="macro">vec!</span>[
+            batch.into_widget(ctx),
+            Widget::custom_row(
+                labels
+                    .into_iter()
+                    .map(|lbl| Line(lbl).small().into_widget(ctx))
+                    .collect(),
             )
-            .<span class="ident">evenly_spaced</span>(),
+            .evenly_spaced(),
         ])
-        .<span class="ident">container</span>()
+        .container()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gradient</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">scale</span>: <span class="kw-2">&amp;</span><span class="ident">ColorScale</span>,
-        <span class="ident">labels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="ident"><span class="self">Self</span>::gradient_with_width</span>(<span class="ident">ctx</span>, <span class="ident">scale</span>, <span class="ident">labels</span>, <span class="number">300.0</span>)
+    <span class="kw">pub fn </span>gradient&lt;I: Into&lt;String&gt;&gt;(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        scale: <span class="kw-2">&amp;</span>ColorScale,
+        labels: Vec&lt;I&gt;,
+    ) -&gt; Widget {
+        <span class="self">Self</span>::gradient_with_width(ctx, scale, labels, <span class="number">300.0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">categories</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">pairs</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Color</span>, <span class="kw-2">&amp;</span><span class="ident">str</span>)<span class="op">&gt;</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="macro">assert!</span>(<span class="ident">pairs</span>.<span class="ident">len</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="number">2</span>);
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">300.0</span>;
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">pairs</span>.<span class="ident">len</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="ident">width_each</span> <span class="op">=</span> <span class="ident">width</span> <span class="op">/</span> ((<span class="ident">n</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>);
-        <span class="kw">for</span> (<span class="ident">idx</span>, (<span class="ident">color</span>, <span class="kw">_</span>)) <span class="kw">in</span> <span class="ident">pairs</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="ident">batch</span>.<span class="ident">push</span>(
-                <span class="kw-2">*</span><span class="ident">color</span>,
-                <span class="ident">Polygon::rectangle</span>(<span class="ident">width_each</span>, <span class="number">32.0</span>).<span class="ident">translate</span>((<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="ident">width_each</span>, <span class="number">0.0</span>),
+    <span class="kw">pub fn </span>categories(ctx: <span class="kw-2">&amp;mut </span>EventCtx, pairs: Vec&lt;(Color, <span class="kw-2">&amp;</span>str)&gt;) -&gt; Widget {
+        <span class="macro">assert!</span>(pairs.len() &gt;= <span class="number">2</span>);
+        <span class="kw">let </span>width = <span class="number">300.0</span>;
+        <span class="kw">let </span>n = pairs.len();
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">let </span>width_each = width / ((n - <span class="number">1</span>) <span class="kw">as </span>f64);
+        <span class="kw">for </span>(idx, (color, <span class="kw">_</span>)) <span class="kw">in </span>pairs.iter().enumerate() {
+            batch.push(
+                <span class="kw-2">*</span>color,
+                Polygon::rectangle(width_each, <span class="number">32.0</span>).translate((idx <span class="kw">as </span>f64) * width_each, <span class="number">0.0</span>),
             );
         }
-        <span class="comment">// Extra wrapping to make the labels stretch against just the scale, not everything else</span>
-        <span class="comment">// TODO Long labels aren&#39;t nicely lined up with the boundaries between buckets</span>
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">batch</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::custom_row</span>(
-                <span class="ident">pairs</span>
-                    .<span class="ident">into_iter</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">lbl</span>)<span class="op">|</span> <span class="ident">Line</span>(<span class="ident">lbl</span>).<span class="ident">small</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>))
-                    .<span class="ident">collect</span>(),
+        <span class="comment">// Extra wrapping to make the labels stretch against just the scale, not everything else
+        // TODO Long labels aren&#39;t nicely lined up with the boundaries between buckets
+        </span>Widget::col(<span class="macro">vec!</span>[
+            batch.into_widget(ctx),
+            Widget::custom_row(
+                pairs
+                    .into_iter()
+                    .map(|(<span class="kw">_</span>, lbl)| Line(lbl).small().into_widget(ctx))
+                    .collect(),
             )
-            .<span class="ident">evenly_spaced</span>(),
+            .evenly_spaced(),
         ])
-        .<span class="ident">container</span>()
+        .container()
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DivergingScale</span> {
-    <span class="ident">low_color</span>: <span class="ident">Color</span>,
-    <span class="ident">mid_color</span>: <span class="ident">Color</span>,
-    <span class="ident">high_color</span>: <span class="ident">Color</span>,
-    <span class="ident">min</span>: <span class="ident">f64</span>,
-    <span class="ident">avg</span>: <span class="ident">f64</span>,
-    <span class="ident">max</span>: <span class="ident">f64</span>,
-    <span class="ident">ignore</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>,
+<span class="kw">pub struct </span>DivergingScale {
+    low_color: Color,
+    mid_color: Color,
+    high_color: Color,
+    min: f64,
+    avg: f64,
+    max: f64,
+    ignore: <span class="prelude-ty">Option</span>&lt;(f64, f64)&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">DivergingScale</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">low_color</span>: <span class="ident">Color</span>, <span class="ident">mid_color</span>: <span class="ident">Color</span>, <span class="ident">high_color</span>: <span class="ident">Color</span>) -&gt; <span class="ident">DivergingScale</span> {
-        <span class="ident">DivergingScale</span> {
-            <span class="ident">low_color</span>,
-            <span class="ident">mid_color</span>,
-            <span class="ident">high_color</span>,
-            <span class="ident">min</span>: <span class="number">0.0</span>,
-            <span class="ident">avg</span>: <span class="number">0.5</span>,
-            <span class="ident">max</span>: <span class="number">1.0</span>,
-            <span class="ident">ignore</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>DivergingScale {
+    <span class="kw">pub fn </span>new(low_color: Color, mid_color: Color, high_color: Color) -&gt; DivergingScale {
+        DivergingScale {
+            low_color,
+            mid_color,
+            high_color,
+            min: <span class="number">0.0</span>,
+            avg: <span class="number">0.5</span>,
+            max: <span class="number">1.0</span>,
+            ignore: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">range</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">min</span>: <span class="ident">f64</span>, <span class="ident">max</span>: <span class="ident">f64</span>) -&gt; <span class="ident">DivergingScale</span> {
-        <span class="macro">assert!</span>(<span class="ident">min</span> <span class="op">&lt;</span> <span class="ident">max</span>);
-        <span class="self">self</span>.<span class="ident">min</span> <span class="op">=</span> <span class="ident">min</span>;
-        <span class="self">self</span>.<span class="ident">avg</span> <span class="op">=</span> (<span class="ident">min</span> <span class="op">+</span> <span class="ident">max</span>) <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="self">self</span>.<span class="ident">max</span> <span class="op">=</span> <span class="ident">max</span>;
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>range(<span class="kw-2">mut </span><span class="self">self</span>, min: f64, max: f64) -&gt; DivergingScale {
+        <span class="macro">assert!</span>(min &lt; max);
+        <span class="self">self</span>.min = min;
+        <span class="self">self</span>.avg = (min + max) / <span class="number">2.0</span>;
+        <span class="self">self</span>.max = max;
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ignore</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">from</span>: <span class="ident">f64</span>, <span class="ident">to</span>: <span class="ident">f64</span>) -&gt; <span class="ident">DivergingScale</span> {
-        <span class="macro">assert!</span>(<span class="ident">from</span> <span class="op">&lt;</span> <span class="ident">to</span>);
-        <span class="self">self</span>.<span class="ident">ignore</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">from</span>, <span class="ident">to</span>));
-        <span class="self">self</span>
-    }
+    <span class="kw">pub fn </span>ignore(<span class="kw-2">mut </span><span class="self">self</span>, from: f64, to: f64) -&gt; DivergingScale {
+        <span class="macro">assert!</span>(from &lt; to);
+        <span class="self">self</span>.ignore = <span class="prelude-val">Some</span>((from, to));
+        <span class="self">self
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">value</span>: <span class="ident">f64</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">value</span>.<span class="ident">clamp</span>(<span class="self">self</span>.<span class="ident">min</span>, <span class="self">self</span>.<span class="ident">max</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">from</span>, <span class="ident">to</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">ignore</span> {
-            <span class="kw">if</span> <span class="ident">value</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">from</span> <span class="op">&amp;&amp;</span> <span class="ident">value</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">to</span> {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>, value: f64) -&gt; <span class="prelude-ty">Option</span>&lt;Color&gt; {
+        <span class="kw">let </span>value = value.clamp(<span class="self">self</span>.min, <span class="self">self</span>.max);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((from, to)) = <span class="self">self</span>.ignore {
+            <span class="kw">if </span>value &gt;= from &amp;&amp; value &lt;= to {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
         }
-        <span class="kw">if</span> <span class="ident">value</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">avg</span> {
+        <span class="kw">if </span>value &lt;= <span class="self">self</span>.avg {
             <span class="prelude-val">Some</span>(
-                <span class="self">self</span>.<span class="ident">low_color</span>
-                    .<span class="ident">lerp</span>(<span class="self">self</span>.<span class="ident">mid_color</span>, (<span class="ident">value</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">min</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">avg</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">min</span>)),
+                <span class="self">self</span>.low_color
+                    .lerp(<span class="self">self</span>.mid_color, (value - <span class="self">self</span>.min) / (<span class="self">self</span>.avg - <span class="self">self</span>.min)),
             )
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="prelude-val">Some</span>(
-                <span class="self">self</span>.<span class="ident">mid_color</span>
-                    .<span class="ident">lerp</span>(<span class="self">self</span>.<span class="ident">high_color</span>, (<span class="ident">value</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">avg</span>) <span class="op">/</span> (<span class="self">self</span>.<span class="ident">max</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">avg</span>)),
+                <span class="self">self</span>.mid_color
+                    .lerp(<span class="self">self</span>.high_color, (value - <span class="self">self</span>.avg) / (<span class="self">self</span>.max - <span class="self">self</span>.avg)),
             )
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_legend</span><span class="op">&lt;</span><span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">labels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">I</span><span class="op">&gt;</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">ColorLegend::gradient</span>(
-            <span class="ident">ctx</span>,
-            <span class="kw-2">&amp;</span><span class="ident">ColorScale</span>(<span class="macro">vec!</span>[<span class="self">self</span>.<span class="ident">low_color</span>, <span class="self">self</span>.<span class="ident">mid_color</span>, <span class="self">self</span>.<span class="ident">high_color</span>]),
-            <span class="ident">labels</span>,
+    <span class="kw">pub fn </span>make_legend&lt;I: Into&lt;String&gt;&gt;(<span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, labels: Vec&lt;I&gt;) -&gt; Widget {
+        ColorLegend::gradient(
+            ctx,
+            <span class="kw-2">&amp;</span>ColorScale(<span class="macro">vec!</span>[<span class="self">self</span>.low_color, <span class="self">self</span>.mid_color, <span class="self">self</span>.high_color]),
+            labels,
         )
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ColorScale</span>(<span class="kw">pub</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Color</span><span class="op">&gt;</span>);
+<span class="kw">pub struct </span>ColorScale(<span class="kw">pub </span>Vec&lt;Color&gt;);
 
-<span class="kw">impl</span> <span class="ident">ColorScale</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pct</span>: <span class="ident">f64</span>) -&gt; <span class="ident">Color</span> {
-        <span class="kw">let</span> (<span class="ident">low</span>, <span class="ident">pct</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner_eval</span>(<span class="ident">pct</span>);
-        <span class="self">self</span>.<span class="number">0</span>[<span class="ident">low</span>].<span class="ident">lerp</span>(<span class="self">self</span>.<span class="number">0</span>[<span class="ident">low</span> <span class="op">+</span> <span class="number">1</span>], <span class="ident">pct</span>)
+<span class="kw">impl </span>ColorScale {
+    <span class="kw">pub fn </span>eval(<span class="kw-2">&amp;</span><span class="self">self</span>, pct: f64) -&gt; Color {
+        <span class="kw">let </span>(low, pct) = <span class="self">self</span>.inner_eval(pct);
+        <span class="self">self</span>.<span class="number">0</span>[low].lerp(<span class="self">self</span>.<span class="number">0</span>[low + <span class="number">1</span>], pct)
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_colorous</span>(<span class="ident">gradient</span>: <span class="ident">colorous::Gradient</span>) -&gt; <span class="ident">ColorScale</span> {
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">7</span>;
-        <span class="ident">ColorScale</span>(
-            (<span class="number">0</span>..<span class="ident">n</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">i</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">gradient</span>.<span class="ident">eval_rational</span>(<span class="ident">i</span>, <span class="ident">n</span>);
-                    <span class="ident">Color::rgb</span>(<span class="ident">c</span>.<span class="ident">r</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">g</span> <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">c</span>.<span class="ident">b</span> <span class="kw">as</span> <span class="ident">usize</span>)
+    <span class="attribute">#[allow(unused)]
+    </span><span class="kw">pub fn </span>from_colorous(gradient: colorous::Gradient) -&gt; ColorScale {
+        <span class="kw">let </span>n = <span class="number">7</span>;
+        ColorScale(
+            (<span class="number">0</span>..n)
+                .map(|i| {
+                    <span class="kw">let </span>c = gradient.eval_rational(i, n);
+                    Color::rgb(c.r <span class="kw">as </span>usize, c.g <span class="kw">as </span>usize, c.b <span class="kw">as </span>usize)
                 })
-                .<span class="ident">collect</span>(),
+                .collect(),
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">inner_eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pct</span>: <span class="ident">f64</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">f64</span>) {
-        <span class="macro">assert!</span>((<span class="number">0.0</span>..<span class="op">=</span><span class="number">1.0</span>).<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">pct</span>));
-        <span class="comment">// What&#39;s the interval between each pair of colors?</span>
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> (<span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>;
-        <span class="kw">let</span> <span class="ident">low</span> <span class="op">=</span> (<span class="ident">pct</span> <span class="op">/</span> <span class="ident">width</span>).<span class="ident">floor</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="kw">if</span> <span class="ident">low</span> <span class="op">==</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-            <span class="kw">return</span> (<span class="ident">low</span> <span class="op">-</span> <span class="number">1</span>, <span class="number">1.0</span>);
+    <span class="kw">fn </span>inner_eval(<span class="kw-2">&amp;</span><span class="self">self</span>, pct: f64) -&gt; (usize, f64) {
+        <span class="macro">assert!</span>((<span class="number">0.0</span>..=<span class="number">1.0</span>).contains(<span class="kw-2">&amp;</span>pct));
+        <span class="comment">// What&#39;s the interval between each pair of colors?
+        </span><span class="kw">let </span>width = <span class="number">1.0 </span>/ (<span class="self">self</span>.<span class="number">0</span>.len() - <span class="number">1</span>) <span class="kw">as </span>f64;
+        <span class="kw">let </span>low = (pct / width).floor() <span class="kw">as </span>usize;
+        <span class="kw">if </span>low == <span class="self">self</span>.<span class="number">0</span>.len() - <span class="number">1 </span>{
+            <span class="kw">return </span>(low - <span class="number">1</span>, <span class="number">1.0</span>);
         }
-        (<span class="ident">low</span>, (<span class="ident">pct</span> <span class="op">%</span> <span class="ident">width</span>) <span class="op">/</span> <span class="ident">width</span>)
+        (low, (pct % width) / width)
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_scale</span>() {
-        <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Color</span>, <span class="ident">ColorScale</span>};
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_scale() {
+        <span class="kw">use super</span>::{Color, ColorScale};
 
-        <span class="kw">let</span> <span class="ident">two</span> <span class="op">=</span> <span class="ident">ColorScale</span>(<span class="macro">vec!</span>[<span class="ident">Color::BLACK</span>, <span class="ident">Color::WHITE</span>]);
-        <span class="ident">assert_same</span>((<span class="number">0</span>, <span class="number">0.0</span>), <span class="ident">two</span>.<span class="ident">inner_eval</span>(<span class="number">0.0</span>));
-        <span class="ident">assert_same</span>((<span class="number">0</span>, <span class="number">0.5</span>), <span class="ident">two</span>.<span class="ident">inner_eval</span>(<span class="number">0.5</span>));
-        <span class="ident">assert_same</span>((<span class="number">0</span>, <span class="number">1.0</span>), <span class="ident">two</span>.<span class="ident">inner_eval</span>(<span class="number">1.0</span>));
+        <span class="kw">let </span>two = ColorScale(<span class="macro">vec!</span>[Color::BLACK, Color::WHITE]);
+        assert_same((<span class="number">0</span>, <span class="number">0.0</span>), two.inner_eval(<span class="number">0.0</span>));
+        assert_same((<span class="number">0</span>, <span class="number">0.5</span>), two.inner_eval(<span class="number">0.5</span>));
+        assert_same((<span class="number">0</span>, <span class="number">1.0</span>), two.inner_eval(<span class="number">1.0</span>));
 
-        <span class="kw">let</span> <span class="ident">three</span> <span class="op">=</span> <span class="ident">ColorScale</span>(<span class="macro">vec!</span>[<span class="ident">Color::BLACK</span>, <span class="ident">Color::RED</span>, <span class="ident">Color::WHITE</span>]);
-        <span class="ident">assert_same</span>((<span class="number">0</span>, <span class="number">0.0</span>), <span class="ident">three</span>.<span class="ident">inner_eval</span>(<span class="number">0.0</span>));
-        <span class="ident">assert_same</span>((<span class="number">0</span>, <span class="number">0.4</span>), <span class="ident">three</span>.<span class="ident">inner_eval</span>(<span class="number">0.2</span>));
-        <span class="ident">assert_same</span>((<span class="number">1</span>, <span class="number">0.0</span>), <span class="ident">three</span>.<span class="ident">inner_eval</span>(<span class="number">0.5</span>));
-        <span class="ident">assert_same</span>((<span class="number">1</span>, <span class="number">0.4</span>), <span class="ident">three</span>.<span class="ident">inner_eval</span>(<span class="number">0.7</span>));
-        <span class="ident">assert_same</span>((<span class="number">1</span>, <span class="number">1.0</span>), <span class="ident">three</span>.<span class="ident">inner_eval</span>(<span class="number">1.0</span>));
+        <span class="kw">let </span>three = ColorScale(<span class="macro">vec!</span>[Color::BLACK, Color::RED, Color::WHITE]);
+        assert_same((<span class="number">0</span>, <span class="number">0.0</span>), three.inner_eval(<span class="number">0.0</span>));
+        assert_same((<span class="number">0</span>, <span class="number">0.4</span>), three.inner_eval(<span class="number">0.2</span>));
+        assert_same((<span class="number">1</span>, <span class="number">0.0</span>), three.inner_eval(<span class="number">0.5</span>));
+        assert_same((<span class="number">1</span>, <span class="number">0.4</span>), three.inner_eval(<span class="number">0.7</span>));
+        assert_same((<span class="number">1</span>, <span class="number">1.0</span>), three.inner_eval(<span class="number">1.0</span>));
     }
 
-    <span class="kw">fn</span> <span class="ident">assert_same</span>(<span class="ident">expected</span>: (<span class="ident">usize</span>, <span class="ident">f64</span>), <span class="ident">actual</span>: (<span class="ident">usize</span>, <span class="ident">f64</span>)) {
-        <span class="macro">assert_eq!</span>(<span class="ident">expected</span>.<span class="number">0</span>, <span class="ident">actual</span>.<span class="number">0</span>);
-        <span class="kw">if</span> (<span class="ident">expected</span>.<span class="number">1</span> <span class="op">-</span> <span class="ident">actual</span>.<span class="number">1</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">0.0001</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;{:?} != {:?}&quot;</span>, <span class="ident">expected</span>, <span class="ident">actual</span>);
+    <span class="kw">fn </span>assert_same(expected: (usize, f64), actual: (usize, f64)) {
+        <span class="macro">assert_eq!</span>(expected.<span class="number">0</span>, actual.<span class="number">0</span>);
+        <span class="kw">if </span>(expected.<span class="number">1 </span>- actual.<span class="number">1</span>).abs() &gt; <span class="number">0.0001 </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;{:?} != {:?}&quot;</span>, expected, actual);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

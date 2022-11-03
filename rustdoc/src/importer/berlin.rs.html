@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/berlin.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>berlin.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/berlin.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>berlin.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -118,125 +118,125 @@
 <span id="118">118</span>
 <span id="119">119</span>
 <span id="120">120</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">fs_err::File</span>;
-<span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>fs_err::File;
+<span class="kw">use </span>rand::SeedableRng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
+<span class="kw">use </span>serde::Deserialize;
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom::Ring</span>;
-<span class="kw">use</span> <span class="ident">kml::ExtraShapes</span>;
-<span class="kw">use</span> <span class="ident">map_model::BuildingType</span>;
-<span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::Ring;
+<span class="kw">use </span>kml::ExtraShapes;
+<span class="kw">use </span>map_model::BuildingType;
+<span class="kw">use </span>raw_map::RawMap;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::configuration::ImporterConfiguration</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils</span>::{<span class="ident">download</span>, <span class="ident">download_kml</span>};
+<span class="kw">use </span><span class="kw">crate</span>::configuration::ImporterConfiguration;
+<span class="kw">use </span><span class="kw">crate</span>::utils::{download, download_kml};
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">import_extra_data</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>,
-    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+<span class="kw">pub async fn </span>import_extra_data(
+    map: <span class="kw-2">&amp;</span>RawMap,
+    config: <span class="kw-2">&amp;</span>ImporterConfiguration,
+    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">&#39;_</span>&gt;,
 ) {
-    <span class="comment">// From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en</span>
-    <span class="ident">download_kml</span>(
-        <span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">input_path</span>(<span class="string">&quot;planning_areas.bin&quot;</span>),
+    <span class="comment">// From https://data.technologiestiftung-berlin.de/dataset/lor_planungsgraeume/en
+    </span>download_kml(
+        map.get_city_name().input_path(<span class="string">&quot;planning_areas.bin&quot;</span>),
         <span class="string">&quot;https://tsb-opendata.s3.eu-central-1.amazonaws.com/lor_planungsgraeume/lor_planungsraeume.kml&quot;</span>,
-        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>,
-        <span class="comment">// Keep partly out-of-bounds polygons</span>
-        <span class="bool-val">false</span>,
-        <span class="ident">timer</span>
+        <span class="kw-2">&amp;</span>map.streets.gps_bounds,
+        <span class="comment">// Keep partly out-of-bounds polygons
+        </span><span class="bool-val">false</span>,
+        timer
     ).<span class="kw">await</span>;
 
-    <span class="comment">// From</span>
-    <span class="comment">// https://daten.berlin.de/datensaetze/einwohnerinnen-und-einwohner-berlin-lor-planungsr%C3%A4umen-am-31122018</span>
-    <span class="ident">download</span>(
-        <span class="ident">config</span>,
-        <span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">input_path</span>(<span class="string">&quot;EWR201812E_Matrix.csv&quot;</span>),
+    <span class="comment">// From
+    // https://daten.berlin.de/datensaetze/einwohnerinnen-und-einwohner-berlin-lor-planungsr%C3%A4umen-am-31122018
+    </span>download(
+        config,
+        map.get_city_name().input_path(<span class="string">&quot;EWR201812E_Matrix.csv&quot;</span>),
         <span class="string">&quot;https://www.statistik-berlin-brandenburg.de/opendata/EWR201812E_Matrix.csv&quot;</span>,
     )
     .<span class="kw">await</span>;
 
-    <span class="comment">// Always do this, it&#39;s idempotent and fast</span>
-    <span class="ident">correlate_population</span>(
-        <span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">input_path</span>(<span class="string">&quot;planning_areas.bin&quot;</span>),
-        <span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">input_path</span>(<span class="string">&quot;EWR201812E_Matrix.csv&quot;</span>),
-        <span class="ident">timer</span>,
+    <span class="comment">// Always do this, it&#39;s idempotent and fast
+    </span>correlate_population(
+        map.get_city_name().input_path(<span class="string">&quot;planning_areas.bin&quot;</span>),
+        map.get_city_name().input_path(<span class="string">&quot;EWR201812E_Matrix.csv&quot;</span>),
+        timer,
     );
 }
 
-<span class="comment">// Modify the filtered KML of planning areas with the number of residents from a different dataset.</span>
-<span class="kw">fn</span> <span class="ident">correlate_population</span>(<span class="ident">kml_path</span>: <span class="ident">String</span>, <span class="ident">csv_path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">abstio::read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(<span class="ident">kml_path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::ReaderBuilder::new</span>()
-        .<span class="ident">delimiter</span>(<span class="string">b&#39;;&#39;</span>)
-        .<span class="ident">from_reader</span>(<span class="ident">File::open</span>(<span class="ident">csv_path</span>).<span class="ident">unwrap</span>())
-        .<span class="ident">deserialize</span>()
+<span class="comment">// Modify the filtered KML of planning areas with the number of residents from a different dataset.
+</span><span class="kw">fn </span>correlate_population(kml_path: String, csv_path: String, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="kw">let </span><span class="kw-2">mut </span>shapes = abstio::read_binary::&lt;ExtraShapes&gt;(kml_path.clone(), timer);
+    <span class="kw">for </span>rec <span class="kw">in </span>csv::ReaderBuilder::new()
+        .delimiter(<span class="string">b&#39;;&#39;</span>)
+        .from_reader(File::open(csv_path).unwrap())
+        .deserialize()
     {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">rec</span>.<span class="ident">unwrap</span>();
-        <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">shapes</span>.<span class="ident">shapes</span> {
-            <span class="kw">if</span> <span class="ident">shape</span>.<span class="ident">attributes</span>.<span class="ident">get</span>(<span class="string">&quot;spatial_name&quot;</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">rec</span>.<span class="ident">raumid</span>) {
-                <span class="ident">shape</span>
-                    .<span class="ident">attributes</span>
-                    .<span class="ident">insert</span>(<span class="string">&quot;num_residents&quot;</span>.<span class="ident">to_string</span>(), <span class="ident">rec</span>.<span class="ident">e_e</span>);
+        <span class="kw">let </span>rec: Record = rec.unwrap();
+        <span class="kw">for </span>shape <span class="kw">in </span><span class="kw-2">&amp;mut </span>shapes.shapes {
+            <span class="kw">if </span>shape.attributes.get(<span class="string">&quot;spatial_name&quot;</span>) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>rec.raumid) {
+                shape
+                    .attributes
+                    .insert(<span class="string">&quot;num_residents&quot;</span>.to_string(), rec.e_e);
                 <span class="kw">break</span>;
             }
         }
     }
-    <span class="ident">abstio::write_binary</span>(<span class="ident">kml_path</span>, <span class="kw-2">&amp;</span><span class="ident">shapes</span>);
+    abstio::write_binary(kml_path, <span class="kw-2">&amp;</span>shapes);
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Record</span> {
-    <span class="comment">// Corresponds with spatial_name from planning_areas</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;RAUMID&quot;</span>)]</span>
-    <span class="ident">raumid</span>: <span class="ident">String</span>,
-    <span class="comment">// The total residents in that area</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;E_E&quot;</span>)]</span>
-    <span class="ident">e_e</span>: <span class="ident">String</span>,
+<span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>Record {
+    <span class="comment">// Corresponds with spatial_name from planning_areas
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;RAUMID&quot;</span>)]
+    </span>raumid: String,
+    <span class="comment">// The total residents in that area
+    </span><span class="attribute">#[serde(rename = <span class="string">&quot;E_E&quot;</span>)]
+    </span>e_e: String,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">distribute_residents</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">map_model::Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="ident">abstio::read_binary</span>::<span class="op">&lt;</span><span class="ident">ExtraShapes</span><span class="op">&gt;</span>(
-        <span class="string">&quot;data/input/de/berlin/planning_areas.bin&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="ident">timer</span>,
+<span class="kw">pub fn </span>distribute_residents(map: <span class="kw-2">&amp;mut </span>map_model::Map, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="kw">for </span>shape <span class="kw">in </span>abstio::read_binary::&lt;ExtraShapes&gt;(
+        <span class="string">&quot;data/input/de/berlin/planning_areas.bin&quot;</span>.to_string(),
+        timer,
     )
-    .<span class="ident">shapes</span>
+    .shapes
     {
-        <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>().<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">shape</span>.<span class="ident">points</span>);
-        <span class="kw">if</span> <span class="ident">pts</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">all</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">contains_pt</span>(<span class="kw-2">*</span><span class="ident">pt</span>))
+        <span class="kw">let </span>pts = map.get_gps_bounds().convert(<span class="kw-2">&amp;</span>shape.points);
+        <span class="kw">if </span>pts
+            .iter()
+            .all(|pt| !map.get_boundary_polygon().contains_pt(<span class="kw-2">*</span>pt))
         {
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">region</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="ident">pts</span>).<span class="ident">into_polygon</span>();
-        <span class="comment">// Deterministically seed using the planning area&#39;s ID.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span>
-            <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">shape</span>.<span class="ident">attributes</span>[<span class="string">&quot;spatial_name&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>());
+        <span class="kw">let </span>region = Ring::must_new(pts).into_polygon();
+        <span class="comment">// Deterministically seed using the planning area&#39;s ID.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>rng =
+            XorShiftRng::seed_from_u64(shape.attributes[<span class="string">&quot;spatial_name&quot;</span>].parse::&lt;u64&gt;().unwrap());
 
-        <span class="kw">for</span> (<span class="ident">home</span>, <span class="ident">n</span>) <span class="kw">in</span> <span class="ident">popdat::distribute_population_to_homes</span>(
-            <span class="ident">geo::Polygon::from</span>(<span class="ident">region</span>),
-            <span class="ident">shape</span>.<span class="ident">attributes</span>[<span class="string">&quot;num_residents&quot;</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(),
-            <span class="ident">map</span>,
-            <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>,
+        <span class="kw">for </span>(home, n) <span class="kw">in </span>popdat::distribute_population_to_homes(
+            geo::Polygon::from(region),
+            shape.attributes[<span class="string">&quot;num_residents&quot;</span>].parse::&lt;usize&gt;().unwrap(),
+            map,
+            <span class="kw-2">&amp;mut </span>rng,
         ) {
-            <span class="kw">let</span> <span class="ident">bldg_type</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">home</span>).<span class="ident">bldg_type</span> {
-                <span class="ident">BuildingType::Residential</span> {
-                    <span class="ident">num_housing_units</span>, ..
-                } =&gt; <span class="ident">BuildingType::Residential</span> {
-                    <span class="ident">num_housing_units</span>,
-                    <span class="ident">num_residents</span>: <span class="ident">n</span>,
+            <span class="kw">let </span>bldg_type = <span class="kw">match </span>map.get_b(home).bldg_type {
+                BuildingType::Residential {
+                    num_housing_units, ..
+                } =&gt; BuildingType::Residential {
+                    num_housing_units,
+                    num_residents: n,
                 },
-                <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="kw">_</span>, <span class="ident">worker_cap</span>) =&gt; {
-                    <span class="ident">BuildingType::ResidentialCommercial</span>(<span class="ident">n</span>, <span class="ident">worker_cap</span>)
+                BuildingType::ResidentialCommercial(<span class="kw">_</span>, worker_cap) =&gt; {
+                    BuildingType::ResidentialCommercial(n, worker_cap)
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             };
-            <span class="ident">map</span>.<span class="ident">hack_override_bldg_type</span>(<span class="ident">home</span>, <span class="ident">bldg_type</span>);
+            map.hack_override_bldg_type(home, bldg_type);
         }
     }
 
-    <span class="ident">map</span>.<span class="ident">save</span>();
+    map.save();
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

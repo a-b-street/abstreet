@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/vehicles.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vehicles.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/vehicles.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>vehicles.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -376,276 +376,276 @@
 <span id="376">376</span>
 <span id="377">377</span>
 <span id="378">378</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Pathfinding for cars, bikes, buses, and trains using contraction hierarchies
 
-<span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</span><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">fast_paths::InputGraph</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>fast_paths::InputGraph;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
-<span class="kw">use</span> <span class="ident">geom::Duration</span>;
+<span class="kw">use </span>abstutil::MultiMap;
+<span class="kw">use </span>geom::Duration;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::engine</span>::{<span class="ident">CreateEngine</span>, <span class="ident">PathfindEngine</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::node_map</span>::{<span class="ident">deserialize_nodemap</span>, <span class="ident">NodeMap</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::uber_turns</span>::{<span class="ident">IntersectionCluster</span>, <span class="ident">UberTurnV2</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::zone_cost</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind</span>::{<span class="ident">round</span>, <span class="ident">unround</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">LaneType</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>,
-    <span class="ident">PathV2</span>, <span class="ident">Position</span>, <span class="ident">RoutingParams</span>, <span class="ident">Traversable</span>,
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::engine::{CreateEngine, PathfindEngine};
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::node_map::{deserialize_nodemap, NodeMap};
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::uber_turns::{IntersectionCluster, UberTurnV2};
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::zone_cost;
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::{round, unround};
+<span class="kw">use crate</span>::{
+    osm, DirectedRoadID, Direction, LaneType, Map, MovementID, PathConstraints, PathRequest,
+    PathV2, Position, RoutingParams, Traversable,
 };
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VehiclePathfinder</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_nodemap&quot;</span>)]</span>
-    <span class="ident">nodes</span>: <span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>,
-    <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
-    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    <span class="ident">params</span>: <span class="ident">RoutingParams</span>,
-    <span class="kw">pub</span> <span class="ident">engine</span>: <span class="ident">PathfindEngine</span>,
+<span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>VehiclePathfinder {
+    <span class="attribute">#[serde(deserialize_with = <span class="string">&quot;deserialize_nodemap&quot;</span>)]
+    </span>nodes: NodeMap&lt;Node&gt;,
+    uber_turns: Vec&lt;UberTurnV2&gt;,
+    constraints: PathConstraints,
+    params: RoutingParams,
+    <span class="kw">pub </span>engine: PathfindEngine,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Hash</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Node</span> {
-    <span class="ident">Road</span>(<span class="ident">DirectedRoadID</span>),
-    <span class="ident">UberTurn</span>(<span class="ident">usize</span>),
+<span class="attribute">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>Node {
+    Road(DirectedRoadID),
+    UberTurn(usize),
 }
 
-<span class="kw">impl</span> <span class="ident">VehiclePathfinder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">VehiclePathfinder</span> {
-        <span class="ident">VehiclePathfinder</span> {
-            <span class="ident">nodes</span>: <span class="ident">NodeMap::new</span>(),
-            <span class="ident">uber_turns</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">constraints</span>: <span class="ident">PathConstraints::Car</span>,
-            <span class="ident">params</span>: <span class="ident">RoutingParams::default</span>(),
-            <span class="ident">engine</span>: <span class="ident">PathfindEngine::Empty</span>,
+<span class="kw">impl </span>VehiclePathfinder {
+    <span class="kw">pub fn </span>empty() -&gt; VehiclePathfinder {
+        VehiclePathfinder {
+            nodes: NodeMap::new(),
+            uber_turns: Vec::new(),
+            constraints: PathConstraints::Car,
+            params: RoutingParams::default(),
+            engine: PathfindEngine::Empty,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-        <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
-        <span class="ident">engine</span>: <span class="kw-2">&amp;</span><span class="ident">CreateEngine</span>,
-    ) -&gt; <span class="ident">VehiclePathfinder</span> {
-        <span class="comment">// Insert every road as a node.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> <span class="op">=</span> <span class="ident">NodeMap::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="comment">// Regardless of current lane types or even directions, add both. These could change</span>
-            <span class="comment">// later, and we want the node IDs to match up.</span>
-            <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">Node::Road</span>(<span class="ident">DirectedRoadID</span> {
-                <span class="ident">road</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-                <span class="ident">dir</span>: <span class="ident">Direction::Fwd</span>,
+    <span class="kw">pub fn </span>new(
+        map: <span class="kw-2">&amp;</span>Map,
+        constraints: PathConstraints,
+        params: <span class="kw-2">&amp;</span>RoutingParams,
+        engine: <span class="kw-2">&amp;</span>CreateEngine,
+    ) -&gt; VehiclePathfinder {
+        <span class="comment">// Insert every road as a node.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>nodes = NodeMap::new();
+        <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+            <span class="comment">// Regardless of current lane types or even directions, add both. These could change
+            // later, and we want the node IDs to match up.
+            </span>nodes.get_or_insert(Node::Road(DirectedRoadID {
+                road: r.id,
+                dir: Direction::Fwd,
             }));
-            <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">Node::Road</span>(<span class="ident">DirectedRoadID</span> {
-                <span class="ident">road</span>: <span class="ident">r</span>.<span class="ident">id</span>,
-                <span class="ident">dir</span>: <span class="ident">Direction::Back</span>,
+            nodes.get_or_insert(Node::Road(DirectedRoadID {
+                road: r.id,
+                dir: Direction::Back,
             }));
         }
 
-        <span class="comment">// Find all uber-turns and make a node for them too.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uber_turns</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">ic</span> <span class="kw">in</span> <span class="ident">IntersectionCluster::find_all</span>(<span class="ident">map</span>) {
-            <span class="kw">for</span> <span class="ident">ut</span> <span class="kw">in</span> <span class="ident">ic</span>.<span class="ident">into_v2</span>(<span class="ident">map</span>) {
-                <span class="ident">nodes</span>.<span class="ident">get_or_insert</span>(<span class="ident">Node::UberTurn</span>(<span class="ident">uber_turns</span>.<span class="ident">len</span>()));
-                <span class="ident">uber_turns</span>.<span class="ident">push</span>(<span class="ident">ut</span>);
+        <span class="comment">// Find all uber-turns and make a node for them too.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>uber_turns = Vec::new();
+        <span class="kw">for </span>ic <span class="kw">in </span>IntersectionCluster::find_all(map) {
+            <span class="kw">for </span>ut <span class="kw">in </span>ic.into_v2(map) {
+                nodes.get_or_insert(Node::UberTurn(uber_turns.len()));
+                uber_turns.push(ut);
             }
         }
 
-        <span class="kw">let</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">make_input_graph</span>(<span class="ident">constraints</span>, <span class="kw-2">&amp;</span><span class="ident">nodes</span>, <span class="kw-2">&amp;</span><span class="ident">uber_turns</span>, <span class="ident">params</span>, <span class="ident">map</span>);
-        <span class="kw">let</span> <span class="ident">engine</span> <span class="op">=</span> <span class="ident">engine</span>.<span class="ident">create</span>(<span class="ident">input_graph</span>);
+        <span class="kw">let </span>input_graph = make_input_graph(constraints, <span class="kw-2">&amp;</span>nodes, <span class="kw-2">&amp;</span>uber_turns, params, map);
+        <span class="kw">let </span>engine = engine.create(input_graph);
 
-        <span class="ident">VehiclePathfinder</span> {
-            <span class="ident">nodes</span>,
-            <span class="ident">uber_turns</span>,
-            <span class="ident">constraints</span>,
-            <span class="ident">params</span>: <span class="ident">params</span>.<span class="ident">clone</span>(),
-            <span class="ident">engine</span>,
+        VehiclePathfinder {
+            nodes,
+            uber_turns,
+            constraints,
+            params: params.clone(),
+            engine,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pathfind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">req</span>: <span class="ident">PathRequest</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>pathfind(<span class="kw-2">&amp;</span><span class="self">self</span>, req: PathRequest, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;PathV2&gt; {
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.engine, PathfindEngine::Empty) {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
 
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">is_walkable</span>());
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">starts</span> <span class="op">=</span> <span class="macro">vec!</span>[(
-            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::Road</span>(
-                <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(),
+        <span class="macro">assert!</span>(!map.get_l(req.start.lane()).is_walkable());
+        <span class="kw">let </span><span class="kw-2">mut </span>starts = <span class="macro">vec!</span>[(
+            <span class="self">self</span>.nodes.get(Node::Road(
+                map.get_l(req.start.lane()).get_directed_parent(),
             )),
             <span class="number">0</span>,
         )];
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="ident">cost</span>)) <span class="op">=</span> <span class="ident">req</span>.<span class="ident">alt_start</span> {
-            <span class="ident">starts</span>.<span class="ident">push</span>((
-                <span class="self">self</span>.<span class="ident">nodes</span>
-                    .<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>())),
-                <span class="ident">round</span>(<span class="ident">cost</span>),
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((pos, cost)) = req.alt_start {
+            starts.push((
+                <span class="self">self</span>.nodes
+                    .get(Node::Road(map.get_l(pos.lane()).get_directed_parent())),
+                round(cost),
             ));
         }
-        <span class="kw">let</span> (<span class="ident">raw_weight</span>, <span class="ident">raw_nodes</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">calculate_path_multiple_sources_and_targets</span>(
-            <span class="ident">starts</span>,
+        <span class="kw">let </span>(raw_weight, raw_nodes) = <span class="self">self</span>.engine.calculate_path_multiple_sources_and_targets(
+            starts,
             <span class="macro">vec!</span>[(
-                <span class="self">self</span>.<span class="ident">nodes</span>
-                    .<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>())),
+                <span class="self">self</span>.nodes
+                    .get(Node::Road(map.get_l(req.end.lane()).get_directed_parent())),
                 <span class="number">0</span>,
             )],
         )<span class="question-mark">?</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uber_turns</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">node</span> <span class="kw">in</span> <span class="ident">raw_nodes</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">translate_id</span>(<span class="ident">id</span>)) {
-            <span class="kw">match</span> <span class="ident">node</span> {
-                <span class="ident">Node::Road</span>(<span class="ident">dr</span>) =&gt; {
-                    <span class="ident">road_steps</span>.<span class="ident">push</span>(<span class="ident">dr</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>road_steps = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>uber_turns = Vec::new();
+        <span class="kw">for </span>node <span class="kw">in </span>raw_nodes.into_iter().map(|id| <span class="self">self</span>.nodes.translate_id(id)) {
+            <span class="kw">match </span>node {
+                Node::Road(dr) =&gt; {
+                    road_steps.push(dr);
                 }
-                <span class="ident">Node::UberTurn</span>(<span class="ident">ut</span>) =&gt; {
-                    <span class="comment">// Flatten the uber-turn into the roads it crosses.</span>
-                    <span class="kw">for</span> <span class="ident">mvmnt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">uber_turns</span>[<span class="ident">ut</span>].<span class="ident">path</span> {
-                        <span class="ident">road_steps</span>.<span class="ident">push</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>);
+                Node::UberTurn(ut) =&gt; {
+                    <span class="comment">// Flatten the uber-turn into the roads it crosses.
+                    </span><span class="kw">for </span>mvmnt <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.uber_turns[ut].path {
+                        road_steps.push(mvmnt.to);
                     }
-                    <span class="ident">road_steps</span>.<span class="ident">pop</span>();
-                    <span class="comment">// Also remember the uber-turn exists.</span>
-                    <span class="ident">uber_turns</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">uber_turns</span>[<span class="ident">ut</span>].<span class="ident">clone</span>());
+                    road_steps.pop();
+                    <span class="comment">// Also remember the uber-turn exists.
+                    </span>uber_turns.push(<span class="self">self</span>.uber_turns[ut].clone());
                 }
             }
         }
-        <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="ident">unround</span>(<span class="ident">raw_weight</span>);
-        <span class="prelude-val">Some</span>(<span class="ident">PathV2::from_roads</span>(<span class="ident">road_steps</span>, <span class="ident">req</span>, <span class="ident">cost</span>, <span class="ident">uber_turns</span>, <span class="ident">map</span>))
+        <span class="kw">let </span>cost = unround(raw_weight);
+        <span class="prelude-val">Some</span>(PathV2::from_roads(road_steps, req, cost, uber_turns, map))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">apply_edits</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
+    <span class="kw">pub fn </span>apply_edits(<span class="kw-2">&amp;mut </span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) {
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.engine, PathfindEngine::Empty) {
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// The NodeMap is just all roads and uber-turns -- it won&#39;t change. So we can also reuse</span>
-        <span class="comment">// the node ordering.</span>
-        <span class="comment">// TODO Make sure the result of this is deterministic and equivalent to computing from</span>
-        <span class="comment">// scratch.</span>
-        <span class="kw">let</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">make_input_graph</span>(
-            <span class="self">self</span>.<span class="ident">constraints</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">uber_turns</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">params</span>,
-            <span class="ident">map</span>,
+        <span class="comment">// The NodeMap is just all roads and uber-turns -- it won&#39;t change. So we can also reuse
+        // the node ordering.
+        // TODO Make sure the result of this is deterministic and equivalent to computing from
+        // scratch.
+        </span><span class="kw">let </span>input_graph = make_input_graph(
+            <span class="self">self</span>.constraints,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.nodes,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.uber_turns,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.params,
+            map,
         );
-        <span class="kw">let</span> <span class="ident">engine</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">reuse_ordering</span>().<span class="ident">create</span>(<span class="ident">input_graph</span>);
-        <span class="self">self</span>.<span class="ident">engine</span> <span class="op">=</span> <span class="ident">engine</span>;
+        <span class="kw">let </span>engine = <span class="self">self</span>.engine.reuse_ordering().create(input_graph);
+        <span class="self">self</span>.engine = engine;
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_costs_from</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">start</span>: <span class="ident">Position</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="macro">matches!</span>(<span class="self">self</span>.<span class="ident">engine</span>, <span class="ident">PathfindEngine::Empty</span>) {
-            <span class="kw">return</span> <span class="ident">HashMap::new</span>();
+    <span class="kw">pub fn </span>all_costs_from(<span class="kw-2">&amp;</span><span class="self">self</span>, start: Position, map: <span class="kw-2">&amp;</span>Map) -&gt; HashMap&lt;DirectedRoadID, Duration&gt; {
+        <span class="kw">if </span><span class="macro">matches!</span>(<span class="self">self</span>.engine, PathfindEngine::Empty) {
+            <span class="kw">return </span>HashMap::new();
         }
 
-        <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">nodes</span>
-            .<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>()));
-        <span class="kw">let</span> <span class="ident">raw_costs</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">is_dijkstra</span>() {
-            <span class="self">self</span>.<span class="ident">engine</span>.<span class="ident">all_costs_from</span>(<span class="ident">start</span>)
-        } <span class="kw">else</span> {
-            <span class="comment">// The CH engine doesn&#39;t support this!</span>
-            <span class="kw">let</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">make_input_graph</span>(
-                <span class="self">self</span>.<span class="ident">constraints</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">uber_turns</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">params</span>,
-                <span class="ident">map</span>,
+        <span class="kw">let </span>start = <span class="self">self
+            </span>.nodes
+            .get(Node::Road(map.get_l(start.lane()).get_directed_parent()));
+        <span class="kw">let </span>raw_costs = <span class="kw">if </span><span class="self">self</span>.engine.is_dijkstra() {
+            <span class="self">self</span>.engine.all_costs_from(start)
+        } <span class="kw">else </span>{
+            <span class="comment">// The CH engine doesn&#39;t support this!
+            </span><span class="kw">let </span>input_graph = make_input_graph(
+                <span class="self">self</span>.constraints,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.nodes,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.uber_turns,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.params,
+                map,
             );
-            <span class="ident">CreateEngine::Dijkstra</span>
-                .<span class="ident">create</span>(<span class="ident">input_graph</span>)
-                .<span class="ident">all_costs_from</span>(<span class="ident">start</span>)
+            CreateEngine::Dijkstra
+                .create(input_graph)
+                .all_costs_from(start)
         };
-        <span class="ident">raw_costs</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Node::Road</span>(<span class="ident">dr</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">translate_id</span>(<span class="ident">k</span>) {
-                    <span class="prelude-val">Some</span>((<span class="ident">dr</span>, <span class="ident">unround</span>(<span class="ident">v</span>)))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                }
+        raw_costs
+            .into_iter()
+            .filter_map(|(k, v)| {
+                <span class="kw">if let </span>Node::Road(dr) = <span class="self">self</span>.nodes.translate_id(k) {
+                    <span class="prelude-val">Some</span>((dr, unround(v)))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
             })
-            .<span class="ident">collect</span>()
+            .collect()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_input_graph</span>(
-    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    <span class="ident">nodes</span>: <span class="kw-2">&amp;</span><span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>,
-    <span class="ident">uber_turns</span>: <span class="kw-2">&amp;</span>[<span class="ident">UberTurnV2</span>],
-    <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-) -&gt; <span class="ident">InputGraph</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">input_graph</span> <span class="op">=</span> <span class="ident">InputGraph::new</span>();
+<span class="kw">fn </span>make_input_graph(
+    constraints: PathConstraints,
+    nodes: <span class="kw-2">&amp;</span>NodeMap&lt;Node&gt;,
+    uber_turns: <span class="kw-2">&amp;</span>[UberTurnV2],
+    params: <span class="kw-2">&amp;</span>RoutingParams,
+    map: <span class="kw-2">&amp;</span>Map,
+) -&gt; InputGraph {
+    <span class="kw">let </span><span class="kw-2">mut </span>input_graph = InputGraph::new();
 
-    <span class="comment">// From some roads, instead of adding edges to movements, add edges to these (indexed)</span>
-    <span class="comment">// uber-turns.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uber_turn_entrances</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span>, <span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">ut</span>) <span class="kw">in</span> <span class="ident">uber_turns</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="comment">// Force the nodes to always match up in the graph for different vehicle types.</span>
-        <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::UberTurn</span>(<span class="ident">idx</span>));
+    <span class="comment">// From some roads, instead of adding edges to movements, add edges to these (indexed)
+    // uber-turns.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>uber_turn_entrances: MultiMap&lt;DirectedRoadID, usize&gt; = MultiMap::new();
+    <span class="kw">for </span>(idx, ut) <span class="kw">in </span>uber_turns.iter().enumerate() {
+        <span class="comment">// Force the nodes to always match up in the graph for different vehicle types.
+        </span>nodes.get(Node::UberTurn(idx));
 
-        <span class="comment">// But actually, make sure this uber-turn only contains roads that can be used by this</span>
-        <span class="comment">// vehicle.</span>
-        <span class="comment">// TODO Need to test editing lanes inside an IntersectionCluster very carefully. See Mercer</span>
-        <span class="comment">// and Dexter.</span>
-        <span class="kw">if</span> <span class="ident">ut</span>
-            .<span class="ident">path</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">all</span>(<span class="op">|</span><span class="ident">mvmnt</span><span class="op">|</span> <span class="op">!</span><span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">is_empty</span>())
+        <span class="comment">// But actually, make sure this uber-turn only contains roads that can be used by this
+        // vehicle.
+        // TODO Need to test editing lanes inside an IntersectionCluster very carefully. See Mercer
+        // and Dexter.
+        </span><span class="kw">if </span>ut
+            .path
+            .iter()
+            .all(|mvmnt| !mvmnt.to.lanes(constraints, map).is_empty())
         {
-            <span class="ident">uber_turn_entrances</span>.<span class="ident">insert</span>(<span class="ident">ut</span>.<span class="ident">entry</span>(), <span class="ident">idx</span>);
+            uber_turn_entrances.insert(ut.entry(), idx);
         }
     }
 
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-        <span class="kw">for</span> <span class="ident">dr</span> <span class="kw">in</span> <span class="ident">r</span>.<span class="ident">id</span>.<span class="ident">both_directions</span>() {
-            <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">dr</span>));
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">dr</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">is_empty</span>() {
-                <span class="kw">let</span> <span class="ident">indices</span> <span class="op">=</span> <span class="ident">uber_turn_entrances</span>.<span class="ident">get</span>(<span class="ident">dr</span>);
-                <span class="kw">if</span> <span class="ident">indices</span>.<span class="ident">is_empty</span>() {
-                    <span class="kw">for</span> <span class="ident">mvmnt</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_movements_for</span>(<span class="ident">dr</span>, <span class="ident">constraints</span>) {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>) <span class="op">=</span>
-                            <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">params</span>, <span class="ident">map</span>)
+    <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+        <span class="kw">for </span>dr <span class="kw">in </span>r.id.both_directions() {
+            <span class="kw">let </span>from = nodes.get(Node::Road(dr));
+            <span class="kw">if </span>!dr.lanes(constraints, map).is_empty() {
+                <span class="kw">let </span>indices = uber_turn_entrances.get(dr);
+                <span class="kw">if </span>indices.is_empty() {
+                    <span class="kw">for </span>mvmnt <span class="kw">in </span>map.get_movements_for(dr, constraints) {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(cost) =
+                            vehicle_cost(mvmnt.from, mvmnt, constraints, params, map)
                         {
-                            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-                                <span class="ident">from</span>,
-                                <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">mvmnt</span>.<span class="ident">to</span>)),
-                                <span class="ident">round</span>(<span class="ident">cost</span>),
+                            input_graph.add_edge(
+                                from,
+                                nodes.get(Node::Road(mvmnt.to)),
+                                round(cost),
                             );
                         }
                     }
-                } <span class="kw">else</span> {
-                    <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">indices</span> {
-                        <span class="kw">let</span> <span class="ident">ut</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">uber_turns</span>[<span class="kw-2">*</span><span class="ident">idx</span>];
+                } <span class="kw">else </span>{
+                    <span class="kw">for </span>idx <span class="kw">in </span>indices {
+                        <span class="kw">let </span>ut = <span class="kw-2">&amp;</span>uber_turns[<span class="kw-2">*</span>idx];
 
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum_cost</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="kw">for</span> <span class="ident">mvmnt</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">ut</span>.<span class="ident">path</span> {
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cost</span>) <span class="op">=</span>
-                                <span class="ident">vehicle_cost</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>, <span class="kw-2">*</span><span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">params</span>, <span class="ident">map</span>)
+                        <span class="kw">let </span><span class="kw-2">mut </span>sum_cost = Duration::ZERO;
+                        <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
+                        <span class="kw">for </span>mvmnt <span class="kw">in </span><span class="kw-2">&amp;</span>ut.path {
+                            <span class="kw">if let </span><span class="prelude-val">Some</span>(cost) =
+                                vehicle_cost(mvmnt.from, <span class="kw-2">*</span>mvmnt, constraints, params, map)
                             {
-                                <span class="ident">sum_cost</span> <span class="op">+</span><span class="op">=</span> <span class="ident">cost</span>;
-                            } <span class="kw">else</span> {
-                                <span class="comment">// A vehicle isn&#39;t allowed to do one of the steps inside the</span>
-                                <span class="comment">// uber-turn. So just toss out the entire uber-turn from the graph.</span>
-                                <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                                sum_cost += cost;
+                            } <span class="kw">else </span>{
+                                <span class="comment">// A vehicle isn&#39;t allowed to do one of the steps inside the
+                                // uber-turn. So just toss out the entire uber-turn from the graph.
+                                </span>ok = <span class="bool-val">false</span>;
                                 <span class="kw">break</span>;
                             }
                         }
-                        <span class="kw">if</span> <span class="ident">ok</span> {
-                            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-                                <span class="ident">from</span>,
-                                <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::UberTurn</span>(<span class="kw-2">*</span><span class="ident">idx</span>)),
-                                <span class="ident">round</span>(<span class="ident">sum_cost</span>),
+                        <span class="kw">if </span>ok {
+                            input_graph.add_edge(
+                                from,
+                                nodes.get(Node::UberTurn(<span class="kw-2">*</span>idx)),
+                                round(sum_cost),
                             );
-                            <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(
-                                <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::UberTurn</span>(<span class="kw-2">*</span><span class="ident">idx</span>)),
-                                <span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">Node::Road</span>(<span class="ident">ut</span>.<span class="ident">exit</span>())),
-                                <span class="comment">// The cost is already captured for entering the uber-turn</span>
-                                <span class="number">1</span>,
+                            input_graph.add_edge(
+                                nodes.get(Node::UberTurn(<span class="kw-2">*</span>idx)),
+                                nodes.get(Node::Road(ut.exit())),
+                                <span class="comment">// The cost is already captured for entering the uber-turn
+                                </span><span class="number">1</span>,
                             );
                         }
                     }
@@ -654,105 +654,105 @@
         }
     }
 
-    <span class="ident">nodes</span>.<span class="ident">guarantee_node_ordering</span>(<span class="kw-2">&amp;mut</span> <span class="ident">input_graph</span>);
-    <span class="ident">input_graph</span>.<span class="ident">freeze</span>();
-    <span class="ident">input_graph</span>
+    nodes.guarantee_node_ordering(<span class="kw-2">&amp;mut </span>input_graph);
+    input_graph.freeze();
+    input_graph
 }
 
-<span class="doccomment">/// This returns the pathfinding cost of crossing one road and turn, in units of time. It factors</span>
-<span class="doccomment">/// in the ideal time to cross the space and penalties for entering an access-restricted zone,</span>
-<span class="doccomment">/// taking an unprotected turn, or going up a steep hill for some vehicle types. If this returns</span>
-<span class="doccomment">/// `None`, then the movement isn&#39;t actually allowed.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vehicle_cost</span>(
-    <span class="ident">dr</span>: <span class="ident">DirectedRoadID</span>,
-    <span class="ident">mvmnt</span>: <span class="ident">MovementID</span>,
-    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">RoutingParams</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Duration</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>);
-    <span class="kw">let</span> <span class="ident">movement</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">mvmnt</span>.<span class="ident">parent</span>).<span class="ident">movements</span>[<span class="kw-2">&amp;</span><span class="ident">mvmnt</span>];
-    <span class="kw">let</span> <span class="ident">max_speed</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
-        <span class="ident">PathConstraints::Car</span> <span class="op">|</span> <span class="ident">PathConstraints::Bus</span> <span class="op">|</span> <span class="ident">PathConstraints::Train</span> =&gt; <span class="prelude-val">None</span>,
-        <span class="ident">PathConstraints::Bike</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident"><span class="kw">crate</span>::MAX_BIKE_SPEED</span>),
-        <span class="ident">PathConstraints::Pedestrian</span> =&gt; <span class="macro">unreachable!</span>(),
+<span class="doccomment">/// This returns the pathfinding cost of crossing one road and turn, in units of time. It factors
+/// in the ideal time to cross the space and penalties for entering an access-restricted zone,
+/// taking an unprotected turn, or going up a steep hill for some vehicle types. If this returns
+/// `None`, then the movement isn&#39;t actually allowed.
+</span><span class="kw">pub fn </span>vehicle_cost(
+    dr: DirectedRoadID,
+    mvmnt: MovementID,
+    constraints: PathConstraints,
+    params: <span class="kw-2">&amp;</span>RoutingParams,
+    map: <span class="kw-2">&amp;</span>Map,
+) -&gt; <span class="prelude-ty">Option</span>&lt;Duration&gt; {
+    <span class="kw">let </span>road = map.get_r(dr.road);
+    <span class="kw">let </span>movement = <span class="kw-2">&amp;</span>map.get_i(mvmnt.parent).movements[<span class="kw-2">&amp;</span>mvmnt];
+    <span class="kw">let </span>max_speed = <span class="kw">match </span>constraints {
+        PathConstraints::Car | PathConstraints::Bus | PathConstraints::Train =&gt; <span class="prelude-val">None</span>,
+        PathConstraints::Bike =&gt; <span class="prelude-val">Some</span>(<span class="kw">crate</span>::MAX_BIKE_SPEED),
+        PathConstraints::Pedestrian =&gt; <span class="macro">unreachable!</span>(),
     };
-    <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="ident">Traversable::max_speed_along_road</span>(<span class="ident">dr</span>, <span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>).<span class="number">0</span>;
+    <span class="kw">let </span>t1 = road.length() / Traversable::max_speed_along_road(dr, max_speed, constraints, map).<span class="number">0</span>;
 
-    <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">movement</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
-        <span class="op">/</span> <span class="ident">Traversable::max_speed_along_movement</span>(<span class="ident">mvmnt</span>, <span class="ident">max_speed</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
+    <span class="kw">let </span>t2 = movement.geom.length()
+        / Traversable::max_speed_along_movement(mvmnt, max_speed, constraints, map);
 
-    <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">constraints</span> {
-        <span class="ident">PathConstraints::Car</span> <span class="op">|</span> <span class="ident">PathConstraints::Train</span> =&gt; <span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>,
-        <span class="ident">PathConstraints::Bike</span> =&gt; {
-            <span class="comment">// TODO If we&#39;re on a driving lane, higher speed limit is worse.</span>
-            <span class="comment">// TODO Bike lanes next to parking is dangerous.</span>
-            <span class="comment">// TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that by</span>
-            <span class="comment">// multiplying the base cost.</span>
-            <span class="kw">let</span> <span class="ident">lt_penalty</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">has_lanes</span>(<span class="ident">LaneType::Biking</span>, <span class="ident">map</span>) {
-                <span class="ident">params</span>.<span class="ident">bike_lane_penalty</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">has_lanes</span>(<span class="ident">LaneType::Bus</span>, <span class="ident">map</span>) {
-                <span class="ident">params</span>.<span class="ident">bus_lane_penalty</span>
-            } <span class="kw">else</span> {
-                <span class="ident">params</span>.<span class="ident">driving_lane_penalty</span>
+    <span class="kw">let </span>base = <span class="kw">match </span>constraints {
+        PathConstraints::Car | PathConstraints::Train =&gt; t1 + t2,
+        PathConstraints::Bike =&gt; {
+            <span class="comment">// TODO If we&#39;re on a driving lane, higher speed limit is worse.
+            // TODO Bike lanes next to parking is dangerous.
+            // TODO Prefer bike lanes, then bus lanes, then driving lanes. For now, express that by
+            // multiplying the base cost.
+            </span><span class="kw">let </span>lt_penalty = <span class="kw">if </span>dr.has_lanes(LaneType::Biking, map) {
+                params.bike_lane_penalty
+            } <span class="kw">else if </span>dr.has_lanes(LaneType::Bus, map) {
+                params.bus_lane_penalty
+            } <span class="kw">else </span>{
+                params.driving_lane_penalty
             };
 
-            <span class="ident">lt_penalty</span> <span class="op">*</span> (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>)
+            lt_penalty * (t1 + t2)
         }
-        <span class="ident">PathConstraints::Bus</span> =&gt; {
-            <span class="comment">// Like Car, but prefer bus lanes.</span>
-            <span class="kw">let</span> <span class="ident">lt_penalty</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">has_lanes</span>(<span class="ident">LaneType::Bus</span>, <span class="ident">map</span>) {
-                <span class="number">1.0</span>
-            } <span class="kw">else</span> {
-                <span class="number">1.1</span>
-            };
-            <span class="ident">lt_penalty</span> <span class="op">*</span> (<span class="ident">t1</span> <span class="op">+</span> <span class="ident">t2</span>)
+        PathConstraints::Bus =&gt; {
+            <span class="comment">// Like Car, but prefer bus lanes.
+            </span><span class="kw">let </span>lt_penalty = <span class="kw">if </span>dr.has_lanes(LaneType::Bus, map) {
+                <span class="number">1.0
+            </span>} <span class="kw">else </span>{
+                <span class="number">1.1
+            </span>};
+            lt_penalty * (t1 + t2)
         }
-        <span class="ident">PathConstraints::Pedestrian</span> =&gt; <span class="macro">unreachable!</span>(),
+        PathConstraints::Pedestrian =&gt; <span class="macro">unreachable!</span>(),
     };
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">multiplier</span> <span class="op">=</span> <span class="number">1.0</span>;
-    <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints::Bike</span>
-        <span class="op">&amp;&amp;</span> (<span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span> <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">f64::EPSILON</span>
+    <span class="kw">let </span><span class="kw-2">mut </span>multiplier = <span class="number">1.0</span>;
+    <span class="kw">if </span>constraints == PathConstraints::Bike
+        &amp;&amp; (params.avoid_steep_incline_penalty - <span class="number">1.0</span>).abs() &gt; f64::EPSILON
     {
-        <span class="kw">let</span> <span class="ident">percent_incline</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
-            <span class="ident">road</span>.<span class="ident">percent_incline</span>
-        } <span class="kw">else</span> {
-            <span class="op">-</span><span class="ident">road</span>.<span class="ident">percent_incline</span>
+        <span class="kw">let </span>percent_incline = <span class="kw">if </span>dr.dir == Direction::Fwd {
+            road.percent_incline
+        } <span class="kw">else </span>{
+            -road.percent_incline
         };
-        <span class="kw">if</span> <span class="ident">percent_incline</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.08</span> {
-            <span class="ident">multiplier</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">avoid_steep_incline_penalty</span>;
+        <span class="kw">if </span>percent_incline &gt;= <span class="number">0.08 </span>{
+            multiplier <span class="kw-2">*</span>= params.avoid_steep_incline_penalty;
         }
     }
 
-    <span class="kw">if</span> <span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints::Bike</span>
-        <span class="op">&amp;&amp;</span> (<span class="ident">params</span>.<span class="ident">avoid_high_stress</span> <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">f64::EPSILON</span>
-        <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">high_stress_for_bikes</span>(<span class="ident">map</span>, <span class="ident">dr</span>.<span class="ident">dir</span>)
+    <span class="kw">if </span>constraints == PathConstraints::Bike
+        &amp;&amp; (params.avoid_high_stress - <span class="number">1.0</span>).abs() &gt; f64::EPSILON
+        &amp;&amp; road.high_stress_for_bikes(map, dr.dir)
     {
-        <span class="ident">multiplier</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">avoid_high_stress</span>;
+        multiplier <span class="kw-2">*</span>= params.avoid_high_stress;
     }
 
-    <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">avoid_roads</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">dr</span>.<span class="ident">road</span>)
-        <span class="op">|</span><span class="op">|</span> <span class="ident">params</span>
-            .<span class="ident">avoid_movements_between</span>
-            .<span class="ident">contains</span>(<span class="kw-2">&amp;</span>(<span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">road</span>, <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">road</span>))
+    <span class="kw">if </span>params.avoid_roads.contains(<span class="kw-2">&amp;</span>dr.road)
+        || params
+            .avoid_movements_between
+            .contains(<span class="kw-2">&amp;</span>(mvmnt.from.road, mvmnt.to.road))
     {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
+        <span class="kw">return </span><span class="prelude-val">None</span>;
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra</span> <span class="op">=</span> <span class="ident">zone_cost</span>(<span class="ident">mvmnt</span>, <span class="ident">constraints</span>, <span class="ident">map</span>);
-    <span class="comment">// Penalize unprotected turns at a stop sign from smaller to larger roads.</span>
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">is_unprotected_turn</span>(<span class="ident">dr</span>.<span class="ident">road</span>, <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">road</span>, <span class="ident">movement</span>.<span class="ident">turn_type</span>) {
-        <span class="ident">extra</span> <span class="op">+</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">unprotected_turn_penalty</span>
+    <span class="kw">let </span><span class="kw-2">mut </span>extra = zone_cost(mvmnt, constraints, map);
+    <span class="comment">// Penalize unprotected turns at a stop sign from smaller to larger roads.
+    </span><span class="kw">if </span>map.is_unprotected_turn(dr.road, mvmnt.to.road, movement.turn_type) {
+        extra += params.unprotected_turn_penalty
     }
 
-    <span class="kw">if</span> (<span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">-</span> <span class="number">1.0</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="ident">f64::EPSILON</span>
-        <span class="op">&amp;&amp;</span> <span class="ident">road</span>.<span class="ident">get_rank</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">osm::RoadRank::Local</span>
+    <span class="kw">if </span>(params.main_road_penalty - <span class="number">1.0</span>).abs() &gt; f64::EPSILON
+        &amp;&amp; road.get_rank() != osm::RoadRank::Local
     {
-        <span class="ident">multiplier</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">params</span>.<span class="ident">main_road_penalty</span>;
+        multiplier <span class="kw-2">*</span>= params.main_road_penalty;
     }
 
-    <span class="prelude-val">Some</span>(<span class="ident">multiplier</span> <span class="op">*</span> <span class="ident">base</span> <span class="op">+</span> <span class="ident">extra</span>)
+    <span class="prelude-val">Some</span>(multiplier * base + extra)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

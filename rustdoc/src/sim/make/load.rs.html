@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/load.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>load.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/load.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>load.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -133,140 +133,140 @@
 <span id="133">133</span>
 <span id="134">134</span>
 <span id="135">135</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>rand::SeedableRng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
+<span class="kw">use </span>structopt::StructOpt;
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">MapEdits</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>};
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>map_model::{Map, MapEdits};
+<span class="kw">use </span>synthpop::{Scenario, ScenarioModifier};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Sim</span>, <span class="ident">SimOptions</span>};
+<span class="kw">use crate</span>::{Sim, SimOptions};
 
-<span class="doccomment">/// SimFlags specifies a simulation to setup. After parsing from structopt, you must call</span>
-<span class="doccomment">/// `initialize`.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">StructOpt</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SimFlags</span> {
-    <span class="doccomment">/// A path to some file:</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// - some kind of map: start an empty simulation on the map</span>
-    <span class="doccomment">/// - a scenario</span>
-    <span class="doccomment">/// - a savestate: restore the simulation exactly from some savestate</span>
-    <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-    <span class="ident">load_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The same as `load_path`, but with a default value filled out. Call `initialize` to set this</span>
-    <span class="doccomment">/// up.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">skip</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">load</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">parse</span>(<span class="ident">try_from_str</span> <span class="op">=</span> <span class="ident">parse_modifiers</span>), <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;[]&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">scenario_modifiers</span>: <span class="ident">ModifierList</span>,
-    <span class="doccomment">/// An arbitrary number to seed the random number generator. This is input to the deterministic</span>
-    <span class="doccomment">/// simulation, so different values affect results.</span>
-    <span class="comment">// TODO default_value can only handle strings, so copying SimFlags::RNG_SEED</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;42&quot;</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-    <span class="kw">pub</span> <span class="ident">opts</span>: <span class="ident">SimOptions</span>,
+<span class="doccomment">/// SimFlags specifies a simulation to setup. After parsing from structopt, you must call
+/// `initialize`.
+</span><span class="attribute">#[derive(Clone, StructOpt)]
+</span><span class="kw">pub struct </span>SimFlags {
+    <span class="doccomment">/// A path to some file:
+    ///
+    /// - some kind of map: start an empty simulation on the map
+    /// - a scenario
+    /// - a savestate: restore the simulation exactly from some savestate
+    </span><span class="attribute">#[structopt()]
+    </span>load_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// The same as `load_path`, but with a default value filled out. Call `initialize` to set this
+    /// up.
+    </span><span class="attribute">#[structopt(skip)]
+    </span><span class="kw">pub </span>load: String,
+    <span class="doccomment">/// A JSON list of modifiers to transform the scenario. These can be generated with the GUI.
+    </span><span class="attribute">#[structopt(long, parse(try_from_str = parse_modifiers), default_value = <span class="string">&quot;[]&quot;</span>)]
+    </span><span class="kw">pub </span>scenario_modifiers: ModifierList,
+    <span class="doccomment">/// An arbitrary number to seed the random number generator. This is input to the deterministic
+    /// simulation, so different values affect results.
+    </span><span class="comment">// TODO default_value can only handle strings, so copying SimFlags::RNG_SEED
+    </span><span class="attribute">#[structopt(long, default_value = <span class="string">&quot;42&quot;</span>)]
+    </span><span class="kw">pub </span>rng_seed: u64,
+    <span class="attribute">#[structopt(flatten)]
+    </span><span class="kw">pub </span>opts: SimOptions,
 }
 
-<span class="comment">// See https://github.com/TeXitoi/structopt/issues/94</span>
-<span class="kw">type</span> <span class="ident">ModifierList</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>;
+<span class="comment">// See https://github.com/TeXitoi/structopt/issues/94
+</span><span class="kw">type </span>ModifierList = Vec&lt;ScenarioModifier&gt;;
 
-<span class="kw">fn</span> <span class="ident">parse_modifiers</span>(<span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ModifierList</span><span class="op">&gt;</span> {
-    <span class="ident">abstutil::from_json</span>(<span class="kw-2">&amp;</span><span class="ident">x</span>.<span class="ident">to_string</span>().<span class="ident">into_bytes</span>())
+<span class="kw">fn </span>parse_modifiers(x: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;ModifierList&gt; {
+    abstutil::from_json(<span class="kw-2">&amp;</span>x.to_string().into_bytes())
 }
 
-<span class="kw">impl</span> <span class="ident">SimFlags</span> {
-    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">RNG_SEED</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">42</span>;
+<span class="kw">impl </span>SimFlags {
+    <span class="kw">pub const </span>RNG_SEED: u64 = <span class="number">42</span>;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="comment">// default_value can&#39;t call functions and this value can&#39;t be hardcoded</span>
-        <span class="self">self</span>.<span class="ident">load</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">load_path</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>());
+    <span class="kw">pub fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="comment">// default_value can&#39;t call functions and this value can&#39;t be hardcoded
+        </span><span class="self">self</span>.load = <span class="self">self
+            </span>.load_path
+            .clone()
+            .unwrap_or_else(|| MapName::seattle(<span class="string">&quot;montlake&quot;</span>).path());
     }
 
-    <span class="comment">// TODO rename seattle_test</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">for_test</span>(<span class="ident">run_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">SimFlags</span> {
-        <span class="ident">SimFlags</span> {
-            <span class="ident">load_path</span>: <span class="prelude-val">None</span>,
-            <span class="ident">load</span>: <span class="ident">MapName::seattle</span>(<span class="string">&quot;montlake&quot;</span>).<span class="ident">path</span>(),
-            <span class="ident">scenario_modifiers</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">rng_seed</span>: <span class="ident">SimFlags::RNG_SEED</span>,
-            <span class="ident">opts</span>: <span class="ident">SimOptions::new</span>(<span class="ident">run_name</span>),
+    <span class="comment">// TODO rename seattle_test
+    </span><span class="kw">pub fn </span>for_test(run_name: <span class="kw-2">&amp;</span>str) -&gt; SimFlags {
+        SimFlags {
+            load_path: <span class="prelude-val">None</span>,
+            load: MapName::seattle(<span class="string">&quot;montlake&quot;</span>).path(),
+            scenario_modifiers: Vec::new(),
+            rng_seed: SimFlags::RNG_SEED,
+            opts: SimOptions::new(run_name),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">make_rng</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">XorShiftRng</span> {
-        <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="self">self</span>.<span class="ident">rng_seed</span>)
+    <span class="kw">pub fn </span>make_rng(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; XorShiftRng {
+        XorShiftRng::seed_from_u64(<span class="self">self</span>.rng_seed)
     }
 
-    <span class="doccomment">/// Loads a map and simulation. Not appropriate for use in the UI or on web.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_synchronously</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">abstutil::Timer</span>) -&gt; (<span class="ident">Map</span>, <span class="ident">Sim</span>, <span class="ident">XorShiftRng</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">load</span>.<span class="ident">is_empty</span>() {
+    <span class="doccomment">/// Loads a map and simulation. Not appropriate for use in the UI or on web.
+    </span><span class="kw">pub fn </span>load_synchronously(<span class="kw-2">&amp;</span><span class="self">self</span>, timer: <span class="kw-2">&amp;mut </span>abstutil::Timer) -&gt; (Map, Sim, XorShiftRng) {
+        <span class="kw">if </span><span class="self">self</span>.load.is_empty() {
             <span class="macro">panic!</span>(<span class="string">&quot;You forgot to call initialize on SimFlags after parsing from structopt&quot;</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">make_rng</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>rng = <span class="self">self</span>.make_rng();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">opts</span>.<span class="ident">clone</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>opts = <span class="self">self</span>.opts.clone();
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">load</span>.<span class="ident">starts_with</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::path_player</span>(<span class="string">&quot;saves/&quot;</span>)) {
-            <span class="macro">info!</span>(<span class="string">&quot;Resuming from {}&quot;</span>, <span class="self">self</span>.<span class="ident">load</span>);
+        <span class="kw">if </span><span class="self">self</span>.load.starts_with(<span class="kw-2">&amp;</span>abstio::path_player(<span class="string">&quot;saves/&quot;</span>)) {
+            <span class="macro">info!</span>(<span class="string">&quot;Resuming from {}&quot;</span>, <span class="self">self</span>.load);
 
-            <span class="kw">let</span> <span class="ident">sim</span>: <span class="ident">Sim</span> <span class="op">=</span> <span class="ident">abstio::must_read_object</span>(<span class="self">self</span>.<span class="ident">load</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
+            <span class="kw">let </span>sim: Sim = abstio::must_read_object(<span class="self">self</span>.load.clone(), timer);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">sim</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>);
-            <span class="kw">match</span> <span class="ident">MapEdits::load_from_file</span>(
-                <span class="kw-2">&amp;</span><span class="ident">map</span>,
-                <span class="ident">abstio::path_edits</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="kw-2">&amp;</span><span class="ident">sim</span>.<span class="ident">edits_name</span>),
-                <span class="ident">timer</span>,
+            <span class="kw">let </span><span class="kw-2">mut </span>map = Map::load_synchronously(sim.map_name.path(), timer);
+            <span class="kw">match </span>MapEdits::load_from_file(
+                <span class="kw-2">&amp;</span>map,
+                abstio::path_edits(map.get_name(), <span class="kw-2">&amp;</span>sim.edits_name),
+                timer,
             ) {
-                <span class="prelude-val">Ok</span>(<span class="ident">edits</span>) =&gt; {
-                    <span class="ident">map</span>.<span class="ident">must_apply_edits</span>(<span class="ident">edits</span>, <span class="ident">timer</span>);
-                    <span class="ident">map</span>.<span class="ident">recalculate_pathfinding_after_edits</span>(<span class="ident">timer</span>);
+                <span class="prelude-val">Ok</span>(edits) =&gt; {
+                    map.must_apply_edits(edits, timer);
+                    map.recalculate_pathfinding_after_edits(timer);
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t load edits \&quot;{}\&quot;: {}&quot;</span>, <span class="ident">sim</span>.<span class="ident">edits_name</span>, <span class="ident">err</span>);
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t load edits \&quot;{}\&quot;: {}&quot;</span>, sim.edits_name, err);
                 }
             }
 
-            (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">rng</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>) {
-            <span class="macro">info!</span>(<span class="string">&quot;Seeding the simulation from scenario {}&quot;</span>, <span class="self">self</span>.<span class="ident">load</span>);
+            (map, sim, rng)
+        } <span class="kw">else if </span><span class="self">self</span>.load.contains(<span class="string">&quot;/scenarios/&quot;</span>) {
+            <span class="macro">info!</span>(<span class="string">&quot;Seeding the simulation from scenario {}&quot;</span>, <span class="self">self</span>.load);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span> <span class="ident">abstio::must_read_object</span>(<span class="self">self</span>.<span class="ident">load</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>scenario: Scenario = abstio::must_read_object(<span class="self">self</span>.load.clone(), timer);
 
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="ident">timer</span>);
+            <span class="kw">let </span>map = Map::load_synchronously(scenario.map_name.path(), timer);
 
-            <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">scenario_modifiers</span> {
-                <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+            <span class="kw">for </span>m <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.scenario_modifiers {
+                scenario = m.apply(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>rng);
             }
 
-            <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">run_name</span> <span class="op">==</span> <span class="string">&quot;unnamed&quot;</span> {
-                <span class="ident">opts</span>.<span class="ident">run_name</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">scenario_name</span>.<span class="ident">clone</span>();
+            <span class="kw">if </span>opts.run_name == <span class="string">&quot;unnamed&quot; </span>{
+                opts.run_name = scenario.scenario_name.clone();
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>);
-            <span class="ident">sim</span>.<span class="ident">instantiate</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">timer</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>sim = Sim::new(<span class="kw-2">&amp;</span>map, opts);
+            sim.instantiate(<span class="kw-2">&amp;</span>scenario, <span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;mut </span>rng, timer);
 
-            (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">rng</span>)
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/raw_maps/&quot;</span>) <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">load</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
-            <span class="macro">info!</span>(<span class="string">&quot;Loading map {}&quot;</span>, <span class="self">self</span>.<span class="ident">load</span>);
+            (map, sim, rng)
+        } <span class="kw">else if </span><span class="self">self</span>.load.contains(<span class="string">&quot;/raw_maps/&quot;</span>) || <span class="self">self</span>.load.contains(<span class="string">&quot;/maps/&quot;</span>) {
+            <span class="macro">info!</span>(<span class="string">&quot;Loading map {}&quot;</span>, <span class="self">self</span>.load);
 
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="self">self</span>.<span class="ident">load</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>);
+            <span class="kw">let </span>map = Map::load_synchronously(<span class="self">self</span>.load.clone(), timer);
 
-            <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;create sim&quot;</span>);
-            <span class="kw">let</span> <span class="ident">sim</span> <span class="op">=</span> <span class="ident">Sim::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">opts</span>);
-            <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;create sim&quot;</span>);
+            timer.start(<span class="string">&quot;create sim&quot;</span>);
+            <span class="kw">let </span>sim = Sim::new(<span class="kw-2">&amp;</span>map, opts);
+            timer.stop(<span class="string">&quot;create sim&quot;</span>);
 
-            (<span class="ident">map</span>, <span class="ident">sim</span>, <span class="ident">rng</span>)
-        } <span class="kw">else</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;Don&#39;t know how to load {}&quot;</span>, <span class="self">self</span>.<span class="ident">load</span>);
+            (map, sim, rng)
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;Don&#39;t know how to load {}&quot;</span>, <span class="self">self</span>.load);
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

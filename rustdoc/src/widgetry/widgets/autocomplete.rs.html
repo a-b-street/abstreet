@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/autocomplete.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>autocomplete.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/widgets/autocomplete.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>autocomplete.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -139,146 +139,146 @@
 <span id="139">139</span>
 <span id="140">140</span>
 <span id="141">141</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::MultiMap;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Menu</span>, <span class="ident">Outcome</span>, <span class="ident">ScreenDims</span>, <span class="ident">ScreenPt</span>, <span class="ident">TextBox</span>, <span class="ident">Widget</span>, <span class="ident">WidgetImpl</span>,
-    <span class="ident">WidgetOutput</span>,
+<span class="kw">use crate</span>::{
+    Choice, EventCtx, GfxCtx, Menu, Outcome, ScreenDims, ScreenPt, TextBox, Widget, WidgetImpl,
+    WidgetOutput,
 };
 
-<span class="comment">// TODO I don&#39;t even think we need to declare Clone...</span>
-<span class="comment">// If multiple names map to the same data, all of the possible values will be returned</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Autocomplete</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> {
-    <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="ident">num_search_results</span>: <span class="ident">usize</span>,
+<span class="comment">// TODO I don&#39;t even think we need to declare Clone...
+// If multiple names map to the same data, all of the possible values will be returned
+</span><span class="kw">pub struct </span>Autocomplete&lt;T: Clone&gt; {
+    choices: Vec&lt;(String, Vec&lt;T&gt;)&gt;,
+    num_search_results: usize,
 
-    <span class="ident">tb</span>: <span class="ident">TextBox</span>,
-    <span class="ident">menu</span>: <span class="ident">Menu</span><span class="op">&lt;</span>()<span class="op">&gt;</span>,
+    tb: TextBox,
+    menu: Menu&lt;()&gt;,
 
-    <span class="ident">current_line</span>: <span class="ident">String</span>,
-    <span class="ident">chosen_values</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    current_line: String,
+    chosen_values: <span class="prelude-ty">Option</span>&lt;Vec&lt;T&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Ord</span><span class="op">&gt;</span> <span class="ident">Autocomplete</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_widget</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">raw_choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">T</span>)<span class="op">&gt;</span>,
-        <span class="ident">num_search_results</span>: <span class="ident">usize</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">grouped</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-        <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">data</span>) <span class="kw">in</span> <span class="ident">raw_choices</span> {
-            <span class="ident">grouped</span>.<span class="ident">insert</span>(<span class="ident">name</span>, <span class="ident">data</span>);
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Clone + Ord&gt; Autocomplete&lt;T&gt; {
+    <span class="kw">pub fn </span>new_widget(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        raw_choices: Vec&lt;(String, T)&gt;,
+        num_search_results: usize,
+    ) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>grouped: MultiMap&lt;String, T&gt; = MultiMap::new();
+        <span class="kw">for </span>(name, data) <span class="kw">in </span>raw_choices {
+            grouped.insert(name, data);
         }
-        <span class="kw">let</span> <span class="ident">choices</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">grouped</span>
-            .<span class="ident">consume</span>()
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">v</span>)<span class="op">|</span> (<span class="ident">k</span>, <span class="ident">v</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()))
-            .<span class="ident">collect</span>();
+        <span class="kw">let </span>choices: Vec&lt;(String, Vec&lt;T&gt;)&gt; = grouped
+            .consume()
+            .into_iter()
+            .map(|(k, v)| (k, v.into_iter().collect()))
+            .collect();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">Autocomplete</span> {
-            <span class="ident">choices</span>,
-            <span class="ident">num_search_results</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>a = Autocomplete {
+            choices,
+            num_search_results,
 
-            <span class="ident">tb</span>: <span class="ident">TextBox::new</span>(
-                <span class="ident">ctx</span>,
-                <span class="string">&quot;autocomplete textbox&quot;</span>.<span class="ident">to_string</span>(),
+            tb: TextBox::new(
+                ctx,
+                <span class="string">&quot;autocomplete textbox&quot;</span>.to_string(),
                 <span class="number">50</span>,
-                <span class="ident">String::new</span>(),
+                String::new(),
                 <span class="bool-val">true</span>,
             ),
-            <span class="ident">menu</span>: <span class="ident">Menu</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span><span class="ident">::new</span>(<span class="ident">ctx</span>, <span class="ident">Vec::new</span>()),
+            menu: Menu::&lt;()&gt;::new(ctx, Vec::new()),
 
-            <span class="ident">current_line</span>: <span class="ident">String::new</span>(),
-            <span class="ident">chosen_values</span>: <span class="prelude-val">None</span>,
+            current_line: String::new(),
+            chosen_values: <span class="prelude-val">None</span>,
         };
-        <span class="ident">a</span>.<span class="ident">recalc_menu</span>(<span class="ident">ctx</span>);
-        <span class="ident">Widget::new</span>(<span class="ident">Box::new</span>(<span class="ident">a</span>))
+        a.recalc_menu(ctx);
+        Widget::new(Box::new(a))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Autocomplete</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">take_final_value</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">chosen_values</span>.<span class="ident">take</span>()
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Clone&gt; Autocomplete&lt;T&gt; {
+    <span class="kw">pub fn </span>take_final_value(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;T&gt;&gt; {
+        <span class="self">self</span>.chosen_values.take()
     }
 
-    <span class="kw">fn</span> <span class="ident">recalc_menu</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Choice::new</span>(
-            <span class="macro">format!</span>(<span class="string">&quot;anything matching \&quot;{}\&quot;&quot;</span>, <span class="self">self</span>.<span class="ident">current_line</span>),
+    <span class="kw">fn </span>recalc_menu(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) {
+        <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[Choice::new(
+            <span class="macro">format!</span>(<span class="string">&quot;anything matching \&quot;{}\&quot;&quot;</span>, <span class="self">self</span>.current_line),
             (),
         )];
-        <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_line</span>.<span class="ident">to_ascii_lowercase</span>();
-        <span class="kw">for</span> (<span class="ident">name</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span> {
-            <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">to_ascii_lowercase</span>().<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>) {
-                <span class="ident">choices</span>.<span class="ident">push</span>(<span class="ident">Choice::new</span>(<span class="ident">name</span>, ()));
+        <span class="kw">let </span>query = <span class="self">self</span>.current_line.to_ascii_lowercase();
+        <span class="kw">for </span>(name, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.choices {
+            <span class="kw">if </span>name.to_ascii_lowercase().contains(<span class="kw-2">&amp;</span>query) {
+                choices.push(Choice::new(name, ()));
             }
-            <span class="kw">if</span> <span class="ident">choices</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="self">self</span>.<span class="ident">num_search_results</span> {
+            <span class="kw">if </span>choices.len() == <span class="self">self</span>.num_search_results {
                 <span class="kw">break</span>;
             }
         }
-        <span class="comment">// &quot;anything matching&quot; is silly if we&#39;ve resolved to exactly one choice</span>
-        <span class="kw">if</span> <span class="ident">choices</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> {
-            <span class="ident">choices</span>.<span class="ident">remove</span>(<span class="number">0</span>);
+        <span class="comment">// &quot;anything matching&quot; is silly if we&#39;ve resolved to exactly one choice
+        </span><span class="kw">if </span>choices.len() == <span class="number">2 </span>{
+            choices.remove(<span class="number">0</span>);
         }
-        <span class="self">self</span>.<span class="ident">menu</span> <span class="op">=</span> <span class="ident">Menu::new</span>(<span class="ident">ctx</span>, <span class="ident">choices</span>);
+        <span class="self">self</span>.menu = Menu::new(ctx, choices);
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="lifetime">&#39;static</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">WidgetImpl</span> <span class="kw">for</span> <span class="ident">Autocomplete</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">get_dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="kw">let</span> <span class="ident">d1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">get_dims</span>();
-        <span class="kw">let</span> <span class="ident">d2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">get_dims</span>();
-        <span class="ident">ScreenDims::new</span>(<span class="ident">d1</span>.<span class="ident">width</span>.<span class="ident">max</span>(<span class="ident">d2</span>.<span class="ident">width</span>), <span class="ident">d1</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">d2</span>.<span class="ident">height</span>)
+<span class="kw">impl</span>&lt;T: <span class="lifetime">&#39;static </span>+ Clone&gt; WidgetImpl <span class="kw">for </span>Autocomplete&lt;T&gt; {
+    <span class="kw">fn </span>get_dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        <span class="kw">let </span>d1 = <span class="self">self</span>.tb.get_dims();
+        <span class="kw">let </span>d2 = <span class="self">self</span>.menu.get_dims();
+        ScreenDims::new(d1.width.max(d2.width), d1.height + d2.height)
     }
 
-    <span class="kw">fn</span> <span class="ident">set_pos</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">top_left</span>: <span class="ident">ScreenPt</span>) {
-        <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">set_pos</span>(<span class="ident">top_left</span>);
-        <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">set_pos</span>(<span class="ident">ScreenPt::new</span>(
-            <span class="ident">top_left</span>.<span class="ident">x</span>,
-            <span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">get_dims</span>().<span class="ident">height</span>,
+    <span class="kw">fn </span>set_pos(<span class="kw-2">&amp;mut </span><span class="self">self</span>, top_left: ScreenPt) {
+        <span class="self">self</span>.tb.set_pos(top_left);
+        <span class="self">self</span>.menu.set_pos(ScreenPt::new(
+            top_left.x,
+            top_left.y + <span class="self">self</span>.tb.get_dims().height,
         ));
     }
 
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">output</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WidgetOutput</span>) {
-        <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">output</span>);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">get_line</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_line</span> {
-            <span class="comment">// This will return Outcome::Changed to the caller with a dummy ID for the textbox</span>
-            <span class="self">self</span>.<span class="ident">current_line</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">get_line</span>();
-            <span class="self">self</span>.<span class="ident">recalc_menu</span>(<span class="ident">ctx</span>);
-            <span class="ident">output</span>.<span class="ident">redo_layout</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        } <span class="kw">else</span> {
-            <span class="comment">// Don&#39;t let the menu fill out the real outcome. Should we use Outcome::Changed to</span>
-            <span class="comment">// indicate the autocomplete is finished, instead of the caller polling</span>
-            <span class="comment">// autocomplete_done?</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tmp_output</span> <span class="op">=</span> <span class="ident">WidgetOutput::new</span>();
-            <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">tmp_output</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw-2">ref</span> <span class="ident">choice</span>) <span class="op">=</span> <span class="ident">tmp_output</span>.<span class="ident">outcome</span> {
-                <span class="kw">if</span> <span class="ident">choice</span>.<span class="ident">starts_with</span>(<span class="string">&quot;anything matching&quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">query</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_line</span>.<span class="ident">to_ascii_lowercase</span>();
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                    <span class="kw">for</span> (<span class="ident">name</span>, <span class="ident">choices</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">choices</span> {
-                        <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">to_ascii_lowercase</span>().<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">query</span>) {
-                            <span class="ident">matches</span>.<span class="ident">extend</span>(<span class="ident">choices</span>.<span class="ident">clone</span>());
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, output: <span class="kw-2">&amp;mut </span>WidgetOutput) {
+        <span class="self">self</span>.tb.event(ctx, output);
+        <span class="kw">if </span><span class="self">self</span>.tb.get_line() != <span class="self">self</span>.current_line {
+            <span class="comment">// This will return Outcome::Changed to the caller with a dummy ID for the textbox
+            </span><span class="self">self</span>.current_line = <span class="self">self</span>.tb.get_line();
+            <span class="self">self</span>.recalc_menu(ctx);
+            output.redo_layout = <span class="bool-val">true</span>;
+        } <span class="kw">else </span>{
+            <span class="comment">// Don&#39;t let the menu fill out the real outcome. Should we use Outcome::Changed to
+            // indicate the autocomplete is finished, instead of the caller polling
+            // autocomplete_done?
+            </span><span class="kw">let </span><span class="kw-2">mut </span>tmp_output = WidgetOutput::new();
+            <span class="self">self</span>.menu.event(ctx, <span class="kw-2">&amp;mut </span>tmp_output);
+            <span class="kw">if let </span>Outcome::Clicked(<span class="kw-2">ref </span>choice) = tmp_output.outcome {
+                <span class="kw">if </span>choice.starts_with(<span class="string">&quot;anything matching&quot;</span>) {
+                    <span class="kw">let </span>query = <span class="self">self</span>.current_line.to_ascii_lowercase();
+                    <span class="kw">let </span><span class="kw-2">mut </span>matches = Vec::new();
+                    <span class="kw">for </span>(name, choices) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.choices {
+                        <span class="kw">if </span>name.to_ascii_lowercase().contains(<span class="kw-2">&amp;</span>query) {
+                            matches.extend(choices.clone());
                         }
                     }
-                    <span class="self">self</span>.<span class="ident">chosen_values</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">matches</span>);
-                } <span class="kw">else</span> {
-                    <span class="self">self</span>.<span class="ident">chosen_values</span> <span class="op">=</span> <span class="prelude-val">Some</span>(
-                        <span class="self">self</span>.<span class="ident">choices</span>
-                            .<span class="ident">iter</span>()
-                            .<span class="ident">find</span>(<span class="op">|</span>(<span class="ident">name</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">choice</span>)
-                            .<span class="ident">unwrap</span>()
-                            .<span class="number">1</span>
-                            .<span class="ident">clone</span>(),
+                    <span class="self">self</span>.chosen_values = <span class="prelude-val">Some</span>(matches);
+                } <span class="kw">else </span>{
+                    <span class="self">self</span>.chosen_values = <span class="prelude-val">Some</span>(
+                        <span class="self">self</span>.choices
+                            .iter()
+                            .find(|(name, <span class="kw">_</span>)| name == choice)
+                            .unwrap()
+                            .<span class="number">1
+                            </span>.clone(),
                     );
                 }
             }
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="self">self</span>.<span class="ident">tb</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">menu</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="self">self</span>.tb.draw(g);
+        <span class="self">self</span>.menu.draw(g);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/map_editor/src/load.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>load.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_editor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_editor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_editor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/map_editor/src/load.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>load.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../map_editor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../map_editor/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../map_editor/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -102,109 +102,109 @@
 <span id="102">102</span>
 <span id="103">103</span>
 <span id="104">104</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio</span>::{<span class="ident">Manifest</span>, <span class="ident">MapName</span>};
-<span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">FileLoader</span>, <span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Autocomplete</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Transition</span>, <span class="ident">Widget</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>abstio::{Manifest, MapName};
+<span class="kw">use </span>raw_map::RawMap;
+<span class="kw">use </span>widgetry::tools::{FileLoader, PopupMsg, URLManager};
+<span class="kw">use </span>widgetry::{
+    Autocomplete, EventCtx, GfxCtx, Image, Line, Outcome, Panel, State, Transition, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera::CameraState</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::camera::CameraState;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PickMap</span> {
-    <span class="ident">panel</span>: <span class="ident">Panel</span>,
+<span class="kw">pub struct </span>PickMap {
+    panel: Panel,
 }
 
-<span class="kw">impl</span> <span class="ident">PickMap</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entries</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">name</span> <span class="kw">in</span> <span class="ident">MapName::list_all_maps_merged</span>(<span class="kw-2">&amp;</span><span class="ident">Manifest::load</span>()) {
-            <span class="ident">entries</span>.<span class="ident">push</span>((<span class="ident">name</span>.<span class="ident">describe</span>(), <span class="ident">abstio::path_raw_map</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>)));
+<span class="kw">impl </span>PickMap {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>entries = Vec::new();
+        <span class="kw">for </span>name <span class="kw">in </span>MapName::list_all_maps_merged(<span class="kw-2">&amp;</span>Manifest::load()) {
+            entries.push((name.describe(), abstio::path_raw_map(<span class="kw-2">&amp;</span>name)));
         }
 
-        <span class="ident">Box::new</span>(<span class="ident">PickMap</span> {
-            <span class="ident">panel</span>: <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Select a map&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        Box::new(PickMap {
+            panel: Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                Widget::row(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Select a map&quot;</span>).small_heading().into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Autocomplete::new_widget</span>(<span class="ident">ctx</span>, <span class="ident">entries</span>, <span class="number">20</span>).<span class="ident">named</span>(<span class="string">&quot;search&quot;</span>),
+                Widget::row(<span class="macro">vec!</span>[
+                    Image::from_path(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>).into_widget(ctx),
+                    Autocomplete::new_widget(ctx, entries, <span class="number">20</span>).named(<span class="string">&quot;search&quot;</span>),
                 ]),
             ]))
-            .<span class="ident">exact_size_percent</span>(<span class="number">80</span>, <span class="number">80</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>),
+            .exact_size_percent(<span class="number">80</span>, <span class="number">80</span>)
+            .build(ctx),
         })
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">PickMap</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;close&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>PickMap {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition&lt;App&gt; {
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;close&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">paths</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">autocomplete_done</span>::<span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>(<span class="string">&quot;search&quot;</span>) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">paths</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">load_map</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">paths</span>.<span class="ident">remove</span>(<span class="number">0</span>),
-                    <span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">include_bldgs</span>,
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">mut </span>paths) = <span class="self">self</span>.panel.autocomplete_done::&lt;String&gt;(<span class="string">&quot;search&quot;</span>) {
+            <span class="kw">if </span>!paths.is_empty() {
+                <span class="kw">return </span>Transition::Push(load_map(
+                    ctx,
+                    paths.remove(<span class="number">0</span>),
+                    app.model.include_bldgs,
                     <span class="prelude-val">None</span>,
                 ));
             }
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.panel.draw(g);
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_map</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">path</span>: <span class="ident">String</span>,
-    <span class="ident">include_bldgs</span>: <span class="ident">bool</span>,
-    <span class="ident">center_camera</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">FileLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">RawMap</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">path</span>,
-        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>, <span class="ident">map</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">map</span> {
-            <span class="prelude-val">Ok</span>(<span class="ident">map</span>) =&gt; {
-                <span class="ident">app</span>.<span class="ident">model</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::model::Model::from_map</span>(<span class="ident">ctx</span>, <span class="ident">map</span>, <span class="ident">include_bldgs</span>, <span class="ident">timer</span>);
+<span class="kw">pub fn </span>load_map(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    path: String,
+    include_bldgs: bool,
+    center_camera: <span class="prelude-ty">Option</span>&lt;String&gt;,
+) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+    FileLoader::&lt;App, RawMap&gt;::new_state(
+        ctx,
+        path,
+        Box::new(<span class="kw">move </span>|ctx, app, timer, map| <span class="kw">match </span>map {
+            <span class="prelude-val">Ok</span>(map) =&gt; {
+                app.model = <span class="kw">crate</span>::model::Model::from_map(ctx, map, include_bldgs, timer);
 
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">URLManager::change_camera</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">center_camera</span>.<span class="ident">as_ref</span>(),
-                    <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>,
-                ) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>()
+                <span class="kw">if </span>!URLManager::change_camera(
+                    ctx,
+                    center_camera.as_ref(),
+                    <span class="kw-2">&amp;</span>app.model.map.streets.gps_bounds,
+                ) &amp;&amp; !app.model.map.name.map.is_empty()
                 {
-                    <span class="ident">CameraState::load</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">model</span>.<span class="ident">map</span>.<span class="ident">name</span>);
+                    CameraState::load(ctx, <span class="kw-2">&amp;</span>app.model.map.name);
                 }
 
-                <span class="ident">Transition::Clear</span>(<span class="macro">vec!</span>[<span class="ident"><span class="kw">crate</span>::app::MainState::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)])
+                Transition::Clear(<span class="macro">vec!</span>[<span class="kw">crate</span>::app::MainState::new_state(ctx, app)])
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PopupMsg::new_state</span>(
-                <span class="ident">ctx</span>,
+            <span class="prelude-val">Err</span>(err) =&gt; Transition::Replace(PopupMsg::new_state(
+                ctx,
                 <span class="string">&quot;Error&quot;</span>,
                 <span class="macro">vec!</span>[
-                    <span class="string">&quot;The format of this file has become out-of-sync with this version of the code.&quot;</span>
-                        .<span class="ident">to_string</span>(),
-                    <span class="string">&quot;Please file an issue and ask for an update. Sorry for the hassle!&quot;</span>.<span class="ident">to_string</span>(),
-                    <span class="macro">format!</span>(<span class="string">&quot;Error: {}&quot;</span>, <span class="ident">err</span>),
+                    <span class="string">&quot;The format of this file has become out-of-sync with this version of the code.&quot;
+                        </span>.to_string(),
+                    <span class="string">&quot;Please file an issue and ask for an update. Sorry for the hassle!&quot;</span>.to_string(),
+                    <span class="macro">format!</span>(<span class="string">&quot;Error: {}&quot;</span>, err),
                 ],
             )),
         }),
     )
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_editor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="map_editor" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/block.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>block.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/block.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>block.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -724,731 +724,731 @@
 <span id="724">724</span>
 <span id="725">725</span>
 <span id="726">726</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
-<span class="kw">use</span> <span class="ident">std::fmt</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeSet, HashMap, HashSet};
+<span class="kw">use </span>std::fmt;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::wraparound_get</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use </span>abstutil::wraparound_get;
+<span class="kw">use </span>geom::{Polygon, Pt2D, Ring};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">CommonEndpoint</span>, <span class="ident">Direction</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">RoadID</span>, <span class="ident">RoadSideID</span>, <span class="ident">SideOfRoad</span>,
+<span class="kw">use crate</span>::{
+    CommonEndpoint, Direction, LaneID, Map, PathConstraints, RoadID, RoadSideID, SideOfRoad,
 };
 
-<span class="doccomment">/// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,</span>
-<span class="doccomment">/// the block may contain buildings and interior roads. In the simple case, a block represents a</span>
-<span class="doccomment">/// single &quot;city block&quot;, with no interior roads. It may also cover a &quot;neighborhood&quot;, where the</span>
-<span class="doccomment">/// perimeter contains some &quot;major&quot; and the interior consists only of &quot;minor&quot; roads.</span>
-<span class="comment">// TODO Maybe &quot;block&quot; is a misleading term. &quot;Contiguous road trace area&quot;?</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Block</span> {
-    <span class="kw">pub</span> <span class="ident">perimeter</span>: <span class="ident">Perimeter</span>,
-    <span class="doccomment">/// The polygon covers the interior of the block.</span>
-    <span class="kw">pub</span> <span class="ident">polygon</span>: <span class="ident">Polygon</span>,
+<span class="doccomment">/// A block is defined by a perimeter that traces along the sides of roads. Inside the perimeter,
+/// the block may contain buildings and interior roads. In the simple case, a block represents a
+/// single &quot;city block&quot;, with no interior roads. It may also cover a &quot;neighborhood&quot;, where the
+/// perimeter contains some &quot;major&quot; and the interior consists only of &quot;minor&quot; roads.
+</span><span class="comment">// TODO Maybe &quot;block&quot; is a misleading term. &quot;Contiguous road trace area&quot;?
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Block {
+    <span class="kw">pub </span>perimeter: Perimeter,
+    <span class="doccomment">/// The polygon covers the interior of the block.
+    </span><span class="kw">pub </span>polygon: Polygon,
 }
 
-<span class="doccomment">/// A sequence of roads in order, beginning and ending at the same place. No &quot;crossings&quot; -- tracing</span>
-<span class="doccomment">/// along this sequence should geometrically yield a simple polygon.</span>
-<span class="comment">// TODO Handle the map boundary. Sometimes this perimeter should be broken up by border</span>
-<span class="comment">// intersections or possibly by water/park areas.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Perimeter</span> {
-    <span class="kw">pub</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadSideID</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// These roads exist entirely within the perimeter</span>
-    <span class="kw">pub</span> <span class="ident">interior</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A sequence of roads in order, beginning and ending at the same place. No &quot;crossings&quot; -- tracing
+/// along this sequence should geometrically yield a simple polygon.
+</span><span class="comment">// TODO Handle the map boundary. Sometimes this perimeter should be broken up by border
+// intersections or possibly by water/park areas.
+</span><span class="attribute">#[derive(Clone, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Perimeter {
+    <span class="kw">pub </span>roads: Vec&lt;RoadSideID&gt;,
+    <span class="doccomment">/// These roads exist entirely within the perimeter
+    </span><span class="kw">pub </span>interior: BTreeSet&lt;RoadID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Perimeter</span> {
-    <span class="doccomment">/// Starting at any lane, snap to the nearest side of that road, then begin tracing a single</span>
-    <span class="doccomment">/// block, with no interior roads. This will fail if a map boundary is reached. The results are</span>
-    <span class="doccomment">/// unusual when crossing the entrance to a tunnel or bridge, and so `skip` is used to avoid</span>
-    <span class="doccomment">/// tracing there.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">single_block</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">start</span>: <span class="ident">LaneID</span>, <span class="ident">skip</span>: <span class="kw-2">&amp;</span><span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="ident">start_road_side</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>).<span class="ident">get_nearest_side_of_road</span>(<span class="ident">map</span>);
+<span class="kw">impl </span>Perimeter {
+    <span class="doccomment">/// Starting at any lane, snap to the nearest side of that road, then begin tracing a single
+    /// block, with no interior roads. This will fail if a map boundary is reached. The results are
+    /// unusual when crossing the entrance to a tunnel or bridge, and so `skip` is used to avoid
+    /// tracing there.
+    </span><span class="kw">pub fn </span>single_block(map: <span class="kw-2">&amp;</span>Map, start: LaneID, skip: <span class="kw-2">&amp;</span>HashSet&lt;RoadID&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;Perimeter&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>roads = Vec::new();
+        <span class="kw">let </span>start_road_side = map.get_l(start).get_nearest_side_of_road(map);
 
-        <span class="kw">if</span> <span class="ident">skip</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">start_road_side</span>.<span class="ident">road</span>) {
+        <span class="kw">if </span>skip.contains(<span class="kw-2">&amp;</span>start_road_side.road) {
             <span class="macro">bail!</span>(<span class="string">&quot;Started on a road we shouldn&#39;t trace&quot;</span>);
         }
 
-        <span class="comment">// We need to track which side of the road we&#39;re at, but also which direction we&#39;re facing</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_road_side</span> <span class="op">=</span> <span class="ident">start_road_side</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_intersection</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start</span>).<span class="ident">dst_i</span>;
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">current_intersection</span>);
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_border</span>() {
+        <span class="comment">// We need to track which side of the road we&#39;re at, but also which direction we&#39;re facing
+        </span><span class="kw">let </span><span class="kw-2">mut </span>current_road_side = start_road_side;
+        <span class="kw">let </span><span class="kw-2">mut </span>current_intersection = map.get_l(start).dst_i;
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>i = map.get_i(current_intersection);
+            <span class="kw">if </span>i.is_border() {
                 <span class="macro">bail!</span>(<span class="string">&quot;hit the map boundary&quot;</span>);
             }
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sorted_roads</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">get_road_sides_sorted_by_incoming_angle</span>(<span class="ident">map</span>);
-            <span class="ident">sorted_roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="op">!</span><span class="ident">skip</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>));
-            <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">sorted_roads</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="ident">current_road_side</span>)
-                .<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">isize</span>;
-            <span class="comment">// Do we go clockwise or counter-clockwise around the intersection? Well, unless we&#39;re</span>
-            <span class="comment">// at a dead-end, we want to avoid the other side of the same road.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">next</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">sorted_roads</span>, <span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>);
-            <span class="macro">assert_ne!</span>(<span class="ident">next</span>, <span class="ident">current_road_side</span>);
-            <span class="kw">if</span> <span class="ident">next</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">current_road_side</span>.<span class="ident">road</span> {
-                <span class="ident">next</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">sorted_roads</span>, <span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>);
-                <span class="macro">assert_ne!</span>(<span class="ident">next</span>, <span class="ident">current_road_side</span>);
-                <span class="kw">if</span> <span class="ident">next</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">current_road_side</span>.<span class="ident">road</span> {
-                    <span class="comment">// We must be at a dead-end</span>
-                    <span class="macro">assert_eq!</span>(<span class="number">2</span>, <span class="ident">sorted_roads</span>.<span class="ident">len</span>());
+            <span class="kw">let </span><span class="kw-2">mut </span>sorted_roads = i.get_road_sides_sorted_by_incoming_angle(map);
+            sorted_roads.retain(|id| !skip.contains(<span class="kw-2">&amp;</span>id.road));
+            <span class="kw">let </span>idx = sorted_roads
+                .iter()
+                .position(|x| <span class="kw-2">*</span>x == current_road_side)
+                .unwrap() <span class="kw">as </span>isize;
+            <span class="comment">// Do we go clockwise or counter-clockwise around the intersection? Well, unless we&#39;re
+            // at a dead-end, we want to avoid the other side of the same road.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>next = <span class="kw-2">*</span>wraparound_get(<span class="kw-2">&amp;</span>sorted_roads, idx + <span class="number">1</span>);
+            <span class="macro">assert_ne!</span>(next, current_road_side);
+            <span class="kw">if </span>next.road == current_road_side.road {
+                next = <span class="kw-2">*</span>wraparound_get(<span class="kw-2">&amp;</span>sorted_roads, idx - <span class="number">1</span>);
+                <span class="macro">assert_ne!</span>(next, current_road_side);
+                <span class="kw">if </span>next.road == current_road_side.road {
+                    <span class="comment">// We must be at a dead-end
+                    </span><span class="macro">assert_eq!</span>(<span class="number">2</span>, sorted_roads.len());
                 }
             }
-            <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">current_road_side</span>);
-            <span class="ident">current_road_side</span> <span class="op">=</span> <span class="ident">next</span>;
-            <span class="ident">current_intersection</span> <span class="op">=</span> <span class="ident">map</span>
-                .<span class="ident">get_r</span>(<span class="ident">current_road_side</span>.<span class="ident">road</span>)
-                .<span class="ident">other_endpt</span>(<span class="ident">current_intersection</span>);
+            roads.push(current_road_side);
+            current_road_side = next;
+            current_intersection = map
+                .get_r(current_road_side.road)
+                .other_endpt(current_intersection);
 
-            <span class="kw">if</span> <span class="ident">current_road_side</span> <span class="op">==</span> <span class="ident">start_road_side</span> {
-                <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">start_road_side</span>);
+            <span class="kw">if </span>current_road_side == start_road_side {
+                roads.push(start_road_side);
                 <span class="kw">break</span>;
             }
         }
-        <span class="macro">assert_eq!</span>(<span class="ident">roads</span>[<span class="number">0</span>], <span class="kw-2">*</span><span class="ident">roads</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>());
-        <span class="prelude-val">Ok</span>(<span class="ident">Perimeter</span> {
-            <span class="ident">roads</span>,
-            <span class="ident">interior</span>: <span class="ident">BTreeSet::new</span>(),
+        <span class="macro">assert_eq!</span>(roads[<span class="number">0</span>], <span class="kw-2">*</span>roads.last().unwrap());
+        <span class="prelude-val">Ok</span>(Perimeter {
+            roads,
+            interior: BTreeSet::new(),
         })
     }
 
-    <span class="doccomment">/// This calculates all single block perimeters for the entire map. The resulting list does not</span>
-    <span class="doccomment">/// cover roads near the map boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_all_single_blocks</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">skip</span> <span class="op">=</span> <span class="ident">Perimeter::find_roads_to_skip_tracing</span>(<span class="ident">map</span>);
+    <span class="doccomment">/// This calculates all single block perimeters for the entire map. The resulting list does not
+    /// cover roads near the map boundary.
+    </span><span class="kw">pub fn </span>find_all_single_blocks(map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;Perimeter&gt; {
+        <span class="kw">let </span>skip = Perimeter::find_roads_to_skip_tracing(map);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeters</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_lanes</span>() {
-            <span class="kw">let</span> <span class="ident">side</span> <span class="op">=</span> <span class="ident">lane</span>.<span class="ident">get_nearest_side_of_road</span>(<span class="ident">map</span>);
-            <span class="kw">if</span> <span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">side</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>seen = HashSet::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>perimeters = Vec::new();
+        <span class="kw">for </span>lane <span class="kw">in </span>map.all_lanes() {
+            <span class="kw">let </span>side = lane.get_nearest_side_of_road(map);
+            <span class="kw">if </span>seen.contains(<span class="kw-2">&amp;</span>side) {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">match</span> <span class="ident">Perimeter::single_block</span>(<span class="ident">map</span>, <span class="ident">lane</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">skip</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">perimeter</span>) =&gt; {
-                    <span class="ident">seen</span>.<span class="ident">extend</span>(<span class="ident">perimeter</span>.<span class="ident">roads</span>.<span class="ident">clone</span>());
-                    <span class="ident">perimeters</span>.<span class="ident">push</span>(<span class="ident">perimeter</span>);
+            <span class="kw">match </span>Perimeter::single_block(map, lane.id, <span class="kw-2">&amp;</span>skip) {
+                <span class="prelude-val">Ok</span>(perimeter) =&gt; {
+                    seen.extend(perimeter.roads.clone());
+                    perimeters.push(perimeter);
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="comment">// The logs are quite spammy and not helpful yet, since they&#39;re all expected</span>
-                    <span class="comment">// cases near the map boundary</span>
-                    <span class="kw">if</span> <span class="bool-val">false</span> {
-                        <span class="macro">warn!</span>(<span class="string">&quot;Failed from {}: {}&quot;</span>, <span class="ident">lane</span>.<span class="ident">id</span>, <span class="ident">err</span>);
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="comment">// The logs are quite spammy and not helpful yet, since they&#39;re all expected
+                    // cases near the map boundary
+                    </span><span class="kw">if </span><span class="bool-val">false </span>{
+                        <span class="macro">warn!</span>(<span class="string">&quot;Failed from {}: {}&quot;</span>, lane.id, err);
                     }
-                    <span class="comment">// Don&#39;t try again</span>
-                    <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">side</span>);
+                    <span class="comment">// Don&#39;t try again
+                    </span>seen.insert(side);
                 }
             }
         }
-        <span class="ident">perimeters</span>
+        perimeters
     }
 
-    <span class="doccomment">/// Blockfinding is specialized for the LTN tool, so non-driveable roads (cycleways and light</span>
-    <span class="doccomment">/// rail) are considered invisible and can&#39;t be on a perimeter. Previously, there were also</span>
-    <span class="doccomment">/// some heuristics here to try to skip certain bridges/tunnels that break the planarity of</span>
-    <span class="doccomment">/// blocks.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_roads_to_skip_tracing</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">skip</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="comment">// TODO Redundant</span>
-            <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">is_light_rail</span>() {
-                <span class="ident">skip</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">r</span>, <span class="ident">map</span>) {
-                <span class="ident">skip</span>.<span class="ident">insert</span>(<span class="ident">r</span>.<span class="ident">id</span>);
+    <span class="doccomment">/// Blockfinding is specialized for the LTN tool, so non-driveable roads (cycleways and light
+    /// rail) are considered invisible and can&#39;t be on a perimeter. Previously, there were also
+    /// some heuristics here to try to skip certain bridges/tunnels that break the planarity of
+    /// blocks.
+    </span><span class="kw">pub fn </span>find_roads_to_skip_tracing(map: <span class="kw-2">&amp;</span>Map) -&gt; HashSet&lt;RoadID&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>skip = HashSet::new();
+        <span class="kw">for </span>r <span class="kw">in </span>map.all_roads() {
+            <span class="comment">// TODO Redundant
+            </span><span class="kw">if </span>r.is_light_rail() {
+                skip.insert(r.id);
+            } <span class="kw">else if </span>!PathConstraints::Car.can_use_road(r, map) {
+                skip.insert(r.id);
             }
         }
-        <span class="ident">skip</span>
+        skip
     }
 
-    <span class="doccomment">/// A perimeter has the first and last road matching up, but that&#39;s confusing to</span>
-    <span class="doccomment">/// work with. Temporarily undo that.</span>
-    <span class="kw">fn</span> <span class="ident">undo_invariant</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>]), <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">pop</span>());
+    <span class="doccomment">/// A perimeter has the first and last road matching up, but that&#39;s confusing to
+    /// work with. Temporarily undo that.
+    </span><span class="kw">fn </span>undo_invariant(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="macro">assert_eq!</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.roads[<span class="number">0</span>]), <span class="self">self</span>.roads.pop());
     }
 
-    <span class="doccomment">/// Restore the first=last invariant. Methods may temporarily break this, but must restore it</span>
-    <span class="doccomment">/// before returning.</span>
-    <span class="kw">fn</span> <span class="ident">restore_invariant</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>]);
+    <span class="doccomment">/// Restore the first=last invariant. Methods may temporarily break this, but must restore it
+    /// before returning.
+    </span><span class="kw">fn </span>restore_invariant(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.roads.push(<span class="self">self</span>.roads[<span class="number">0</span>]);
     }
 
-    <span class="doccomment">/// Try to merge two blocks. Returns true if this is successful, which will only be when the</span>
-    <span class="doccomment">/// blocks are adjacent, but the merge wouldn&#39;t create an interior &quot;hole&quot;.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// Note this may modify both perimeters and still return `false`. The modification is just to</span>
-    <span class="doccomment">/// rotate the order of the road loop; this doesn&#39;t logically change the perimeter.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// TODO Due to https://github.com/a-b-street/abstreet/issues/841, it seems like rotation</span>
-    <span class="doccomment">/// sometimes breaks `to_block`, so for now, always revert to the original upon failure.</span>
-    <span class="comment">// TODO Would it be cleaner to return a Result here and always restore the invariant?</span>
-    <span class="kw">fn</span> <span class="ident">try_to_merge</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">other</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Perimeter</span>,
-        <span class="ident">debug_failures</span>: <span class="ident">bool</span>,
-        <span class="ident">use_expensive_blockfinding</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">orig_self</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="ident">orig_other</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">clone</span>();
+    <span class="doccomment">/// Try to merge two blocks. Returns true if this is successful, which will only be when the
+    /// blocks are adjacent, but the merge wouldn&#39;t create an interior &quot;hole&quot;.
+    ///
+    /// Note this may modify both perimeters and still return `false`. The modification is just to
+    /// rotate the order of the road loop; this doesn&#39;t logically change the perimeter.
+    ///
+    /// TODO Due to https://github.com/a-b-street/abstreet/issues/841, it seems like rotation
+    /// sometimes breaks `to_block`, so for now, always revert to the original upon failure.
+    </span><span class="comment">// TODO Would it be cleaner to return a Result here and always restore the invariant?
+    </span><span class="kw">fn </span>try_to_merge(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        map: <span class="kw-2">&amp;</span>Map,
+        other: <span class="kw-2">&amp;mut </span>Perimeter,
+        debug_failures: bool,
+        use_expensive_blockfinding: bool,
+    ) -&gt; bool {
+        <span class="kw">let </span>orig_self = <span class="self">self</span>.clone();
+        <span class="kw">let </span>orig_other = other.clone();
 
-        <span class="self">self</span>.<span class="ident">undo_invariant</span>();
-        <span class="ident">other</span>.<span class="ident">undo_invariant</span>();
+        <span class="self">self</span>.undo_invariant();
+        other.undo_invariant();
 
-        <span class="comment">// Calculate common roads</span>
-        <span class="kw">let</span> <span class="ident">roads1</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">road</span>).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">roads2</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">road</span>).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="ident">common</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">roads1</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">roads2</span>).<span class="ident">cloned</span>().<span class="ident">collect</span>();
-        <span class="kw">if</span> <span class="ident">common</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">debug_failures</span> {
+        <span class="comment">// Calculate common roads
+        </span><span class="kw">let </span>roads1: HashSet&lt;RoadID&gt; = <span class="self">self</span>.roads.iter().map(|id| id.road).collect();
+        <span class="kw">let </span>roads2: HashSet&lt;RoadID&gt; = other.roads.iter().map(|id| id.road).collect();
+        <span class="kw">let </span>common: HashSet&lt;RoadID&gt; = roads1.intersection(<span class="kw-2">&amp;</span>roads2).cloned().collect();
+        <span class="kw">if </span>common.is_empty() {
+            <span class="kw">if </span>debug_failures {
                 <span class="macro">warn!</span>(<span class="string">&quot;No common roads&quot;</span>);
             }
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig_self</span>;
-            <span class="kw-2">*</span><span class="ident">other</span> <span class="op">=</span> <span class="ident">orig_other</span>;
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw-2">*</span><span class="self">self </span>= orig_self;
+            <span class="kw-2">*</span>other = orig_other;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="comment">// &quot;Rotate&quot; the order of roads, so that all of the overlapping roads are at the end of the</span>
-        <span class="comment">// list. If the entire perimeter is surrounded by the other, then no rotation needed.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">common</span>.<span class="ident">len</span>() {
-            <span class="kw">while</span> <span class="ident">common</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">road</span>)
-                <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">common</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">road</span>)
+        <span class="comment">// &quot;Rotate&quot; the order of roads, so that all of the overlapping roads are at the end of the
+        // list. If the entire perimeter is surrounded by the other, then no rotation needed.
+        </span><span class="kw">if </span><span class="self">self</span>.roads.len() != common.len() {
+            <span class="kw">while </span>common.contains(<span class="kw-2">&amp;</span><span class="self">self</span>.roads[<span class="number">0</span>].road)
+                || !common.contains(<span class="kw-2">&amp;</span><span class="self">self</span>.roads.last().unwrap().road)
             {
-                <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">rotate_left</span>(<span class="number">1</span>);
+                <span class="self">self</span>.roads.rotate_left(<span class="number">1</span>);
             }
         }
-        <span class="comment">// Same thing with the other</span>
-        <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">common</span>.<span class="ident">len</span>() {
-            <span class="kw">while</span> <span class="ident">common</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">road</span>)
-                <span class="op">|</span><span class="op">|</span> <span class="op">!</span><span class="ident">common</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">road</span>)
+        <span class="comment">// Same thing with the other
+        </span><span class="kw">if </span>other.roads.len() != common.len() {
+            <span class="kw">while </span>common.contains(<span class="kw-2">&amp;</span>other.roads[<span class="number">0</span>].road)
+                || !common.contains(<span class="kw-2">&amp;</span>other.roads.last().unwrap().road)
             {
-                <span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">rotate_left</span>(<span class="number">1</span>);
+                other.roads.rotate_left(<span class="number">1</span>);
             }
         }
 
-        <span class="kw">if</span> <span class="ident">debug_failures</span> {
-            <span class="macro">println!</span>(<span class="string">&quot;\nCommon: {:?}\n{:?}\n{:?}&quot;</span>, <span class="ident">common</span>, <span class="self">self</span>, <span class="ident">other</span>);
+        <span class="kw">if </span>debug_failures {
+            <span class="macro">println!</span>(<span class="string">&quot;\nCommon: {:?}\n{:?}\n{:?}&quot;</span>, common, <span class="self">self</span>, other);
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">reverse_to_fix_winding_order</span>(<span class="ident">map</span>, <span class="ident">other</span>) {
-            <span class="comment">// Revert, reverse one, and try again. This should never recurse.</span>
-            <span class="self">self</span>.<span class="ident">restore_invariant</span>();
-            <span class="ident">other</span>.<span class="ident">restore_invariant</span>();
-            <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">reverse</span>();
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">try_to_merge</span>(<span class="ident">map</span>, <span class="ident">other</span>, <span class="ident">debug_failures</span>, <span class="ident">use_expensive_blockfinding</span>);
+        <span class="kw">if </span><span class="self">self</span>.reverse_to_fix_winding_order(map, other) {
+            <span class="comment">// Revert, reverse one, and try again. This should never recurse.
+            </span><span class="self">self</span>.restore_invariant();
+            other.restore_invariant();
+            <span class="self">self</span>.roads.reverse();
+            <span class="kw">return </span><span class="self">self</span>.try_to_merge(map, other, debug_failures, use_expensive_blockfinding);
         }
 
-        <span class="comment">// Check if all of the common roads are at the end of each perimeter,</span>
-        <span class="comment">// so we can &quot;blindly&quot; do this snipping. If this isn&#39;t true, then the overlapping portions</span>
-        <span class="comment">// are split by non-overlapping roads. This happens when merging the two blocks would</span>
-        <span class="comment">// result in a &quot;hole.&quot;</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">take</span>(<span class="ident">common</span>.<span class="ident">len</span>()) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">common</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>) {
-                <span class="kw">if</span> <span class="ident">debug_failures</span> {
+        <span class="comment">// Check if all of the common roads are at the end of each perimeter,
+        // so we can &quot;blindly&quot; do this snipping. If this isn&#39;t true, then the overlapping portions
+        // are split by non-overlapping roads. This happens when merging the two blocks would
+        // result in a &quot;hole.&quot;
+        </span><span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
+        <span class="kw">for </span>id <span class="kw">in </span><span class="self">self</span>.roads.iter().rev().take(common.len()) {
+            <span class="kw">if </span>!common.contains(<span class="kw-2">&amp;</span>id.road) {
+                <span class="kw">if </span>debug_failures {
                     <span class="macro">warn!</span>(
                         <span class="string">&quot;The common roads on the first aren&#39;t consecutive, near {:?}&quot;</span>,
-                        <span class="ident">id</span>
+                        id
                     );
                 }
-                <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                ok = <span class="bool-val">false</span>;
                 <span class="kw">break</span>;
             }
         }
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">rev</span>().<span class="ident">take</span>(<span class="ident">common</span>.<span class="ident">len</span>()) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">common</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>) {
-                <span class="kw">if</span> <span class="ident">debug_failures</span> {
+        <span class="kw">for </span>id <span class="kw">in </span>other.roads.iter().rev().take(common.len()) {
+            <span class="kw">if </span>!common.contains(<span class="kw-2">&amp;</span>id.road) {
+                <span class="kw">if </span>debug_failures {
                     <span class="macro">warn!</span>(
                         <span class="string">&quot;The common roads on the second aren&#39;t consecutive, near {:?}&quot;</span>,
-                        <span class="ident">id</span>
+                        id
                     );
                 }
-                <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                ok = <span class="bool-val">false</span>;
                 <span class="kw">break</span>;
             }
         }
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ok</span> {
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig_self</span>;
-            <span class="kw-2">*</span><span class="ident">other</span> <span class="op">=</span> <span class="ident">orig_other</span>;
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+        <span class="kw">if </span>!ok {
+            <span class="kw-2">*</span><span class="self">self </span>= orig_self;
+            <span class="kw-2">*</span>other = orig_other;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="comment">// Very straightforward snipping now</span>
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">common</span>.<span class="ident">len</span>() {
-            <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-            <span class="ident">other</span>.<span class="ident">roads</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
+        <span class="comment">// Very straightforward snipping now
+        </span><span class="kw">for _ in </span><span class="number">0</span>..common.len() {
+            <span class="self">self</span>.roads.pop().unwrap();
+            other.roads.pop().unwrap();
         }
 
-        <span class="comment">// This order assumes everything is clockwise to start with.</span>
-        <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">other</span>.<span class="ident">roads</span>);
+        <span class="comment">// This order assumes everything is clockwise to start with.
+        </span><span class="self">self</span>.roads.append(<span class="kw-2">&amp;mut </span>other.roads);
 
-        <span class="comment">// TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">if</span> <span class="ident">debug_failures</span> {
-                <span class="macro">warn!</span>(<span class="string">&quot;Two perimeters had every road in common: {:?}&quot;</span>, <span class="ident">common</span>);
+        <span class="comment">// TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
+        </span><span class="kw">if </span><span class="self">self</span>.roads.is_empty() {
+            <span class="kw">if </span>debug_failures {
+                <span class="macro">warn!</span>(<span class="string">&quot;Two perimeters had every road in common: {:?}&quot;</span>, common);
             }
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig_self</span>;
-            <span class="kw-2">*</span><span class="ident">other</span> <span class="op">=</span> <span class="ident">orig_other</span>;
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw-2">*</span><span class="self">self </span>= orig_self;
+            <span class="kw-2">*</span>other = orig_other;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">extend</span>(<span class="ident">common</span>);
-        <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">other</span>.<span class="ident">interior</span>);
+        <span class="self">self</span>.interior.extend(common);
+        <span class="self">self</span>.interior.append(<span class="kw-2">&amp;mut </span>other.interior);
 
-        <span class="comment">// Restore the first=last invariant</span>
-        <span class="self">self</span>.<span class="ident">restore_invariant</span>();
+        <span class="comment">// Restore the first=last invariant
+        </span><span class="self">self</span>.restore_invariant();
 
-        <span class="comment">// Make sure we didn&#39;t wind up with any internal dead-ends</span>
-        <span class="self">self</span>.<span class="ident">collapse_deadends</span>();
+        <span class="comment">// Make sure we didn&#39;t wind up with any internal dead-ends
+        </span><span class="self">self</span>.collapse_deadends();
 
-        <span class="comment">// TODO Something in this method is buggy and produces invalid merges.</span>
-        <span class="comment">// https://github.com/a-b-street/abstreet/issues/841</span>
-        <span class="comment">// First try a lightweight detection for problems. If the caller detects the net result is</span>
-        <span class="comment">// invalid, they&#39;ll override this flag and try again.</span>
-        <span class="kw">let</span> <span class="ident">err</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_expensive_blockfinding</span> {
-            <span class="self">self</span>.<span class="ident">clone</span>().<span class="ident">to_block</span>(<span class="ident">map</span>).<span class="ident">err</span>()
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">check_continuity</span>(<span class="ident">map</span>).<span class="ident">err</span>()
+        <span class="comment">// TODO Something in this method is buggy and produces invalid merges.
+        // https://github.com/a-b-street/abstreet/issues/841
+        // First try a lightweight detection for problems. If the caller detects the net result is
+        // invalid, they&#39;ll override this flag and try again.
+        </span><span class="kw">let </span>err = <span class="kw">if </span>use_expensive_blockfinding {
+            <span class="self">self</span>.clone().to_block(map).err()
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.check_continuity(map).err()
         };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">err</span> {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(err) = err {
             <span class="macro">debug!</span>(
                 <span class="string">&quot;A merged perimeter couldn&#39;t be blockified: {}. {:?}&quot;</span>,
-                <span class="ident">err</span>, <span class="self">self</span>
-            );
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig_self</span>;
-            <span class="kw-2">*</span><span class="ident">other</span> <span class="op">=</span> <span class="ident">orig_other</span>;
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+                err, <span class="self">self
+            </span>);
+            <span class="kw-2">*</span><span class="self">self </span>= orig_self;
+            <span class="kw-2">*</span>other = orig_other;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="bool-val">true</span>
-    }
+        <span class="bool-val">true
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">check_continuity</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">road</span>);
-            <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">road</span>);
-            <span class="kw">if</span> <span class="ident">r1</span>.<span class="ident">common_endpoint</span>(<span class="ident">r2</span>) <span class="op">==</span> <span class="ident">CommonEndpoint::None</span> {
-                <span class="macro">bail!</span>(<span class="string">&quot;Part of the perimeter goes from {:?} to {:?}, but they don&#39;t share a common endpoint&quot;</span>, <span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>]);
+    <span class="kw">fn </span>check_continuity(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+        <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.roads.windows(<span class="number">2</span>) {
+            <span class="kw">let </span>r1 = map.get_r(pair[<span class="number">0</span>].road);
+            <span class="kw">let </span>r2 = map.get_r(pair[<span class="number">1</span>].road);
+            <span class="kw">if </span>r1.common_endpoint(r2) == CommonEndpoint::None {
+                <span class="macro">bail!</span>(<span class="string">&quot;Part of the perimeter goes from {:?} to {:?}, but they don&#39;t share a common endpoint&quot;</span>, pair[<span class="number">0</span>], pair[<span class="number">1</span>]);
             }
         }
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="doccomment">/// Should we reverse one perimeter to match the winding order?</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This is only meant to be called in the middle of try_to_merge. It assumes both perimeters</span>
-    <span class="doccomment">/// have already been rotated so the common roads are at the end. The invariant of first=last</span>
-    <span class="doccomment">/// is not true.</span>
-    <span class="kw">fn</span> <span class="ident">reverse_to_fix_winding_order</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// Using geometry to determine winding order is brittle. Look for any common road, and see</span>
-        <span class="comment">// where it points.</span>
-        <span class="kw">let</span> <span class="ident">common_example</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">road</span>;
-        <span class="kw">let</span> <span class="ident">last_common_for_self</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>
-            .<span class="ident">get_r</span>(<span class="ident">common_example</span>)
-            .<span class="ident">common_endpoint</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span>, <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">isize</span>).<span class="ident">road</span>))
+    <span class="doccomment">/// Should we reverse one perimeter to match the winding order?
+    ///
+    /// This is only meant to be called in the middle of try_to_merge. It assumes both perimeters
+    /// have already been rotated so the common roads are at the end. The invariant of first=last
+    /// is not true.
+    </span><span class="kw">fn </span>reverse_to_fix_winding_order(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map, other: <span class="kw-2">&amp;</span>Perimeter) -&gt; bool {
+        <span class="comment">// Using geometry to determine winding order is brittle. Look for any common road, and see
+        // where it points.
+        </span><span class="kw">let </span>common_example = <span class="self">self</span>.roads.last().unwrap().road;
+        <span class="kw">let </span>last_common_for_self = <span class="kw">match </span>map
+            .get_r(common_example)
+            .common_endpoint(map.get_r(wraparound_get(<span class="kw-2">&amp;</span><span class="self">self</span>.roads, <span class="self">self</span>.roads.len() <span class="kw">as </span>isize).road))
         {
-            <span class="ident">CommonEndpoint::One</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>,
-            <span class="ident">CommonEndpoint::Both</span> =&gt; {
-                <span class="comment">// If the common road is a loop on the intersection, then this perimeter must be of</span>
-                <span class="comment">// length 2 (or 3 with the invariant), and reversing it is meaningless.</span>
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+            CommonEndpoint::One(i) =&gt; i,
+            CommonEndpoint::Both =&gt; {
+                <span class="comment">// If the common road is a loop on the intersection, then this perimeter must be of
+                // length 2 (or 3 with the invariant), and reversing it is meaningless.
+                </span><span class="kw">return </span><span class="bool-val">false</span>;
             }
-            <span class="ident">CommonEndpoint::None</span> =&gt; <span class="macro">unreachable!</span>(),
+            CommonEndpoint::None =&gt; <span class="macro">unreachable!</span>(),
         };
 
-        <span class="comment">// Find the same road in the other perimeter</span>
-        <span class="kw">let</span> <span class="ident">other_idx</span> <span class="op">=</span> <span class="ident">other</span>
-            .<span class="ident">roads</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">common_example</span>)
-            .<span class="ident">unwrap</span>() <span class="kw">as</span> <span class="ident">isize</span>;
-        <span class="kw">let</span> <span class="ident">last_common_for_other</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">map</span>
-            .<span class="ident">get_r</span>(<span class="ident">common_example</span>)
-            .<span class="ident">common_endpoint</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">wraparound_get</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">roads</span>, <span class="ident">other_idx</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">road</span>))
+        <span class="comment">// Find the same road in the other perimeter
+        </span><span class="kw">let </span>other_idx = other
+            .roads
+            .iter()
+            .position(|x| x.road == common_example)
+            .unwrap() <span class="kw">as </span>isize;
+        <span class="kw">let </span>last_common_for_other = <span class="kw">match </span>map
+            .get_r(common_example)
+            .common_endpoint(map.get_r(wraparound_get(<span class="kw-2">&amp;</span>other.roads, other_idx + <span class="number">1</span>).road))
         {
-            <span class="ident">CommonEndpoint::One</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>,
-            <span class="ident">CommonEndpoint::Both</span> =&gt; {
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+            CommonEndpoint::One(i) =&gt; i,
+            CommonEndpoint::Both =&gt; {
+                <span class="kw">return </span><span class="bool-val">false</span>;
             }
-            <span class="ident">CommonEndpoint::None</span> =&gt; <span class="macro">unreachable!</span>(),
+            CommonEndpoint::None =&gt; <span class="macro">unreachable!</span>(),
         };
-        <span class="ident">last_common_for_self</span> <span class="op">==</span> <span class="ident">last_common_for_other</span>
+        last_common_for_self == last_common_for_other
     }
 
-    <span class="doccomment">/// Try to merge all given perimeters. If successful, only one perimeter will be returned.</span>
-    <span class="doccomment">/// Perimeters are never &quot;destroyed&quot; -- if not merged, they&#39;ll appear in the results. If</span>
-    <span class="doccomment">/// `stepwise_debug` is true, returns after performing just one merge.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_all</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="kw-2">mut</span> <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span>,
-        <span class="ident">stepwise_debug</span>: <span class="ident">bool</span>,
-        <span class="ident">use_expensive_blockfinding</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
-        <span class="comment">// Internal dead-ends break merging, so first collapse of those. Do this before even</span>
-        <span class="comment">// looking for neighbors, since find_common_roads doesn&#39;t understand dead-ends.</span>
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">input</span> {
-            <span class="ident">p</span>.<span class="ident">collapse_deadends</span>();
+    <span class="doccomment">/// Try to merge all given perimeters. If successful, only one perimeter will be returned.
+    /// Perimeters are never &quot;destroyed&quot; -- if not merged, they&#39;ll appear in the results. If
+    /// `stepwise_debug` is true, returns after performing just one merge.
+    </span><span class="kw">pub fn </span>merge_all(
+        map: <span class="kw-2">&amp;</span>Map,
+        <span class="kw-2">mut </span>input: Vec&lt;Perimeter&gt;,
+        stepwise_debug: bool,
+        use_expensive_blockfinding: bool,
+    ) -&gt; Vec&lt;Perimeter&gt; {
+        <span class="comment">// Internal dead-ends break merging, so first collapse of those. Do this before even
+        // looking for neighbors, since find_common_roads doesn&#39;t understand dead-ends.
+        </span><span class="kw">for </span>p <span class="kw">in </span><span class="kw-2">&amp;mut </span>input {
+            p.collapse_deadends();
         }
 
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">debug</span> <span class="op">=</span> <span class="bool-val">false</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">let</span> <span class="ident">num_input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">len</span>();
-            <span class="lifetime">&#39;INPUT</span>: <span class="kw">for</span> <span class="kw-2">mut</span> <span class="ident">perimeter</span> <span class="kw">in</span> <span class="ident">input</span> {
-                <span class="kw">if</span> <span class="ident">debug</span> {
-                    <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">perimeter</span>);
+        <span class="kw">loop </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>debug = <span class="bool-val">false</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>results: Vec&lt;Perimeter&gt; = Vec::new();
+            <span class="kw">let </span>num_input = input.len();
+            <span class="lifetime">&#39;INPUT</span>: <span class="kw">for </span><span class="kw-2">mut </span>perimeter <span class="kw">in </span>input {
+                <span class="kw">if </span>debug {
+                    results.push(perimeter);
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">for</span> <span class="ident">other</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">results</span> {
-                    <span class="kw">if</span> <span class="ident">other</span>.<span class="ident">try_to_merge</span>(
-                        <span class="ident">map</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">perimeter</span>,
-                        <span class="ident">stepwise_debug</span>,
-                        <span class="ident">use_expensive_blockfinding</span>,
+                <span class="kw">for </span>other <span class="kw">in </span><span class="kw-2">&amp;mut </span>results {
+                    <span class="kw">if </span>other.try_to_merge(
+                        map,
+                        <span class="kw-2">&amp;mut </span>perimeter,
+                        stepwise_debug,
+                        use_expensive_blockfinding,
                     ) {
-                        <span class="comment">// To debug, return after any single change</span>
-                        <span class="ident">debug</span> <span class="op">=</span> <span class="ident">stepwise_debug</span>;
-                        <span class="kw">continue</span> <span class="lifetime">&#39;INPUT</span>;
+                        <span class="comment">// To debug, return after any single change
+                        </span>debug = stepwise_debug;
+                        <span class="kw">continue </span><span class="lifetime">&#39;INPUT</span>;
                     }
                 }
 
-                <span class="comment">// No match</span>
-                <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">perimeter</span>);
+                <span class="comment">// No match
+                </span>results.push(perimeter);
             }
 
-            <span class="comment">// Should we try merging again?</span>
-            <span class="kw">if</span> <span class="ident">results</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> <span class="op">&amp;&amp;</span> <span class="ident">results</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="ident">num_input</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">stepwise_debug</span> {
-                <span class="ident">input</span> <span class="op">=</span> <span class="ident">results</span>;
+            <span class="comment">// Should we try merging again?
+            </span><span class="kw">if </span>results.len() &gt; <span class="number">1 </span>&amp;&amp; results.len() &lt; num_input &amp;&amp; !stepwise_debug {
+                input = results;
                 <span class="kw">continue</span>;
             }
-            <span class="kw">return</span> <span class="ident">results</span>;
+            <span class="kw">return </span>results;
         }
     }
 
-    <span class="doccomment">/// If the perimeter follows any dead-end roads, &quot;collapse&quot; them and instead make the perimeter</span>
-    <span class="doccomment">/// contain the dead-end.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collapse_deadends</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">orig</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
-        <span class="self">self</span>.<span class="ident">undo_invariant</span>();
+    <span class="doccomment">/// If the perimeter follows any dead-end roads, &quot;collapse&quot; them and instead make the perimeter
+    /// contain the dead-end.
+    </span><span class="kw">pub fn </span>collapse_deadends(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="kw">let </span>orig = <span class="self">self</span>.clone();
+        <span class="self">self</span>.undo_invariant();
 
-        <span class="comment">// TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop</span>
-        <span class="comment">// around a disconnected fragment of road, don&#39;t touch it</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">2</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">road</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="number">1</span>].<span class="ident">road</span> {
-            <span class="self">self</span>.<span class="ident">restore_invariant</span>();
+        <span class="comment">// TODO Workaround https://github.com/a-b-street/abstreet/issues/834. If this is a loop
+        // around a disconnected fragment of road, don&#39;t touch it
+        </span><span class="kw">if </span><span class="self">self</span>.roads.len() == <span class="number">2 </span>&amp;&amp; <span class="self">self</span>.roads[<span class="number">0</span>].road == <span class="self">self</span>.roads[<span class="number">1</span>].road {
+            <span class="self">self</span>.restore_invariant();
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// If the dead-end straddles the loop, it&#39;s confusing. Just rotate until that&#39;s not true.</span>
-        <span class="kw">while</span> <span class="self">self</span>.<span class="ident">roads</span>[<span class="number">0</span>].<span class="ident">road</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">road</span> {
-            <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">rotate_left</span>(<span class="number">1</span>);
+        <span class="comment">// If the dead-end straddles the loop, it&#39;s confusing. Just rotate until that&#39;s not true.
+        </span><span class="kw">while </span><span class="self">self</span>.roads[<span class="number">0</span>].road == <span class="self">self</span>.roads.last().unwrap().road {
+            <span class="self">self</span>.roads.rotate_left(<span class="number">1</span>);
         }
 
-        <span class="comment">// TODO This won&#39;t handle a deadend that&#39;s more than 1 segment long</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadSideID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">drain</span>(..) {
-            <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>.<span class="ident">road</span>) <span class="op">==</span> <span class="ident">roads</span>.<span class="ident">last</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="ident">id</span>.<span class="ident">road</span>) {
-                <span class="ident">roads</span>.<span class="ident">pop</span>();
-                <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">insert</span>(<span class="ident">id</span>.<span class="ident">road</span>);
-            } <span class="kw">else</span> {
-                <span class="ident">roads</span>.<span class="ident">push</span>(<span class="ident">id</span>);
+        <span class="comment">// TODO This won&#39;t handle a deadend that&#39;s more than 1 segment long
+        </span><span class="kw">let </span><span class="kw-2">mut </span>roads: Vec&lt;RoadSideID&gt; = Vec::new();
+        <span class="kw">for </span>id <span class="kw">in </span><span class="self">self</span>.roads.drain(..) {
+            <span class="kw">if </span><span class="prelude-val">Some</span>(id.road) == roads.last().map(|id| id.road) {
+                roads.pop();
+                <span class="self">self</span>.interior.insert(id.road);
+            } <span class="kw">else </span>{
+                roads.push(id);
             }
         }
 
-        <span class="self">self</span>.<span class="ident">roads</span> <span class="op">=</span> <span class="ident">roads</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">is_empty</span>() {
-            <span class="comment">// TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.</span>
-            <span class="kw-2">*</span><span class="self">self</span> <span class="op">=</span> <span class="ident">orig</span>;
+        <span class="self">self</span>.roads = roads;
+        <span class="kw">if </span><span class="self">self</span>.roads.is_empty() {
+            <span class="comment">// TODO This case was introduced with find_roads_to_skip_tracing. Not sure why.
+            </span><span class="kw-2">*</span><span class="self">self </span>= orig;
             <span class="kw">return</span>;
         }
-        <span class="self">self</span>.<span class="ident">restore_invariant</span>();
+        <span class="self">self</span>.restore_invariant();
     }
 
-    <span class="doccomment">/// Consider the perimeters as a graph, with adjacency determined by sharing any road in common.</span>
-    <span class="doccomment">/// Partition adjacent perimeters, subject to the predicate. Each partition should produce a</span>
-    <span class="doccomment">/// single result with `merge_all`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">partition_by_predicate</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">RoadID</span>) -&gt; <span class="ident">bool</span><span class="op">&gt;</span>(
-        <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span>,
-        <span class="ident">predicate</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_to_perimeters</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">perimeter</span>) <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">perimeter</span>.<span class="ident">roads</span> {
-                <span class="ident">road_to_perimeters</span>
-                    .<span class="ident">entry</span>(<span class="ident">id</span>.<span class="ident">road</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>(<span class="ident">idx</span>);
+    <span class="doccomment">/// Consider the perimeters as a graph, with adjacency determined by sharing any road in common.
+    /// Partition adjacent perimeters, subject to the predicate. Each partition should produce a
+    /// single result with `merge_all`.
+    </span><span class="kw">pub fn </span>partition_by_predicate&lt;F: Fn(RoadID) -&gt; bool&gt;(
+        input: Vec&lt;Perimeter&gt;,
+        predicate: F,
+    ) -&gt; Vec&lt;Vec&lt;Perimeter&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>road_to_perimeters: HashMap&lt;RoadID, Vec&lt;usize&gt;&gt; = HashMap::new();
+        <span class="kw">for </span>(idx, perimeter) <span class="kw">in </span>input.iter().enumerate() {
+            <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span>perimeter.roads {
+                road_to_perimeters
+                    .entry(id.road)
+                    .or_insert_with(Vec::new)
+                    .push(idx);
             }
         }
 
-        <span class="comment">// Start at one perimeter, floodfill to adjacent perimeters, subject to the predicate.</span>
-        <span class="comment">// Returns the indices of everything in that component.</span>
-        <span class="kw">let</span> <span class="ident">floodfill</span> <span class="op">=</span> <span class="op">|</span><span class="ident">start</span>: <span class="ident">usize</span><span class="op">|</span> -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">start</span>];
-            <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="ident">visited</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>) {
+        <span class="comment">// Start at one perimeter, floodfill to adjacent perimeters, subject to the predicate.
+        // Returns the indices of everything in that component.
+        </span><span class="kw">let </span>floodfill = |start: usize| -&gt; BTreeSet&lt;usize&gt; {
+            <span class="kw">let </span><span class="kw-2">mut </span>visited = BTreeSet::new();
+            <span class="kw">let </span><span class="kw-2">mut </span>queue = <span class="macro">vec!</span>[start];
+            <span class="kw">while </span>!queue.is_empty() {
+                <span class="kw">let </span>current = queue.pop().unwrap();
+                <span class="kw">if </span>visited.contains(<span class="kw-2">&amp;</span>current) {
                     <span class="kw">continue</span>;
                 }
-                <span class="ident">visited</span>.<span class="ident">insert</span>(<span class="ident">current</span>);
-                <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">input</span>[<span class="ident">current</span>].<span class="ident">roads</span> {
-                    <span class="kw">if</span> <span class="ident">predicate</span>(<span class="ident">id</span>.<span class="ident">road</span>) {
-                        <span class="ident">queue</span>.<span class="ident">extend</span>(<span class="ident">road_to_perimeters</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>].<span class="ident">clone</span>());
+                visited.insert(current);
+                <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span>input[current].roads {
+                    <span class="kw">if </span>predicate(id.road) {
+                        queue.extend(road_to_perimeters[<span class="kw-2">&amp;</span>id.road].clone());
                     }
                 }
             }
-            <span class="ident">visited</span>
+            visited
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">partitions</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">finished</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">for</span> <span class="ident">start</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">input</span>.<span class="ident">len</span>() {
-            <span class="kw">if</span> <span class="ident">finished</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>) {
+        <span class="kw">let </span><span class="kw-2">mut </span>partitions: Vec&lt;BTreeSet&lt;usize&gt;&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>finished: HashSet&lt;usize&gt; = HashSet::new();
+        <span class="kw">for </span>start <span class="kw">in </span><span class="number">0</span>..input.len() {
+            <span class="kw">if </span>finished.contains(<span class="kw-2">&amp;</span>start) {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">partition</span> <span class="op">=</span> <span class="ident">floodfill</span>(<span class="ident">start</span>);
-            <span class="ident">finished</span>.<span class="ident">extend</span>(<span class="ident">partition</span>.<span class="ident">clone</span>());
-            <span class="ident">partitions</span>.<span class="ident">push</span>(<span class="ident">partition</span>);
+            <span class="kw">let </span>partition = floodfill(start);
+            finished.extend(partition.clone());
+            partitions.push(partition);
         }
 
-        <span class="comment">// Map the indices back to the actual perimeters.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">perimeters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="prelude-val">Some</span>).<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">indices</span> <span class="kw">in</span> <span class="ident">partitions</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">partition</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="ident">indices</span> {
-                <span class="ident">partition</span>.<span class="ident">push</span>(<span class="ident">perimeters</span>[<span class="ident">idx</span>].<span class="ident">take</span>().<span class="ident">unwrap</span>());
+        <span class="comment">// Map the indices back to the actual perimeters.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>perimeters: Vec&lt;<span class="prelude-ty">Option</span>&lt;Perimeter&gt;&gt; = input.into_iter().map(<span class="prelude-val">Some</span>).collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+        <span class="kw">for </span>indices <span class="kw">in </span>partitions {
+            <span class="kw">let </span><span class="kw-2">mut </span>partition = Vec::new();
+            <span class="kw">for </span>idx <span class="kw">in </span>indices {
+                partition.push(perimeters[idx].take().unwrap());
             }
-            <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">partition</span>);
+            results.push(partition);
         }
-        <span class="comment">// Sanity check</span>
-        <span class="kw">for</span> <span class="ident">maybe_perimeter</span> <span class="kw">in</span> <span class="ident">perimeters</span> {
-            <span class="macro">assert!</span>(<span class="ident">maybe_perimeter</span>.<span class="ident">is_none</span>());
+        <span class="comment">// Sanity check
+        </span><span class="kw">for </span>maybe_perimeter <span class="kw">in </span>perimeters {
+            <span class="macro">assert!</span>(maybe_perimeter.is_none());
         }
-        <span class="ident">results</span>
+        results
     }
 
-    <span class="doccomment">/// Assign each perimeter one of `num_colors`, such that no two adjacent perimeters share the</span>
-    <span class="doccomment">/// same color. May fail. The resulting colors are expressed as `[0, num_colors)`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">calculate_coloring</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span>[<span class="ident">Perimeter</span>], <span class="ident">num_colors</span>: <span class="ident">usize</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">road_to_perimeters</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">RoadID</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">perimeter</span>) <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">perimeter</span>.<span class="ident">roads</span> {
-                <span class="ident">road_to_perimeters</span>
-                    .<span class="ident">entry</span>(<span class="ident">id</span>.<span class="ident">road</span>)
-                    .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-                    .<span class="ident">push</span>(<span class="ident">idx</span>);
+    <span class="doccomment">/// Assign each perimeter one of `num_colors`, such that no two adjacent perimeters share the
+    /// same color. May fail. The resulting colors are expressed as `[0, num_colors)`.
+    </span><span class="kw">pub fn </span>calculate_coloring(input: <span class="kw-2">&amp;</span>[Perimeter], num_colors: usize) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;usize&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>road_to_perimeters: HashMap&lt;RoadID, Vec&lt;usize&gt;&gt; = HashMap::new();
+        <span class="kw">for </span>(idx, perimeter) <span class="kw">in </span>input.iter().enumerate() {
+            <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span>perimeter.roads {
+                road_to_perimeters
+                    .entry(id.road)
+                    .or_insert_with(Vec::new)
+                    .push(idx);
             }
         }
 
-        <span class="comment">// Greedily fill out a color for each perimeter, in the same order as the input</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">assigned_colors</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">this_idx</span>, <span class="ident">perimeter</span>) <span class="kw">in</span> <span class="ident">input</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">available_colors</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">bool</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">std::iter::repeat</span>(<span class="bool-val">true</span>).<span class="ident">take</span>(<span class="ident">num_colors</span>).<span class="ident">collect</span>();
-            <span class="comment">// Find all neighbors</span>
-            <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">perimeter</span>.<span class="ident">roads</span> {
-                <span class="kw">for</span> <span class="ident">other_idx</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road_to_perimeters</span>[<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>] {
-                    <span class="comment">// We assign colors in order, so any neighbor index smaller than us has been</span>
-                    <span class="comment">// chosen</span>
-                    <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">other_idx</span> <span class="op">&lt;</span> <span class="ident">this_idx</span> {
-                        <span class="ident">available_colors</span>[<span class="ident">assigned_colors</span>[<span class="kw-2">*</span><span class="ident">other_idx</span>]] <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// Greedily fill out a color for each perimeter, in the same order as the input
+        </span><span class="kw">let </span><span class="kw-2">mut </span>assigned_colors = Vec::new();
+        <span class="kw">for </span>(this_idx, perimeter) <span class="kw">in </span>input.iter().enumerate() {
+            <span class="kw">let </span><span class="kw-2">mut </span>available_colors: Vec&lt;bool&gt; =
+                std::iter::repeat(<span class="bool-val">true</span>).take(num_colors).collect();
+            <span class="comment">// Find all neighbors
+            </span><span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span>perimeter.roads {
+                <span class="kw">for </span>other_idx <span class="kw">in </span><span class="kw-2">&amp;</span>road_to_perimeters[<span class="kw-2">&amp;</span>id.road] {
+                    <span class="comment">// We assign colors in order, so any neighbor index smaller than us has been
+                    // chosen
+                    </span><span class="kw">if </span><span class="kw-2">*</span>other_idx &lt; this_idx {
+                        available_colors[assigned_colors[<span class="kw-2">*</span>other_idx]] = <span class="bool-val">false</span>;
                     }
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">color</span>) <span class="op">=</span> <span class="ident">available_colors</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span>) {
-                <span class="ident">assigned_colors</span>.<span class="ident">push</span>(<span class="ident">color</span>);
-            } <span class="kw">else</span> {
-                <span class="comment">// Too few colors?</span>
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(color) = available_colors.iter().position(|x| <span class="kw-2">*</span>x) {
+                assigned_colors.push(color);
+            } <span class="kw">else </span>{
+                <span class="comment">// Too few colors?
+                </span><span class="kw">return </span><span class="prelude-val">None</span>;
             }
         }
-        <span class="prelude-val">Some</span>(<span class="ident">assigned_colors</span>)
+        <span class="prelude-val">Some</span>(assigned_colors)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_block</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span> {
-        <span class="comment">// Trace along the perimeter and build the polygon</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first_intersection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">let</span> <span class="ident">lane1</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">get_outermost_lane</span>(<span class="ident">map</span>);
-            <span class="kw">let</span> <span class="ident">road1</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">lane1</span>.<span class="ident">id</span>);
-            <span class="kw">let</span> <span class="ident">lane2</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">get_outermost_lane</span>(<span class="ident">map</span>);
-            <span class="comment">// If lane1 and lane2 are the same, then it just means we found a dead-end road with</span>
-            <span class="comment">// exactly one lane, which is usually a footway or cycleway that legitimately is a</span>
-            <span class="comment">// dead-end, or connects to some other road we didn&#39;t import. We&#39;ll just trace around</span>
-            <span class="comment">// it like a normal dead-end road.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">side</span> {
-                <span class="ident">SideOfRoad::Right</span> =&gt; <span class="ident">road1</span>.<span class="ident">center_pts</span>.<span class="ident">must_shift_right</span>(<span class="ident">road1</span>.<span class="ident">get_half_width</span>()),
-                <span class="ident">SideOfRoad::Left</span> =&gt; <span class="ident">road1</span>.<span class="ident">center_pts</span>.<span class="ident">must_shift_left</span>(<span class="ident">road1</span>.<span class="ident">get_half_width</span>()),
+    <span class="kw">pub fn </span>to_block(<span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;Block&gt; {
+        <span class="comment">// Trace along the perimeter and build the polygon
+        </span><span class="kw">let </span><span class="kw-2">mut </span>pts: Vec&lt;Pt2D&gt; = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>first_intersection = <span class="prelude-val">None</span>;
+        <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.roads.windows(<span class="number">2</span>) {
+            <span class="kw">let </span>lane1 = pair[<span class="number">0</span>].get_outermost_lane(map);
+            <span class="kw">let </span>road1 = map.get_parent(lane1.id);
+            <span class="kw">let </span>lane2 = pair[<span class="number">1</span>].get_outermost_lane(map);
+            <span class="comment">// If lane1 and lane2 are the same, then it just means we found a dead-end road with
+            // exactly one lane, which is usually a footway or cycleway that legitimately is a
+            // dead-end, or connects to some other road we didn&#39;t import. We&#39;ll just trace around
+            // it like a normal dead-end road.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>pl = <span class="kw">match </span>pair[<span class="number">0</span>].side {
+                SideOfRoad::Right =&gt; road1.center_pts.must_shift_right(road1.get_half_width()),
+                SideOfRoad::Left =&gt; road1.center_pts.must_shift_left(road1.get_half_width()),
             };
-            <span class="kw">if</span> <span class="ident">lane1</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Back</span> {
-                <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
+            <span class="kw">if </span>lane1.dir == Direction::Back {
+                pl = pl.reversed();
             }
-            <span class="kw">let</span> <span class="ident">keep_lane_orientation</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">road</span> <span class="op">==</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">road</span> {
-                <span class="comment">// We&#39;re doubling back at a dead-end. Always follow the orientation of the lane.</span>
-                <span class="bool-val">true</span>
-            } <span class="kw">else</span> {
-                <span class="kw">match</span> <span class="ident">lane1</span>.<span class="ident">common_endpoint</span>(<span class="ident">lane2</span>) {
-                    <span class="ident">CommonEndpoint::One</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span> <span class="op">==</span> <span class="ident">lane1</span>.<span class="ident">dst_i</span>,
-                    <span class="ident">CommonEndpoint::Both</span> =&gt; {
-                        <span class="comment">// Two different roads link the same two intersections. I don&#39;t think we</span>
-                        <span class="comment">// can decide the order of points other than seeing which endpoint is</span>
-                        <span class="comment">// closest to our last point.</span>
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last</span>) <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">last</span>() {
-                            <span class="ident">last</span>.<span class="ident">dist_to</span>(<span class="ident">pl</span>.<span class="ident">first_pt</span>()) <span class="op">&lt;</span> <span class="ident">last</span>.<span class="ident">dist_to</span>(<span class="ident">pl</span>.<span class="ident">last_pt</span>())
-                        } <span class="kw">else</span> {
-                            <span class="comment">// The orientation doesn&#39;t matter</span>
-                            <span class="bool-val">true</span>
-                        }
+            <span class="kw">let </span>keep_lane_orientation = <span class="kw">if </span>pair[<span class="number">0</span>].road == pair[<span class="number">1</span>].road {
+                <span class="comment">// We&#39;re doubling back at a dead-end. Always follow the orientation of the lane.
+                </span><span class="bool-val">true
+            </span>} <span class="kw">else </span>{
+                <span class="kw">match </span>lane1.common_endpoint(lane2) {
+                    CommonEndpoint::One(i) =&gt; i == lane1.dst_i,
+                    CommonEndpoint::Both =&gt; {
+                        <span class="comment">// Two different roads link the same two intersections. I don&#39;t think we
+                        // can decide the order of points other than seeing which endpoint is
+                        // closest to our last point.
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(last) = pts.last() {
+                            last.dist_to(pl.first_pt()) &lt; last.dist_to(pl.last_pt())
+                        } <span class="kw">else </span>{
+                            <span class="comment">// The orientation doesn&#39;t matter
+                            </span><span class="bool-val">true
+                        </span>}
                     }
-                    <span class="ident">CommonEndpoint::None</span> =&gt; <span class="macro">bail!</span>(
+                    CommonEndpoint::None =&gt; <span class="macro">bail!</span>(
                         <span class="string">&quot;{} and {} don&#39;t share a common endpoint&quot;</span>,
-                        <span class="ident">lane1</span>.<span class="ident">id</span>,
-                        <span class="ident">lane2</span>.<span class="ident">id</span>
+                        lane1.id,
+                        lane2.id
                     ),
                 }
             };
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">keep_lane_orientation</span> {
-                <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
+            <span class="kw">if </span>!keep_lane_orientation {
+                pl = pl.reversed();
             }
 
-            <span class="comment">// Before we add this road&#39;s points, try to trace along the polygon&#39;s boundary. Usually</span>
-            <span class="comment">// this has no effect (we&#39;ll dedupe points), but sometimes there&#39;s an extra curve.</span>
-            <span class="comment">//</span>
-            <span class="comment">// Note this logic is similar to how we find SharedSidewalkCorners. Don&#39;t rely on that</span>
-            <span class="comment">// existing, since the outermost lane mightn&#39;t be a sidewalk.</span>
-            <span class="comment">//</span>
-            <span class="comment">// If the ring.doubles_back(), don&#39;t bother. If we tried to trace the boundary, it</span>
-            <span class="comment">// usually breaks the final Ring we produce. Better to skip bad intersection polygons</span>
-            <span class="comment">// and still produce a reasonable looking block.</span>
-            <span class="kw">let</span> <span class="ident">prev_i</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">keep_lane_orientation</span> {
-                <span class="ident">lane1</span>.<span class="ident">src_i</span>
-            } <span class="kw">else</span> {
-                <span class="ident">lane1</span>.<span class="ident">dst_i</span>
+            <span class="comment">// Before we add this road&#39;s points, try to trace along the polygon&#39;s boundary. Usually
+            // this has no effect (we&#39;ll dedupe points), but sometimes there&#39;s an extra curve.
+            //
+            // Note this logic is similar to how we find SharedSidewalkCorners. Don&#39;t rely on that
+            // existing, since the outermost lane mightn&#39;t be a sidewalk.
+            //
+            // If the ring.doubles_back(), don&#39;t bother. If we tried to trace the boundary, it
+            // usually breaks the final Ring we produce. Better to skip bad intersection polygons
+            // and still produce a reasonable looking block.
+            </span><span class="kw">let </span>prev_i = <span class="kw">if </span>keep_lane_orientation {
+                lane1.src_i
+            } <span class="kw">else </span>{
+                lane1.dst_i
             };
-            <span class="kw">if</span> <span class="ident">first_intersection</span>.<span class="ident">is_none</span>() {
-                <span class="ident">first_intersection</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">prev_i</span>);
+            <span class="kw">if </span>first_intersection.is_none() {
+                first_intersection = <span class="prelude-val">Some</span>(prev_i);
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">last_pt</span>) <span class="op">=</span> <span class="ident">pts</span>.<span class="ident">last</span>() {
-                <span class="kw">let</span> <span class="ident">prev_i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">prev_i</span>);
-                <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">prev_i</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>();
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">ring</span>.<span class="ident">doubles_back</span>() {
-                    <span class="comment">// At dead-ends, trace around the intersection on the longer side</span>
-                    <span class="kw">let</span> <span class="ident">longer</span> <span class="op">=</span> <span class="ident">prev_i</span>.<span class="ident">is_deadend_for_driving</span>(<span class="ident">map</span>);
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_slice_between</span>(<span class="kw-2">*</span><span class="ident">last_pt</span>, <span class="ident">pl</span>.<span class="ident">first_pt</span>(), <span class="ident">longer</span>) {
-                        <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(last_pt) = pts.last() {
+                <span class="kw">let </span>prev_i = map.get_i(prev_i);
+                <span class="kw">let </span>ring = prev_i.polygon.get_outer_ring();
+                <span class="kw">if </span>!ring.doubles_back() {
+                    <span class="comment">// At dead-ends, trace around the intersection on the longer side
+                    </span><span class="kw">let </span>longer = prev_i.is_deadend_for_driving(map);
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(slice) = ring.get_slice_between(<span class="kw-2">*</span>last_pt, pl.first_pt(), longer) {
+                        pts.extend(slice.into_points());
                     }
                 }
             }
 
-            <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">pl</span>.<span class="ident">into_points</span>());
+            pts.extend(pl.into_points());
         }
-        <span class="comment">// Do the intersection boundary tracing for the last piece. We didn&#39;t know enough to do it</span>
-        <span class="comment">// the first time.</span>
-        <span class="kw">let</span> <span class="ident">first_intersection</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">first_intersection</span>.<span class="ident">unwrap</span>());
-        <span class="kw">let</span> <span class="ident">ring</span> <span class="op">=</span> <span class="ident">first_intersection</span>.<span class="ident">polygon</span>.<span class="ident">get_outer_ring</span>();
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">ring</span>.<span class="ident">doubles_back</span>() {
-            <span class="kw">let</span> <span class="ident">longer</span> <span class="op">=</span> <span class="ident">first_intersection</span>.<span class="ident">is_deadend_for_driving</span>(<span class="ident">map</span>);
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">slice</span>) <span class="op">=</span> <span class="ident">ring</span>.<span class="ident">get_slice_between</span>(<span class="kw-2">*</span><span class="ident">pts</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>(), <span class="ident">pts</span>[<span class="number">0</span>], <span class="ident">longer</span>) {
-                <span class="ident">pts</span>.<span class="ident">extend</span>(<span class="ident">slice</span>.<span class="ident">into_points</span>());
+        <span class="comment">// Do the intersection boundary tracing for the last piece. We didn&#39;t know enough to do it
+        // the first time.
+        </span><span class="kw">let </span>first_intersection = map.get_i(first_intersection.unwrap());
+        <span class="kw">let </span>ring = first_intersection.polygon.get_outer_ring();
+        <span class="kw">if </span>!ring.doubles_back() {
+            <span class="kw">let </span>longer = first_intersection.is_deadend_for_driving(map);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(slice) = ring.get_slice_between(<span class="kw-2">*</span>pts.last().unwrap(), pts[<span class="number">0</span>], longer) {
+                pts.extend(slice.into_points());
             }
         }
-        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">pts</span>[<span class="number">0</span>]);
-        <span class="ident">pts</span>.<span class="ident">dedup</span>();
-        <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">pts</span>)<span class="question-mark">?</span>.<span class="ident">into_polygon</span>();
-        <span class="comment">// TODO To debug anyway, we could plumb through a Tessellation, but there&#39;s pretty much</span>
-        <span class="comment">// always a root problem in the map geometry that should be properly fixed.</span>
+        pts.push(pts[<span class="number">0</span>]);
+        pts.dedup();
+        <span class="kw">let </span>polygon = Ring::new(pts)<span class="question-mark">?</span>.into_polygon();
+        <span class="comment">// TODO To debug anyway, we could plumb through a Tessellation, but there&#39;s pretty much
+        // always a root problem in the map geometry that should be properly fixed.
 
-        <span class="prelude-val">Ok</span>(<span class="ident">Block</span> {
-            <span class="ident">perimeter</span>: <span class="self">self</span>,
-            <span class="ident">polygon</span>,
+        </span><span class="prelude-val">Ok</span>(Block {
+            perimeter: <span class="self">self</span>,
+            polygon,
         })
     }
 
-    <span class="doccomment">/// Does this perimeter completely enclose the other?</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Perimeter</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">other</span>
-            .<span class="ident">roads</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">all</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>.<span class="ident">road</span>) <span class="op">|</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">contains</span>(<span class="ident">id</span>))
+    <span class="doccomment">/// Does this perimeter completely enclose the other?
+    </span><span class="kw">pub fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Perimeter) -&gt; bool {
+        other
+            .roads
+            .iter()
+            .all(|id| <span class="self">self</span>.interior.contains(<span class="kw-2">&amp;</span>id.road) || <span class="self">self</span>.roads.contains(id))
     }
 
-    <span class="doccomment">/// Shrinks or expands the perimeter by tracing the opposite side of the road.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">flip_side_of_road</span>(<span class="kw-2">mut</span> <span class="self">self</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">for</span> <span class="ident">road_side</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">roads</span> {
-            <span class="kw-2">*</span><span class="ident">road_side</span> <span class="op">=</span> <span class="ident">road_side</span>.<span class="ident">other_side</span>();
+    <span class="doccomment">/// Shrinks or expands the perimeter by tracing the opposite side of the road.
+    </span><span class="kw">pub fn </span>flip_side_of_road(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
+        <span class="kw">for </span>road_side <span class="kw">in </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.roads {
+            <span class="kw-2">*</span>road_side = road_side.other_side();
         }
-        <span class="self">self</span>
-    }
+        <span class="self">self
+    </span>}
 
-    <span class="doccomment">/// Looks for perimeters that&#39;re completely surrounded by other perimeters, aka, holes.</span>
-    <span class="doccomment">/// Attempts to merge them with the surrounding perimeter. This can be useful for applications</span>
-    <span class="doccomment">/// trying to incrementally merge adjacent blocks without creating splits, because it&#39;s often</span>
-    <span class="doccomment">/// impossible to do this in one merge when there are holes.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// This should never &quot;lose&quot; any of the input. It may not be fast or guaranteed to find and fix</span>
-    <span class="doccomment">/// every hole.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">merge_holes</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="kw-2">mut</span> <span class="ident">perims</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Perimeter</span><span class="op">&gt;</span> {
-        <span class="comment">// Fixed-point for now -- find and fix one hole at a time. Slow, but simple.</span>
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">num_before</span> <span class="op">=</span> <span class="ident">perims</span>.<span class="ident">len</span>();
+    <span class="doccomment">/// Looks for perimeters that&#39;re completely surrounded by other perimeters, aka, holes.
+    /// Attempts to merge them with the surrounding perimeter. This can be useful for applications
+    /// trying to incrementally merge adjacent blocks without creating splits, because it&#39;s often
+    /// impossible to do this in one merge when there are holes.
+    ///
+    /// This should never &quot;lose&quot; any of the input. It may not be fast or guaranteed to find and fix
+    /// every hole.
+    </span><span class="kw">pub fn </span>merge_holes(map: <span class="kw-2">&amp;</span>Map, <span class="kw-2">mut </span>perims: Vec&lt;Perimeter&gt;) -&gt; Vec&lt;Perimeter&gt; {
+        <span class="comment">// Fixed-point for now -- find and fix one hole at a time. Slow, but simple.
+        </span><span class="kw">loop </span>{
+            <span class="kw">let </span>num_before = perims.len();
 
-            <span class="comment">// Look for one hole</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hole</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">perim</span>) <span class="kw">in</span> <span class="ident">perims</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-                <span class="kw">let</span> <span class="ident">copy</span> <span class="op">=</span> <span class="ident">perim</span>.<span class="ident">clone</span>().<span class="ident">flip_side_of_road</span>();
-                <span class="comment">// Now that we&#39;ve &quot;expanded&quot; the perimeter to the other side of the road, is there</span>
-                <span class="comment">// another perimeter that completely contins it?</span>
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">surrounding</span>) <span class="op">=</span> <span class="ident">perims</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="ident">p</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">copy</span>)) {
-                    <span class="ident">hole</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">idx</span>, <span class="ident">surrounding</span>));
-                    <span class="comment">// TODO If the first hole found doesn&#39;t merge for some reason, then we&#39;ll get</span>
-                    <span class="comment">// stuck and just give up, even if there are other holes that might be fixed</span>
-                    <span class="comment">// later. The indices just get too tricky.</span>
-                    <span class="kw">break</span>;
+            <span class="comment">// Look for one hole
+            </span><span class="kw">let </span><span class="kw-2">mut </span>hole = <span class="prelude-val">None</span>;
+            <span class="kw">for </span>(idx, perim) <span class="kw">in </span>perims.iter().enumerate() {
+                <span class="kw">let </span>copy = perim.clone().flip_side_of_road();
+                <span class="comment">// Now that we&#39;ve &quot;expanded&quot; the perimeter to the other side of the road, is there
+                // another perimeter that completely contins it?
+                </span><span class="kw">if let </span><span class="prelude-val">Some</span>(surrounding) = perims.iter().position(|p| p.contains(<span class="kw-2">&amp;</span>copy)) {
+                    hole = <span class="prelude-val">Some</span>((idx, surrounding));
+                    <span class="comment">// TODO If the first hole found doesn&#39;t merge for some reason, then we&#39;ll get
+                    // stuck and just give up, even if there are other holes that might be fixed
+                    // later. The indices just get too tricky.
+                    </span><span class="kw">break</span>;
                 }
             }
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw-2">mut</span> <span class="ident">idx1</span>, <span class="kw-2">mut</span> <span class="ident">idx2</span>)) <span class="op">=</span> <span class="ident">hole</span> {
-                <span class="comment">// Merge these two</span>
-                <span class="kw">if</span> <span class="ident">idx2</span> <span class="op">&lt;</span> <span class="ident">idx1</span> {
-                    <span class="ident">std::mem::swap</span>(<span class="kw-2">&amp;mut</span> <span class="ident">idx1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">idx2</span>);
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw-2">mut </span>idx1, <span class="kw-2">mut </span>idx2)) = hole {
+                <span class="comment">// Merge these two
+                </span><span class="kw">if </span>idx2 &lt; idx1 {
+                    std::mem::swap(<span class="kw-2">&amp;mut </span>idx1, <span class="kw-2">&amp;mut </span>idx2);
                 }
-                <span class="kw">let</span> <span class="ident">perim1</span> <span class="op">=</span> <span class="ident">perims</span>.<span class="ident">remove</span>(<span class="ident">idx2</span>);
-                <span class="kw">let</span> <span class="ident">perim2</span> <span class="op">=</span> <span class="ident">perims</span>.<span class="ident">remove</span>(<span class="ident">idx1</span>);
+                <span class="kw">let </span>perim1 = perims.remove(idx2);
+                <span class="kw">let </span>perim2 = perims.remove(idx1);
 
-                <span class="kw">let</span> <span class="ident">stepwise_debug</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="kw">let</span> <span class="ident">use_expensive_blockfinding</span> <span class="op">=</span> <span class="bool-val">false</span>;
-                <span class="ident">perims</span>.<span class="ident">extend</span>(<span class="ident"><span class="self">Self</span>::merge_all</span>(
-                    <span class="ident">map</span>,
-                    <span class="macro">vec!</span>[<span class="ident">perim1</span>, <span class="ident">perim2</span>],
-                    <span class="ident">stepwise_debug</span>,
-                    <span class="ident">use_expensive_blockfinding</span>,
+                <span class="kw">let </span>stepwise_debug = <span class="bool-val">false</span>;
+                <span class="kw">let </span>use_expensive_blockfinding = <span class="bool-val">false</span>;
+                perims.extend(<span class="self">Self</span>::merge_all(
+                    map,
+                    <span class="macro">vec!</span>[perim1, perim2],
+                    stepwise_debug,
+                    use_expensive_blockfinding,
                 ));
             }
 
-            <span class="kw">if</span> <span class="ident">perims</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">num_before</span> {
-                <span class="comment">// We didn&#39;t change anything, so stop</span>
-                <span class="kw">break</span>;
+            <span class="kw">if </span>perims.len() == num_before {
+                <span class="comment">// We didn&#39;t change anything, so stop
+                </span><span class="kw">break</span>;
             }
         }
 
-        <span class="ident">perims</span>
+        perims
     }
 }
 
-<span class="kw">impl</span> <span class="ident">fmt::Debug</span> <span class="kw">for</span> <span class="ident">Perimeter</span> {
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">fmt::Result</span> {
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;Perimeter:&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">id</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">roads</span> {
-            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;- {:?} of {}&quot;</span>, <span class="ident">id</span>.<span class="ident">side</span>, <span class="ident">id</span>.<span class="ident">road</span>)<span class="question-mark">?</span>;
+<span class="kw">impl </span>fmt::Debug <span class="kw">for </span>Perimeter {
+    <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; fmt::Result {
+        <span class="macro">writeln!</span>(f, <span class="string">&quot;Perimeter:&quot;</span>)<span class="question-mark">?</span>;
+        <span class="kw">for </span>id <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.roads {
+            <span class="macro">writeln!</span>(f, <span class="string">&quot;- {:?} of {}&quot;</span>, id.side, id.road)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/recorder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>recorder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/recorder.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>recorder.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -114,121 +114,121 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">geom::Time</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathStep</span>, <span class="ident">Position</span>, <span class="ident">Traversable</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">IndividTrip</span>, <span class="ident">PersonSpec</span>, <span class="ident">Scenario</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use </span>geom::Time;
+<span class="kw">use </span>map_model::{IntersectionID, LaneID, Map, PathStep, Position, Traversable};
+<span class="kw">use </span>synthpop::{IndividTrip, PersonSpec, Scenario, TripEndpoint, TripMode, TripPurpose};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>, <span class="ident">TripID</span>, <span class="ident">VehicleType</span>};
+<span class="kw">use crate</span>::{AgentID, CarID, DrivingSimState, Event, TripID, VehicleType};
 
-<span class="doccomment">/// Records trips beginning and ending at a specified set of intersections. This can be used to</span>
-<span class="doccomment">/// capture and reproduce behavior in a gridlock-prone chunk of the map, without simulating</span>
-<span class="doccomment">/// everything.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TrafficRecorder</span> {
-    <span class="ident">capture_points</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="comment">// TODO The RNG will determine vehicle length, so this won&#39;t be a perfect capture. Hopefully</span>
-    <span class="comment">// good enough.</span>
-    <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IndividTrip</span><span class="op">&gt;</span>,
-    <span class="ident">seen_trips</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripID</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Records trips beginning and ending at a specified set of intersections. This can be used to
+/// capture and reproduce behavior in a gridlock-prone chunk of the map, without simulating
+/// everything.
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>TrafficRecorder {
+    capture_points: BTreeSet&lt;IntersectionID&gt;,
+    <span class="comment">// TODO The RNG will determine vehicle length, so this won&#39;t be a perfect capture. Hopefully
+    // good enough.
+    </span>trips: Vec&lt;IndividTrip&gt;,
+    seen_trips: BTreeSet&lt;TripID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">TrafficRecorder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">capture_points</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>) -&gt; <span class="ident">TrafficRecorder</span> {
-        <span class="ident">TrafficRecorder</span> {
-            <span class="ident">capture_points</span>,
-            <span class="ident">trips</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">seen_trips</span>: <span class="ident">BTreeSet::new</span>(),
+<span class="kw">impl </span>TrafficRecorder {
+    <span class="kw">pub fn </span>new(capture_points: BTreeSet&lt;IntersectionID&gt;) -&gt; TrafficRecorder {
+        TrafficRecorder {
+            capture_points,
+            trips: Vec::new(),
+            seen_trips: BTreeSet::new(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">handle_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">time</span>: <span class="ident">Time</span>, <span class="ident">ev</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">driving</span>: <span class="kw-2">&amp;</span><span class="ident">DrivingSimState</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Event::AgentEntersTraversable</span>(<span class="ident">AgentID::Car</span>(<span class="ident">car</span>), <span class="prelude-val">Some</span>(<span class="ident">trip</span>), <span class="ident">on</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">ev</span> {
-            <span class="self">self</span>.<span class="ident">on_car_enters_traversable</span>(<span class="ident">time</span>, <span class="kw-2">*</span><span class="ident">car</span>, <span class="kw-2">*</span><span class="ident">trip</span>, <span class="kw-2">*</span><span class="ident">on</span>, <span class="ident">map</span>, <span class="ident">driving</span>);
+    <span class="kw">pub fn </span>handle_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, time: Time, ev: <span class="kw-2">&amp;</span>Event, map: <span class="kw-2">&amp;</span>Map, driving: <span class="kw-2">&amp;</span>DrivingSimState) {
+        <span class="kw">if let </span>Event::AgentEntersTraversable(AgentID::Car(car), <span class="prelude-val">Some</span>(trip), on, <span class="kw">_</span>) = ev {
+            <span class="self">self</span>.on_car_enters_traversable(time, <span class="kw-2">*</span>car, <span class="kw-2">*</span>trip, <span class="kw-2">*</span>on, map, driving);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">on_car_enters_traversable</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">time</span>: <span class="ident">Time</span>,
-        <span class="ident">car</span>: <span class="ident">CarID</span>,
-        <span class="ident">trip</span>: <span class="ident">TripID</span>,
-        <span class="ident">on</span>: <span class="ident">Traversable</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">driving</span>: <span class="kw-2">&amp;</span><span class="ident">DrivingSimState</span>,
+    <span class="kw">fn </span>on_car_enters_traversable(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        time: Time,
+        car: CarID,
+        trip: TripID,
+        on: Traversable,
+        map: <span class="kw-2">&amp;</span>Map,
+        driving: <span class="kw-2">&amp;</span>DrivingSimState,
     ) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">seen_trips</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">trip</span>) {
+        <span class="kw">if </span><span class="self">self</span>.seen_trips.contains(<span class="kw-2">&amp;</span>trip) {
             <span class="kw">return</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Traversable::Lane</span>(<span class="ident">lane</span>) <span class="op">=</span> <span class="ident">on</span> {
-            <span class="self">self</span>.<span class="ident">on_car_enters_lane</span>(<span class="ident">time</span>, <span class="ident">car</span>, <span class="ident">trip</span>, <span class="ident">lane</span>, <span class="ident">map</span>, <span class="ident">driving</span>);
+        <span class="kw">if let </span>Traversable::Lane(lane) = on {
+            <span class="self">self</span>.on_car_enters_lane(time, car, trip, lane, map, driving);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">on_car_enters_lane</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">time</span>: <span class="ident">Time</span>,
-        <span class="ident">car</span>: <span class="ident">CarID</span>,
-        <span class="ident">trip</span>: <span class="ident">TripID</span>,
-        <span class="ident">lane</span>: <span class="ident">LaneID</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">driving</span>: <span class="kw-2">&amp;</span><span class="ident">DrivingSimState</span>,
+    <span class="kw">fn </span>on_car_enters_lane(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        time: Time,
+        car: CarID,
+        trip: TripID,
+        lane: LaneID,
+        map: <span class="kw-2">&amp;</span>Map,
+        driving: <span class="kw-2">&amp;</span>DrivingSimState,
     ) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">capture_points</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane</span>).<span class="ident">src_i</span>) {
+        <span class="kw">if </span>!<span class="self">self</span>.capture_points.contains(<span class="kw-2">&amp;</span>map.get_l(lane).src_i) {
             <span class="kw">return</span>;
         }
-        <span class="comment">// Where do they exit?</span>
-        <span class="kw">let</span> <span class="ident">exit_intersection</span> <span class="op">=</span>
-            <span class="ident">driving</span>
-                .<span class="ident">get_path</span>(<span class="ident">car</span>)
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">get_steps</span>()
-                .<span class="ident">iter</span>()
-                .<span class="ident">find_map</span>(<span class="op">|</span><span class="ident">step</span><span class="op">|</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span> {
-                        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">capture_points</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>.<span class="ident">parent</span>) {
-                            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>.<span class="ident">parent</span>);
+        <span class="comment">// Where do they exit?
+        </span><span class="kw">let </span>exit_intersection =
+            driving
+                .get_path(car)
+                .unwrap()
+                .get_steps()
+                .iter()
+                .find_map(|step| {
+                    <span class="kw">if let </span>PathStep::Turn(t) = step {
+                        <span class="kw">if </span><span class="self">self</span>.capture_points.contains(<span class="kw-2">&amp;</span>t.parent) {
+                            <span class="kw">return </span><span class="prelude-val">Some</span>(t.parent);
                         }
                     }
-                    <span class="prelude-val">None</span>
-                });
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exit_intersection</span>) <span class="op">=</span> <span class="ident">exit_intersection</span> {
-            <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip::new</span>(
-                <span class="ident">time</span>,
-                <span class="ident">TripPurpose::Shopping</span>,
-                <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">Position::start</span>(<span class="ident">lane</span>)),
-                <span class="ident">TripEndpoint::Border</span>(<span class="ident">exit_intersection</span>),
-                <span class="kw">if</span> <span class="ident">car</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
-                    <span class="ident">TripMode::Bike</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">TripMode::Drive</span>
+                    <span class="prelude-val">None
+                </span>});
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(exit_intersection) = exit_intersection {
+            <span class="self">self</span>.trips.push(IndividTrip::new(
+                time,
+                TripPurpose::Shopping,
+                TripEndpoint::SuddenlyAppear(Position::start(lane)),
+                TripEndpoint::Border(exit_intersection),
+                <span class="kw">if </span>car.vehicle_type == VehicleType::Bike {
+                    TripMode::Bike
+                } <span class="kw">else </span>{
+                    TripMode::Drive
                 },
             ));
-            <span class="self">self</span>.<span class="ident">seen_trips</span>.<span class="ident">insert</span>(<span class="ident">trip</span>);
+            <span class="self">self</span>.seen_trips.insert(trip);
         };
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">num_recorded_trips</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>()
+    <span class="kw">pub fn </span>num_recorded_trips(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.trips.len()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) {
-        <span class="ident">Scenario</span> {
-            <span class="ident">scenario_name</span>: <span class="string">&quot;recorded&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">map_name</span>: <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>(),
-            <span class="ident">people</span>: <span class="self">self</span>
-                .<span class="ident">trips</span>
-                .<span class="ident">drain</span>(..)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">trip</span><span class="op">|</span> <span class="ident">PersonSpec</span> {
-                    <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                    <span class="ident">trips</span>: <span class="macro">vec!</span>[<span class="ident">trip</span>],
+    <span class="kw">pub fn </span>save(<span class="kw-2">mut </span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) {
+        Scenario {
+            scenario_name: <span class="string">&quot;recorded&quot;</span>.to_string(),
+            map_name: map.get_name().clone(),
+            people: <span class="self">self
+                </span>.trips
+                .drain(..)
+                .map(|trip| PersonSpec {
+                    orig_id: <span class="prelude-val">None</span>,
+                    trips: <span class="macro">vec!</span>[trip],
                 })
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
-            <span class="ident">only_seed_buses</span>: <span class="prelude-val">None</span>,
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
+            only_seed_buses: <span class="prelude-val">None</span>,
         }
-        .<span class="ident">save</span>();
+        .save();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

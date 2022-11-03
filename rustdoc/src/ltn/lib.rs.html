@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -273,280 +273,280 @@
 <span id="273">273</span>
 <span id="274">274</span>
 <span id="275">275</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(clippy::type_complexity)]
 
-<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
+</span><span class="kw">use </span>structopt::StructOpt;
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>};
-<span class="kw">use</span> <span class="ident">widgetry::tools::FutureLoader</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Settings</span>, <span class="ident">State</span>};
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>map_model::{Map, PathConstraints, Road};
+<span class="kw">use </span>widgetry::tools::FutureLoader;
+<span class="kw">use </span>widgetry::{EventCtx, Settings, State};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">app</span>::{<span class="ident">App</span>, <span class="ident">PerMap</span>, <span class="ident">Session</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident">filters::Toggle3Zoomed</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">filters</span>::{<span class="ident">Crossing</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">Edits</span>, <span class="ident">FilterType</span>, <span class="ident">RoadFilter</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">neighbourhood</span>::{<span class="ident">Cell</span>, <span class="ident">DistanceInterval</span>, <span class="ident">Neighbourhood</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">partition</span>::{<span class="ident">NeighbourhoodID</span>, <span class="ident">Partitioning</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">pick_area::PickArea</span>;
+<span class="kw">pub use </span>app::{App, PerMap, Session, Transition};
+<span class="kw">use </span>filters::Toggle3Zoomed;
+<span class="kw">pub use </span>filters::{Crossing, DiagonalFilter, Edits, FilterType, RoadFilter};
+<span class="kw">pub use </span>neighbourhood::{Cell, DistanceInterval, Neighbourhood};
+<span class="kw">pub use </span>partition::{NeighbourhoodID, Partitioning};
+<span class="kw">pub use </span>pick_area::PickArea;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>anyhow;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">mod</span> <span class="ident">app</span>;
-<span class="kw">mod</span> <span class="ident">colors</span>;
-<span class="kw">mod</span> <span class="ident">components</span>;
-<span class="kw">mod</span> <span class="ident">crossings</span>;
-<span class="kw">mod</span> <span class="ident">customize_boundary</span>;
-<span class="kw">mod</span> <span class="ident">design_ltn</span>;
-<span class="kw">mod</span> <span class="ident">draw_cells</span>;
-<span class="kw">mod</span> <span class="ident">edit</span>;
-<span class="kw">mod</span> <span class="ident">export</span>;
-<span class="kw">mod</span> <span class="ident">filters</span>;
-<span class="kw">mod</span> <span class="ident">impact</span>;
-<span class="kw">mod</span> <span class="ident">neighbourhood</span>;
-<span class="kw">mod</span> <span class="ident">partition</span>;
-<span class="kw">mod</span> <span class="ident">pick_area</span>;
-<span class="kw">mod</span> <span class="ident">route_planner</span>;
-<span class="kw">mod</span> <span class="ident">save</span>;
-<span class="kw">mod</span> <span class="ident">select_boundary</span>;
-<span class="kw">mod</span> <span class="ident">shortcuts</span>;
+<span class="kw">mod </span>app;
+<span class="kw">mod </span>colors;
+<span class="kw">mod </span>components;
+<span class="kw">mod </span>crossings;
+<span class="kw">mod </span>customize_boundary;
+<span class="kw">mod </span>design_ltn;
+<span class="kw">mod </span>draw_cells;
+<span class="kw">mod </span>edit;
+<span class="kw">mod </span>export;
+<span class="kw">mod </span>filters;
+<span class="kw">mod </span>impact;
+<span class="kw">mod </span>neighbourhood;
+<span class="kw">mod </span>partition;
+<span class="kw">mod </span>pick_area;
+<span class="kw">mod </span>route_planner;
+<span class="kw">mod </span>save;
+<span class="kw">mod </span>select_boundary;
+<span class="kw">mod </span>shortcuts;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;Low traffic neighbourhoods&quot;</span>);
-    <span class="ident">run</span>(<span class="ident">settings</span>);
+<span class="kw">pub fn </span>main() {
+    <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;Low traffic neighbourhoods&quot;</span>);
+    run(settings);
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">StructOpt</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Args</span> {
-    <span class="doccomment">/// Load a previously saved proposal with this name. Note this takes a name, not a full path.</span>
-    <span class="doccomment">/// Or `remote/&lt;ID&gt;`.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="ident">proposal</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Lock the user into one fixed neighbourhood, and remove many controls</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
-    <span class="ident">consultation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">flatten</span>)]</span>
-    <span class="ident">app_args</span>: <span class="ident">map_gui::SimpleAppArgs</span>,
+<span class="attribute">#[derive(StructOpt)]
+</span><span class="kw">struct </span>Args {
+    <span class="doccomment">/// Load a previously saved proposal with this name. Note this takes a name, not a full path.
+    /// Or `remote/&lt;ID&gt;`.
+    </span><span class="attribute">#[structopt(long)]
+    </span>proposal: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="doccomment">/// Lock the user into one fixed neighbourhood, and remove many controls
+    </span><span class="attribute">#[structopt(long)]
+    </span>consultation: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    <span class="attribute">#[structopt(flatten)]
+    </span>app_args: map_gui::SimpleAppArgs,
 }
 
-<span class="kw">const</span> <span class="ident">SPRITE_WIDTH</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">750</span>;
-<span class="kw">const</span> <span class="ident">SPRITE_HEIGHT</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">458</span>;
+<span class="kw">const </span>SPRITE_WIDTH: u32 = <span class="number">750</span>;
+<span class="kw">const </span>SPRITE_HEIGHT: u32 = <span class="number">458</span>;
 
-<span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
-    <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::LTN</span>;
-    <span class="ident">opts</span>.<span class="ident">show_building_driveways</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="comment">// TODO Ideally we would have a better map model in the first place. The next best thing would</span>
-    <span class="comment">// be to change these settings based on the map&#39;s country, but that&#39;s a bit tricky to do early</span>
-    <span class="comment">// enough (before map_switched). So for now, assume primary use of this tool is in the UK,</span>
-    <span class="comment">// where these settings are most appropriate.</span>
-    <span class="ident">opts</span>.<span class="ident">show_stop_signs</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="ident">opts</span>.<span class="ident">show_crosswalks</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="ident">opts</span>.<span class="ident">show_traffic_signal_icon</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="ident">opts</span>.<span class="ident">simplify_basemap</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">min_zoom_for_detail</span> <span class="op">=</span> <span class="ident">std::f64::MAX</span>;
+<span class="kw">fn </span>run(<span class="kw-2">mut </span>settings: Settings) {
+    <span class="kw">let </span><span class="kw-2">mut </span>opts = map_gui::options::Options::load_or_default();
+    opts.color_scheme = map_gui::colors::ColorSchemeChoice::LTN;
+    opts.show_building_driveways = <span class="bool-val">false</span>;
+    <span class="comment">// TODO Ideally we would have a better map model in the first place. The next best thing would
+    // be to change these settings based on the map&#39;s country, but that&#39;s a bit tricky to do early
+    // enough (before map_switched). So for now, assume primary use of this tool is in the UK,
+    // where these settings are most appropriate.
+    </span>opts.show_stop_signs = <span class="bool-val">false</span>;
+    opts.show_crosswalks = <span class="bool-val">false</span>;
+    opts.show_traffic_signal_icon = <span class="bool-val">true</span>;
+    opts.simplify_basemap = <span class="bool-val">true</span>;
+    opts.canvas_settings.min_zoom_for_detail = std::f64::MAX;
 
-    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
-    <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">opts</span>);
+    <span class="kw">let </span>args = Args::from_iter(abstutil::cli_args());
+    args.app_args.override_options(<span class="kw-2">&amp;mut </span>opts);
 
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">load_default_textures</span>(<span class="bool-val">false</span>);
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">args</span>
-        .<span class="ident">app_args</span>
-        .<span class="ident">update_widgetry_settings</span>(<span class="ident">settings</span>)
-        .<span class="ident">canvas_settings</span>(<span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
-    <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="comment">// This file is small enough to bundle in the build</span>
-        <span class="ident">ctx</span>.<span class="ident">set_texture</span>(
-            <span class="macro">include_bytes!</span>(<span class="string">&quot;../spritesheet.gif&quot;</span>).<span class="ident">to_vec</span>(),
-            (<span class="ident">SPRITE_WIDTH</span>, <span class="ident">SPRITE_HEIGHT</span>),
-            (<span class="ident">SPRITE_WIDTH</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="ident">SPRITE_HEIGHT</span> <span class="kw">as</span> <span class="ident">f32</span>),
+    settings = settings.load_default_textures(<span class="bool-val">false</span>);
+    settings = args
+        .app_args
+        .update_widgetry_settings(settings)
+        .canvas_settings(opts.canvas_settings.clone());
+    widgetry::run(settings, <span class="kw">move </span>|ctx| {
+        <span class="comment">// This file is small enough to bundle in the build
+        </span>ctx.set_texture(
+            <span class="macro">include_bytes!</span>(<span class="string">&quot;../spritesheet.gif&quot;</span>).to_vec(),
+            (SPRITE_WIDTH, SPRITE_HEIGHT),
+            (SPRITE_WIDTH <span class="kw">as </span>f32, SPRITE_HEIGHT <span class="kw">as </span>f32),
         );
 
-        <span class="ident">App::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">opts</span>,
-            <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">map_name</span>(),
-            <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">cam</span>,
-            <span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                <span class="comment">// We need app to fully initialize this</span>
-                <span class="ident">app</span>.<span class="ident">session</span>
-                    .<span class="ident">layers</span>
-                    .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">components::Mode::PickArea</span>, <span class="prelude-val">None</span>);
+        App::new(
+            ctx,
+            opts,
+            args.app_args.map_name(),
+            args.app_args.cam,
+            <span class="kw">move </span>|ctx, app| {
+                <span class="comment">// We need app to fully initialize this
+                </span>app.session
+                    .layers
+                    .event(ctx, <span class="kw-2">&amp;</span>app.cs, components::Mode::PickArea, <span class="prelude-val">None</span>);
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">proposal</span> {
-                    <span class="comment">// Remote edits require another intermediate state to load</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">name</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;remote/&quot;</span>) {
-                        <span class="macro">vec!</span>[<span class="ident">load_remote</span>(<span class="ident">ctx</span>, <span class="ident">id</span>.<span class="ident">to_string</span>(), <span class="ident">args</span>.<span class="ident">consultation</span>.<span class="ident">clone</span>())]
-                    } <span class="kw">else</span> {
-                        <span class="kw">let</span> <span class="ident">popup_state</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load_from_path</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="ident">abstio::path_ltn_proposals</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="ident">name</span>),
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>name) = args.proposal {
+                    <span class="comment">// Remote edits require another intermediate state to load
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(id) = name.strip_prefix(<span class="string">&quot;remote/&quot;</span>) {
+                        <span class="macro">vec!</span>[load_remote(ctx, id.to_string(), args.consultation.clone())]
+                    } <span class="kw">else </span>{
+                        <span class="kw">let </span>popup_state = <span class="kw">crate</span>::save::Proposal::load_from_path(
+                            ctx,
+                            app,
+                            abstio::path_ltn_proposals(app.per_map.map.get_name(), name),
                         );
-                        <span class="ident">setup_initial_states</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">args</span>.<span class="ident">consultation</span>.<span class="ident">as_ref</span>(), <span class="ident">popup_state</span>)
+                        setup_initial_states(ctx, app, args.consultation.as_ref(), popup_state)
                     }
-                } <span class="kw">else</span> {
-                    <span class="ident">setup_initial_states</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">args</span>.<span class="ident">consultation</span>.<span class="ident">as_ref</span>(), <span class="prelude-val">None</span>)
+                } <span class="kw">else </span>{
+                    setup_initial_states(ctx, app, args.consultation.as_ref(), <span class="prelude-val">None</span>)
                 }
             },
         )
     });
 }
 
-<span class="comment">// A Proposal should already be loaded by now, unless consultation is set</span>
-<span class="kw">fn</span> <span class="ident">setup_initial_states</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-    <span class="ident">consultation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">popup_state</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">states</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">consultation</span>) <span class="op">=</span> <span class="ident">consultation</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
+<span class="comment">// A Proposal should already be loaded by now, unless consultation is set
+</span><span class="kw">fn </span>setup_initial_states(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;mut </span>App,
+    consultation: <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt;,
+    popup_state: <span class="prelude-ty">Option</span>&lt;Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt;&gt;,
+) -&gt; Vec&lt;Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>states = Vec::new();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>consultation) = consultation {
+        <span class="kw">if </span>app.per_map.map.get_name() != <span class="kw-2">&amp;</span>MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
             <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode not supported on this map&quot;</span>);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">consultation_proposal_path</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>consultation_proposal_path = <span class="prelude-val">None</span>;
 
-        <span class="kw">let</span> <span class="ident">focus_on_street</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">consultation</span>.<span class="ident">as_ref</span>() {
-            <span class="string">&quot;pt1&quot;</span> =&gt; <span class="string">&quot;Gregory Street&quot;</span>,
-            <span class="string">&quot;pt2&quot;</span> =&gt; {
-                <span class="comment">// Start from a baked-in proposal with special boundaries</span>
-                <span class="ident">consultation_proposal_path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">abstio::path</span>(
+        <span class="kw">let </span>focus_on_street = <span class="kw">match </span>consultation.as_ref() {
+            <span class="string">&quot;pt1&quot; </span>=&gt; <span class="string">&quot;Gregory Street&quot;</span>,
+            <span class="string">&quot;pt2&quot; </span>=&gt; {
+                <span class="comment">// Start from a baked-in proposal with special boundaries
+                </span>consultation_proposal_path = <span class="prelude-val">Some</span>(abstio::path(
                     <span class="string">&quot;system/ltn_proposals/bristol_beaufort_road.json.gz&quot;</span>,
                 ));
-                <span class="string">&quot;Jubilee Road&quot;</span>
-            }
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown Bristol consultation mode {consultation}&quot;</span>),
+                <span class="string">&quot;Jubilee Road&quot;
+            </span>}
+            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;Unknown Bristol consultation mode {consultation}&quot;</span>),
         };
 
-        <span class="comment">// If we already loaded something from a saved proposal, then don&#39;t clear anything</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">consultation_proposal_path</span> {
-            <span class="kw">if</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load_from_path</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">path</span>.<span class="ident">clone</span>()).<span class="ident">is_some</span>() {
+        <span class="comment">// If we already loaded something from a saved proposal, then don&#39;t clear anything
+        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(path) = consultation_proposal_path {
+            <span class="kw">if </span><span class="kw">crate</span>::save::Proposal::load_from_path(ctx, app, path.clone()).is_some() {
                 <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode broken; go fix {path} manually&quot;</span>);
             }
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">clear_all_but_current</span>();
-            <span class="comment">// TODO Kind of a weird hack -- rename this to &quot;existing LTNs&quot; so we can&#39;t overwrite</span>
-            <span class="comment">// it!</span>
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">current_proposal</span>.<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;existing LTNs&quot;</span>.<span class="ident">to_string</span>();
+            app.per_map.proposals.clear_all_but_current();
+            <span class="comment">// TODO Kind of a weird hack -- rename this to &quot;existing LTNs&quot; so we can&#39;t overwrite
+            // it!
+            </span>app.per_map.proposals.current_proposal.name = <span class="string">&quot;existing LTNs&quot;</span>.to_string();
         }
 
-        <span class="comment">// Look for the neighbourhood containing one small street</span>
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">per_map</span>
-            .<span class="ident">map</span>
-            .<span class="ident">all_roads</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">get_name</span>(<span class="prelude-val">None</span>) <span class="op">==</span> <span class="ident">focus_on_street</span>)
-            .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Can&#39;t find {focus_on_street}&quot;</span>))
-            .<span class="ident">id</span>;
-        <span class="kw">let</span> (<span class="ident">neighbourhood</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">partitioning</span>()
-            .<span class="ident">all_neighbourhoods</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">info</span>)<span class="op">|</span> <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>))
-            .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
-                <span class="string">&quot;Can&#39;t find neighbourhood containing {focus_on_street}&quot;</span>
-            ));
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">neighbourhood</span>);
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation_id</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">consultation</span>.<span class="ident">to_string</span>());
+        <span class="comment">// Look for the neighbourhood containing one small street
+        </span><span class="kw">let </span>r = app
+            .per_map
+            .map
+            .all_roads()
+            .iter()
+            .find(|r| r.get_name(<span class="prelude-val">None</span>) == focus_on_street)
+            .expect(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Can&#39;t find {focus_on_street}&quot;</span>))
+            .id;
+        <span class="kw">let </span>(neighbourhood, <span class="kw">_</span>) = app
+            .partitioning()
+            .all_neighbourhoods()
+            .iter()
+            .find(|(<span class="kw">_</span>, info)| info.block.perimeter.interior.contains(<span class="kw-2">&amp;</span>r))
+            .expect(<span class="kw-2">&amp;</span><span class="macro">format!</span>(
+                <span class="string">&quot;Can&#39;t find neighbourhood containing {focus_on_street}&quot;
+            </span>));
+        app.per_map.consultation = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>neighbourhood);
+        app.per_map.consultation_id = <span class="prelude-val">Some</span>(consultation.to_string());
 
-        <span class="comment">// TODO Maybe center the camera, ignoring any saved values</span>
+        <span class="comment">// TODO Maybe center the camera, ignoring any saved values
 
-        <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">design_ltn::DesignLTN::new_state</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation</span>.<span class="ident">unwrap</span>(),
+        </span>states.push(design_ltn::DesignLTN::new_state(
+            ctx,
+            app,
+            app.per_map.consultation.unwrap(),
         ));
-    } <span class="kw">else</span> {
-        <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">map_gui::tools::TitleScreen::new_state</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">map_gui::tools::Executable::LTN</span>,
-            <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">PickArea::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+    } <span class="kw">else </span>{
+        states.push(map_gui::tools::TitleScreen::new_state(
+            ctx,
+            app,
+            map_gui::tools::Executable::LTN,
+            Box::new(|ctx, app, <span class="kw">_</span>| PickArea::new_state(ctx, app)),
         ));
-        <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">PickArea::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>));
+        states.push(PickArea::new_state(ctx, app));
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">state</span>) <span class="op">=</span> <span class="ident">popup_state</span> {
-        <span class="ident">states</span>.<span class="ident">push</span>(<span class="ident">state</span>);
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(state) = popup_state {
+        states.push(state);
     }
-    <span class="ident">states</span>
+    states
 }
 
-<span class="kw">fn</span> <span class="ident">load_remote</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">id</span>: <span class="ident">String</span>,
-    <span class="ident">consultation</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">outer_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">inner_progress_rx</span>) <span class="op">=</span> <span class="ident">futures_channel::mpsc::channel</span>(<span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">url</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;{}/get-ltn?id={}&quot;</span>, <span class="ident"><span class="kw">crate</span>::save::PROPOSAL_HOST_URL</span>, <span class="ident">id</span>);
-    <span class="ident">FutureLoader</span>::<span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-        <span class="ident">ctx</span>,
-        <span class="ident">Box::pin</span>(<span class="kw">async</span> <span class="kw">move</span> {
-            <span class="kw">let</span> <span class="ident">bytes</span> <span class="op">=</span> <span class="ident">abstio::http_get</span>(<span class="ident">url</span>).<span class="kw">await</span><span class="question-mark">?</span>;
-            <span class="kw">let</span> <span class="ident">wrapper</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Send</span> <span class="op">+</span> <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">bytes</span>);
-            <span class="prelude-val">Ok</span>(<span class="ident">wrapper</span>)
+<span class="kw">fn </span>load_remote(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    id: String,
+    consultation: <span class="prelude-ty">Option</span>&lt;String&gt;,
+) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+    <span class="kw">let </span>(<span class="kw">_</span>, outer_progress_rx) = futures_channel::mpsc::channel(<span class="number">1</span>);
+    <span class="kw">let </span>(<span class="kw">_</span>, inner_progress_rx) = futures_channel::mpsc::channel(<span class="number">1</span>);
+    <span class="kw">let </span>url = <span class="macro">format!</span>(<span class="string">&quot;{}/get-ltn?id={}&quot;</span>, <span class="kw">crate</span>::save::PROPOSAL_HOST_URL, id);
+    FutureLoader::&lt;App, Vec&lt;u8&gt;&gt;::new_state(
+        ctx,
+        Box::pin(<span class="kw">async move </span>{
+            <span class="kw">let </span>bytes = abstio::http_get(url).<span class="kw">await</span><span class="question-mark">?</span>;
+            <span class="kw">let </span>wrapper: Box&lt;<span class="kw">dyn </span>Send + FnOnce(<span class="kw-2">&amp;</span>App) -&gt; Vec&lt;u8&gt;&gt; = Box::new(<span class="kw">move </span>|<span class="kw">_</span>| bytes);
+            <span class="prelude-val">Ok</span>(wrapper)
         }),
-        <span class="ident">outer_progress_rx</span>,
-        <span class="ident">inner_progress_rx</span>,
+        outer_progress_rx,
+        inner_progress_rx,
         <span class="string">&quot;Downloading proposal&quot;</span>,
-        <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">result</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">popup_state</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load_from_bytes</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident">id</span>, <span class="ident">result</span>);
-            <span class="ident">Transition::Clear</span>(<span class="ident">setup_initial_states</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="ident">consultation</span>.<span class="ident">as_ref</span>(),
-                <span class="ident">popup_state</span>,
+        Box::new(<span class="kw">move </span>|ctx, app, result| {
+            <span class="kw">let </span>popup_state = <span class="kw">crate</span>::save::Proposal::load_from_bytes(ctx, app, <span class="kw-2">&amp;</span>id, result);
+            Transition::Clear(setup_initial_states(
+                ctx,
+                app,
+                consultation.as_ref(),
+                popup_state,
             ))
         }),
     )
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">wasm_bindgen::prelude</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+</span><span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">js_name</span> <span class="op">=</span> <span class="string">&quot;run&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_wasm</span>(<span class="ident">root_dom_id</span>: <span class="ident">String</span>, <span class="ident">assets_base_url</span>: <span class="ident">String</span>, <span class="ident">assets_are_gzipped</span>: <span class="ident">bool</span>) {
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;Low traffic neighbourhoods&quot;</span>)
-        .<span class="ident">root_dom_element_id</span>(<span class="ident">root_dom_id</span>)
-        .<span class="ident">assets_base_url</span>(<span class="ident">assets_base_url</span>)
-        .<span class="ident">assets_are_gzipped</span>(<span class="ident">assets_are_gzipped</span>);
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+#[wasm_bindgen(js_name = <span class="string">&quot;run&quot;</span>)]
+</span><span class="kw">pub fn </span>run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
+    <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;Low traffic neighbourhoods&quot;</span>)
+        .root_dom_element_id(root_dom_id)
+        .assets_base_url(assets_base_url)
+        .assets_are_gzipped(assets_are_gzipped);
 
-    <span class="ident">run</span>(<span class="ident">settings</span>);
+    run(settings);
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>);
+<span class="kw">pub fn </span>redraw_all_filters(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+    app.per_map.draw_all_filters = app.edits().draw(ctx, <span class="kw-2">&amp;</span>app.per_map.map);
 }
 
-<span class="kw">fn</span> <span class="ident">is_private</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span> {
-    <span class="comment">// See https://wiki.openstreetmap.org/wiki/Tag:access%3Dprivate#Relation_to_access=no</span>
-    <span class="ident">road</span>.<span class="ident">osm_tags</span>.<span class="ident">is_any</span>(<span class="string">&quot;access&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;no&quot;</span>, <span class="string">&quot;private&quot;</span>])
+<span class="kw">fn </span>is_private(road: <span class="kw-2">&amp;</span>Road) -&gt; bool {
+    <span class="comment">// See https://wiki.openstreetmap.org/wiki/Tag:access%3Dprivate#Relation_to_access=no
+    </span>road.osm_tags.is_any(<span class="string">&quot;access&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;no&quot;</span>, <span class="string">&quot;private&quot;</span>])
 }
 
-<span class="kw">fn</span> <span class="ident">is_driveable</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
-    <span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">road</span>, <span class="ident">map</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_private</span>(<span class="ident">road</span>)
+<span class="kw">fn </span>is_driveable(road: <span class="kw-2">&amp;</span>Road, map: <span class="kw-2">&amp;</span>Map) -&gt; bool {
+    PathConstraints::Car.can_use_road(road, map) &amp;&amp; !is_private(road)
 }
 
-<span class="comment">// The current edits and partitioning are stored deeply nested in App. For read-only access, we can</span>
-<span class="comment">// use a regular helper method. For writing, we can&#39;t, because we&#39;ll get a borrow error -- so</span>
-<span class="comment">// instead just use macros to make it less annoying to modify</span>
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">mut_edits</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">app</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">current_proposal</span>.<span class="ident">edits</span>
+<span class="comment">// The current edits and partitioning are stored deeply nested in App. For read-only access, we can
+// use a regular helper method. For writing, we can&#39;t, because we&#39;ll get a borrow error -- so
+// instead just use macros to make it less annoying to modify
+</span><span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>mut_edits {
+    (<span class="macro-nonterminal">$app</span>:ident) =&gt; {
+        <span class="macro-nonterminal">$app</span>.per_map.proposals.current_proposal.edits
     };
 }
 
-<span class="attribute">#[<span class="ident">macro_export</span>]</span>
-<span class="macro">macro_rules!</span> <span class="ident">mut_partitioning</span> {
-    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">app</span>:<span class="ident">ident</span>) =&gt; {
-        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">current_proposal</span>.<span class="ident">partitioning</span>
+<span class="attribute">#[macro_export]
+</span><span class="macro">macro_rules! </span>mut_partitioning {
+    (<span class="macro-nonterminal">$app</span>:ident) =&gt; {
+        <span class="macro-nonterminal">$app</span>.per_map.proposals.current_proposal.partitioning
     };
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

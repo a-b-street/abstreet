@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/mapspace/unzoomed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unzoomed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/mapspace/unzoomed.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>unzoomed.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../widgetry/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -221,228 +221,228 @@
 <span id="221">221</span>
 <span id="222">222</span>
 <span id="223">223</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::RefCell</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cell::RefCell;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>geom::{Circle, Distance, PolyLine, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>};
+<span class="kw">use crate</span>::{Color, Drawable, GeomBatch, GfxCtx};
 
-<span class="doccomment">/// Draw `Circles` and `PolyLines` in map-space that scale their size as the canvas is zoomed. The</span>
-<span class="doccomment">/// goal is to appear with roughly constant screen-space size, but for the moment, this is</span>
-<span class="doccomment">/// approximated by discretizing into 10 buckets. The scaling only happens when the canvas is</span>
-<span class="doccomment">/// zoomed out less than a value of 1.0.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawUnzoomedShapes</span> {
-    <span class="ident">shapes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Shape</span><span class="op">&gt;</span>,
-    <span class="ident">per_zoom</span>: <span class="ident">RefCell</span><span class="op">&lt;</span>[<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>; <span class="number">11</span>]<span class="op">&gt;</span>,
+<span class="doccomment">/// Draw `Circles` and `PolyLines` in map-space that scale their size as the canvas is zoomed. The
+/// goal is to appear with roughly constant screen-space size, but for the moment, this is
+/// approximated by discretizing into 10 buckets. The scaling only happens when the canvas is
+/// zoomed out less than a value of 1.0.
+</span><span class="kw">pub struct </span>DrawUnzoomedShapes {
+    shapes: Vec&lt;Shape&gt;,
+    per_zoom: RefCell&lt;[<span class="prelude-ty">Option</span>&lt;Drawable&gt;; <span class="number">11</span>]&gt;,
 }
 
-<span class="kw">enum</span> <span class="ident">Shape</span> {
-    <span class="ident">Line</span> {
-        <span class="ident">polyline</span>: <span class="ident">PolyLine</span>,
-        <span class="ident">width</span>: <span class="ident">Distance</span>,
-        <span class="ident">color</span>: <span class="ident">Color</span>,
+<span class="kw">enum </span>Shape {
+    Line {
+        polyline: PolyLine,
+        width: Distance,
+        color: Color,
     },
-    <span class="ident">Circle</span> {
-        <span class="ident">center</span>: <span class="ident">Pt2D</span>,
-        <span class="ident">radius</span>: <span class="ident">Distance</span>,
-        <span class="ident">color</span>: <span class="ident">Color</span>,
+    Circle {
+        center: Pt2D,
+        radius: Distance,
+        color: Color,
     },
 }
 
-<span class="kw">impl</span> <span class="ident">Shape</span> {
-    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>, <span class="ident">thickness</span>: <span class="ident">f64</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Shape::Line</span> {
-                <span class="ident">polyline</span>,
-                <span class="ident">width</span>,
-                <span class="ident">color</span>,
+<span class="kw">impl </span>Shape {
+    <span class="kw">fn </span>render(<span class="kw-2">&amp;</span><span class="self">self</span>, batch: <span class="kw-2">&amp;mut </span>GeomBatch, thickness: f64) {
+        <span class="kw">match </span><span class="self">self </span>{
+            Shape::Line {
+                polyline,
+                width,
+                color,
             } =&gt; {
-                <span class="ident">batch</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">color</span>, <span class="ident">polyline</span>.<span class="ident">make_polygons</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="kw-2">*</span><span class="ident">width</span>));
+                batch.push(<span class="kw-2">*</span>color, polyline.make_polygons(thickness * <span class="kw-2">*</span>width));
             }
-            <span class="ident">Shape::Circle</span> {
-                <span class="ident">center</span>,
-                <span class="ident">radius</span>,
-                <span class="ident">color</span>,
+            Shape::Circle {
+                center,
+                radius,
+                color,
             } =&gt; {
-                <span class="comment">// TODO Here especially if we&#39;re drawing lots of circles with the same radius,</span>
-                <span class="comment">// generating the shape once and translating it is much more efficient.</span>
-                <span class="comment">// UnzoomedAgents does this.</span>
-                <span class="ident">batch</span>.<span class="ident">push</span>(
-                    <span class="kw-2">*</span><span class="ident">color</span>,
-                    <span class="ident">Circle::new</span>(<span class="kw-2">*</span><span class="ident">center</span>, <span class="ident">thickness</span> <span class="op">*</span> <span class="kw-2">*</span><span class="ident">radius</span>).<span class="ident">to_polygon</span>(),
+                <span class="comment">// TODO Here especially if we&#39;re drawing lots of circles with the same radius,
+                // generating the shape once and translating it is much more efficient.
+                // UnzoomedAgents does this.
+                </span>batch.push(
+                    <span class="kw-2">*</span>color,
+                    Circle::new(<span class="kw-2">*</span>center, thickness * <span class="kw-2">*</span>radius).to_polygon(),
                 );
             }
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawUnzoomedShapesBuilder</span> {
-    <span class="ident">shapes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Shape</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>DrawUnzoomedShapesBuilder {
+    shapes: Vec&lt;Shape&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">DrawUnzoomedShapes</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">shapes</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">per_zoom</span>: <span class="ident">Default::default</span>(),
+<span class="kw">impl </span>DrawUnzoomedShapes {
+    <span class="kw">pub fn </span>empty() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            shapes: Vec::new(),
+            per_zoom: Default::default(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">DrawUnzoomedShapesBuilder</span> {
-        <span class="ident">DrawUnzoomedShapesBuilder</span> { <span class="ident">shapes</span>: <span class="ident">Vec::new</span>() }
+    <span class="kw">pub fn </span>builder() -&gt; DrawUnzoomedShapesBuilder {
+        DrawUnzoomedShapesBuilder { shapes: Vec::new() }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="kw">let</span> (<span class="ident">zoom</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident">discretize_zoom</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">per_zoom</span>.<span class="ident">borrow_mut</span>()[<span class="ident">idx</span>];
-        <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_none</span>() {
-            <span class="comment">// Never shrink past the original size -- always at least 1.0.</span>
-            <span class="comment">// zoom ranges between [0.0, 1.0], and we want thicker shapes as zoom approaches 0.</span>
-            <span class="kw">let</span> <span class="ident">max</span> <span class="op">=</span> <span class="number">5.0</span>;
-            <span class="comment">// So thickness ranges between [1.0, 5.0]</span>
-            <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">+</span> (<span class="ident">max</span> <span class="op">-</span> <span class="number">1.0</span>) <span class="op">*</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">zoom</span>);
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        <span class="kw">let </span>(zoom, idx) = discretize_zoom(g.canvas.cam_zoom);
+        <span class="kw">let </span>value = <span class="kw-2">&amp;mut </span><span class="self">self</span>.per_zoom.borrow_mut()[idx];
+        <span class="kw">if </span>value.is_none() {
+            <span class="comment">// Never shrink past the original size -- always at least 1.0.
+            // zoom ranges between [0.0, 1.0], and we want thicker shapes as zoom approaches 0.
+            </span><span class="kw">let </span>max = <span class="number">5.0</span>;
+            <span class="comment">// So thickness ranges between [1.0, 5.0]
+            </span><span class="kw">let </span>thickness = <span class="number">1.0 </span>+ (max - <span class="number">1.0</span>) * (<span class="number">1.0 </span>- zoom);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shapes</span> {
-                <span class="ident">shape</span>.<span class="ident">render</span>(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">thickness</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+            <span class="kw">for </span>shape <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.shapes {
+                shape.render(<span class="kw-2">&amp;mut </span>batch, thickness);
             }
-            <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
+            <span class="kw-2">*</span>value = <span class="prelude-val">Some</span>(g.upload(batch));
         }
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">value</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
+        g.redraw(value.as_ref().unwrap());
     }
 }
 
-<span class="kw">impl</span> <span class="ident">DrawUnzoomedShapesBuilder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_line</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">polyline</span>: <span class="ident">PolyLine</span>, <span class="ident">width</span>: <span class="ident">Distance</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {
-        <span class="self">self</span>.<span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">Shape::Line</span> {
-            <span class="ident">polyline</span>,
-            <span class="ident">width</span>,
-            <span class="ident">color</span>,
+<span class="kw">impl </span>DrawUnzoomedShapesBuilder {
+    <span class="kw">pub fn </span>add_line(<span class="kw-2">&amp;mut </span><span class="self">self</span>, polyline: PolyLine, width: Distance, color: Color) {
+        <span class="self">self</span>.shapes.push(Shape::Line {
+            polyline,
+            width,
+            color,
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_circle</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">center</span>: <span class="ident">Pt2D</span>, <span class="ident">radius</span>: <span class="ident">Distance</span>, <span class="ident">color</span>: <span class="ident">Color</span>) {
-        <span class="self">self</span>.<span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">Shape::Circle</span> {
-            <span class="ident">center</span>,
-            <span class="ident">radius</span>,
-            <span class="ident">color</span>,
+    <span class="kw">pub fn </span>add_circle(<span class="kw-2">&amp;mut </span><span class="self">self</span>, center: Pt2D, radius: Distance, color: Color) {
+        <span class="self">self</span>.shapes.push(Shape::Circle {
+            center,
+            radius,
+            color,
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) -&gt; <span class="ident">DrawUnzoomedShapes</span> {
-        <span class="ident">DrawUnzoomedShapes</span> {
-            <span class="ident">shapes</span>: <span class="self">self</span>.<span class="ident">shapes</span>,
-            <span class="ident">per_zoom</span>: <span class="ident">Default::default</span>(),
+    <span class="kw">pub fn </span>build(<span class="self">self</span>) -&gt; DrawUnzoomedShapes {
+        DrawUnzoomedShapes {
+            shapes: <span class="self">self</span>.shapes,
+            per_zoom: Default::default(),
         }
     }
 }
 
-<span class="comment">// Continuously changing road width as we zoom looks great, but it&#39;s terribly slow. We&#39;d have to</span>
-<span class="comment">// move line thickening into the shader to do it better. So recalculate with less granularity.</span>
-<span class="comment">//</span>
-<span class="comment">// Returns ([0.0, 1.0], [0, 10])</span>
-<span class="kw">fn</span> <span class="ident">discretize_zoom</span>(<span class="ident">zoom</span>: <span class="ident">f64</span>) -&gt; (<span class="ident">f64</span>, <span class="ident">usize</span>) {
-    <span class="kw">if</span> <span class="ident">zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.0</span> {
-        <span class="kw">return</span> (<span class="number">1.0</span>, <span class="number">10</span>);
+<span class="comment">// Continuously changing road width as we zoom looks great, but it&#39;s terribly slow. We&#39;d have to
+// move line thickening into the shader to do it better. So recalculate with less granularity.
+//
+// Returns ([0.0, 1.0], [0, 10])
+</span><span class="kw">fn </span>discretize_zoom(zoom: f64) -&gt; (f64, usize) {
+    <span class="kw">if </span>zoom &gt;= <span class="number">1.0 </span>{
+        <span class="kw">return </span>(<span class="number">1.0</span>, <span class="number">10</span>);
     }
-    <span class="kw">let</span> <span class="ident">rounded</span> <span class="op">=</span> (<span class="ident">zoom</span> <span class="op">*</span> <span class="number">10.0</span>).<span class="ident">round</span>();
-    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">rounded</span> <span class="kw">as</span> <span class="ident">usize</span>;
-    (<span class="ident">rounded</span> <span class="op">/</span> <span class="number">10.0</span>, <span class="ident">idx</span>)
+    <span class="kw">let </span>rounded = (zoom * <span class="number">10.0</span>).round();
+    <span class="kw">let </span>idx = rounded <span class="kw">as </span>usize;
+    (rounded / <span class="number">10.0</span>, idx)
 }
 
-<span class="doccomment">/// Draw custom objects that scale their size as the canvas is zoomed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// In all honesty I&#39;m completely lost on the math here. By trial and error, I got something that</span>
-<span class="doccomment">/// works reasonably for the one use case. Of course I&#39;d love to properly understand how to do this</span>
-<span class="doccomment">/// pattern, unify with the above, etc.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawCustomUnzoomedShapes</span> {
-    <span class="ident">shapes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>, <span class="ident">f64</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">per_zoom</span>: <span class="ident">RefCell</span><span class="op">&lt;</span><span class="ident">PerZoom</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Draw custom objects that scale their size as the canvas is zoomed.
+///
+/// In all honesty I&#39;m completely lost on the math here. By trial and error, I got something that
+/// works reasonably for the one use case. Of course I&#39;d love to properly understand how to do this
+/// pattern, unify with the above, etc.
+</span><span class="kw">pub struct </span>DrawCustomUnzoomedShapes {
+    shapes: Vec&lt;Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>GeomBatch, f64)&gt;&gt;,
+    per_zoom: RefCell&lt;PerZoom&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawCustomUnzoomedShapesBuilder</span> {
-    <span class="ident">shapes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>, <span class="ident">f64</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>DrawCustomUnzoomedShapesBuilder {
+    shapes: Vec&lt;Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>GeomBatch, f64)&gt;&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">DrawCustomUnzoomedShapes</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">shapes</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">per_zoom</span>: <span class="ident">RefCell::new</span>(<span class="ident">PerZoom::new</span>(<span class="number">1.0</span>, <span class="number">0.1</span>)),
+<span class="kw">impl </span>DrawCustomUnzoomedShapes {
+    <span class="kw">pub fn </span>empty() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            shapes: Vec::new(),
+            per_zoom: RefCell::new(PerZoom::new(<span class="number">1.0</span>, <span class="number">0.1</span>)),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">builder</span>() -&gt; <span class="ident">DrawCustomUnzoomedShapesBuilder</span> {
-        <span class="ident">DrawCustomUnzoomedShapesBuilder</span> { <span class="ident">shapes</span>: <span class="ident">Vec::new</span>() }
+    <span class="kw">pub fn </span>builder() -&gt; DrawCustomUnzoomedShapesBuilder {
+        DrawCustomUnzoomedShapesBuilder { shapes: Vec::new() }
     }
 
-    <span class="comment">// If the zoom level is insufficient, return false</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">per_zoom</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">per_zoom</span>.<span class="ident">borrow_mut</span>();
+    <span class="comment">// If the zoom level is insufficient, return false
+    </span><span class="kw">pub fn </span>maybe_draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) -&gt; bool {
+        <span class="kw">let </span><span class="kw-2">mut </span>per_zoom = <span class="self">self</span>.per_zoom.borrow_mut();
 
-        <span class="kw">if</span> <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">per_zoom</span>.<span class="ident">min_zoom_for_detail</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+        <span class="kw">if </span>g.canvas.cam_zoom &gt;= per_zoom.min_zoom_for_detail {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="kw">let</span> (<span class="ident">zoom</span>, <span class="ident">idx</span>) <span class="op">=</span> <span class="ident">per_zoom</span>.<span class="ident">discretize_zoom</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">cam_zoom</span>);
-        <span class="kw">let</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">per_zoom</span>.<span class="ident">draw_per_zoom</span>[<span class="ident">idx</span>];
-        <span class="kw">if</span> <span class="ident">value</span>.<span class="ident">is_none</span>() {
-            <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">/</span> <span class="ident">zoom</span>;
+        <span class="kw">let </span>(zoom, idx) = per_zoom.discretize_zoom(g.canvas.cam_zoom);
+        <span class="kw">let </span>value = <span class="kw-2">&amp;mut </span>per_zoom.draw_per_zoom[idx];
+        <span class="kw">if </span>value.is_none() {
+            <span class="kw">let </span>thickness = <span class="number">1.0 </span>/ zoom;
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="kw">for</span> <span class="ident">shape</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">shapes</span> {
-                (<span class="ident">shape</span>)(<span class="kw-2">&amp;mut</span> <span class="ident">batch</span>, <span class="ident">thickness</span>);
+            <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+            <span class="kw">for </span>shape <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.shapes {
+                (shape)(<span class="kw-2">&amp;mut </span>batch, thickness);
             }
-            <span class="kw-2">*</span><span class="ident">value</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">g</span>.<span class="ident">upload</span>(<span class="ident">batch</span>));
+            <span class="kw-2">*</span>value = <span class="prelude-val">Some</span>(g.upload(batch));
         }
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">value</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>());
+        g.redraw(value.as_ref().unwrap());
 
-        <span class="bool-val">true</span>
+        <span class="bool-val">true
+    </span>}
+}
+
+<span class="kw">impl </span>DrawCustomUnzoomedShapesBuilder {
+    <span class="kw">pub fn </span>add_custom(<span class="kw-2">&amp;mut </span><span class="self">self</span>, f: Box&lt;<span class="kw">dyn </span>Fn(<span class="kw-2">&amp;mut </span>GeomBatch, f64)&gt;) {
+        <span class="self">self</span>.shapes.push(f);
+    }
+
+    <span class="kw">pub fn </span>build(<span class="self">self</span>, per_zoom: PerZoom) -&gt; DrawCustomUnzoomedShapes {
+        DrawCustomUnzoomedShapes {
+            shapes: <span class="self">self</span>.shapes,
+            per_zoom: RefCell::new(per_zoom),
+        }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">DrawCustomUnzoomedShapesBuilder</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_custom</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">f</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>, <span class="ident">f64</span>)<span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">shapes</span>.<span class="ident">push</span>(<span class="ident">f</span>);
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>, <span class="ident">per_zoom</span>: <span class="ident">PerZoom</span>) -&gt; <span class="ident">DrawCustomUnzoomedShapes</span> {
-        <span class="ident">DrawCustomUnzoomedShapes</span> {
-            <span class="ident">shapes</span>: <span class="self">self</span>.<span class="ident">shapes</span>,
-            <span class="ident">per_zoom</span>: <span class="ident">RefCell::new</span>(<span class="ident">per_zoom</span>),
-        }
-    }
+<span class="comment">// TODO There may be an off-by-one floating around here. Watch what this does at extremely low zoom
+// levels near 0.
+</span><span class="kw">pub struct </span>PerZoom {
+    <span class="comment">// TODO Maybe keep private and take the rendering callback here. Share more behavior with
+    // DrawRoadLabels.
+    </span><span class="kw">pub </span>draw_per_zoom: Vec&lt;<span class="prelude-ty">Option</span>&lt;Drawable&gt;&gt;,
+    step_size: f64,
+    min_zoom_for_detail: f64,
 }
 
-<span class="comment">// TODO There may be an off-by-one floating around here. Watch what this does at extremely low zoom</span>
-<span class="comment">// levels near 0.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PerZoom</span> {
-    <span class="comment">// TODO Maybe keep private and take the rendering callback here. Share more behavior with</span>
-    <span class="comment">// DrawRoadLabels.</span>
-    <span class="kw">pub</span> <span class="ident">draw_per_zoom</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">step_size</span>: <span class="ident">f64</span>,
-    <span class="ident">min_zoom_for_detail</span>: <span class="ident">f64</span>,
-}
-
-<span class="kw">impl</span> <span class="ident">PerZoom</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">min_zoom_for_detail</span>: <span class="ident">f64</span>, <span class="ident">step_size</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">num_buckets</span> <span class="op">=</span> (<span class="ident">min_zoom_for_detail</span> <span class="op">/</span> <span class="ident">step_size</span>) <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="self">Self</span> {
-            <span class="ident">draw_per_zoom</span>: <span class="ident">std::iter::repeat_with</span>(<span class="op">|</span><span class="op">|</span> <span class="prelude-val">None</span>).<span class="ident">take</span>(<span class="ident">num_buckets</span>).<span class="ident">collect</span>(),
-            <span class="ident">step_size</span>,
-            <span class="ident">min_zoom_for_detail</span>,
+<span class="kw">impl </span>PerZoom {
+    <span class="kw">pub fn </span>new(min_zoom_for_detail: f64, step_size: f64) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>num_buckets = (min_zoom_for_detail / step_size) <span class="kw">as </span>usize;
+        <span class="self">Self </span>{
+            draw_per_zoom: std::iter::repeat_with(|| <span class="prelude-val">None</span>).take(num_buckets).collect(),
+            step_size,
+            min_zoom_for_detail,
         }
     }
 
-    <span class="comment">// Takes the current canvas zoom, rounds it to the nearest step_size, and returns the index of</span>
-    <span class="comment">// the bucket to fill out</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">discretize_zoom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">zoom</span>: <span class="ident">f64</span>) -&gt; (<span class="ident">f64</span>, <span class="ident">usize</span>) {
-        <span class="kw">let</span> <span class="ident">bucket</span> <span class="op">=</span> (<span class="ident">zoom</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">step_size</span>).<span class="ident">floor</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-        <span class="comment">// It&#39;s a bit weird to have the same zoom behavior for &lt; 0.1 and 0.1 to 0.2, but unclear</span>
-        <span class="comment">// what to do otherwise -- an effective zoom of 0 is broken</span>
-        <span class="kw">let</span> <span class="ident">rounded</span> <span class="op">=</span> (<span class="ident">bucket</span>.<span class="ident">max</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">step_size</span>;
-        (<span class="ident">rounded</span>, <span class="ident">bucket</span>)
+    <span class="comment">// Takes the current canvas zoom, rounds it to the nearest step_size, and returns the index of
+    // the bucket to fill out
+    </span><span class="kw">pub fn </span>discretize_zoom(<span class="kw-2">&amp;</span><span class="self">self</span>, zoom: f64) -&gt; (f64, usize) {
+        <span class="kw">let </span>bucket = (zoom / <span class="self">self</span>.step_size).floor() <span class="kw">as </span>usize;
+        <span class="comment">// It&#39;s a bit weird to have the same zoom behavior for &lt; 0.1 and 0.1 to 0.2, but unclear
+        // what to do otherwise -- an effective zoom of 0 is broken
+        </span><span class="kw">let </span>rounded = (bucket.max(<span class="number">1</span>) <span class="kw">as </span>f64) * <span class="self">self</span>.step_size;
+        (rounded, bucket)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

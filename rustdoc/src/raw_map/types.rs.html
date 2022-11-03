@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `raw_map/src/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../raw_map/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `raw_map/src/types.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>types.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../raw_map/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../raw_map/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -188,72 +188,72 @@
 <span id="188">188</span>
 <span id="189">189</span>
 <span id="190">190</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">strum::IntoEnumIterator</span>;
-<span class="kw">use</span> <span class="ident">strum_macros</span>::{<span class="ident">Display</span>, <span class="ident">EnumIter</span>, <span class="ident">EnumString</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>strum::IntoEnumIterator;
+<span class="kw">use </span>strum_macros::{Display, EnumIter, EnumString};
 
-<span class="kw">use</span> <span class="ident">abstutil::Tags</span>;
-<span class="kw">use</span> <span class="ident">osm2streets::NamePerLanguage</span>;
+<span class="kw">use </span>abstutil::Tags;
+<span class="kw">use </span>osm2streets::NamePerLanguage;
 
-<span class="doccomment">/// A business located inside a building.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Amenity</span> {
-    <span class="kw">pub</span> <span class="ident">names</span>: <span class="ident">NamePerLanguage</span>,
-    <span class="doccomment">/// This is the specific amenity listed in OSM, not the more general `AmenityType` category.</span>
-    <span class="kw">pub</span> <span class="ident">amenity_type</span>: <span class="ident">String</span>,
-    <span class="doccomment">/// Depending on options while importing, these might be empty, to save file space.</span>
-    <span class="kw">pub</span> <span class="ident">osm_tags</span>: <span class="ident">Tags</span>,
+<span class="doccomment">/// A business located inside a building.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Debug, Clone)]
+</span><span class="kw">pub struct </span>Amenity {
+    <span class="kw">pub </span>names: NamePerLanguage,
+    <span class="doccomment">/// This is the specific amenity listed in OSM, not the more general `AmenityType` category.
+    </span><span class="kw">pub </span>amenity_type: String,
+    <span class="doccomment">/// Depending on options while importing, these might be empty, to save file space.
+    </span><span class="kw">pub </span>osm_tags: Tags,
 }
 
-<span class="doccomment">/// Businesses are categorized into one of these types.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">EnumString</span>, <span class="ident">Display</span>, <span class="ident">EnumIter</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AmenityType</span> {
-    <span class="ident">Bank</span>,
-    <span class="ident">Bar</span>,
-    <span class="ident">Beauty</span>,
-    <span class="ident">Bike</span>,
-    <span class="ident">Cafe</span>,
-    <span class="ident">CarRepair</span>,
-    <span class="ident">CarShare</span>,
-    <span class="ident">Childcare</span>,
-    <span class="ident">ConvenienceStore</span>,
-    <span class="ident">Culture</span>,
-    <span class="ident">Exercise</span>,
-    <span class="ident">FastFood</span>,
-    <span class="ident">Food</span>,
-    <span class="ident">GreenSpace</span>,
-    <span class="ident">Hotel</span>,
-    <span class="ident">Laundry</span>,
-    <span class="ident">Library</span>,
-    <span class="ident">Medical</span>,
-    <span class="ident">Pet</span>,
-    <span class="ident">Playground</span>,
-    <span class="ident">Pool</span>,
-    <span class="ident">PostOffice</span>,
-    <span class="ident">Religious</span>,
-    <span class="ident">School</span>,
-    <span class="ident">Shopping</span>,
-    <span class="ident">Supermarket</span>,
-    <span class="ident">Tourism</span>,
-    <span class="ident">University</span>,
+<span class="doccomment">/// Businesses are categorized into one of these types.
+</span><span class="attribute">#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, EnumString, Display, EnumIter)]
+</span><span class="kw">pub enum </span>AmenityType {
+    Bank,
+    Bar,
+    Beauty,
+    Bike,
+    Cafe,
+    CarRepair,
+    CarShare,
+    Childcare,
+    ConvenienceStore,
+    Culture,
+    Exercise,
+    FastFood,
+    Food,
+    GreenSpace,
+    Hotel,
+    Laundry,
+    Library,
+    Medical,
+    Pet,
+    Playground,
+    Pool,
+    PostOffice,
+    Religious,
+    School,
+    Shopping,
+    Supermarket,
+    Tourism,
+    University,
 }
 
-<span class="kw">impl</span> <span class="ident">AmenityType</span> {
-    <span class="kw">fn</span> <span class="ident">types</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">AmenityType::Bank</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;bank&quot;</span>],
-            <span class="ident">AmenityType::Bar</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;bar&quot;</span>, <span class="string">&quot;pub&quot;</span>, <span class="string">&quot;nightclub&quot;</span>, <span class="string">&quot;biergarten&quot;</span>],
-            <span class="ident">AmenityType::Beauty</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;hairdresser&quot;</span>, <span class="string">&quot;beauty&quot;</span>, <span class="string">&quot;chemist&quot;</span>, <span class="string">&quot;cosmetics&quot;</span>],
-            <span class="ident">AmenityType::Bike</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;bicycle&quot;</span>],
-            <span class="ident">AmenityType::Cafe</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;cafe&quot;</span>, <span class="string">&quot;pastry&quot;</span>, <span class="string">&quot;coffee&quot;</span>, <span class="string">&quot;tea&quot;</span>, <span class="string">&quot;bakery&quot;</span>],
-            <span class="ident">AmenityType::CarRepair</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;car_repair&quot;</span>],
-            <span class="ident">AmenityType::CarShare</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;car_sharing&quot;</span>],
-            <span class="ident">AmenityType::Childcare</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;childcare&quot;</span>, <span class="string">&quot;kindergarten&quot;</span>],
-            <span class="ident">AmenityType::ConvenienceStore</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;convenience&quot;</span>],
-            <span class="ident">AmenityType::Culture</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;arts_centre&quot;</span>, <span class="string">&quot;art&quot;</span>, <span class="string">&quot;cinema&quot;</span>, <span class="string">&quot;theatre&quot;</span>],
-            <span class="ident">AmenityType::Exercise</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;fitness_centre&quot;</span>, <span class="string">&quot;sports_centre&quot;</span>, <span class="string">&quot;track&quot;</span>, <span class="string">&quot;pitch&quot;</span>],
-            <span class="ident">AmenityType::FastFood</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;fast_food&quot;</span>, <span class="string">&quot;food_court&quot;</span>],
-            <span class="ident">AmenityType::Food</span> =&gt; <span class="macro">vec!</span>[
+<span class="kw">impl </span>AmenityType {
+    <span class="kw">fn </span>types(<span class="self">self</span>) -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            AmenityType::Bank =&gt; <span class="macro">vec!</span>[<span class="string">&quot;bank&quot;</span>],
+            AmenityType::Bar =&gt; <span class="macro">vec!</span>[<span class="string">&quot;bar&quot;</span>, <span class="string">&quot;pub&quot;</span>, <span class="string">&quot;nightclub&quot;</span>, <span class="string">&quot;biergarten&quot;</span>],
+            AmenityType::Beauty =&gt; <span class="macro">vec!</span>[<span class="string">&quot;hairdresser&quot;</span>, <span class="string">&quot;beauty&quot;</span>, <span class="string">&quot;chemist&quot;</span>, <span class="string">&quot;cosmetics&quot;</span>],
+            AmenityType::Bike =&gt; <span class="macro">vec!</span>[<span class="string">&quot;bicycle&quot;</span>],
+            AmenityType::Cafe =&gt; <span class="macro">vec!</span>[<span class="string">&quot;cafe&quot;</span>, <span class="string">&quot;pastry&quot;</span>, <span class="string">&quot;coffee&quot;</span>, <span class="string">&quot;tea&quot;</span>, <span class="string">&quot;bakery&quot;</span>],
+            AmenityType::CarRepair =&gt; <span class="macro">vec!</span>[<span class="string">&quot;car_repair&quot;</span>],
+            AmenityType::CarShare =&gt; <span class="macro">vec!</span>[<span class="string">&quot;car_sharing&quot;</span>],
+            AmenityType::Childcare =&gt; <span class="macro">vec!</span>[<span class="string">&quot;childcare&quot;</span>, <span class="string">&quot;kindergarten&quot;</span>],
+            AmenityType::ConvenienceStore =&gt; <span class="macro">vec!</span>[<span class="string">&quot;convenience&quot;</span>],
+            AmenityType::Culture =&gt; <span class="macro">vec!</span>[<span class="string">&quot;arts_centre&quot;</span>, <span class="string">&quot;art&quot;</span>, <span class="string">&quot;cinema&quot;</span>, <span class="string">&quot;theatre&quot;</span>],
+            AmenityType::Exercise =&gt; <span class="macro">vec!</span>[<span class="string">&quot;fitness_centre&quot;</span>, <span class="string">&quot;sports_centre&quot;</span>, <span class="string">&quot;track&quot;</span>, <span class="string">&quot;pitch&quot;</span>],
+            AmenityType::FastFood =&gt; <span class="macro">vec!</span>[<span class="string">&quot;fast_food&quot;</span>, <span class="string">&quot;food_court&quot;</span>],
+            AmenityType::Food =&gt; <span class="macro">vec!</span>[
                 <span class="string">&quot;restaurant&quot;</span>,
                 <span class="string">&quot;farm&quot;</span>,
                 <span class="string">&quot;ice_cream&quot;</span>,
@@ -266,20 +266,20 @@
                 <span class="string">&quot;beverages&quot;</span>,
                 <span class="string">&quot;alcohol&quot;</span>,
             ],
-            <span class="ident">AmenityType::GreenSpace</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;park&quot;</span>, <span class="string">&quot;garden&quot;</span>, <span class="string">&quot;nature_reserve&quot;</span>],
-            <span class="ident">AmenityType::Hotel</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;hotel&quot;</span>, <span class="string">&quot;hostel&quot;</span>, <span class="string">&quot;guest_house&quot;</span>, <span class="string">&quot;motel&quot;</span>],
-            <span class="ident">AmenityType::Laundry</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;dry_cleaning&quot;</span>, <span class="string">&quot;laundry&quot;</span>, <span class="string">&quot;tailor&quot;</span>],
-            <span class="ident">AmenityType::Library</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;library&quot;</span>],
-            <span class="ident">AmenityType::Medical</span> =&gt; <span class="macro">vec!</span>[
+            AmenityType::GreenSpace =&gt; <span class="macro">vec!</span>[<span class="string">&quot;park&quot;</span>, <span class="string">&quot;garden&quot;</span>, <span class="string">&quot;nature_reserve&quot;</span>],
+            AmenityType::Hotel =&gt; <span class="macro">vec!</span>[<span class="string">&quot;hotel&quot;</span>, <span class="string">&quot;hostel&quot;</span>, <span class="string">&quot;guest_house&quot;</span>, <span class="string">&quot;motel&quot;</span>],
+            AmenityType::Laundry =&gt; <span class="macro">vec!</span>[<span class="string">&quot;dry_cleaning&quot;</span>, <span class="string">&quot;laundry&quot;</span>, <span class="string">&quot;tailor&quot;</span>],
+            AmenityType::Library =&gt; <span class="macro">vec!</span>[<span class="string">&quot;library&quot;</span>],
+            AmenityType::Medical =&gt; <span class="macro">vec!</span>[
                 <span class="string">&quot;clinic&quot;</span>, <span class="string">&quot;dentist&quot;</span>, <span class="string">&quot;hospital&quot;</span>, <span class="string">&quot;pharmacy&quot;</span>, <span class="string">&quot;doctors&quot;</span>, <span class="string">&quot;optician&quot;</span>,
             ],
-            <span class="ident">AmenityType::Pet</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;veterinary&quot;</span>, <span class="string">&quot;pet&quot;</span>, <span class="string">&quot;animal_boarding&quot;</span>, <span class="string">&quot;pet_grooming&quot;</span>],
-            <span class="ident">AmenityType::Playground</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;playground&quot;</span>],
-            <span class="ident">AmenityType::Pool</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;swimming_pool&quot;</span>],
-            <span class="ident">AmenityType::PostOffice</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;post_office&quot;</span>],
-            <span class="ident">AmenityType::Religious</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;place_of_worship&quot;</span>, <span class="string">&quot;religion&quot;</span>],
-            <span class="ident">AmenityType::School</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;school&quot;</span>],
-            <span class="ident">AmenityType::Shopping</span> =&gt; <span class="macro">vec!</span>[
+            AmenityType::Pet =&gt; <span class="macro">vec!</span>[<span class="string">&quot;veterinary&quot;</span>, <span class="string">&quot;pet&quot;</span>, <span class="string">&quot;animal_boarding&quot;</span>, <span class="string">&quot;pet_grooming&quot;</span>],
+            AmenityType::Playground =&gt; <span class="macro">vec!</span>[<span class="string">&quot;playground&quot;</span>],
+            AmenityType::Pool =&gt; <span class="macro">vec!</span>[<span class="string">&quot;swimming_pool&quot;</span>],
+            AmenityType::PostOffice =&gt; <span class="macro">vec!</span>[<span class="string">&quot;post_office&quot;</span>],
+            AmenityType::Religious =&gt; <span class="macro">vec!</span>[<span class="string">&quot;place_of_worship&quot;</span>, <span class="string">&quot;religion&quot;</span>],
+            AmenityType::School =&gt; <span class="macro">vec!</span>[<span class="string">&quot;school&quot;</span>],
+            AmenityType::Shopping =&gt; <span class="macro">vec!</span>[
                 <span class="string">&quot;wholesale&quot;</span>,
                 <span class="string">&quot;bag&quot;</span>,
                 <span class="string">&quot;marketplace&quot;</span>,
@@ -341,8 +341,8 @@
                 <span class="string">&quot;newsagent&quot;</span>,
                 <span class="string">&quot;general&quot;</span>,
             ],
-            <span class="ident">AmenityType::Supermarket</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;supermarket&quot;</span>, <span class="string">&quot;greengrocer&quot;</span>],
-            <span class="ident">AmenityType::Tourism</span> =&gt; <span class="macro">vec!</span>[
+            AmenityType::Supermarket =&gt; <span class="macro">vec!</span>[<span class="string">&quot;supermarket&quot;</span>, <span class="string">&quot;greengrocer&quot;</span>],
+            AmenityType::Tourism =&gt; <span class="macro">vec!</span>[
                 <span class="string">&quot;gallery&quot;</span>,
                 <span class="string">&quot;museum&quot;</span>,
                 <span class="string">&quot;zoo&quot;</span>,
@@ -350,33 +350,33 @@
                 <span class="string">&quot;theme_park&quot;</span>,
                 <span class="string">&quot;aquarium&quot;</span>,
             ],
-            <span class="ident">AmenityType::University</span> =&gt; <span class="macro">vec!</span>[<span class="string">&quot;college&quot;</span>, <span class="string">&quot;university&quot;</span>],
+            AmenityType::University =&gt; <span class="macro">vec!</span>[<span class="string">&quot;college&quot;</span>, <span class="string">&quot;university&quot;</span>],
         }
     }
 
-    <span class="doccomment">/// All types of amenities, in alphabetical order.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">AmenityType</span><span class="op">&gt;</span> {
-        <span class="ident">AmenityType::iter</span>().<span class="ident">collect</span>()
+    <span class="doccomment">/// All types of amenities, in alphabetical order.
+    </span><span class="kw">pub fn </span>all() -&gt; Vec&lt;AmenityType&gt; {
+        AmenityType::iter().collect()
     }
 
-    <span class="doccomment">/// Categorize an OSM amenity tag.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">categorize</span>(<span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">AmenityType</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">at</span> <span class="kw">in</span> <span class="ident">AmenityType::all</span>() {
-            <span class="kw">if</span> <span class="ident">at</span>.<span class="ident">types</span>().<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>) {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">at</span>);
+    <span class="doccomment">/// Categorize an OSM amenity tag.
+    </span><span class="kw">pub fn </span>categorize(a: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;AmenityType&gt; {
+        <span class="kw">for </span>at <span class="kw">in </span>AmenityType::all() {
+            <span class="kw">if </span>at.types().contains(<span class="kw-2">&amp;</span>a) {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(at);
             }
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">AreaType</span> {
-    <span class="ident">Park</span>,
-    <span class="ident">Water</span>,
-    <span class="ident">Island</span>,
-    <span class="doccomment">/// Not from OSM. A user-specified area to focus on.</span>
-    <span class="ident">StudyArea</span>,
+<span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>AreaType {
+    Park,
+    Water,
+    Island,
+    <span class="doccomment">/// Not from OSM. A user-specified area to focus on.
+    </span>StudyArea,
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="raw_map" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="raw_map" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

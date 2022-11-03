@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/route_planner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>route_planner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/route_planner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>route_planner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -419,420 +419,420 @@
 <span id="419">419</span>
 <span id="420">420</span>
 <span id="421">421</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{
-    <span class="ident">DrawSimpleRoadLabels</span>, <span class="ident">InputWaypoints</span>, <span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>, <span class="ident">WaypointID</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Duration, Polygon};
+<span class="kw">use </span>map_gui::tools::{
+    DrawSimpleRoadLabels, InputWaypoints, TripManagement, TripManagementState, WaypointID,
 };
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathV2</span>, <span class="ident">PathfinderCache</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
-<span class="kw">use</span> <span class="ident">widgetry::mapspace::World</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">RoundedF64</span>, <span class="ident">Spinner</span>,
-    <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Toggle</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>map_model::{PathV2, PathfinderCache};
+<span class="kw">use </span>synthpop::{TripEndpoint, TripMode};
+<span class="kw">use </span>widgetry::mapspace::World;
+<span class="kw">use </span>widgetry::{
+    Color, Drawable, EventCtx, GeomBatch, GfxCtx, Image, Line, Outcome, Panel, RoundedF64, Spinner,
+    State, TextExt, Toggle, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components</span>::{<span class="ident">AppwidePanel</span>, <span class="ident">Mode</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">Transition</span>};
+<span class="kw">use </span><span class="kw">crate</span>::components::{AppwidePanel, Mode};
+<span class="kw">use crate</span>::{colors, App, Transition};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoutePlanner</span> {
-    <span class="ident">appwide_panel</span>: <span class="ident">AppwidePanel</span>,
-    <span class="ident">left_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">waypoints</span>: <span class="ident">InputWaypoints</span>,
-    <span class="ident">files</span>: <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="ident">RoutePlanner</span><span class="op">&gt;</span>,
-    <span class="ident">world</span>: <span class="ident">World</span><span class="op">&lt;</span><span class="ident">WaypointID</span><span class="op">&gt;</span>,
-    <span class="ident">show_main_roads</span>: <span class="ident">Drawable</span>,
-    <span class="ident">draw_routes</span>: <span class="ident">Drawable</span>,
-    <span class="comment">// TODO We could save the no-filter variations map-wide</span>
-    <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache</span>,
+<span class="kw">pub struct </span>RoutePlanner {
+    appwide_panel: AppwidePanel,
+    left_panel: Panel,
+    waypoints: InputWaypoints,
+    files: TripManagement&lt;App, RoutePlanner&gt;,
+    world: World&lt;WaypointID&gt;,
+    show_main_roads: Drawable,
+    draw_routes: Drawable,
+    <span class="comment">// TODO We could save the no-filter variations map-wide
+    </span>pathfinder_cache: PathfinderCache,
 }
 
-<span class="kw">impl</span> <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RoutePlanner</span> {
-    <span class="kw">fn</span> <span class="ident">mut_files</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">App</span>, <span class="self">Self</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">files</span>
+<span class="kw">impl </span>TripManagementState&lt;App&gt; <span class="kw">for </span>RoutePlanner {
+    <span class="kw">fn </span>mut_files(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>TripManagement&lt;App, <span class="self">Self</span>&gt; {
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.files
     }
 
-    <span class="kw">fn</span> <span class="ident">app_session_current_trip_name</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">current_trip_name</span>
+    <span class="kw">fn </span>app_session_current_trip_name(app: <span class="kw-2">&amp;mut </span>App) -&gt; <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;String&gt; {
+        <span class="kw-2">&amp;mut </span>app.per_map.current_trip_name
     }
 
-    <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">waypoints</span>
-            .<span class="ident">overwrite</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>sync_from_file_management(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+        <span class="self">self</span>.waypoints
+            .overwrite(app, <span class="self">self</span>.files.current.waypoints.clone());
+        <span class="self">self</span>.update_everything(ctx, app);
     }
 }
 
-<span class="kw">impl</span> <span class="ident">RoutePlanner</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_road_labels</span>.<span class="ident">is_none</span>() {
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_road_labels</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">DrawSimpleRoadLabels::all_roads</span>(
-                <span class="ident">ctx</span>,
-                <span class="ident">app</span>,
-                <span class="ident">colors::ROAD_LABEL</span>,
+<span class="kw">impl </span>RoutePlanner {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">if </span>app.per_map.draw_all_road_labels.is_none() {
+            app.per_map.draw_all_road_labels = <span class="prelude-val">Some</span>(DrawSimpleRoadLabels::all_roads(
+                ctx,
+                app,
+                colors::ROAD_LABEL,
             ));
         }
 
-        <span class="comment">// Fade all neighbourhood interiors, so it&#39;s very clear when a route cuts through</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">partitioning</span>().<span class="ident">all_neighbourhoods</span>().<span class="ident">values</span>() {
-            <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+        <span class="comment">// Fade all neighbourhood interiors, so it&#39;s very clear when a route cuts through
+        </span><span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">for </span>info <span class="kw">in </span>app.partitioning().all_neighbourhoods().values() {
+            batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rp</span> <span class="op">=</span> <span class="ident">RoutePlanner</span> {
-            <span class="ident">appwide_panel</span>: <span class="ident">AppwidePanel::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">Mode::RoutePlanner</span>),
-            <span class="ident">left_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">waypoints</span>: <span class="ident">InputWaypoints::new_max_2</span>(<span class="ident">app</span>),
-            <span class="ident">files</span>: <span class="ident">TripManagement::new</span>(<span class="ident">app</span>),
-            <span class="ident">world</span>: <span class="ident">World::unbounded</span>(),
-            <span class="ident">show_main_roads</span>: <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>),
-            <span class="ident">draw_routes</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">pathfinder_cache</span>: <span class="ident">PathfinderCache::new</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>rp = RoutePlanner {
+            appwide_panel: AppwidePanel::new(ctx, app, Mode::RoutePlanner),
+            left_panel: Panel::empty(ctx),
+            waypoints: InputWaypoints::new_max_2(app),
+            files: TripManagement::new(app),
+            world: World::unbounded(),
+            show_main_roads: ctx.upload(batch),
+            draw_routes: Drawable::empty(ctx),
+            pathfinder_cache: PathfinderCache::new(),
         };
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current_name</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">current_trip_name</span> {
-            <span class="ident">rp</span>.<span class="ident">files</span>.<span class="ident">set_current</span>(<span class="ident">current_name</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(current_name) = <span class="kw-2">&amp;</span>app.per_map.current_trip_name {
+            rp.files.set_current(current_name);
         }
-        <span class="ident">rp</span>.<span class="ident">sync_from_file_management</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        rp.sync_from_file_management(ctx, app);
 
-        <span class="ident">Box::new</span>(<span class="ident">rp</span>)
+        Box::new(rp)
     }
 
-    <span class="comment">// Updates the panel and draw_routes</span>
-    <span class="kw">fn</span> <span class="ident">update_everything</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
-        <span class="kw">let</span> <span class="ident">results_widget</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recalculate_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="comment">// Updates the panel and draw_routes
+    </span><span class="kw">fn </span>update_everything(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+        <span class="self">self</span>.files.autosave(app);
+        <span class="kw">let </span>results_widget = <span class="self">self</span>.recalculate_paths(ctx, app);
 
-        <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Plan a route&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Widget::horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
-                <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>).<span class="ident">named</span>(<span class="string">&quot;waypoints&quot;</span>),
+        <span class="kw">let </span>contents = Widget::col(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Plan a route&quot;</span>).small_heading().into_widget(ctx),
+            Widget::col(<span class="macro">vec!</span>[
+                <span class="self">self</span>.files.get_panel_widget(ctx),
+                Widget::horiz_separator(ctx, <span class="number">1.0</span>),
+                <span class="self">self</span>.waypoints.get_panel_widget(ctx).named(<span class="string">&quot;waypoints&quot;</span>),
             ]),
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-                <span class="ident">Widget::nothing</span>()
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Slow-down factor for main roads:&quot;</span>)
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                            .<span class="ident">centered_vert</span>(),
-                        <span class="ident">Spinner::f64_widget</span>(
-                            <span class="ident">ctx</span>,
+            <span class="kw">if </span><span class="self">self</span>.waypoints.get_waypoints().len() &lt; <span class="number">2 </span>{
+                Widget::nothing()
+            } <span class="kw">else </span>{
+                Widget::col(<span class="macro">vec!</span>[
+                    Widget::row(<span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;Slow-down factor for main roads:&quot;</span>)
+                            .into_widget(ctx)
+                            .centered_vert(),
+                        Spinner::f64_widget(
+                            ctx,
                             <span class="string">&quot;main road penalty&quot;</span>,
                             (<span class="number">1.0</span>, <span class="number">10.0</span>),
-                            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>,
+                            app.session.main_road_penalty,
                             <span class="number">0.5</span>,
                         ),
-                        <span class="ident">ctx</span>.<span class="ident">style</span>()
-                            .<span class="ident">btn_plain</span>
-                            .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/help.svg&quot;</span>)
-                            .<span class="ident">tooltip</span>(
+                        ctx.style()
+                            .btn_plain
+                            .icon(<span class="string">&quot;system/assets/tools/help.svg&quot;</span>)
+                            .tooltip(
                                 <span class="string">&quot;Increase to see how drivers may try to detour in heavy traffic&quot;</span>,
                             )
-                            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;penalty instructions&quot;</span>)
-                            .<span class="ident">align_right</span>(),
+                            .build_widget(ctx, <span class="string">&quot;penalty instructions&quot;</span>)
+                            .align_right(),
                     ]),
-                    <span class="ident">Line</span>(<span class="string">&quot;1 means free-flow traffic conditions&quot;</span>)
-                        .<span class="ident">secondary</span>()
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    Line(<span class="string">&quot;1 means free-flow traffic conditions&quot;</span>)
+                        .secondary()
+                        .into_widget(ctx),
                 ])
             },
-            <span class="comment">// Invisible separator</span>
-            <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">Color::CLEAR</span>, <span class="ident">Polygon::rectangle</span>(<span class="number">0.1</span>, <span class="number">30.0</span>))]).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">results_widget</span>.<span class="ident">named</span>(<span class="string">&quot;results&quot;</span>),
+            <span class="comment">// Invisible separator
+            </span>GeomBatch::from(<span class="macro">vec!</span>[(Color::CLEAR, Polygon::rectangle(<span class="number">0.1</span>, <span class="number">30.0</span>))]).into_widget(ctx),
+            results_widget.named(<span class="string">&quot;results&quot;</span>),
         ]);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panel</span> <span class="op">=</span>
-            <span class="ident"><span class="kw">crate</span>::components::LeftPanel::right_of_proposals</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">appwide_panel</span>, <span class="ident">contents</span>)
-                <span class="comment">// Hovering on waypoint cards</span>
-                .<span class="ident">ignore_initial_events</span>()
-                .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="ident">panel</span>.<span class="ident">restore</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">left_panel</span>);
-        <span class="self">self</span>.<span class="ident">left_panel</span> <span class="op">=</span> <span class="ident">panel</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>panel =
+            <span class="kw">crate</span>::components::LeftPanel::right_of_proposals(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.appwide_panel, contents)
+                <span class="comment">// Hovering on waypoint cards
+                </span>.ignore_initial_events()
+                .build(ctx);
+        panel.restore(ctx, <span class="kw-2">&amp;</span><span class="self">self</span>.left_panel);
+        <span class="self">self</span>.left_panel = panel;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">world</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>, <span class="number">0</span>);
-        <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
-        <span class="ident">world</span>.<span class="ident">rebuilt_during_drag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">world</span>);
-        <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">world</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>world = World::bounded(app.per_map.map.get_bounds());
+        <span class="self">self</span>.waypoints.rebuild_world(ctx, <span class="kw-2">&amp;mut </span>world, |x| x, <span class="number">0</span>);
+        world.initialize_hover(ctx);
+        world.rebuilt_during_drag(<span class="kw-2">&amp;</span><span class="self">self</span>.world);
+        <span class="self">self</span>.world = world;
     }
 
-    <span class="comment">// Called when waypoints changed, but the number has stayed the same. Aka, the common case of a</span>
-    <span class="comment">// waypoint being dragged. Does less work for speed.</span>
-    <span class="kw">fn</span> <span class="ident">update_minimal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">autosave</span>(<span class="ident">app</span>);
-        <span class="kw">let</span> <span class="ident">results_widget</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">recalculate_paths</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="comment">// Called when waypoints changed, but the number has stayed the same. Aka, the common case of a
+    // waypoint being dragged. Does less work for speed.
+    </span><span class="kw">fn </span>update_minimal(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+        <span class="self">self</span>.files.autosave(app);
+        <span class="kw">let </span>results_widget = <span class="self">self</span>.recalculate_paths(ctx, app);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">world</span> <span class="op">=</span> <span class="ident">World::bounded</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">rebuild_world</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;mut</span> <span class="ident">world</span>, <span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>, <span class="number">0</span>);
-        <span class="ident">world</span>.<span class="ident">initialize_hover</span>(<span class="ident">ctx</span>);
-        <span class="ident">world</span>.<span class="ident">rebuilt_during_drag</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">world</span>);
-        <span class="self">self</span>.<span class="ident">world</span> <span class="op">=</span> <span class="ident">world</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>world = World::bounded(app.per_map.map.get_bounds());
+        <span class="self">self</span>.waypoints.rebuild_world(ctx, <span class="kw-2">&amp;mut </span>world, |x| x, <span class="number">0</span>);
+        world.initialize_hover(ctx);
+        world.rebuilt_during_drag(<span class="kw-2">&amp;</span><span class="self">self</span>.world);
+        <span class="self">self</span>.world = world;
 
-        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;results&quot;</span>, <span class="ident">results_widget</span>);
+        <span class="self">self</span>.left_panel.replace(ctx, <span class="string">&quot;results&quot;</span>, results_widget);
 
-        <span class="comment">// TODO This is the most expensive part. While we&#39;re dragging, can we just fade out the</span>
-        <span class="comment">// cards or de-emphasize them somehow, and only do the recalculation when done?</span>
-        <span class="kw">let</span> <span class="ident">waypoints_widget</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_panel_widget</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;waypoints&quot;</span>, <span class="ident">waypoints_widget</span>);
+        <span class="comment">// TODO This is the most expensive part. While we&#39;re dragging, can we just fade out the
+        // cards or de-emphasize them somehow, and only do the recalculation when done?
+        </span><span class="kw">let </span>waypoints_widget = <span class="self">self</span>.waypoints.get_panel_widget(ctx);
+        <span class="self">self</span>.left_panel.replace(ctx, <span class="string">&quot;waypoints&quot;</span>, waypoints_widget);
     }
 
-    <span class="comment">// Returns a widget to display</span>
-    <span class="kw">fn</span> <span class="ident">recalculate_paths</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span> {
-            <span class="self">self</span>.<span class="ident">draw_routes</span> <span class="op">=</span> <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>);
-            <span class="kw">return</span> <span class="ident">Widget::nothing</span>();
+    <span class="comment">// Returns a widget to display
+    </span><span class="kw">fn </span>recalculate_paths(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">if </span><span class="self">self</span>.waypoints.get_waypoints().len() &lt; <span class="number">2 </span>{
+            <span class="self">self</span>.draw_routes = Drawable::empty(ctx);
+            <span class="kw">return </span>Widget::nothing();
         }
 
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PathV2</span>, <span class="ident">Color</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>paths: Vec&lt;(PathV2, Color)&gt; = Vec::new();
 
-        <span class="kw">let</span> <span class="ident">driving_before_changes_time</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">routing_params_before_changes</span>.<span class="ident">clone</span>();
-            <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
+        <span class="kw">let </span>driving_before_changes_time = {
+            <span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
+            <span class="kw">let </span><span class="kw-2">mut </span>params = app.per_map.routing_params_before_changes.clone();
+            params.main_road_penalty = app.session.main_road_penalty;
 
-            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                        <span class="self">self</span>.<span class="ident">pathfinder_cache</span>
-                            .<span class="ident">pathfind_with_params</span>(<span class="ident">map</span>, <span class="ident">req</span>, <span class="ident">params</span>.<span class="ident">clone</span>())
+            <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.waypoints.get_waypoints().windows(<span class="number">2</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = TripEndpoint::path_req(pair[<span class="number">0</span>], pair[<span class="number">1</span>], TripMode::Drive, map)
+                    .and_then(|req| {
+                        <span class="self">self</span>.pathfinder_cache
+                            .pathfind_with_params(map, req, params.clone())
                     })
                 {
-                    <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_cost</span>();
-                    <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BEFORE</span>));
+                    total_time += path.get_cost();
+                    paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE));
                 }
             }
 
-            <span class="ident">total_time</span>
+            total_time
         };
 
-        <span class="comment">// The route respecting the filters</span>
-        <span class="kw">let</span> <span class="ident">driving_after_changes_time</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
-            <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
-            <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
+        <span class="comment">// The route respecting the filters
+        </span><span class="kw">let </span>driving_after_changes_time = {
+            <span class="kw">let </span><span class="kw-2">mut </span>params = map.routing_params().clone();
+            app.edits().update_routing_params(<span class="kw-2">&amp;mut </span>params);
+            params.main_road_penalty = app.session.main_road_penalty;
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">paths_after</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Drive</span>, <span class="ident">map</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                        <span class="self">self</span>.<span class="ident">pathfinder_cache</span>
-                            .<span class="ident">pathfind_with_params</span>(<span class="ident">map</span>, <span class="ident">req</span>, <span class="ident">params</span>.<span class="ident">clone</span>())
+            <span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
+            <span class="kw">let </span><span class="kw-2">mut </span>paths_after = Vec::new();
+            <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.waypoints.get_waypoints().windows(<span class="number">2</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = TripEndpoint::path_req(pair[<span class="number">0</span>], pair[<span class="number">1</span>], TripMode::Drive, map)
+                    .and_then(|req| {
+                        <span class="self">self</span>.pathfinder_cache
+                            .pathfind_with_params(map, req, params.clone())
                     })
                 {
-                    <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_cost</span>();
-                    <span class="ident">paths_after</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_AFTER</span>));
+                    total_time += path.get_cost();
+                    paths_after.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_AFTER));
                 }
             }
-            <span class="comment">// To simplify colors, don&#39;t draw this path when it&#39;s the same as the baseline</span>
-            <span class="kw">if</span> <span class="ident">total_time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">driving_before_changes_time</span> {
-                <span class="ident">paths</span>.<span class="ident">append</span>(<span class="kw-2">&amp;mut</span> <span class="ident">paths_after</span>);
+            <span class="comment">// To simplify colors, don&#39;t draw this path when it&#39;s the same as the baseline
+            </span><span class="kw">if </span>total_time != driving_before_changes_time {
+                paths.append(<span class="kw-2">&amp;mut </span>paths_after);
             }
 
-            <span class="ident">total_time</span>
+            total_time
         };
 
-        <span class="kw">let</span> <span class="ident">biking_time</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span> {
-            <span class="comment">// No custom params, but don&#39;t use the map&#39;s built-in bike CH. Changes to one-way</span>
-            <span class="comment">// streets haven&#39;t been reflected, and it&#39;s cheap enough to use Dijkstra&#39;s for</span>
-            <span class="comment">// calculating one path at a time anyway.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Bike</span>, <span class="ident">map</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                        <span class="self">self</span>.<span class="ident">pathfinder_cache</span>.<span class="ident">pathfind_with_params</span>(
-                            <span class="ident">map</span>,
-                            <span class="ident">req</span>,
-                            <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
+        <span class="kw">let </span>biking_time = <span class="kw">if </span>app.session.show_walking_cycling_routes {
+            <span class="comment">// No custom params, but don&#39;t use the map&#39;s built-in bike CH. Changes to one-way
+            // streets haven&#39;t been reflected, and it&#39;s cheap enough to use Dijkstra&#39;s for
+            // calculating one path at a time anyway.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
+            <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.waypoints.get_waypoints().windows(<span class="number">2</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = TripEndpoint::path_req(pair[<span class="number">0</span>], pair[<span class="number">1</span>], TripMode::Bike, map)
+                    .and_then(|req| {
+                        <span class="self">self</span>.pathfinder_cache.pathfind_with_params(
+                            map,
+                            req,
+                            map.routing_params().clone(),
                         )
                     })
                 {
-                    <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_cost</span>();
-                    <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BIKE</span>));
+                    total_time += path.get_cost();
+                    paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_BIKE));
                 }
             }
-            <span class="ident">total_time</span>
-        } <span class="kw">else</span> {
-            <span class="ident">Duration::ZERO</span>
+            total_time
+        } <span class="kw">else </span>{
+            Duration::ZERO
         };
 
-        <span class="kw">let</span> <span class="ident">walking_time</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span> {
-            <span class="comment">// Same as above -- don&#39;t use the built-in CH.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;
-            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">TripEndpoint::path_req</span>(<span class="ident">pair</span>[<span class="number">0</span>], <span class="ident">pair</span>[<span class="number">1</span>], <span class="ident">TripMode::Walk</span>, <span class="ident">map</span>)
-                    .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> {
-                        <span class="self">self</span>.<span class="ident">pathfinder_cache</span>.<span class="ident">pathfind_with_params</span>(
-                            <span class="ident">map</span>,
-                            <span class="ident">req</span>,
-                            <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>(),
+        <span class="kw">let </span>walking_time = <span class="kw">if </span>app.session.show_walking_cycling_routes {
+            <span class="comment">// Same as above -- don&#39;t use the built-in CH.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>total_time = Duration::ZERO;
+            <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.waypoints.get_waypoints().windows(<span class="number">2</span>) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(path) = TripEndpoint::path_req(pair[<span class="number">0</span>], pair[<span class="number">1</span>], TripMode::Walk, map)
+                    .and_then(|req| {
+                        <span class="self">self</span>.pathfinder_cache.pathfind_with_params(
+                            map,
+                            req,
+                            map.routing_params().clone(),
                         )
                     })
                 {
-                    <span class="ident">total_time</span> <span class="op">+</span><span class="op">=</span> <span class="ident">path</span>.<span class="ident">get_cost</span>();
-                    <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">path</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_WALK</span>));
+                    total_time += path.get_cost();
+                    paths.push((path, <span class="kw-2">*</span>colors::PLAN_ROUTE_WALK));
                 }
             }
-            <span class="ident">total_time</span>
-        } <span class="kw">else</span> {
-            <span class="ident">Duration::ZERO</span>
+            total_time
+        } <span class="kw">else </span>{
+            Duration::ZERO
         };
 
-        <span class="self">self</span>.<span class="ident">draw_routes</span> <span class="op">=</span> <span class="ident">map_gui::tools::draw_overlapping_paths</span>(<span class="ident">app</span>, <span class="ident">paths</span>)
-            .<span class="ident">unzoomed</span>
-            .<span class="ident">upload</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.draw_routes = map_gui::tools::draw_overlapping_paths(app, paths)
+            .unzoomed
+            .upload(ctx);
 
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="comment">// TODO Circle icons</span>
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
-                    .<span class="ident">color</span>(<span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BEFORE</span>)
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="string">&quot;Driving before any changes&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Line</span>(<span class="ident">driving_before_changes_time</span>.<span class="ident">to_rounded_string</span>(<span class="number">0</span>))
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">align_right</span>(),
+        Widget::col(<span class="macro">vec!</span>[
+            <span class="comment">// TODO Circle icons
+            </span>Widget::row(<span class="macro">vec!</span>[
+                Image::from_path(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
+                    .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE)
+                    .into_widget(ctx),
+                <span class="string">&quot;Driving before any changes&quot;</span>.text_widget(ctx),
+                Line(driving_before_changes_time.to_rounded_string(<span class="number">0</span>))
+                    .into_widget(ctx)
+                    .align_right(),
             ]),
-            <span class="kw">if</span> <span class="ident">driving_before_changes_time</span> <span class="op">==</span> <span class="ident">driving_after_changes_time</span> {
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
-                        .<span class="ident">color</span>(<span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BEFORE</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="string">&quot;Driving after changes&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="string">&quot;Same&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">align_right</span>(),
+            <span class="kw">if </span>driving_before_changes_time == driving_after_changes_time {
+                Widget::row(<span class="macro">vec!</span>[
+                    Image::from_path(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
+                        .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_BEFORE)
+                        .into_widget(ctx),
+                    <span class="string">&quot;Driving after changes&quot;</span>.text_widget(ctx),
+                    <span class="string">&quot;Same&quot;</span>.text_widget(ctx).align_right(),
                 ])
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
-                        .<span class="ident">color</span>(<span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_AFTER</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="string">&quot;Driving after changes&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">Line</span>(<span class="ident">driving_after_changes_time</span>.<span class="ident">to_rounded_string</span>(<span class="number">0</span>))
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">align_right</span>(),
+            } <span class="kw">else </span>{
+                Widget::row(<span class="macro">vec!</span>[
+                    Image::from_path(<span class="string">&quot;system/assets/meters/car.svg&quot;</span>)
+                        .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_AFTER)
+                        .into_widget(ctx),
+                    <span class="string">&quot;Driving after changes&quot;</span>.text_widget(ctx),
+                    Line(driving_after_changes_time.to_rounded_string(<span class="number">0</span>))
+                        .into_widget(ctx)
+                        .align_right(),
                 ])
             },
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span> {
-                <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="comment">// TODO Is the tooltip that important? &quot;This cycling route doesn&#39;t avoid</span>
-                    <span class="comment">// high-stress roads or hills, and assumes an average 10mph pace&quot;</span>
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
-                            .<span class="ident">color</span>(<span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_BIKE</span>)
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="string">&quot;Cycling&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Line</span>(<span class="ident">biking_time</span>.<span class="ident">to_rounded_string</span>(<span class="number">0</span>))
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                            .<span class="ident">align_right</span>(),
+            <span class="kw">if </span>app.session.show_walking_cycling_routes {
+                Widget::col(<span class="macro">vec!</span>[
+                    <span class="comment">// TODO Is the tooltip that important? &quot;This cycling route doesn&#39;t avoid
+                    // high-stress roads or hills, and assumes an average 10mph pace&quot;
+                    </span>Widget::row(<span class="macro">vec!</span>[
+                        Image::from_path(<span class="string">&quot;system/assets/meters/bike.svg&quot;</span>)
+                            .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_BIKE)
+                            .into_widget(ctx),
+                        <span class="string">&quot;Cycling&quot;</span>.text_widget(ctx),
+                        Line(biking_time.to_rounded_string(<span class="number">0</span>))
+                            .into_widget(ctx)
+                            .align_right(),
                     ]),
-                    <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>)
-                            .<span class="ident">color</span>(<span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_WALK</span>)
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="string">&quot;Walking&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Line</span>(<span class="ident">walking_time</span>.<span class="ident">to_rounded_string</span>(<span class="number">0</span>))
-                            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                            .<span class="ident">align_right</span>(),
+                    Widget::row(<span class="macro">vec!</span>[
+                        Image::from_path(<span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>)
+                            .color(<span class="kw-2">*</span>colors::PLAN_ROUTE_WALK)
+                            .into_widget(ctx),
+                        <span class="string">&quot;Walking&quot;</span>.text_widget(ctx),
+                        Line(walking_time.to_rounded_string(<span class="number">0</span>))
+                            .into_widget(ctx)
+                            .align_right(),
                     ]),
                 ])
-            } <span class="kw">else</span> {
-                <span class="ident">Widget::nothing</span>()
+            } <span class="kw">else </span>{
+                Widget::nothing()
             },
-            <span class="comment">// TODO Tooltip to explain how these routes remain direct?</span>
-            <span class="ident">Toggle::checkbox</span>(
-                <span class="ident">ctx</span>,
+            <span class="comment">// TODO Tooltip to explain how these routes remain direct?
+            </span>Toggle::checkbox(
+                ctx,
                 <span class="string">&quot;Show walking &amp; cycling route&quot;</span>,
                 <span class="prelude-val">None</span>,
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span>,
+                app.session.show_walking_cycling_routes,
             ),
         ])
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RoutePlanner</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span>
-            <span class="self">self</span>.<span class="ident">appwide_panel</span>
-                .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw-2">&amp;</span><span class="ident"><span class="kw">crate</span>::save::PreserveState::Route</span>, <span class="ident">help</span>)
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>RoutePlanner {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) =
+            <span class="self">self</span>.appwide_panel
+                .event(ctx, app, <span class="kw-2">&amp;</span><span class="kw">crate</span>::save::PreserveState::Route, help)
         {
-            <span class="kw">return</span> <span class="ident">t</span>;
+            <span class="kw">return </span>t;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">session</span>
-            .<span class="ident">layers</span>
-            .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">Mode::RoutePlanner</span>, <span class="prelude-val">None</span>)
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = app
+            .session
+            .layers
+            .event(ctx, <span class="kw-2">&amp;</span>app.cs, Mode::RoutePlanner, <span class="prelude-val">None</span>)
         {
-            <span class="kw">return</span> <span class="ident">t</span>;
+            <span class="kw">return </span>t;
         }
 
-        <span class="kw">let</span> <span class="ident">panel_outcome</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">on_click</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">x</span>) {
-                <span class="comment">// Bit hacky...</span>
-                <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">t</span>, <span class="ident">Transition::Keep</span>) {
-                    <span class="self">self</span>.<span class="ident">sync_from_file_management</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">let </span>panel_outcome = <span class="self">self</span>.left_panel.event(ctx);
+        <span class="kw">if let </span>Outcome::Clicked(<span class="kw-2">ref </span>x) = panel_outcome {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(t) = <span class="self">self</span>.files.on_click(ctx, app, x) {
+                <span class="comment">// Bit hacky...
+                </span><span class="kw">if </span><span class="macro">matches!</span>(t, Transition::Keep) {
+                    <span class="self">self</span>.sync_from_file_management(ctx, app);
                 }
-                <span class="kw">return</span> <span class="ident">t</span>;
+                <span class="kw">return </span>t;
             }
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;penalty instructions&quot;</span> {
-                <span class="kw">return</span> <span class="ident">Transition::Keep</span>;
+            <span class="kw">if </span>x == <span class="string">&quot;penalty instructions&quot; </span>{
+                <span class="kw">return </span>Transition::Keep;
             }
-            <span class="comment">// Might be for waypoints</span>
+            <span class="comment">// Might be for waypoints
+        </span>}
+
+        <span class="kw">if let </span>Outcome::Changed(<span class="kw-2">ref </span>x) = panel_outcome {
+            <span class="kw">if </span>x == <span class="string">&quot;main road penalty&quot; </span>{
+                app.session.main_road_penalty =
+                    <span class="self">self</span>.left_panel.spinner::&lt;RoundedF64&gt;(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
+                <span class="self">self</span>.update_everything(ctx, app);
+            } <span class="kw">else if </span>x == <span class="string">&quot;Show walking &amp; cycling route&quot; </span>{
+                app.session.show_walking_cycling_routes =
+                    <span class="self">self</span>.left_panel.is_checked(<span class="string">&quot;Show walking &amp; cycling route&quot;</span>);
+                <span class="self">self</span>.update_everything(ctx, app);
+            }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Changed</span>(<span class="kw-2">ref</span> <span class="ident">x</span>) <span class="op">=</span> <span class="ident">panel_outcome</span> {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;main road penalty&quot;</span> {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">spinner</span>::<span class="op">&lt;</span><span class="ident">RoundedF64</span><span class="op">&gt;</span>(<span class="string">&quot;main road penalty&quot;</span>).<span class="number">0</span>;
-                <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Show walking &amp; cycling route&quot;</span> {
-                <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">show_walking_cycling_routes</span> <span class="op">=</span>
-                    <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">is_checked</span>(<span class="string">&quot;Show walking &amp; cycling route&quot;</span>);
-                <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            }
-        }
-
-        <span class="kw">let</span> <span class="ident">waypoints_before</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>();
-        <span class="kw">if</span> <span class="self">self</span>
-            .<span class="ident">waypoints</span>
-            .<span class="ident">event</span>(<span class="ident">app</span>, <span class="ident">panel_outcome</span>, <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">event</span>(<span class="ident">ctx</span>))
+        <span class="kw">let </span>waypoints_before = <span class="self">self</span>.waypoints.get_waypoints().len();
+        <span class="kw">if </span><span class="self">self
+            </span>.waypoints
+            .event(app, panel_outcome, <span class="self">self</span>.world.event(ctx))
         {
-            <span class="comment">// Sync from waypoints to file management</span>
-            <span class="comment">// TODO Maaaybe this directly live in the InputWaypoints system?</span>
-            <span class="self">self</span>.<span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>();
+            <span class="comment">// Sync from waypoints to file management
+            // TODO Maaaybe this directly live in the InputWaypoints system?
+            </span><span class="self">self</span>.files.current.waypoints = <span class="self">self</span>.waypoints.get_waypoints();
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">get_waypoints</span>().<span class="ident">len</span>() <span class="op">==</span> <span class="ident">waypoints_before</span> {
-                <span class="self">self</span>.<span class="ident">update_minimal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">update_everything</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="kw">if </span><span class="self">self</span>.waypoints.get_waypoints().len() == waypoints_before {
+                <span class="self">self</span>.update_minimal(ctx, app);
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.update_everything(ctx, app);
             }
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">appwide_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">left_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">layers</span>.<span class="ident">draw</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.appwide_panel.draw(g);
+        <span class="self">self</span>.left_panel.draw(g);
+        app.session.layers.draw(g, app);
 
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">show_main_roads</span>);
-        <span class="self">self</span>.<span class="ident">world</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">draw_routes</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_road_labels</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>().<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_poi_icons</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.show_main_roads);
+        <span class="self">self</span>.world.draw(g);
+        <span class="self">self</span>.draw_routes.draw(g);
+        app.per_map.draw_all_road_labels.as_ref().unwrap().draw(g);
+        app.per_map.draw_all_filters.draw(g);
+        app.per_map.draw_poi_icons.draw(g);
     }
 
-    <span class="kw">fn</span> <span class="ident">recreate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident"><span class="self">Self</span>::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
+    <span class="kw">fn </span>recreate(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="self">Self</span>::new_state(ctx, app)
     }
 }
 
-<span class="kw">fn</span> <span class="ident">help</span>() -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">fn </span>help() -&gt; Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
     <span class="macro">vec!</span>[
         <span class="string">&quot;You can test how different driving routes are affected by proposed LTNs.&quot;</span>,
         <span class="string">&quot;&quot;</span>,
@@ -841,4 +841,4 @@
     ]
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

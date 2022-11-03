@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/transit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/transit.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>transit.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../sim/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -379,386 +379,386 @@
 <span id="379">379</span>
 <span id="380">380</span>
 <span id="381">381</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">deserialize_btreemap</span>, <span class="ident">serialize_btreemap</span>};
-<span class="kw">use</span> <span class="ident">geom::Time</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">Path</span>, <span class="ident">TransitRoute</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>};
+<span class="kw">use </span>abstutil::{deserialize_btreemap, serialize_btreemap};
+<span class="kw">use </span>geom::Time;
+<span class="kw">use </span>map_model::{Map, Path, TransitRoute, TransitRouteID, TransitStopID};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sim::Ctx</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">AgentID</span>, <span class="ident">CarID</span>, <span class="ident">DrivingSimState</span>, <span class="ident">Event</span>, <span class="ident">PedestrianID</span>, <span class="ident">PersonID</span>, <span class="ident">Router</span>, <span class="ident">TripID</span>, <span class="ident">TripManager</span>,
-    <span class="ident">TripPhaseType</span>, <span class="ident">UnzoomedAgent</span>, <span class="ident">VehicleType</span>, <span class="ident">WalkingSimState</span>,
+<span class="kw">use </span><span class="kw">crate</span>::sim::Ctx;
+<span class="kw">use crate</span>::{
+    AgentID, CarID, DrivingSimState, Event, PedestrianID, PersonID, Router, TripID, TripManager,
+    TripPhaseType, UnzoomedAgent, VehicleType, WalkingSimState,
 };
 
-<span class="comment">// These index stops along a route, not stops along a single sidewalk.</span>
-<span class="kw">type</span> <span class="ident">StopIdx</span> <span class="op">=</span> <span class="ident">usize</span>;
+<span class="comment">// These index stops along a route, not stops along a single sidewalk.
+</span><span class="kw">type </span>StopIdx = usize;
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Route</span> {
-    <span class="comment">// Entry i is the path to drive to stop i. The very last path is to drive from the last step to</span>
-    <span class="comment">// the place where the vehicle vanishes.</span>
-    <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span>,
-    <span class="ident">stops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>,
-    <span class="ident">active_vehicles</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone)]
+</span><span class="kw">struct </span>Route {
+    <span class="comment">// Entry i is the path to drive to stop i. The very last path is to drive from the last step to
+    // the place where the vehicle vanishes.
+    </span>paths: Vec&lt;Path&gt;,
+    stops: Vec&lt;TransitStopID&gt;,
+    active_vehicles: BTreeSet&lt;CarID&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Bus</span> {
-    <span class="ident">car</span>: <span class="ident">CarID</span>,
-    <span class="ident">route</span>: <span class="ident">TransitRouteID</span>,
-    <span class="doccomment">/// Where does each passenger want to deboard?</span>
-    <span class="ident">passengers</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
-    <span class="ident">state</span>: <span class="ident">BusState</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone)]
+</span><span class="kw">struct </span>Bus {
+    car: CarID,
+    route: TransitRouteID,
+    <span class="doccomment">/// Where does each passenger want to deboard?
+    </span>passengers: Vec&lt;(PersonID, <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;)&gt;,
+    state: BusState,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">enum</span> <span class="ident">BusState</span> {
-    <span class="ident">DrivingToStop</span>(<span class="ident">StopIdx</span>),
-    <span class="ident">AtStop</span>(<span class="ident">StopIdx</span>),
-    <span class="comment">// Or to the end of the lane with the last stop</span>
-    <span class="ident">DrivingOffMap</span>,
-    <span class="ident">Finished</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone)]
+</span><span class="kw">enum </span>BusState {
+    DrivingToStop(StopIdx),
+    AtStop(StopIdx),
+    <span class="comment">// Or to the end of the lane with the last stop
+    </span>DrivingOffMap,
+    Finished,
 }
 
-<span class="doccomment">/// Manages public transit vehicles (buses and trains) that follow a route. The transit model is</span>
-<span class="doccomment">/// currently kind of broken, so not describing the state machine yet.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">TransitSimState</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
-    )]</span>
-    <span class="ident">buses</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">CarID</span>, <span class="ident">Bus</span><span class="op">&gt;</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
-    )]</span>
-    <span class="ident">routes</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitRouteID</span>, <span class="ident">Route</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// waiting at =&gt; (ped, route, bound for, started waiting)</span>
-    <span class="attribute">#[<span class="ident">serde</span>(
-        <span class="ident">serialize_with</span> <span class="op">=</span> <span class="string">&quot;serialize_btreemap&quot;</span>,
-        <span class="ident">deserialize_with</span> <span class="op">=</span> <span class="string">&quot;deserialize_btreemap&quot;</span>
-    )]</span>
-    <span class="ident">peds_waiting</span>:
-        <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TransitStopID</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PedestrianID</span>, <span class="ident">TransitRouteID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>, <span class="ident">Time</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Manages public transit vehicles (buses and trains) that follow a route. The transit model is
+/// currently kind of broken, so not describing the state machine yet.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>TransitSimState {
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+    </span>)]
+    </span>buses: BTreeMap&lt;CarID, Bus&gt;,
+    <span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+    </span>)]
+    </span>routes: BTreeMap&lt;TransitRouteID, Route&gt;,
+    <span class="doccomment">/// waiting at =&gt; (ped, route, bound for, started waiting)
+    </span><span class="attribute">#[serde(
+        serialize_with = <span class="string">&quot;serialize_btreemap&quot;</span>,
+        deserialize_with = <span class="string">&quot;deserialize_btreemap&quot;
+    </span>)]
+    </span>peds_waiting:
+        BTreeMap&lt;TransitStopID, Vec&lt;(PedestrianID, TransitRouteID, <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;, Time)&gt;&gt;,
 
-    <span class="ident">events</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span>,
+    events: Vec&lt;Event&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">TransitSimState</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">TransitSimState</span> {
-        <span class="comment">// Keep this filled out always so get_passengers can return &amp;Vec without a hassle</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">peds_waiting</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">for</span> <span class="ident">ts</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_transit_stops</span>().<span class="ident">keys</span>() {
-            <span class="ident">peds_waiting</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">ts</span>, <span class="ident">Vec::new</span>());
+<span class="kw">impl </span>TransitSimState {
+    <span class="kw">pub fn </span>new(map: <span class="kw-2">&amp;</span>Map) -&gt; TransitSimState {
+        <span class="comment">// Keep this filled out always so get_passengers can return &amp;Vec without a hassle
+        </span><span class="kw">let </span><span class="kw-2">mut </span>peds_waiting = BTreeMap::new();
+        <span class="kw">for </span>ts <span class="kw">in </span>map.all_transit_stops().keys() {
+            peds_waiting.insert(<span class="kw-2">*</span>ts, Vec::new());
         }
 
-        <span class="ident">TransitSimState</span> {
-            <span class="ident">buses</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">routes</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">peds_waiting</span>,
-            <span class="ident">events</span>: <span class="ident">Vec::new</span>(),
+        TransitSimState {
+            buses: BTreeMap::new(),
+            routes: BTreeMap::new(),
+            peds_waiting,
+            events: Vec::new(),
         }
     }
 
-    <span class="doccomment">/// Returns the path for the first leg.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_empty_route</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bus_route</span>: <span class="kw-2">&amp;</span><span class="ident">TransitRoute</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Path</span> {
-        <span class="self">self</span>.<span class="ident">routes</span>
-            .<span class="ident">entry</span>(<span class="ident">bus_route</span>.<span class="ident">id</span>)
-            .<span class="ident">or_insert_with</span>(<span class="op">|</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">bus_route</span>.<span class="ident">all_paths</span>(<span class="ident">map</span>) {
-                <span class="prelude-val">Ok</span>(<span class="ident">paths</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">stops</span> <span class="op">=</span> <span class="ident">bus_route</span>.<span class="ident">stops</span>.<span class="ident">clone</span>();
-                    <span class="macro">assert_eq!</span>(<span class="ident">paths</span>.<span class="ident">len</span>(), <span class="ident">stops</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>);
-                    <span class="ident">Route</span> {
-                        <span class="ident">stops</span>,
-                        <span class="ident">paths</span>,
-                        <span class="ident">active_vehicles</span>: <span class="ident">BTreeSet::new</span>(),
+    <span class="doccomment">/// Returns the path for the first leg.
+    </span><span class="kw">pub fn </span>create_empty_route(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bus_route: <span class="kw-2">&amp;</span>TransitRoute, map: <span class="kw-2">&amp;</span>Map) -&gt; Path {
+        <span class="self">self</span>.routes
+            .entry(bus_route.id)
+            .or_insert_with(|| <span class="kw">match </span>bus_route.all_paths(map) {
+                <span class="prelude-val">Ok</span>(paths) =&gt; {
+                    <span class="kw">let </span>stops = bus_route.stops.clone();
+                    <span class="macro">assert_eq!</span>(paths.len(), stops.len() + <span class="number">1</span>);
+                    Route {
+                        stops,
+                        paths,
+                        active_vehicles: BTreeSet::new(),
                     }
                 }
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">panic!</span>(<span class="string">&quot;{} wound up with bad paths: {}&quot;</span>, <span class="ident">bus_route</span>.<span class="ident">short_name</span>, <span class="ident">err</span>);
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">panic!</span>(<span class="string">&quot;{} wound up with bad paths: {}&quot;</span>, bus_route.short_name, err);
                 }
             });
 
-        <span class="self">self</span>.<span class="ident">routes</span>[<span class="kw-2">&amp;</span><span class="ident">bus_route</span>.<span class="ident">id</span>].<span class="ident">paths</span>[<span class="number">0</span>].<span class="ident">clone</span>()
+        <span class="self">self</span>.routes[<span class="kw-2">&amp;</span>bus_route.id].paths[<span class="number">0</span>].clone()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bus_created</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">bus</span>: <span class="ident">CarID</span>, <span class="ident">r</span>: <span class="ident">TransitRouteID</span>) {
-        <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>).<span class="ident">unwrap</span>();
-        <span class="ident">route</span>.<span class="ident">active_vehicles</span>.<span class="ident">insert</span>(<span class="ident">bus</span>);
-        <span class="self">self</span>.<span class="ident">buses</span>.<span class="ident">insert</span>(
-            <span class="ident">bus</span>,
-            <span class="ident">Bus</span> {
-                <span class="ident">car</span>: <span class="ident">bus</span>,
-                <span class="ident">route</span>: <span class="ident">r</span>,
-                <span class="ident">passengers</span>: <span class="ident">Vec::new</span>(),
-                <span class="ident">state</span>: <span class="ident">BusState::DrivingToStop</span>(<span class="number">0</span>),
+    <span class="kw">pub fn </span>bus_created(<span class="kw-2">&amp;mut </span><span class="self">self</span>, bus: CarID, r: TransitRouteID) {
+        <span class="kw">let </span>route = <span class="self">self</span>.routes.get_mut(<span class="kw-2">&amp;</span>r).unwrap();
+        route.active_vehicles.insert(bus);
+        <span class="self">self</span>.buses.insert(
+            bus,
+            Bus {
+                car: bus,
+                route: r,
+                passengers: Vec::new(),
+                state: BusState::DrivingToStop(<span class="number">0</span>),
             },
         );
     }
 
-    <span class="doccomment">/// If true, the bus is idling. If false, the bus actually arrived at a border and should now</span>
-    <span class="doccomment">/// vanish.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// TODO Misnomer -- callback from Router::follow_bus_route</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bus_arrived_at_stop</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">id</span>: <span class="ident">CarID</span>,
-        <span class="ident">trips</span>: <span class="kw-2">&amp;mut</span> <span class="ident">TripManager</span>,
-        <span class="ident">walking</span>: <span class="kw-2">&amp;mut</span> <span class="ident">WalkingSimState</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ctx</span>,
-    ) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buses</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="kw">match</span> <span class="ident">bus</span>.<span class="ident">state</span> {
-            <span class="ident">BusState::DrivingToStop</span>(<span class="ident">stop_idx</span>) =&gt; {
-                <span class="ident">bus</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">BusState::AtStop</span>(<span class="ident">stop_idx</span>);
-                <span class="kw">let</span> <span class="ident">stop1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>[<span class="kw-2">&amp;</span><span class="ident">bus</span>.<span class="ident">route</span>].<span class="ident">stops</span>[<span class="ident">stop_idx</span>];
-                <span class="self">self</span>.<span class="ident">events</span>
-                    .<span class="ident">push</span>(<span class="ident">Event::BusArrivedAtStop</span>(<span class="ident">id</span>, <span class="ident">bus</span>.<span class="ident">route</span>, <span class="ident">stop1</span>));
+    <span class="doccomment">/// If true, the bus is idling. If false, the bus actually arrived at a border and should now
+    /// vanish.
+    ///
+    /// TODO Misnomer -- callback from Router::follow_bus_route
+    </span><span class="kw">pub fn </span>bus_arrived_at_stop(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        now: Time,
+        id: CarID,
+        trips: <span class="kw-2">&amp;mut </span>TripManager,
+        walking: <span class="kw-2">&amp;mut </span>WalkingSimState,
+        ctx: <span class="kw-2">&amp;mut </span>Ctx,
+    ) -&gt; bool {
+        <span class="kw">let </span><span class="kw-2">mut </span>bus = <span class="self">self</span>.buses.get_mut(<span class="kw-2">&amp;</span>id).unwrap();
+        <span class="kw">match </span>bus.state {
+            BusState::DrivingToStop(stop_idx) =&gt; {
+                bus.state = BusState::AtStop(stop_idx);
+                <span class="kw">let </span>stop1 = <span class="self">self</span>.routes[<span class="kw-2">&amp;</span>bus.route].stops[stop_idx];
+                <span class="self">self</span>.events
+                    .push(Event::BusArrivedAtStop(id, bus.route, stop1));
 
-                <span class="comment">// Deboard existing passengers.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">still_riding</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">for</span> (<span class="ident">person</span>, <span class="ident">maybe_stop2</span>) <span class="kw">in</span> <span class="ident">bus</span>.<span class="ident">passengers</span>.<span class="ident">drain</span>(..) {
-                    <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="ident">stop1</span>) <span class="op">==</span> <span class="ident">maybe_stop2</span> {
-                        <span class="ident">trips</span>.<span class="ident">person_left_bus</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">bus</span>.<span class="ident">car</span>, <span class="ident">ctx</span>);
-                        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::PassengerAlightsTransit</span>(
-                            <span class="ident">person</span>, <span class="ident">bus</span>.<span class="ident">car</span>, <span class="ident">bus</span>.<span class="ident">route</span>, <span class="ident">stop1</span>,
+                <span class="comment">// Deboard existing passengers.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>still_riding = Vec::new();
+                <span class="kw">for </span>(person, maybe_stop2) <span class="kw">in </span>bus.passengers.drain(..) {
+                    <span class="kw">if </span><span class="prelude-val">Some</span>(stop1) == maybe_stop2 {
+                        trips.person_left_bus(now, person, bus.car, ctx);
+                        <span class="self">self</span>.events.push(Event::PassengerAlightsTransit(
+                            person, bus.car, bus.route, stop1,
                         ));
-                    } <span class="kw">else</span> {
-                        <span class="ident">still_riding</span>.<span class="ident">push</span>((<span class="ident">person</span>, <span class="ident">maybe_stop2</span>));
+                    } <span class="kw">else </span>{
+                        still_riding.push((person, maybe_stop2));
                     }
                 }
-                <span class="ident">bus</span>.<span class="ident">passengers</span> <span class="op">=</span> <span class="ident">still_riding</span>;
+                bus.passengers = still_riding;
 
-                <span class="comment">// Board new passengers.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">still_waiting</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">for</span> (<span class="ident">ped</span>, <span class="ident">route</span>, <span class="ident">maybe_stop2</span>, <span class="ident">started_waiting</span>) <span class="kw">in</span>
-                    <span class="self">self</span>.<span class="ident">peds_waiting</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">stop1</span>).<span class="ident">unwrap</span>()
+                <span class="comment">// Board new passengers.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>still_waiting = Vec::new();
+                <span class="kw">for </span>(ped, route, maybe_stop2, started_waiting) <span class="kw">in
+                    </span><span class="self">self</span>.peds_waiting.remove(<span class="kw-2">&amp;</span>stop1).unwrap()
                 {
-                    <span class="kw">if</span> <span class="ident">bus</span>.<span class="ident">route</span> <span class="op">==</span> <span class="ident">route</span> {
-                        <span class="kw">let</span> (<span class="ident">trip</span>, <span class="ident">person</span>) <span class="op">=</span> <span class="ident">trips</span>.<span class="ident">ped_boarded_bus</span>(
-                            <span class="ident">now</span>,
-                            <span class="ident">ped</span>,
-                            <span class="ident">bus</span>.<span class="ident">car</span>,
-                            <span class="ident">now</span> <span class="op">-</span> <span class="ident">started_waiting</span>,
-                            <span class="ident">walking</span>,
+                    <span class="kw">if </span>bus.route == route {
+                        <span class="kw">let </span>(trip, person) = trips.ped_boarded_bus(
+                            now,
+                            ped,
+                            bus.car,
+                            now - started_waiting,
+                            walking,
                         );
-                        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::PassengerBoardsTransit</span>(
-                            <span class="ident">person</span>,
-                            <span class="ident">bus</span>.<span class="ident">car</span>,
-                            <span class="ident">bus</span>.<span class="ident">route</span>,
-                            <span class="ident">stop1</span>,
-                            <span class="ident">now</span> <span class="op">-</span> <span class="ident">started_waiting</span>,
+                        <span class="self">self</span>.events.push(Event::PassengerBoardsTransit(
+                            person,
+                            bus.car,
+                            bus.route,
+                            stop1,
+                            now - started_waiting,
                         ));
-                        <span class="comment">// TODO Recording the PathRequest for the passenger is actually hard. We</span>
-                        <span class="comment">// don&#39;t want to route directly between their first and last stop, because</span>
-                        <span class="comment">// there might be a much shorter path there. Should we record a leg per leg</span>
-                        <span class="comment">// of the transit route being followed?</span>
-                        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::TripPhaseStarting</span>(
-                            <span class="ident">trip</span>,
-                            <span class="ident">person</span>,
+                        <span class="comment">// TODO Recording the PathRequest for the passenger is actually hard. We
+                        // don&#39;t want to route directly between their first and last stop, because
+                        // there might be a much shorter path there. Should we record a leg per leg
+                        // of the transit route being followed?
+                        </span><span class="self">self</span>.events.push(Event::TripPhaseStarting(
+                            trip,
+                            person,
                             <span class="prelude-val">None</span>,
-                            <span class="ident">TripPhaseType::RidingBus</span>(<span class="ident">route</span>, <span class="ident">stop1</span>, <span class="ident">bus</span>.<span class="ident">car</span>),
+                            TripPhaseType::RidingBus(route, stop1, bus.car),
                         ));
-                        <span class="ident">bus</span>.<span class="ident">passengers</span>.<span class="ident">push</span>((<span class="ident">person</span>, <span class="ident">maybe_stop2</span>));
-                    } <span class="kw">else</span> {
-                        <span class="ident">still_waiting</span>.<span class="ident">push</span>((<span class="ident">ped</span>, <span class="ident">route</span>, <span class="ident">maybe_stop2</span>, <span class="ident">started_waiting</span>));
+                        bus.passengers.push((person, maybe_stop2));
+                    } <span class="kw">else </span>{
+                        still_waiting.push((ped, route, maybe_stop2, started_waiting));
                     }
                 }
-                <span class="self">self</span>.<span class="ident">peds_waiting</span>.<span class="ident">insert</span>(<span class="ident">stop1</span>, <span class="ident">still_waiting</span>);
-                <span class="bool-val">true</span>
-            }
-            <span class="ident">BusState::DrivingOffMap</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">routes</span>
-                    .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">bus</span>.<span class="ident">route</span>)
-                    .<span class="ident">unwrap</span>()
-                    .<span class="ident">active_vehicles</span>
-                    .<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>);
-                <span class="kw">for</span> (<span class="ident">person</span>, <span class="ident">maybe_stop2</span>) <span class="kw">in</span> <span class="ident">bus</span>.<span class="ident">passengers</span>.<span class="ident">drain</span>(..) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
+                <span class="self">self</span>.peds_waiting.insert(stop1, still_waiting);
+                <span class="bool-val">true
+            </span>}
+            BusState::DrivingOffMap =&gt; {
+                <span class="self">self</span>.routes
+                    .get_mut(<span class="kw-2">&amp;</span>bus.route)
+                    .unwrap()
+                    .active_vehicles
+                    .remove(<span class="kw-2">&amp;</span>id);
+                <span class="kw">for </span>(person, maybe_stop2) <span class="kw">in </span>bus.passengers.drain(..) {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(stop2) = maybe_stop2 {
                         <span class="macro">panic!</span>(
                             <span class="string">&quot;{} fell asleep on {} and just rode off-map, but they were supposed \
                              to hop off at {}&quot;</span>,
-                            <span class="ident">person</span>, <span class="ident">bus</span>.<span class="ident">car</span>, <span class="ident">stop2</span>
+                            person, bus.car, stop2
                         );
                     }
-                    <span class="ident">trips</span>.<span class="ident">transit_rider_reached_border</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">id</span>, <span class="ident">ctx</span>);
+                    trips.transit_rider_reached_border(now, person, id, ctx);
                 }
-                <span class="ident">bus</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">BusState::Finished</span>;
-                <span class="bool-val">false</span>
-            }
-            <span class="ident">BusState::AtStop</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">BusState::Finished</span> =&gt; <span class="macro">unreachable!</span>(),
+                bus.state = BusState::Finished;
+                <span class="bool-val">false
+            </span>}
+            BusState::AtStop(<span class="kw">_</span>) | BusState::Finished =&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bus_departed_from_stop</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">id</span>: <span class="ident">CarID</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Router</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buses</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">route</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">bus</span>.<span class="ident">route</span>).<span class="ident">unwrap</span>();
-        <span class="kw">match</span> <span class="ident">bus</span>.<span class="ident">state</span> {
-            <span class="ident">BusState::AtStop</span>(<span class="ident">stop_idx</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::BusDepartedFromStop</span>(
-                    <span class="ident">id</span>,
-                    <span class="ident">bus</span>.<span class="ident">route</span>,
-                    <span class="ident">route</span>.<span class="ident">stops</span>[<span class="ident">stop_idx</span>],
+    <span class="kw">pub fn </span>bus_departed_from_stop(<span class="kw-2">&amp;mut </span><span class="self">self</span>, id: CarID, <span class="kw">_</span>: <span class="kw-2">&amp;</span>Map) -&gt; Router {
+        <span class="kw">let </span><span class="kw-2">mut </span>bus = <span class="self">self</span>.buses.get_mut(<span class="kw-2">&amp;</span>id).unwrap();
+        <span class="kw">let </span>route = <span class="self">self</span>.routes.get_mut(<span class="kw-2">&amp;</span>bus.route).unwrap();
+        <span class="kw">match </span>bus.state {
+            BusState::AtStop(stop_idx) =&gt; {
+                <span class="self">self</span>.events.push(Event::BusDepartedFromStop(
+                    id,
+                    bus.route,
+                    route.stops[stop_idx],
                 ));
 
-                <span class="kw">if</span> <span class="ident">stop_idx</span> <span class="op">==</span> <span class="ident">route</span>.<span class="ident">stops</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-                    <span class="ident">bus</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">BusState::DrivingOffMap</span>;
-                } <span class="kw">else</span> {
-                    <span class="ident">bus</span>.<span class="ident">state</span> <span class="op">=</span> <span class="ident">BusState::DrivingToStop</span>(<span class="ident">stop_idx</span> <span class="op">+</span> <span class="number">1</span>);
+                <span class="kw">if </span>stop_idx == route.stops.len() - <span class="number">1 </span>{
+                    bus.state = BusState::DrivingOffMap;
+                } <span class="kw">else </span>{
+                    bus.state = BusState::DrivingToStop(stop_idx + <span class="number">1</span>);
                 }
-                <span class="ident">Router::follow_bus_route</span>(<span class="ident">id</span>, <span class="ident">route</span>.<span class="ident">paths</span>[<span class="ident">stop_idx</span> <span class="op">+</span> <span class="number">1</span>].<span class="ident">clone</span>())
+                Router::follow_bus_route(id, route.paths[stop_idx + <span class="number">1</span>].clone())
             }
-            <span class="ident">BusState::DrivingToStop</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">BusState::DrivingOffMap</span> <span class="op">|</span> <span class="ident">BusState::Finished</span> =&gt; {
+            BusState::DrivingToStop(<span class="kw">_</span>) | BusState::DrivingOffMap | BusState::Finished =&gt; {
                 <span class="macro">unreachable!</span>()
             }
         }
     }
 
-    <span class="doccomment">/// Returns the bus if the pedestrian boarded immediately.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">ped_waiting_for_bus</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">ped</span>: <span class="ident">PedestrianID</span>,
-        <span class="ident">trip</span>: <span class="ident">TripID</span>,
-        <span class="ident">person</span>: <span class="ident">PersonID</span>,
-        <span class="ident">stop1</span>: <span class="ident">TransitStopID</span>,
-        <span class="ident">route_id</span>: <span class="ident">TransitRouteID</span>,
-        <span class="ident">maybe_stop2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span> {
-        <span class="macro">assert!</span>(<span class="prelude-val">Some</span>(<span class="ident">stop1</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">maybe_stop2</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">route</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">route_id</span>) {
-            <span class="kw">for</span> <span class="ident">bus</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">route</span>.<span class="ident">active_vehicles</span> {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">BusState::AtStop</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">buses</span>[<span class="ident">bus</span>].<span class="ident">state</span> {
-                    <span class="kw">if</span> <span class="ident">route</span>.<span class="ident">stops</span>[<span class="ident">idx</span>] <span class="op">==</span> <span class="ident">stop1</span> {
-                        <span class="self">self</span>.<span class="ident">buses</span>
-                            .<span class="ident">get_mut</span>(<span class="ident">bus</span>)
-                            .<span class="ident">unwrap</span>()
-                            .<span class="ident">passengers</span>
-                            .<span class="ident">push</span>((<span class="ident">person</span>, <span class="ident">maybe_stop2</span>));
-                        <span class="comment">// TODO Same problem as elsewhere with recording the PathRequest</span>
-                        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">push</span>(<span class="ident">Event::TripPhaseStarting</span>(
-                            <span class="ident">trip</span>,
-                            <span class="ident">person</span>,
+    <span class="doccomment">/// Returns the bus if the pedestrian boarded immediately.
+    </span><span class="kw">pub fn </span>ped_waiting_for_bus(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        now: Time,
+        ped: PedestrianID,
+        trip: TripID,
+        person: PersonID,
+        stop1: TransitStopID,
+        route_id: TransitRouteID,
+        maybe_stop2: <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;,
+        <span class="kw">_</span>: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;CarID&gt; {
+        <span class="macro">assert!</span>(<span class="prelude-val">Some</span>(stop1) != maybe_stop2);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(route) = <span class="self">self</span>.routes.get(<span class="kw-2">&amp;</span>route_id) {
+            <span class="kw">for </span>bus <span class="kw">in </span><span class="kw-2">&amp;</span>route.active_vehicles {
+                <span class="kw">if let </span>BusState::AtStop(idx) = <span class="self">self</span>.buses[bus].state {
+                    <span class="kw">if </span>route.stops[idx] == stop1 {
+                        <span class="self">self</span>.buses
+                            .get_mut(bus)
+                            .unwrap()
+                            .passengers
+                            .push((person, maybe_stop2));
+                        <span class="comment">// TODO Same problem as elsewhere with recording the PathRequest
+                        </span><span class="self">self</span>.events.push(Event::TripPhaseStarting(
+                            trip,
+                            person,
                             <span class="prelude-val">None</span>,
-                            <span class="ident">TripPhaseType::RidingBus</span>(<span class="ident">route_id</span>, <span class="ident">stop1</span>, <span class="kw-2">*</span><span class="ident">bus</span>),
+                            TripPhaseType::RidingBus(route_id, stop1, <span class="kw-2">*</span>bus),
                         ));
-                        <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">bus</span>);
+                        <span class="kw">return </span><span class="prelude-val">Some</span>(<span class="kw-2">*</span>bus);
                     }
                 }
             }
-        } <span class="kw">else</span> {
+        } <span class="kw">else </span>{
             <span class="macro">println!</span>(
                 <span class="string">&quot;WARNING: {} waiting for {}, but that route hasn&#39;t been instantiated&quot;</span>,
-                <span class="ident">ped</span>, <span class="ident">route_id</span>
+                ped, route_id
             );
         }
 
-        <span class="self">self</span>.<span class="ident">peds_waiting</span>
-            .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">stop1</span>)
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">push</span>((<span class="ident">ped</span>, <span class="ident">route_id</span>, <span class="ident">maybe_stop2</span>, <span class="ident">now</span>));
-        <span class="prelude-val">None</span>
+        <span class="self">self</span>.peds_waiting
+            .get_mut(<span class="kw-2">&amp;</span>stop1)
+            .unwrap()
+            .push((ped, route_id, maybe_stop2, now));
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">pub fn </span>collect_events(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; Vec&lt;Event&gt; {
+        <span class="self">self</span>.events.drain(..).collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">collect_events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Event</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">events</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>get_passengers(<span class="kw-2">&amp;</span><span class="self">self</span>, bus: CarID) -&gt; <span class="kw-2">&amp;</span>Vec&lt;(PersonID, <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;)&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.buses[<span class="kw-2">&amp;</span>bus].passengers
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_passengers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bus</span>: <span class="ident">CarID</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buses</span>[<span class="kw-2">&amp;</span><span class="ident">bus</span>].<span class="ident">passengers</span>
+    <span class="kw">pub fn </span>bus_route(<span class="kw-2">&amp;</span><span class="self">self</span>, bus: CarID) -&gt; TransitRouteID {
+        <span class="self">self</span>.buses[<span class="kw-2">&amp;</span>bus].route
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bus_route</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">bus</span>: <span class="ident">CarID</span>) -&gt; <span class="ident">TransitRouteID</span> {
-        <span class="self">self</span>.<span class="ident">buses</span>[<span class="kw-2">&amp;</span><span class="ident">bus</span>].<span class="ident">route</span>
-    }
-
-    <span class="doccomment">/// also stop idx that the bus is coming from</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">buses_for_route</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">route</span>: <span class="ident">TransitRouteID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">CarID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">r</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">route</span>) {
-            <span class="ident">r</span>.<span class="ident">active_vehicles</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">bus</span><span class="op">|</span> {
-                    <span class="kw">let</span> <span class="ident">stop</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">buses</span>[<span class="ident">bus</span>].<span class="ident">state</span> {
-                        <span class="ident">BusState::DrivingToStop</span>(<span class="ident">idx</span>) =&gt; {
-                            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
-                                <span class="prelude-val">None</span>
-                            } <span class="kw">else</span> {
-                                <span class="prelude-val">Some</span>(<span class="ident">idx</span> <span class="op">-</span> <span class="number">1</span>)
+    <span class="doccomment">/// also stop idx that the bus is coming from
+    </span><span class="kw">pub fn </span>buses_for_route(<span class="kw-2">&amp;</span><span class="self">self</span>, route: TransitRouteID) -&gt; Vec&lt;(CarID, <span class="prelude-ty">Option</span>&lt;usize&gt;)&gt; {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(r) = <span class="self">self</span>.routes.get(<span class="kw-2">&amp;</span>route) {
+            r.active_vehicles
+                .iter()
+                .map(|bus| {
+                    <span class="kw">let </span>stop = <span class="kw">match </span><span class="self">self</span>.buses[bus].state {
+                        BusState::DrivingToStop(idx) =&gt; {
+                            <span class="kw">if </span>idx == <span class="number">0 </span>{
+                                <span class="prelude-val">None
+                            </span>} <span class="kw">else </span>{
+                                <span class="prelude-val">Some</span>(idx - <span class="number">1</span>)
                             }
                         }
-                        <span class="ident">BusState::AtStop</span>(<span class="ident">idx</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">idx</span>),
-                        <span class="ident">BusState::DrivingOffMap</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">r</span>.<span class="ident">stops</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>),
-                        <span class="ident">BusState::Finished</span> =&gt; <span class="macro">unreachable!</span>(),
+                        BusState::AtStop(idx) =&gt; <span class="prelude-val">Some</span>(idx),
+                        BusState::DrivingOffMap =&gt; <span class="prelude-val">Some</span>(r.stops.len() - <span class="number">1</span>),
+                        BusState::Finished =&gt; <span class="macro">unreachable!</span>(),
                     };
-                    (<span class="kw-2">*</span><span class="ident">bus</span>, <span class="ident">stop</span>)
+                    (<span class="kw-2">*</span>bus, stop)
                 })
-                .<span class="ident">collect</span>()
-        } <span class="kw">else</span> {
-            <span class="ident">Vec::new</span>()
+                .collect()
+        } <span class="kw">else </span>{
+            Vec::new()
         }
     }
 
-    <span class="doccomment">/// (buses, trains)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">active_vehicles</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">usize</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buses</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trains</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">routes</span>.<span class="ident">values</span>() {
-            <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">active_vehicles</span>.<span class="ident">len</span>();
-            <span class="kw">if</span> <span class="ident">len</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">active_vehicles</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>().<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bus</span> {
-                    <span class="ident">buses</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span>;
-                } <span class="kw">else</span> {
-                    <span class="ident">trains</span> <span class="op">+</span><span class="op">=</span> <span class="ident">len</span>;
+    <span class="doccomment">/// (buses, trains)
+    </span><span class="kw">pub fn </span>active_vehicles(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, usize) {
+        <span class="kw">let </span><span class="kw-2">mut </span>buses = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>trains = <span class="number">0</span>;
+        <span class="kw">for </span>r <span class="kw">in </span><span class="self">self</span>.routes.values() {
+            <span class="kw">let </span>len = r.active_vehicles.len();
+            <span class="kw">if </span>len &gt; <span class="number">0 </span>{
+                <span class="kw">if </span>r.active_vehicles.iter().next().unwrap().vehicle_type == VehicleType::Bus {
+                    buses += len;
+                } <span class="kw">else </span>{
+                    trains += len;
                 }
             }
         }
-        (<span class="ident">buses</span>, <span class="ident">trains</span>)
+        (buses, trains)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_people_waiting_at_stop</span>(
+    <span class="kw">pub fn </span>get_people_waiting_at_stop(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">at</span>: <span class="ident">TransitStopID</span>,
-    ) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PedestrianID</span>, <span class="ident">TransitRouteID</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>, <span class="ident">Time</span>)<span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">peds_waiting</span>[<span class="kw-2">&amp;</span><span class="ident">at</span>]
+        at: TransitStopID,
+    ) -&gt; <span class="kw-2">&amp;</span>Vec&lt;(PedestrianID, TransitRouteID, <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;, Time)&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.peds_waiting[<span class="kw-2">&amp;</span>at]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_unzoomed_transit_riders</span>(
+    <span class="kw">pub fn </span>get_unzoomed_transit_riders(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">driving</span>: <span class="kw-2">&amp;</span><span class="ident">DrivingSimState</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UnzoomedAgent</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">bus_id</span>, <span class="ident">bus</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buses</span> {
-            <span class="kw">if</span> <span class="ident">bus</span>.<span class="ident">passengers</span>.<span class="ident">is_empty</span>() {
+        now: Time,
+        driving: <span class="kw-2">&amp;</span>DrivingSimState,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; Vec&lt;UnzoomedAgent&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+        <span class="kw">for </span>(bus_id, bus) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.buses {
+            <span class="kw">if </span>bus.passengers.is_empty() {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">input</span>) <span class="op">=</span> <span class="ident">driving</span>.<span class="ident">get_single_draw_car</span>(<span class="kw-2">*</span><span class="ident">bus_id</span>, <span class="ident">now</span>, <span class="ident">map</span>, <span class="self">self</span>) {
-                <span class="ident">input</span>.<span class="ident">body</span>.<span class="ident">last_pt</span>()
-            } <span class="kw">else</span> {
+            <span class="kw">let </span>pos = <span class="kw">if let </span><span class="prelude-val">Some</span>(input) = driving.get_single_draw_car(<span class="kw-2">*</span>bus_id, now, map, <span class="self">self</span>) {
+                input.body.last_pt()
+            } <span class="kw">else </span>{
                 <span class="macro">panic!</span>(
                     <span class="string">&quot;At {}, bus {} can&#39;t be drawn, yet it has passengers {:?}&quot;</span>,
-                    <span class="ident">now</span>, <span class="ident">bus_id</span>, <span class="ident">bus</span>.<span class="ident">passengers</span>
+                    now, bus_id, bus.passengers
                 );
             };
-            <span class="kw">for</span> (<span class="ident">person</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">bus</span>.<span class="ident">passengers</span> {
-                <span class="kw">let</span> <span class="ident">agent</span> <span class="op">=</span> <span class="ident">AgentID::BusPassenger</span>(<span class="kw-2">*</span><span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bus_id</span>);
-                <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">UnzoomedAgent</span> {
-                    <span class="ident">id</span>: <span class="ident">agent</span>,
-                    <span class="ident">pos</span>,
-                    <span class="ident">person</span>: <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">person</span>),
-                    <span class="ident">parking</span>: <span class="bool-val">false</span>,
+            <span class="kw">for </span>(person, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span>bus.passengers {
+                <span class="kw">let </span>agent = AgentID::BusPassenger(<span class="kw-2">*</span>person, <span class="kw-2">*</span>bus_id);
+                results.push(UnzoomedAgent {
+                    id: agent,
+                    pos,
+                    person: <span class="prelude-val">Some</span>(<span class="kw-2">*</span>person),
+                    parking: <span class="bool-val">false</span>,
                 });
             }
         }
-        <span class="ident">results</span>
+        results
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

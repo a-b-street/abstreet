@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/bounds.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bounds.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `geom/src/bounds.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>bounds.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../geom/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../geom/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -253,260 +253,260 @@
 <span id="253">253</span>
 <span id="254">254</span>
 <span id="255">255</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">aabb_quadtree::geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
+<span class="kw">use </span>aabb_quadtree::geom::{Point, Rect};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use crate</span>::{Circle, Distance, LonLat, Polygon, Pt2D, Ring};
 
-<span class="doccomment">/// Represents a rectangular boundary of `Pt2D` points.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Bounds</span> {
-    <span class="kw">pub</span> <span class="ident">min_x</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">min_y</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">max_x</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">max_y</span>: <span class="ident">f64</span>,
+<span class="doccomment">/// Represents a rectangular boundary of `Pt2D` points.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Bounds {
+    <span class="kw">pub </span>min_x: f64,
+    <span class="kw">pub </span>min_y: f64,
+    <span class="kw">pub </span>max_x: f64,
+    <span class="kw">pub </span>max_y: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">Bounds</span> {
-    <span class="doccomment">/// A boundary including no points.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Bounds</span> {
-        <span class="ident">Bounds</span> {
-            <span class="ident">min_x</span>: <span class="ident">f64::MAX</span>,
-            <span class="ident">min_y</span>: <span class="ident">f64::MAX</span>,
-            <span class="ident">max_x</span>: <span class="ident">f64::MIN</span>,
-            <span class="ident">max_y</span>: <span class="ident">f64::MIN</span>,
+<span class="kw">impl </span>Bounds {
+    <span class="doccomment">/// A boundary including no points.
+    </span><span class="kw">pub fn </span>new() -&gt; Bounds {
+        Bounds {
+            min_x: f64::MAX,
+            min_y: f64::MAX,
+            max_x: f64::MIN,
+            max_y: f64::MIN,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">Bounds</span> {
-            <span class="ident">min_x</span>: <span class="number">0.0</span>,
-            <span class="ident">min_y</span>: <span class="number">0.0</span>,
-            <span class="ident">max_x</span>: <span class="number">0.0</span>,
-            <span class="ident">max_y</span>: <span class="number">0.0</span>,
+    <span class="kw">pub fn </span>zero() -&gt; <span class="self">Self </span>{
+        Bounds {
+            min_x: <span class="number">0.0</span>,
+            min_y: <span class="number">0.0</span>,
+            max_x: <span class="number">0.0</span>,
+            max_y: <span class="number">0.0</span>,
         }
     }
 
-    <span class="doccomment">/// Create a boundary covering some points.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) -&gt; <span class="ident">Bounds</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds::new</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="ident">b</span>.<span class="ident">update</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
+    <span class="doccomment">/// Create a boundary covering some points.
+    </span><span class="kw">pub fn </span>from(pts: <span class="kw-2">&amp;</span>[Pt2D]) -&gt; Bounds {
+        <span class="kw">let </span><span class="kw-2">mut </span>b = Bounds::new();
+        <span class="kw">for </span>pt <span class="kw">in </span>pts {
+            b.update(<span class="kw-2">*</span>pt);
         }
-        <span class="ident">b</span>
+        b
     }
 
-    <span class="doccomment">/// Create a boundary covering some polygons.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_polygons</span>(<span class="ident">polygons</span>: <span class="kw-2">&amp;</span>[<span class="ident">Polygon</span>]) -&gt; <span class="ident">Bounds</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds::new</span>();
-        <span class="kw">for</span> <span class="ident">poly</span> <span class="kw">in</span> <span class="ident">polygons</span> {
-            <span class="kw">for</span> <span class="ident">ring</span> <span class="kw">in</span> <span class="ident">poly</span>.<span class="ident">get_rings</span>() {
-                <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">ring</span>.<span class="ident">points</span>() {
-                    <span class="ident">b</span>.<span class="ident">update</span>(<span class="kw-2">*</span><span class="ident">pt</span>);
+    <span class="doccomment">/// Create a boundary covering some polygons.
+    </span><span class="kw">pub fn </span>from_polygons(polygons: <span class="kw-2">&amp;</span>[Polygon]) -&gt; Bounds {
+        <span class="kw">let </span><span class="kw-2">mut </span>b = Bounds::new();
+        <span class="kw">for </span>poly <span class="kw">in </span>polygons {
+            <span class="kw">for </span>ring <span class="kw">in </span>poly.get_rings() {
+                <span class="kw">for </span>pt <span class="kw">in </span>ring.points() {
+                    b.update(<span class="kw-2">*</span>pt);
                 }
             }
         }
-        <span class="ident">b</span>
+        b
     }
 
-    <span class="doccomment">/// Update the boundary to include this point.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) {
-        <span class="self">self</span>.<span class="ident">min_x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_x</span>.<span class="ident">min</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
-        <span class="self">self</span>.<span class="ident">max_x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_x</span>.<span class="ident">max</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
-        <span class="self">self</span>.<span class="ident">min_y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_y</span>.<span class="ident">min</span>(<span class="ident">pt</span>.<span class="ident">y</span>());
-        <span class="self">self</span>.<span class="ident">max_y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_y</span>.<span class="ident">max</span>(<span class="ident">pt</span>.<span class="ident">y</span>());
+    <span class="doccomment">/// Update the boundary to include this point.
+    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pt: Pt2D) {
+        <span class="self">self</span>.min_x = <span class="self">self</span>.min_x.min(pt.x());
+        <span class="self">self</span>.max_x = <span class="self">self</span>.max_x.max(pt.x());
+        <span class="self">self</span>.min_y = <span class="self">self</span>.min_y.min(pt.y());
+        <span class="self">self</span>.max_y = <span class="self">self</span>.max_y.max(pt.y());
     }
 
-    <span class="doccomment">/// Unions two boundaries.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">union</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Bounds</span>) {
-        <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">Pt2D::new</span>(<span class="ident">other</span>.<span class="ident">min_x</span>, <span class="ident">other</span>.<span class="ident">min_y</span>));
-        <span class="self">self</span>.<span class="ident">update</span>(<span class="ident">Pt2D::new</span>(<span class="ident">other</span>.<span class="ident">max_x</span>, <span class="ident">other</span>.<span class="ident">max_y</span>));
+    <span class="doccomment">/// Unions two boundaries.
+    </span><span class="kw">pub fn </span>union(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Bounds) {
+        <span class="self">self</span>.update(Pt2D::new(other.min_x, other.min_y));
+        <span class="self">self</span>.update(Pt2D::new(other.max_x, other.max_y));
     }
 
-    <span class="doccomment">/// Expand the existing boundary by some distance evenly on all sides.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_buffer</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">sides</span>: <span class="ident">Distance</span>) {
-        <span class="self">self</span>.<span class="ident">min_x</span> <span class="op">-</span><span class="op">=</span> <span class="ident">sides</span>.<span class="ident">inner_meters</span>();
-        <span class="self">self</span>.<span class="ident">max_x</span> <span class="op">+</span><span class="op">=</span> <span class="ident">sides</span>.<span class="ident">inner_meters</span>();
-        <span class="self">self</span>.<span class="ident">min_y</span> <span class="op">-</span><span class="op">=</span> <span class="ident">sides</span>.<span class="ident">inner_meters</span>();
-        <span class="self">self</span>.<span class="ident">max_y</span> <span class="op">+</span><span class="op">=</span> <span class="ident">sides</span>.<span class="ident">inner_meters</span>();
+    <span class="doccomment">/// Expand the existing boundary by some distance evenly on all sides.
+    </span><span class="kw">pub fn </span>add_buffer(<span class="kw-2">&amp;mut </span><span class="self">self</span>, sides: Distance) {
+        <span class="self">self</span>.min_x -= sides.inner_meters();
+        <span class="self">self</span>.max_x += sides.inner_meters();
+        <span class="self">self</span>.min_y -= sides.inner_meters();
+        <span class="self">self</span>.max_y += sides.inner_meters();
     }
 
-    <span class="doccomment">/// Transform the boundary by scaling its corners.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">scale</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">factor</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">self</span>.<span class="ident">min_x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">factor</span>;
-        <span class="self">self</span>.<span class="ident">min_y</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">factor</span>;
-        <span class="self">self</span>.<span class="ident">max_x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">factor</span>;
-        <span class="self">self</span>.<span class="ident">max_y</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">factor</span>;
-        <span class="self">self</span>
+    <span class="doccomment">/// Transform the boundary by scaling its corners.
+    </span><span class="kw">pub fn </span>scale(<span class="kw-2">mut </span><span class="self">self</span>, factor: f64) -&gt; <span class="self">Self </span>{
+        <span class="self">self</span>.min_x <span class="kw-2">*</span>= factor;
+        <span class="self">self</span>.min_y <span class="kw-2">*</span>= factor;
+        <span class="self">self</span>.max_x <span class="kw-2">*</span>= factor;
+        <span class="self">self</span>.max_y <span class="kw-2">*</span>= factor;
+        <span class="self">self
+    </span>}
+
+    <span class="doccomment">/// True if the point is within the boundary.
+    </span><span class="kw">pub fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: Pt2D) -&gt; bool {
+        pt.x() &gt;= <span class="self">self</span>.min_x &amp;&amp; pt.x() &lt;= <span class="self">self</span>.max_x &amp;&amp; pt.y() &gt;= <span class="self">self</span>.min_y &amp;&amp; pt.y() &lt;= <span class="self">self</span>.max_y
     }
 
-    <span class="doccomment">/// True if the point is within the boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">min_x</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_x</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">min_y</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_y</span>
-    }
-
-    <span class="doccomment">/// Converts the boundary to the format used by `aabb_quadtree`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_bbox</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Rect</span> {
-        <span class="ident">Rect</span> {
-            <span class="ident">top_left</span>: <span class="ident">Point</span> {
-                <span class="ident">x</span>: <span class="self">self</span>.<span class="ident">min_x</span> <span class="kw">as</span> <span class="ident">f32</span>,
-                <span class="ident">y</span>: <span class="self">self</span>.<span class="ident">min_y</span> <span class="kw">as</span> <span class="ident">f32</span>,
+    <span class="doccomment">/// Converts the boundary to the format used by `aabb_quadtree`.
+    </span><span class="kw">pub fn </span>as_bbox(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Rect {
+        Rect {
+            top_left: Point {
+                x: <span class="self">self</span>.min_x <span class="kw">as </span>f32,
+                y: <span class="self">self</span>.min_y <span class="kw">as </span>f32,
             },
-            <span class="ident">bottom_right</span>: <span class="ident">Point</span> {
-                <span class="ident">x</span>: <span class="self">self</span>.<span class="ident">max_x</span> <span class="kw">as</span> <span class="ident">f32</span>,
-                <span class="ident">y</span>: <span class="self">self</span>.<span class="ident">max_y</span> <span class="kw">as</span> <span class="ident">f32</span>,
+            bottom_right: Point {
+                x: <span class="self">self</span>.max_x <span class="kw">as </span>f32,
+                y: <span class="self">self</span>.max_y <span class="kw">as </span>f32,
             },
         }
     }
 
-    <span class="doccomment">/// Creates a rectangle covering this boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_rectangle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="ident">Ring::must_new</span>(<span class="macro">vec!</span>[
-            <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">min_x</span>, <span class="self">self</span>.<span class="ident">min_y</span>),
-            <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">max_x</span>, <span class="self">self</span>.<span class="ident">min_y</span>),
-            <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">max_x</span>, <span class="self">self</span>.<span class="ident">max_y</span>),
-            <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">min_x</span>, <span class="self">self</span>.<span class="ident">max_y</span>),
-            <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">min_x</span>, <span class="self">self</span>.<span class="ident">min_y</span>),
+    <span class="doccomment">/// Creates a rectangle covering this boundary.
+    </span><span class="kw">pub fn </span>get_rectangle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Polygon {
+        Ring::must_new(<span class="macro">vec!</span>[
+            Pt2D::new(<span class="self">self</span>.min_x, <span class="self">self</span>.min_y),
+            Pt2D::new(<span class="self">self</span>.max_x, <span class="self">self</span>.min_y),
+            Pt2D::new(<span class="self">self</span>.max_x, <span class="self">self</span>.max_y),
+            Pt2D::new(<span class="self">self</span>.min_x, <span class="self">self</span>.max_y),
+            Pt2D::new(<span class="self">self</span>.min_x, <span class="self">self</span>.min_y),
         ])
-        .<span class="ident">into_polygon</span>()
+        .into_polygon()
     }
 
-    <span class="doccomment">/// Creates a circle centered in the middle of this boundary. Always uses the half width as a</span>
-    <span class="doccomment">/// radius, so if the width and height don&#39;t match, this is pretty meaningless.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_circle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Circle</span> {
-        <span class="ident">Circle::new</span>(<span class="self">self</span>.<span class="ident">center</span>(), <span class="ident">Distance::meters</span>(<span class="self">self</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>))
+    <span class="doccomment">/// Creates a circle centered in the middle of this boundary. Always uses the half width as a
+    /// radius, so if the width and height don&#39;t match, this is pretty meaningless.
+    </span><span class="kw">pub fn </span>to_circle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Circle {
+        Circle::new(<span class="self">self</span>.center(), Distance::meters(<span class="self">self</span>.width() / <span class="number">2.0</span>))
     }
 
-    <span class="doccomment">/// The width of this boundary.</span>
-    <span class="comment">// TODO Really should be Distance</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">max_x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">min_x</span>
+    <span class="doccomment">/// The width of this boundary.
+    </span><span class="comment">// TODO Really should be Distance
+    </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.max_x - <span class="self">self</span>.min_x
     }
 
-    <span class="doccomment">/// The height of this boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">max_y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">min_y</span>
+    <span class="doccomment">/// The height of this boundary.
+    </span><span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.max_y - <span class="self">self</span>.min_y
     }
 
-    <span class="doccomment">/// The center point of this boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="ident">Pt2D::new</span>(
-            <span class="self">self</span>.<span class="ident">min_x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">width</span>() <span class="op">/</span> <span class="number">2.0</span>,
-            <span class="self">self</span>.<span class="ident">min_y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">height</span>() <span class="op">/</span> <span class="number">2.0</span>,
+    <span class="doccomment">/// The center point of this boundary.
+    </span><span class="kw">pub fn </span>center(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pt2D {
+        Pt2D::new(
+            <span class="self">self</span>.min_x + <span class="self">self</span>.width() / <span class="number">2.0</span>,
+            <span class="self">self</span>.min_y + <span class="self">self</span>.height() / <span class="number">2.0</span>,
         )
     }
 }
 
-<span class="doccomment">/// Represents a rectangular boundary of `LonLat` points. After building one of these, `LonLat`s</span>
-<span class="doccomment">/// can be transformed into `Pt2D`s, treating the top-left of the boundary as (0, 0), and growing</span>
-<span class="doccomment">/// to the right and down (screen-drawing order, not Cartesian) in meters.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">GPSBounds</span> {
-    <span class="kw">pub</span> <span class="ident">min_lon</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">min_lat</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">max_lon</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">max_lat</span>: <span class="ident">f64</span>,
+<span class="doccomment">/// Represents a rectangular boundary of `LonLat` points. After building one of these, `LonLat`s
+/// can be transformed into `Pt2D`s, treating the top-left of the boundary as (0, 0), and growing
+/// to the right and down (screen-drawing order, not Cartesian) in meters.
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>GPSBounds {
+    <span class="kw">pub </span>min_lon: f64,
+    <span class="kw">pub </span>min_lat: f64,
+    <span class="kw">pub </span>max_lon: f64,
+    <span class="kw">pub </span>max_lat: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">GPSBounds</span> {
-    <span class="doccomment">/// A boundary including no points.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">GPSBounds</span> {
-        <span class="ident">GPSBounds</span> {
-            <span class="ident">min_lon</span>: <span class="ident">f64::MAX</span>,
-            <span class="ident">min_lat</span>: <span class="ident">f64::MAX</span>,
-            <span class="ident">max_lon</span>: <span class="ident">f64::MIN</span>,
-            <span class="ident">max_lat</span>: <span class="ident">f64::MIN</span>,
+<span class="kw">impl </span>GPSBounds {
+    <span class="doccomment">/// A boundary including no points.
+    </span><span class="kw">pub fn </span>new() -&gt; GPSBounds {
+        GPSBounds {
+            min_lon: f64::MAX,
+            min_lat: f64::MAX,
+            max_lon: f64::MIN,
+            max_lat: f64::MIN,
         }
     }
 
-    <span class="doccomment">/// Create a boundary covering some points.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span>) -&gt; <span class="ident">GPSBounds</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">GPSBounds::new</span>();
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="ident">b</span>.<span class="ident">update</span>(<span class="ident">pt</span>);
+    <span class="doccomment">/// Create a boundary covering some points.
+    </span><span class="kw">pub fn </span>from(pts: Vec&lt;LonLat&gt;) -&gt; GPSBounds {
+        <span class="kw">let </span><span class="kw-2">mut </span>b = GPSBounds::new();
+        <span class="kw">for </span>pt <span class="kw">in </span>pts {
+            b.update(pt);
         }
-        <span class="ident">b</span>
+        b
     }
 
-    <span class="doccomment">/// Update the boundary to include this point.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">LonLat</span>) {
-        <span class="self">self</span>.<span class="ident">min_lon</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_lon</span>.<span class="ident">min</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
-        <span class="self">self</span>.<span class="ident">max_lon</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_lon</span>.<span class="ident">max</span>(<span class="ident">pt</span>.<span class="ident">x</span>());
-        <span class="self">self</span>.<span class="ident">min_lat</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_lat</span>.<span class="ident">min</span>(<span class="ident">pt</span>.<span class="ident">y</span>());
-        <span class="self">self</span>.<span class="ident">max_lat</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">max_lat</span>.<span class="ident">max</span>(<span class="ident">pt</span>.<span class="ident">y</span>());
+    <span class="doccomment">/// Update the boundary to include this point.
+    </span><span class="kw">pub fn </span>update(<span class="kw-2">&amp;mut </span><span class="self">self</span>, pt: LonLat) {
+        <span class="self">self</span>.min_lon = <span class="self">self</span>.min_lon.min(pt.x());
+        <span class="self">self</span>.max_lon = <span class="self">self</span>.max_lon.max(pt.x());
+        <span class="self">self</span>.min_lat = <span class="self">self</span>.min_lat.min(pt.y());
+        <span class="self">self</span>.max_lat = <span class="self">self</span>.max_lat.max(pt.y());
     }
 
-    <span class="doccomment">/// True if the point is within the boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">LonLat</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">min_lon</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">x</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_lon</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">min_lat</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">max_lat</span>
+    <span class="doccomment">/// True if the point is within the boundary.
+    </span><span class="kw">pub fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: LonLat) -&gt; bool {
+        pt.x() &gt;= <span class="self">self</span>.min_lon
+            &amp;&amp; pt.x() &lt;= <span class="self">self</span>.max_lon
+            &amp;&amp; pt.y() &gt;= <span class="self">self</span>.min_lat
+            &amp;&amp; pt.y() &lt;= <span class="self">self</span>.max_lat
     }
 
-    <span class="doccomment">/// The bottom-right corner of the boundary, in map-space.</span>
-    <span class="comment">// TODO cache this</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_max_world_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>)
-            .<span class="ident">gps_dist</span>(<span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">max_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>));
-        <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>)
-            .<span class="ident">gps_dist</span>(<span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">max_lat</span>));
-        <span class="ident">Pt2D::new</span>(<span class="ident">width</span>.<span class="ident">inner_meters</span>(), <span class="ident">height</span>.<span class="ident">inner_meters</span>())
+    <span class="doccomment">/// The bottom-right corner of the boundary, in map-space.
+    </span><span class="comment">// TODO cache this
+    </span><span class="kw">pub fn </span>get_max_world_pt(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Pt2D {
+        <span class="kw">let </span>width = LonLat::new(<span class="self">self</span>.min_lon, <span class="self">self</span>.min_lat)
+            .gps_dist(LonLat::new(<span class="self">self</span>.max_lon, <span class="self">self</span>.min_lat));
+        <span class="kw">let </span>height = LonLat::new(<span class="self">self</span>.min_lon, <span class="self">self</span>.min_lat)
+            .gps_dist(LonLat::new(<span class="self">self</span>.min_lon, <span class="self">self</span>.max_lat));
+        Pt2D::new(width.inner_meters(), height.inner_meters())
     }
 
-    <span class="doccomment">/// Converts the boundary to map-space.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Bounds</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Bounds::new</span>();
-        <span class="ident">b</span>.<span class="ident">update</span>(<span class="ident">Pt2D::new</span>(<span class="number">0.0</span>, <span class="number">0.0</span>));
-        <span class="ident">b</span>.<span class="ident">update</span>(<span class="self">self</span>.<span class="ident">get_max_world_pt</span>());
-        <span class="ident">b</span>
+    <span class="doccomment">/// Converts the boundary to map-space.
+    </span><span class="kw">pub fn </span>to_bounds(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Bounds {
+        <span class="kw">let </span><span class="kw-2">mut </span>b = Bounds::new();
+        b.update(Pt2D::new(<span class="number">0.0</span>, <span class="number">0.0</span>));
+        b.update(<span class="self">self</span>.get_max_world_pt());
+        b
     }
 
-    <span class="doccomment">/// Convert all points to map-space, failing if any points are outside this boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">LonLat</span>]) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">gps</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">contains</span>(<span class="kw-2">*</span><span class="ident">gps</span>) {
-                <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="doccomment">/// Convert all points to map-space, failing if any points are outside this boundary.
+    </span><span class="kw">pub fn </span>try_convert(<span class="kw-2">&amp;</span><span class="self">self</span>, pts: <span class="kw-2">&amp;</span>[LonLat]) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;Pt2D&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
+        <span class="kw">for </span>gps <span class="kw">in </span>pts {
+            <span class="kw">if </span>!<span class="self">self</span>.contains(<span class="kw-2">*</span>gps) {
+                <span class="kw">return </span><span class="prelude-val">None</span>;
             }
-            <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="self">self</span>));
+            result.push(gps.to_pt(<span class="self">self</span>));
         }
-        <span class="prelude-val">Some</span>(<span class="ident">result</span>)
+        <span class="prelude-val">Some</span>(result)
     }
 
-    <span class="doccomment">/// Convert all points to map-space. The points may be outside this boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">LonLat</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span> {
-        <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">gps</span><span class="op">|</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="self">self</span>)).<span class="ident">collect</span>()
+    <span class="doccomment">/// Convert all points to map-space. The points may be outside this boundary.
+    </span><span class="kw">pub fn </span>convert(<span class="kw-2">&amp;</span><span class="self">self</span>, pts: <span class="kw-2">&amp;</span>[LonLat]) -&gt; Vec&lt;Pt2D&gt; {
+        pts.iter().map(|gps| gps.to_pt(<span class="self">self</span>)).collect()
     }
 
-    <span class="doccomment">/// Convert map-space points back to `LonLat`s. This is only valid if the `GPSBounds` used</span>
-    <span class="doccomment">/// is the same as the one used to originally produce the `Pt2D`s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_back</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Pt2D</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> {
-        <span class="ident">pts</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">pt</span>.<span class="ident">to_gps</span>(<span class="self">self</span>)).<span class="ident">collect</span>()
+    <span class="doccomment">/// Convert map-space points back to `LonLat`s. This is only valid if the `GPSBounds` used
+    /// is the same as the one used to originally produce the `Pt2D`s.
+    </span><span class="kw">pub fn </span>convert_back(<span class="kw-2">&amp;</span><span class="self">self</span>, pts: <span class="kw-2">&amp;</span>[Pt2D]) -&gt; Vec&lt;LonLat&gt; {
+        pts.iter().map(|pt| pt.to_gps(<span class="self">self</span>)).collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert_back_xy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) -&gt; <span class="ident">LonLat</span> {
-        <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_max_world_pt</span>();
-            (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())
+    <span class="kw">pub fn </span>convert_back_xy(<span class="kw-2">&amp;</span><span class="self">self</span>, x: f64, y: f64) -&gt; LonLat {
+        <span class="kw">let </span>(width, height) = {
+            <span class="kw">let </span>pt = <span class="self">self</span>.get_max_world_pt();
+            (pt.x(), pt.y())
         };
 
-        <span class="kw">let</span> <span class="ident">lon</span> <span class="op">=</span> (<span class="ident">x</span> <span class="op">/</span> <span class="ident">width</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">max_lon</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">min_lon</span>)) <span class="op">+</span> <span class="self">self</span>.<span class="ident">min_lon</span>;
-        <span class="kw">let</span> <span class="ident">lat</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">min_lat</span> <span class="op">+</span> ((<span class="self">self</span>.<span class="ident">max_lat</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">min_lat</span>) <span class="op">*</span> (<span class="ident">height</span> <span class="op">-</span> <span class="ident">y</span>) <span class="op">/</span> <span class="ident">height</span>);
-        <span class="ident">LonLat::new</span>(<span class="ident">lon</span>, <span class="ident">lat</span>)
+        <span class="kw">let </span>lon = (x / width * (<span class="self">self</span>.max_lon - <span class="self">self</span>.min_lon)) + <span class="self">self</span>.min_lon;
+        <span class="kw">let </span>lat = <span class="self">self</span>.min_lat + ((<span class="self">self</span>.max_lat - <span class="self">self</span>.min_lat) * (height - y) / height);
+        LonLat::new(lon, lat)
     }
 
-    <span class="doccomment">/// Returns points in order covering this boundary.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_rectangle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns points in order covering this boundary.
+    </span><span class="kw">pub fn </span>get_rectangle(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;LonLat&gt; {
         <span class="macro">vec!</span>[
-            <span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>),
-            <span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">max_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>),
-            <span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">max_lon</span>, <span class="self">self</span>.<span class="ident">max_lat</span>),
-            <span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">max_lat</span>),
-            <span class="ident">LonLat::new</span>(<span class="self">self</span>.<span class="ident">min_lon</span>, <span class="self">self</span>.<span class="ident">min_lat</span>),
+            LonLat::new(<span class="self">self</span>.min_lon, <span class="self">self</span>.min_lat),
+            LonLat::new(<span class="self">self</span>.max_lon, <span class="self">self</span>.min_lat),
+            LonLat::new(<span class="self">self</span>.max_lon, <span class="self">self</span>.max_lat),
+            LonLat::new(<span class="self">self</span>.min_lon, <span class="self">self</span>.max_lat),
+            LonLat::new(<span class="self">self</span>.min_lon, <span class="self">self</span>.min_lat),
         ]
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="geom" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

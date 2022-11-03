@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/io.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstio/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstio/src/io.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>io.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstio/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstio/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -91,98 +91,98 @@
 <span id="91">91</span>
 <span id="92">92</span>
 <span id="93">93</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde::de::DeserializeOwned</span>;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::de::DeserializeOwned;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">basename</span>, <span class="ident">parent_path</span>, <span class="ident">Timer</span>};
+<span class="kw">use </span>abstutil::{basename, parent_path, Timer};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">list_dir</span>, <span class="ident">maybe_read_binary</span>, <span class="ident">slurp_file</span>};
+<span class="kw">use crate</span>::{list_dir, maybe_read_binary, slurp_file};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_read_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.json&quot;</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.geojson&quot;</span>) {
-        <span class="macro">bail!</span>(<span class="string">&quot;read_json needs {} to end with .json or .geojson&quot;</span>, <span class="ident">path</span>);
+<span class="kw">pub fn </span>maybe_read_json&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
+    <span class="kw">if </span>!path.ends_with(<span class="string">&quot;.json&quot;</span>) &amp;&amp; !path.ends_with(<span class="string">&quot;.geojson&quot;</span>) {
+        <span class="macro">bail!</span>(<span class="string">&quot;read_json needs {} to end with .json or .geojson&quot;</span>, path);
     }
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="macro">format!</span>(<span class="string">&quot;parse {}&quot;</span>, <span class="ident">path</span>));
-    <span class="comment">// TODO timer.read_file isn&#39;t working here. And we need to call stop() if there&#39;s no file.</span>
-    <span class="kw">let</span> <span class="ident">result</span>: <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">slurp_file</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>).<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">raw</span><span class="op">|</span> <span class="ident">serde_json::from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">raw</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="ident">err</span>.<span class="ident">into</span>()));
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="macro">format!</span>(<span class="string">&quot;parse {}&quot;</span>, <span class="ident">path</span>));
-    <span class="ident">result</span>
+    timer.start(<span class="macro">format!</span>(<span class="string">&quot;parse {}&quot;</span>, path));
+    <span class="comment">// TODO timer.read_file isn&#39;t working here. And we need to call stop() if there&#39;s no file.
+    </span><span class="kw">let </span>result: <span class="prelude-ty">Result</span>&lt;T&gt; =
+        slurp_file(<span class="kw-2">&amp;</span>path).and_then(|raw| serde_json::from_slice(<span class="kw-2">&amp;</span>raw).map_err(|err| err.into()));
+    timer.stop(<span class="macro">format!</span>(<span class="string">&quot;parse {}&quot;</span>, path));
+    result
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_json</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">T</span> {
-    <span class="kw">match</span> <span class="ident">maybe_read_json</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">obj</span>) =&gt; <span class="ident">obj</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_json({}): {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>),
-    }
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_binary</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">T</span> {
-    <span class="kw">match</span> <span class="ident">maybe_read_binary</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">obj</span>) =&gt; <span class="ident">obj</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_binary({}): {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>),
+<span class="kw">pub fn </span>read_json&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; T {
+    <span class="kw">match </span>maybe_read_json(path.clone(), timer) {
+        <span class="prelude-val">Ok</span>(obj) =&gt; obj,
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_json({}): {}&quot;</span>, path, err),
     }
 }
 
-<span class="doccomment">/// May be a JSON or binary file</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_object</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.bin&quot;</span>) {
-        <span class="ident">maybe_read_binary</span>(<span class="ident">path</span>, <span class="ident">timer</span>)
-    } <span class="kw">else</span> {
-        <span class="ident">maybe_read_json</span>(<span class="ident">path</span>, <span class="ident">timer</span>)
+<span class="kw">pub fn </span>read_binary&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; T {
+    <span class="kw">match </span>maybe_read_binary(path.clone(), timer) {
+        <span class="prelude-val">Ok</span>(obj) =&gt; obj,
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_binary({}): {}&quot;</span>, path, err),
     }
 }
 
-<span class="doccomment">/// May be a JSON or binary file. Panics on failure.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">must_read_object</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">path</span>: <span class="ident">String</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">T</span> {
-    <span class="kw">match</span> <span class="ident">read_object</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="ident">timer</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">obj</span>) =&gt; <span class="ident">obj</span>,
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_object({}): {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>),
+<span class="doccomment">/// May be a JSON or binary file
+</span><span class="kw">pub fn </span>read_object&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; <span class="prelude-ty">Result</span>&lt;T&gt; {
+    <span class="kw">if </span>path.ends_with(<span class="string">&quot;.bin&quot;</span>) {
+        maybe_read_binary(path, timer)
+    } <span class="kw">else </span>{
+        maybe_read_json(path, timer)
     }
 }
 
-<span class="doccomment">/// Keeps file extensions</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_prev_file</span>(<span class="ident">orig</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">files</span> <span class="op">=</span> <span class="ident">list_dir</span>(<span class="ident">parent_path</span>(<span class="kw-2">&amp;</span><span class="ident">orig</span>));
-    <span class="ident">files</span>.<span class="ident">reverse</span>();
-    <span class="ident">files</span>.<span class="ident">into_iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">f</span> <span class="op">&lt;</span> <span class="ident">orig</span>)
+<span class="doccomment">/// May be a JSON or binary file. Panics on failure.
+</span><span class="kw">pub fn </span>must_read_object&lt;T: DeserializeOwned&gt;(path: String, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; T {
+    <span class="kw">match </span>read_object(path.clone(), timer) {
+        <span class="prelude-val">Ok</span>(obj) =&gt; obj,
+        <span class="prelude-val">Err</span>(err) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t read_object({}): {}&quot;</span>, path, err),
+    }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_next_file</span>(<span class="ident">orig</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">files</span> <span class="op">=</span> <span class="ident">list_dir</span>(<span class="ident">parent_path</span>(<span class="kw-2">&amp;</span><span class="ident">orig</span>));
-    <span class="ident">files</span>.<span class="ident">into_iter</span>().<span class="ident">find</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">f</span> <span class="op">&gt;</span> <span class="ident">orig</span>)
+<span class="doccomment">/// Keeps file extensions
+</span><span class="kw">pub fn </span>find_prev_file(orig: String) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>files = list_dir(parent_path(<span class="kw-2">&amp;</span>orig));
+    files.reverse();
+    files.into_iter().find(|f| <span class="kw-2">*</span>f &lt; orig)
 }
 
-<span class="doccomment">/// Load all serialized things from a directory, return sorted by name, with file extension removed.</span>
-<span class="doccomment">/// Detects JSON or binary. Filters out broken files.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_all_objects</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">DeserializeOwned</span><span class="op">&gt;</span>(<span class="ident">dir</span>: <span class="ident">String</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">T</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="macro">format!</span>(<span class="string">&quot;load_all_objects from {}&quot;</span>, <span class="ident">dir</span>));
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tree</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-    <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="ident">list_dir</span>(<span class="ident">dir</span>) {
-        <span class="kw">match</span> <span class="ident">read_object</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>) {
-            <span class="prelude-val">Ok</span>(<span class="ident">obj</span>) =&gt; {
-                <span class="ident">tree</span>.<span class="ident">insert</span>(<span class="ident">basename</span>(<span class="ident">path</span>), <span class="ident">obj</span>);
+<span class="kw">pub fn </span>find_next_file(orig: String) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+    <span class="kw">let </span>files = list_dir(parent_path(<span class="kw-2">&amp;</span>orig));
+    files.into_iter().find(|f| <span class="kw-2">*</span>f &gt; orig)
+}
+
+<span class="doccomment">/// Load all serialized things from a directory, return sorted by name, with file extension removed.
+/// Detects JSON or binary. Filters out broken files.
+</span><span class="kw">pub fn </span>load_all_objects&lt;T: DeserializeOwned&gt;(dir: String) -&gt; Vec&lt;(String, T)&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="macro">format!</span>(<span class="string">&quot;load_all_objects from {}&quot;</span>, dir));
+    <span class="kw">let </span><span class="kw-2">mut </span>tree: BTreeMap&lt;String, T&gt; = BTreeMap::new();
+    <span class="kw">for </span>path <span class="kw">in </span>list_dir(dir) {
+        <span class="kw">match </span>read_object(path.clone(), <span class="kw-2">&amp;mut </span>timer) {
+            <span class="prelude-val">Ok</span>(obj) =&gt; {
+                tree.insert(basename(path), obj);
             }
-            <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                <span class="macro">error!</span>(<span class="string">&quot;Couldn&#39;t load {}: {}&quot;</span>, <span class="ident">path</span>, <span class="ident">err</span>);
+            <span class="prelude-val">Err</span>(err) =&gt; {
+                <span class="macro">error!</span>(<span class="string">&quot;Couldn&#39;t load {}: {}&quot;</span>, path, err);
             }
         }
     }
-    <span class="ident">tree</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
+    tree.into_iter().collect()
 }
 
-<span class="doccomment">/// Just list all things from a directory, return sorted by name, with file extension removed.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Hidden files (starting with `.`) are filtered out.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">list_all_objects</span>(<span class="ident">dir</span>: <span class="ident">String</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="ident">list_dir</span>(<span class="ident">dir</span>)
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="ident">basename</span>)
-        .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="op">!</span><span class="ident">x</span>.<span class="ident">starts_with</span>(<span class="string">&quot;.&quot;</span>))
-        .<span class="ident">collect</span>()
+<span class="doccomment">/// Just list all things from a directory, return sorted by name, with file extension removed.
+///
+/// Hidden files (starting with `.`) are filtered out.
+</span><span class="kw">pub fn </span>list_all_objects(dir: String) -&gt; Vec&lt;String&gt; {
+    list_dir(dir)
+        .into_iter()
+        .map(basename)
+        .filter(|x| !x.starts_with(<span class="string">&quot;.&quot;</span>))
+        .collect()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstio" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/fifteen_min/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fifteen_min/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fifteen_min/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fifteen_min/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/fifteen_min/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../fifteen_min/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../fifteen_min/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../fifteen_min/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -56,63 +56,63 @@
 <span id="56">56</span>
 <span id="57">57</span>
 <span id="58">58</span>
-</pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
+</pre><pre class="rust"><code><span class="attribute">#![allow(clippy::type_complexity)]
 
-<span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
+</span><span class="kw">use </span>structopt::StructOpt;
 
-<span class="kw">use</span> <span class="ident">widgetry::Settings</span>;
+<span class="kw">use </span>widgetry::Settings;
 
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">mod</span> <span class="ident">bus</span>;
-<span class="kw">mod</span> <span class="ident">find_amenities</span>;
-<span class="kw">mod</span> <span class="ident">find_home</span>;
-<span class="kw">mod</span> <span class="ident">isochrone</span>;
-<span class="kw">mod</span> <span class="ident">viewer</span>;
+<span class="kw">mod </span>bus;
+<span class="kw">mod </span>find_amenities;
+<span class="kw">mod </span>find_home;
+<span class="kw">mod </span>isochrone;
+<span class="kw">mod </span>viewer;
 
-<span class="kw">type</span> <span class="ident">App</span> <span class="op">=</span> <span class="ident">map_gui::SimpleApp</span><span class="op">&lt;</span>()<span class="op">&gt;</span>;
+<span class="kw">type </span>App = map_gui::SimpleApp&lt;()&gt;;
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;15-minute neighborhoods&quot;</span>);
-    <span class="ident">run</span>(<span class="ident">settings</span>);
+<span class="kw">pub fn </span>main() {
+    <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;15-minute neighborhoods&quot;</span>);
+    run(settings);
 }
 
-<span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">options</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
-    <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">map_gui::SimpleAppArgs::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
-    <span class="ident">args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">options</span>);
+<span class="kw">fn </span>run(<span class="kw-2">mut </span>settings: Settings) {
+    <span class="kw">let </span><span class="kw-2">mut </span>options = map_gui::options::Options::load_or_default();
+    <span class="kw">let </span>args = map_gui::SimpleAppArgs::from_iter(abstutil::cli_args());
+    args.override_options(<span class="kw-2">&amp;mut </span>options);
 
-    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">args</span>
-        .<span class="ident">update_widgetry_settings</span>(<span class="ident">settings</span>)
-        .<span class="ident">canvas_settings</span>(<span class="ident">options</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
-    <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
-        <span class="ident">map_gui::SimpleApp::new</span>(<span class="ident">ctx</span>, <span class="ident">options</span>, <span class="ident">args</span>.<span class="ident">map_name</span>(), <span class="ident">args</span>.<span class="ident">cam</span>, (), <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
+    settings = args
+        .update_widgetry_settings(settings)
+        .canvas_settings(options.canvas_settings.clone());
+    widgetry::run(settings, |ctx| {
+        map_gui::SimpleApp::new(ctx, options, args.map_name(), args.cam, (), |ctx, app| {
             <span class="macro">vec!</span>[
-                <span class="ident">map_gui::tools::TitleScreen::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="ident">map_gui::tools::Executable::FifteenMin</span>,
-                    <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">ctx</span>, <span class="ident">app</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">viewer::Viewer::random_start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
+                map_gui::tools::TitleScreen::new_state(
+                    ctx,
+                    app,
+                    map_gui::tools::Executable::FifteenMin,
+                    Box::new(|ctx, app, <span class="kw">_</span>| viewer::Viewer::random_start(ctx, app)),
                 ),
-                <span class="ident">viewer::Viewer::random_start</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+                viewer::Viewer::random_start(ctx, app),
             ]
         })
     });
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">wasm_bindgen::prelude</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+</span><span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">wasm_bindgen</span>(<span class="ident">js_name</span> <span class="op">=</span> <span class="string">&quot;run&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run_wasm</span>(<span class="ident">root_dom_id</span>: <span class="ident">String</span>, <span class="ident">assets_base_url</span>: <span class="ident">String</span>, <span class="ident">assets_are_gzipped</span>: <span class="ident">bool</span>) {
-    <span class="kw">let</span> <span class="ident">settings</span> <span class="op">=</span> <span class="ident">Settings::new</span>(<span class="string">&quot;15-minute neighborhoods&quot;</span>)
-        .<span class="ident">root_dom_element_id</span>(<span class="ident">root_dom_id</span>)
-        .<span class="ident">assets_base_url</span>(<span class="ident">assets_base_url</span>)
-        .<span class="ident">assets_are_gzipped</span>(<span class="ident">assets_are_gzipped</span>);
+<span class="attribute">#[cfg(target_arch = <span class="string">&quot;wasm32&quot;</span>)]
+#[wasm_bindgen(js_name = <span class="string">&quot;run&quot;</span>)]
+</span><span class="kw">pub fn </span>run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped: bool) {
+    <span class="kw">let </span>settings = Settings::new(<span class="string">&quot;15-minute neighborhoods&quot;</span>)
+        .root_dom_element_id(root_dom_id)
+        .assets_base_url(assets_base_url)
+        .assets_are_gzipped(assets_are_gzipped);
 
-    <span class="ident">run</span>(<span class="ident">settings</span>);
+    run(settings);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fifteen_min" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="fifteen_min" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

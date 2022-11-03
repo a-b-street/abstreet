@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -438,147 +438,148 @@
 <span id="438">438</span>
 <span id="439">439</span>
 <span id="440">440</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.</span>
+<span id="441">441</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Assorted tools and UI states that&#39;re useful for applications built to display maps.
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+</span><span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">geom::Polygon</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>};
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>geom::Polygon;
+<span class="kw">use </span>map_model::{IntersectionID, Map, RoadID};
+<span class="kw">use </span>widgetry::{lctrl, EventCtx, GfxCtx, Key, Line, Text, Widget};
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::camera</span>::{<span class="ident">CameraState</span>, <span class="ident">DefaultMap</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::city_picker::CityPicker</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::colors</span>::{<span class="ident">ColorDiscrete</span>, <span class="ident">ColorNetwork</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::draw_overlapping_paths::draw_overlapping_paths</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::heatmap</span>::{<span class="ident">draw_isochrone</span>, <span class="ident">make_heatmap</span>, <span class="ident">Grid</span>, <span class="ident">HeatmapOptions</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::icons</span>::{<span class="ident">goal_marker</span>, <span class="ident">start_marker</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::labels</span>::{<span class="ident">DrawRoadLabels</span>, <span class="ident">DrawSimpleRoadLabels</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::minimap</span>::{<span class="ident">Minimap</span>, <span class="ident">MinimapControls</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::navigate::Navigator</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::polygon::EditPolygon</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::title_screen</span>::{<span class="ident">Executable</span>, <span class="ident">TitleScreen</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::trip_files</span>::{<span class="ident">TripManagement</span>, <span class="ident">TripManagementState</span>};
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::turn_explorer::TurnExplorer</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ui</span>::{
-    <span class="ident">checkbox_per_mode</span>, <span class="ident">cmp_count</span>, <span class="ident">cmp_dist</span>, <span class="ident">cmp_duration</span>, <span class="ident">color_for_mode</span>, <span class="ident">percentage_bar</span>,
-    <span class="ident">FilePicker</span>,
+<span class="kw">pub use </span><span class="self">self</span>::camera::{CameraState, DefaultMap};
+<span class="kw">pub use </span><span class="self">self</span>::city_picker::CityPicker;
+<span class="kw">pub use </span><span class="self">self</span>::colors::{ColorDiscrete, ColorNetwork};
+<span class="kw">pub use </span><span class="self">self</span>::draw_overlapping_paths::draw_overlapping_paths;
+<span class="kw">pub use </span><span class="self">self</span>::heatmap::{draw_isochrone, make_heatmap, Grid, HeatmapOptions};
+<span class="kw">pub use </span><span class="self">self</span>::icons::{goal_marker, start_marker};
+<span class="kw">pub use </span><span class="self">self</span>::labels::{DrawRoadLabels, DrawSimpleRoadLabels};
+<span class="kw">pub use </span><span class="self">self</span>::minimap::{Minimap, MinimapControls};
+<span class="kw">pub use </span><span class="self">self</span>::navigate::Navigator;
+<span class="kw">pub use </span><span class="self">self</span>::polygon::EditPolygon;
+<span class="kw">pub use </span><span class="self">self</span>::title_screen::{Executable, TitleScreen};
+<span class="kw">pub use </span><span class="self">self</span>::trip_files::{TripManagement, TripManagementState};
+<span class="kw">pub use </span><span class="self">self</span>::turn_explorer::TurnExplorer;
+<span class="kw">pub use </span><span class="self">self</span>::ui::{
+    checkbox_per_mode, cmp_count, cmp_dist, cmp_duration, color_for_mode, percentage_bar,
+    FilePicker,
 };
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::waypoints</span>::{<span class="ident">InputWaypoints</span>, <span class="ident">WaypointID</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">pub use </span><span class="self">self</span>::waypoints::{InputWaypoints, WaypointID};
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::command::RunCommand</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::updater::prompt_to_download_missing_data</span>;
+<span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+</span><span class="kw">pub use </span><span class="self">self</span>::command::RunCommand;
+<span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+</span><span class="kw">pub use </span><span class="self">self</span>::updater::prompt_to_download_missing_data;
 
-<span class="kw">mod</span> <span class="ident">camera</span>;
-<span class="kw">mod</span> <span class="ident">city_picker</span>;
-<span class="kw">mod</span> <span class="ident">colors</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">command</span>;
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">compare_counts</span>;
-<span class="kw">mod</span> <span class="ident">draw_overlapping_paths</span>;
-<span class="kw">mod</span> <span class="ident">heatmap</span>;
-<span class="kw">mod</span> <span class="ident">icons</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">importer</span>;
-<span class="kw">mod</span> <span class="ident">labels</span>;
-<span class="kw">mod</span> <span class="ident">minimap</span>;
-<span class="kw">mod</span> <span class="ident">navigate</span>;
-<span class="kw">mod</span> <span class="ident">polygon</span>;
-<span class="kw">mod</span> <span class="ident">title_screen</span>;
-<span class="kw">mod</span> <span class="ident">trip_files</span>;
-<span class="kw">mod</span> <span class="ident">turn_explorer</span>;
-<span class="kw">mod</span> <span class="ident">ui</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_arch</span> <span class="op">=</span> <span class="string">&quot;wasm32&quot;</span>))]</span>
-<span class="kw">mod</span> <span class="ident">updater</span>;
-<span class="kw">mod</span> <span class="ident">waypoints</span>;
+<span class="kw">mod </span>camera;
+<span class="kw">mod </span>city_picker;
+<span class="kw">mod </span>colors;
+<span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+</span><span class="kw">mod </span>command;
+<span class="kw">pub mod </span>compare_counts;
+<span class="kw">mod </span>draw_overlapping_paths;
+<span class="kw">mod </span>heatmap;
+<span class="kw">mod </span>icons;
+<span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+</span><span class="kw">mod </span>importer;
+<span class="kw">mod </span>labels;
+<span class="kw">mod </span>minimap;
+<span class="kw">mod </span>navigate;
+<span class="kw">mod </span>polygon;
+<span class="kw">mod </span>title_screen;
+<span class="kw">mod </span>trip_files;
+<span class="kw">mod </span>turn_explorer;
+<span class="kw">mod </span>ui;
+<span class="attribute">#[cfg(not(target_arch = <span class="string">&quot;wasm32&quot;</span>))]
+</span><span class="kw">mod </span>updater;
+<span class="kw">mod </span>waypoints;
 
-<span class="comment">// Update this ___before___ pushing the commit with &quot;[rebuild] [release]&quot;.</span>
-<span class="kw">const</span> <span class="ident">NEXT_RELEASE</span>: <span class="kw-2">&amp;</span><span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;0.3.37&quot;</span>;
+<span class="comment">// Update this ___before___ pushing the commit with &quot;[rebuild] [release]&quot;.
+</span><span class="kw">const </span>NEXT_RELEASE: <span class="kw-2">&amp;</span>str = <span class="string">&quot;0.3.37&quot;</span>;
 
-<span class="doccomment">/// Returns the version of A/B Street to link to. When building for a release, this points to that</span>
-<span class="doccomment">/// new release. Otherwise it points to the current dev version.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">version</span>() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> {
-    <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;release_s3&quot;</span>) {
-        <span class="ident">NEXT_RELEASE</span>
-    } <span class="kw">else</span> {
-        <span class="string">&quot;dev&quot;</span>
-    }
+<span class="doccomment">/// Returns the version of A/B Street to link to. When building for a release, this points to that
+/// new release. Otherwise it points to the current dev version.
+</span><span class="kw">pub fn </span>version() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
+    <span class="kw">if </span><span class="macro">cfg!</span>(feature = <span class="string">&quot;release_s3&quot;</span>) {
+        NEXT_RELEASE
+    } <span class="kw">else </span>{
+        <span class="string">&quot;dev&quot;
+    </span>}
 }
 
-<span class="comment">// TODO This is A/B Street specific</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">loading_tips</span>() -&gt; <span class="ident">Text</span> {
-    <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-        <span class="ident">Line</span>(<span class="string">&quot;Have you tried...&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- simulating cities in Britain, Taiwan, Poland, and more?&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- the 15-minute neighborhood tool?&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- exploring all of the map layers?&quot;</span>),
-        <span class="ident">Line</span>(<span class="string">&quot;- playing 15-minute Santa, our arcade game spin-off?&quot;</span>),
+<span class="comment">// TODO This is A/B Street specific
+</span><span class="kw">pub fn </span>loading_tips() -&gt; Text {
+    Text::from_multiline(<span class="macro">vec!</span>[
+        Line(<span class="string">&quot;Have you tried...&quot;</span>),
+        Line(<span class="string">&quot;&quot;</span>),
+        Line(<span class="string">&quot;- simulating cities in Britain, Taiwan, Poland, and more?&quot;</span>),
+        Line(<span class="string">&quot;- the 15-minute neighborhood tool?&quot;</span>),
+        Line(<span class="string">&quot;- exploring all of the map layers?&quot;</span>),
+        Line(<span class="string">&quot;- playing 15-minute Santa, our arcade game spin-off?&quot;</span>),
     ])
 }
 
-<span class="doccomment">/// Make it clear the map can&#39;t be interacted with right now.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">grey_out_map</span>(<span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) {
-    <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
-    <span class="comment">// TODO - OSD height</span>
-    <span class="ident">g</span>.<span class="ident">draw_polygon</span>(
-        <span class="ident">app</span>.<span class="ident">cs</span>().<span class="ident">fade_map_dark</span>,
-        <span class="ident">Polygon::rectangle</span>(<span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>, <span class="ident">g</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
+<span class="doccomment">/// Make it clear the map can&#39;t be interacted with right now.
+</span><span class="kw">pub fn </span>grey_out_map(g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
+    g.fork_screenspace();
+    <span class="comment">// TODO - OSD height
+    </span>g.draw_polygon(
+        app.cs().fade_map_dark,
+        Polygon::rectangle(g.canvas.window_width, g.canvas.window_height),
     );
-    <span class="ident">g</span>.<span class="ident">unfork</span>();
+    g.unfork();
 }
 
-<span class="comment">// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nice_map_name</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">MapName</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-    <span class="kw">match</span> <span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">country</span>.<span class="ident">as_ref</span>() {
-        <span class="string">&quot;au&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+<span class="comment">// TODO Associate this with maps, but somehow avoid reading the entire file when listing them.
+</span><span class="kw">pub fn </span>nice_map_name(name: <span class="kw-2">&amp;</span>MapName) -&gt; <span class="kw-2">&amp;</span>str {
+    <span class="kw">match </span>name.city.country.as_ref() {
+        <span class="string">&quot;au&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;melbourne&quot;</span>, <span class="string">&quot;brunswick&quot;</span>) =&gt; <span class="string">&quot;Melbourne (Brunswick)&quot;</span>,
             (<span class="string">&quot;melbourne&quot;</span>, <span class="string">&quot;dandenong&quot;</span>) =&gt; <span class="string">&quot;Melbourne (Dandenong)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;at&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;at&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;salzburg&quot;</span>, <span class="string">&quot;north&quot;</span>) =&gt; <span class="string">&quot;Salzburg (north)&quot;</span>,
             (<span class="string">&quot;salzburg&quot;</span>, <span class="string">&quot;south&quot;</span>) =&gt; <span class="string">&quot;Salzburg (south)&quot;</span>,
             (<span class="string">&quot;salzburg&quot;</span>, <span class="string">&quot;east&quot;</span>) =&gt; <span class="string">&quot;Salzburg (east)&quot;</span>,
             (<span class="string">&quot;salzburg&quot;</span>, <span class="string">&quot;west&quot;</span>) =&gt; <span class="string">&quot;Salzburg (west)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;br&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;br&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;aricanduva&quot;</span>) =&gt; <span class="string">&quot;São Paulo (Avenue Aricanduva)&quot;</span>,
             (<span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;São Paulo (city center)&quot;</span>,
             (<span class="string">&quot;sao_paulo&quot;</span>, <span class="string">&quot;sao_miguel_paulista&quot;</span>) =&gt; <span class="string">&quot;São Miguel Paulista&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;ca&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;ca&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;montreal&quot;</span>, <span class="string">&quot;plateau&quot;</span>) =&gt; <span class="string">&quot;Montréal (Plateau)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;ch&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;ch&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;geneva&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Geneva&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Zürich (city center)&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;north&quot;</span>) =&gt; <span class="string">&quot;Zürich (north)&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;south&quot;</span>) =&gt; <span class="string">&quot;Zürich (south)&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;east&quot;</span>) =&gt; <span class="string">&quot;Zürich (east)&quot;</span>,
             (<span class="string">&quot;zurich&quot;</span>, <span class="string">&quot;west&quot;</span>) =&gt; <span class="string">&quot;Zürich (west)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;cz&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;cz&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;frytek_mistek&quot;</span>, <span class="string">&quot;huge&quot;</span>) =&gt; <span class="string">&quot;Frýdek-Místek (entire area)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;de&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;de&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Berlin (city center)&quot;</span>,
             (<span class="string">&quot;berlin&quot;</span>, <span class="string">&quot;neukolln&quot;</span>) =&gt; <span class="string">&quot;Berlin-Neukölln&quot;</span>,
             (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Bonn (city center)&quot;</span>,
             (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;nordstadt&quot;</span>) =&gt; <span class="string">&quot;Bonn (Nordstadt)&quot;</span>,
             (<span class="string">&quot;bonn&quot;</span>, <span class="string">&quot;venusberg&quot;</span>) =&gt; <span class="string">&quot;Bonn (Venusberg)&quot;</span>,
             (<span class="string">&quot;rostock&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Rostock&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;fr&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;fr&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;charleville_mezieres&quot;</span>, <span class="string">&quot;secteur1&quot;</span>) =&gt; <span class="string">&quot;Charleville-Mézières (secteur 1)&quot;</span>,
             (<span class="string">&quot;charleville_mezieres&quot;</span>, <span class="string">&quot;secteur2&quot;</span>) =&gt; <span class="string">&quot;Charleville-Mézières (secteur 2)&quot;</span>,
             (<span class="string">&quot;charleville_mezieres&quot;</span>, <span class="string">&quot;secteur3&quot;</span>) =&gt; <span class="string">&quot;Charleville-Mézières (secteur 3)&quot;</span>,
@@ -590,9 +591,9 @@
             (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;south&quot;</span>) =&gt; <span class="string">&quot;Paris (south)&quot;</span>,
             (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;east&quot;</span>) =&gt; <span class="string">&quot;Paris (east)&quot;</span>,
             (<span class="string">&quot;paris&quot;</span>, <span class="string">&quot;west&quot;</span>) =&gt; <span class="string">&quot;Paris (west)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;gb&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;gb&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;allerton_bywater&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Allerton Bywater&quot;</span>,
             (<span class="string">&quot;ashton_park&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Ashton Park&quot;</span>,
             (<span class="string">&quot;aylesbury&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Aylesbury&quot;</span>,
@@ -652,6 +653,7 @@
             (<span class="string">&quot;oxford&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Oxford&quot;</span>,
             (<span class="string">&quot;poundbury&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Poundbury&quot;</span>,
             (<span class="string">&quot;priors_hall&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Priors Hall&quot;</span>,
+            (<span class="string">&quot;sheffield&quot;</span>, <span class="string">&quot;darnall&quot;</span>) =&gt; <span class="string">&quot;Darnall&quot;</span>,
             (<span class="string">&quot;st_albans&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;St Albans&quot;</span>,
             (<span class="string">&quot;taunton_firepool&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Taunton Firepool&quot;</span>,
             (<span class="string">&quot;taunton_garden&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Taunton Garden&quot;</span>,
@@ -664,59 +666,59 @@
             (<span class="string">&quot;wixams&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Wixams&quot;</span>,
             (<span class="string">&quot;wokingham&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Wokingham&quot;</span>,
             (<span class="string">&quot;wynyard&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Wynyard&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;il&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;il&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;tel_aviv&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Tel Aviv (city center)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;in&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;in&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;pune&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Pune&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;ir&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;ir&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;tehran&quot;</span>, <span class="string">&quot;parliament&quot;</span>) =&gt; <span class="string">&quot;Tehran (near Parliament)&quot;</span>,
-            <span class="comment">// TODO I&#39;m not naming the other 9 maps in Tehran, because I&#39;m not sure yet the</span>
-            <span class="comment">// boundaries are the ones that a researcher needs.</span>
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="comment">// TODO I&#39;m not naming the other 9 maps in Tehran, because I&#39;m not sure yet the
+            // boundaries are the ones that a researcher needs.
+            </span><span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;jp&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;jp&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;hiroshima&quot;</span>, <span class="string">&quot;uni&quot;</span>) =&gt; <span class="string">&quot;Hiroshima University&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;ly&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;ly&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;tripoli&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Tripoli&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;nl&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;nl&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;groningen&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Groningen (city center)&quot;</span>,
             (<span class="string">&quot;groningen&quot;</span>, <span class="string">&quot;huge&quot;</span>) =&gt; <span class="string">&quot;Groningen (entire area)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;nz&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;nz&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;auckland&quot;</span>, <span class="string">&quot;mangere&quot;</span>) =&gt; <span class="string">&quot;Māngere (Auckland)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;pl&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;pl&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;krakow&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Kraków (city center)&quot;</span>,
             (<span class="string">&quot;warsaw&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Warsaw (city center)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;pt&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;pt&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;lisbon&quot;</span>, <span class="string">&quot;huge&quot;</span>) =&gt; <span class="string">&quot;Lisbon (entire area)&quot;</span>,
             (<span class="string">&quot;lisbon&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Lisbon (city center)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;sg&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;sg&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;jurong&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Jurong&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;tw&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;tw&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;keelung&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Keelung&quot;</span>,
             (<span class="string">&quot;taipei&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Taipei (city center)&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="string">&quot;us&quot;</span> =&gt; <span class="kw">match</span> (<span class="ident">name</span>.<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">as_ref</span>(), <span class="ident">name</span>.<span class="ident">map</span>.<span class="ident">as_ref</span>()) {
+        <span class="string">&quot;us&quot; </span>=&gt; <span class="kw">match </span>(name.city.city.as_ref(), name.map.as_ref()) {
             (<span class="string">&quot;anchorage&quot;</span>, <span class="string">&quot;downtown&quot;</span>) =&gt; <span class="string">&quot;Anchorage&quot;</span>,
             (<span class="string">&quot;bellevue&quot;</span>, <span class="string">&quot;huge&quot;</span>) =&gt; <span class="string">&quot;Bellevue&quot;</span>,
             (<span class="string">&quot;beltsville&quot;</span>, <span class="string">&quot;i495&quot;</span>) =&gt; <span class="string">&quot;I-495 in Beltsville, MD&quot;</span>,
@@ -748,135 +750,135 @@
             (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;wallingford&quot;</span>) =&gt; <span class="string">&quot;Wallingford&quot;</span>,
             (<span class="string">&quot;seattle&quot;</span>, <span class="string">&quot;west_seattle&quot;</span>) =&gt; <span class="string">&quot;West Seattle&quot;</span>,
             (<span class="string">&quot;tucson&quot;</span>, <span class="string">&quot;center&quot;</span>) =&gt; <span class="string">&quot;Tucson&quot;</span>,
-            <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+            <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
         },
-        <span class="kw">_</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">name</span>.<span class="ident">map</span>,
+        <span class="kw">_ </span>=&gt; <span class="kw-2">&amp;</span>name.map,
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">nice_country_name</span>(<span class="ident">code</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-    <span class="comment">// If you add something here, please also add the flag to data/system/assets/flags.</span>
-    <span class="comment">// https://github.com/hampusborgos/country-flags/tree/master/svg</span>
-    <span class="kw">match</span> <span class="ident">code</span> {
-        <span class="string">&quot;au&quot;</span> =&gt; <span class="string">&quot;Australia&quot;</span>,
-        <span class="string">&quot;at&quot;</span> =&gt; <span class="string">&quot;Austria&quot;</span>,
-        <span class="string">&quot;br&quot;</span> =&gt; <span class="string">&quot;Brazil&quot;</span>,
-        <span class="string">&quot;ca&quot;</span> =&gt; <span class="string">&quot;Canada&quot;</span>,
-        <span class="string">&quot;ch&quot;</span> =&gt; <span class="string">&quot;Switzerland&quot;</span>,
-        <span class="string">&quot;cz&quot;</span> =&gt; <span class="string">&quot;Czech Republic&quot;</span>,
-        <span class="string">&quot;de&quot;</span> =&gt; <span class="string">&quot;Germany&quot;</span>,
-        <span class="string">&quot;fr&quot;</span> =&gt; <span class="string">&quot;France&quot;</span>,
-        <span class="string">&quot;gb&quot;</span> =&gt; <span class="string">&quot;Great Britain&quot;</span>,
-        <span class="string">&quot;il&quot;</span> =&gt; <span class="string">&quot;Israel&quot;</span>,
-        <span class="string">&quot;in&quot;</span> =&gt; <span class="string">&quot;India&quot;</span>,
-        <span class="string">&quot;ir&quot;</span> =&gt; <span class="string">&quot;Iran&quot;</span>,
-        <span class="string">&quot;jp&quot;</span> =&gt; <span class="string">&quot;Japan&quot;</span>,
-        <span class="string">&quot;ly&quot;</span> =&gt; <span class="string">&quot;Libya&quot;</span>,
-        <span class="string">&quot;nl&quot;</span> =&gt; <span class="string">&quot;Netherlands&quot;</span>,
-        <span class="string">&quot;nz&quot;</span> =&gt; <span class="string">&quot;New Zealand&quot;</span>,
-        <span class="string">&quot;pl&quot;</span> =&gt; <span class="string">&quot;Poland&quot;</span>,
-        <span class="string">&quot;pt&quot;</span> =&gt; <span class="string">&quot;Portugal&quot;</span>,
-        <span class="string">&quot;sg&quot;</span> =&gt; <span class="string">&quot;Singapore&quot;</span>,
-        <span class="string">&quot;tw&quot;</span> =&gt; <span class="string">&quot;Taiwan&quot;</span>,
-        <span class="string">&quot;us&quot;</span> =&gt; <span class="string">&quot;United States of America&quot;</span>,
-        <span class="kw">_</span> =&gt; <span class="ident">code</span>,
+<span class="kw">pub fn </span>nice_country_name(code: <span class="kw-2">&amp;</span>str) -&gt; <span class="kw-2">&amp;</span>str {
+    <span class="comment">// If you add something here, please also add the flag to data/system/assets/flags.
+    // https://github.com/hampusborgos/country-flags/tree/master/svg
+    </span><span class="kw">match </span>code {
+        <span class="string">&quot;au&quot; </span>=&gt; <span class="string">&quot;Australia&quot;</span>,
+        <span class="string">&quot;at&quot; </span>=&gt; <span class="string">&quot;Austria&quot;</span>,
+        <span class="string">&quot;br&quot; </span>=&gt; <span class="string">&quot;Brazil&quot;</span>,
+        <span class="string">&quot;ca&quot; </span>=&gt; <span class="string">&quot;Canada&quot;</span>,
+        <span class="string">&quot;ch&quot; </span>=&gt; <span class="string">&quot;Switzerland&quot;</span>,
+        <span class="string">&quot;cz&quot; </span>=&gt; <span class="string">&quot;Czech Republic&quot;</span>,
+        <span class="string">&quot;de&quot; </span>=&gt; <span class="string">&quot;Germany&quot;</span>,
+        <span class="string">&quot;fr&quot; </span>=&gt; <span class="string">&quot;France&quot;</span>,
+        <span class="string">&quot;gb&quot; </span>=&gt; <span class="string">&quot;Great Britain&quot;</span>,
+        <span class="string">&quot;il&quot; </span>=&gt; <span class="string">&quot;Israel&quot;</span>,
+        <span class="string">&quot;in&quot; </span>=&gt; <span class="string">&quot;India&quot;</span>,
+        <span class="string">&quot;ir&quot; </span>=&gt; <span class="string">&quot;Iran&quot;</span>,
+        <span class="string">&quot;jp&quot; </span>=&gt; <span class="string">&quot;Japan&quot;</span>,
+        <span class="string">&quot;ly&quot; </span>=&gt; <span class="string">&quot;Libya&quot;</span>,
+        <span class="string">&quot;nl&quot; </span>=&gt; <span class="string">&quot;Netherlands&quot;</span>,
+        <span class="string">&quot;nz&quot; </span>=&gt; <span class="string">&quot;New Zealand&quot;</span>,
+        <span class="string">&quot;pl&quot; </span>=&gt; <span class="string">&quot;Poland&quot;</span>,
+        <span class="string">&quot;pt&quot; </span>=&gt; <span class="string">&quot;Portugal&quot;</span>,
+        <span class="string">&quot;sg&quot; </span>=&gt; <span class="string">&quot;Singapore&quot;</span>,
+        <span class="string">&quot;tw&quot; </span>=&gt; <span class="string">&quot;Taiwan&quot;</span>,
+        <span class="string">&quot;us&quot; </span>=&gt; <span class="string">&quot;United States of America&quot;</span>,
+        <span class="kw">_ </span>=&gt; code,
     }
 }
 
-<span class="doccomment">/// Returns the path to an executable. Native-only.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_exe</span>(<span class="ident">cmd</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">String</span> {
-    <span class="kw">for</span> <span class="ident">dir</span> <span class="kw">in</span> [
-        <span class="comment">// When running from source, prefer release builds, but fallback to debug. This might be</span>
-        <span class="comment">// confusing when developing and not recompiling in release mode.</span>
-        <span class="string">&quot;./target/release&quot;</span>,
+<span class="doccomment">/// Returns the path to an executable. Native-only.
+</span><span class="kw">pub fn </span>find_exe(cmd: <span class="kw-2">&amp;</span>str) -&gt; String {
+    <span class="kw">for </span>dir <span class="kw">in </span>[
+        <span class="comment">// When running from source, prefer release builds, but fallback to debug. This might be
+        // confusing when developing and not recompiling in release mode.
+        </span><span class="string">&quot;./target/release&quot;</span>,
         <span class="string">&quot;../target/release&quot;</span>,
         <span class="string">&quot;../../target/release&quot;</span>,
         <span class="string">&quot;./target/debug&quot;</span>,
         <span class="string">&quot;../target/debug&quot;</span>,
         <span class="string">&quot;../../target/debug&quot;</span>,
-        <span class="comment">// When running from the .zip release</span>
-        <span class="string">&quot;.&quot;</span>,
+        <span class="comment">// When running from the .zip release
+        </span><span class="string">&quot;.&quot;</span>,
     ] {
-        <span class="comment">// Apparently std::path on Windows doesn&#39;t do any of this correction. We could build up a</span>
-        <span class="comment">// PathBuf properly, I guess</span>
-        <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="kw">if</span> <span class="macro">cfg!</span>(<span class="ident">windows</span>) {
-            <span class="macro">format!</span>(<span class="string">&quot;{}/{}.exe&quot;</span>, <span class="ident">dir</span>, <span class="ident">cmd</span>).<span class="ident">replace</span>(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;\\&quot;</span>)
-        } <span class="kw">else</span> {
-            <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, <span class="ident">dir</span>, <span class="ident">cmd</span>)
+        <span class="comment">// Apparently std::path on Windows doesn&#39;t do any of this correction. We could build up a
+        // PathBuf properly, I guess
+        </span><span class="kw">let </span>path = <span class="kw">if </span><span class="macro">cfg!</span>(windows) {
+            <span class="macro">format!</span>(<span class="string">&quot;{}/{}.exe&quot;</span>, dir, cmd).replace(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;\\&quot;</span>)
+        } <span class="kw">else </span>{
+            <span class="macro">format!</span>(<span class="string">&quot;{}/{}&quot;</span>, dir, cmd)
         };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">metadata</span>) <span class="op">=</span> <span class="ident">fs_err::metadata</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
-            <span class="kw">if</span> <span class="ident">metadata</span>.<span class="ident">is_file</span>() {
-                <span class="kw">return</span> <span class="ident">path</span>;
-            } <span class="kw">else</span> {
+        <span class="kw">if let </span><span class="prelude-val">Ok</span>(metadata) = fs_err::metadata(<span class="kw-2">&amp;</span>path) {
+            <span class="kw">if </span>metadata.is_file() {
+                <span class="kw">return </span>path;
+            } <span class="kw">else </span>{
                 <span class="macro">debug!</span>(
                     <span class="string">&quot;found matching path: {}/{} but it&#39;s not a file.&quot;</span>,
-                    <span class="kw-2">&amp;</span><span class="ident">path</span>, <span class="ident">cmd</span>
+                    <span class="kw-2">&amp;</span>path, cmd
                 );
             }
         }
     }
-    <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t find the {} executable. Is it built?&quot;</span>, <span class="ident">cmd</span>);
+    <span class="macro">panic!</span>(<span class="string">&quot;Couldn&#39;t find the {} executable. Is it built?&quot;</span>, cmd);
 }
 
-<span class="doccomment">/// A button to change maps, with default keybindings</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">change_map_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">ctx</span>.<span class="ident">style</span>()
-        .<span class="ident">btn_popup_icon_text</span>(
+<span class="doccomment">/// A button to change maps, with default keybindings
+</span><span class="kw">pub fn </span>change_map_btn(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; Widget {
+    ctx.style()
+        .btn_popup_icon_text(
             <span class="string">&quot;system/assets/tools/map.svg&quot;</span>,
-            <span class="ident">nice_map_name</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_name</span>()),
+            nice_map_name(app.map().get_name()),
         )
-        .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::L</span>))
-        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change map&quot;</span>)
+        .hotkey(lctrl(Key::L))
+        .build_widget(ctx, <span class="string">&quot;change map&quot;</span>)
 }
 
-<span class="doccomment">/// A button to return to the title screen</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">home_btn</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">ctx</span>.<span class="ident">style</span>()
-        .<span class="ident">btn_plain</span>
-        .<span class="ident">btn</span>()
-        .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
-        .<span class="ident">image_dims</span>(<span class="number">50.0</span>)
-        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Home&quot;</span>)
+<span class="doccomment">/// A button to return to the title screen
+</span><span class="kw">pub fn </span>home_btn(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Widget {
+    ctx.style()
+        .btn_plain
+        .btn()
+        .image_path(<span class="string">&quot;system/assets/pregame/logo.svg&quot;</span>)
+        .image_dims(<span class="number">50.0</span>)
+        .build_widget(ctx, <span class="string">&quot;Home&quot;</span>)
 }
 
-<span class="doccomment">/// A standard way to group a home button back to the title screen, the title of the current app,</span>
-<span class="doccomment">/// and a button to change maps. Callers must handle the `change map` and `home` click events.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">app_header</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">title</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">home_btn</span>(<span class="ident">ctx</span>),
-            <span class="ident">Line</span>(<span class="ident">title</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
+<span class="doccomment">/// A standard way to group a home button back to the title screen, the title of the current app,
+/// and a button to change maps. Callers must handle the `change map` and `home` click events.
+</span><span class="kw">pub fn </span>app_header(ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, title: <span class="kw-2">&amp;</span>str) -&gt; Widget {
+    Widget::col(<span class="macro">vec!</span>[
+        Widget::row(<span class="macro">vec!</span>[
+            home_btn(ctx),
+            Line(title).small_heading().into_widget(ctx).centered_vert(),
         ]),
-        <span class="ident">change_map_btn</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+        change_map_btn(ctx, app),
     ])
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersections_from_roads</span>(<span class="ident">roads</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="ident">roads</span> {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">r</span>.<span class="ident">src_i</span>, <span class="ident">r</span>.<span class="ident">dst_i</span>] {
-            <span class="kw">if</span> <span class="ident">results</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
+<span class="kw">pub fn </span>intersections_from_roads(roads: <span class="kw-2">&amp;</span>BTreeSet&lt;RoadID&gt;, map: <span class="kw-2">&amp;</span>Map) -&gt; BTreeSet&lt;IntersectionID&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>results = BTreeSet::new();
+    <span class="kw">for </span>r <span class="kw">in </span>roads {
+        <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>r);
+        <span class="kw">for </span>i <span class="kw">in </span>[r.src_i, r.dst_i] {
+            <span class="kw">if </span>results.contains(<span class="kw-2">&amp;</span>i) {
                 <span class="kw">continue</span>;
             }
-            <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">all</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">roads</span>.<span class="ident">contains</span>(<span class="ident">r</span>)) {
-                <span class="ident">results</span>.<span class="ident">insert</span>(<span class="ident">i</span>);
+            <span class="kw">if </span>map.get_i(i).roads.iter().all(|r| roads.contains(r)) {
+                results.insert(i);
             }
         }
     }
-    <span class="ident">results</span>
+    results
 }
 
-<span class="doccomment">/// Modify the current URL to set the first free parameter to the current map name.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_url_map_name</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) {
-    <span class="ident">widgetry::tools::URLManager::update_url_free_param</span>(
-        <span class="ident">app</span>.<span class="ident">map</span>()
-            .<span class="ident">get_name</span>()
-            .<span class="ident">path</span>()
-            .<span class="ident">strip_prefix</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::path</span>(<span class="string">&quot;&quot;</span>))
-            .<span class="ident">unwrap</span>()
-            .<span class="ident">to_string</span>(),
+<span class="doccomment">/// Modify the current URL to set the first free parameter to the current map name.
+</span><span class="kw">pub fn </span>update_url_map_name(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
+    widgetry::tools::URLManager::update_url_free_param(
+        app.map()
+            .get_name()
+            .path()
+            .strip_prefix(<span class="kw-2">&amp;</span>abstio::path(<span class="string">&quot;&quot;</span>))
+            .unwrap()
+            .to_string(),
     );
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/uk.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>uk.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `importer/src/uk.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>uk.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../importer/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../importer/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -241,248 +241,248 @@
 <span id="241">241</span>
 <span id="242">242</span>
 <span id="243">243</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">fs_err::File</span>;
-<span class="kw">use</span> <span class="ident">rand::SeedableRng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>fs_err::File;
+<span class="kw">use </span>rand::SeedableRng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
+<span class="kw">use </span>serde::Deserialize;
 
-<span class="kw">use</span> <span class="ident">abstio::path_shared_input</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">Polygon</span>};
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
-<span class="kw">use</span> <span class="ident">popdat::od::DesireLine</span>;
-<span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">Scenario</span>, <span class="ident">TrafficCounts</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
+<span class="kw">use </span>abstio::path_shared_input;
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::{GPSBounds, Polygon};
+<span class="kw">use </span>map_model::Map;
+<span class="kw">use </span>popdat::od::DesireLine;
+<span class="kw">use </span>raw_map::RawMap;
+<span class="kw">use </span>synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::configuration::ImporterConfiguration</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::utils::download</span>;
+<span class="kw">use </span><span class="kw">crate</span>::configuration::ImporterConfiguration;
+<span class="kw">use </span><span class="kw">crate</span>::utils::download;
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">import_collision_data</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">RawMap</span>,
-    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
+<span class="kw">pub async fn </span>import_collision_data(
+    map: <span class="kw-2">&amp;</span>RawMap,
+    config: <span class="kw-2">&amp;</span>ImporterConfiguration,
+    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">&#39;_</span>&gt;,
 ) {
-    <span class="ident">download</span>(
-        <span class="ident">config</span>,
-        <span class="ident">path_shared_input</span>(<span class="string">&quot;Road Safety Data - Accidents 2019.csv&quot;</span>),
+    download(
+        config,
+        path_shared_input(<span class="string">&quot;Road Safety Data - Accidents 2019.csv&quot;</span>),
         <span class="string">&quot;http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip&quot;</span>).<span class="kw">await</span>;
 
-    <span class="comment">// Always do this, it&#39;s idempotent and fast</span>
-    <span class="kw">let</span> <span class="ident">shapes</span> <span class="op">=</span> <span class="ident">kml::ExtraShapes::load_csv</span>(
-        <span class="ident">path_shared_input</span>(<span class="string">&quot;Road Safety Data - Accidents 2019.csv&quot;</span>),
-        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>,
-        <span class="ident">timer</span>,
+    <span class="comment">// Always do this, it&#39;s idempotent and fast
+    </span><span class="kw">let </span>shapes = kml::ExtraShapes::load_csv(
+        path_shared_input(<span class="string">&quot;Road Safety Data - Accidents 2019.csv&quot;</span>),
+        <span class="kw-2">&amp;</span>map.streets.gps_bounds,
+        timer,
     )
-    .<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">collisions</span> <span class="op">=</span> <span class="ident">collisions::import_stats19</span>(
-        <span class="ident">shapes</span>,
+    .unwrap();
+    <span class="kw">let </span>collisions = collisions::import_stats19(
+        shapes,
         <span class="string">&quot;http://data.dft.gov.uk.s3.amazonaws.com/road-accidents-safety-data/DfTRoadSafety_Accidents_2019.zip&quot;</span>);
-    <span class="ident">abstio::write_binary</span>(
-        <span class="ident">map</span>.<span class="ident">get_city_name</span>().<span class="ident">input_path</span>(<span class="string">&quot;collisions.bin&quot;</span>),
-        <span class="kw-2">&amp;</span><span class="ident">collisions</span>,
+    abstio::write_binary(
+        map.get_city_name().input_path(<span class="string">&quot;collisions.bin&quot;</span>),
+        <span class="kw-2">&amp;</span>collisions,
     );
 }
 
-<span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">generate_scenario</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">config</span>: <span class="kw-2">&amp;</span><span class="ident">ImporterConfiguration</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;prepare input&quot;</span>);
-    <span class="ident">download</span>(
-        <span class="ident">config</span>,
-        <span class="ident">path_shared_input</span>(<span class="string">&quot;wu03ew_v2.csv&quot;</span>),
+<span class="kw">pub async fn </span>generate_scenario(
+    map: <span class="kw-2">&amp;</span>Map,
+    config: <span class="kw-2">&amp;</span>ImporterConfiguration,
+    timer: <span class="kw-2">&amp;mut </span>Timer&lt;<span class="lifetime">&#39;_</span>&gt;,
+) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    timer.start(<span class="string">&quot;prepare input&quot;</span>);
+    download(
+        config,
+        path_shared_input(<span class="string">&quot;wu03ew_v2.csv&quot;</span>),
         <span class="string">&quot;https://s3-eu-west-1.amazonaws.com/statistics.digitalresources.jisc.ac.uk/dkan/files/FLOW/wu03ew_v2/wu03ew_v2.csv&quot;</span>).<span class="kw">await</span>;
-    <span class="comment">// https://mapit.mysociety.org/area/45350.html (for geocode) E02004277 is an example place to</span>
-    <span class="comment">// debug where these zones are.</span>
-    <span class="ident">download</span>(
-        <span class="ident">config</span>,
-        <span class="ident">path_shared_input</span>(<span class="string">&quot;zones_core.geojson&quot;</span>),
+    <span class="comment">// https://mapit.mysociety.org/area/45350.html (for geocode) E02004277 is an example place to
+    // debug where these zones are.
+    </span>download(
+        config,
+        path_shared_input(<span class="string">&quot;zones_core.geojson&quot;</span>),
         <span class="string">&quot;https://github.com/cyipt/actdev/releases/download/0.1.13/zones_core.geojson&quot;</span>,
     )
     .<span class="kw">await</span>;
 
-    <span class="kw">let</span> <span class="ident">desire_lines</span> <span class="op">=</span> <span class="ident">parse_desire_lines</span>(<span class="ident">path_shared_input</span>(<span class="string">&quot;wu03ew_v2.csv&quot;</span>))<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">zones</span> <span class="op">=</span> <span class="ident">parse_zones</span>(
-        <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>(),
-        <span class="ident">path_shared_input</span>(<span class="string">&quot;zones_core.geojson&quot;</span>),
+    <span class="kw">let </span>desire_lines = parse_desire_lines(path_shared_input(<span class="string">&quot;wu03ew_v2.csv&quot;</span>))<span class="question-mark">?</span>;
+    <span class="kw">let </span>zones = parse_zones(
+        map.get_gps_bounds(),
+        path_shared_input(<span class="string">&quot;zones_core.geojson&quot;</span>),
     )<span class="question-mark">?</span>;
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;prepare input&quot;</span>);
+    timer.stop(<span class="string">&quot;prepare input&quot;</span>);
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;disaggregate&quot;</span>);
-    <span class="comment">// Could plumb this in as a flag to the importer, but it&#39;s not critical.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="number">42</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="string">&quot;background&quot;</span>);
-    <span class="comment">// Include all buses/trains</span>
-    <span class="ident">scenario</span>.<span class="ident">only_seed_buses</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-    <span class="ident">scenario</span>.<span class="ident">people</span> <span class="op">=</span> <span class="ident">popdat::od::disaggregate</span>(
-        <span class="ident">map</span>,
-        <span class="ident">zones</span>,
-        <span class="ident">desire_lines</span>,
-        <span class="ident">popdat::od::Options::default</span>(),
-        <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>,
-        <span class="ident">timer</span>,
+    timer.start(<span class="string">&quot;disaggregate&quot;</span>);
+    <span class="comment">// Could plumb this in as a flag to the importer, but it&#39;s not critical.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(<span class="number">42</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>scenario = Scenario::empty(map, <span class="string">&quot;background&quot;</span>);
+    <span class="comment">// Include all buses/trains
+    </span>scenario.only_seed_buses = <span class="prelude-val">None</span>;
+    scenario.people = popdat::od::disaggregate(
+        map,
+        zones,
+        desire_lines,
+        popdat::od::Options::default(),
+        <span class="kw-2">&amp;mut </span>rng,
+        timer,
     );
-    <span class="comment">// Some zones have very few buildings, and people wind up with a home and workplace that&#39;re the</span>
-    <span class="comment">// same!</span>
-    <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">remove_weird_schedules</span>(<span class="bool-val">false</span>);
-    <span class="comment">// TODO For temporary development of the UK OD pipeline...</span>
-    <span class="kw">if</span> <span class="bool-val">false</span> {
-        <span class="ident">check_sensor_data</span>(<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">scenario</span>, <span class="string">&quot;/home/dabreegster/sensors.json&quot;</span>, <span class="ident">timer</span>);
+    <span class="comment">// Some zones have very few buildings, and people wind up with a home and workplace that&#39;re the
+    // same!
+    </span>scenario = scenario.remove_weird_schedules(<span class="bool-val">false</span>);
+    <span class="comment">// TODO For temporary development of the UK OD pipeline...
+    </span><span class="kw">if </span><span class="bool-val">false </span>{
+        check_sensor_data(map, <span class="kw-2">&amp;</span>scenario, <span class="string">&quot;/home/dabreegster/sensors.json&quot;</span>, timer);
     }
     <span class="macro">info!</span>(
         <span class="string">&quot;Generated background traffic scenario with {} people&quot;</span>,
-        <span class="ident">prettyprint_usize</span>(<span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>())
+        prettyprint_usize(scenario.people.len())
     );
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;disaggregate&quot;</span>);
+    timer.stop(<span class="string">&quot;disaggregate&quot;</span>);
 
-    <span class="comment">// Does this map belong to the actdev project?</span>
-    <span class="kw">match</span> <span class="ident">load_study_area</span>(<span class="ident">map</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">study_area</span>) =&gt; {
-            <span class="comment">// Remove people from the scenario we just generated that live in the study area. The</span>
-            <span class="comment">// data imported using importer/actdev_scenarios.sh already covers them.</span>
-            <span class="kw">let</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>();
-            <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">p</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">p</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">origin</span> {
-                <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="op">!</span><span class="ident">study_area</span>.<span class="ident">contains_pt</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>).<span class="ident">polygon</span>.<span class="ident">center</span>()),
-                <span class="kw">_</span> =&gt; <span class="bool-val">true</span>,
+    <span class="comment">// Does this map belong to the actdev project?
+    </span><span class="kw">match </span>load_study_area(map) {
+        <span class="prelude-val">Ok</span>(study_area) =&gt; {
+            <span class="comment">// Remove people from the scenario we just generated that live in the study area. The
+            // data imported using importer/actdev_scenarios.sh already covers them.
+            </span><span class="kw">let </span>before = scenario.people.len();
+            scenario.people.retain(|p| <span class="kw">match </span>p.trips[<span class="number">0</span>].origin {
+                TripEndpoint::Building(b) =&gt; !study_area.contains_pt(map.get_b(b).polygon.center()),
+                <span class="kw">_ </span>=&gt; <span class="bool-val">true</span>,
             });
             <span class="macro">info!</span>(
                 <span class="string">&quot;Removed {} people from the background scenario that live in the study area&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">before</span> <span class="op">-</span> <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>())
+                prettyprint_usize(before - scenario.people.len())
             );
 
-            <span class="comment">// Create two scenarios, merging the background traffic with the base/active scenarios.</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">base</span>: <span class="ident">Scenario</span> <span class="op">=</span> <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">Scenario</span><span class="op">&gt;</span>(
-                <span class="ident">abstio::path_scenario</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="string">&quot;base&quot;</span>),
-                <span class="ident">timer</span>,
+            <span class="comment">// Create two scenarios, merging the background traffic with the base/active scenarios.
+            </span><span class="kw">let </span><span class="kw-2">mut </span>base: Scenario = abstio::maybe_read_binary::&lt;Scenario&gt;(
+                abstio::path_scenario(map.get_name(), <span class="string">&quot;base&quot;</span>),
+                timer,
             )<span class="question-mark">?</span>;
-            <span class="ident">base</span>.<span class="ident">people</span>.<span class="ident">extend</span>(<span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">clone</span>());
-            <span class="ident">base</span>.<span class="ident">scenario_name</span> <span class="op">=</span> <span class="string">&quot;base_with_bg&quot;</span>.<span class="ident">to_string</span>();
-            <span class="ident">base</span>.<span class="ident">save</span>();
+            base.people.extend(scenario.people.clone());
+            base.scenario_name = <span class="string">&quot;base_with_bg&quot;</span>.to_string();
+            base.save();
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">go_active</span>: <span class="ident">Scenario</span> <span class="op">=</span> <span class="ident">abstio::maybe_read_binary</span>(
-                <span class="ident">abstio::path_scenario</span>(<span class="ident">map</span>.<span class="ident">get_name</span>(), <span class="string">&quot;go_active&quot;</span>),
-                <span class="ident">timer</span>,
+            <span class="kw">let </span><span class="kw-2">mut </span>go_active: Scenario = abstio::maybe_read_binary(
+                abstio::path_scenario(map.get_name(), <span class="string">&quot;go_active&quot;</span>),
+                timer,
             )<span class="question-mark">?</span>;
-            <span class="ident">go_active</span>.<span class="ident">people</span>.<span class="ident">extend</span>(<span class="ident">scenario</span>.<span class="ident">people</span>);
-            <span class="ident">go_active</span>.<span class="ident">scenario_name</span> <span class="op">=</span> <span class="string">&quot;go_active_with_bg&quot;</span>.<span class="ident">to_string</span>();
-            <span class="ident">go_active</span>.<span class="ident">save</span>();
+            go_active.people.extend(scenario.people);
+            go_active.scenario_name = <span class="string">&quot;go_active_with_bg&quot;</span>.to_string();
+            go_active.save();
 
-            <span class="comment">// Don&#39;t save background.bin for actdev sites -- use base_with_bg instead.</span>
-        }
-        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-            <span class="comment">// We&#39;re a &quot;normal&quot; city -- just save the background traffic.</span>
-            <span class="macro">info!</span>(<span class="string">&quot;{} has no study area: {}&quot;</span>, <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">describe</span>(), <span class="ident">err</span>);
-            <span class="ident">scenario</span>.<span class="ident">save</span>();
+            <span class="comment">// Don&#39;t save background.bin for actdev sites -- use base_with_bg instead.
+        </span>}
+        <span class="prelude-val">Err</span>(err) =&gt; {
+            <span class="comment">// We&#39;re a &quot;normal&quot; city -- just save the background traffic.
+            </span><span class="macro">info!</span>(<span class="string">&quot;{} has no study area: {}&quot;</span>, map.get_name().describe(), err);
+            scenario.save();
         }
     }
 
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="kw">fn</span> <span class="ident">parse_desire_lines</span>(<span class="ident">path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DesireLine</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">output</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">rec</span> <span class="kw">in</span> <span class="ident">csv::Reader::from_reader</span>(<span class="ident">File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>).<span class="ident">deserialize</span>() {
-        <span class="kw">let</span> <span class="ident">rec</span>: <span class="ident">Record</span> <span class="op">=</span> <span class="ident">rec</span><span class="question-mark">?</span>;
-        <span class="kw">for</span> (<span class="ident">mode</span>, <span class="ident">number_commuters</span>) <span class="kw">in</span> [
-            (<span class="ident">TripMode::Drive</span>, <span class="ident">rec</span>.<span class="ident">num_drivers</span>),
-            (<span class="ident">TripMode::Bike</span>, <span class="ident">rec</span>.<span class="ident">num_bikers</span>),
-            (<span class="ident">TripMode::Walk</span>, <span class="ident">rec</span>.<span class="ident">num_pedestrians</span>),
+<span class="kw">fn </span>parse_desire_lines(path: String) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;DesireLine&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>output = Vec::new();
+    <span class="kw">for </span>rec <span class="kw">in </span>csv::Reader::from_reader(File::open(path)<span class="question-mark">?</span>).deserialize() {
+        <span class="kw">let </span>rec: Record = rec<span class="question-mark">?</span>;
+        <span class="kw">for </span>(mode, number_commuters) <span class="kw">in </span>[
+            (TripMode::Drive, rec.num_drivers),
+            (TripMode::Bike, rec.num_bikers),
+            (TripMode::Walk, rec.num_pedestrians),
             (
-                <span class="ident">TripMode::Transit</span>,
-                <span class="ident">rec</span>.<span class="ident">num_transit1</span> <span class="op">+</span> <span class="ident">rec</span>.<span class="ident">num_transit2</span> <span class="op">+</span> <span class="ident">rec</span>.<span class="ident">num_transit3</span>,
+                TripMode::Transit,
+                rec.num_transit1 + rec.num_transit2 + rec.num_transit3,
             ),
         ] {
-            <span class="kw">if</span> <span class="ident">number_commuters</span> <span class="op">&gt;</span> <span class="number">0</span> {
-                <span class="ident">output</span>.<span class="ident">push</span>(<span class="ident">DesireLine</span> {
-                    <span class="ident">home_zone</span>: <span class="ident">rec</span>.<span class="ident">home_zone</span>.<span class="ident">clone</span>(),
-                    <span class="ident">work_zone</span>: <span class="ident">rec</span>.<span class="ident">work_zone</span>.<span class="ident">clone</span>(),
-                    <span class="ident">mode</span>,
-                    <span class="ident">number_commuters</span>,
+            <span class="kw">if </span>number_commuters &gt; <span class="number">0 </span>{
+                output.push(DesireLine {
+                    home_zone: rec.home_zone.clone(),
+                    work_zone: rec.work_zone.clone(),
+                    mode,
+                    number_commuters,
                 });
             }
         }
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">output</span>)
+    <span class="prelude-val">Ok</span>(output)
 }
 
-<span class="comment">// An entry in wu03ew_v2.csv. For now, ignores people who work from home, take a taxi, motorcycle,</span>
-<span class="comment">// are a passenger in a car, or use &quot;another method of travel&quot;.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Record</span> {
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Area of residence&quot;</span>)]</span>
-    <span class="ident">home_zone</span>: <span class="ident">String</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Area of workplace&quot;</span>)]</span>
-    <span class="ident">work_zone</span>: <span class="ident">String</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Underground, metro, light rail, tram&quot;</span>)]</span>
-    <span class="ident">num_transit1</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Train&quot;</span>)]</span>
-    <span class="ident">num_transit2</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Bus, minibus or coach&quot;</span>)]</span>
-    <span class="ident">num_transit3</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Driving a car or van&quot;</span>)]</span>
-    <span class="ident">num_drivers</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;Bicycle&quot;</span>)]</span>
-    <span class="ident">num_bikers</span>: <span class="ident">usize</span>,
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">rename</span> <span class="op">=</span> <span class="string">&quot;On foot&quot;</span>)]</span>
-    <span class="ident">num_pedestrians</span>: <span class="ident">usize</span>,
+<span class="comment">// An entry in wu03ew_v2.csv. For now, ignores people who work from home, take a taxi, motorcycle,
+// are a passenger in a car, or use &quot;another method of travel&quot;.
+</span><span class="attribute">#[derive(Debug, Deserialize)]
+</span><span class="kw">struct </span>Record {
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Area of residence&quot;</span>)]
+    </span>home_zone: String,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Area of workplace&quot;</span>)]
+    </span>work_zone: String,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Underground, metro, light rail, tram&quot;</span>)]
+    </span>num_transit1: usize,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Train&quot;</span>)]
+    </span>num_transit2: usize,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Bus, minibus or coach&quot;</span>)]
+    </span>num_transit3: usize,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Driving a car or van&quot;</span>)]
+    </span>num_drivers: usize,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;Bicycle&quot;</span>)]
+    </span>num_bikers: usize,
+    <span class="attribute">#[serde(rename = <span class="string">&quot;On foot&quot;</span>)]
+    </span>num_pedestrians: usize,
 }
 
-<span class="comment">// Transforms all zones into the map&#39;s coordinate space, no matter how far out-of-bounds they are.</span>
-<span class="kw">fn</span> <span class="ident">parse_zones</span>(<span class="ident">gps_bounds</span>: <span class="kw-2">&amp;</span><span class="ident">GPSBounds</span>, <span class="ident">path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Polygon</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">zones</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">let</span> <span class="ident">require_in_bounds</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="ident">tags</span>) <span class="kw">in</span>
-        <span class="ident">Polygon::from_geojson_bytes</span>(<span class="kw-2">&amp;</span><span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>, <span class="ident">gps_bounds</span>, <span class="ident">require_in_bounds</span>)<span class="question-mark">?</span>
-    {
-        <span class="ident">zones</span>.<span class="ident">insert</span>(<span class="ident">tags</span>.<span class="ident">get_result</span>(<span class="string">&quot;geo_code&quot;</span>)<span class="question-mark">?</span>.<span class="ident">to_string</span>(), <span class="ident">polygon</span>);
+<span class="comment">// Transforms all zones into the map&#39;s coordinate space, no matter how far out-of-bounds they are.
+</span><span class="kw">fn </span>parse_zones(gps_bounds: <span class="kw-2">&amp;</span>GPSBounds, path: String) -&gt; <span class="prelude-ty">Result</span>&lt;HashMap&lt;String, Polygon&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>zones = HashMap::new();
+    <span class="kw">let </span>require_in_bounds = <span class="bool-val">false</span>;
+    <span class="kw">for </span>(polygon, tags) <span class="kw">in
+        </span>Polygon::from_geojson_bytes(<span class="kw-2">&amp;</span>abstio::slurp_file(path)<span class="question-mark">?</span>, gps_bounds, require_in_bounds)<span class="question-mark">?
+    </span>{
+        zones.insert(tags.get_result(<span class="string">&quot;geo_code&quot;</span>)<span class="question-mark">?</span>.to_string(), polygon);
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">zones</span>)
+    <span class="prelude-val">Ok</span>(zones)
 }
 
-<span class="kw">fn</span> <span class="ident">load_study_area</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">require_in_bounds</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">Polygon::from_geojson_bytes</span>(
-        <span class="kw-2">&amp;</span><span class="ident">abstio::slurp_file</span>(<span class="ident">abstio::path</span>(<span class="macro">format!</span>(
+<span class="kw">fn </span>load_study_area(map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;Polygon&gt; {
+    <span class="kw">let </span>require_in_bounds = <span class="bool-val">true</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>list = Polygon::from_geojson_bytes(
+        <span class="kw-2">&amp;</span>abstio::slurp_file(abstio::path(<span class="macro">format!</span>(
             <span class="string">&quot;system/study_areas/{}.geojson&quot;</span>,
-            <span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">city</span>.<span class="ident">city</span>.<span class="ident">replace</span>(<span class="string">&quot;_&quot;</span>, <span class="string">&quot;-&quot;</span>)
+            map.get_name().city.city.replace(<span class="string">&quot;_&quot;</span>, <span class="string">&quot;-&quot;</span>)
         )))<span class="question-mark">?</span>,
-        <span class="ident">map</span>.<span class="ident">get_gps_bounds</span>(),
-        <span class="ident">require_in_bounds</span>,
+        map.get_gps_bounds(),
+        require_in_bounds,
     )<span class="question-mark">?</span>;
-    <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
-        <span class="macro">bail!</span>(<span class="string">&quot;study area geojson has {} polygons&quot;</span>, <span class="ident">list</span>.<span class="ident">len</span>());
+    <span class="kw">if </span>list.len() != <span class="number">1 </span>{
+        <span class="macro">bail!</span>(<span class="string">&quot;study area geojson has {} polygons&quot;</span>, list.len());
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">list</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="number">0</span>)
+    <span class="prelude-val">Ok</span>(list.pop().unwrap().<span class="number">0</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">check_sensor_data</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">scenario</span>: <span class="kw-2">&amp;</span><span class="ident">Scenario</span>, <span class="ident">sensor_path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">use</span> <span class="ident">map_model::PathRequest</span>;
+<span class="kw">fn </span>check_sensor_data(map: <span class="kw-2">&amp;</span>Map, scenario: <span class="kw-2">&amp;</span>Scenario, sensor_path: <span class="kw-2">&amp;</span>str, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="kw">use </span>map_model::PathRequest;
 
-    <span class="kw">let</span> <span class="ident">requests</span> <span class="op">=</span> <span class="ident">scenario</span>
-        .<span class="ident">all_trips</span>()
-        .<span class="ident">filter_map</span>(<span class="op">|</span><span class="ident">trip</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">mode</span> <span class="op">==</span> <span class="ident">TripMode::Drive</span> {
-                <span class="ident">TripEndpoint::path_req</span>(<span class="ident">trip</span>.<span class="ident">origin</span>, <span class="ident">trip</span>.<span class="ident">destination</span>, <span class="ident">trip</span>.<span class="ident">mode</span>, <span class="ident">map</span>)
-            } <span class="kw">else</span> {
-                <span class="prelude-val">None</span>
-            }
+    <span class="kw">let </span>requests = scenario
+        .all_trips()
+        .filter_map(|trip| {
+            <span class="kw">if </span>trip.mode == TripMode::Drive {
+                TripEndpoint::path_req(trip.origin, trip.destination, trip.mode, map)
+            } <span class="kw">else </span>{
+                <span class="prelude-val">None
+            </span>}
         })
-        .<span class="ident">collect</span>();
-    <span class="kw">let</span> <span class="ident">deduped</span> <span class="op">=</span> <span class="ident">PathRequest::deduplicate</span>(<span class="ident">map</span>, <span class="ident">requests</span>);
-    <span class="kw">let</span> <span class="ident">model</span> <span class="op">=</span> <span class="ident">TrafficCounts::from_path_requests</span>(
-        <span class="ident">map</span>,
-        <span class="string">&quot;the generated scenario&quot;</span>.<span class="ident">to_string</span>(),
-        <span class="kw-2">&amp;</span><span class="ident">deduped</span>,
-        <span class="ident">map</span>.<span class="ident">get_pathfinder</span>(),
-        <span class="ident">timer</span>,
+        .collect();
+    <span class="kw">let </span>deduped = PathRequest::deduplicate(map, requests);
+    <span class="kw">let </span>model = TrafficCounts::from_path_requests(
+        map,
+        <span class="string">&quot;the generated scenario&quot;</span>.to_string(),
+        <span class="kw-2">&amp;</span>deduped,
+        map.get_pathfinder(),
+        timer,
     );
 
-    <span class="kw">let</span> <span class="ident">sensors</span> <span class="op">=</span> <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">TrafficCounts</span><span class="op">&gt;</span>(<span class="ident">sensor_path</span>.<span class="ident">to_string</span>(), <span class="ident">timer</span>).<span class="ident">unwrap</span>();
-    <span class="ident">sensors</span>.<span class="ident">quickly_compare</span>(<span class="kw-2">&amp;</span><span class="ident">model</span>);
+    <span class="kw">let </span>sensors = abstio::maybe_read_json::&lt;TrafficCounts&gt;(sensor_path.to_string(), timer).unwrap();
+    sensors.quickly_compare(<span class="kw-2">&amp;</span>model);
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="importer" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

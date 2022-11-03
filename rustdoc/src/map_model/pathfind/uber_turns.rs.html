@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/uber_turns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>uber_turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/uber_turns.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>uber_turns.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -294,301 +294,301 @@
 <span id="294">294</span>
 <span id="295">295</span>
 <span id="296">296</span>
-</pre><pre class="rust"><code><span class="doccomment">//! To deal with complicated intersections and short roads in OSM, cluster intersections close</span>
-<span class="doccomment">//! together and then calculate UberTurns that string together several turns.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! To deal with complicated intersections and short roads in OSM, cluster intersections close
+//! together and then calculate UberTurns that string together several turns.
 
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+</span><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
-<span class="kw">use</span> <span class="ident">petgraph::graphmap::UnGraphMap</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>petgraph::graphmap::UnGraphMap;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">PolyLine</span>};
+<span class="kw">use </span>geom::{Distance, PolyLine};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">PathConstraints</span>, <span class="ident">TurnID</span>};
+<span class="kw">use crate</span>::{DirectedRoadID, IntersectionID, LaneID, Map, MovementID, PathConstraints, TurnID};
 
-<span class="doccomment">/// This only applies to VehiclePathfinder; walking through these intersections is nothing special.</span>
-<span class="doccomment">/// And in fact, even lanes only for buses/bikes are ignored.</span>
-<span class="comment">// TODO I haven&#39;t seen any cases yet with &quot;interior&quot; intersections. Some stuff might break.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">IntersectionCluster</span> {
-    <span class="kw">pub</span> <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span>,
+<span class="doccomment">/// This only applies to VehiclePathfinder; walking through these intersections is nothing special.
+/// And in fact, even lanes only for buses/bikes are ignored.
+</span><span class="comment">// TODO I haven&#39;t seen any cases yet with &quot;interior&quot; intersections. Some stuff might break.
+</span><span class="kw">pub struct </span>IntersectionCluster {
+    <span class="kw">pub </span>members: BTreeSet&lt;IntersectionID&gt;,
+    <span class="kw">pub </span>uber_turns: Vec&lt;UberTurn&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UberTurn</span> {
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+</span><span class="kw">pub struct </span>UberTurn {
+    <span class="kw">pub </span>path: Vec&lt;TurnID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">IntersectionCluster</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_all</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">IntersectionCluster</span><span class="op">&gt;</span> {
-        <span class="comment">// First autodetect based on traffic signals close together.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">clusters</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen_intersections</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_traffic_signal</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">seen_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">id</span>) {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">members</span>) <span class="op">=</span> <span class="ident">IntersectionCluster::autodetect</span>(<span class="ident">i</span>.<span class="ident">id</span>, <span class="ident">map</span>) {
-                    <span class="ident">seen_intersections</span>.<span class="ident">extend</span>(<span class="ident">members</span>.<span class="ident">clone</span>());
-                    <span class="comment">// Discard any illegal movements</span>
-                    <span class="ident">clusters</span>.<span class="ident">push</span>(<span class="ident">IntersectionCluster::new</span>(<span class="ident">members</span>, <span class="ident">map</span>).<span class="number">0</span>);
+<span class="kw">impl </span>IntersectionCluster {
+    <span class="kw">pub fn </span>find_all(map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;IntersectionCluster&gt; {
+        <span class="comment">// First autodetect based on traffic signals close together.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>clusters = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>seen_intersections = BTreeSet::new();
+        <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
+            <span class="kw">if </span>i.is_traffic_signal() &amp;&amp; !seen_intersections.contains(<span class="kw-2">&amp;</span>i.id) {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(members) = IntersectionCluster::autodetect(i.id, map) {
+                    seen_intersections.extend(members.clone());
+                    <span class="comment">// Discard any illegal movements
+                    </span>clusters.push(IntersectionCluster::new(members, map).<span class="number">0</span>);
                 }
             }
         }
 
-        <span class="comment">// Then look for intersections with complicated turn restrictions.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span>: <span class="ident">UnGraphMap</span><span class="op">&lt;</span><span class="ident">IntersectionID</span>, ()<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">UnGraphMap::new</span>();
-        <span class="kw">for</span> <span class="ident">from</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">for</span> (<span class="ident">via</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">from</span>.<span class="ident">complicated_turn_restrictions</span> {
-                <span class="comment">// Each of these tells us 2 intersections to group together</span>
-                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">via</span>);
-                <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">r</span>.<span class="ident">src_i</span>, <span class="ident">r</span>.<span class="ident">dst_i</span>, ());
+        <span class="comment">// Then look for intersections with complicated turn restrictions.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>graph: UnGraphMap&lt;IntersectionID, ()&gt; = UnGraphMap::new();
+        <span class="kw">for </span>from <span class="kw">in </span>map.all_roads() {
+            <span class="kw">for </span>(via, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span>from.complicated_turn_restrictions {
+                <span class="comment">// Each of these tells us 2 intersections to group together
+                </span><span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>via);
+                graph.add_edge(r.src_i, r.dst_i, ());
             }
         }
-        <span class="kw">for</span> <span class="ident">intersections</span> <span class="kw">in</span> <span class="ident">petgraph::algo::kosaraju_scc</span>(<span class="kw-2">&amp;</span><span class="ident">graph</span>) {
-            <span class="kw">let</span> <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">intersections</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>();
-            <span class="comment">// Is there already a cluster covering everything?</span>
-            <span class="kw">if</span> <span class="ident">clusters</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">ic</span><span class="op">|</span> <span class="ident">ic</span>.<span class="ident">members</span>.<span class="ident">is_subset</span>(<span class="kw-2">&amp;</span><span class="ident">members</span>)) {
+        <span class="kw">for </span>intersections <span class="kw">in </span>petgraph::algo::kosaraju_scc(<span class="kw-2">&amp;</span>graph) {
+            <span class="kw">let </span>members: BTreeSet&lt;IntersectionID&gt; = intersections.iter().cloned().collect();
+            <span class="comment">// Is there already a cluster covering everything?
+            </span><span class="kw">if </span>clusters.iter().any(|ic| ic.members.is_subset(<span class="kw-2">&amp;</span>members)) {
                 <span class="kw">continue</span>;
             }
 
-            <span class="comment">// Do any existing clusters partly cover this one?</span>
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">existing</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">IntersectionCluster</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">clusters</span>
-                .<span class="ident">iter_mut</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">ic</span><span class="op">|</span> <span class="ident">ic</span>.<span class="ident">members</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">members</span>).<span class="ident">next</span>().<span class="ident">is_some</span>())
-                .<span class="ident">collect</span>();
-            <span class="comment">// None? Just add a new one.</span>
-            <span class="kw">if</span> <span class="ident">existing</span>.<span class="ident">is_empty</span>() {
-                <span class="ident">clusters</span>.<span class="ident">push</span>(<span class="ident">IntersectionCluster::new</span>(<span class="ident">members</span>, <span class="ident">map</span>).<span class="number">0</span>);
+            <span class="comment">// Do any existing clusters partly cover this one?
+            </span><span class="kw">let </span><span class="kw-2">mut </span>existing: Vec&lt;<span class="kw-2">&amp;mut </span>IntersectionCluster&gt; = clusters
+                .iter_mut()
+                .filter(|ic| ic.members.intersection(<span class="kw-2">&amp;</span>members).next().is_some())
+                .collect();
+            <span class="comment">// None? Just add a new one.
+            </span><span class="kw">if </span>existing.is_empty() {
+                clusters.push(IntersectionCluster::new(members, map).<span class="number">0</span>);
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">if</span> <span class="ident">existing</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
-                <span class="comment">// Amend this existing one.</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_members</span> <span class="op">=</span> <span class="ident">members</span>;
-                <span class="ident">all_members</span>.<span class="ident">extend</span>(<span class="ident">existing</span>[<span class="number">0</span>].<span class="ident">members</span>.<span class="ident">clone</span>());
-                <span class="kw-2">*</span><span class="ident">existing</span>[<span class="number">0</span>] <span class="op">=</span> <span class="ident">IntersectionCluster::new</span>(<span class="ident">all_members</span>, <span class="ident">map</span>).<span class="number">0</span>;
+            <span class="kw">if </span>existing.len() == <span class="number">1 </span>{
+                <span class="comment">// Amend this existing one.
+                </span><span class="kw">let </span><span class="kw-2">mut </span>all_members = members;
+                all_members.extend(existing[<span class="number">0</span>].members.clone());
+                <span class="kw-2">*</span>existing[<span class="number">0</span>] = IntersectionCluster::new(all_members, map).<span class="number">0</span>;
                 <span class="kw">continue</span>;
             }
 
-            <span class="comment">// TODO Saw this is New Orleans</span>
-            <span class="macro">println!</span>(
+            <span class="comment">// TODO Saw this is New Orleans
+            </span><span class="macro">println!</span>(
                 <span class="string">&quot;Need a cluster containing {:?} for turn restrictions, but there&#39;s more than one \
                  existing cluster that partly covers it. Union them?&quot;</span>,
-                <span class="ident">members</span>
+                members
             );
-            <span class="kw">return</span> <span class="ident">Vec::new</span>();
+            <span class="kw">return </span>Vec::new();
         }
 
-        <span class="ident">clusters</span>
+        clusters
     }
 
-    <span class="doccomment">/// (legal, illegal)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">members</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; (<span class="ident">IntersectionCluster</span>, <span class="ident">IntersectionCluster</span>) {
-        <span class="comment">// Find all entrances and exits through this group of intersections</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entrances</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">exits</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">members</span> {
-            <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">turns</span> {
-                <span class="kw">if</span> <span class="ident">turn</span>.<span class="ident">between_sidewalks</span>() {
+    <span class="doccomment">/// (legal, illegal)
+    </span><span class="kw">pub fn </span>new(
+        members: BTreeSet&lt;IntersectionID&gt;,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; (IntersectionCluster, IntersectionCluster) {
+        <span class="comment">// Find all entrances and exits through this group of intersections
+        </span><span class="kw">let </span><span class="kw-2">mut </span>entrances = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>exits = BTreeSet::new();
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>members {
+            <span class="kw">for </span>turn <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_i(<span class="kw-2">*</span>i).turns {
+                <span class="kw">if </span>turn.between_sidewalks() {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>);
-                <span class="kw">let</span> <span class="ident">dst</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>);
-                <span class="kw">if</span> <span class="ident">src</span>.<span class="ident">is_footway</span>() <span class="op">|</span><span class="op">|</span> <span class="ident">dst</span>.<span class="ident">is_footway</span>() {
+                <span class="kw">let </span>src = map.get_l(turn.id.src);
+                <span class="kw">let </span>dst = map.get_l(turn.id.dst);
+                <span class="kw">if </span>src.is_footway() || dst.is_footway() {
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>.<span class="ident">src_i</span>) {
-                    <span class="ident">entrances</span>.<span class="ident">push</span>(<span class="ident">turn</span>.<span class="ident">id</span>);
+                <span class="kw">if </span>!members.contains(<span class="kw-2">&amp;</span>src.src_i) {
+                    entrances.push(turn.id);
                 }
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">members</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">dst</span>.<span class="ident">dst_i</span>) {
-                    <span class="ident">exits</span>.<span class="ident">insert</span>(<span class="ident">turn</span>.<span class="ident">id</span>);
+                <span class="kw">if </span>!members.contains(<span class="kw-2">&amp;</span>dst.dst_i) {
+                    exits.insert(turn.id);
                 }
             }
         }
 
-        <span class="comment">// Find all paths between entrances and exits</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">uber_turns</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">entrance</span> <span class="kw">in</span> <span class="ident">entrances</span> {
-            <span class="ident">uber_turns</span>.<span class="ident">extend</span>(<span class="ident">flood</span>(<span class="ident">entrance</span>, <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">exits</span>));
+        <span class="comment">// Find all paths between entrances and exits
+        </span><span class="kw">let </span><span class="kw-2">mut </span>uber_turns = Vec::new();
+        <span class="kw">for </span>entrance <span class="kw">in </span>entrances {
+            uber_turns.extend(flood(entrance, map, <span class="kw-2">&amp;</span>exits));
         }
 
-        <span class="comment">// Filter illegal paths</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">all_restrictions</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">from</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_roads</span>() {
-            <span class="kw">for</span> (<span class="ident">via</span>, <span class="ident">to</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">from</span>.<span class="ident">complicated_turn_restrictions</span> {
-                <span class="ident">all_restrictions</span>.<span class="ident">push</span>((<span class="ident">from</span>.<span class="ident">id</span>, <span class="kw-2">*</span><span class="ident">via</span>, <span class="kw-2">*</span><span class="ident">to</span>));
+        <span class="comment">// Filter illegal paths
+        </span><span class="kw">let </span><span class="kw-2">mut </span>all_restrictions = Vec::new();
+        <span class="kw">for </span>from <span class="kw">in </span>map.all_roads() {
+            <span class="kw">for </span>(via, to) <span class="kw">in </span><span class="kw-2">&amp;</span>from.complicated_turn_restrictions {
+                all_restrictions.push((from.id, <span class="kw-2">*</span>via, <span class="kw-2">*</span>to));
             }
         }
 
-        <span class="comment">// Filter out the restricted ones!</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">illegal</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">uber_turns</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">ut</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">true</span>;
-            <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">ut</span>.<span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-                <span class="kw">let</span> <span class="ident">r1</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">src</span>.<span class="ident">road</span>;
-                <span class="kw">let</span> <span class="ident">r2</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">dst</span>.<span class="ident">road</span>;
-                <span class="kw">let</span> <span class="ident">r3</span> <span class="op">=</span> <span class="ident">pair</span>[<span class="number">1</span>].<span class="ident">dst</span>.<span class="ident">road</span>;
-                <span class="kw">if</span> <span class="ident">all_restrictions</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span>(<span class="ident">r1</span>, <span class="ident">r2</span>, <span class="ident">r3</span>)) {
-                    <span class="ident">ok</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// Filter out the restricted ones!
+        </span><span class="kw">let </span><span class="kw-2">mut </span>illegal = Vec::new();
+        uber_turns.retain(|ut| {
+            <span class="kw">let </span><span class="kw-2">mut </span>ok = <span class="bool-val">true</span>;
+            <span class="kw">for </span>pair <span class="kw">in </span>ut.path.windows(<span class="number">2</span>) {
+                <span class="kw">let </span>r1 = pair[<span class="number">0</span>].src.road;
+                <span class="kw">let </span>r2 = pair[<span class="number">0</span>].dst.road;
+                <span class="kw">let </span>r3 = pair[<span class="number">1</span>].dst.road;
+                <span class="kw">if </span>all_restrictions.contains(<span class="kw-2">&amp;</span>(r1, r2, r3)) {
+                    ok = <span class="bool-val">false</span>;
                     <span class="kw">break</span>;
                 }
             }
-            <span class="kw">if</span> <span class="ident">ok</span> {
-                <span class="bool-val">true</span>
-            } <span class="kw">else</span> {
-                <span class="comment">// TODO There&#39;s surely a method in Vec to do partition like this</span>
-                <span class="ident">illegal</span>.<span class="ident">push</span>(<span class="ident">ut</span>.<span class="ident">clone</span>());
-                <span class="bool-val">false</span>
-            }
+            <span class="kw">if </span>ok {
+                <span class="bool-val">true
+            </span>} <span class="kw">else </span>{
+                <span class="comment">// TODO There&#39;s surely a method in Vec to do partition like this
+                </span>illegal.push(ut.clone());
+                <span class="bool-val">false
+            </span>}
         });
 
         (
-            <span class="ident">IntersectionCluster</span> {
-                <span class="ident">members</span>: <span class="ident">members</span>.<span class="ident">clone</span>(),
-                <span class="ident">uber_turns</span>,
+            IntersectionCluster {
+                members: members.clone(),
+                uber_turns,
             },
-            <span class="ident">IntersectionCluster</span> {
-                <span class="ident">members</span>,
-                <span class="ident">uber_turns</span>: <span class="ident">illegal</span>,
+            IntersectionCluster {
+                members,
+                uber_turns: illegal,
             },
         )
     }
 
-    <span class="doccomment">/// Find all other traffic signals &quot;close&quot; to one. Ignore stop sign intersections in between.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autodetect</span>(<span class="ident">from</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">from</span>).<span class="ident">is_traffic_signal</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="doccomment">/// Find all other traffic signals &quot;close&quot; to one. Ignore stop sign intersections in between.
+    </span><span class="kw">pub fn </span>autodetect(from: IntersectionID, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Option</span>&lt;BTreeSet&lt;IntersectionID&gt;&gt; {
+        <span class="kw">if </span>!map.get_i(from).is_traffic_signal() {
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="ident">threshold</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">25.0</span>);
+        <span class="kw">let </span>threshold = Distance::meters(<span class="number">25.0</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">found</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">from</span>];
+        <span class="kw">let </span><span class="kw-2">mut </span>found = BTreeSet::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>queue = <span class="macro">vec!</span>[from];
 
-        <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>());
-            <span class="kw">if</span> <span class="ident">found</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">id</span>) {
+        <span class="kw">while </span>!queue.is_empty() {
+            <span class="kw">let </span>i = map.get_i(queue.pop().unwrap());
+            <span class="kw">if </span>found.contains(<span class="kw-2">&amp;</span>i.id) {
                 <span class="kw">continue</span>;
             }
-            <span class="ident">found</span>.<span class="ident">insert</span>(<span class="ident">i</span>.<span class="ident">id</span>);
-            <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">roads</span> {
-                <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-                <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">length</span>() <span class="op">&gt;</span> <span class="ident">threshold</span> {
+            found.insert(i.id);
+            <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>i.roads {
+                <span class="kw">let </span>r = map.get_r(<span class="kw-2">*</span>r);
+                <span class="kw">if </span>r.length() &gt; threshold {
                     <span class="kw">continue</span>;
                 }
-                <span class="kw">let</span> <span class="ident">other</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">r</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i</span>.<span class="ident">id</span> { <span class="ident">r</span>.<span class="ident">dst_i</span> } <span class="kw">else</span> { <span class="ident">r</span>.<span class="ident">src_i</span> };
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">other</span>).<span class="ident">is_traffic_signal</span>() {
-                    <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">other</span>);
+                <span class="kw">let </span>other = <span class="kw">if </span>r.src_i == i.id { r.dst_i } <span class="kw">else </span>{ r.src_i };
+                <span class="kw">if </span>map.get_i(other).is_traffic_signal() {
+                    queue.push(other);
                 }
             }
         }
-        <span class="kw">if</span> <span class="ident">found</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">found</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+        <span class="kw">if </span>found.len() &gt; <span class="number">1 </span>{
+            <span class="prelude-val">Some</span>(found)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 }
 
-<span class="kw">fn</span> <span class="ident">flood</span>(<span class="ident">start</span>: <span class="ident">TurnID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">exits</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span> {
-    <span class="kw">if</span> <span class="ident">exits</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">start</span>) {
-        <span class="kw">return</span> <span class="macro">vec!</span>[<span class="ident">UberTurn</span> { <span class="ident">path</span>: <span class="macro">vec!</span>[<span class="ident">start</span>] }];
+<span class="kw">fn </span>flood(start: TurnID, map: <span class="kw-2">&amp;</span>Map, exits: <span class="kw-2">&amp;</span>BTreeSet&lt;TurnID&gt;) -&gt; Vec&lt;UberTurn&gt; {
+    <span class="kw">if </span>exits.contains(<span class="kw-2">&amp;</span>start) {
+        <span class="kw">return </span><span class="macro">vec!</span>[UberTurn { path: <span class="macro">vec!</span>[start] }];
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">preds</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">start</span>];
+    <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>preds: BTreeMap&lt;TurnID, TurnID&gt; = BTreeMap::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>queue = <span class="macro">vec!</span>[start];
 
-    <span class="kw">while</span> <span class="op">!</span><span class="ident">queue</span>.<span class="ident">is_empty</span>() {
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="comment">// Filtering for car lanes is necessary near https://www.openstreetmap.org/node/1283661439,</span>
-        <span class="comment">// where there&#39;s a bidirectional shared-use path</span>
-        <span class="kw">for</span> <span class="ident">next</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">get_turns_for</span>(<span class="ident">current</span>.<span class="ident">dst</span>, <span class="ident">PathConstraints::Car</span>) {
-            <span class="kw">if</span> <span class="ident">preds</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">next</span>.<span class="ident">id</span>) {
+    <span class="kw">while </span>!queue.is_empty() {
+        <span class="kw">let </span>current = queue.pop().unwrap();
+        <span class="comment">// Filtering for car lanes is necessary near https://www.openstreetmap.org/node/1283661439,
+        // where there&#39;s a bidirectional shared-use path
+        </span><span class="kw">for </span>next <span class="kw">in </span>map.get_turns_for(current.dst, PathConstraints::Car) {
+            <span class="kw">if </span>preds.contains_key(<span class="kw-2">&amp;</span>next.id) {
                 <span class="kw">continue</span>;
             }
-            <span class="ident">preds</span>.<span class="ident">insert</span>(<span class="ident">next</span>.<span class="ident">id</span>, <span class="ident">current</span>);
-            <span class="kw">if</span> <span class="ident">exits</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">next</span>.<span class="ident">id</span>) {
-                <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">UberTurn</span> {
-                    <span class="ident">path</span>: <span class="ident">trace_back</span>(<span class="ident">next</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">preds</span>),
+            preds.insert(next.id, current);
+            <span class="kw">if </span>exits.contains(<span class="kw-2">&amp;</span>next.id) {
+                results.push(UberTurn {
+                    path: trace_back(next.id, <span class="kw-2">&amp;</span>preds),
                 });
-            } <span class="kw">else</span> {
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">next</span>.<span class="ident">id</span>);
+            } <span class="kw">else </span>{
+                queue.push(next.id);
             }
         }
     }
 
-    <span class="ident">results</span>
+    results
 }
 
-<span class="kw">fn</span> <span class="ident">trace_back</span>(<span class="ident">end</span>: <span class="ident">TurnID</span>, <span class="ident">preds</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">TurnID</span>, <span class="ident">TurnID</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">end</span>];
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">end</span>;
-    <span class="kw">loop</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span> <span class="ident">preds</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>) {
-            <span class="ident">path</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">prev</span>);
-            <span class="ident">current</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">prev</span>;
-        } <span class="kw">else</span> {
-            <span class="ident">path</span>.<span class="ident">reverse</span>();
-            <span class="kw">return</span> <span class="ident">path</span>;
+<span class="kw">fn </span>trace_back(end: TurnID, preds: <span class="kw-2">&amp;</span>BTreeMap&lt;TurnID, TurnID&gt;) -&gt; Vec&lt;TurnID&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>path = <span class="macro">vec!</span>[end];
+    <span class="kw">let </span><span class="kw-2">mut </span>current = end;
+    <span class="kw">loop </span>{
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(prev) = preds.get(<span class="kw-2">&amp;</span>current) {
+            path.push(<span class="kw-2">*</span>prev);
+            current = <span class="kw-2">*</span>prev;
+        } <span class="kw">else </span>{
+            path.reverse();
+            <span class="kw">return </span>path;
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">UberTurn</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">entry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LaneID</span> {
-        <span class="self">self</span>.<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">src</span>
+<span class="kw">impl </span>UberTurn {
+    <span class="kw">pub fn </span>entry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LaneID {
+        <span class="self">self</span>.path[<span class="number">0</span>].src
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">LaneID</span> {
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">dst</span>
+    <span class="kw">pub fn </span>exit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; LaneID {
+        <span class="self">self</span>.path.last().unwrap().dst
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">geom</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">PolyLine</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="self">self</span>.<span class="ident">path</span>[<span class="number">0</span>]).<span class="ident">geom</span>.<span class="ident">clone</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">first</span> {
-                <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">must_extend</span>(<span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">pair</span>[<span class="number">0</span>]).<span class="ident">geom</span>.<span class="ident">clone</span>());
-                <span class="ident">first</span> <span class="op">=</span> <span class="bool-val">false</span>;
+    <span class="kw">pub fn </span>geom(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; PolyLine {
+        <span class="kw">let </span><span class="kw-2">mut </span>pl = map.get_t(<span class="self">self</span>.path[<span class="number">0</span>]).geom.clone();
+        <span class="kw">let </span><span class="kw-2">mut </span>first = <span class="bool-val">true</span>;
+        <span class="kw">for </span>pair <span class="kw">in </span><span class="self">self</span>.path.windows(<span class="number">2</span>) {
+            <span class="kw">if </span>!first {
+                pl = pl.must_extend(map.get_t(pair[<span class="number">0</span>]).geom.clone());
+                first = <span class="bool-val">false</span>;
             }
-            <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">must_extend</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">dst</span>).<span class="ident">lane_center_pts</span>.<span class="ident">clone</span>());
-            <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">must_extend</span>(<span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">pair</span>[<span class="number">1</span>]).<span class="ident">geom</span>.<span class="ident">clone</span>());
+            pl = pl.must_extend(map.get_l(pair[<span class="number">0</span>].dst).lane_center_pts.clone());
+            pl = pl.must_extend(map.get_t(pair[<span class="number">1</span>]).geom.clone());
         }
-        <span class="ident">pl</span>
+        pl
     }
 }
 
-<span class="doccomment">/// A sequence of movements through a cluster of intersections. Like UberTurn, but at the</span>
-<span class="doccomment">/// granularity of directed roads, not lanes.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">UberTurnV2</span> {
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A sequence of movements through a cluster of intersections. Like UberTurn, but at the
+/// granularity of directed roads, not lanes.
+</span><span class="attribute">#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>UberTurnV2 {
+    <span class="kw">pub </span>path: Vec&lt;MovementID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">IntersectionCluster</span> {
-    <span class="doccomment">/// Group lane-based uber-turns into road-based UberTurnV2s.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_v2</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-        <span class="kw">for</span> <span class="ident">ut</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">uber_turns</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-            <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="ident">ut</span>.<span class="ident">path</span> {
-                <span class="ident">path</span>.<span class="ident">push</span>(<span class="ident">turn</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>));
+<span class="kw">impl </span>IntersectionCluster {
+    <span class="doccomment">/// Group lane-based uber-turns into road-based UberTurnV2s.
+    </span><span class="kw">pub fn </span>into_v2(<span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;UberTurnV2&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>result = BTreeSet::new();
+        <span class="kw">for </span>ut <span class="kw">in </span><span class="self">self</span>.uber_turns {
+            <span class="kw">let </span><span class="kw-2">mut </span>path = Vec::new();
+            <span class="kw">for </span>turn <span class="kw">in </span>ut.path {
+                path.push(turn.to_movement(map));
             }
-            <span class="ident">result</span>.<span class="ident">insert</span>(<span class="ident">UberTurnV2</span> { <span class="ident">path</span> });
+            result.insert(UberTurnV2 { path });
         }
-        <span class="ident">result</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>()
+        result.into_iter().collect()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">UberTurnV2</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">entry</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DirectedRoadID</span> {
-        <span class="self">self</span>.<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">from</span>
+<span class="kw">impl </span>UberTurnV2 {
+    <span class="kw">pub fn </span>entry(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DirectedRoadID {
+        <span class="self">self</span>.path[<span class="number">0</span>].from
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">exit</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">DirectedRoadID</span> {
-        <span class="self">self</span>.<span class="ident">path</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>().<span class="ident">to</span>
+    <span class="kw">pub fn </span>exit(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; DirectedRoadID {
+        <span class="self">self</span>.path.last().unwrap().to
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/external.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>external.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `synthpop/src/external.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>external.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../synthpop/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../synthpop/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -122,129 +122,129 @@
 <span id="122">122</span>
 <span id="123">123</span>
 <span id="124">124</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Some users of the API (https://a-b-street.github.io/docs/tech/dev/api.html) have their own</span>
-<span class="doccomment">//! simulation input data; import it here.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Some users of the API (https://a-b-street.github.io/docs/tech/dev/api.html) have their own
+//! simulation input data; import it here.
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde::Deserialize</span>;
+</span><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::Deserialize;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">LonLat</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model::Map</span>;
+<span class="kw">use </span>geom::{Distance, FindClosest, LonLat, Time};
+<span class="kw">use </span>map_model::Map;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">IndividTrip</span>, <span class="ident">MapBorders</span>, <span class="ident">PersonSpec</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use crate</span>::{IndividTrip, MapBorders, PersonSpec, TripEndpoint, TripMode, TripPurpose};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExternalPerson</span> {
-    <span class="kw">pub</span> <span class="ident">trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalTrip</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">pub struct </span>ExternalPerson {
+    <span class="kw">pub </span>trips: Vec&lt;ExternalTrip&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExternalTrip</span> {
-    <span class="kw">pub</span> <span class="ident">departure</span>: <span class="ident">Time</span>,
-    <span class="kw">pub</span> <span class="ident">origin</span>: <span class="ident">ExternalTripEndpoint</span>,
-    <span class="kw">pub</span> <span class="ident">destination</span>: <span class="ident">ExternalTripEndpoint</span>,
-    <span class="kw">pub</span> <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-    <span class="kw">pub</span> <span class="ident">purpose</span>: <span class="ident">TripPurpose</span>,
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">pub struct </span>ExternalTrip {
+    <span class="kw">pub </span>departure: Time,
+    <span class="kw">pub </span>origin: ExternalTripEndpoint,
+    <span class="kw">pub </span>destination: ExternalTripEndpoint,
+    <span class="kw">pub </span>mode: TripMode,
+    <span class="kw">pub </span>purpose: TripPurpose,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ExternalTripEndpoint</span> {
-    <span class="ident">TripEndpoint</span>(<span class="ident">TripEndpoint</span>),
-    <span class="ident">Position</span>(<span class="ident">LonLat</span>),
+<span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">pub enum </span>ExternalTripEndpoint {
+    TripEndpoint(TripEndpoint),
+    Position(LonLat),
 }
 
-<span class="kw">impl</span> <span class="ident">ExternalPerson</span> {
-    <span class="doccomment">/// Import external scenario data. The main difference between `ExternalPerson` and</span>
-    <span class="doccomment">/// `PersonSpec` is a way to specify endpoints by a `LonLat`. This is snapped to the nearest</span>
-    <span class="doccomment">/// building. If the point is outside of the map boundary, it&#39;s snapped to the nearest border</span>
-    <span class="doccomment">/// (by Euclidean distance -- the network outside the given map isn&#39;t known). Failure happens</span>
-    <span class="doccomment">/// if a point is within the map, but not close enough to any buildings. If `skip_problems` is</span>
-    <span class="doccomment">/// true, then those failures are logged; otherwise this panics at the first problem.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">import</span>(
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-        <span class="ident">input</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExternalPerson</span><span class="op">&gt;</span>,
-        <span class="ident">skip_problems</span>: <span class="ident">bool</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PersonSpec</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="ident">closest</span>.<span class="ident">add_polygon</span>(<span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>.<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">polygon</span>);
+<span class="kw">impl </span>ExternalPerson {
+    <span class="doccomment">/// Import external scenario data. The main difference between `ExternalPerson` and
+    /// `PersonSpec` is a way to specify endpoints by a `LonLat`. This is snapped to the nearest
+    /// building. If the point is outside of the map boundary, it&#39;s snapped to the nearest border
+    /// (by Euclidean distance -- the network outside the given map isn&#39;t known). Failure happens
+    /// if a point is within the map, but not close enough to any buildings. If `skip_problems` is
+    /// true, then those failures are logged; otherwise this panics at the first problem.
+    </span><span class="kw">pub fn </span>import(
+        map: <span class="kw-2">&amp;</span>Map,
+        input: Vec&lt;ExternalPerson&gt;,
+        skip_problems: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;PersonSpec&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>closest: FindClosest&lt;TripEndpoint&gt; = FindClosest::new(map.get_bounds());
+        <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+            closest.add_polygon(TripEndpoint::Building(b.id), <span class="kw-2">&amp;</span>b.polygon);
         }
-        <span class="kw">let</span> <span class="ident">borders</span> <span class="op">=</span> <span class="ident">MapBorders::new</span>(<span class="ident">map</span>);
+        <span class="kw">let </span>borders = MapBorders::new(map);
 
-        <span class="kw">let</span> <span class="ident">lookup_pt</span> <span class="op">=</span> <span class="op">|</span><span class="ident">endpt</span>, <span class="ident">is_origin</span>, <span class="ident">mode</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">endpt</span> {
-            <span class="ident">ExternalTripEndpoint::TripEndpoint</span>(<span class="ident">endpt</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>),
-            <span class="ident">ExternalTripEndpoint::Position</span>(<span class="ident">gps</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">gps</span>.<span class="ident">to_pt</span>(<span class="ident">map</span>.<span class="ident">get_gps_bounds</span>());
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
-                    <span class="kw">match</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">100.0</span>)) {
-                        <span class="prelude-val">Some</span>((<span class="ident">x</span>, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">x</span>),
-                        <span class="prelude-val">None</span> =&gt; <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;No building within 100m of {}&quot;</span>, <span class="ident">gps</span>)),
+        <span class="kw">let </span>lookup_pt = |endpt, is_origin, mode| <span class="kw">match </span>endpt {
+            ExternalTripEndpoint::TripEndpoint(endpt) =&gt; <span class="prelude-val">Ok</span>(endpt),
+            ExternalTripEndpoint::Position(gps) =&gt; {
+                <span class="kw">let </span>pt = gps.to_pt(map.get_gps_bounds());
+                <span class="kw">if </span>map.get_boundary_polygon().contains_pt(pt) {
+                    <span class="kw">match </span>closest.closest_pt(pt, Distance::meters(<span class="number">100.0</span>)) {
+                        <span class="prelude-val">Some</span>((x, <span class="kw">_</span>)) =&gt; <span class="prelude-val">Ok</span>(x),
+                        <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;No building within 100m of {}&quot;</span>, gps)),
                     }
-                } <span class="kw">else</span> {
-                    <span class="kw">let</span> (<span class="ident">incoming</span>, <span class="ident">outgoing</span>) <span class="op">=</span> <span class="ident">borders</span>.<span class="ident">for_mode</span>(<span class="ident">mode</span>);
-                    <span class="kw">let</span> <span class="ident">candidates</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">is_origin</span> { <span class="ident">incoming</span> } <span class="kw">else</span> { <span class="ident">outgoing</span> };
-                    <span class="prelude-val">Ok</span>(<span class="ident">TripEndpoint::Border</span>(
-                        <span class="ident">candidates</span>
-                            .<span class="ident">iter</span>()
-                            .<span class="ident">min_by_key</span>(<span class="op">|</span><span class="ident">border</span><span class="op">|</span> <span class="ident">border</span>.<span class="ident">gps_pos</span>.<span class="ident">fast_dist</span>(<span class="ident">gps</span>))
-                            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;No border for {}&quot;</span>, <span class="ident">mode</span>.<span class="ident">ongoing_verb</span>()))<span class="question-mark">?</span>
-                            .<span class="ident">i</span>,
+                } <span class="kw">else </span>{
+                    <span class="kw">let </span>(incoming, outgoing) = borders.for_mode(mode);
+                    <span class="kw">let </span>candidates = <span class="kw">if </span>is_origin { incoming } <span class="kw">else </span>{ outgoing };
+                    <span class="prelude-val">Ok</span>(TripEndpoint::Border(
+                        candidates
+                            .iter()
+                            .min_by_key(|border| border.gps_pos.fast_dist(gps))
+                            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;No border for {}&quot;</span>, mode.ongoing_verb()))<span class="question-mark">?
+                            </span>.i,
                     ))
                 }
             }
         };
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="ident">input</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">PersonSpec</span> {
-                <span class="ident">orig_id</span>: <span class="prelude-val">None</span>,
-                <span class="ident">trips</span>: <span class="ident">Vec::new</span>(),
+        <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+        <span class="kw">for </span>person <span class="kw">in </span>input {
+            <span class="kw">let </span><span class="kw-2">mut </span>spec = PersonSpec {
+                orig_id: <span class="prelude-val">None</span>,
+                trips: Vec::new(),
             };
-            <span class="kw">for</span> <span class="ident">trip</span> <span class="kw">in</span> <span class="ident">person</span>.<span class="ident">trips</span> {
-                <span class="kw">if</span> <span class="ident">trip</span>.<span class="ident">departure</span> <span class="op">&lt;</span> <span class="ident">Time::START_OF_DAY</span> {
-                    <span class="kw">if</span> <span class="ident">skip_problems</span> {
+            <span class="kw">for </span>trip <span class="kw">in </span>person.trips {
+                <span class="kw">if </span>trip.departure &lt; Time::START_OF_DAY {
+                    <span class="kw">if </span>skip_problems {
                         <span class="macro">warn!</span>(
                             <span class="string">&quot;Skipping trip with negative departure time {:?}&quot;</span>,
-                            <span class="ident">trip</span>.<span class="ident">departure</span>
+                            trip.departure
                         );
                         <span class="kw">continue</span>;
-                    } <span class="kw">else</span> {
-                        <span class="macro">bail!</span>(<span class="string">&quot;Some trip has negative departure time {:?}&quot;</span>, <span class="ident">trip</span>.<span class="ident">departure</span>);
+                    } <span class="kw">else </span>{
+                        <span class="macro">bail!</span>(<span class="string">&quot;Some trip has negative departure time {:?}&quot;</span>, trip.departure);
                     }
                 }
 
-                <span class="ident">spec</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip::new</span>(
-                    <span class="ident">trip</span>.<span class="ident">departure</span>,
-                    <span class="ident">trip</span>.<span class="ident">purpose</span>,
-                    <span class="kw">match</span> <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">origin</span>, <span class="bool-val">true</span>, <span class="ident">trip</span>.<span class="ident">mode</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>) =&gt; <span class="ident">endpt</span>,
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                            <span class="kw">if</span> <span class="ident">skip_problems</span> {
-                                <span class="macro">warn!</span>(<span class="string">&quot;Skipping person: {}&quot;</span>, <span class="ident">err</span>);
+                spec.trips.push(IndividTrip::new(
+                    trip.departure,
+                    trip.purpose,
+                    <span class="kw">match </span>lookup_pt(trip.origin, <span class="bool-val">true</span>, trip.mode) {
+                        <span class="prelude-val">Ok</span>(endpt) =&gt; endpt,
+                        <span class="prelude-val">Err</span>(err) =&gt; {
+                            <span class="kw">if </span>skip_problems {
+                                <span class="macro">warn!</span>(<span class="string">&quot;Skipping person: {}&quot;</span>, err);
                                 <span class="kw">continue</span>;
-                            } <span class="kw">else</span> {
-                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+                            } <span class="kw">else </span>{
+                                <span class="kw">return </span><span class="prelude-val">Err</span>(err);
                             }
                         }
                     },
-                    <span class="kw">match</span> <span class="ident">lookup_pt</span>(<span class="ident">trip</span>.<span class="ident">destination</span>, <span class="bool-val">false</span>, <span class="ident">trip</span>.<span class="ident">mode</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">endpt</span>) =&gt; <span class="ident">endpt</span>,
-                        <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                            <span class="kw">if</span> <span class="ident">skip_problems</span> {
-                                <span class="macro">warn!</span>(<span class="string">&quot;Skipping person: {}&quot;</span>, <span class="ident">err</span>);
+                    <span class="kw">match </span>lookup_pt(trip.destination, <span class="bool-val">false</span>, trip.mode) {
+                        <span class="prelude-val">Ok</span>(endpt) =&gt; endpt,
+                        <span class="prelude-val">Err</span>(err) =&gt; {
+                            <span class="kw">if </span>skip_problems {
+                                <span class="macro">warn!</span>(<span class="string">&quot;Skipping person: {}&quot;</span>, err);
                                 <span class="kw">continue</span>;
-                            } <span class="kw">else</span> {
-                                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>);
+                            } <span class="kw">else </span>{
+                                <span class="kw">return </span><span class="prelude-val">Err</span>(err);
                             }
                         }
                     },
-                    <span class="ident">trip</span>.<span class="ident">mode</span>,
+                    trip.mode,
                 ));
             }
-            <span class="ident">results</span>.<span class="ident">push</span>(<span class="ident">spec</span>);
+            results.push(spec);
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">results</span>)
+        <span class="prelude-val">Ok</span>(results)
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="synthpop" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

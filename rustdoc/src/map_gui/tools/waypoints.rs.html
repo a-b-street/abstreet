@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/waypoints.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>waypoints.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/waypoints.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>waypoints.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -264,271 +264,271 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Circle</span>, <span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">Pt2D</span>};
-<span class="kw">use</span> <span class="ident">synthpop::TripEndpoint</span>;
-<span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">CornerRounding</span>, <span class="ident">DragDrop</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>,
-    <span class="ident">RewriteColor</span>, <span class="ident">StackAxis</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Circle, Distance, FindClosest, Pt2D};
+<span class="kw">use </span>synthpop::TripEndpoint;
+<span class="kw">use </span>widgetry::mapspace::{ObjectID, World, WorldOutcome};
+<span class="kw">use </span>widgetry::{
+    Color, ControlState, CornerRounding, DragDrop, EventCtx, GeomBatch, Image, Key, Line, Outcome,
+    RewriteColor, StackAxis, Text, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="doccomment">/// Click to add waypoints, drag them, see the list on a panel and delete them. The caller owns the</span>
-<span class="doccomment">/// Panel and the World, since there&#39;s probably more stuff there too.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">InputWaypoints</span> {
-    <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Waypoint</span><span class="op">&gt;</span>,
-    <span class="ident">snap_to_endpts</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
-    <span class="ident">max_waypts</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+<span class="doccomment">/// Click to add waypoints, drag them, see the list on a panel and delete them. The caller owns the
+/// Panel and the World, since there&#39;s probably more stuff there too.
+</span><span class="kw">pub struct </span>InputWaypoints {
+    waypoints: Vec&lt;Waypoint&gt;,
+    snap_to_endpts: FindClosest&lt;TripEndpoint&gt;,
+    max_waypts: <span class="prelude-ty">Option</span>&lt;usize&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WaypointID</span>(<span class="ident">usize</span>);
-<span class="kw">impl</span> <span class="ident">ObjectID</span> <span class="kw">for</span> <span class="ident">WaypointID</span> {}
+<span class="attribute">#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+</span><span class="kw">pub struct </span>WaypointID(usize);
+<span class="kw">impl </span>ObjectID <span class="kw">for </span>WaypointID {}
 
-<span class="kw">struct</span> <span class="ident">Waypoint</span> {
-    <span class="ident">at</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">label</span>: <span class="ident">String</span>,
-    <span class="ident">center</span>: <span class="ident">Pt2D</span>,
+<span class="kw">struct </span>Waypoint {
+    at: TripEndpoint,
+    label: String,
+    center: Pt2D,
 }
 
-<span class="kw">impl</span> <span class="ident">InputWaypoints</span> {
-    <span class="doccomment">/// Allows any number of waypoints</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="ident">InputWaypoints</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snap_to_endpts</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_intersections</span>() {
-            <span class="kw">if</span> <span class="ident">i</span>.<span class="ident">is_border</span>() {
-                <span class="ident">snap_to_endpts</span>.<span class="ident">add_polygon</span>(<span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>.<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">polygon</span>);
+<span class="kw">impl </span>InputWaypoints {
+    <span class="doccomment">/// Allows any number of waypoints
+    </span><span class="kw">pub fn </span>new(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; InputWaypoints {
+        <span class="kw">let </span>map = app.map();
+        <span class="kw">let </span><span class="kw-2">mut </span>snap_to_endpts = FindClosest::new(map.get_bounds());
+        <span class="kw">for </span>i <span class="kw">in </span>map.all_intersections() {
+            <span class="kw">if </span>i.is_border() {
+                snap_to_endpts.add_polygon(TripEndpoint::Border(i.id), <span class="kw-2">&amp;</span>i.polygon);
             }
         }
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-            <span class="ident">snap_to_endpts</span>.<span class="ident">add_polygon</span>(<span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>.<span class="ident">id</span>), <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">polygon</span>);
+        <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+            snap_to_endpts.add_polygon(TripEndpoint::Building(b.id), <span class="kw-2">&amp;</span>b.polygon);
         }
 
-        <span class="ident">InputWaypoints</span> {
-            <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">snap_to_endpts</span>,
-            <span class="ident">max_waypts</span>: <span class="prelude-val">None</span>,
-        }
-    }
-
-    <span class="doccomment">/// Only allow drawing routes with 2 waypoints. If a route is loaded with more than that, it</span>
-    <span class="doccomment">/// can be modified.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_max_2</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">app</span>);
-        <span class="ident">i</span>.<span class="ident">max_waypts</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="number">2</span>);
-        <span class="ident">i</span>
-    }
-
-    <span class="doccomment">/// The caller should call `rebuild_world` after this</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">overwrite</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">clear</span>();
-        <span class="kw">for</span> <span class="ident">at</span> <span class="kw">in</span> <span class="ident">waypoints</span> {
-            <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">push</span>(<span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>));
+        InputWaypoints {
+            waypoints: Vec::new(),
+            snap_to_endpts,
+            max_waypts: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_panel_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;waypoint cards&quot;</span>, <span class="ident">StackAxis::Vertical</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">delete_buttons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+    <span class="doccomment">/// Only allow drawing routes with 2 waypoints. If a route is loaded with more than that, it
+    /// can be modified.
+    </span><span class="kw">pub fn </span>new_max_2(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">Self</span>::new(app);
+        i.max_waypts = <span class="prelude-val">Some</span>(<span class="number">2</span>);
+        i
+    }
 
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">waypt</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">get_waypoint_text</span>(<span class="ident">idx</span>);
-            <span class="kw">let</span> <span class="ident">icon</span> <span class="op">=</span> {
-                <span class="kw">let</span> <span class="ident">text</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">text</span>).<span class="ident">fg</span>(<span class="ident">Color::WHITE</span>).<span class="ident">bold_body</span>());
-                <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">text</span>.<span class="ident">render</span>(<span class="ident">ctx</span>);
-                <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_bounds</span>();
-                <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::from_batch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>)
-                    .<span class="ident">untinted</span>()
-                    .<span class="ident">bg_color</span>(<span class="self">self</span>.<span class="ident">get_waypoint_color</span>(<span class="ident">idx</span>))
-                    .<span class="ident">padding</span>(<span class="number">10</span>)
-                    .<span class="ident">dims</span>(<span class="number">16</span>)
-                    .<span class="ident">corner_rounding</span>(<span class="ident">CornerRounding::FullyRounded</span>);
-                <span class="ident">image</span>
+    <span class="doccomment">/// The caller should call `rebuild_world` after this
+    </span><span class="kw">pub fn </span>overwrite(<span class="kw-2">&amp;mut </span><span class="self">self</span>, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, waypoints: Vec&lt;TripEndpoint&gt;) {
+        <span class="self">self</span>.waypoints.clear();
+        <span class="kw">for </span>at <span class="kw">in </span>waypoints {
+            <span class="self">self</span>.waypoints.push(Waypoint::new(app, at));
+        }
+    }
+
+    <span class="kw">pub fn </span>get_panel_widget(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>drag_drop = DragDrop::new(ctx, <span class="string">&quot;waypoint cards&quot;</span>, StackAxis::Vertical);
+        <span class="kw">let </span><span class="kw-2">mut </span>delete_buttons = Vec::new();
+
+        <span class="kw">for </span>(idx, waypt) <span class="kw">in </span><span class="self">self</span>.waypoints.iter().enumerate() {
+            <span class="kw">let </span>text = get_waypoint_text(idx);
+            <span class="kw">let </span>icon = {
+                <span class="kw">let </span>text = Text::from(Line(text).fg(Color::WHITE).bold_body());
+                <span class="kw">let </span>batch = text.render(ctx);
+                <span class="kw">let </span>bounds = batch.get_bounds();
+                <span class="kw">let </span>image = Image::from_batch(batch, bounds)
+                    .untinted()
+                    .bg_color(<span class="self">self</span>.get_waypoint_color(idx))
+                    .padding(<span class="number">10</span>)
+                    .dims(<span class="number">16</span>)
+                    .corner_rounding(CornerRounding::FullyRounded);
+                image
             };
 
-            <span class="kw">let</span> <span class="ident">waypoint</span> <span class="op">=</span> <span class="ident">ctx</span>
-                .<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">text</span>(<span class="kw-2">&amp;</span><span class="ident">waypt</span>.<span class="ident">label</span>)
-                .<span class="ident">image</span>(<span class="ident">icon</span>)
-                .<span class="ident">padding</span>(<span class="number">10</span>);
+            <span class="kw">let </span>waypoint = ctx
+                .style()
+                .btn_plain
+                .text(<span class="kw-2">&amp;</span>waypt.label)
+                .image(icon)
+                .padding(<span class="number">10</span>);
 
-            <span class="kw">let</span> <span class="ident">build_batch</span> <span class="op">=</span> <span class="op">|</span><span class="ident">control_state</span>: <span class="ident">ControlState</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">waypoint</span>.<span class="ident">batch</span>(<span class="ident">ctx</span>, <span class="ident">control_state</span>);
-                <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">batch</span>.<span class="ident">get_bounds</span>();
-                <span class="kw">let</span> <span class="ident">image</span> <span class="op">=</span> <span class="ident">Image::from_batch</span>(<span class="ident">batch</span>, <span class="ident">bounds</span>).<span class="ident">untinted</span>();
-                <span class="ident">image</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>).<span class="ident">unwrap</span>()
+            <span class="kw">let </span>build_batch = |control_state: ControlState| {
+                <span class="kw">let </span>batch = waypoint.batch(ctx, control_state);
+                <span class="kw">let </span>bounds = batch.get_bounds();
+                <span class="kw">let </span>image = Image::from_batch(batch, bounds).untinted();
+                image.build_batch(ctx).unwrap()
             };
 
-            <span class="kw">let</span> (<span class="ident">default_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">build_batch</span>(<span class="ident">ControlState::Default</span>);
-            <span class="kw">let</span> (<span class="ident">hovering_batch</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">build_batch</span>(<span class="ident">ControlState::Hovered</span>);
-            <span class="kw">let</span> (<span class="ident">selected_batch</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">build_batch</span>(<span class="ident">ControlState::Hovered</span>);
+            <span class="kw">let </span>(default_batch, bounds) = build_batch(ControlState::Default);
+            <span class="kw">let </span>(hovering_batch, <span class="kw">_</span>) = build_batch(ControlState::Hovered);
+            <span class="kw">let </span>(selected_batch, <span class="kw">_</span>) = build_batch(ControlState::Hovered);
 
-            <span class="ident">drag_drop</span>.<span class="ident">push_card</span>(
-                <span class="ident">idx</span>,
-                <span class="ident">bounds</span>.<span class="ident">into</span>(),
-                <span class="ident">default_batch</span>,
-                <span class="ident">hovering_batch</span>,
-                <span class="ident">selected_batch</span>,
+            drag_drop.push_card(
+                idx,
+                bounds.into(),
+                default_batch,
+                hovering_batch,
+                selected_batch,
             );
 
-            <span class="ident">delete_buttons</span>.<span class="ident">push</span>(
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_close</span>()
-                    .<span class="ident">override_style</span>(<span class="kw-2">&amp;</span><span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_plain_destructive</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;delete waypoint {}&quot;</span>, <span class="ident">idx</span>)),
+            delete_buttons.push(
+                ctx.style()
+                    .btn_close()
+                    .override_style(<span class="kw-2">&amp;</span>ctx.style().btn_plain_destructive)
+                    .build_widget(ctx, <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;delete waypoint {}&quot;</span>, idx)),
             );
         }
 
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">drag_drop</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::custom_col</span>(<span class="ident">delete_buttons</span>)
-                .<span class="ident">evenly_spaced</span>()
-                .<span class="ident">margin_above</span>(<span class="number">8</span>)
-                .<span class="ident">margin_below</span>(<span class="number">8</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            drag_drop.into_widget(ctx),
+            Widget::custom_col(delete_buttons)
+                .evenly_spaced()
+                .margin_above(<span class="number">8</span>)
+                .margin_below(<span class="number">8</span>),
         ])
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_waypoints</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="ident">w</span>.<span class="ident">at</span>).<span class="ident">collect</span>()
+    <span class="kw">pub fn </span>get_waypoints(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;TripEndpoint&gt; {
+        <span class="self">self</span>.waypoints.iter().map(|w| w.at).collect()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>()
+    <span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.waypoints.len()
     }
 
-    <span class="doccomment">/// If the outcome from the panel or world isn&#39;t used by the caller, pass it along here. When this</span>
-    <span class="doccomment">/// returns true, something has changed, so the caller may want to update their view of the</span>
-    <span class="doccomment">/// route and call `get_panel_widget` and `rebuild_world` again.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>,
-        <span class="ident">panel_outcome</span>: <span class="ident">Outcome</span>,
-        <span class="ident">world_outcome</span>: <span class="ident">WorldOutcome</span><span class="op">&lt;</span><span class="ident">WaypointID</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="ident">world_outcome</span> {
-            <span class="ident">WorldOutcome::ClickedFreeSpace</span>(<span class="ident">pt</span>) =&gt; {
-                <span class="kw">if</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>()) <span class="op">==</span> <span class="self">self</span>.<span class="ident">max_waypts</span> {
-                    <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="doccomment">/// If the outcome from the panel or world isn&#39;t used by the caller, pass it along here. When this
+    /// returns true, something has changed, so the caller may want to update their view of the
+    /// route and call `get_panel_widget` and `rebuild_world` again.
+    </span><span class="kw">pub fn </span>event(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike,
+        panel_outcome: Outcome,
+        world_outcome: WorldOutcome&lt;WaypointID&gt;,
+    ) -&gt; bool {
+        <span class="kw">match </span>world_outcome {
+            WorldOutcome::ClickedFreeSpace(pt) =&gt; {
+                <span class="kw">if </span><span class="prelude-val">Some</span>(<span class="self">self</span>.waypoints.len()) == <span class="self">self</span>.max_waypts {
+                    <span class="kw">return </span><span class="bool-val">false</span>;
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">at</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">snap_to_endpts</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)) {
-                    <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">push</span>(<span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>));
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((at, <span class="kw">_</span>)) = <span class="self">self</span>.snap_to_endpts.closest_pt(pt, Distance::meters(<span class="number">30.0</span>)) {
+                    <span class="self">self</span>.waypoints.push(Waypoint::new(app, at));
+                    <span class="kw">return </span><span class="bool-val">true</span>;
                 }
-                <span class="kw">return</span> <span class="bool-val">false</span>;
+                <span class="kw">return </span><span class="bool-val">false</span>;
             }
-            <span class="ident">WorldOutcome::Dragging</span> {
-                <span class="ident">obj</span>: <span class="ident">WaypointID</span>(<span class="ident">idx</span>),
-                <span class="ident">cursor</span>,
+            WorldOutcome::Dragging {
+                obj: WaypointID(idx),
+                cursor,
                 ..
             } =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">at</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">snap_to_endpts</span>
-                    .<span class="ident">closest_pt</span>(<span class="ident">cursor</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>))
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((at, <span class="kw">_</span>)) = <span class="self">self
+                    </span>.snap_to_endpts
+                    .closest_pt(cursor, Distance::meters(<span class="number">30.0</span>))
                 {
-                    <span class="kw">if</span> <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">idx</span>].<span class="ident">at</span> <span class="op">!</span><span class="op">=</span> <span class="ident">at</span> {
-                        <span class="self">self</span>.<span class="ident">waypoints</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="ident">Waypoint::new</span>(<span class="ident">app</span>, <span class="ident">at</span>);
-                        <span class="kw">return</span> <span class="bool-val">true</span>;
+                    <span class="kw">if </span><span class="self">self</span>.waypoints[idx].at != at {
+                        <span class="self">self</span>.waypoints[idx] = Waypoint::new(app, at);
+                        <span class="kw">return </span><span class="bool-val">true</span>;
                     }
                 }
             }
-            <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;delete&quot;</span>, <span class="ident">WaypointID</span>(<span class="ident">idx</span>)) =&gt; {
-                <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+            WorldOutcome::Keypress(<span class="string">&quot;delete&quot;</span>, WaypointID(idx)) =&gt; {
+                <span class="self">self</span>.waypoints.remove(idx);
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="kw">match</span> <span class="ident">panel_outcome</span> {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;delete waypoint &quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                    <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
-                    <span class="kw">return</span> <span class="bool-val">true</span>;
-                } <span class="kw">else</span> {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Unknown InputWaypoints click {}&quot;</span>, <span class="ident">x</span>);
+        <span class="kw">match </span>panel_outcome {
+            Outcome::Clicked(x) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(x) = x.strip_prefix(<span class="string">&quot;delete waypoint &quot;</span>) {
+                    <span class="kw">let </span>idx = x.parse::&lt;usize&gt;().unwrap();
+                    <span class="self">self</span>.waypoints.remove(idx);
+                    <span class="kw">return </span><span class="bool-val">true</span>;
+                } <span class="kw">else </span>{
+                    <span class="macro">panic!</span>(<span class="string">&quot;Unknown InputWaypoints click {}&quot;</span>, x);
                 }
             }
-            <span class="ident">Outcome::DragDropReleased</span>(<span class="kw">_</span>, <span class="ident">old_idx</span>, <span class="ident">new_idx</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">swap</span>(<span class="ident">old_idx</span>, <span class="ident">new_idx</span>);
-                <span class="comment">// The order field is baked in, so calculate everything again from scratch</span>
-                <span class="kw">let</span> <span class="ident">waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_waypoints</span>();
-                <span class="self">self</span>.<span class="ident">overwrite</span>(<span class="ident">app</span>, <span class="ident">waypoints</span>);
-                <span class="kw">return</span> <span class="bool-val">true</span>;
+            Outcome::DragDropReleased(<span class="kw">_</span>, old_idx, new_idx) =&gt; {
+                <span class="self">self</span>.waypoints.swap(old_idx, new_idx);
+                <span class="comment">// The order field is baked in, so calculate everything again from scratch
+                </span><span class="kw">let </span>waypoints = <span class="self">self</span>.get_waypoints();
+                <span class="self">self</span>.overwrite(app, waypoints);
+                <span class="kw">return </span><span class="bool-val">true</span>;
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="bool-val">false</span>
-    }
+        <span class="bool-val">false
+    </span>}
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_waypoint_color</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Color</span> {
-        <span class="kw">let</span> <span class="ident">total_waypoints</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">len</span>();
-        <span class="kw">match</span> <span class="ident">idx</span> {
-            <span class="number">0</span> =&gt; <span class="ident">Color::BLACK</span>,
-            <span class="ident">idx</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">total_waypoints</span> <span class="op">-</span> <span class="number">1</span> =&gt; <span class="ident">Color::PINK</span>,
-            <span class="kw">_</span> =&gt; [<span class="ident">Color::BLUE</span>, <span class="ident">Color::ORANGE</span>, <span class="ident">Color::PURPLE</span>][<span class="ident">idx</span> <span class="op">%</span> <span class="number">3</span>],
+    <span class="kw">pub fn </span>get_waypoint_color(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; Color {
+        <span class="kw">let </span>total_waypoints = <span class="self">self</span>.waypoints.len();
+        <span class="kw">match </span>idx {
+            <span class="number">0 </span>=&gt; Color::BLACK,
+            idx <span class="kw">if </span>idx == total_waypoints - <span class="number">1 </span>=&gt; Color::PINK,
+            <span class="kw">_ </span>=&gt; [Color::BLUE, Color::ORANGE, Color::PURPLE][idx % <span class="number">3</span>],
         }
     }
 
-    <span class="doccomment">/// The caller is responsible for calling `initialize_hover` and `rebuilt_during_drag`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rebuild_world</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">ObjectID</span>, <span class="ident">F</span>: <span class="ident">Fn</span>(<span class="ident">WaypointID</span>) -&gt; <span class="ident">T</span><span class="op">&gt;</span>(
+    <span class="doccomment">/// The caller is responsible for calling `initialize_hover` and `rebuilt_during_drag`.
+    </span><span class="kw">pub fn </span>rebuild_world&lt;T: ObjectID, F: Fn(WaypointID) -&gt; T&gt;(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">world</span>: <span class="kw-2">&amp;mut</span> <span class="ident">World</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
-        <span class="ident">wrap_id</span>: <span class="ident">F</span>,
-        <span class="ident">zorder</span>: <span class="ident">usize</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        world: <span class="kw-2">&amp;mut </span>World&lt;T&gt;,
+        wrap_id: F,
+        zorder: usize,
     ) {
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">waypoint</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">waypoints</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">let</span> <span class="ident">hitbox</span> <span class="op">=</span> <span class="ident">Circle::new</span>(<span class="ident">waypoint</span>.<span class="ident">center</span>, <span class="ident">Distance::meters</span>(<span class="number">30.0</span>)).<span class="ident">to_polygon</span>();
-            <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_waypoint_color</span>(<span class="ident">idx</span>);
+        <span class="kw">for </span>(idx, waypoint) <span class="kw">in </span><span class="self">self</span>.waypoints.iter().enumerate() {
+            <span class="kw">let </span>hitbox = Circle::new(waypoint.center, Distance::meters(<span class="number">30.0</span>)).to_polygon();
+            <span class="kw">let </span>color = <span class="self">self</span>.get_waypoint_color(idx);
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">draw_normal</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-            <span class="ident">draw_normal</span>.<span class="ident">push</span>(<span class="ident">color</span>, <span class="ident">hitbox</span>.<span class="ident">clone</span>());
-            <span class="ident">draw_normal</span>.<span class="ident">append</span>(
-                <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">get_waypoint_text</span>(<span class="ident">idx</span>).<span class="ident">to_string</span>()).<span class="ident">fg</span>(<span class="ident">Color::WHITE</span>))
-                    .<span class="ident">render</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_on</span>(<span class="ident">waypoint</span>.<span class="ident">center</span>),
+            <span class="kw">let </span><span class="kw-2">mut </span>draw_normal = GeomBatch::new();
+            draw_normal.push(color, hitbox.clone());
+            draw_normal.append(
+                Text::from(Line(get_waypoint_text(idx).to_string()).fg(Color::WHITE))
+                    .render(ctx)
+                    .centered_on(waypoint.center),
             );
 
-            <span class="ident">world</span>
-                .<span class="ident">add</span>(<span class="ident">wrap_id</span>(<span class="ident">WaypointID</span>(<span class="ident">idx</span>)))
-                .<span class="ident">hitbox</span>(<span class="ident">hitbox</span>)
-                .<span class="ident">zorder</span>(<span class="ident">zorder</span>)
-                .<span class="ident">draw</span>(<span class="ident">draw_normal</span>)
-                .<span class="ident">draw_hover_rewrite</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">color</span>, <span class="ident">Color::BLUE</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>)))
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Backspace</span>, <span class="string">&quot;delete&quot;</span>)
-                .<span class="ident">draggable</span>()
-                .<span class="ident">build</span>(<span class="ident">ctx</span>);
+            world
+                .add(wrap_id(WaypointID(idx)))
+                .hitbox(hitbox)
+                .zorder(zorder)
+                .draw(draw_normal)
+                .draw_hover_rewrite(RewriteColor::Change(color, Color::BLUE.alpha(<span class="number">0.5</span>)))
+                .hotkey(Key::Backspace, <span class="string">&quot;delete&quot;</span>)
+                .draggable()
+                .build(ctx);
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Waypoint</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>, <span class="ident">at</span>: <span class="ident">TripEndpoint</span>) -&gt; <span class="ident">Waypoint</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">map</span>();
-        <span class="kw">let</span> (<span class="ident">center</span>, <span class="ident">label</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">at</span> {
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b</span>);
-                (<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>(), <span class="ident">b</span>.<span class="ident">address</span>.<span class="ident">clone</span>())
+<span class="kw">impl </span>Waypoint {
+    <span class="kw">fn </span>new(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike, at: TripEndpoint) -&gt; Waypoint {
+        <span class="kw">let </span>map = app.map();
+        <span class="kw">let </span>(center, label) = <span class="kw">match </span>at {
+            TripEndpoint::Building(b) =&gt; {
+                <span class="kw">let </span>b = map.get_b(b);
+                (b.polygon.center(), b.address.clone())
             }
-            <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
+            TripEndpoint::Border(i) =&gt; {
+                <span class="kw">let </span>i = map.get_i(i);
                 (
-                    <span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">center</span>(),
-                    <span class="ident">i</span>.<span class="ident">name</span>(<span class="ident">app</span>.<span class="ident">opts</span>().<span class="ident">language</span>.<span class="ident">as_ref</span>(), <span class="ident">map</span>),
+                    i.polygon.center(),
+                    i.name(app.opts().language.as_ref(), map),
                 )
             }
-            <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">pos</span>) =&gt; (<span class="ident">pos</span>.<span class="ident">pt</span>(<span class="ident">map</span>), <span class="ident">pos</span>.<span class="ident">to_string</span>()),
+            TripEndpoint::SuddenlyAppear(pos) =&gt; (pos.pt(map), pos.to_string()),
         };
-        <span class="ident">Waypoint</span> { <span class="ident">at</span>, <span class="ident">label</span>, <span class="ident">center</span> }
+        Waypoint { at, label, center }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">get_waypoint_text</span>(<span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">char</span> {
-    <span class="ident">char::from_u32</span>(<span class="string">&#39;A&#39;</span> <span class="kw">as</span> <span class="ident">u32</span> <span class="op">+</span> <span class="ident">idx</span> <span class="kw">as</span> <span class="ident">u32</span>).<span class="ident">unwrap</span>()
+<span class="kw">fn </span>get_waypoint_text(idx: usize) -&gt; char {
+    char::from_u32(<span class="string">&#39;A&#39; </span><span class="kw">as </span>u32 + idx <span class="kw">as </span>u32).unwrap()
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

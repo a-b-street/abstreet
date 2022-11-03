@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/v2.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>v2.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/v2.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>v2.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -358,365 +358,365 @@
 <span id="358">358</span>
 <span id="359">359</span>
 <span id="360">360</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Structures related to the new road-based pathfinding</span>
-<span class="doccomment">//! (https://github.com/a-b-street/abstreet/issues/555) live here. When the transition is done,</span>
-<span class="doccomment">//! things here will probably move into pathfind/mod.rs.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Structures related to the new road-based pathfinding
+//! (https://github.com/a-b-street/abstreet/issues/555) live here. When the transition is done,
+//! things here will probably move into pathfind/mod.rs.
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</span><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>};
+<span class="kw">use </span>geom::{Duration, Polygon, Ring};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pathfind::uber_turns::UberTurnV2</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">MovementID</span>, <span class="ident">Path</span>, <span class="ident">PathConstraints</span>,
-    <span class="ident">PathRequest</span>, <span class="ident">PathStep</span>, <span class="ident">RoadID</span>, <span class="ident">TurnID</span>, <span class="ident">UberTurn</span>,
+<span class="kw">use </span><span class="kw">crate</span>::pathfind::uber_turns::UberTurnV2;
+<span class="kw">use crate</span>::{
+    DirectedRoadID, Direction, IntersectionID, LaneID, Map, MovementID, Path, PathConstraints,
+    PathRequest, PathStep, RoadID, TurnID, UberTurn,
 };
 
-<span class="doccomment">/// One step along a path.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PathStepV2</span> {
-    <span class="doccomment">/// Original direction</span>
-    <span class="ident">Along</span>(<span class="ident">DirectedRoadID</span>),
-    <span class="doccomment">/// Opposite direction, sidewalks only</span>
-    <span class="ident">Contraflow</span>(<span class="ident">DirectedRoadID</span>),
-    <span class="ident">Movement</span>(<span class="ident">MovementID</span>),
-    <span class="ident">ContraflowMovement</span>(<span class="ident">MovementID</span>),
+<span class="doccomment">/// One step along a path.
+</span><span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub enum </span>PathStepV2 {
+    <span class="doccomment">/// Original direction
+    </span>Along(DirectedRoadID),
+    <span class="doccomment">/// Opposite direction, sidewalks only
+    </span>Contraflow(DirectedRoadID),
+    Movement(MovementID),
+    ContraflowMovement(MovementID),
 }
 
-<span class="doccomment">/// A path between two endpoints for a particular mode. This representation is immutable and doesn&#39;t</span>
-<span class="doccomment">/// prescribe specific lanes and turns to follow.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PathV2</span> {
-    <span class="ident">steps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStepV2</span><span class="op">&gt;</span>,
-    <span class="comment">// TODO There will be a PathRequestV2, but I&#39;m not sure how it&#39;ll change yet.</span>
-    <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-    <span class="ident">cost</span>: <span class="ident">Duration</span>,
-    <span class="comment">// TODO Temporarily we&#39;ll keep plumbing these along for path_v2_to_v1 to work, but we&#39;ll</span>
-    <span class="comment">// probably just discover uber-turns lazily at the simulation layer instead.</span>
-    <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A path between two endpoints for a particular mode. This representation is immutable and doesn&#39;t
+/// prescribe specific lanes and turns to follow.
+</span><span class="attribute">#[derive(Clone, Debug, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>PathV2 {
+    steps: Vec&lt;PathStepV2&gt;,
+    <span class="comment">// TODO There will be a PathRequestV2, but I&#39;m not sure how it&#39;ll change yet.
+    </span>req: PathRequest,
+    cost: Duration,
+    <span class="comment">// TODO Temporarily we&#39;ll keep plumbing these along for path_v2_to_v1 to work, but we&#39;ll
+    // probably just discover uber-turns lazily at the simulation layer instead.
+    </span>uber_turns: Vec&lt;UberTurnV2&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">PathV2</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(
-        <span class="ident">steps</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStepV2</span><span class="op">&gt;</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">cost</span>: <span class="ident">Duration</span>,
-        <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">PathV2</span> {
-        <span class="comment">// TODO Port validate_continuity and validate_restrictions?</span>
-        <span class="ident">PathV2</span> {
-            <span class="ident">steps</span>,
-            <span class="ident">req</span>,
-            <span class="ident">cost</span>,
-            <span class="ident">uber_turns</span>,
+<span class="kw">impl </span>PathV2 {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>new(
+        steps: Vec&lt;PathStepV2&gt;,
+        req: PathRequest,
+        cost: Duration,
+        uber_turns: Vec&lt;UberTurnV2&gt;,
+    ) -&gt; PathV2 {
+        <span class="comment">// TODO Port validate_continuity and validate_restrictions?
+        </span>PathV2 {
+            steps,
+            req,
+            cost,
+            uber_turns,
         }
     }
 
-    <span class="doccomment">/// Vehicle implementations often just calculate the sequence of roads. Turn that into</span>
-    <span class="doccomment">/// PathStepV2 here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_roads</span>(
-        <span class="kw-2">mut</span> <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span><span class="op">&gt;</span>,
-        <span class="ident">req</span>: <span class="ident">PathRequest</span>,
-        <span class="ident">cost</span>: <span class="ident">Duration</span>,
-        <span class="ident">uber_turns</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="ident">PathV2</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">roads</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-            <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Along</span>(<span class="ident">pair</span>[<span class="number">0</span>]));
-            <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Movement</span>(<span class="ident">MovementID</span> {
-                <span class="ident">from</span>: <span class="ident">pair</span>[<span class="number">0</span>],
-                <span class="ident">to</span>: <span class="ident">pair</span>[<span class="number">1</span>],
-                <span class="ident">parent</span>: <span class="ident">pair</span>[<span class="number">0</span>].<span class="ident">dst_i</span>(<span class="ident">map</span>),
-                <span class="ident">crosswalk</span>: <span class="bool-val">false</span>,
+    <span class="doccomment">/// Vehicle implementations often just calculate the sequence of roads. Turn that into
+    /// PathStepV2 here.
+    </span><span class="kw">pub fn </span>from_roads(
+        <span class="kw-2">mut </span>roads: Vec&lt;DirectedRoadID&gt;,
+        req: PathRequest,
+        cost: Duration,
+        uber_turns: Vec&lt;UberTurnV2&gt;,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; PathV2 {
+        <span class="kw">let </span><span class="kw-2">mut </span>steps = Vec::new();
+        <span class="kw">for </span>pair <span class="kw">in </span>roads.windows(<span class="number">2</span>) {
+            steps.push(PathStepV2::Along(pair[<span class="number">0</span>]));
+            steps.push(PathStepV2::Movement(MovementID {
+                from: pair[<span class="number">0</span>],
+                to: pair[<span class="number">1</span>],
+                parent: pair[<span class="number">0</span>].dst_i(map),
+                crosswalk: <span class="bool-val">false</span>,
             }));
         }
-        <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStepV2::Along</span>(<span class="ident">roads</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>()));
-        <span class="ident">PathV2::new</span>(<span class="ident">steps</span>, <span class="ident">req</span>, <span class="ident">cost</span>, <span class="ident">uber_turns</span>)
+        steps.push(PathStepV2::Along(roads.pop().unwrap()));
+        PathV2::new(steps, req, cost, uber_turns)
     }
 
-    <span class="doccomment">/// The original PathRequest used to produce this path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_req</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">PathRequest</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">req</span>
+    <span class="doccomment">/// The original PathRequest used to produce this path.
+    </span><span class="kw">pub fn </span>get_req(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>PathRequest {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.req
     }
 
-    <span class="doccomment">/// All steps in this path.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_steps</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathStepV2</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span>
+    <span class="doccomment">/// All steps in this path.
+    </span><span class="kw">pub fn </span>get_steps(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>Vec&lt;PathStepV2&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.steps
     }
 
-    <span class="doccomment">/// The time needed to perform this path. This time is not a lower bound; physically following</span>
-    <span class="doccomment">/// the path might be faster. This time incorporates costs like using sub-optimal lanes or</span>
-    <span class="doccomment">/// taking difficult turns.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_cost</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Duration</span> {
-        <span class="self">self</span>.<span class="ident">cost</span>
+    <span class="doccomment">/// The time needed to perform this path. This time is not a lower bound; physically following
+    /// the path might be faster. This time incorporates costs like using sub-optimal lanes or
+    /// taking difficult turns.
+    </span><span class="kw">pub fn </span>get_cost(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Duration {
+        <span class="self">self</span>.cost
     }
 
-    <span class="doccomment">/// Transform a sequence of roads representing a path into the current lane-based path, by</span>
-    <span class="doccomment">/// picking particular lanes and turns to use.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_v1</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints::Pedestrian</span> {
-            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">into_v1_walking</span>(<span class="ident">map</span>);
+    <span class="doccomment">/// Transform a sequence of roads representing a path into the current lane-based path, by
+    /// picking particular lanes and turns to use.
+    </span><span class="kw">pub fn </span>into_v1(<span class="kw-2">mut </span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;Path&gt; {
+        <span class="kw">if </span><span class="self">self</span>.req.constraints == PathConstraints::Pedestrian {
+            <span class="kw">return </span><span class="self">self</span>.into_v1_walking(map);
         }
 
-        <span class="comment">// If we had two possible start positions, figure out which one we wound up using</span>
-        <span class="kw">let</span> <span class="ident">orig_start_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pos</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">alt_start</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">steps</span>[<span class="number">0</span>] {
-                <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>() <span class="op">==</span> <span class="ident">dr</span> {
-                    <span class="comment">// We used the original side, fine. No need to preserve this.</span>
-                } <span class="kw">else</span> {
-                    <span class="macro">assert_eq!</span>(<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pos</span>.<span class="ident">lane</span>()).<span class="ident">get_directed_parent</span>(), <span class="ident">dr</span>);
-                    <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span> <span class="op">=</span> <span class="ident">pos</span>;
+        <span class="comment">// If we had two possible start positions, figure out which one we wound up using
+        </span><span class="kw">let </span>orig_start_lane = <span class="self">self</span>.req.start.lane();
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((pos, <span class="kw">_</span>)) = <span class="self">self</span>.req.alt_start {
+            <span class="kw">if let </span>PathStepV2::Along(dr) = <span class="self">self</span>.steps[<span class="number">0</span>] {
+                <span class="kw">if </span>map.get_l(<span class="self">self</span>.req.start.lane()).get_directed_parent() == dr {
+                    <span class="comment">// We used the original side, fine. No need to preserve this.
+                </span>} <span class="kw">else </span>{
+                    <span class="macro">assert_eq!</span>(map.get_l(pos.lane()).get_directed_parent(), dr);
+                    <span class="self">self</span>.req.start = pos;
                 }
-                <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">alt_start</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            } <span class="kw">else</span> {
+                <span class="self">self</span>.req.alt_start = <span class="prelude-val">None</span>;
+            } <span class="kw">else </span>{
                 <span class="macro">unreachable!</span>()
             }
         }
 
-        <span class="comment">// This is a somewhat brute-force method: run Dijkstra&#39;s algorithm on a graph of lanes and</span>
-        <span class="comment">// turns, but only build the graph along the path of roads we&#39;ve already found. This handles</span>
-        <span class="comment">// arbitrary lookahead needed, and forces use of the original start/end lanes requested.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">graph</span> <span class="op">=</span> <span class="ident">petgraph::graphmap::DiGraphMap::new</span>();
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) <span class="op">=</span> <span class="ident">step</span> {
-                <span class="kw">for</span> <span class="ident">src</span> <span class="kw">in</span> <span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">lanes</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>) {
-                    <span class="kw">for</span> <span class="ident">dst</span> <span class="kw">in</span> <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">lanes</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>) {
-                        <span class="kw">let</span> <span class="ident">turn</span> <span class="op">=</span> <span class="ident">TurnID</span> {
-                            <span class="ident">parent</span>: <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">src</span>).<span class="ident">dst_i</span>,
-                            <span class="ident">src</span>,
-                            <span class="ident">dst</span>,
+        <span class="comment">// This is a somewhat brute-force method: run Dijkstra&#39;s algorithm on a graph of lanes and
+        // turns, but only build the graph along the path of roads we&#39;ve already found. This handles
+        // arbitrary lookahead needed, and forces use of the original start/end lanes requested.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>graph = petgraph::graphmap::DiGraphMap::new();
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
+            <span class="kw">if let </span>PathStepV2::Movement(mvmnt) = step {
+                <span class="kw">for </span>src <span class="kw">in </span>mvmnt.from.lanes(<span class="self">self</span>.req.constraints, map) {
+                    <span class="kw">for </span>dst <span class="kw">in </span>mvmnt.to.lanes(<span class="self">self</span>.req.constraints, map) {
+                        <span class="kw">let </span>turn = TurnID {
+                            parent: map.get_l(src).dst_i,
+                            src,
+                            dst,
                         };
-                        <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">maybe_get_t</span>(<span class="ident">turn</span>).<span class="ident">is_some</span>() {
-                            <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">src</span>, <span class="ident">dst</span>, <span class="ident">turn</span>);
+                        <span class="kw">if </span>map.maybe_get_t(turn).is_some() {
+                            graph.add_edge(src, dst, turn);
                         }
                     }
                 }
             }
         }
 
-        <span class="comment">// The v2 path might immediately require a turn that&#39;s only available from some lanes. If</span>
-        <span class="comment">// the req.start lane can&#39;t make that turn, then producing the v1 path would fail. So let&#39;s</span>
-        <span class="comment">// allow starting from any lane on the same side of the road. Since petgraph can only start</span>
-        <span class="comment">// from a single node and since we want to prefer the originally requested lane anyway,</span>
-        <span class="comment">// create a virtual start node and connect it to all possible starting lanes.</span>
-        <span class="kw">let</span> <span class="ident">virtual_start_node</span> <span class="op">=</span> <span class="ident">LaneID</span> {
-            <span class="ident">road</span>: <span class="ident">RoadID</span>(<span class="ident">map</span>.<span class="ident">all_roads</span>().<span class="ident">len</span>()),
-            <span class="ident">offset</span>: <span class="number">0</span>,
+        <span class="comment">// The v2 path might immediately require a turn that&#39;s only available from some lanes. If
+        // the req.start lane can&#39;t make that turn, then producing the v1 path would fail. So let&#39;s
+        // allow starting from any lane on the same side of the road. Since petgraph can only start
+        // from a single node and since we want to prefer the originally requested lane anyway,
+        // create a virtual start node and connect it to all possible starting lanes.
+        </span><span class="kw">let </span>virtual_start_node = LaneID {
+            road: RoadID(map.all_roads().len()),
+            offset: <span class="number">0</span>,
         };
-        <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">lane</span>();
-        <span class="kw">let</span> <span class="ident">start_road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_parent</span>(<span class="ident">start_lane</span>);
-        <span class="kw">let</span> <span class="ident">start_lane_idx</span> <span class="op">=</span> <span class="ident">start_lane</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>;
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">map</span>
-            .<span class="ident">get_l</span>(<span class="ident">start_lane</span>)
-            .<span class="ident">get_directed_parent</span>()
-            .<span class="ident">lanes</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>)
+        <span class="kw">let </span>start_lane = <span class="self">self</span>.req.start.lane();
+        <span class="kw">let </span>start_road = map.get_parent(start_lane);
+        <span class="kw">let </span>start_lane_idx = start_lane.offset <span class="kw">as </span>isize;
+        <span class="kw">for </span>l <span class="kw">in </span>map
+            .get_l(start_lane)
+            .get_directed_parent()
+            .lanes(<span class="self">self</span>.req.constraints, map)
         {
-            <span class="comment">// Heavily penalize starting from something other than the originally requested lane.</span>
-            <span class="comment">// At the simulation layer, we may need to block intermediate lanes to exit a driveway,</span>
-            <span class="comment">// so reflect that cost here. The high cost should only be worth it when the v2 path</span>
-            <span class="comment">// requires that up-front turn from certain lanes.</span>
-            <span class="comment">//</span>
-            <span class="comment">// TODO This is only valid if we were leaving from a driveway! This is making some</span>
-            <span class="comment">// buses warp after making a stop.</span>
-            <span class="kw">let</span> <span class="ident">idx_dist</span> <span class="op">=</span> (<span class="ident">start_lane_idx</span> <span class="op">-</span> (<span class="ident">l</span>.<span class="ident">offset</span> <span class="kw">as</span> <span class="ident">isize</span>)).<span class="ident">abs</span>();
-            <span class="kw">let</span> <span class="ident">cost</span> <span class="op">=</span> <span class="number">100</span> <span class="op">*</span> <span class="ident">idx_dist</span> <span class="kw">as</span> <span class="ident">usize</span>;
-            <span class="kw">let</span> <span class="ident">fake_turn</span> <span class="op">=</span> <span class="ident">TurnID</span> {
-                <span class="comment">// Just encode the cost here for convenience</span>
-                <span class="ident">parent</span>: <span class="ident">IntersectionID</span>(<span class="ident">cost</span>),
-                <span class="ident">src</span>: <span class="ident">virtual_start_node</span>,
-                <span class="ident">dst</span>: <span class="ident">virtual_start_node</span>,
+            <span class="comment">// Heavily penalize starting from something other than the originally requested lane.
+            // At the simulation layer, we may need to block intermediate lanes to exit a driveway,
+            // so reflect that cost here. The high cost should only be worth it when the v2 path
+            // requires that up-front turn from certain lanes.
+            //
+            // TODO This is only valid if we were leaving from a driveway! This is making some
+            // buses warp after making a stop.
+            </span><span class="kw">let </span>idx_dist = (start_lane_idx - (l.offset <span class="kw">as </span>isize)).abs();
+            <span class="kw">let </span>cost = <span class="number">100 </span>* idx_dist <span class="kw">as </span>usize;
+            <span class="kw">let </span>fake_turn = TurnID {
+                <span class="comment">// Just encode the cost here for convenience
+                </span>parent: IntersectionID(cost),
+                src: virtual_start_node,
+                dst: virtual_start_node,
             };
-            <span class="ident">graph</span>.<span class="ident">add_edge</span>(<span class="ident">virtual_start_node</span>, <span class="ident">l</span>, <span class="ident">fake_turn</span>);
+            graph.add_edge(virtual_start_node, l, fake_turn);
         }
 
-        <span class="kw">match</span> <span class="ident">petgraph::algo::astar</span>(
-            <span class="kw-2">&amp;</span><span class="ident">graph</span>,
-            <span class="ident">virtual_start_node</span>,
-            <span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>(),
-            <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">t</span>)<span class="op">|</span> {
-                <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">virtual_start_node</span> {
-                    <span class="kw">return</span> <span class="ident">t</span>.<span class="ident">parent</span>.<span class="number">0</span>;
+        <span class="kw">match </span>petgraph::algo::astar(
+            <span class="kw-2">&amp;</span>graph,
+            virtual_start_node,
+            |l| l == <span class="self">self</span>.req.end.lane(),
+            |(<span class="kw">_</span>, <span class="kw">_</span>, t)| {
+                <span class="kw">if </span>t.src == virtual_start_node {
+                    <span class="kw">return </span>t.parent.<span class="number">0</span>;
                 }
 
-                <span class="comment">// Normally opportunistic lane-changing adjusts the path live, but that doesn&#39;t work</span>
-                <span class="comment">// near uber-turns. So still use some of the penalties here.</span>
-                <span class="kw">let</span> (<span class="ident">lt</span>, <span class="ident">lc</span>, <span class="ident">slow_lane</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">penalty</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span>, <span class="ident">map</span>);
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extra_penalty</span> <span class="op">=</span> <span class="ident">lt</span> <span class="op">+</span> <span class="ident">lc</span>;
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">constraints</span> <span class="op">==</span> <span class="ident">PathConstraints::Bike</span> {
-                    <span class="ident">extra_penalty</span> <span class="op">+</span><span class="op">=</span> <span class="ident">slow_lane</span>;
+                <span class="comment">// Normally opportunistic lane-changing adjusts the path live, but that doesn&#39;t work
+                // near uber-turns. So still use some of the penalties here.
+                </span><span class="kw">let </span>(lt, lc, slow_lane) = map.get_t(<span class="kw-2">*</span>t).penalty(<span class="self">self</span>.req.constraints, map);
+                <span class="kw">let </span><span class="kw-2">mut </span>extra_penalty = lt + lc;
+                <span class="kw">if </span><span class="self">self</span>.req.constraints == PathConstraints::Bike {
+                    extra_penalty += slow_lane;
                 }
-                <span class="comment">// Always treat every lane/turn as at least cost 1; otherwise A* can&#39;t understand</span>
-                <span class="comment">// that a final path with 10 steps costs more than one with 5. The</span>
-                <span class="comment">// road-based pathfinding has already chosen the overall route; when</span>
-                <span class="comment">// we&#39;re picking individual lanes, the length of each lane along one</span>
-                <span class="comment">// road is going to be about the same.</span>
-                <span class="kw">let</span> <span class="ident">base</span> <span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">base</span> <span class="op">+</span> <span class="ident">extra_penalty</span>
+                <span class="comment">// Always treat every lane/turn as at least cost 1; otherwise A* can&#39;t understand
+                // that a final path with 10 steps costs more than one with 5. The
+                // road-based pathfinding has already chosen the overall route; when
+                // we&#39;re picking individual lanes, the length of each lane along one
+                // road is going to be about the same.
+                </span><span class="kw">let </span>base = <span class="number">1</span>;
+                base + extra_penalty
             },
-            <span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="number">0</span>,
+            |<span class="kw">_</span>| <span class="number">0</span>,
         ) {
-            <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">path</span>)) =&gt; {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="comment">// Skip the first node; it&#39;s always virtual_start_node</span>
-                <span class="macro">assert_eq!</span>(<span class="ident">path</span>[<span class="number">0</span>], <span class="ident">virtual_start_node</span>);
-                <span class="kw">for</span> <span class="ident">pair</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">windows</span>(<span class="number">2</span>) {
-                    <span class="kw">if</span> <span class="ident">pair</span>[<span class="number">0</span>] <span class="op">==</span> <span class="ident">virtual_start_node</span> {
+            <span class="prelude-val">Some</span>((<span class="kw">_</span>, path)) =&gt; {
+                <span class="kw">let </span><span class="kw-2">mut </span>steps = Vec::new();
+                <span class="comment">// Skip the first node; it&#39;s always virtual_start_node
+                </span><span class="macro">assert_eq!</span>(path[<span class="number">0</span>], virtual_start_node);
+                <span class="kw">for </span>pair <span class="kw">in </span>path.windows(<span class="number">2</span>) {
+                    <span class="kw">if </span>pair[<span class="number">0</span>] == virtual_start_node {
                         <span class="kw">continue</span>;
                     }
 
-                    <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep::Lane</span>(<span class="ident">pair</span>[<span class="number">0</span>]));
-                    <span class="comment">// We don&#39;t need to look for this turn in the map; we know it exists.</span>
-                    <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep::Turn</span>(<span class="ident">TurnID</span> {
-                        <span class="ident">parent</span>: <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">pair</span>[<span class="number">0</span>]).<span class="ident">dst_i</span>,
-                        <span class="ident">src</span>: <span class="ident">pair</span>[<span class="number">0</span>],
-                        <span class="ident">dst</span>: <span class="ident">pair</span>[<span class="number">1</span>],
+                    steps.push(PathStep::Lane(pair[<span class="number">0</span>]));
+                    <span class="comment">// We don&#39;t need to look for this turn in the map; we know it exists.
+                    </span>steps.push(PathStep::Turn(TurnID {
+                        parent: map.get_l(pair[<span class="number">0</span>]).dst_i,
+                        src: pair[<span class="number">0</span>],
+                        dst: pair[<span class="number">1</span>],
                     }));
                 }
-                <span class="ident">steps</span>.<span class="ident">push</span>(<span class="ident">PathStep::Lane</span>(<span class="self">self</span>.<span class="ident">req</span>.<span class="ident">end</span>.<span class="ident">lane</span>()));
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">blocked_starts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-                <span class="kw">if</span> <span class="ident">steps</span>[<span class="number">0</span>] <span class="op">!</span><span class="op">=</span> <span class="ident">PathStep::Lane</span>(<span class="ident">orig_start_lane</span>) {
-                    <span class="kw">let</span> <span class="ident">actual_start</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">steps</span>[<span class="number">0</span>] {
-                        <span class="ident">PathStep::Lane</span>(<span class="ident">l</span>) =&gt; <span class="ident">l</span>,
-                        <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                steps.push(PathStep::Lane(<span class="self">self</span>.req.end.lane()));
+                <span class="kw">let </span><span class="kw-2">mut </span>blocked_starts = Vec::new();
+                <span class="kw">if </span>steps[<span class="number">0</span>] != PathStep::Lane(orig_start_lane) {
+                    <span class="kw">let </span>actual_start = <span class="kw">match </span>steps[<span class="number">0</span>] {
+                        PathStep::Lane(l) =&gt; l,
+                        <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                     };
-                    <span class="ident">blocked_starts</span>.<span class="ident">push</span>(<span class="ident">orig_start_lane</span>);
-                    <span class="ident">blocked_starts</span>
-                        .<span class="ident">extend</span>(<span class="ident">start_road</span>.<span class="ident">get_lanes_between</span>(<span class="ident">orig_start_lane</span>, <span class="ident">actual_start</span>));
-                    <span class="comment">// Sometimes a no-op for exiting off-side</span>
-                    <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">req</span>.<span class="ident">start</span>.<span class="ident">equiv_pos</span>(<span class="ident">actual_start</span>, <span class="ident">map</span>);
+                    blocked_starts.push(orig_start_lane);
+                    blocked_starts
+                        .extend(start_road.get_lanes_between(orig_start_lane, actual_start));
+                    <span class="comment">// Sometimes a no-op for exiting off-side
+                    </span><span class="self">self</span>.req.start = <span class="self">self</span>.req.start.equiv_pos(actual_start, map);
                 }
-                <span class="kw">let</span> <span class="ident">uber_turns</span> <span class="op">=</span> <span class="ident">find_uber_turns</span>(<span class="kw-2">&amp;</span><span class="ident">steps</span>, <span class="ident">map</span>, <span class="self">self</span>.<span class="ident">uber_turns</span>);
-                <span class="prelude-val">Ok</span>(<span class="ident">Path::new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="self">self</span>.<span class="ident">req</span>, <span class="ident">uber_turns</span>, <span class="ident">blocked_starts</span>))
+                <span class="kw">let </span>uber_turns = find_uber_turns(<span class="kw-2">&amp;</span>steps, map, <span class="self">self</span>.uber_turns);
+                <span class="prelude-val">Ok</span>(Path::new(map, steps, <span class="self">self</span>.req, uber_turns, blocked_starts))
             }
-            <span class="prelude-val">None</span> =&gt; <span class="macro">bail!</span>(
+            <span class="prelude-val">None </span>=&gt; <span class="macro">bail!</span>(
                 <span class="string">&quot;Can&#39;t transform a road-based path to a lane-based path for {}&quot;</span>,
-                <span class="self">self</span>.<span class="ident">req</span>
+                <span class="self">self</span>.req
             ),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">into_v1_walking</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Path</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">steps</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="ident">steps</span>.<span class="ident">push</span>(<span class="kw">match</span> <span class="ident">step</span> {
-                <span class="ident">PathStepV2::Along</span>(<span class="ident">r</span>) =&gt; <span class="ident">PathStep::Lane</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>)),
-                <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">r</span>) =&gt; <span class="ident">PathStep::ContraflowLane</span>(<span class="ident">r</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>)),
-                <span class="ident">PathStepV2::Movement</span>(<span class="ident">mvmnt</span>) =&gt; <span class="ident">PathStep::Turn</span>(<span class="ident">TurnID</span> {
-                    <span class="ident">src</span>: <span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
-                    <span class="ident">dst</span>: <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
-                    <span class="ident">parent</span>: <span class="ident">mvmnt</span>.<span class="ident">parent</span>,
+    <span class="kw">fn </span>into_v1_walking(<span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;Path&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>steps = Vec::new();
+        <span class="kw">for </span>step <span class="kw">in </span><span class="self">self</span>.steps {
+            steps.push(<span class="kw">match </span>step {
+                PathStepV2::Along(r) =&gt; PathStep::Lane(r.must_get_sidewalk(map)),
+                PathStepV2::Contraflow(r) =&gt; PathStep::ContraflowLane(r.must_get_sidewalk(map)),
+                PathStepV2::Movement(mvmnt) =&gt; PathStep::Turn(TurnID {
+                    src: mvmnt.from.must_get_sidewalk(map),
+                    dst: mvmnt.to.must_get_sidewalk(map),
+                    parent: mvmnt.parent,
                 }),
-                <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">mvmnt</span>) =&gt; <span class="ident">PathStep::ContraflowTurn</span>(<span class="ident">TurnID</span> {
-                    <span class="ident">src</span>: <span class="ident">mvmnt</span>.<span class="ident">from</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
-                    <span class="ident">dst</span>: <span class="ident">mvmnt</span>.<span class="ident">to</span>.<span class="ident">must_get_sidewalk</span>(<span class="ident">map</span>),
-                    <span class="ident">parent</span>: <span class="ident">mvmnt</span>.<span class="ident">parent</span>,
+                PathStepV2::ContraflowMovement(mvmnt) =&gt; PathStep::ContraflowTurn(TurnID {
+                    src: mvmnt.from.must_get_sidewalk(map),
+                    dst: mvmnt.to.must_get_sidewalk(map),
+                    parent: mvmnt.parent,
                 }),
             });
         }
-        <span class="prelude-val">Ok</span>(<span class="ident">Path::new</span>(<span class="ident">map</span>, <span class="ident">steps</span>, <span class="self">self</span>.<span class="ident">req</span>, <span class="ident">Vec::new</span>(), <span class="ident">Vec::new</span>()))
+        <span class="prelude-val">Ok</span>(Path::new(map, steps, <span class="self">self</span>.req, Vec::new(), Vec::new()))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">crosses_road</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">steps</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">step</span><span class="op">|</span> <span class="kw">match</span> <span class="ident">step</span> {
-            <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) =&gt; <span class="ident">dr</span>.<span class="ident">road</span> <span class="op">==</span> <span class="ident">r</span>,
-            <span class="kw">_</span> =&gt; <span class="bool-val">false</span>,
+    <span class="kw">pub fn </span>crosses_road(<span class="kw-2">&amp;</span><span class="self">self</span>, r: RoadID) -&gt; bool {
+        <span class="self">self</span>.steps.iter().any(|step| <span class="kw">match </span>step {
+            PathStepV2::Along(dr) =&gt; dr.road == r,
+            <span class="kw">_ </span>=&gt; <span class="bool-val">false</span>,
         })
     }
 
-    <span class="doccomment">/// Draws the thickened path, matching entire roads. Ignores the path&#39;s exact starting and</span>
-    <span class="doccomment">/// ending distance. Doesn&#39;t handle contraflow yet.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_v2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">right_pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="kw">match</span> <span class="ident">step</span> {
-                <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) =&gt; {
-                    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>);
-                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_half_width</span>();
-                    <span class="kw">if</span> <span class="ident">dr</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
-                        <span class="ident">left_pts</span>.<span class="ident">extend</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">width</span>)<span class="question-mark">?</span>.<span class="ident">into_points</span>());
-                        <span class="ident">right_pts</span>.<span class="ident">extend</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>)<span class="question-mark">?</span>.<span class="ident">into_points</span>());
-                    } <span class="kw">else</span> {
-                        <span class="ident">left_pts</span>
-                            .<span class="ident">extend</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">shift_right</span>(<span class="ident">width</span>)<span class="question-mark">?</span>.<span class="ident">reversed</span>().<span class="ident">into_points</span>());
-                        <span class="ident">right_pts</span>
-                            .<span class="ident">extend</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">shift_left</span>(<span class="ident">width</span>)<span class="question-mark">?</span>.<span class="ident">reversed</span>().<span class="ident">into_points</span>());
+    <span class="doccomment">/// Draws the thickened path, matching entire roads. Ignores the path&#39;s exact starting and
+    /// ending distance. Doesn&#39;t handle contraflow yet.
+    </span><span class="kw">pub fn </span>trace_v2(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;Polygon&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>left_pts = Vec::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>right_pts = Vec::new();
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
+            <span class="kw">match </span>step {
+                PathStepV2::Along(dr) =&gt; {
+                    <span class="kw">let </span>road = map.get_r(dr.road);
+                    <span class="kw">let </span>width = road.get_half_width();
+                    <span class="kw">if </span>dr.dir == Direction::Fwd {
+                        left_pts.extend(road.center_pts.shift_left(width)<span class="question-mark">?</span>.into_points());
+                        right_pts.extend(road.center_pts.shift_right(width)<span class="question-mark">?</span>.into_points());
+                    } <span class="kw">else </span>{
+                        left_pts
+                            .extend(road.center_pts.shift_right(width)<span class="question-mark">?</span>.reversed().into_points());
+                        right_pts
+                            .extend(road.center_pts.shift_left(width)<span class="question-mark">?</span>.reversed().into_points());
                     }
                 }
-                <span class="ident">PathStepV2::Contraflow</span>(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(),
-                <span class="comment">// Just make a straight line across the intersection. It&#39;d be fancier to try and</span>
-                <span class="comment">// trace along.</span>
-                <span class="ident">PathStepV2::Movement</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="kw">_</span>) =&gt; {}
+                PathStepV2::Contraflow(<span class="kw">_</span>) =&gt; <span class="macro">todo!</span>(),
+                <span class="comment">// Just make a straight line across the intersection. It&#39;d be fancier to try and
+                // trace along.
+                </span>PathStepV2::Movement(<span class="kw">_</span>) | PathStepV2::ContraflowMovement(<span class="kw">_</span>) =&gt; {}
             }
         }
-        <span class="ident">right_pts</span>.<span class="ident">reverse</span>();
-        <span class="ident">left_pts</span>.<span class="ident">extend</span>(<span class="ident">right_pts</span>);
-        <span class="ident">left_pts</span>.<span class="ident">push</span>(<span class="ident">left_pts</span>[<span class="number">0</span>]);
-        <span class="prelude-val">Ok</span>(<span class="ident">Ring::deduping_new</span>(<span class="ident">left_pts</span>)<span class="question-mark">?</span>.<span class="ident">into_polygon</span>())
+        right_pts.reverse();
+        left_pts.extend(right_pts);
+        left_pts.push(left_pts[<span class="number">0</span>]);
+        <span class="prelude-val">Ok</span>(Ring::deduping_new(left_pts)<span class="question-mark">?</span>.into_polygon())
     }
 
-    <span class="doccomment">/// Returns polygons covering the entire path. Ignores the path&#39;s exact starting and ending</span>
-    <span class="doccomment">/// distance.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_all_polygons</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Polygon</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">polygons</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">steps</span> {
-            <span class="kw">match</span> <span class="ident">step</span> {
-                <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) <span class="op">|</span> <span class="ident">PathStepV2::Contraflow</span>(<span class="ident">dr</span>) =&gt; {
-                    <span class="ident">polygons</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dr</span>.<span class="ident">road</span>).<span class="ident">get_thick_polygon</span>());
+    <span class="doccomment">/// Returns polygons covering the entire path. Ignores the path&#39;s exact starting and ending
+    /// distance.
+    </span><span class="kw">pub fn </span>trace_all_polygons(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; Vec&lt;Polygon&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>polygons = Vec::new();
+        <span class="kw">for </span>step <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.steps {
+            <span class="kw">match </span>step {
+                PathStepV2::Along(dr) | PathStepV2::Contraflow(dr) =&gt; {
+                    polygons.push(map.get_r(dr.road).get_thick_polygon());
                 }
-                <span class="ident">PathStepV2::Movement</span>(<span class="ident">m</span>) <span class="op">|</span> <span class="ident">PathStepV2::ContraflowMovement</span>(<span class="ident">m</span>) =&gt; {
-                    <span class="ident">polygons</span>.<span class="ident">push</span>(<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">m</span>.<span class="ident">parent</span>).<span class="ident">polygon</span>.<span class="ident">clone</span>());
+                PathStepV2::Movement(m) | PathStepV2::ContraflowMovement(m) =&gt; {
+                    polygons.push(map.get_i(m.parent).polygon.clone());
                 }
             }
         }
-        <span class="ident">polygons</span>
+        polygons
     }
 }
 
-<span class="kw">fn</span> <span class="ident">find_uber_turns</span>(
-    <span class="ident">steps</span>: <span class="kw-2">&amp;</span>[<span class="ident">PathStep</span>],
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="kw-2">mut</span> <span class="ident">uber_turns_v2</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurnV2</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UberTurn</span><span class="op">&gt;</span> {
-    <span class="comment">// Pathfinding v1 needs to know the uber turns that the path crosses, for the simulation layer.</span>
-    <span class="comment">// Since we now construct the path in two stages, it&#39;s easiest to just reconstruct the uber</span>
-    <span class="comment">// turns after building the lane-based path.</span>
+<span class="kw">fn </span>find_uber_turns(
+    steps: <span class="kw-2">&amp;</span>[PathStep],
+    map: <span class="kw-2">&amp;</span>Map,
+    <span class="kw-2">mut </span>uber_turns_v2: Vec&lt;UberTurnV2&gt;,
+) -&gt; Vec&lt;UberTurn&gt; {
+    <span class="comment">// Pathfinding v1 needs to know the uber turns that the path crosses, for the simulation layer.
+    // Since we now construct the path in two stages, it&#39;s easiest to just reconstruct the uber
+    // turns after building the lane-based path.
 
-    <span class="kw">let</span> <span class="ident">num_uts</span> <span class="op">=</span> <span class="ident">uber_turns_v2</span>.<span class="ident">len</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_ut</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">steps</span> {
-        <span class="comment">// Optimization</span>
-        <span class="kw">if</span> <span class="ident">uber_turns_v2</span>.<span class="ident">is_empty</span>() {
+    </span><span class="kw">let </span>num_uts = uber_turns_v2.len();
+    <span class="kw">let </span><span class="kw-2">mut </span>result = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>current_ut = Vec::new();
+    <span class="kw">for </span>step <span class="kw">in </span>steps {
+        <span class="comment">// Optimization
+        </span><span class="kw">if </span>uber_turns_v2.is_empty() {
             <span class="kw">break</span>;
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">PathStep::Turn</span>(<span class="ident">t</span>) <span class="op">=</span> <span class="ident">step</span> {
-            <span class="kw">if</span> <span class="ident">current_ut</span>.<span class="ident">is_empty</span>()
-                <span class="op">&amp;&amp;</span> <span class="ident">uber_turns_v2</span>[<span class="number">0</span>].<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">from</span> <span class="op">==</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">src</span>).<span class="ident">get_directed_parent</span>()
+        <span class="kw">if let </span>PathStep::Turn(t) = step {
+            <span class="kw">if </span>current_ut.is_empty()
+                &amp;&amp; uber_turns_v2[<span class="number">0</span>].path[<span class="number">0</span>].from == map.get_l(t.src).get_directed_parent()
             {
-                <span class="ident">current_ut</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">t</span>);
+                current_ut.push(<span class="kw-2">*</span>t);
             }
 
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">current_ut</span>.<span class="ident">is_empty</span>() {
-                <span class="kw">if</span> <span class="ident">current_ut</span>.<span class="ident">last</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">t</span>) {
-                    <span class="ident">current_ut</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">t</span>);
+            <span class="kw">if </span>!current_ut.is_empty() {
+                <span class="kw">if </span>current_ut.last() != <span class="prelude-val">Some</span>(t) {
+                    current_ut.push(<span class="kw-2">*</span>t);
                 }
-                <span class="kw">if</span> <span class="ident">uber_turns_v2</span>[<span class="number">0</span>].<span class="ident">path</span>[<span class="number">0</span>].<span class="ident">to</span> <span class="op">==</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">t</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>() {
-                    <span class="ident">result</span>.<span class="ident">push</span>(<span class="ident">UberTurn</span> {
-                        <span class="ident">path</span>: <span class="ident">current_ut</span>.<span class="ident">drain</span>(..).<span class="ident">collect</span>(),
+                <span class="kw">if </span>uber_turns_v2[<span class="number">0</span>].path[<span class="number">0</span>].to == map.get_l(t.dst).get_directed_parent() {
+                    result.push(UberTurn {
+                        path: current_ut.drain(..).collect(),
                     });
-                    <span class="ident">uber_turns_v2</span>.<span class="ident">remove</span>(<span class="number">0</span>);
+                    uber_turns_v2.remove(<span class="number">0</span>);
                 }
             }
         }
     }
-    <span class="macro">assert!</span>(<span class="ident">current_ut</span>.<span class="ident">is_empty</span>());
-    <span class="macro">assert_eq!</span>(<span class="ident">num_uts</span>, <span class="ident">result</span>.<span class="ident">len</span>());
-    <span class="ident">result</span>
+    <span class="macro">assert!</span>(current_ut.is_empty());
+    <span class="macro">assert_eq!</span>(num_uts, result.len());
+    result
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

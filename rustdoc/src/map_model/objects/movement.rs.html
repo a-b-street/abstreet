@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/movement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>movement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/objects/movement.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>movement.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -257,264 +257,264 @@
 <span id="257">257</span>
 <span id="258">258</span>
 <span id="259">259</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>abstutil::MultiMap;
+<span class="kw">use </span>geom::{Angle, Distance, PolyLine, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">osm</span>, <span class="ident">DirectedRoadID</span>, <span class="ident">Direction</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">OriginalRoad</span>, <span class="ident">TurnID</span>, <span class="ident">TurnType</span>};
+<span class="kw">use crate</span>::{osm, DirectedRoadID, Direction, IntersectionID, Map, OriginalRoad, TurnID, TurnType};
 
-<span class="doccomment">/// A movement is like a turn, but with less detail -- it identifies a movement from one directed</span>
-<span class="doccomment">/// road to another.</span>
-<span class="doccomment">/// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information</span>
-<span class="doccomment">/// here to keep each crosswalk separate.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MovementID</span> {
-    <span class="kw">pub</span> <span class="ident">from</span>: <span class="ident">DirectedRoadID</span>,
-    <span class="kw">pub</span> <span class="ident">to</span>: <span class="ident">DirectedRoadID</span>,
-    <span class="kw">pub</span> <span class="ident">parent</span>: <span class="ident">IntersectionID</span>,
-    <span class="doccomment">/// Could be a Crosswalk or UnmarkedCrossing</span>
-    <span class="kw">pub</span> <span class="ident">crosswalk</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// A movement is like a turn, but with less detail -- it identifies a movement from one directed
+/// road to another.
+/// One road usually has 4 crosswalks, each a singleton Movement. We need all of the information
+/// here to keep each crosswalk separate.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>MovementID {
+    <span class="kw">pub </span>from: DirectedRoadID,
+    <span class="kw">pub </span>to: DirectedRoadID,
+    <span class="kw">pub </span>parent: IntersectionID,
+    <span class="doccomment">/// Could be a Crosswalk or UnmarkedCrossing
+    </span><span class="kw">pub </span>crosswalk: bool,
 }
 
-<span class="doccomment">/// This is cheaper to store than a MovementID. It simply indexes into the list of movements.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">CompressedMovementID</span> {
-    <span class="kw">pub</span> <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-    <span class="comment">// There better not be any intersection with more than 256 movements...</span>
-    <span class="kw">pub</span> <span class="ident">idx</span>: <span class="ident">u8</span>,
+<span class="doccomment">/// This is cheaper to store than a MovementID. It simply indexes into the list of movements.
+</span><span class="attribute">#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>CompressedMovementID {
+    <span class="kw">pub </span>i: IntersectionID,
+    <span class="comment">// There better not be any intersection with more than 256 movements...
+    </span><span class="kw">pub </span>idx: u8,
 }
 
-<span class="doccomment">/// A Movement groups all turns from one road to another, letting traffic signals and pathfinding</span>
-<span class="doccomment">/// operate at a higher level of abstraction.</span>
-<span class="comment">// TODO Unclear how this plays with different lane types</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Movement</span> {
-    <span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">MovementID</span>,
-    <span class="kw">pub</span> <span class="ident">turn_type</span>: <span class="ident">TurnType</span>,
-    <span class="kw">pub</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The &quot;overall&quot; path of movement, aka, an &quot;average&quot; of the turn geometry</span>
-    <span class="kw">pub</span> <span class="ident">geom</span>: <span class="ident">PolyLine</span>,
-    <span class="kw">pub</span> <span class="ident">angle</span>: <span class="ident">Angle</span>,
+<span class="doccomment">/// A Movement groups all turns from one road to another, letting traffic signals and pathfinding
+/// operate at a higher level of abstraction.
+</span><span class="comment">// TODO Unclear how this plays with different lane types
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>Movement {
+    <span class="kw">pub </span>id: MovementID,
+    <span class="kw">pub </span>turn_type: TurnType,
+    <span class="kw">pub </span>members: Vec&lt;TurnID&gt;,
+    <span class="doccomment">/// The &quot;overall&quot; path of movement, aka, an &quot;average&quot; of the turn geometry
+    </span><span class="kw">pub </span>geom: PolyLine,
+    <span class="kw">pub </span>angle: Angle,
 }
 
-<span class="kw">impl</span> <span class="ident">Movement</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">for_i</span>(<span class="ident">i</span>: <span class="ident">IntersectionID</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">MovementID</span>, <span class="ident">Movement</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">movements</span>: <span class="ident">MultiMap</span><span class="op">&lt;</span>(<span class="ident">DirectedRoadID</span>, <span class="ident">DirectedRoadID</span>), <span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">MultiMap::new</span>();
-        <span class="kw">for</span> <span class="ident">turn</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">turns</span> {
-            <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">src</span>).<span class="ident">get_directed_parent</span>();
-            <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>();
-            <span class="kw">match</span> <span class="ident">turn</span>.<span class="ident">turn_type</span> {
-                <span class="ident">TurnType::SharedSidewalkCorner</span> =&gt; {}
-                <span class="ident">TurnType::Crosswalk</span> <span class="op">|</span> <span class="ident">TurnType::UnmarkedCrossing</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">MovementID</span> {
-                        <span class="ident">from</span>,
-                        <span class="ident">to</span>,
-                        <span class="ident">parent</span>: <span class="ident">i</span>,
-                        <span class="ident">crosswalk</span>: <span class="bool-val">true</span>,
+<span class="kw">impl </span>Movement {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>for_i(i: IntersectionID, map: <span class="kw-2">&amp;</span>Map) -&gt; BTreeMap&lt;MovementID, Movement&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>results = BTreeMap::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>movements: MultiMap&lt;(DirectedRoadID, DirectedRoadID), TurnID&gt; = MultiMap::new();
+        <span class="kw">for </span>turn <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_i(i).turns {
+            <span class="kw">let </span>from = map.get_l(turn.id.src).get_directed_parent();
+            <span class="kw">let </span>to = map.get_l(turn.id.dst).get_directed_parent();
+            <span class="kw">match </span>turn.turn_type {
+                TurnType::SharedSidewalkCorner =&gt; {}
+                TurnType::Crosswalk | TurnType::UnmarkedCrossing =&gt; {
+                    <span class="kw">let </span>id = MovementID {
+                        from,
+                        to,
+                        parent: i,
+                        crosswalk: <span class="bool-val">true</span>,
                     };
-                    <span class="ident">results</span>.<span class="ident">insert</span>(
-                        <span class="ident">id</span>,
-                        <span class="ident">Movement</span> {
-                            <span class="ident">id</span>,
-                            <span class="ident">turn_type</span>: <span class="ident">turn</span>.<span class="ident">turn_type</span>,
-                            <span class="ident">members</span>: <span class="macro">vec!</span>[<span class="ident">turn</span>.<span class="ident">id</span>],
-                            <span class="ident">geom</span>: <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">clone</span>(),
-                            <span class="ident">angle</span>: <span class="ident">turn</span>.<span class="ident">angle</span>(),
+                    results.insert(
+                        id,
+                        Movement {
+                            id,
+                            turn_type: turn.turn_type,
+                            members: <span class="macro">vec!</span>[turn.id],
+                            geom: turn.geom.clone(),
+                            angle: turn.angle(),
                         },
                     );
                 }
-                <span class="kw">_</span> =&gt; {
-                    <span class="ident">movements</span>.<span class="ident">insert</span>((<span class="ident">from</span>, <span class="ident">to</span>), <span class="ident">turn</span>.<span class="ident">id</span>);
+                <span class="kw">_ </span>=&gt; {
+                    movements.insert((from, to), turn.id);
                 }
             }
         }
-        <span class="kw">for</span> ((<span class="ident">from</span>, <span class="ident">to</span>), <span class="ident">members</span>) <span class="kw">in</span> <span class="ident">movements</span>.<span class="ident">consume</span>() {
-            <span class="kw">let</span> <span class="ident">geom</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">movement_geom</span>(
-                <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">geom</span>).<span class="ident">collect</span>(),
-                <span class="ident">from</span>,
-                <span class="ident">to</span>,
+        <span class="kw">for </span>((from, to), members) <span class="kw">in </span>movements.consume() {
+            <span class="kw">let </span>geom = <span class="kw">match </span>movement_geom(
+                members.iter().map(|t| <span class="kw-2">&amp;</span>map.get_t(<span class="kw-2">*</span>t).geom).collect(),
+                from,
+                to,
             ) {
-                <span class="prelude-val">Ok</span>(<span class="ident">geom</span>) =&gt; <span class="ident">geom</span>,
-                <span class="prelude-val">Err</span>(<span class="ident">err</span>) =&gt; {
-                    <span class="macro">warn!</span>(<span class="string">&quot;Weird movement geometry at {}: {}&quot;</span>, <span class="ident">i</span>, <span class="ident">err</span>);
-                    <span class="comment">// Just use one of the turns</span>
-                    <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>()).<span class="ident">geom</span>.<span class="ident">clone</span>()
+                <span class="prelude-val">Ok</span>(geom) =&gt; geom,
+                <span class="prelude-val">Err</span>(err) =&gt; {
+                    <span class="macro">warn!</span>(<span class="string">&quot;Weird movement geometry at {}: {}&quot;</span>, i, err);
+                    <span class="comment">// Just use one of the turns
+                    </span>map.get_t(<span class="kw-2">*</span>members.iter().next().unwrap()).geom.clone()
                 }
             };
-            <span class="kw">let</span> <span class="ident">turn_types</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TurnType</span><span class="op">&gt;</span> <span class="op">=</span>
-                <span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">turn_type</span>).<span class="ident">collect</span>();
-            <span class="kw">if</span> <span class="ident">turn_types</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
+            <span class="kw">let </span>turn_types: BTreeSet&lt;TurnType&gt; =
+                members.iter().map(|t| map.get_t(<span class="kw-2">*</span>t).turn_type).collect();
+            <span class="kw">if </span>turn_types.len() &gt; <span class="number">1 </span>{
                 <span class="macro">warn!</span>(
                     <span class="string">&quot;Movement between {} and {} has weird turn types! {:?}&quot;</span>,
-                    <span class="ident">from</span>, <span class="ident">to</span>, <span class="ident">turn_types</span>
+                    from, to, turn_types
                 );
             }
-            <span class="kw">let</span> <span class="ident">members</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TurnID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">members</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>();
-            <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">MovementID</span> {
-                <span class="ident">from</span>,
-                <span class="ident">to</span>,
-                <span class="ident">parent</span>: <span class="ident">i</span>,
-                <span class="ident">crosswalk</span>: <span class="bool-val">false</span>,
+            <span class="kw">let </span>members: Vec&lt;TurnID&gt; = members.into_iter().collect();
+            <span class="kw">let </span>id = MovementID {
+                from,
+                to,
+                parent: i,
+                crosswalk: <span class="bool-val">false</span>,
             };
-            <span class="ident">results</span>.<span class="ident">insert</span>(
-                <span class="ident">id</span>,
-                <span class="ident">Movement</span> {
-                    <span class="ident">id</span>,
-                    <span class="ident">turn_type</span>: <span class="kw-2">*</span><span class="ident">turn_types</span>.<span class="ident">iter</span>().<span class="ident">next</span>().<span class="ident">unwrap</span>(),
-                    <span class="ident">angle</span>: <span class="ident">map</span>.<span class="ident">get_t</span>(<span class="ident">members</span>[<span class="number">0</span>]).<span class="ident">angle</span>(),
-                    <span class="ident">members</span>,
-                    <span class="ident">geom</span>,
+            results.insert(
+                id,
+                Movement {
+                    id,
+                    turn_type: <span class="kw-2">*</span>turn_types.iter().next().unwrap(),
+                    angle: map.get_t(members[<span class="number">0</span>]).angle(),
+                    members,
+                    geom,
                 },
             );
         }
-        <span class="comment">// The result might be empty for border intersections; that&#39;s fine</span>
-        <span class="ident">results</span>
+        <span class="comment">// The result might be empty for border intersections; that&#39;s fine
+        </span>results
     }
 
-    <span class="doccomment">/// Polyline points FROM intersection</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">src_center_and_width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; (<span class="ident">PolyLine</span>, <span class="ident">Distance</span>) {
-        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">road</span>);
+    <span class="doccomment">/// Polyline points FROM intersection
+    </span><span class="kw">pub fn </span>src_center_and_width(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; (PolyLine, Distance) {
+        <span class="kw">let </span>r = map.get_r(<span class="self">self</span>.id.from.road);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">leftmost</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">99999.0</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rightmost</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">Distance::ZERO</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>leftmost = Distance::meters(<span class="number">99999.0</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>rightmost = Distance::ZERO;
+        <span class="kw">let </span><span class="kw-2">mut </span>left = Distance::ZERO;
 
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">r</span>.<span class="ident">lanes</span> {
-            <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">left</span> <span class="op">+</span> <span class="ident">l</span>.<span class="ident">width</span>;
+        <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span>r.lanes {
+            <span class="kw">let </span>right = left + l.width;
 
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">members</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span>.<span class="ident">src</span> <span class="op">==</span> <span class="ident">l</span>.<span class="ident">id</span>) {
-                <span class="ident">leftmost</span> <span class="op">=</span> <span class="ident">leftmost</span>.<span class="ident">min</span>(<span class="ident">left</span>);
-                <span class="ident">rightmost</span> <span class="op">=</span> <span class="ident">rightmost</span>.<span class="ident">max</span>(<span class="ident">right</span>);
+            <span class="kw">if </span><span class="self">self</span>.members.iter().any(|t| t.src == l.id) {
+                leftmost = leftmost.min(left);
+                rightmost = rightmost.max(right);
             }
 
-            <span class="ident">left</span> <span class="op">=</span> <span class="ident">right</span>;
+            left = right;
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pl</span> <span class="op">=</span> <span class="ident">r</span>
-            .<span class="ident">shift_from_left_side</span>((<span class="ident">leftmost</span> <span class="op">+</span> <span class="ident">rightmost</span>) <span class="op">/</span> <span class="number">2.0</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">from</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Back</span> {
-            <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>pl = r
+            .shift_from_left_side((leftmost + rightmost) / <span class="number">2.0</span>)
+            .unwrap();
+        <span class="kw">if </span><span class="self">self</span>.id.from.dir == Direction::Back {
+            pl = pl.reversed();
         }
-        <span class="comment">// Flip direction, so we point away from the intersection</span>
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">id</span>.<span class="ident">crosswalk</span> <span class="op">|</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="self">self</span>.<span class="ident">members</span>[<span class="number">0</span>].<span class="ident">src</span>).<span class="ident">src_i</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">members</span>[<span class="number">0</span>].<span class="ident">parent</span> {
-            <span class="ident">pl</span> <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">reversed</span>()
+        <span class="comment">// Flip direction, so we point away from the intersection
+        </span><span class="kw">if </span>!<span class="self">self</span>.id.crosswalk || map.get_l(<span class="self">self</span>.members[<span class="number">0</span>].src).src_i != <span class="self">self</span>.members[<span class="number">0</span>].parent {
+            pl = pl.reversed()
         };
-        (<span class="ident">pl</span>, <span class="ident">rightmost</span> <span class="op">-</span> <span class="ident">leftmost</span>)
+        (pl, rightmost - leftmost)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">conflicts_with</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Movement</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">id</span> {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+    <span class="kw">pub fn </span>conflicts_with(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Movement) -&gt; bool {
+        <span class="kw">if </span><span class="self">self</span>.id == other.id {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() <span class="op">&amp;&amp;</span> <span class="ident">other</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>() {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+        <span class="kw">if </span><span class="self">self</span>.turn_type.pedestrian_crossing() &amp;&amp; other.turn_type.pedestrian_crossing() {
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">from</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">id</span>.<span class="ident">from</span>
-            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>()
-            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">other</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>()
+        <span class="kw">if </span><span class="self">self</span>.id.from == other.id.from
+            &amp;&amp; !<span class="self">self</span>.turn_type.pedestrian_crossing()
+            &amp;&amp; !other.turn_type.pedestrian_crossing()
         {
-            <span class="kw">return</span> <span class="bool-val">false</span>;
+            <span class="kw">return </span><span class="bool-val">false</span>;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">to</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">id</span>.<span class="ident">to</span>
-            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>()
-            <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">other</span>.<span class="ident">turn_type</span>.<span class="ident">pedestrian_crossing</span>()
+        <span class="kw">if </span><span class="self">self</span>.id.to == other.id.to
+            &amp;&amp; !<span class="self">self</span>.turn_type.pedestrian_crossing()
+            &amp;&amp; !other.turn_type.pedestrian_crossing()
         {
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="comment">// TODO If you hit a panic below, you&#39;ve probably got two separate roads overlapping.</span>
-        <span class="comment">// Fix it in OSM. Examples: https://www.openstreetmap.org/changeset/87465499,</span>
-        <span class="comment">// https://www.openstreetmap.org/changeset/85952811</span>
-        <span class="comment">/*if self.geom == other.geom {
+        <span class="comment">// TODO If you hit a panic below, you&#39;ve probably got two separate roads overlapping.
+        // Fix it in OSM. Examples: https://www.openstreetmap.org/changeset/87465499,
+        // https://www.openstreetmap.org/changeset/85952811
+        /*if self.geom == other.geom {
             println!(&quot;*********** {:?} and {:?} have the same geom&quot;, self.id, other.id);
             return true;
-        }*/</span>
-        <span class="self">self</span>.<span class="ident">geom</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">geom</span>).<span class="ident">is_some</span>()
+        }*/
+        </span><span class="self">self</span>.geom.intersection(<span class="kw-2">&amp;</span>other.geom).is_some()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">movement_geom</span>(
-    <span class="ident">polylines</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">PolyLine</span><span class="op">&gt;</span>,
-    <span class="ident">from</span>: <span class="ident">DirectedRoadID</span>,
-    <span class="ident">to</span>: <span class="ident">DirectedRoadID</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">PolyLine</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">num_pts</span> <span class="op">=</span> <span class="ident">polylines</span>[<span class="number">0</span>].<span class="ident">points</span>().<span class="ident">len</span>();
-    <span class="kw">for</span> <span class="ident">pl</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">polylines</span> {
-        <span class="kw">if</span> <span class="ident">num_pts</span> <span class="op">!</span><span class="op">=</span> <span class="ident">pl</span>.<span class="ident">points</span>().<span class="ident">len</span>() {
-            <span class="comment">// Kiiiiinda spammy</span>
-            <span class="kw">if</span> <span class="bool-val">false</span> {
+<span class="kw">fn </span>movement_geom(
+    polylines: Vec&lt;<span class="kw-2">&amp;</span>PolyLine&gt;,
+    from: DirectedRoadID,
+    to: DirectedRoadID,
+) -&gt; <span class="prelude-ty">Result</span>&lt;PolyLine&gt; {
+    <span class="kw">let </span>num_pts = polylines[<span class="number">0</span>].points().len();
+    <span class="kw">for </span>pl <span class="kw">in </span><span class="kw-2">&amp;</span>polylines {
+        <span class="kw">if </span>num_pts != pl.points().len() {
+            <span class="comment">// Kiiiiinda spammy
+            </span><span class="kw">if </span><span class="bool-val">false </span>{
                 <span class="macro">warn!</span>(
                     <span class="string">&quot;Movement between {} and {} can&#39;t make nice geometry&quot;</span>,
-                    <span class="ident">from</span>, <span class="ident">to</span>
+                    from, to
                 );
             }
-            <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">polylines</span>[<span class="number">0</span>].<span class="ident">clone</span>());
+            <span class="kw">return </span><span class="prelude-val">Ok</span>(polylines[<span class="number">0</span>].clone());
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">idx</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">num_pts</span> {
-        <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">Pt2D::center</span>(
-            <span class="kw-2">&amp;</span><span class="ident">polylines</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pl</span><span class="op">|</span> <span class="ident">pl</span>.<span class="ident">points</span>()[<span class="ident">idx</span>])
-                .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>(),
+    <span class="kw">let </span><span class="kw-2">mut </span>pts = Vec::new();
+    <span class="kw">for </span>idx <span class="kw">in </span><span class="number">0</span>..num_pts {
+        pts.push(Pt2D::center(
+            <span class="kw-2">&amp;</span>polylines
+                .iter()
+                .map(|pl| pl.points()[idx])
+                .collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;(),
         ));
     }
-    <span class="ident">PolyLine::deduping_new</span>(<span class="ident">pts</span>)
+    PolyLine::deduping_new(pts)
 }
 
-<span class="kw">impl</span> <span class="ident">MovementID</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_permanent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">traffic_signal_data::Turn</span> {
-        <span class="kw">let</span> <span class="ident">from</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">from</span>.<span class="ident">road</span>).<span class="ident">orig_id</span>;
-        <span class="kw">let</span> <span class="ident">to</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">to</span>.<span class="ident">road</span>).<span class="ident">orig_id</span>;
+<span class="kw">impl </span>MovementID {
+    <span class="kw">pub fn </span>to_permanent(<span class="kw-2">&amp;</span><span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; traffic_signal_data::Turn {
+        <span class="kw">let </span>from = map.get_r(<span class="self">self</span>.from.road).orig_id;
+        <span class="kw">let </span>to = map.get_r(<span class="self">self</span>.to.road).orig_id;
 
-        <span class="ident">traffic_signal_data::Turn</span> {
-            <span class="ident">from</span>: <span class="ident">traffic_signal_data::DirectedRoad</span> {
-                <span class="ident">osm_way_id</span>: <span class="ident">from</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>,
-                <span class="ident">osm_node1</span>: <span class="ident">from</span>.<span class="ident">i1</span>.<span class="number">0</span>,
-                <span class="ident">osm_node2</span>: <span class="ident">from</span>.<span class="ident">i2</span>.<span class="number">0</span>,
-                <span class="ident">is_forwards</span>: <span class="self">self</span>.<span class="ident">from</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span>,
+        traffic_signal_data::Turn {
+            from: traffic_signal_data::DirectedRoad {
+                osm_way_id: from.osm_way_id.<span class="number">0</span>,
+                osm_node1: from.i1.<span class="number">0</span>,
+                osm_node2: from.i2.<span class="number">0</span>,
+                is_forwards: <span class="self">self</span>.from.dir == Direction::Fwd,
             },
-            <span class="ident">to</span>: <span class="ident">traffic_signal_data::DirectedRoad</span> {
-                <span class="ident">osm_way_id</span>: <span class="ident">to</span>.<span class="ident">osm_way_id</span>.<span class="number">0</span>,
-                <span class="ident">osm_node1</span>: <span class="ident">to</span>.<span class="ident">i1</span>.<span class="number">0</span>,
-                <span class="ident">osm_node2</span>: <span class="ident">to</span>.<span class="ident">i2</span>.<span class="number">0</span>,
-                <span class="ident">is_forwards</span>: <span class="self">self</span>.<span class="ident">to</span>.<span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span>,
+            to: traffic_signal_data::DirectedRoad {
+                osm_way_id: to.osm_way_id.<span class="number">0</span>,
+                osm_node1: to.i1.<span class="number">0</span>,
+                osm_node2: to.i2.<span class="number">0</span>,
+                is_forwards: <span class="self">self</span>.to.dir == Direction::Fwd,
             },
-            <span class="ident">intersection_osm_node_id</span>: <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="self">self</span>.<span class="ident">parent</span>).<span class="ident">orig_id</span>.<span class="number">0</span>,
-            <span class="ident">is_crosswalk</span>: <span class="self">self</span>.<span class="ident">crosswalk</span>,
+            intersection_osm_node_id: map.get_i(<span class="self">self</span>.parent).orig_id.<span class="number">0</span>,
+            is_crosswalk: <span class="self">self</span>.crosswalk,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_permanent</span>(<span class="ident">id</span>: <span class="ident">traffic_signal_data::Turn</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">MovementID</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="ident">MovementID</span> {
-            <span class="ident">from</span>: <span class="ident">find_r</span>(<span class="ident">id</span>.<span class="ident">from</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-            <span class="ident">to</span>: <span class="ident">find_r</span>(<span class="ident">id</span>.<span class="ident">to</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-            <span class="ident">parent</span>: <span class="ident">map</span>.<span class="ident">find_i_by_osm_id</span>(<span class="ident">osm::NodeID</span>(<span class="ident">id</span>.<span class="ident">intersection_osm_node_id</span>))<span class="question-mark">?</span>,
-            <span class="ident">crosswalk</span>: <span class="ident">id</span>.<span class="ident">is_crosswalk</span>,
+    <span class="kw">pub fn </span>from_permanent(id: traffic_signal_data::Turn, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;MovementID&gt; {
+        <span class="prelude-val">Ok</span>(MovementID {
+            from: find_r(id.from, map)<span class="question-mark">?</span>,
+            to: find_r(id.to, map)<span class="question-mark">?</span>,
+            parent: map.find_i_by_osm_id(osm::NodeID(id.intersection_osm_node_id))<span class="question-mark">?</span>,
+            crosswalk: id.is_crosswalk,
         })
     }
 }
 
-<span class="kw">fn</span> <span class="ident">find_r</span>(<span class="ident">id</span>: <span class="ident">traffic_signal_data::DirectedRoad</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span><span class="op">&gt;</span> {
-    <span class="prelude-val">Ok</span>(<span class="ident">DirectedRoadID</span> {
-        <span class="ident">road</span>: <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad::new</span>(
-            <span class="ident">id</span>.<span class="ident">osm_way_id</span>,
-            (<span class="ident">id</span>.<span class="ident">osm_node1</span>, <span class="ident">id</span>.<span class="ident">osm_node2</span>),
+<span class="kw">fn </span>find_r(id: traffic_signal_data::DirectedRoad, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;DirectedRoadID&gt; {
+    <span class="prelude-val">Ok</span>(DirectedRoadID {
+        road: map.find_r_by_osm_id(OriginalRoad::new(
+            id.osm_way_id,
+            (id.osm_node1, id.osm_node2),
         ))<span class="question-mark">?</span>,
-        <span class="ident">dir</span>: <span class="kw">if</span> <span class="ident">id</span>.<span class="ident">is_forwards</span> {
-            <span class="ident">Direction::Fwd</span>
-        } <span class="kw">else</span> {
-            <span class="ident">Direction::Back</span>
+        dir: <span class="kw">if </span>id.is_forwards {
+            Direction::Fwd
+        } <span class="kw">else </span>{
+            Direction::Back
         },
     })
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

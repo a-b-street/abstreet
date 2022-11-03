@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/trip_files.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trip_files.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_gui/src/tools/trip_files.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>trip_files.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_gui/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_gui/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -373,380 +373,380 @@
 <span id="373">373</span>
 <span id="374">374</span>
 <span id="375">375</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">HashSet</span>};
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeMap, HashSet};
+<span class="kw">use </span>std::marker::PhantomData;
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">synthpop::TripEndpoint</span>;
-<span class="kw">use</span> <span class="ident">widgetry::tools::ChooseSomething</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">SimpleState</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextBox</span>, <span class="ident">TextExt</span>,
-    <span class="ident">Transition</span>, <span class="ident">Widget</span>,
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>synthpop::TripEndpoint;
+<span class="kw">use </span>widgetry::tools::ChooseSomething;
+<span class="kw">use </span>widgetry::{
+    Choice, Color, EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextBox, TextExt,
+    Transition, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::tools::grey_out_map</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::AppLike</span>;
+<span class="kw">use </span><span class="kw">crate</span>::tools::grey_out_map;
+<span class="kw">use </span><span class="kw">crate</span>::AppLike;
 
-<span class="doccomment">/// Save sequences of waypoints as named trips. Basic file management -- save, load, browse. This</span>
-<span class="doccomment">/// is useful to define &quot;test cases,&quot; then edit the bike network and &quot;run the tests&quot; to compare</span>
-<span class="doccomment">/// results.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">S</span>: <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">current</span>: <span class="ident">NamedTrip</span>,
-    <span class="comment">// We assume the file won&#39;t change out from beneath us</span>
-    <span class="ident">all</span>: <span class="ident">SavedTrips</span>,
+<span class="doccomment">/// Save sequences of waypoints as named trips. Basic file management -- save, load, browse. This
+/// is useful to define &quot;test cases,&quot; then edit the bike network and &quot;run the tests&quot; to compare
+/// results.
+</span><span class="kw">pub struct </span>TripManagement&lt;A: AppLike + <span class="lifetime">&#39;static</span>, S: TripManagementState&lt;A&gt;&gt; {
+    <span class="kw">pub </span>current: NamedTrip,
+    <span class="comment">// We assume the file won&#39;t change out from beneath us
+    </span>all: SavedTrips,
 
-    <span class="ident">app_type</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
-    <span class="ident">state_type</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>,
+    app_type: PhantomData&lt;A&gt;,
+    state_type: PhantomData&lt;S&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span><span class="op">&gt;</span>: <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">mut_files</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="self">Self</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>;
-    <span class="kw">fn</span> <span class="ident">app_session_current_trip_name</span>(<span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>
-    <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span>;
-    <span class="kw">fn</span> <span class="ident">sync_from_file_management</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>);
+<span class="kw">pub trait </span>TripManagementState&lt;A: AppLike + <span class="lifetime">&#39;static</span>&gt;: State&lt;A&gt; {
+    <span class="kw">fn </span>mut_files(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;mut </span>TripManagement&lt;A, <span class="self">Self</span>&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized;
+    <span class="kw">fn </span>app_session_current_trip_name(app: <span class="kw-2">&amp;mut </span>A) -&gt; <span class="kw-2">&amp;mut </span><span class="prelude-ty">Option</span>&lt;String&gt;
+    <span class="kw">where
+        </span><span class="self">Self</span>: Sized;
+    <span class="kw">fn </span>sync_from_file_management(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>A);
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NamedTrip</span> {
-    <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">waypoints</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripEndpoint</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>NamedTrip {
+    name: String,
+    <span class="kw">pub </span>waypoints: Vec&lt;TripEndpoint&gt;,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">SavedTrips</span> {
-    <span class="ident">trips</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">NamedTrip</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Serialize, Deserialize)]
+</span><span class="kw">struct </span>SavedTrips {
+    trips: BTreeMap&lt;String, NamedTrip&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">SavedTrips</span> {
-    <span class="kw">fn</span> <span class="ident">load</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) -&gt; <span class="ident">SavedTrips</span> {
-        <span class="ident">abstio::maybe_read_json</span>::<span class="op">&lt;</span><span class="ident">SavedTrips</span><span class="op">&gt;</span>(
-            <span class="ident">abstio::path_trips</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_name</span>()),
-            <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>(),
+<span class="kw">impl </span>SavedTrips {
+    <span class="kw">fn </span>load(app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) -&gt; SavedTrips {
+        abstio::maybe_read_json::&lt;SavedTrips&gt;(
+            abstio::path_trips(app.map().get_name()),
+            <span class="kw-2">&amp;mut </span>Timer::throwaway(),
         )
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> <span class="ident">SavedTrips</span> {
-            <span class="ident">trips</span>: <span class="ident">BTreeMap::new</span>(),
+        .unwrap_or_else(|<span class="kw">_</span>| SavedTrips {
+            trips: BTreeMap::new(),
         })
     }
 
-    <span class="comment">// TODO This is now shared between Ungap the Map and the LTN tool. Is that weird?</span>
-    <span class="kw">fn</span> <span class="ident">save</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">AppLike</span>) {
-        <span class="ident">abstio::write_json</span>(<span class="ident">abstio::path_trips</span>(<span class="ident">app</span>.<span class="ident">map</span>().<span class="ident">get_name</span>()), <span class="self">self</span>);
+    <span class="comment">// TODO This is now shared between Ungap the Map and the LTN tool. Is that weird?
+    </span><span class="kw">fn </span>save(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span><span class="kw">dyn </span>AppLike) {
+        abstio::write_json(abstio::path_trips(app.map().get_name()), <span class="self">self</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">NamedTrip</span><span class="op">&gt;</span> {
-        <span class="comment">// Pretend unsaved trips are at the end of the list</span>
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">contains_key</span>(<span class="ident">current</span>) {
-            <span class="self">self</span>.<span class="ident">trips</span>
-                .<span class="ident">range</span>(..<span class="ident">current</span>.<span class="ident">to_string</span>())
-                .<span class="ident">next_back</span>()
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>)
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">values</span>().<span class="ident">last</span>()
+    <span class="kw">fn </span>prev(<span class="kw-2">&amp;</span><span class="self">self</span>, current: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>NamedTrip&gt; {
+        <span class="comment">// Pretend unsaved trips are at the end of the list
+        </span><span class="kw">if </span><span class="self">self</span>.trips.contains_key(current) {
+            <span class="self">self</span>.trips
+                .range(..current.to_string())
+                .next_back()
+                .map(|pair| pair.<span class="number">1</span>)
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.trips.values().last()
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">NamedTrip</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">contains_key</span>(<span class="ident">current</span>) {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">range</span>(<span class="ident">current</span>.<span class="ident">to_string</span>()..);
-            <span class="ident">iter</span>.<span class="ident">next</span>();
-            <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>)
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+    <span class="kw">fn </span>next(<span class="kw-2">&amp;</span><span class="self">self</span>, current: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>NamedTrip&gt; {
+        <span class="kw">if </span><span class="self">self</span>.trips.contains_key(current) {
+            <span class="kw">let </span><span class="kw-2">mut </span>iter = <span class="self">self</span>.trips.range(current.to_string()..);
+            iter.next();
+            iter.next().map(|pair| pair.<span class="number">1</span>)
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
 
-    <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>()
+    <span class="kw">fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.trips.len()
     }
 
-    <span class="kw">fn</span> <span class="ident">new_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">String</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="number">1</span>;
-        <span class="kw">loop</span> {
-            <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="macro">format!</span>(<span class="string">&quot;Trip {}&quot;</span>, <span class="ident">i</span>);
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">trips</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">name</span>) {
-                <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            } <span class="kw">else</span> {
-                <span class="kw">return</span> <span class="ident">name</span>;
+    <span class="kw">fn </span>new_name(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>i = <span class="self">self</span>.trips.len() + <span class="number">1</span>;
+        <span class="kw">loop </span>{
+            <span class="kw">let </span>name = <span class="macro">format!</span>(<span class="string">&quot;Trip {}&quot;</span>, i);
+            <span class="kw">if </span><span class="self">self</span>.trips.contains_key(<span class="kw-2">&amp;</span>name) {
+                i += <span class="number">1</span>;
+            } <span class="kw">else </span>{
+                <span class="kw">return </span>name;
             }
         }
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">S</span>: <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) -&gt; <span class="ident">TripManagement</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">all</span> <span class="op">=</span> <span class="ident">SavedTrips::load</span>(<span class="ident">app</span>);
-        <span class="kw">let</span> <span class="ident">current</span> <span class="op">=</span> <span class="ident">all</span>
-            .<span class="ident">trips</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">next</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_k</span>, <span class="ident">v</span>)<span class="op">|</span> <span class="ident">v</span>.<span class="ident">clone</span>())
-            .<span class="ident">unwrap_or</span>(<span class="ident">NamedTrip</span> {
-                <span class="ident">name</span>: <span class="ident">all</span>.<span class="ident">new_name</span>(),
-                <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>, S: TripManagementState&lt;A&gt;&gt; TripManagement&lt;A, S&gt; {
+    <span class="kw">pub fn </span>new(app: <span class="kw-2">&amp;</span>A) -&gt; TripManagement&lt;A, S&gt; {
+        <span class="kw">let </span>all = SavedTrips::load(app);
+        <span class="kw">let </span>current = all
+            .trips
+            .iter()
+            .next()
+            .map(|(_k, v)| v.clone())
+            .unwrap_or(NamedTrip {
+                name: all.new_name(),
+                waypoints: Vec::new(),
             });
-        <span class="ident">TripManagement</span> {
-            <span class="ident">all</span>,
-            <span class="ident">current</span>,
-            <span class="ident">app_type</span>: <span class="ident">PhantomData</span>,
-            <span class="ident">state_type</span>: <span class="ident">PhantomData</span>,
+        TripManagement {
+            all,
+            current,
+            app_type: PhantomData,
+            state_type: PhantomData,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_panel_widget</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">current_name</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>;
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_prev</span>()
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::LeftArrow</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">all</span>.<span class="ident">prev</span>(<span class="ident">current_name</span>).<span class="ident">is_none</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;previous trip&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">btn</span>()
-                    .<span class="ident">label_underlined_text</span>(<span class="ident">current_name</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;rename trip&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_next</span>()
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::RightArrow</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">all</span>.<span class="ident">next</span>(<span class="ident">current_name</span>).<span class="ident">is_none</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;next trip&quot;</span>),
+    <span class="kw">pub fn </span>get_panel_widget(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
+        <span class="kw">let </span>current_name = <span class="kw-2">&amp;</span><span class="self">self</span>.current.name;
+        Widget::row(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_prev()
+                    .hotkey(Key::LeftArrow)
+                    .disabled(<span class="self">self</span>.all.prev(current_name).is_none())
+                    .build_widget(ctx, <span class="string">&quot;previous trip&quot;</span>),
+                ctx.style()
+                    .btn_plain
+                    .btn()
+                    .label_underlined_text(current_name)
+                    .build_widget(ctx, <span class="string">&quot;rename trip&quot;</span>),
+                ctx.style()
+                    .btn_next()
+                    .hotkey(Key::RightArrow)
+                    .disabled(<span class="self">self</span>.all.next(current_name).is_none())
+                    .build_widget(ctx, <span class="string">&quot;next trip&quot;</span>),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">is_empty</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Start new trip&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/folder.svg&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">all</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">2</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Load another trip&quot;</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">is_empty</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Delete&quot;</span>),
-                <span class="comment">// This info more applies to InputWaypoints, but the button fits better here</span>
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/help.svg&quot;</span>)
-                    .<span class="ident">tooltip</span>(<span class="string">&quot;Click to add a waypoint, drag to move one&quot;</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;waypoint instructions&quot;</span>),
+            Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/speed/plus.svg&quot;</span>)
+                    .disabled(<span class="self">self</span>.current.waypoints.is_empty())
+                    .build_widget(ctx, <span class="string">&quot;Start new trip&quot;</span>),
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/folder.svg&quot;</span>)
+                    .disabled(<span class="self">self</span>.all.len() &lt; <span class="number">2</span>)
+                    .build_widget(ctx, <span class="string">&quot;Load another trip&quot;</span>),
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
+                    .disabled(<span class="self">self</span>.current.waypoints.is_empty())
+                    .build_widget(ctx, <span class="string">&quot;Delete&quot;</span>),
+                <span class="comment">// This info more applies to InputWaypoints, but the button fits better here
+                </span>ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/help.svg&quot;</span>)
+                    .tooltip(<span class="string">&quot;Click to add a waypoint, drag to move one&quot;</span>)
+                    .build_widget(ctx, <span class="string">&quot;waypoint instructions&quot;</span>),
             ])
-            .<span class="ident">align_right</span>(),
+            .align_right(),
         ])
     }
 
-    <span class="doccomment">/// saves iff current trip is changed.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">autosave</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>) {
-            <span class="prelude-val">None</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">waypoints</span>.<span class="ident">is_empty</span>() =&gt; <span class="kw">return</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">existing</span>) <span class="kw">if</span> <span class="ident">existing</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span> =&gt; <span class="kw">return</span>,
-            <span class="kw">_</span> =&gt; {}
+    <span class="doccomment">/// saves iff current trip is changed.
+    </span><span class="kw">pub fn </span>autosave(<span class="kw-2">&amp;mut </span><span class="self">self</span>, app: <span class="kw-2">&amp;mut </span>A) {
+        <span class="kw">match </span><span class="self">self</span>.all.trips.get(<span class="kw-2">&amp;</span><span class="self">self</span>.current.name) {
+            <span class="prelude-val">None </span><span class="kw">if </span><span class="self">self</span>.current.waypoints.is_empty() =&gt; <span class="kw">return</span>,
+            <span class="prelude-val">Some</span>(existing) <span class="kw">if </span>existing == <span class="kw-2">&amp;</span><span class="self">self</span>.current =&gt; <span class="kw">return</span>,
+            <span class="kw">_ </span>=&gt; {}
         }
 
-        <span class="self">self</span>.<span class="ident">all</span>
-            .<span class="ident">trips</span>
-            .<span class="ident">insert</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>.<span class="ident">clone</span>(), <span class="self">self</span>.<span class="ident">current</span>.<span class="ident">clone</span>());
-        <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">save</span>(<span class="ident">app</span>);
-        <span class="self">self</span>.<span class="ident">save_current_trip_to_session</span>(<span class="ident">app</span>);
+        <span class="self">self</span>.all
+            .trips
+            .insert(<span class="self">self</span>.current.name.clone(), <span class="self">self</span>.current.clone());
+        <span class="self">self</span>.all.save(app);
+        <span class="self">self</span>.save_current_trip_to_session(app);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_current</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">contains_key</span>(<span class="ident">name</span>) {
-            <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">trips</span>[<span class="ident">name</span>].<span class="ident">clone</span>();
+    <span class="kw">pub fn </span>set_current(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>str) {
+        <span class="kw">if </span><span class="self">self</span>.all.trips.contains_key(name) {
+            <span class="self">self</span>.current = <span class="self">self</span>.all.trips[name].clone();
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>,
-        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="string">&quot;Delete&quot;</span> =&gt; {
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>).<span class="ident">is_some</span>() {
-                    <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">save</span>(<span class="ident">app</span>);
+    <span class="kw">pub fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>A,
+        action: <span class="kw-2">&amp;</span>str,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&lt;A&gt;&gt; {
+        <span class="kw">match </span>action {
+            <span class="string">&quot;Delete&quot; </span>=&gt; {
+                <span class="kw">if </span><span class="self">self</span>.all.trips.remove(<span class="kw-2">&amp;</span><span class="self">self</span>.current.name).is_some() {
+                    <span class="self">self</span>.all.save(app);
                 }
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>
-                    .<span class="ident">all</span>
-                    .<span class="ident">trips</span>
-                    .<span class="ident">iter</span>()
-                    .<span class="ident">next</span>()
-                    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">_k</span>, <span class="ident">v</span>)<span class="op">|</span> <span class="ident">v</span>.<span class="ident">clone</span>())
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">NamedTrip</span> {
-                        <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">new_name</span>(),
-                        <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
+                <span class="self">self</span>.current = <span class="self">self
+                    </span>.all
+                    .trips
+                    .iter()
+                    .next()
+                    .map(|(_k, v)| v.clone())
+                    .unwrap_or_else(|| NamedTrip {
+                        name: <span class="self">self</span>.all.new_name(),
+                        waypoints: Vec::new(),
                     });
-                <span class="self">self</span>.<span class="ident">save_current_trip_to_session</span>(<span class="ident">app</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
+                <span class="self">self</span>.save_current_trip_to_session(app);
+                <span class="prelude-val">Some</span>(Transition::Keep)
             }
-            <span class="string">&quot;Start new trip&quot;</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">NamedTrip</span> {
-                    <span class="ident">name</span>: <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">new_name</span>(),
-                    <span class="ident">waypoints</span>: <span class="ident">Vec::new</span>(),
+            <span class="string">&quot;Start new trip&quot; </span>=&gt; {
+                <span class="self">self</span>.current = NamedTrip {
+                    name: <span class="self">self</span>.all.new_name(),
+                    waypoints: Vec::new(),
                 };
-                <span class="kw-2">*</span><span class="ident">S::app_session_current_trip_name</span>(<span class="ident">app</span>) <span class="op">=</span> <span class="prelude-val">None</span>;
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
+                <span class="kw-2">*</span>S::app_session_current_trip_name(app) = <span class="prelude-val">None</span>;
+                <span class="prelude-val">Some</span>(Transition::Keep)
             }
-            <span class="string">&quot;Load another trip&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ChooseSomething::new_state</span>(
-                <span class="ident">ctx</span>,
+            <span class="string">&quot;Load another trip&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(ChooseSomething::new_state(
+                ctx,
                 <span class="string">&quot;Load another trip&quot;</span>,
-                <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">keys</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">Choice::string</span>(<span class="ident">x</span>)).<span class="ident">collect</span>(),
-                <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">choice</span>, <span class="kw">_</span>, <span class="kw">_</span><span class="op">|</span> {
-                    <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Transition::Pop</span>,
-                        <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                            <span class="kw">let</span> <span class="ident">files</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">mut_files</span>();
-                            <span class="ident">files</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">trips</span>[<span class="kw-2">&amp;</span><span class="ident">choice</span>].<span class="ident">clone</span>();
-                            <span class="ident">files</span>.<span class="ident">save_current_trip_to_session</span>(<span class="ident">app</span>);
-                            <span class="ident">state</span>.<span class="ident">sync_from_file_management</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.all.trips.keys().map(|x| Choice::string(x)).collect(),
+                Box::new(<span class="kw">move </span>|choice, <span class="kw">_</span>, <span class="kw">_</span>| {
+                    Transition::Multi(<span class="macro">vec!</span>[
+                        Transition::Pop,
+                        Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                            <span class="kw">let </span>state = state.downcast_mut::&lt;S&gt;().unwrap();
+                            <span class="kw">let </span>files = state.mut_files();
+                            files.current = files.all.trips[<span class="kw-2">&amp;</span>choice].clone();
+                            files.save_current_trip_to_session(app);
+                            state.sync_from_file_management(ctx, app);
                         })),
                     ])
                 }),
             ))),
-            <span class="string">&quot;previous trip&quot;</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">prev</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>();
-                <span class="self">self</span>.<span class="ident">save_current_trip_to_session</span>(<span class="ident">app</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
+            <span class="string">&quot;previous trip&quot; </span>=&gt; {
+                <span class="self">self</span>.current = <span class="self">self</span>.all.prev(<span class="kw-2">&amp;</span><span class="self">self</span>.current.name).unwrap().clone();
+                <span class="self">self</span>.save_current_trip_to_session(app);
+                <span class="prelude-val">Some</span>(Transition::Keep)
             }
-            <span class="string">&quot;next trip&quot;</span> =&gt; {
-                <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">all</span>.<span class="ident">next</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>).<span class="ident">unwrap</span>().<span class="ident">clone</span>();
-                <span class="self">self</span>.<span class="ident">save_current_trip_to_session</span>(<span class="ident">app</span>);
-                <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>)
+            <span class="string">&quot;next trip&quot; </span>=&gt; {
+                <span class="self">self</span>.current = <span class="self">self</span>.all.next(<span class="kw-2">&amp;</span><span class="self">self</span>.current.name).unwrap().clone();
+                <span class="self">self</span>.save_current_trip_to_session(app);
+                <span class="prelude-val">Some</span>(Transition::Keep)
             }
-            <span class="string">&quot;rename trip&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">RenameTrip</span>::<span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">S</span><span class="op">&gt;</span><span class="ident">::new_state</span>(
-                <span class="ident">ctx</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">all</span>,
+            <span class="string">&quot;rename trip&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(RenameTrip::&lt;A, S&gt;::new_state(
+                ctx,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.current,
+                <span class="kw-2">&amp;</span><span class="self">self</span>.all,
             ))),
-            <span class="string">&quot;waypoint instructions&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Keep</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="string">&quot;waypoint instructions&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Keep),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">save_current_trip_to_session</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>) {
-        <span class="kw">let</span> <span class="ident">name</span> <span class="op">=</span> <span class="ident">S::app_session_current_trip_name</span>(<span class="ident">app</span>);
-        <span class="kw">if</span> <span class="ident">name</span>.<span class="ident">as_ref</span>() <span class="op">!</span><span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>) {
-            <span class="kw-2">*</span><span class="ident">name</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">current</span>.<span class="ident">name</span>.<span class="ident">clone</span>());
+    <span class="kw">fn </span>save_current_trip_to_session(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;mut </span>A) {
+        <span class="kw">let </span>name = S::app_session_current_trip_name(app);
+        <span class="kw">if </span>name.as_ref() != <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.current.name) {
+            <span class="kw-2">*</span>name = <span class="prelude-val">Some</span>(<span class="self">self</span>.current.name.clone());
         }
     }
 }
 
-<span class="kw">struct</span> <span class="ident">RenameTrip</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">S</span>: <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="ident">current_name</span>: <span class="ident">String</span>,
-    <span class="ident">all_names</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>RenameTrip&lt;A: AppLike + <span class="lifetime">&#39;static</span>, S: TripManagementState&lt;A&gt;&gt; {
+    current_name: String,
+    all_names: HashSet&lt;String&gt;,
 
-    <span class="ident">app_type</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span>,
-    <span class="ident">state_type</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    app_type: PhantomData&lt;A&gt;,
+    state_type: PhantomData&lt;<span class="kw">dyn </span>TripManagementState&lt;S&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">S</span>: <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">RenameTrip</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">current</span>: <span class="kw-2">&amp;</span><span class="ident">NamedTrip</span>, <span class="ident">all</span>: <span class="kw-2">&amp;</span><span class="ident">SavedTrips</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Name this trip&quot;</span>).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>, S: TripManagementState&lt;A&gt;&gt; RenameTrip&lt;A, S&gt; {
+    <span class="kw">fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, current: <span class="kw-2">&amp;</span>NamedTrip, all: <span class="kw-2">&amp;</span>SavedTrips) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;A&gt;&gt; {
+        <span class="kw">let </span>panel = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Name this trip&quot;</span>).small_heading().into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;Name:&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">TextBox::default_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;name&quot;</span>, <span class="ident">current</span>.<span class="ident">name</span>.<span class="ident">clone</span>()),
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;Name:&quot;</span>.text_widget(ctx).centered_vert(),
+                TextBox::default_widget(ctx, <span class="string">&quot;name&quot;</span>, current.name.clone()),
             ]),
-            <span class="ident">Widget::placeholder</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Rename&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            Widget::placeholder(ctx, <span class="string">&quot;warning&quot;</span>),
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Rename&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx),
         ]))
-        .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">state</span>: <span class="ident">RenameTrip</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">S</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">RenameTrip</span> {
-            <span class="ident">current_name</span>: <span class="ident">current</span>.<span class="ident">name</span>.<span class="ident">clone</span>(),
-            <span class="ident">all_names</span>: <span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>().<span class="ident">collect</span>(),
+        .build(ctx);
+        <span class="kw">let </span>state: RenameTrip&lt;A, S&gt; = RenameTrip {
+            current_name: current.name.clone(),
+            all_names: all.trips.keys().cloned().collect(),
 
-            <span class="ident">app_type</span>: <span class="ident">PhantomData</span>,
-            <span class="ident">state_type</span>: <span class="ident">PhantomData</span>,
+            app_type: PhantomData,
+            state_type: PhantomData,
         };
-        <span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::new_state</span>(<span class="ident">panel</span>, <span class="ident">Box::new</span>(<span class="ident">state</span>))
+        &lt;<span class="kw">dyn </span>SimpleState&lt;<span class="kw">_</span>&gt;&gt;::new_state(panel, Box::new(state))
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">A</span>: <span class="ident">AppLike</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>, <span class="ident">S</span>: <span class="ident">TripManagementState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="ident">SimpleState</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RenameTrip</span><span class="op">&lt;</span><span class="ident">A</span>, <span class="ident">S</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">on_click</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>,
-        <span class="ident">x</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">x</span> {
-            <span class="string">&quot;close&quot;</span> =&gt; <span class="ident">Transition::Pop</span>,
-            <span class="string">&quot;Rename&quot;</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">old_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_name</span>.<span class="ident">clone</span>();
-                <span class="kw">let</span> <span class="ident">new_name</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;name&quot;</span>);
-                <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Pop</span>,
-                    <span class="ident">Transition::ModifyState</span>(<span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">state</span>, <span class="ident">ctx</span>, <span class="ident">app</span><span class="op">|</span> {
-                        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-                        <span class="kw">let</span> <span class="ident">files</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">mut_files</span>();
-                        <span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">old_name</span>);
-                        <span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">name</span> <span class="op">=</span> <span class="ident">new_name</span>.<span class="ident">clone</span>();
-                        <span class="kw-2">*</span><span class="ident">S::app_session_current_trip_name</span>(<span class="ident">app</span>) <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_name</span>.<span class="ident">clone</span>());
-                        <span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">trips</span>.<span class="ident">insert</span>(<span class="ident">new_name</span>, <span class="ident">files</span>.<span class="ident">current</span>.<span class="ident">clone</span>());
-                        <span class="ident">files</span>.<span class="ident">all</span>.<span class="ident">save</span>(<span class="ident">app</span>);
-                        <span class="ident">state</span>.<span class="ident">sync_from_file_management</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+<span class="kw">impl</span>&lt;A: AppLike + <span class="lifetime">&#39;static</span>, S: TripManagementState&lt;A&gt;&gt; SimpleState&lt;A&gt; <span class="kw">for </span>RenameTrip&lt;A, S&gt; {
+    <span class="kw">fn </span>on_click(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A,
+        x: <span class="kw-2">&amp;</span>str,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; Transition&lt;A&gt; {
+        <span class="kw">match </span>x {
+            <span class="string">&quot;close&quot; </span>=&gt; Transition::Pop,
+            <span class="string">&quot;Rename&quot; </span>=&gt; {
+                <span class="kw">let </span>old_name = <span class="self">self</span>.current_name.clone();
+                <span class="kw">let </span>new_name = panel.text_box(<span class="string">&quot;name&quot;</span>);
+                Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Pop,
+                    Transition::ModifyState(Box::new(<span class="kw">move </span>|state, ctx, app| {
+                        <span class="kw">let </span>state = state.downcast_mut::&lt;S&gt;().unwrap();
+                        <span class="kw">let </span>files = state.mut_files();
+                        files.all.trips.remove(<span class="kw-2">&amp;</span>old_name);
+                        files.current.name = new_name.clone();
+                        <span class="kw-2">*</span>S::app_session_current_trip_name(app) = <span class="prelude-val">Some</span>(new_name.clone());
+                        files.all.trips.insert(new_name, files.current.clone());
+                        files.all.save(app);
+                        state.sync_from_file_management(ctx, app);
                     })),
                 ])
             }
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">panel_changed</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">A</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Panel</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&lt;</span><span class="ident">A</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">new_name</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">text_box</span>(<span class="string">&quot;name&quot;</span>);
-        <span class="kw">let</span> <span class="ident">can_save</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">new_name</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_name</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">all_names</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">new_name</span>) {
-            <span class="ident">panel</span>.<span class="ident">replace</span>(
-                <span class="ident">ctx</span>,
+    <span class="kw">fn </span>panel_changed(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>A,
+        panel: <span class="kw-2">&amp;mut </span>Panel,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&lt;A&gt;&gt; {
+        <span class="kw">let </span>new_name = panel.text_box(<span class="string">&quot;name&quot;</span>);
+        <span class="kw">let </span>can_save = <span class="kw">if </span>new_name != <span class="self">self</span>.current_name &amp;&amp; <span class="self">self</span>.all_names.contains(<span class="kw-2">&amp;</span>new_name) {
+            panel.replace(
+                ctx,
                 <span class="string">&quot;warning&quot;</span>,
-                <span class="ident">Line</span>(<span class="string">&quot;A trip with this name already exists&quot;</span>)
-                    .<span class="ident">fg</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#FF5E5E&quot;</span>))
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                Line(<span class="string">&quot;A trip with this name already exists&quot;</span>)
+                    .fg(Color::hex(<span class="string">&quot;#FF5E5E&quot;</span>))
+                    .into_widget(ctx),
             );
-            <span class="bool-val">false</span>
-        } <span class="kw">else</span> {
-            <span class="ident">panel</span>.<span class="ident">replace</span>(<span class="ident">ctx</span>, <span class="string">&quot;warning&quot;</span>, <span class="ident">Text::new</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>));
-            <span class="bool-val">true</span>
-        };
-        <span class="ident">panel</span>.<span class="ident">replace</span>(
-            <span class="ident">ctx</span>,
+            <span class="bool-val">false
+        </span>} <span class="kw">else </span>{
+            panel.replace(ctx, <span class="string">&quot;warning&quot;</span>, Text::new().into_widget(ctx));
+            <span class="bool-val">true
+        </span>};
+        panel.replace(
+            ctx,
             <span class="string">&quot;Rename&quot;</span>,
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Rename&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_save</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Rename&quot;</span>)
+                .hotkey(Key::Enter)
+                .disabled(!can_save)
+                .build_def(ctx),
         );
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">A</span>) {
-        <span class="ident">grey_out_map</span>(<span class="ident">g</span>, <span class="ident">app</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>A) {
+        grey_out_map(g, app);
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_gui" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

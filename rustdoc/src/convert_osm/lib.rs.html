@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../convert_osm/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `convert_osm/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../convert_osm/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../convert_osm/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -187,194 +187,194 @@
 <span id="187">187</span>
 <span id="188">188</span>
 <span id="189">189</span>
-</pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
-<span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">log</span>;
+</pre><pre class="rust"><code><span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>anyhow;
+<span class="attribute">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>};
-<span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">osm</span>, <span class="ident">OriginalRoad</span>, <span class="ident">Road</span>};
-<span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>abstutil::{Tags, Timer};
+<span class="kw">use </span>geom::{GPSBounds, LonLat, Polygon, Ring};
+<span class="kw">use </span>osm2streets::{osm, OriginalRoad, Road};
+<span class="kw">use </span>raw_map::RawMap;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">streets_reader</span>::{
-    <span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>,
+<span class="kw">pub use </span>streets_reader::{
+    OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking,
 };
 
-<span class="kw">mod</span> <span class="ident">elevation</span>;
-<span class="kw">mod</span> <span class="ident">extract</span>;
-<span class="kw">mod</span> <span class="ident">gtfs</span>;
-<span class="kw">mod</span> <span class="ident">parking</span>;
+<span class="kw">mod </span>elevation;
+<span class="kw">mod </span>extract;
+<span class="kw">mod </span>gtfs;
+<span class="kw">mod </span>parking;
 
-<span class="doccomment">/// Create a RawMap from OSM and other input data.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">convert</span>(
-    <span class="ident">osm_input_path</span>: <span class="ident">String</span>,
-    <span class="ident">name</span>: <span class="ident">MapName</span>,
-    <span class="ident">clip_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
-    <span class="ident">opts</span>: <span class="ident">Options</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; <span class="ident">RawMap</span> {
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;create RawMap from input data&quot;</span>);
+<span class="doccomment">/// Create a RawMap from OSM and other input data.
+</span><span class="kw">pub fn </span>convert(
+    osm_input_path: String,
+    name: MapName,
+    clip_path: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    opts: Options,
+    timer: <span class="kw-2">&amp;mut </span>Timer,
+) -&gt; RawMap {
+    timer.start(<span class="string">&quot;create RawMap from input data&quot;</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">RawMap::blank</span>(<span class="ident">name</span>);
-    <span class="comment">// Do this early. Calculating Roads uses DrivingSide, for example!</span>
-    <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">clone</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>map = RawMap::blank(name);
+    <span class="comment">// Do this early. Calculating Roads uses DrivingSide, for example!
+    </span>map.streets.config = opts.map_config.clone();
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">clip_path</span> {
-        <span class="kw">let</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">LonLat::read_geojson_polygon</span>(<span class="ident">path</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">GPSBounds::from</span>(<span class="ident">pts</span>.<span class="ident">clone</span>());
-        <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">Ring::must_new</span>(<span class="ident">gps_bounds</span>.<span class="ident">convert</span>(<span class="kw-2">&amp;</span><span class="ident">pts</span>)).<span class="ident">into_polygon</span>();
-        <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">gps_bounds</span>;
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) = clip_path {
+        <span class="kw">let </span>pts = LonLat::read_geojson_polygon(path).unwrap();
+        <span class="kw">let </span>gps_bounds = GPSBounds::from(pts.clone());
+        map.streets.boundary_polygon = Ring::must_new(gps_bounds.convert(<span class="kw-2">&amp;</span>pts)).into_polygon();
+        map.streets.gps_bounds = gps_bounds;
     }
 
-    <span class="kw">let</span> (<span class="ident">extract</span>, <span class="ident">bus_routes_on_roads</span>) <span class="op">=</span>
-        <span class="ident">extract::extract_osm</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">osm_input_path</span>, <span class="ident">clip_path</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
-    <span class="ident">map</span>.<span class="ident">bus_routes_on_roads</span> <span class="op">=</span> <span class="ident">bus_routes_on_roads</span>;
-    <span class="kw">let</span> <span class="ident">split_output</span> <span class="op">=</span> <span class="ident">streets_reader::split_ways::split_up_roads</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>, <span class="ident">extract</span>, <span class="ident">timer</span>);
-    <span class="ident">clip_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">timer</span>);
+    <span class="kw">let </span>(extract, bus_routes_on_roads) =
+        extract::extract_osm(<span class="kw-2">&amp;mut </span>map, <span class="kw-2">&amp;</span>osm_input_path, clip_path, <span class="kw-2">&amp;</span>opts, timer);
+    map.bus_routes_on_roads = bus_routes_on_roads;
+    <span class="kw">let </span>split_output = streets_reader::split_ways::split_up_roads(<span class="kw-2">&amp;mut </span>map.streets, extract, timer);
+    clip_map(<span class="kw-2">&amp;mut </span>map, timer);
 
-    <span class="comment">// Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when</span>
-    <span class="comment">// doing the parking hint matching.</span>
-    <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">i2</span>);
+    <span class="comment">// Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
+    // doing the parking hint matching.
+    </span>map.streets.roads.retain(|r, <span class="kw">_</span>| r.i1 != r.i2);
 
-    <span class="ident">parking::apply_parking</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
+    parking::apply_parking(<span class="kw-2">&amp;mut </span>map, <span class="kw-2">&amp;</span>opts, timer);
 
-    <span class="ident">streets_reader::use_barrier_nodes</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>,
-        <span class="ident">split_output</span>.<span class="ident">barrier_nodes</span>,
-        <span class="kw-2">&amp;</span><span class="ident">split_output</span>.<span class="ident">pt_to_road</span>,
+    streets_reader::use_barrier_nodes(
+        <span class="kw-2">&amp;mut </span>map.streets,
+        split_output.barrier_nodes,
+        <span class="kw-2">&amp;</span>split_output.pt_to_road,
     );
-    <span class="ident">streets_reader::use_crossing_nodes</span>(
-        <span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>,
-        <span class="kw-2">&amp;</span><span class="ident">split_output</span>.<span class="ident">crossing_nodes</span>,
-        <span class="kw-2">&amp;</span><span class="ident">split_output</span>.<span class="ident">pt_to_road</span>,
+    streets_reader::use_crossing_nodes(
+        <span class="kw-2">&amp;mut </span>map.streets,
+        <span class="kw-2">&amp;</span>split_output.crossing_nodes,
+        <span class="kw-2">&amp;</span>split_output.pt_to_road,
     );
 
-    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">filter_crosswalks</span> {
-        <span class="ident">streets_reader::filter_crosswalks</span>(
-            <span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>,
-            <span class="ident">split_output</span>.<span class="ident">crossing_nodes</span>,
-            <span class="ident">split_output</span>.<span class="ident">pt_to_road</span>,
-            <span class="ident">timer</span>,
+    <span class="kw">if </span>opts.filter_crosswalks {
+        streets_reader::filter_crosswalks(
+            <span class="kw-2">&amp;mut </span>map.streets,
+            split_output.crossing_nodes,
+            split_output.pt_to_road,
+            timer,
         );
     }
 
-    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">elevation</span> {
-        <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;add elevation data&quot;</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">elevation::add_data</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>) {
-            <span class="macro">error!</span>(<span class="string">&quot;No elevation data: {}&quot;</span>, <span class="ident">err</span>);
+    <span class="kw">if </span>opts.elevation {
+        timer.start(<span class="string">&quot;add elevation data&quot;</span>);
+        <span class="kw">if let </span><span class="prelude-val">Err</span>(err) = elevation::add_data(<span class="kw-2">&amp;mut </span>map) {
+            <span class="macro">error!</span>(<span class="string">&quot;No elevation data: {}&quot;</span>, err);
         }
-        <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;add elevation data&quot;</span>);
+        timer.stop(<span class="string">&quot;add elevation data&quot;</span>);
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">path</span>) <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">extra_buildings</span> {
-        <span class="ident">add_extra_buildings</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">path</span>).<span class="ident">unwrap</span>();
-    }
-
-    <span class="kw">if</span> <span class="ident">opts</span>.<span class="ident">gtfs_url</span>.<span class="ident">is_some</span>() {
-        <span class="ident">gtfs::import</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>).<span class="ident">unwrap</span>();
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>path) = opts.extra_buildings {
+        add_extra_buildings(<span class="kw-2">&amp;mut </span>map, path).unwrap();
     }
 
-    <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
-        <span class="ident">bristol_hack</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>);
+    <span class="kw">if </span>opts.gtfs_url.is_some() {
+        gtfs::import(<span class="kw-2">&amp;mut </span>map).unwrap();
     }
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;create RawMap from input data&quot;</span>);
-    <span class="ident">map</span>
+
+    <span class="kw">if </span>map.name == MapName::new(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
+        bristol_hack(<span class="kw-2">&amp;mut </span>map);
+    }
+    timer.stop(<span class="string">&quot;create RawMap from input data&quot;</span>);
+    map
 }
 
-<span class="kw">fn</span> <span class="ident">add_extra_buildings</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">require_in_bounds</span> <span class="op">=</span> <span class="bool-val">true</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">id</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
-    <span class="kw">for</span> (<span class="ident">polygon</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="ident">Polygon::from_geojson_bytes</span>(
-        <span class="kw-2">&amp;</span><span class="ident">abstio::slurp_file</span>(<span class="ident">path</span>)<span class="question-mark">?</span>,
-        <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>,
-        <span class="ident">require_in_bounds</span>,
-    )<span class="question-mark">?</span> {
-        <span class="comment">// Add these as new buildings, generating a new dummy OSM ID.</span>
-        <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">insert</span>(
-            <span class="ident">osm::OsmID::Way</span>(<span class="ident">osm::WayID</span>(<span class="ident">id</span>)),
-            <span class="ident">raw_map::RawBuilding</span> {
-                <span class="ident">polygon</span>,
-                <span class="ident">osm_tags</span>: <span class="ident">Tags::empty</span>(),
-                <span class="ident">public_garage_name</span>: <span class="prelude-val">None</span>,
-                <span class="ident">num_parking_spots</span>: <span class="number">1</span>,
-                <span class="ident">amenities</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">fn </span>add_extra_buildings(map: <span class="kw-2">&amp;mut </span>RawMap, path: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">let </span>require_in_bounds = <span class="bool-val">true</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>id = -<span class="number">1</span>;
+    <span class="kw">for </span>(polygon, <span class="kw">_</span>) <span class="kw">in </span>Polygon::from_geojson_bytes(
+        <span class="kw-2">&amp;</span>abstio::slurp_file(path)<span class="question-mark">?</span>,
+        <span class="kw-2">&amp;</span>map.streets.gps_bounds,
+        require_in_bounds,
+    )<span class="question-mark">? </span>{
+        <span class="comment">// Add these as new buildings, generating a new dummy OSM ID.
+        </span>map.buildings.insert(
+            osm::OsmID::Way(osm::WayID(id)),
+            raw_map::RawBuilding {
+                polygon,
+                osm_tags: Tags::empty(),
+                public_garage_name: <span class="prelude-val">None</span>,
+                num_parking_spots: <span class="number">1</span>,
+                amenities: Vec::new(),
             },
         );
-        <span class="comment">// We could use new_osm_way_id, but faster to just assume we&#39;re the only place introducing</span>
-        <span class="comment">// new OSM IDs.</span>
-        <span class="ident">id</span> <span class="op">-</span><span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
+        <span class="comment">// We could use new_osm_way_id, but faster to just assume we&#39;re the only place introducing
+        // new OSM IDs.
+        </span>id -= -<span class="number">1</span>;
     }
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="comment">// We&#39;re using Bristol for a project that requires an unusual LTN neighborhood boundary. Insert a</span>
-<span class="comment">// fake road where a bridge crosses another road, to force blockfinding to trace along there.</span>
-<span class="kw">fn</span> <span class="ident">bristol_hack</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>) {
-    <span class="kw">let</span> <span class="ident">osm_way_id</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">new_osm_way_id</span>(<span class="op">-</span><span class="number">1</span>);
-    <span class="kw">let</span> <span class="ident">i1</span> <span class="op">=</span> <span class="ident">osm::NodeID</span>(<span class="number">364061012</span>);
-    <span class="kw">let</span> <span class="ident">i2</span> <span class="op">=</span> <span class="ident">osm::NodeID</span>(<span class="number">1215755208</span>);
-    <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">OriginalRoad</span> { <span class="ident">osm_way_id</span>, <span class="ident">i1</span>, <span class="ident">i2</span> };
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">tags</span> <span class="op">=</span> <span class="ident">Tags::empty</span>();
-    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;service&quot;</span>);
-    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Fake road&quot;</span>);
-    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>);
-    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;none&quot;</span>);
-    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;1&quot;</span>);
-    <span class="comment">// TODO The LTN pathfinding tool will try to use this road. Discourage that heavily. It&#39;d be</span>
-    <span class="comment">// safer to mark this as under construction, but then blockfinding wouldn&#39;t treat it as a</span>
-    <span class="comment">// boundary.</span>
-    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;maxspeed&quot;</span>, <span class="string">&quot;1 mph&quot;</span>);
-    <span class="ident">tags</span>.<span class="ident">insert</span>(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>);
+<span class="comment">// We&#39;re using Bristol for a project that requires an unusual LTN neighborhood boundary. Insert a
+// fake road where a bridge crosses another road, to force blockfinding to trace along there.
+</span><span class="kw">fn </span>bristol_hack(map: <span class="kw-2">&amp;mut </span>RawMap) {
+    <span class="kw">let </span>osm_way_id = map.new_osm_way_id(-<span class="number">1</span>);
+    <span class="kw">let </span>i1 = osm::NodeID(<span class="number">364061012</span>);
+    <span class="kw">let </span>i2 = osm::NodeID(<span class="number">1215755208</span>);
+    <span class="kw">let </span>id = OriginalRoad { osm_way_id, i1, i2 };
+    <span class="kw">let </span><span class="kw-2">mut </span>tags = Tags::empty();
+    tags.insert(<span class="string">&quot;highway&quot;</span>, <span class="string">&quot;service&quot;</span>);
+    tags.insert(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;Fake road&quot;</span>);
+    tags.insert(<span class="string">&quot;oneway&quot;</span>, <span class="string">&quot;yes&quot;</span>);
+    tags.insert(<span class="string">&quot;sidewalk&quot;</span>, <span class="string">&quot;none&quot;</span>);
+    tags.insert(<span class="string">&quot;lanes&quot;</span>, <span class="string">&quot;1&quot;</span>);
+    <span class="comment">// TODO The LTN pathfinding tool will try to use this road. Discourage that heavily. It&#39;d be
+    // safer to mark this as under construction, but then blockfinding wouldn&#39;t treat it as a
+    // boundary.
+    </span>tags.insert(<span class="string">&quot;maxspeed&quot;</span>, <span class="string">&quot;1 mph&quot;</span>);
+    tags.insert(<span class="string">&quot;bicycle&quot;</span>, <span class="string">&quot;no&quot;</span>);
 
-    <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">insert_road</span>(
-        <span class="ident">id</span>,
-        <span class="ident">Road::new</span>(
+    map.streets.insert_road(
+        id,
+        Road::new(
             <span class="macro">vec!</span>[
-                <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i1</span>].<span class="ident">point</span>,
-                <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">intersections</span>[<span class="kw-2">&amp;</span><span class="ident">i2</span>].<span class="ident">point</span>,
+                map.streets.intersections[<span class="kw-2">&amp;</span>i1].point,
+                map.streets.intersections[<span class="kw-2">&amp;</span>i2].point,
             ],
-            <span class="ident">tags</span>,
-            <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span>,
+            tags,
+            <span class="kw-2">&amp;</span>map.streets.config,
         )
-        .<span class="ident">unwrap</span>(),
+        .unwrap(),
     );
 }
 
-<span class="kw">fn</span> <span class="ident">clip_map</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="ident">streets_reader::clip::clip_map</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
+<span class="kw">fn </span>clip_map(map: <span class="kw-2">&amp;mut </span>RawMap, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    streets_reader::clip::clip_map(<span class="kw-2">&amp;mut </span>map.streets, timer).unwrap();
 
-    <span class="kw">let</span> <span class="ident">boundary_polygon</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">boundary_polygon</span>.<span class="ident">clone</span>();
+    <span class="kw">let </span>boundary_polygon = map.streets.boundary_polygon.clone();
 
-    <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">b</span><span class="op">|</span> {
-        <span class="ident">b</span>.<span class="ident">polygon</span>
-            .<span class="ident">get_outer_ring</span>()
-            .<span class="ident">points</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">all</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> <span class="ident">boundary_polygon</span>.<span class="ident">contains_pt</span>(<span class="kw-2">*</span><span class="ident">pt</span>))
+    map.buildings.retain(|<span class="kw">_</span>, b| {
+        b.polygon
+            .get_outer_ring()
+            .points()
+            .iter()
+            .all(|pt| boundary_polygon.contains_pt(<span class="kw-2">*</span>pt))
     });
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_areas</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">orig_area</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">areas</span>.<span class="ident">drain</span>(..) {
-        <span class="comment">// If clipping fails, giving up on some areas is fine</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">list</span>) <span class="op">=</span> <span class="ident">map</span>
-            .<span class="ident">streets</span>
-            .<span class="ident">boundary_polygon</span>
-            .<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">orig_area</span>.<span class="ident">polygon</span>)
+    <span class="kw">let </span><span class="kw-2">mut </span>result_areas = Vec::new();
+    <span class="kw">for </span>orig_area <span class="kw">in </span>map.areas.drain(..) {
+        <span class="comment">// If clipping fails, giving up on some areas is fine
+        </span><span class="kw">if let </span><span class="prelude-val">Ok</span>(list) = map
+            .streets
+            .boundary_polygon
+            .intersection(<span class="kw-2">&amp;</span>orig_area.polygon)
         {
-            <span class="kw">for</span> <span class="ident">polygon</span> <span class="kw">in</span> <span class="ident">list</span> {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">area</span> <span class="op">=</span> <span class="ident">orig_area</span>.<span class="ident">clone</span>();
-                <span class="ident">area</span>.<span class="ident">polygon</span> <span class="op">=</span> <span class="ident">polygon</span>;
-                <span class="ident">result_areas</span>.<span class="ident">push</span>(<span class="ident">area</span>);
+            <span class="kw">for </span>polygon <span class="kw">in </span>list {
+                <span class="kw">let </span><span class="kw-2">mut </span>area = orig_area.clone();
+                area.polygon = polygon;
+                result_areas.push(area);
             }
         }
     }
-    <span class="ident">map</span>.<span class="ident">areas</span> <span class="op">=</span> <span class="ident">result_areas</span>;
+    map.areas = result_areas;
 
-    <span class="comment">// TODO Don&#39;t touch parking lots. It&#39;ll be visually obvious if a clip intersects one of these.</span>
-    <span class="comment">// The boundary should be manually adjusted.</span>
-}
+    <span class="comment">// TODO Don&#39;t touch parking lots. It&#39;ll be visually obvious if a clip intersects one of these.
+    // The boundary should be manually adjusted.
+</span>}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_osm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="convert_osm" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

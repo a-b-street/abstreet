@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/node_map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>node_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `map_model/src/pathfind/node_map.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>node_map.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../map_model/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../map_model/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -99,106 +99,106 @@
 <span id="99">99</span>
 <span id="100">100</span>
 <span id="101">101</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Some helpers for working with fast_paths.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Some helpers for working with fast_paths.
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
-<span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
+</span><span class="kw">use </span>std::collections::BTreeMap;
+<span class="kw">use </span>std::fmt::Debug;
 
-<span class="kw">use</span> <span class="ident">fast_paths</span>::{<span class="ident">InputGraph</span>, <span class="ident">NodeId</span>};
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Deserializer</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>fast_paths::{InputGraph, NodeId};
+<span class="kw">use </span>serde::{Deserialize, Deserializer, Serialize};
 
-<span class="doccomment">/// A bidirectional mapping between fast_paths NodeId and some custom ID type.</span>
-<span class="comment">// TODO Upstream this in fast_paths when this is more solid.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Serialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Serialize</span><span class="op">&gt;</span> {
-    <span class="comment">// These two fields are redundant and large, so don&#39;t serialize the bigger one, to cut down</span>
-    <span class="comment">// file size.</span>
-    <span class="attribute">#[<span class="ident">serde</span>(<span class="ident">skip_serializing</span>)]</span>
-    <span class="ident">node_to_id</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">NodeId</span><span class="op">&gt;</span>,
-    <span class="ident">id_to_node</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A bidirectional mapping between fast_paths NodeId and some custom ID type.
+</span><span class="comment">// TODO Upstream this in fast_paths when this is more solid.
+</span><span class="attribute">#[derive(Clone, Serialize)]
+</span><span class="kw">pub struct </span>NodeMap&lt;T: Copy + Ord + Debug + Serialize&gt; {
+    <span class="comment">// These two fields are redundant and large, so don&#39;t serialize the bigger one, to cut down
+    // file size.
+    </span><span class="attribute">#[serde(skip_serializing)]
+    </span>node_to_id: BTreeMap&lt;T, NodeId&gt;,
+    id_to_node: Vec&lt;T&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Serialize</span><span class="op">&gt;</span> <span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">NodeMap</span> {
-            <span class="ident">node_to_id</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">id_to_node</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl</span>&lt;T: Copy + Ord + Debug + Serialize&gt; NodeMap&lt;T&gt; {
+    <span class="kw">pub fn </span>new() -&gt; NodeMap&lt;T&gt; {
+        NodeMap {
+            node_to_id: BTreeMap::new(),
+            id_to_node: Vec::new(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_or_insert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="ident">T</span>) -&gt; <span class="ident">NodeId</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">node_to_id</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>) {
-            <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">id</span>;
+    <span class="kw">pub fn </span>get_or_insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, node: T) -&gt; NodeId {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.node_to_id.get(<span class="kw-2">&amp;</span>node) {
+            <span class="kw">return </span><span class="kw-2">*</span>id;
         }
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">id_to_node</span>.<span class="ident">len</span>();
-        <span class="self">self</span>.<span class="ident">node_to_id</span>.<span class="ident">insert</span>(<span class="ident">node</span>, <span class="ident">id</span>);
-        <span class="self">self</span>.<span class="ident">id_to_node</span>.<span class="ident">push</span>(<span class="ident">node</span>);
-        <span class="ident">id</span>
+        <span class="kw">let </span>id = <span class="self">self</span>.id_to_node.len();
+        <span class="self">self</span>.node_to_id.insert(node, id);
+        <span class="self">self</span>.id_to_node.push(node);
+        id
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">node</span>: <span class="ident">T</span>) -&gt; <span class="ident">NodeId</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">node_to_id</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">node</span>) {
-            <span class="kw-2">*</span><span class="ident">id</span>
-        } <span class="kw">else</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;{:?} not in NodeMap&quot;</span>, <span class="ident">node</span>);
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, node: T) -&gt; NodeId {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(id) = <span class="self">self</span>.node_to_id.get(<span class="kw-2">&amp;</span>node) {
+            <span class="kw-2">*</span>id
+        } <span class="kw">else </span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;{:?} not in NodeMap&quot;</span>, node);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">translate_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">id</span>: <span class="ident">usize</span>) -&gt; <span class="ident">T</span> {
-        <span class="self">self</span>.<span class="ident">id_to_node</span>[<span class="ident">id</span>]
+    <span class="kw">pub fn </span>translate_id(<span class="kw-2">&amp;</span><span class="self">self</span>, id: usize) -&gt; T {
+        <span class="self">self</span>.id_to_node[id]
     }
 
-    <span class="doccomment">/// Call this after filling out the input graph, right before preparation.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">guarantee_node_ordering</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input_graph</span>: <span class="kw-2">&amp;mut</span> <span class="ident">InputGraph</span>) {
-        <span class="comment">// The fast_paths implementation will trim out the last nodes in the input graph if there</span>
-        <span class="comment">// are no edges involving them:</span>
-        <span class="comment">// https://github.com/easbar/fast_paths/blob/fdb65f25c5485c9c74c1b3cbe66d829eea81b14b/src/input_graph.rs#L151</span>
-        <span class="comment">//</span>
-        <span class="comment">// We sometimes add nodes that aren&#39;t used yet, so that we can reuse the same node ordering</span>
-        <span class="comment">// later. Detect if the last node isn&#39;t used.</span>
-        <span class="kw">let</span> <span class="ident">last_node</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">id_to_node</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>;
-        <span class="ident">input_graph</span>.<span class="ident">freeze</span>();
-        <span class="kw">for</span> <span class="ident">edge</span> <span class="kw">in</span> <span class="ident">input_graph</span>.<span class="ident">get_edges</span>() {
-            <span class="kw">if</span> <span class="ident">edge</span>.<span class="ident">from</span> <span class="op">==</span> <span class="ident">last_node</span> <span class="op">|</span><span class="op">|</span> <span class="ident">edge</span>.<span class="ident">to</span> <span class="op">==</span> <span class="ident">last_node</span> {
-                <span class="comment">// The last node is used, so we&#39;re fine</span>
-                <span class="ident">input_graph</span>.<span class="ident">thaw</span>();
+    <span class="doccomment">/// Call this after filling out the input graph, right before preparation.
+    </span><span class="kw">pub fn </span>guarantee_node_ordering(<span class="kw-2">&amp;</span><span class="self">self</span>, input_graph: <span class="kw-2">&amp;mut </span>InputGraph) {
+        <span class="comment">// The fast_paths implementation will trim out the last nodes in the input graph if there
+        // are no edges involving them:
+        // https://github.com/easbar/fast_paths/blob/fdb65f25c5485c9c74c1b3cbe66d829eea81b14b/src/input_graph.rs#L151
+        //
+        // We sometimes add nodes that aren&#39;t used yet, so that we can reuse the same node ordering
+        // later. Detect if the last node isn&#39;t used.
+        </span><span class="kw">let </span>last_node = <span class="self">self</span>.id_to_node.len() - <span class="number">1</span>;
+        input_graph.freeze();
+        <span class="kw">for </span>edge <span class="kw">in </span>input_graph.get_edges() {
+            <span class="kw">if </span>edge.from == last_node || edge.to == last_node {
+                <span class="comment">// The last node is used, so we&#39;re fine
+                </span>input_graph.thaw();
                 <span class="kw">return</span>;
             }
         }
-        <span class="ident">input_graph</span>.<span class="ident">thaw</span>();
+        input_graph.thaw();
 
-        <span class="comment">// Add a dummy edge from this unused node to any arbitrary node (namely the first), to</span>
-        <span class="comment">// prevent it from getting trimmed out. Since no path will start or end from this unused</span>
-        <span class="comment">// node, this won&#39;t affect resulting paths.</span>
-        <span class="kw">let</span> <span class="ident">first_node</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="ident">input_graph</span>.<span class="ident">add_edge</span>(<span class="ident">last_node</span>, <span class="ident">first_node</span>, <span class="number">1</span>);
+        <span class="comment">// Add a dummy edge from this unused node to any arbitrary node (namely the first), to
+        // prevent it from getting trimmed out. Since no path will start or end from this unused
+        // node, this won&#39;t affect resulting paths.
+        </span><span class="kw">let </span>first_node = <span class="number">0</span>;
+        input_graph.add_edge(last_node, first_node, <span class="number">1</span>);
     }
 }
 
-<span class="comment">// A serialized NodeMap has this form in JSON. Use this to deserialize.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Deserialize</span>)]</span>
-<span class="kw">struct</span> <span class="ident">InnerNodeMap</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Debug</span><span class="op">&gt;</span> {
-    <span class="ident">id_to_node</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>,
+<span class="comment">// A serialized NodeMap has this form in JSON. Use this to deserialize.
+</span><span class="attribute">#[derive(Deserialize)]
+</span><span class="kw">struct </span>InnerNodeMap&lt;T: Copy + Ord + Debug&gt; {
+    id_to_node: Vec&lt;T&gt;,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">deserialize_nodemap</span><span class="op">&lt;</span>
+<span class="kw">pub fn </span>deserialize_nodemap&lt;
     <span class="lifetime">&#39;de</span>,
-    <span class="ident">D</span>: <span class="ident">Deserializer</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span>,
-    <span class="ident">T</span>: <span class="ident">Deserialize</span><span class="op">&lt;</span><span class="lifetime">&#39;de</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">Debug</span> <span class="op">+</span> <span class="ident">Serialize</span>,
-<span class="op">&gt;</span>(
-    <span class="ident">d</span>: <span class="ident">D</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">NodeMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">D::Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">inner</span> <span class="op">=</span> <span class="op">&lt;</span><span class="ident">InnerNodeMap</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="ident">::deserialize</span>(<span class="ident">d</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">id_to_node</span> <span class="op">=</span> <span class="ident">inner</span>.<span class="ident">id_to_node</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">node_to_id</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">node</span>) <span class="kw">in</span> <span class="ident">id_to_node</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="ident">node_to_id</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">node</span>, <span class="ident">id</span>);
+    D: Deserializer&lt;<span class="lifetime">&#39;de</span>&gt;,
+    T: Deserialize&lt;<span class="lifetime">&#39;de</span>&gt; + Copy + Ord + Debug + Serialize,
+&gt;(
+    d: D,
+) -&gt; <span class="prelude-ty">Result</span>&lt;NodeMap&lt;T&gt;, D::Error&gt; {
+    <span class="kw">let </span>inner = &lt;InnerNodeMap&lt;T&gt;&gt;::deserialize(d)<span class="question-mark">?</span>;
+    <span class="kw">let </span>id_to_node = inner.id_to_node;
+    <span class="kw">let </span><span class="kw-2">mut </span>node_to_id = BTreeMap::new();
+    <span class="kw">for </span>(id, node) <span class="kw">in </span>id_to_node.iter().enumerate() {
+        node_to_id.insert(<span class="kw-2">*</span>node, id);
     }
 
-    <span class="prelude-val">Ok</span>(<span class="ident">NodeMap</span> {
-        <span class="ident">node_to_id</span>,
-        <span class="ident">id_to_node</span>,
+    <span class="prelude-val">Ok</span>(NodeMap {
+        node_to_id,
+        id_to_node,
     })
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="map_model" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

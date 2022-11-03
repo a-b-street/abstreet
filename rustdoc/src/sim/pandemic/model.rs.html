@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/pandemic/model.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/pandemic/model.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>model.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -429,436 +429,436 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 
-<span class="kw">use</span> <span class="ident">rand::Rng</span>;
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>rand::Rng;
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">TransitStopID</span>};
+<span class="kw">use </span>geom::{Duration, Time};
+<span class="kw">use </span>map_model::{BuildingID, TransitStopID};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::pandemic</span>::{<span class="ident">AnyTime</span>, <span class="ident">State</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">Event</span>, <span class="ident">Person</span>, <span class="ident">PersonID</span>, <span class="ident">Scheduler</span>, <span class="ident">TripPhaseType</span>};
+<span class="kw">use </span><span class="kw">crate</span>::pandemic::{AnyTime, State};
+<span class="kw">use crate</span>::{CarID, Event, Person, PersonID, Scheduler, TripPhaseType};
 
-<span class="comment">// TODO This does not model transmission by surfaces; only person-to-person.</span>
-<span class="comment">// TODO If two people are in the same shared space indefinitely and neither leaves, we don&#39;t model</span>
-<span class="comment">// transmission. It only occurs when people leave a space.</span>
+<span class="comment">// TODO This does not model transmission by surfaces; only person-to-person.
+// TODO If two people are in the same shared space indefinitely and neither leaves, we don&#39;t model
+// transmission. It only occurs when people leave a space.
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PandemicModel</span> {
-    <span class="ident">pop</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PersonID</span>, <span class="ident">State</span><span class="op">&gt;</span>,
+</span><span class="attribute">#[derive(Clone)]
+</span><span class="kw">pub struct </span>PandemicModel {
+    pop: BTreeMap&lt;PersonID, State&gt;,
 
-    <span class="ident">bldgs</span>: <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    <span class="ident">bus_stops</span>: <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>,
-    <span class="ident">buses</span>: <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
-    <span class="ident">person_to_bus</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">PersonID</span>, <span class="ident">CarID</span><span class="op">&gt;</span>,
+    bldgs: SharedSpace&lt;BuildingID&gt;,
+    bus_stops: SharedSpace&lt;TransitStopID&gt;,
+    buses: SharedSpace&lt;CarID&gt;,
+    person_to_bus: BTreeMap&lt;PersonID, CarID&gt;,
 
-    <span class="ident">rng</span>: <span class="ident">XorShiftRng</span>,
-    <span class="ident">initialized</span>: <span class="ident">bool</span>,
+    rng: XorShiftRng,
+    initialized: bool,
 }
 
-<span class="comment">// You can schedule callbacks in the future by doing scheduler.push(future time, one of these)</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">Hash</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Cmd</span> {
-    <span class="ident">BecomeHospitalized</span>(<span class="ident">PersonID</span>),
-    <span class="ident">BecomeQuarantined</span>(<span class="ident">PersonID</span>),
+<span class="comment">// You can schedule callbacks in the future by doing scheduler.push(future time, one of these)
+</span><span class="attribute">#[derive(Serialize, Deserialize, PartialEq, Eq, Hash, PartialOrd, Ord, Clone, Debug)]
+</span><span class="kw">pub enum </span>Cmd {
+    BecomeHospitalized(PersonID),
+    BecomeQuarantined(PersonID),
 }
 
-<span class="comment">// TODO Pretend handle_event and handle_cmd also take in some object that lets you do things like:</span>
-<span class="comment">//</span>
-<span class="comment">// - replace_future_trips(PersonID, Vec&lt;IndividTrip&gt;)</span>
-<span class="comment">//</span>
-<span class="comment">// I&#39;m not exactly sure how this should work yet. Any place you want to change the rest of the</span>
-<span class="comment">// simulation, just add a comment describing what you want to do exactly, and we&#39;ll figure it out</span>
-<span class="comment">// from there.</span>
+<span class="comment">// TODO Pretend handle_event and handle_cmd also take in some object that lets you do things like:
+//
+// - replace_future_trips(PersonID, Vec&lt;IndividTrip&gt;)
+//
+// I&#39;m not exactly sure how this should work yet. Any place you want to change the rest of the
+// simulation, just add a comment describing what you want to do exactly, and we&#39;ll figure it out
+// from there.
 
-<span class="kw">impl</span> <span class="ident">PandemicModel</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rng</span>: <span class="ident">XorShiftRng</span>) -&gt; <span class="ident">PandemicModel</span> {
-        <span class="ident">PandemicModel</span> {
-            <span class="ident">pop</span>: <span class="ident">BTreeMap::new</span>(),
+</span><span class="kw">impl </span>PandemicModel {
+    <span class="kw">pub fn </span>new(rng: XorShiftRng) -&gt; PandemicModel {
+        PandemicModel {
+            pop: BTreeMap::new(),
 
-            <span class="ident">bldgs</span>: <span class="ident">SharedSpace::new</span>(),
-            <span class="ident">bus_stops</span>: <span class="ident">SharedSpace::new</span>(),
-            <span class="ident">buses</span>: <span class="ident">SharedSpace::new</span>(),
-            <span class="ident">person_to_bus</span>: <span class="ident">BTreeMap::new</span>(),
+            bldgs: SharedSpace::new(),
+            bus_stops: SharedSpace::new(),
+            buses: SharedSpace::new(),
+            person_to_bus: BTreeMap::new(),
 
-            <span class="ident">rng</span>,
-            <span class="ident">initialized</span>: <span class="bool-val">false</span>,
+            rng,
+            initialized: <span class="bool-val">false</span>,
         }
     }
 
-    <span class="comment">// Sorry, initialization order of simulations is still a bit messy. This&#39;ll be called at</span>
-    <span class="comment">// Time::START_OF_DAY after all of the people have been created from a Scenario.</span>
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">initialize</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">population</span>: <span class="kw-2">&amp;</span>[<span class="ident">Person</span>], <span class="ident">_scheduler</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scheduler</span>) {
-        <span class="macro">assert!</span>(<span class="op">!</span><span class="self">self</span>.<span class="ident">initialized</span>);
-        <span class="self">self</span>.<span class="ident">initialized</span> <span class="op">=</span> <span class="bool-val">true</span>;
+    <span class="comment">// Sorry, initialization order of simulations is still a bit messy. This&#39;ll be called at
+    // Time::START_OF_DAY after all of the people have been created from a Scenario.
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>initialize(<span class="kw-2">&amp;mut </span><span class="self">self</span>, population: <span class="kw-2">&amp;</span>[Person], _scheduler: <span class="kw-2">&amp;mut </span>Scheduler) {
+        <span class="macro">assert!</span>(!<span class="self">self</span>.initialized);
+        <span class="self">self</span>.initialized = <span class="bool-val">true</span>;
 
-        <span class="comment">// Seed initially infected people.</span>
-        <span class="comment">// TODO the intial time is not well set. it should start &quot;before&quot;</span>
-        <span class="comment">// the beginning of the day. Also</span>
-        <span class="kw">for</span> <span class="ident">p</span> <span class="kw">in</span> <span class="ident">population</span> {
-            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">State::new</span>(<span class="number">0.5</span>, <span class="number">0.5</span>);
-            <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="ident">State::ini_exposed_ratio</span>()) {
-                <span class="kw">let</span> <span class="ident">next_state</span> <span class="op">=</span> <span class="ident">state</span>
-                    .<span class="ident">start</span>(
-                        <span class="ident">AnyTime::from</span>(<span class="ident">Time::START_OF_DAY</span>),
-                        <span class="ident">Duration::seconds</span>(<span class="ident">std::f64::MAX</span>),
-                        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">rng</span>,
+        <span class="comment">// Seed initially infected people.
+        // TODO the intial time is not well set. it should start &quot;before&quot;
+        // the beginning of the day. Also
+        </span><span class="kw">for </span>p <span class="kw">in </span>population {
+            <span class="kw">let </span>state = State::new(<span class="number">0.5</span>, <span class="number">0.5</span>);
+            <span class="kw">let </span>state = <span class="kw">if </span><span class="self">self</span>.rng.gen_bool(State::ini_exposed_ratio()) {
+                <span class="kw">let </span>next_state = state
+                    .start(
+                        AnyTime::from(Time::START_OF_DAY),
+                        Duration::seconds(std::f64::MAX),
+                        <span class="kw-2">&amp;mut </span><span class="self">self</span>.rng,
                     )
-                    .<span class="ident">unwrap</span>();
-                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_bool</span>(<span class="ident">State::ini_infectious_ratio</span>()) {
-                    <span class="ident">next_state</span>
-                        .<span class="ident">next_default</span>(<span class="ident">AnyTime::from</span>(<span class="ident">Time::START_OF_DAY</span>), <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">rng</span>)
-                        .<span class="ident">unwrap</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">next_state</span>
+                    .unwrap();
+                <span class="kw">if </span><span class="self">self</span>.rng.gen_bool(State::ini_infectious_ratio()) {
+                    next_state
+                        .next_default(AnyTime::from(Time::START_OF_DAY), <span class="kw-2">&amp;mut </span><span class="self">self</span>.rng)
+                        .unwrap()
+                } <span class="kw">else </span>{
+                    next_state
                 }
-            } <span class="kw">else</span> {
-                <span class="ident">state</span>
+            } <span class="kw">else </span>{
+                state
             };
-            <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">insert</span>(<span class="ident">p</span>.<span class="ident">id</span>, <span class="ident">state</span>);
+            <span class="self">self</span>.pop.insert(p.id, state);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">pop</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">state</span>, <span class="ident">State::Sane</span>(<span class="kw">_</span>)))
-            .<span class="ident">count</span>()
-        <span class="comment">// self.sane.len()</span>
+    <span class="kw">pub fn </span>count_sane(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.pop
+            .iter()
+            .filter(|(<span class="kw">_</span>, state)| <span class="macro">matches!</span>(state, State::Sane(<span class="kw">_</span>)))
+            .count()
+        <span class="comment">// self.sane.len()
+    </span>}
+
+    <span class="kw">pub fn </span>count_exposed(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.pop
+            .iter()
+            .filter(|(<span class="kw">_</span>, state)| <span class="macro">matches!</span>(state, State::Exposed(<span class="kw">_</span>)))
+            .count()
+        <span class="comment">// self.exposed.len()
+    </span>}
+
+    <span class="kw">pub fn </span>count_infected(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="comment">// self.infected.len()
+        </span><span class="self">self</span>.pop
+            .iter()
+            .filter(|(<span class="kw">_</span>, state)| <span class="macro">matches!</span>(state, State::Infectious(<span class="kw">_</span>) | State::Hospitalized(<span class="kw">_</span>)))
+            .count()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">pop</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">state</span>, <span class="ident">State::Exposed</span>(<span class="kw">_</span>)))
-            .<span class="ident">count</span>()
-        <span class="comment">// self.exposed.len()</span>
+    <span class="kw">pub fn </span>count_recovered(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.pop
+            .iter()
+            .filter(|(<span class="kw">_</span>, state)| <span class="macro">matches!</span>(state, State::Recovered(<span class="kw">_</span>)))
+            .count()
+        <span class="comment">// self.recovered.len()
+    </span>}
+
+    <span class="kw">pub fn </span>count_dead(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.pop
+            .iter()
+            .filter(|(<span class="kw">_</span>, state)| <span class="macro">matches!</span>(state, State::Dead(<span class="kw">_</span>)))
+            .count()
+        <span class="comment">// self.recovered.len()
+    </span>}
+
+    <span class="kw">pub fn </span>count_total(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.count_sane()
+            + <span class="self">self</span>.count_exposed()
+            + <span class="self">self</span>.count_infected()
+            + <span class="self">self</span>.count_recovered()
+            + <span class="self">self</span>.count_dead()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_infected</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="comment">// self.infected.len()</span>
-        <span class="self">self</span>.<span class="ident">pop</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">state</span>, <span class="ident">State::Infectious</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident">State::Hospitalized</span>(<span class="kw">_</span>)))
-            .<span class="ident">count</span>()
-    }
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle_event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, now: Time, ev: <span class="kw-2">&amp;</span>Event, scheduler: <span class="kw-2">&amp;mut </span>Scheduler) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.initialized);
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">pop</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">state</span>, <span class="ident">State::Recovered</span>(<span class="kw">_</span>)))
-            .<span class="ident">count</span>()
-        <span class="comment">// self.recovered.len()</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">pop</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">state</span>)<span class="op">|</span> <span class="macro">matches!</span>(<span class="ident">state</span>, <span class="ident">State::Dead</span>(<span class="kw">_</span>)))
-            .<span class="ident">count</span>()
-        <span class="comment">// self.recovered.len()</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">count_total</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">count_sane</span>()
-            <span class="op">+</span> <span class="self">self</span>.<span class="ident">count_exposed</span>()
-            <span class="op">+</span> <span class="self">self</span>.<span class="ident">count_infected</span>()
-            <span class="op">+</span> <span class="self">self</span>.<span class="ident">count_recovered</span>()
-            <span class="op">+</span> <span class="self">self</span>.<span class="ident">count_dead</span>()
-    }
-
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle_event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">ev</span>: <span class="kw-2">&amp;</span><span class="ident">Event</span>, <span class="ident">scheduler</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scheduler</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">initialized</span>);
-
-        <span class="kw">match</span> <span class="ident">ev</span> {
-            <span class="ident">Event::PersonEntersBuilding</span>(<span class="ident">person</span>, <span class="ident">bldg</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bldg</span>);
+        <span class="kw">match </span>ev {
+            Event::PersonEntersBuilding(person, bldg) =&gt; {
+                <span class="self">self</span>.bldgs.person_enters_space(now, <span class="kw-2">*</span>person, <span class="kw-2">*</span>bldg);
             }
-            <span class="ident">Event::PersonLeavesBuilding</span>(<span class="ident">person</span>, <span class="ident">bldg</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">others</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">bldgs</span>.<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bldg</span>) {
-                    <span class="self">self</span>.<span class="ident">transmission</span>(<span class="ident">now</span>, <span class="kw-2">*</span><span class="ident">person</span>, <span class="ident">others</span>, <span class="ident">scheduler</span>);
-                } <span class="kw">else</span> {
-                    <span class="macro">panic!</span>(<span class="string">&quot;{} left {}, but they weren&#39;t inside&quot;</span>, <span class="ident">person</span>, <span class="ident">bldg</span>);
+            Event::PersonLeavesBuilding(person, bldg) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(others) = <span class="self">self</span>.bldgs.person_leaves_space(now, <span class="kw-2">*</span>person, <span class="kw-2">*</span>bldg) {
+                    <span class="self">self</span>.transmission(now, <span class="kw-2">*</span>person, others, scheduler);
+                } <span class="kw">else </span>{
+                    <span class="macro">panic!</span>(<span class="string">&quot;{} left {}, but they weren&#39;t inside&quot;</span>, person, bldg);
                 }
             }
-            <span class="ident">Event::TripPhaseStarting</span>(<span class="kw">_</span>, <span class="ident">p</span>, <span class="kw">_</span>, <span class="ident">tpt</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">person</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">p</span>;
-                <span class="kw">match</span> <span class="ident">tpt</span> {
-                    <span class="ident">TripPhaseType::WaitingForBus</span>(<span class="kw">_</span>, <span class="ident">stop</span>) =&gt; {
-                        <span class="self">self</span>.<span class="ident">bus_stops</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">stop</span>);
+            Event::TripPhaseStarting(<span class="kw">_</span>, p, <span class="kw">_</span>, tpt) =&gt; {
+                <span class="kw">let </span>person = <span class="kw-2">*</span>p;
+                <span class="kw">match </span>tpt {
+                    TripPhaseType::WaitingForBus(<span class="kw">_</span>, stop) =&gt; {
+                        <span class="self">self</span>.bus_stops.person_enters_space(now, person, <span class="kw-2">*</span>stop);
                     }
-                    <span class="ident">TripPhaseType::RidingBus</span>(<span class="kw">_</span>, <span class="ident">stop</span>, <span class="ident">bus</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">others</span> <span class="op">=</span> <span class="self">self</span>
-                            .<span class="ident">bus_stops</span>
-                            .<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">stop</span>)
-                            .<span class="ident">unwrap</span>();
-                        <span class="self">self</span>.<span class="ident">transmission</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">others</span>, <span class="ident">scheduler</span>);
+                    TripPhaseType::RidingBus(<span class="kw">_</span>, stop, bus) =&gt; {
+                        <span class="kw">let </span>others = <span class="self">self
+                            </span>.bus_stops
+                            .person_leaves_space(now, person, <span class="kw-2">*</span>stop)
+                            .unwrap();
+                        <span class="self">self</span>.transmission(now, person, others, scheduler);
 
-                        <span class="self">self</span>.<span class="ident">buses</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bus</span>);
-                        <span class="self">self</span>.<span class="ident">person_to_bus</span>.<span class="ident">insert</span>(<span class="ident">person</span>, <span class="kw-2">*</span><span class="ident">bus</span>);
+                        <span class="self">self</span>.buses.person_enters_space(now, person, <span class="kw-2">*</span>bus);
+                        <span class="self">self</span>.person_to_bus.insert(person, <span class="kw-2">*</span>bus);
                     }
-                    <span class="ident">TripPhaseType::Walking</span> =&gt; {
-                        <span class="comment">// A person can start walking for many reasons, but the only possible state</span>
-                        <span class="comment">// transition after riding a bus is walking, so use this to detect the end</span>
-                        <span class="comment">// of a bus ride.</span>
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">car</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">person_to_bus</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-                            <span class="kw">let</span> <span class="ident">others</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">buses</span>.<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">car</span>).<span class="ident">unwrap</span>();
-                            <span class="self">self</span>.<span class="ident">transmission</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">others</span>, <span class="ident">scheduler</span>);
+                    TripPhaseType::Walking =&gt; {
+                        <span class="comment">// A person can start walking for many reasons, but the only possible state
+                        // transition after riding a bus is walking, so use this to detect the end
+                        // of a bus ride.
+                        </span><span class="kw">if let </span><span class="prelude-val">Some</span>(car) = <span class="self">self</span>.person_to_bus.remove(<span class="kw-2">&amp;</span>person) {
+                            <span class="kw">let </span>others = <span class="self">self</span>.buses.person_leaves_space(now, person, car).unwrap();
+                            <span class="self">self</span>.transmission(now, person, others, scheduler);
                         }
                     }
-                    <span class="kw">_</span> =&gt; {
-                        <span class="self">self</span>.<span class="ident">transition</span>(<span class="ident">now</span>, <span class="ident">person</span>, <span class="ident">scheduler</span>);
+                    <span class="kw">_ </span>=&gt; {
+                        <span class="self">self</span>.transition(now, person, scheduler);
                     }
                 }
             }
-            <span class="kw">_</span> =&gt; {}
+            <span class="kw">_ </span>=&gt; {}
         }
     }
 
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">handle_cmd</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">_now</span>: <span class="ident">Time</span>, <span class="ident">cmd</span>: <span class="ident">Cmd</span>, <span class="ident">_scheduler</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scheduler</span>) {
-        <span class="macro">assert!</span>(<span class="self">self</span>.<span class="ident">initialized</span>);
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>handle_cmd(<span class="kw-2">&amp;mut </span><span class="self">self</span>, _now: Time, cmd: Cmd, _scheduler: <span class="kw-2">&amp;mut </span>Scheduler) {
+        <span class="macro">assert!</span>(<span class="self">self</span>.initialized);
 
-        <span class="comment">// TODO Here we might enforce policies. Like severe -&gt; become hospitalized</span>
-        <span class="comment">// Symptomatic -&gt; stay quaratined, and/or track contacts to quarantine them too (or test</span>
-        <span class="comment">// them)</span>
-        <span class="kw">match</span> <span class="ident">cmd</span> {
-            <span class="ident">Cmd::BecomeHospitalized</span>(<span class="ident">_person</span>) =&gt; {
-                <span class="comment">// self.hospitalized.insert(person);</span>
-            }
-            <span class="ident">Cmd::BecomeQuarantined</span>(<span class="ident">_person</span>) =&gt; {
-                <span class="comment">// self.quarantined.insert(person);</span>
-            }
+        <span class="comment">// TODO Here we might enforce policies. Like severe -&gt; become hospitalized
+        // Symptomatic -&gt; stay quaratined, and/or track contacts to quarantine them too (or test
+        // them)
+        </span><span class="kw">match </span>cmd {
+            Cmd::BecomeHospitalized(_person) =&gt; {
+                <span class="comment">// self.hospitalized.insert(person);
+            </span>}
+            Cmd::BecomeQuarantined(_person) =&gt; {
+                <span class="comment">// self.quarantined.insert(person);
+            </span>}
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_time</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) =&gt; <span class="ident">state</span>.<span class="ident">get_time</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">pub fn </span>get_time(<span class="kw-2">&amp;</span><span class="self">self</span>, person: PersonID) -&gt; <span class="prelude-ty">Option</span>&lt;Time&gt; {
+        <span class="kw">match </span><span class="self">self</span>.pop.get(<span class="kw-2">&amp;</span>person) {
+            <span class="prelude-val">Some</span>(state) =&gt; state.get_time(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_sane</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) =&gt; <span class="ident">state</span>.<span class="ident">is_sane</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">pub fn </span>is_sane(<span class="kw-2">&amp;</span><span class="self">self</span>, person: PersonID) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.pop.get(<span class="kw-2">&amp;</span>person) {
+            <span class="prelude-val">Some</span>(state) =&gt; state.is_sane(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_infectious</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) =&gt; <span class="ident">state</span>.<span class="ident">is_infectious</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">pub fn </span>is_infectious(<span class="kw-2">&amp;</span><span class="self">self</span>, person: PersonID) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.pop.get(<span class="kw-2">&amp;</span>person) {
+            <span class="prelude-val">Some</span>(state) =&gt; state.is_infectious(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_exposed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) =&gt; <span class="ident">state</span>.<span class="ident">is_exposed</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">pub fn </span>is_exposed(<span class="kw-2">&amp;</span><span class="self">self</span>, person: PersonID) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.pop.get(<span class="kw-2">&amp;</span>person) {
+            <span class="prelude-val">Some</span>(state) =&gt; state.is_exposed(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_recovered</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) =&gt; <span class="ident">state</span>.<span class="ident">is_recovered</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">pub fn </span>is_recovered(<span class="kw-2">&amp;</span><span class="self">self</span>, person: PersonID) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.pop.get(<span class="kw-2">&amp;</span>person) {
+            <span class="prelude-val">Some</span>(state) =&gt; state.is_recovered(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_dead</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">state</span>) =&gt; <span class="ident">state</span>.<span class="ident">is_dead</span>(),
-            <span class="prelude-val">None</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">pub fn </span>is_dead(<span class="kw-2">&amp;</span><span class="self">self</span>, person: PersonID) -&gt; bool {
+        <span class="kw">match </span><span class="self">self</span>.pop.get(<span class="kw-2">&amp;</span>person) {
+            <span class="prelude-val">Some</span>(state) =&gt; state.is_dead(),
+            <span class="prelude-val">None </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">infectious_contact</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>, <span class="ident">other</span>: <span class="ident">PersonID</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PersonID</span><span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_sane</span>(<span class="ident">person</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_infectious</span>(<span class="ident">other</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">person</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_infectious</span>(<span class="ident">person</span>) <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">is_sane</span>(<span class="ident">other</span>) {
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">other</span>);
+    <span class="kw">fn </span>infectious_contact(<span class="kw-2">&amp;</span><span class="self">self</span>, person: PersonID, other: PersonID) -&gt; <span class="prelude-ty">Option</span>&lt;PersonID&gt; {
+        <span class="kw">if </span><span class="self">self</span>.is_sane(person) &amp;&amp; <span class="self">self</span>.is_infectious(other) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(person);
+        } <span class="kw">else if </span><span class="self">self</span>.is_infectious(person) &amp;&amp; <span class="self">self</span>.is_sane(other) {
+            <span class="kw">return </span><span class="prelude-val">Some</span>(other);
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">transmission</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">person</span>: <span class="ident">PersonID</span>,
-        <span class="ident">other_occupants</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span>,
-        <span class="ident">scheduler</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scheduler</span>,
+    <span class="kw">fn </span>transmission(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        now: Time,
+        person: PersonID,
+        other_occupants: Vec&lt;(PersonID, Duration)&gt;,
+        scheduler: <span class="kw-2">&amp;mut </span>Scheduler,
     ) {
-        <span class="comment">// person has spent some duration in the same space as other people. Does transmission</span>
-        <span class="comment">// occur?</span>
-        <span class="kw">for</span> (<span class="ident">other</span>, <span class="ident">overlap</span>) <span class="kw">in</span> <span class="ident">other_occupants</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pid</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">infectious_contact</span>(<span class="ident">person</span>, <span class="ident">other</span>) {
-                <span class="self">self</span>.<span class="ident">become_exposed</span>(<span class="ident">now</span>, <span class="ident">overlap</span>, <span class="ident">pid</span>, <span class="ident">scheduler</span>);
+        <span class="comment">// person has spent some duration in the same space as other people. Does transmission
+        // occur?
+        </span><span class="kw">for </span>(other, overlap) <span class="kw">in </span>other_occupants {
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pid) = <span class="self">self</span>.infectious_contact(person, other) {
+                <span class="self">self</span>.become_exposed(now, overlap, pid, scheduler);
             }
         }
     }
 
-    <span class="comment">// transition from a state to another without interaction with others</span>
-    <span class="kw">fn</span> <span class="ident">transition</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>, <span class="ident">_scheduler</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scheduler</span>) {
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">next</span>(<span class="ident">AnyTime::from</span>(<span class="ident">now</span>), <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">rng</span>).<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">insert</span>(<span class="ident">person</span>, <span class="ident">state</span>);
+    <span class="comment">// transition from a state to another without interaction with others
+    </span><span class="kw">fn </span>transition(<span class="kw-2">&amp;mut </span><span class="self">self</span>, now: Time, person: PersonID, _scheduler: <span class="kw-2">&amp;mut </span>Scheduler) {
+        <span class="kw">let </span>state = <span class="self">self</span>.pop.remove(<span class="kw-2">&amp;</span>person).unwrap();
+        <span class="kw">let </span>state = state.next(AnyTime::from(now), <span class="kw-2">&amp;mut </span><span class="self">self</span>.rng).unwrap();
+        <span class="self">self</span>.pop.insert(person, state);
 
-        <span class="comment">// if self.rng.gen_bool(0.1) {</span>
-        <span class="comment">//     scheduler.push(</span>
-        <span class="comment">//         now + self.rand_duration(Duration::hours(1), Duration::hours(3)),</span>
-        <span class="comment">//         Command::Pandemic(Cmd::BecomeHospitalized(person)),</span>
-        <span class="comment">//     );</span>
-        <span class="comment">// }</span>
-    }
+        <span class="comment">// if self.rng.gen_bool(0.1) {
+        //     scheduler.push(
+        //         now + self.rand_duration(Duration::hours(1), Duration::hours(3)),
+        //         Command::Pandemic(Cmd::BecomeHospitalized(person)),
+        //     );
+        // }
+    </span>}
 
-    <span class="kw">fn</span> <span class="ident">become_exposed</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">overlap</span>: <span class="ident">Duration</span>,
-        <span class="ident">person</span>: <span class="ident">PersonID</span>,
-        <span class="ident">_scheduler</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scheduler</span>,
+    <span class="kw">fn </span>become_exposed(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        now: Time,
+        overlap: Duration,
+        person: PersonID,
+        _scheduler: <span class="kw-2">&amp;mut </span>Scheduler,
     ) {
-        <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::float_cmp</span>)]</span> <span class="comment">// false positive</span>
-                                     <span class="comment">// When people become exposed</span>
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">person</span>).<span class="ident">unwrap</span>();
+        <span class="attribute">#![allow(clippy::float_cmp)] </span><span class="comment">// false positive
+                                     // When people become exposed
+        </span><span class="kw">let </span>state = <span class="self">self</span>.pop.remove(<span class="kw-2">&amp;</span>person).unwrap();
         <span class="macro">assert_eq!</span>(
-            <span class="ident">state</span>.<span class="ident">get_event_time</span>().<span class="ident">unwrap</span>().<span class="ident">inner_seconds</span>(),
-            <span class="ident">std::f64::INFINITY</span>
+            state.get_event_time().unwrap().inner_seconds(),
+            std::f64::INFINITY
         );
-        <span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">state</span>
-            .<span class="ident">start</span>(<span class="ident">AnyTime::from</span>(<span class="ident">now</span>), <span class="ident">overlap</span>, <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">rng</span>)
-            .<span class="ident">unwrap</span>();
-        <span class="self">self</span>.<span class="ident">pop</span>.<span class="ident">insert</span>(<span class="ident">person</span>, <span class="ident">state</span>);
+        <span class="kw">let </span>state = state
+            .start(AnyTime::from(now), overlap, <span class="kw-2">&amp;mut </span><span class="self">self</span>.rng)
+            .unwrap();
+        <span class="self">self</span>.pop.insert(person, state);
 
-        <span class="comment">// if self.rng.gen_bool(0.1) {</span>
-        <span class="comment">//     scheduler.push(</span>
-        <span class="comment">//         now + self.rand_duration(Duration::hours(1), Duration::hours(3)),</span>
-        <span class="comment">//         Command::Pandemic(Cmd::BecomeHospitalized(person)),</span>
-        <span class="comment">//     );</span>
-        <span class="comment">// }</span>
-    }
+        <span class="comment">// if self.rng.gen_bool(0.1) {
+        //     scheduler.push(
+        //         now + self.rand_duration(Duration::hours(1), Duration::hours(3)),
+        //         Command::Pandemic(Cmd::BecomeHospitalized(person)),
+        //     );
+        // }
+    </span>}
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span> {
-    <span class="comment">// Since when has a person been in some shared space?</span>
-    <span class="comment">// TODO This is an awkward data structure; abstutil::MultiMap is also bad, because key removal</span>
-    <span class="comment">// would require knowing the time. Want something closer to</span>
-    <span class="comment">// https://guava.dev/releases/19.0/api/docs/com/google/common/collect/Table.html.</span>
-    <span class="ident">occupants</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">Time</span>)<span class="op">&gt;</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Clone)]
+</span><span class="kw">struct </span>SharedSpace&lt;T: Ord&gt; {
+    <span class="comment">// Since when has a person been in some shared space?
+    // TODO This is an awkward data structure; abstutil::MultiMap is also bad, because key removal
+    // would require knowing the time. Want something closer to
+    // https://guava.dev/releases/19.0/api/docs/com/google/common/collect/Table.html.
+    </span>occupants: BTreeMap&lt;T, Vec&lt;(PersonID, Time)&gt;&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span> <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">SharedSpace</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">SharedSpace</span> {
-            <span class="ident">occupants</span>: <span class="ident">BTreeMap::new</span>(),
+<span class="kw">impl</span>&lt;T: Ord&gt; SharedSpace&lt;T&gt; {
+    <span class="kw">fn </span>new() -&gt; SharedSpace&lt;T&gt; {
+        SharedSpace {
+            occupants: BTreeMap::new(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">person_enters_space</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">person</span>: <span class="ident">PersonID</span>, <span class="ident">space</span>: <span class="ident">T</span>) {
-        <span class="self">self</span>.<span class="ident">occupants</span>
-            .<span class="ident">entry</span>(<span class="ident">space</span>)
-            .<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>)
-            .<span class="ident">push</span>((<span class="ident">person</span>, <span class="ident">now</span>));
+    <span class="kw">fn </span>person_enters_space(<span class="kw-2">&amp;mut </span><span class="self">self</span>, now: Time, person: PersonID, space: T) {
+        <span class="self">self</span>.occupants
+            .entry(space)
+            .or_insert_with(Vec::new)
+            .push((person, now));
     }
 
-    <span class="comment">// Returns a list of all other people that the person was in the shared space with, and how</span>
-    <span class="comment">// long their time overlapped. If it returns None, then a bug must have occurred, because</span>
-    <span class="comment">// somebody has left a space they never entered.</span>
-    <span class="kw">fn</span> <span class="ident">person_leaves_space</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">now</span>: <span class="ident">Time</span>,
-        <span class="ident">person</span>: <span class="ident">PersonID</span>,
-        <span class="ident">space</span>: <span class="ident">T</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PersonID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="comment">// TODO Messy to mutate state inside a retain closure</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">inside_since</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="ident">occupants</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">occupants</span>.<span class="ident">entry</span>(<span class="ident">space</span>).<span class="ident">or_insert_with</span>(<span class="ident">Vec::new</span>);
-        <span class="ident">occupants</span>.<span class="ident">retain</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="ident">t</span>)<span class="op">|</span> {
-            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">p</span> <span class="op">==</span> <span class="ident">person</span> {
-                <span class="ident">inside_since</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">t</span>);
-                <span class="bool-val">false</span>
-            } <span class="kw">else</span> {
-                <span class="bool-val">true</span>
-            }
+    <span class="comment">// Returns a list of all other people that the person was in the shared space with, and how
+    // long their time overlapped. If it returns None, then a bug must have occurred, because
+    // somebody has left a space they never entered.
+    </span><span class="kw">fn </span>person_leaves_space(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        now: Time,
+        person: PersonID,
+        space: T,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Vec&lt;(PersonID, Duration)&gt;&gt; {
+        <span class="comment">// TODO Messy to mutate state inside a retain closure
+        </span><span class="kw">let </span><span class="kw-2">mut </span>inside_since: <span class="prelude-ty">Option</span>&lt;Time&gt; = <span class="prelude-val">None</span>;
+        <span class="kw">let </span>occupants = <span class="self">self</span>.occupants.entry(space).or_insert_with(Vec::new);
+        occupants.retain(|(p, t)| {
+            <span class="kw">if </span><span class="kw-2">*</span>p == person {
+                inside_since = <span class="prelude-val">Some</span>(<span class="kw-2">*</span>t);
+                <span class="bool-val">false
+            </span>} <span class="kw">else </span>{
+                <span class="bool-val">true
+            </span>}
         });
-        <span class="comment">// TODO Bug!</span>
-        <span class="kw">let</span> <span class="ident">inside_since</span> <span class="op">=</span> <span class="ident">inside_since</span><span class="question-mark">?</span>;
+        <span class="comment">// TODO Bug!
+        </span><span class="kw">let </span>inside_since = inside_since<span class="question-mark">?</span>;
 
         <span class="prelude-val">Some</span>(
-            <span class="ident">occupants</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">p</span>, <span class="ident">t</span>)<span class="op">|</span> (<span class="kw-2">*</span><span class="ident">p</span>, <span class="ident">now</span> <span class="op">-</span> (<span class="kw-2">*</span><span class="ident">t</span>).<span class="ident">max</span>(<span class="ident">inside_since</span>)))
-                .<span class="ident">collect</span>(),
+            occupants
+                .iter()
+                .map(|(p, t)| (<span class="kw-2">*</span>p, now - (<span class="kw-2">*</span>t).max(inside_since)))
+                .collect(),
         )
     }
 }
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+<span class="attribute">#[cfg(test)]
+</span><span class="kw">mod </span>tests {
+    <span class="kw">use super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">fn</span> <span class="ident">time</span>(<span class="ident">x</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Time</span> {
-        <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="ident">x</span>)
+    <span class="kw">fn </span>time(x: usize) -&gt; Time {
+        Time::START_OF_DAY + Duration::hours(x)
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_overlap</span>() {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">space</span> <span class="op">=</span> <span class="ident">SharedSpace::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">0</span>);
+    <span class="attribute">#[test]
+    </span><span class="kw">fn </span>test_overlap() {
+        <span class="kw">let </span><span class="kw-2">mut </span>space = SharedSpace::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>now = time(<span class="number">0</span>);
 
-        <span class="kw">let</span> <span class="ident">bldg1</span> <span class="op">=</span> <span class="ident">BuildingID</span>(<span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">bldg2</span> <span class="op">=</span> <span class="ident">BuildingID</span>(<span class="number">2</span>);
+        <span class="kw">let </span>bldg1 = BuildingID(<span class="number">1</span>);
+        <span class="kw">let </span>bldg2 = BuildingID(<span class="number">2</span>);
 
-        <span class="kw">let</span> <span class="ident">person1</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="number">1</span>);
-        <span class="kw">let</span> <span class="ident">person2</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="number">2</span>);
-        <span class="kw">let</span> <span class="ident">person3</span> <span class="op">=</span> <span class="ident">PersonID</span>(<span class="number">3</span>);
+        <span class="kw">let </span>person1 = PersonID(<span class="number">1</span>);
+        <span class="kw">let </span>person2 = PersonID(<span class="number">2</span>);
+        <span class="kw">let </span>person3 = PersonID(<span class="number">3</span>);
 
-        <span class="comment">// Only one person</span>
-        <span class="ident">space</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person1</span>, <span class="ident">bldg1</span>);
-        <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">1</span>);
+        <span class="comment">// Only one person
+        </span>space.person_enters_space(now, person1, bldg1);
+        now = time(<span class="number">1</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">space</span>.<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="ident">person1</span>, <span class="ident">bldg1</span>),
-            <span class="prelude-val">Some</span>(<span class="ident">Vec::new</span>())
+            space.person_leaves_space(now, person1, bldg1),
+            <span class="prelude-val">Some</span>(Vec::new())
         );
 
-        <span class="comment">// Two people at the same time</span>
-        <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">2</span>);
-        <span class="ident">space</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person1</span>, <span class="ident">bldg2</span>);
-        <span class="ident">space</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person2</span>, <span class="ident">bldg2</span>);
-        <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">3</span>);
+        <span class="comment">// Two people at the same time
+        </span>now = time(<span class="number">2</span>);
+        space.person_enters_space(now, person1, bldg2);
+        space.person_enters_space(now, person2, bldg2);
+        now = time(<span class="number">3</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">space</span>.<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="ident">person1</span>, <span class="ident">bldg2</span>),
-            <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[(<span class="ident">person2</span>, <span class="ident">Duration::hours</span>(<span class="number">1</span>))])
+            space.person_leaves_space(now, person1, bldg2),
+            <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[(person2, Duration::hours(<span class="number">1</span>))])
         );
 
-        <span class="comment">// Bug</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">space</span>.<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="ident">person3</span>, <span class="ident">bldg2</span>), <span class="prelude-val">None</span>);
+        <span class="comment">// Bug
+        </span><span class="macro">assert_eq!</span>(space.person_leaves_space(now, person3, bldg2), <span class="prelude-val">None</span>);
 
-        <span class="comment">// Different times</span>
-        <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">5</span>);
-        <span class="ident">space</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person1</span>, <span class="ident">bldg1</span>);
-        <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">6</span>);
-        <span class="ident">space</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person2</span>, <span class="ident">bldg1</span>);
-        <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">7</span>);
-        <span class="ident">space</span>.<span class="ident">person_enters_space</span>(<span class="ident">now</span>, <span class="ident">person3</span>, <span class="ident">bldg1</span>);
-        <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">10</span>);
+        <span class="comment">// Different times
+        </span>now = time(<span class="number">5</span>);
+        space.person_enters_space(now, person1, bldg1);
+        now = time(<span class="number">6</span>);
+        space.person_enters_space(now, person2, bldg1);
+        now = time(<span class="number">7</span>);
+        space.person_enters_space(now, person3, bldg1);
+        now = time(<span class="number">10</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">space</span>.<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="ident">person1</span>, <span class="ident">bldg1</span>),
+            space.person_leaves_space(now, person1, bldg1),
             <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[
-                (<span class="ident">person2</span>, <span class="ident">Duration::hours</span>(<span class="number">4</span>)),
-                (<span class="ident">person3</span>, <span class="ident">Duration::hours</span>(<span class="number">3</span>))
+                (person2, Duration::hours(<span class="number">4</span>)),
+                (person3, Duration::hours(<span class="number">3</span>))
             ])
         );
-        <span class="ident">now</span> <span class="op">=</span> <span class="ident">time</span>(<span class="number">12</span>);
+        now = time(<span class="number">12</span>);
         <span class="macro">assert_eq!</span>(
-            <span class="ident">space</span>.<span class="ident">person_leaves_space</span>(<span class="ident">now</span>, <span class="ident">person2</span>, <span class="ident">bldg1</span>),
-            <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[(<span class="ident">person3</span>, <span class="ident">Duration::hours</span>(<span class="number">5</span>))])
+            space.person_leaves_space(now, person2, bldg1),
+            <span class="prelude-val">Some</span>(<span class="macro">vec!</span>[(person3, Duration::hours(<span class="number">5</span>))])
         );
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

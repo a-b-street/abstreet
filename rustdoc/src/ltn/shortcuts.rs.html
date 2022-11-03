@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/shortcuts.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>shortcuts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/shortcuts.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>shortcuts.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../ltn/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -216,223 +216,223 @@
 <span id="216">216</span>
 <span id="217">217</span>
 <span id="218">218</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeSet</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::{BTreeSet, HashSet};
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Counter</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::ColorNetwork</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">DirectedRoadID</span>, <span class="ident">IntersectionID</span>, <span class="ident">LaneID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathStepV2</span>, <span class="ident">PathV2</span>,
-    <span class="ident">Pathfinder</span>, <span class="ident">Position</span>, <span class="ident">RoadID</span>,
+<span class="kw">use </span>abstutil::{Counter, Timer};
+<span class="kw">use </span>map_gui::tools::ColorNetwork;
+<span class="kw">use </span>map_model::{
+    DirectedRoadID, IntersectionID, LaneID, Map, PathConstraints, PathRequest, PathStepV2, PathV2,
+    Pathfinder, Position, RoadID,
 };
-<span class="kw">use</span> <span class="ident">widgetry::GeomBatch</span>;
+<span class="kw">use </span>widgetry::GeomBatch;
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">App</span>, <span class="ident">Cell</span>, <span class="ident">Neighbourhood</span>};
+<span class="kw">use crate</span>::{App, Cell, Neighbourhood};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Shortcuts</span> {
-    <span class="kw">pub</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">count_per_road</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">count_per_intersection</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">IntersectionID</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Shortcuts {
+    <span class="kw">pub </span>paths: Vec&lt;PathV2&gt;,
+    <span class="kw">pub </span>count_per_road: Counter&lt;RoadID&gt;,
+    <span class="kw">pub </span>count_per_intersection: Counter&lt;IntersectionID&gt;,
 }
 
-<span class="kw">impl</span> <span class="ident">Shortcuts</span> {
-    <span class="comment">// For temporary use</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">paths</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">count_per_road</span>: <span class="ident">Counter::new</span>(),
-            <span class="ident">count_per_intersection</span>: <span class="ident">Counter::new</span>(),
+<span class="kw">impl </span>Shortcuts {
+    <span class="comment">// For temporary use
+    </span><span class="kw">pub fn </span>empty() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            paths: Vec::new(),
+            count_per_road: Counter::new(),
+            count_per_intersection: Counter::new(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_paths</span>(<span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>, <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="comment">// How many shortcuts pass through each street?</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_per_road</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_per_intersection</span> <span class="op">=</span> <span class="ident">Counter::new</span>();
-        <span class="kw">for</span> <span class="ident">path</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">paths</span> {
-            <span class="kw">for</span> <span class="ident">step</span> <span class="kw">in</span> <span class="ident">path</span>.<span class="ident">get_steps</span>() {
-                <span class="kw">match</span> <span class="ident">step</span> {
-                    <span class="ident">PathStepV2::Along</span>(<span class="ident">dr</span>) =&gt; {
-                        <span class="kw">if</span> <span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">dr</span>.<span class="ident">road</span>) {
-                            <span class="ident">count_per_road</span>.<span class="ident">inc</span>(<span class="ident">dr</span>.<span class="ident">road</span>);
+    <span class="kw">pub fn </span>from_paths(neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood, paths: Vec&lt;PathV2&gt;) -&gt; <span class="self">Self </span>{
+        <span class="comment">// How many shortcuts pass through each street?
+        </span><span class="kw">let </span><span class="kw-2">mut </span>count_per_road = Counter::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>count_per_intersection = Counter::new();
+        <span class="kw">for </span>path <span class="kw">in </span><span class="kw-2">&amp;</span>paths {
+            <span class="kw">for </span>step <span class="kw">in </span>path.get_steps() {
+                <span class="kw">match </span>step {
+                    PathStepV2::Along(dr) =&gt; {
+                        <span class="kw">if </span>neighbourhood.orig_perimeter.interior.contains(<span class="kw-2">&amp;</span>dr.road) {
+                            count_per_road.inc(dr.road);
                         }
                     }
-                    <span class="ident">PathStepV2::Movement</span>(<span class="ident">m</span>) =&gt; {
-                        <span class="kw">if</span> <span class="ident">neighbourhood</span>.<span class="ident">interior_intersections</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">m</span>.<span class="ident">parent</span>) {
-                            <span class="ident">count_per_intersection</span>.<span class="ident">inc</span>(<span class="ident">m</span>.<span class="ident">parent</span>);
+                    PathStepV2::Movement(m) =&gt; {
+                        <span class="kw">if </span>neighbourhood.interior_intersections.contains(<span class="kw-2">&amp;</span>m.parent) {
+                            count_per_intersection.inc(m.parent);
                         }
                     }
-                    <span class="comment">// Car paths don&#39;t make contraflow movements</span>
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                    <span class="comment">// Car paths don&#39;t make contraflow movements
+                    </span><span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
                 }
             }
         }
 
-        <span class="self">Self</span> {
-            <span class="ident">paths</span>,
-            <span class="ident">count_per_road</span>,
-            <span class="ident">count_per_intersection</span>,
+        <span class="self">Self </span>{
+            paths,
+            count_per_road,
+            count_per_intersection,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">quiet_and_total_streets</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) -&gt; (<span class="ident">usize</span>, <span class="ident">usize</span>) {
-        <span class="kw">let</span> <span class="ident">quiet_streets</span> <span class="op">=</span> <span class="ident">neighbourhood</span>
-            .<span class="ident">orig_perimeter</span>
-            .<span class="ident">interior</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">count_per_road</span>.<span class="ident">get</span>(<span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">r</span>) <span class="op">==</span> <span class="number">0</span>)
-            .<span class="ident">count</span>();
-        <span class="kw">let</span> <span class="ident">total_streets</span> <span class="op">=</span> <span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>.<span class="ident">len</span>();
-        (<span class="ident">quiet_streets</span>, <span class="ident">total_streets</span>)
+    <span class="kw">pub fn </span>quiet_and_total_streets(<span class="kw-2">&amp;</span><span class="self">self</span>, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood) -&gt; (usize, usize) {
+        <span class="kw">let </span>quiet_streets = neighbourhood
+            .orig_perimeter
+            .interior
+            .iter()
+            .filter(|r| <span class="self">self</span>.count_per_road.get(<span class="kw-2">**</span>r) == <span class="number">0</span>)
+            .count();
+        <span class="kw">let </span>total_streets = neighbourhood.orig_perimeter.interior.len();
+        (quiet_streets, total_streets)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">paths</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">path</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">crosses_road</span>(<span class="ident">r</span>))
-            .<span class="ident">cloned</span>()
-            .<span class="ident">collect</span>();
-        <span class="ident"><span class="self">Self</span>::from_paths</span>(<span class="ident">neighbourhood</span>, <span class="ident">paths</span>)
+    <span class="kw">pub fn </span>subset(<span class="kw-2">&amp;</span><span class="self">self</span>, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood, r: RoadID) -&gt; <span class="self">Self </span>{
+        <span class="kw">let </span>paths = <span class="self">self
+            </span>.paths
+            .iter()
+            .filter(|path| path.crosses_road(r))
+            .cloned()
+            .collect();
+        <span class="self">Self</span>::from_paths(neighbourhood, paths)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_heatmap</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">GeomBatch</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">colorer</span> <span class="op">=</span> <span class="ident">ColorNetwork::no_fading</span>(<span class="ident">app</span>);
-        <span class="ident">colorer</span>.<span class="ident">ranked_roads</span>(<span class="self">self</span>.<span class="ident">count_per_road</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>);
-        <span class="comment">// TODO These two will be on different scales, which may look weird</span>
-        <span class="ident">colorer</span>.<span class="ident">ranked_intersections</span>(<span class="self">self</span>.<span class="ident">count_per_intersection</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">good_to_bad_red</span>);
-        <span class="ident">colorer</span>.<span class="ident">draw</span>.<span class="ident">unzoomed</span>
+    <span class="kw">pub fn </span>draw_heatmap(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; GeomBatch {
+        <span class="kw">let </span><span class="kw-2">mut </span>colorer = ColorNetwork::no_fading(app);
+        colorer.ranked_roads(<span class="self">self</span>.count_per_road.clone(), <span class="kw-2">&amp;</span>app.cs.good_to_bad_red);
+        <span class="comment">// TODO These two will be on different scales, which may look weird
+        </span>colorer.ranked_intersections(<span class="self">self</span>.count_per_intersection.clone(), <span class="kw-2">&amp;</span>app.cs.good_to_bad_red);
+        colorer.draw.unzoomed
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_shortcuts</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Shortcuts</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">edits</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">edits</span>();
-    <span class="comment">// The overall approach: look for all possible paths from an entrance to an exit, only if they</span>
-    <span class="comment">// connect to different major roads.</span>
-    <span class="comment">//</span>
-    <span class="comment">// But an entrance and exit to _what_? If we try to route from the entrance to one cell to the</span>
-    <span class="comment">// exit of another, then the route will make strange U-turns and probably use the perimeter. By</span>
-    <span class="comment">// definition, two cells aren&#39;t reachable without using the perimeter. So restrict our search</span>
-    <span class="comment">// to pairs of entrances/exits in the _same_ cell.</span>
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">requests</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">pub fn </span>find_shortcuts(app: <span class="kw-2">&amp;</span>App, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; Shortcuts {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
+    <span class="kw">let </span>edits = <span class="kw-2">&amp;</span>app.edits();
+    <span class="comment">// The overall approach: look for all possible paths from an entrance to an exit, only if they
+    // connect to different major roads.
+    //
+    // But an entrance and exit to _what_? If we try to route from the entrance to one cell to the
+    // exit of another, then the route will make strange U-turns and probably use the perimeter. By
+    // definition, two cells aren&#39;t reachable without using the perimeter. So restrict our search
+    // to pairs of entrances/exits in the _same_ cell.
+    </span><span class="kw">let </span><span class="kw-2">mut </span>requests = Vec::new();
 
-    <span class="kw">for</span> <span class="ident">cell</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">cells</span> {
-        <span class="kw">let</span> <span class="ident">entrances</span> <span class="op">=</span> <span class="ident">find_entrances_or_exits</span>(<span class="ident">map</span>, <span class="ident">neighbourhood</span>, <span class="ident">cell</span>, <span class="bool-val">true</span>);
-        <span class="kw">let</span> <span class="ident">exits</span> <span class="op">=</span> <span class="ident">find_entrances_or_exits</span>(<span class="ident">map</span>, <span class="ident">neighbourhood</span>, <span class="ident">cell</span>, <span class="bool-val">false</span>);
+    <span class="kw">for </span>cell <span class="kw">in </span><span class="kw-2">&amp;</span>neighbourhood.cells {
+        <span class="kw">let </span>entrances = find_entrances_or_exits(map, neighbourhood, cell, <span class="bool-val">true</span>);
+        <span class="kw">let </span>exits = find_entrances_or_exits(map, neighbourhood, cell, <span class="bool-val">false</span>);
 
-        <span class="kw">for</span> <span class="ident">entrance</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">entrances</span> {
-            <span class="kw">for</span> <span class="ident">exit</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">exits</span> {
-                <span class="comment">// Most of the time, an entrance/exit connects to only &quot;one&quot; major road. But where</span>
-                <span class="comment">// a road name changes, or two major roads meet, we&#39;ll have multiple. If two</span>
-                <span class="comment">// corners meet and share one main road, still consider that a shortcut -- it might</span>
-                <span class="comment">// be a &quot;false positive&quot; or there could be some legitimate reason for a driver to</span>
-                <span class="comment">// attempt the shortcut.</span>
-                <span class="kw">if</span> <span class="ident">entrance</span>.<span class="ident">major_road_names</span> <span class="op">!</span><span class="op">=</span> <span class="ident">exit</span>.<span class="ident">major_road_names</span> {
-                    <span class="ident">requests</span>.<span class="ident">push</span>(<span class="ident">PathRequest::vehicle</span>(
-                        <span class="ident">Position::start</span>(<span class="ident">entrance</span>.<span class="ident">lane</span>),
-                        <span class="ident">Position::end</span>(<span class="ident">exit</span>.<span class="ident">lane</span>, <span class="ident">map</span>),
-                        <span class="ident">PathConstraints::Car</span>,
+        <span class="kw">for </span>entrance <span class="kw">in </span><span class="kw-2">&amp;</span>entrances {
+            <span class="kw">for </span>exit <span class="kw">in </span><span class="kw-2">&amp;</span>exits {
+                <span class="comment">// Most of the time, an entrance/exit connects to only &quot;one&quot; major road. But where
+                // a road name changes, or two major roads meet, we&#39;ll have multiple. If two
+                // corners meet and share one main road, still consider that a shortcut -- it might
+                // be a &quot;false positive&quot; or there could be some legitimate reason for a driver to
+                // attempt the shortcut.
+                </span><span class="kw">if </span>entrance.major_road_names != exit.major_road_names {
+                    requests.push(PathRequest::vehicle(
+                        Position::start(entrance.lane),
+                        Position::end(exit.lane, map),
+                        PathConstraints::Car,
                     ));
                 }
             }
         }
     }
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
-    <span class="ident">edits</span>.<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>params = map.routing_params().clone();
+    edits.update_routing_params(<span class="kw-2">&amp;mut </span>params);
 
-    <span class="comment">// Restrict the pathfinding to the interior of the neighbourhood only. Don&#39;t allow using</span>
-    <span class="comment">// perimeter roads or leaving and re-entering at all.</span>
-    <span class="comment">//</span>
-    <span class="comment">// The point of this view is to show possible detours people might try to take in response to</span>
-    <span class="comment">// one filter. Note the original &quot;demand model&quot; input is bogus anyway; it&#39;s all possible</span>
-    <span class="comment">// entrances and exits to the neighbourhood, without regards for the larger path somebody</span>
-    <span class="comment">// actually wants to take.</span>
-    <span class="ident">params</span>.<span class="ident">avoid_roads</span>.<span class="ident">extend</span>(
-        <span class="ident">map</span>.<span class="ident">all_roads</span>()
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">id</span>)
-            .<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span><span class="op">&gt;</span>()
-            .<span class="ident">difference</span>(<span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span>),
+    <span class="comment">// Restrict the pathfinding to the interior of the neighbourhood only. Don&#39;t allow using
+    // perimeter roads or leaving and re-entering at all.
+    //
+    // The point of this view is to show possible detours people might try to take in response to
+    // one filter. Note the original &quot;demand model&quot; input is bogus anyway; it&#39;s all possible
+    // entrances and exits to the neighbourhood, without regards for the larger path somebody
+    // actually wants to take.
+    </span>params.avoid_roads.extend(
+        map.all_roads()
+            .iter()
+            .map(|r| r.id)
+            .collect::&lt;BTreeSet&lt;RoadID&gt;&gt;()
+            .difference(<span class="kw-2">&amp;</span>neighbourhood.orig_perimeter.interior),
     );
 
-    <span class="comment">// Also can&#39;t use private roads</span>
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
-        <span class="kw">if</span> <span class="op">!</span><span class="ident"><span class="kw">crate</span>::is_driveable</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>), <span class="ident">map</span>) {
-            <span class="ident">params</span>.<span class="ident">avoid_roads</span>.<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+    <span class="comment">// Also can&#39;t use private roads
+    </span><span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>neighbourhood.orig_perimeter.interior {
+        <span class="kw">if </span>!<span class="kw">crate</span>::is_driveable(map.get_r(<span class="kw-2">*</span>r), map) {
+            params.avoid_roads.insert(<span class="kw-2">*</span>r);
         }
     }
 
-    <span class="comment">// TODO Perf: when would it be worth creating a CH? Especially if we could subset just this</span>
-    <span class="comment">// part of the graph, it&#39;d probably be helpful.</span>
-    <span class="kw">let</span> <span class="ident">pathfinder</span> <span class="op">=</span> <span class="ident">Pathfinder::new_dijkstra</span>(<span class="ident">map</span>, <span class="ident">params</span>, <span class="macro">vec!</span>[<span class="ident">PathConstraints::Car</span>], <span class="ident">timer</span>);
-    <span class="kw">let</span> <span class="ident">paths</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathV2</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">timer</span>
-        .<span class="ident">parallelize</span>(
+    <span class="comment">// TODO Perf: when would it be worth creating a CH? Especially if we could subset just this
+    // part of the graph, it&#39;d probably be helpful.
+    </span><span class="kw">let </span>pathfinder = Pathfinder::new_dijkstra(map, params, <span class="macro">vec!</span>[PathConstraints::Car], timer);
+    <span class="kw">let </span>paths: Vec&lt;PathV2&gt; = timer
+        .parallelize(
             <span class="string">&quot;calculate paths between entrances and exits&quot;</span>,
-            <span class="ident">requests</span>,
-            <span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">pathfinder</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>, <span class="ident">map</span>),
+            requests,
+            |req| pathfinder.pathfind_v2(req, map),
         )
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">flatten</span>()
-        .<span class="ident">collect</span>();
+        .into_iter()
+        .flatten()
+        .collect();
 
-    <span class="comment">// TODO Rank the likeliness of each shortcut by</span>
-    <span class="comment">// 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,</span>
-    <span class="comment">//    starting and ending on a specific road that makes sense. (We have to pick the &#39;direction&#39;</span>
-    <span class="comment">//    along the perimeter roads that&#39;s sensible.)</span>
-    <span class="comment">// 2) Comparing that time to the time for cutting through</span>
+    <span class="comment">// TODO Rank the likeliness of each shortcut by
+    // 1) Calculating a path between similar start/endpoints -- travelling along the perimeter,
+    //    starting and ending on a specific road that makes sense. (We have to pick the &#39;direction&#39;
+    //    along the perimeter roads that&#39;s sensible.)
+    // 2) Comparing that time to the time for cutting through
 
-    <span class="ident">Shortcuts::from_paths</span>(<span class="ident">neighbourhood</span>, <span class="ident">paths</span>)
+    </span>Shortcuts::from_paths(neighbourhood, paths)
 }
 
-<span class="kw">struct</span> <span class="ident">EntryExit</span> {
-    <span class="comment">// Really this is a DirectedRoadID, but since the pathfinding request later needs to know</span>
-    <span class="comment">// lanes, just use this</span>
-    <span class="ident">lane</span>: <span class="ident">LaneID</span>,
-    <span class="ident">major_road_names</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
+<span class="kw">struct </span>EntryExit {
+    <span class="comment">// Really this is a DirectedRoadID, but since the pathfinding request later needs to know
+    // lanes, just use this
+    </span>lane: LaneID,
+    major_road_names: BTreeSet&lt;String&gt;,
 }
 
-<span class="kw">fn</span> <span class="ident">find_entrances_or_exits</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-    <span class="ident">cell</span>: <span class="kw-2">&amp;</span><span class="ident">Cell</span>,
-    <span class="ident">entrances</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EntryExit</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">entry_exits</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">cell</span>.<span class="ident">borders</span> {
-        <span class="kw">let</span> <span class="ident">major_road_names</span> <span class="op">=</span> <span class="ident">find_major_road_names</span>(<span class="ident">map</span>, <span class="ident">neighbourhood</span>, <span class="kw-2">*</span><span class="ident">i</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">seen</span>: <span class="ident">HashSet</span><span class="op">&lt;</span><span class="ident">DirectedRoadID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
-        <span class="kw">let</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">entrances</span> {
-            <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">get_outgoing_lanes</span>(<span class="ident">map</span>, <span class="ident">PathConstraints::Car</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">get_incoming_lanes</span>(<span class="ident">map</span>, <span class="ident">PathConstraints::Car</span>)
+<span class="kw">fn </span>find_entrances_or_exits(
+    map: <span class="kw-2">&amp;</span>Map,
+    neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood,
+    cell: <span class="kw-2">&amp;</span>Cell,
+    entrances: bool,
+) -&gt; Vec&lt;EntryExit&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>entry_exits = Vec::new();
+    <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>cell.borders {
+        <span class="kw">let </span>major_road_names = find_major_road_names(map, neighbourhood, <span class="kw-2">*</span>i);
+        <span class="kw">let </span><span class="kw-2">mut </span>seen: HashSet&lt;DirectedRoadID&gt; = HashSet::new();
+        <span class="kw">let </span>lanes = <span class="kw">if </span>entrances {
+            map.get_i(<span class="kw-2">*</span>i).get_outgoing_lanes(map, PathConstraints::Car)
+        } <span class="kw">else </span>{
+            map.get_i(<span class="kw-2">*</span>i).get_incoming_lanes(map, PathConstraints::Car)
         };
-        <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="ident">lanes</span> {
-            <span class="kw">let</span> <span class="ident">dr</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">get_directed_parent</span>();
-            <span class="kw">if</span> <span class="op">!</span><span class="ident">seen</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">dr</span>) <span class="op">&amp;&amp;</span> <span class="ident">cell</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">dr</span>.<span class="ident">road</span>) {
-                <span class="ident">entry_exits</span>.<span class="ident">push</span>(<span class="ident">EntryExit</span> {
-                    <span class="ident">lane</span>: <span class="ident">l</span>,
-                    <span class="ident">major_road_names</span>: <span class="ident">major_road_names</span>.<span class="ident">clone</span>(),
+        <span class="kw">for </span>l <span class="kw">in </span>lanes {
+            <span class="kw">let </span>dr = map.get_l(l).get_directed_parent();
+            <span class="kw">if </span>!seen.contains(<span class="kw-2">&amp;</span>dr) &amp;&amp; cell.roads.contains_key(<span class="kw-2">&amp;</span>dr.road) {
+                entry_exits.push(EntryExit {
+                    lane: l,
+                    major_road_names: major_road_names.clone(),
                 });
-                <span class="ident">seen</span>.<span class="ident">insert</span>(<span class="ident">dr</span>);
+                seen.insert(dr);
             }
         }
     }
-    <span class="ident">entry_exits</span>
+    entry_exits
 }
 
-<span class="kw">fn</span> <span class="ident">find_major_road_names</span>(
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-    <span class="ident">i</span>: <span class="ident">IntersectionID</span>,
-) -&gt; <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">names</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>).<span class="ident">roads</span> {
-        <span class="kw">if</span> <span class="ident">neighbourhood</span>.<span class="ident">perimeter</span>.<span class="ident">contains</span>(<span class="ident">r</span>) {
-            <span class="ident">names</span>.<span class="ident">insert</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">get_name</span>(<span class="prelude-val">None</span>));
+<span class="kw">fn </span>find_major_road_names(
+    map: <span class="kw-2">&amp;</span>Map,
+    neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood,
+    i: IntersectionID,
+) -&gt; BTreeSet&lt;String&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>names = BTreeSet::new();
+    <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>map.get_i(i).roads {
+        <span class="kw">if </span>neighbourhood.perimeter.contains(r) {
+            names.insert(map.get_r(<span class="kw-2">*</span>r).get_name(<span class="prelude-val">None</span>));
         }
     }
-    <span class="ident">names</span>
+    names
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

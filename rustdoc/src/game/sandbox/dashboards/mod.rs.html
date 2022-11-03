@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/dashboards/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -95,102 +95,102 @@
 <span id="95">95</span>
 <span id="96">96</span>
 <span id="97">97</span>
-</pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">use</span> <span class="ident">commuter::CommuterPatterns</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">traffic_signals::TrafficSignalDemand</span>;
+</pre><pre class="rust"><code><span class="kw">pub use </span>commuter::CommuterPatterns;
+<span class="kw">pub use </span>traffic_signals::TrafficSignalDemand;
 
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">Image</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>};
+<span class="kw">use </span>widgetry::{Choice, EventCtx, Image, Line, Panel, State, TextExt, Widget};
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::Transition</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::app::Transition;
 
-<span class="kw">mod</span> <span class="ident">commuter</span>;
-<span class="kw">mod</span> <span class="ident">generic_trip_table</span>;
-<span class="kw">mod</span> <span class="ident">misc</span>;
-<span class="kw">mod</span> <span class="ident">mode_shift</span>;
-<span class="kw">mod</span> <span class="ident">parking_overhead</span>;
-<span class="kw">mod</span> <span class="ident">risks</span>;
-<span class="kw">mod</span> <span class="ident">selector</span>;
-<span class="kw">mod</span> <span class="ident">traffic_signals</span>;
-<span class="kw">mod</span> <span class="ident">travel_times</span>;
-<span class="kw">mod</span> <span class="ident">trip_problems</span>;
-<span class="kw">mod</span> <span class="ident">trip_table</span>;
+<span class="kw">mod </span>commuter;
+<span class="kw">mod </span>generic_trip_table;
+<span class="kw">mod </span>misc;
+<span class="kw">mod </span>mode_shift;
+<span class="kw">mod </span>parking_overhead;
+<span class="kw">mod </span>risks;
+<span class="kw">mod </span>selector;
+<span class="kw">mod </span>traffic_signals;
+<span class="kw">mod </span>travel_times;
+<span class="kw">mod </span>trip_problems;
+<span class="kw">mod </span>trip_table;
 
-<span class="comment">// Oh the dashboards melted, but we still had the radio</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">DashTab</span> {
-    <span class="ident">TripTable</span>,
-    <span class="ident">TravelTimes</span>,
-    <span class="ident">RiskSummaries</span>,
-    <span class="ident">ParkingOverhead</span>,
-    <span class="ident">ActiveTraffic</span>,
-    <span class="ident">TransitRoutes</span>,
-    <span class="ident">CommuterPatterns</span>,
-    <span class="ident">TrafficSignals</span>,
-    <span class="ident">ModeShift</span>,
+<span class="comment">// Oh the dashboards melted, but we still had the radio
+</span><span class="attribute">#[derive(Clone, Copy, PartialEq, Debug)]
+</span><span class="kw">pub enum </span>DashTab {
+    TripTable,
+    TravelTimes,
+    RiskSummaries,
+    ParkingOverhead,
+    ActiveTraffic,
+    TransitRoutes,
+    CommuterPatterns,
+    TrafficSignals,
+    ModeShift,
 }
 
-<span class="kw">impl</span> <span class="ident">DashTab</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">picker</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Trip Table&quot;</span>, <span class="ident">DashTab::TripTable</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Travel Times&quot;</span>, <span class="ident">DashTab::TravelTimes</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Risk Exposure&quot;</span>, <span class="ident">DashTab::RiskSummaries</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Parking Overhead&quot;</span>, <span class="ident">DashTab::ParkingOverhead</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Active Traffic&quot;</span>, <span class="ident">DashTab::ActiveTraffic</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Transit Routes&quot;</span>, <span class="ident">DashTab::TransitRoutes</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Commuter Patterns&quot;</span>, <span class="ident">DashTab::CommuterPatterns</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Traffic Signal Demand&quot;</span>, <span class="ident">DashTab::TrafficSignals</span>),
-            <span class="ident">Choice::new</span>(<span class="string">&quot;Mode shift (experimental)&quot;</span>, <span class="ident">DashTab::ModeShift</span>),
+<span class="kw">impl </span>DashTab {
+    <span class="kw">pub fn </span>picker(<span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">let </span><span class="kw-2">mut </span>choices = <span class="macro">vec!</span>[
+            Choice::new(<span class="string">&quot;Trip Table&quot;</span>, DashTab::TripTable),
+            Choice::new(<span class="string">&quot;Travel Times&quot;</span>, DashTab::TravelTimes),
+            Choice::new(<span class="string">&quot;Risk Exposure&quot;</span>, DashTab::RiskSummaries),
+            Choice::new(<span class="string">&quot;Parking Overhead&quot;</span>, DashTab::ParkingOverhead),
+            Choice::new(<span class="string">&quot;Active Traffic&quot;</span>, DashTab::ActiveTraffic),
+            Choice::new(<span class="string">&quot;Transit Routes&quot;</span>, DashTab::TransitRoutes),
+            Choice::new(<span class="string">&quot;Commuter Patterns&quot;</span>, DashTab::CommuterPatterns),
+            Choice::new(<span class="string">&quot;Traffic Signal Demand&quot;</span>, DashTab::TrafficSignals),
+            Choice::new(<span class="string">&quot;Mode shift (experimental)&quot;</span>, DashTab::ModeShift),
         ];
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">has_prebaked</span>().<span class="ident">is_none</span>() {
-            <span class="ident">choices</span>.<span class="ident">remove</span>(<span class="number">1</span>);
-            <span class="ident">choices</span>.<span class="ident">remove</span>(<span class="number">1</span>);
+        <span class="kw">if </span>app.has_prebaked().is_none() {
+            choices.remove(<span class="number">1</span>);
+            choices.remove(<span class="number">1</span>);
         }
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Image::from_path</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Line</span>(<span class="string">&quot;Data&quot;</span>).<span class="ident">big_heading_plain</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">Widget::dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;tab&quot;</span>, <span class="self">self</span>, <span class="ident">choices</span>),
-            <span class="macro">format!</span>(<span class="string">&quot;By {}&quot;</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>().<span class="ident">ampm_tostring</span>())
-                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>(),
-            <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_close_widget</span>(<span class="ident">ctx</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            Image::from_path(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>).into_widget(ctx),
+            Line(<span class="string">&quot;Data&quot;</span>).big_heading_plain().into_widget(ctx),
+            Widget::dropdown(ctx, <span class="string">&quot;tab&quot;</span>, <span class="self">self</span>, choices),
+            <span class="macro">format!</span>(<span class="string">&quot;By {}&quot;</span>, app.primary.sim.time().ampm_tostring())
+                .text_widget(ctx)
+                .centered_vert(),
+            ctx.style().btn_close_widget(ctx),
         ])
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">launch</span>(<span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">DashTab::TripTable</span> =&gt; <span class="ident">Box::new</span>(<span class="ident">trip_table::TripTable::new</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
-            <span class="ident">DashTab::TravelTimes</span> =&gt; {
-                <span class="ident">travel_times::TravelTimes::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">travel_times::Filter::new</span>())
+    <span class="kw">pub fn </span>launch(<span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        <span class="kw">match </span><span class="self">self </span>{
+            DashTab::TripTable =&gt; Box::new(trip_table::TripTable::new(ctx, app)),
+            DashTab::TravelTimes =&gt; {
+                travel_times::TravelTimes::new_state(ctx, app, travel_times::Filter::new())
             }
-            <span class="ident">DashTab::RiskSummaries</span> =&gt; <span class="ident">risks::RiskSummaries::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="bool-val">false</span>),
-            <span class="ident">DashTab::ParkingOverhead</span> =&gt; <span class="ident">parking_overhead::ParkingOverhead::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">DashTab::ActiveTraffic</span> =&gt; <span class="ident">misc::ActiveTraffic::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">DashTab::TransitRoutes</span> =&gt; <span class="ident">misc::TransitRoutes::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">DashTab::CommuterPatterns</span> =&gt; <span class="ident">CommuterPatterns::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">DashTab::TrafficSignals</span> =&gt; <span class="ident">TrafficSignalDemand::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
-            <span class="ident">DashTab::ModeShift</span> =&gt; <span class="ident">mode_shift::ModeShift::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>),
+            DashTab::RiskSummaries =&gt; risks::RiskSummaries::new_state(ctx, app, <span class="bool-val">false</span>),
+            DashTab::ParkingOverhead =&gt; parking_overhead::ParkingOverhead::new_state(ctx, app),
+            DashTab::ActiveTraffic =&gt; misc::ActiveTraffic::new_state(ctx, app),
+            DashTab::TransitRoutes =&gt; misc::TransitRoutes::new_state(ctx, app),
+            DashTab::CommuterPatterns =&gt; CommuterPatterns::new_state(ctx, app),
+            DashTab::TrafficSignals =&gt; TrafficSignalDemand::new_state(ctx, app),
+            DashTab::ModeShift =&gt; mode_shift::ModeShift::new_state(ctx, app),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">tab_changed</span>(<span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">DashTab</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">tab</span>: <span class="ident">DashTab</span> <span class="op">=</span> <span class="ident">panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;tab&quot;</span>);
-        <span class="kw">if</span> <span class="ident">tab</span> <span class="op">==</span> <span class="self">self</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>;
+    <span class="kw">pub fn </span>tab_changed(<span class="self">self</span>, app: <span class="kw-2">&amp;mut </span>App, panel: <span class="kw-2">&amp;</span>Panel) -&gt; <span class="prelude-ty">Option</span>&lt;DashTab&gt; {
+        <span class="kw">let </span>tab: DashTab = panel.dropdown_value(<span class="string">&quot;tab&quot;</span>);
+        <span class="kw">if </span>tab == <span class="self">self </span>{
+            <span class="kw">return </span><span class="prelude-val">None</span>;
         }
-        <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">dash_tab</span> <span class="op">=</span> <span class="ident">tab</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">tab</span>)
+        app.session.dash_tab = tab;
+        <span class="prelude-val">Some</span>(tab)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transition</span>(
+    <span class="kw">pub fn </span>transition(
         <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">tab</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">tab_changed</span>(<span class="ident">app</span>, <span class="ident">panel</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">tab</span>.<span class="ident">launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)))
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        panel: <span class="kw-2">&amp;</span>Panel,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="kw">let </span>tab = <span class="self">self</span>.tab_changed(app, panel)<span class="question-mark">?</span>;
+        <span class="prelude-val">Some</span>(Transition::Replace(tab.launch(ctx, app)))
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

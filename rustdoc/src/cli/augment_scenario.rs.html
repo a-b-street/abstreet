@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/augment_scenario.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>augment_scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `cli/src/augment_scenario.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>augment_scenario.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../cli/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../cli/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -157,164 +157,164 @@
 <span id="157">157</span>
 <span id="158">158</span>
 <span id="159">159</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rand::prelude::SliceRandom</span>;
-<span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>rand::prelude::SliceRandom;
+<span class="kw">use </span>rand::{Rng, SeedableRng};
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">prettyprint_usize</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">FindClosest</span>};
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AmenityType</span>, <span class="ident">BuildingID</span>, <span class="ident">Map</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">IndividTrip</span>, <span class="ident">Scenario</span>, <span class="ident">ScenarioModifier</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>, <span class="ident">TripPurpose</span>};
+<span class="kw">use </span>abstutil::{prettyprint_usize, Timer};
+<span class="kw">use </span>geom::{Distance, Duration, FindClosest};
+<span class="kw">use </span>map_model::{AmenityType, BuildingID, Map};
+<span class="kw">use </span>synthpop::{IndividTrip, Scenario, ScenarioModifier, TripEndpoint, TripMode, TripPurpose};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(
-    <span class="ident">input_scenario</span>: <span class="ident">String</span>,
-    <span class="ident">should_add_return_trips</span>: <span class="ident">bool</span>,
-    <span class="ident">should_add_lunch_trips</span>: <span class="ident">bool</span>,
-    <span class="ident">modifiers</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ScenarioModifier</span><span class="op">&gt;</span>,
-    <span class="ident">should_delete_cancelled_trips</span>: <span class="ident">bool</span>,
-    <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
+<span class="kw">pub fn </span>run(
+    input_scenario: String,
+    should_add_return_trips: bool,
+    should_add_lunch_trips: bool,
+    modifiers: Vec&lt;ScenarioModifier&gt;,
+    should_delete_cancelled_trips: bool,
+    rng_seed: u64,
 ) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="ident">rng_seed</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">timer</span> <span class="op">=</span> <span class="ident">Timer::new</span>(<span class="string">&quot;augment scenario&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>rng = XorShiftRng::seed_from_u64(rng_seed);
+    <span class="kw">let </span><span class="kw-2">mut </span>timer = Timer::new(<span class="string">&quot;augment scenario&quot;</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span> <span class="op">=</span> <span class="ident">abstio::must_read_object</span>(<span class="ident">input_scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">Map::load_synchronously</span>(<span class="ident">scenario</span>.<span class="ident">map_name</span>.<span class="ident">path</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>scenario: Scenario = abstio::must_read_object(input_scenario, <span class="kw-2">&amp;mut </span>timer);
+    <span class="kw">let </span>map = Map::load_synchronously(scenario.map_name.path(), <span class="kw-2">&amp;mut </span>timer);
 
-    <span class="kw">if</span> <span class="ident">should_add_return_trips</span> {
-        <span class="ident">add_return_trips</span>(<span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+    <span class="kw">if </span>should_add_return_trips {
+        add_return_trips(<span class="kw-2">&amp;mut </span>scenario, <span class="kw-2">&amp;mut </span>rng);
     }
-    <span class="kw">if</span> <span class="ident">should_add_lunch_trips</span> {
-        <span class="ident">add_lunch_trips</span>(<span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;mut</span> <span class="ident">timer</span>);
-    }
-
-    <span class="kw">for</span> <span class="ident">m</span> <span class="kw">in</span> <span class="ident">modifiers</span> {
-        <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">m</span>.<span class="ident">apply</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>, <span class="ident">scenario</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+    <span class="kw">if </span>should_add_lunch_trips {
+        add_lunch_trips(<span class="kw-2">&amp;mut </span>scenario, <span class="kw-2">&amp;</span>map, <span class="kw-2">&amp;mut </span>rng, <span class="kw-2">&amp;mut </span>timer);
     }
 
-    <span class="kw">if</span> <span class="ident">should_delete_cancelled_trips</span> {
-        <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">delete_cancelled_trips</span>(<span class="ident">scenario</span>);
+    <span class="kw">for </span>m <span class="kw">in </span>modifiers {
+        scenario = m.apply(<span class="kw-2">&amp;</span>map, scenario, <span class="kw-2">&amp;mut </span>rng);
     }
 
-    <span class="ident">scenario</span>.<span class="ident">save</span>();
+    <span class="kw">if </span>should_delete_cancelled_trips {
+        scenario = delete_cancelled_trips(scenario);
+    }
+
+    scenario.save();
 }
 
-<span class="kw">fn</span> <span class="ident">add_return_trips</span>(<span class="ident">scenario</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scenario</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>.<span class="ident">people</span> {
-        <span class="kw">if</span> <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
+<span class="kw">fn </span>add_return_trips(scenario: <span class="kw-2">&amp;mut </span>Scenario, rng: <span class="kw-2">&amp;mut </span>XorShiftRng) {
+    <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
+    <span class="kw">for </span>person <span class="kw">in </span><span class="kw-2">&amp;mut </span>scenario.people {
+        <span class="kw">if </span>person.trips.len() != <span class="number">1 </span>{
             <span class="kw">continue</span>;
         }
 
-        <span class="comment">// Assume a uniform distribution of 4-12 hour workday</span>
-        <span class="kw">let</span> <span class="ident">depart</span> <span class="op">=</span>
-            <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">depart</span> <span class="op">+</span> <span class="ident">rand_duration</span>(<span class="ident">rng</span>, <span class="ident">Duration::hours</span>(<span class="number">4</span>), <span class="ident">Duration::hours</span>(<span class="number">12</span>));
-        <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip::new</span>(
-            <span class="ident">depart</span>,
-            <span class="ident">TripPurpose::Home</span>,
-            <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">destination</span>,
-            <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">origin</span>,
-            <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">mode</span>,
+        <span class="comment">// Assume a uniform distribution of 4-12 hour workday
+        </span><span class="kw">let </span>depart =
+            person.trips[<span class="number">0</span>].depart + rand_duration(rng, Duration::hours(<span class="number">4</span>), Duration::hours(<span class="number">12</span>));
+        person.trips.push(IndividTrip::new(
+            depart,
+            TripPurpose::Home,
+            person.trips[<span class="number">0</span>].destination,
+            person.trips[<span class="number">0</span>].origin,
+            person.trips[<span class="number">0</span>].mode,
         ));
-        <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        cnt += <span class="number">1</span>;
     }
-    <span class="macro">info!</span>(<span class="string">&quot;Added return trips to {} people&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">cnt</span>));
+    <span class="macro">info!</span>(<span class="string">&quot;Added return trips to {} people&quot;</span>, prettyprint_usize(cnt));
 }
 
-<span class="kw">fn</span> <span class="ident">rand_duration</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">low</span>: <span class="ident">Duration</span>, <span class="ident">high</span>: <span class="ident">Duration</span>) -&gt; <span class="ident">Duration</span> {
-    <span class="ident">Duration::seconds</span>(<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="ident">low</span>.<span class="ident">inner_seconds</span>()..<span class="ident">high</span>.<span class="ident">inner_seconds</span>()))
+<span class="kw">fn </span>rand_duration(rng: <span class="kw-2">&amp;mut </span>XorShiftRng, low: Duration, high: Duration) -&gt; Duration {
+    Duration::seconds(rng.gen_range(low.inner_seconds()..high.inner_seconds()))
 }
 
-<span class="kw">fn</span> <span class="ident">add_lunch_trips</span>(<span class="ident">scenario</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scenario</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="comment">// First let&#39;s build up a quadtree of lunch spots.</span>
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;index lunch spots&quot;</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_spots</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">FindClosest::new</span>(<span class="ident">map</span>.<span class="ident">get_bounds</span>());
-    <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">all_buildings</span>() {
-        <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">amenities</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">any</span>(<span class="op">|</span><span class="ident">a</span><span class="op">|</span> <span class="ident">AmenityType::categorize</span>(<span class="kw-2">&amp;</span><span class="ident">a</span>.<span class="ident">amenity_type</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">AmenityType::Food</span>))
+<span class="kw">fn </span>add_lunch_trips(scenario: <span class="kw-2">&amp;mut </span>Scenario, map: <span class="kw-2">&amp;</span>Map, rng: <span class="kw-2">&amp;mut </span>XorShiftRng, timer: <span class="kw-2">&amp;mut </span>Timer) {
+    <span class="comment">// First let&#39;s build up a quadtree of lunch spots.
+    </span>timer.start(<span class="string">&quot;index lunch spots&quot;</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>closest_spots: FindClosest&lt;BuildingID&gt; = FindClosest::new(map.get_bounds());
+    <span class="kw">for </span>b <span class="kw">in </span>map.all_buildings() {
+        <span class="kw">if </span>b.amenities
+            .iter()
+            .any(|a| AmenityType::categorize(<span class="kw-2">&amp;</span>a.amenity_type) == <span class="prelude-val">Some</span>(AmenityType::Food))
         {
-            <span class="ident">closest_spots</span>.<span class="ident">add_polygon</span>(<span class="ident">b</span>.<span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">polygon</span>);
+            closest_spots.add_polygon(b.id, <span class="kw-2">&amp;</span>b.polygon);
         }
     }
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;index lunch spots&quot;</span>);
+    timer.stop(<span class="string">&quot;index lunch spots&quot;</span>);
 
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;add lunch trips&quot;</span>, <span class="ident">scenario</span>.<span class="ident">people</span>.<span class="ident">len</span>());
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cnt</span> <span class="op">=</span> <span class="number">0</span>;
-    <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>.<span class="ident">people</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">let</span> <span class="ident">num_trips</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">len</span>();
-        <span class="comment">// Only handle people with their final trip going back home.</span>
-        <span class="kw">if</span> <span class="ident">num_trips</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1</span> <span class="op">|</span><span class="op">|</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">destination</span> <span class="op">!</span><span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="number">0</span>].<span class="ident">origin</span> {
+    timer.start_iter(<span class="string">&quot;add lunch trips&quot;</span>, scenario.people.len());
+    <span class="kw">let </span><span class="kw-2">mut </span>cnt = <span class="number">0</span>;
+    <span class="kw">for </span>person <span class="kw">in </span><span class="kw-2">&amp;mut </span>scenario.people {
+        timer.next();
+        <span class="kw">let </span>num_trips = person.trips.len();
+        <span class="comment">// Only handle people with their final trip going back home.
+        </span><span class="kw">if </span>num_trips &lt;= <span class="number">1 </span>|| person.trips[num_trips - <span class="number">1</span>].destination != person.trips[<span class="number">0</span>].origin {
             <span class="kw">continue</span>;
         }
 
-        <span class="kw">let</span> <span class="ident">work</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">2</span>].<span class="ident">destination</span> {
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="ident">b</span>,
-            <span class="kw">_</span> =&gt; <span class="kw">continue</span>,
+        <span class="kw">let </span>work = <span class="kw">match </span>person.trips[num_trips - <span class="number">2</span>].destination {
+            TripEndpoint::Building(b) =&gt; b,
+            <span class="kw">_ </span>=&gt; <span class="kw">continue</span>,
         };
-        <span class="kw">let</span> <span class="ident">has_bike</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">2</span>].<span class="ident">mode</span> <span class="op">==</span> <span class="ident">TripMode::Bike</span>;
-        <span class="kw">let</span> (<span class="ident">restaurant</span>, <span class="ident">mode</span>) <span class="op">=</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pair</span>) <span class="op">=</span> <span class="ident">pick_lunch_spot</span>(<span class="ident">work</span>, <span class="ident">has_bike</span>, <span class="kw-2">&amp;</span><span class="ident">closest_spots</span>, <span class="ident">map</span>, <span class="ident">rng</span>) {
-                <span class="ident">pair</span>
-            } <span class="kw">else</span> {
+        <span class="kw">let </span>has_bike = person.trips[num_trips - <span class="number">2</span>].mode == TripMode::Bike;
+        <span class="kw">let </span>(restaurant, mode) =
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(pair) = pick_lunch_spot(work, has_bike, <span class="kw-2">&amp;</span>closest_spots, map, rng) {
+                pair
+            } <span class="kw">else </span>{
                 <span class="kw">continue</span>;
             };
 
-        <span class="comment">// Insert the break in the middle of their workday</span>
-        <span class="kw">let</span> <span class="ident">t1</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">2</span>].<span class="ident">depart</span>;
-        <span class="kw">let</span> <span class="ident">t2</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>[<span class="ident">num_trips</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">depart</span>;
-        <span class="kw">let</span> <span class="ident">depart</span> <span class="op">=</span> <span class="ident">t1</span> <span class="op">+</span> (<span class="ident">t2</span> <span class="op">-</span> <span class="ident">t1</span>) <span class="op">/</span> <span class="number">2.0</span>;
-        <span class="kw">let</span> <span class="ident">return_home</span> <span class="op">=</span> <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>();
-        <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip::new</span>(
-            <span class="ident">depart</span>,
-            <span class="ident">TripPurpose::Meal</span>,
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">work</span>),
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">restaurant</span>),
-            <span class="ident">mode</span>,
+        <span class="comment">// Insert the break in the middle of their workday
+        </span><span class="kw">let </span>t1 = person.trips[num_trips - <span class="number">2</span>].depart;
+        <span class="kw">let </span>t2 = person.trips[num_trips - <span class="number">1</span>].depart;
+        <span class="kw">let </span>depart = t1 + (t2 - t1) / <span class="number">2.0</span>;
+        <span class="kw">let </span>return_home = person.trips.pop().unwrap();
+        person.trips.push(IndividTrip::new(
+            depart,
+            TripPurpose::Meal,
+            TripEndpoint::Building(work),
+            TripEndpoint::Building(restaurant),
+            mode,
         ));
-        <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">IndividTrip::new</span>(
-            <span class="ident">depart</span> <span class="op">+</span> <span class="ident">Duration::minutes</span>(<span class="number">30</span>),
-            <span class="ident">TripPurpose::Work</span>,
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">restaurant</span>),
-            <span class="ident">TripEndpoint::Building</span>(<span class="ident">work</span>),
-            <span class="ident">mode</span>,
+        person.trips.push(IndividTrip::new(
+            depart + Duration::minutes(<span class="number">30</span>),
+            TripPurpose::Work,
+            TripEndpoint::Building(restaurant),
+            TripEndpoint::Building(work),
+            mode,
         ));
-        <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">push</span>(<span class="ident">return_home</span>);
-        <span class="ident">cnt</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        person.trips.push(return_home);
+        cnt += <span class="number">1</span>;
     }
-    <span class="macro">info!</span>(<span class="string">&quot;Added lunch trips to {} people&quot;</span>, <span class="ident">prettyprint_usize</span>(<span class="ident">cnt</span>));
+    <span class="macro">info!</span>(<span class="string">&quot;Added lunch trips to {} people&quot;</span>, prettyprint_usize(cnt));
 }
 
-<span class="kw">fn</span> <span class="ident">pick_lunch_spot</span>(
-    <span class="ident">work</span>: <span class="ident">BuildingID</span>,
-    <span class="ident">has_bike</span>: <span class="ident">bool</span>,
-    <span class="ident">closest_spots</span>: <span class="kw-2">&amp;</span><span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">BuildingID</span><span class="op">&gt;</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">XorShiftRng</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">BuildingID</span>, <span class="ident">TripMode</span>)<span class="op">&gt;</span> {
-    <span class="comment">// We have a list of candidate shops and the Euclidean distance there. Use that distance to</span>
-    <span class="comment">// make a weighted choice.</span>
-    <span class="kw">let</span> <span class="ident">choices</span> <span class="op">=</span>
-        <span class="ident">closest_spots</span>.<span class="ident">all_close_pts</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">work</span>).<span class="ident">polygon</span>.<span class="ident">center</span>(), <span class="ident">Distance::miles</span>(<span class="number">10.0</span>));
-    <span class="kw">let</span> (<span class="ident">b</span>, <span class="kw">_</span>, <span class="ident">dist</span>) <span class="op">=</span> <span class="ident">choices</span>
-        .<span class="ident">choose_weighted</span>(<span class="ident">rng</span>, <span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">dist</span>)<span class="op">|</span> <span class="ident">dist</span>.<span class="ident">inner_meters</span>())
-        .<span class="ident">ok</span>()<span class="question-mark">?</span>;
-    <span class="comment">// Simple hardcoded mode thresholds for now</span>
-    <span class="kw">let</span> <span class="ident">mode</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">dist</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">Distance::miles</span>(<span class="number">1.0</span>) {
-        <span class="ident">TripMode::Walk</span>
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">has_bike</span> {
-        <span class="ident">TripMode::Bike</span>
-    } <span class="kw">else</span> {
-        <span class="ident">TripMode::Drive</span>
+<span class="kw">fn </span>pick_lunch_spot(
+    work: BuildingID,
+    has_bike: bool,
+    closest_spots: <span class="kw-2">&amp;</span>FindClosest&lt;BuildingID&gt;,
+    map: <span class="kw-2">&amp;</span>Map,
+    rng: <span class="kw-2">&amp;mut </span>XorShiftRng,
+) -&gt; <span class="prelude-ty">Option</span>&lt;(BuildingID, TripMode)&gt; {
+    <span class="comment">// We have a list of candidate shops and the Euclidean distance there. Use that distance to
+    // make a weighted choice.
+    </span><span class="kw">let </span>choices =
+        closest_spots.all_close_pts(map.get_b(work).polygon.center(), Distance::miles(<span class="number">10.0</span>));
+    <span class="kw">let </span>(b, <span class="kw">_</span>, dist) = choices
+        .choose_weighted(rng, |(<span class="kw">_</span>, <span class="kw">_</span>, dist)| dist.inner_meters())
+        .ok()<span class="question-mark">?</span>;
+    <span class="comment">// Simple hardcoded mode thresholds for now
+    </span><span class="kw">let </span>mode = <span class="kw">if </span><span class="kw-2">*</span>dist &lt;= Distance::miles(<span class="number">1.0</span>) {
+        TripMode::Walk
+    } <span class="kw">else if </span>has_bike {
+        TripMode::Bike
+    } <span class="kw">else </span>{
+        TripMode::Drive
     };
-    <span class="prelude-val">Some</span>((<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">mode</span>))
+    <span class="prelude-val">Some</span>((<span class="kw-2">*</span>b, mode))
 }
 
-<span class="kw">fn</span> <span class="ident">delete_cancelled_trips</span>(<span class="kw-2">mut</span> <span class="ident">scenario</span>: <span class="ident">Scenario</span>) -&gt; <span class="ident">Scenario</span> {
-    <span class="kw">for</span> <span class="ident">person</span> <span class="kw">in</span> <span class="kw-2">&amp;mut</span> <span class="ident">scenario</span>.<span class="ident">people</span> {
-        <span class="ident">person</span>.<span class="ident">trips</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">trip</span><span class="op">|</span> <span class="op">!</span><span class="ident">trip</span>.<span class="ident">cancelled</span>);
+<span class="kw">fn </span>delete_cancelled_trips(<span class="kw-2">mut </span>scenario: Scenario) -&gt; Scenario {
+    <span class="kw">for </span>person <span class="kw">in </span><span class="kw-2">&amp;mut </span>scenario.people {
+        person.trips.retain(|trip| !trip.cancelled);
     }
-    <span class="ident">scenario</span>.<span class="ident">remove_weird_schedules</span>(<span class="bool-val">false</span>)
+    scenario.remove_weird_schedules(<span class="bool-val">false</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="cli" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/screen_geom.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>screen_geom.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/screen_geom.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>screen_geom.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -214,221 +214,221 @@
 <span id="214">214</span>
 <span id="215">215</span>
 <span id="216">216</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</pre><pre class="rust"><code><span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">trim_f64</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
+<span class="kw">use </span>geom::{trim_f64, Polygon, Pt2D};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Canvas</span>, <span class="ident">EdgeInsets</span>};
+<span class="kw">use crate</span>::{Canvas, EdgeInsets};
 
-<span class="doccomment">/// ScreenPt is in units of logical pixels, as opposed to physical pixels.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ScreenPt</span> {
-    <span class="kw">pub</span> <span class="ident">x</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">y</span>: <span class="ident">f64</span>,
+<span class="doccomment">/// ScreenPt is in units of logical pixels, as opposed to physical pixels.
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq)]
+</span><span class="kw">pub struct </span>ScreenPt {
+    <span class="kw">pub </span>x: f64,
+    <span class="kw">pub </span>y: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">ScreenPt</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) -&gt; <span class="ident">ScreenPt</span> {
-        <span class="ident">ScreenPt</span> { <span class="ident">x</span>, <span class="ident">y</span> }
+<span class="kw">impl </span>ScreenPt {
+    <span class="kw">pub fn </span>new(x: f64, y: f64) -&gt; ScreenPt {
+        ScreenPt { x, y }
     }
 
-    <span class="comment">// The geom layer operates in map-space, but currently reusing lots of geom abstractions for</span>
-    <span class="comment">// screen-space.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_pt</span>(<span class="self">self</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">x</span>, <span class="self">self</span>.<span class="ident">y</span>)
+    <span class="comment">// The geom layer operates in map-space, but currently reusing lots of geom abstractions for
+    // screen-space.
+    </span><span class="kw">pub fn </span>to_pt(<span class="self">self</span>) -&gt; Pt2D {
+        Pt2D::new(<span class="self">self</span>.x, <span class="self">self</span>.y)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> { <span class="ident">x</span>: <span class="number">0.0</span>, <span class="ident">y</span>: <span class="number">0.0</span> }
+    <span class="kw">pub fn </span>zero() -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{ x: <span class="number">0.0</span>, y: <span class="number">0.0 </span>}
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">translated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">x</span>: <span class="self">self</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">x</span>,
-            <span class="ident">y</span>: <span class="self">self</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">y</span>,
+    <span class="kw">pub fn </span>translated(<span class="kw-2">&amp;</span><span class="self">self</span>, x: f64, y: f64) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            x: <span class="self">self</span>.x + x,
+            y: <span class="self">self</span>.y + y,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">winit::dpi::LogicalPosition</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenPt</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">lp</span>: <span class="ident">winit::dpi::LogicalPosition</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="ident">ScreenPt</span> {
-        <span class="ident">ScreenPt</span> { <span class="ident">x</span>: <span class="ident">lp</span>.<span class="ident">x</span>, <span class="ident">y</span>: <span class="ident">lp</span>.<span class="ident">y</span> }
+<span class="kw">impl </span>From&lt;winit::dpi::LogicalPosition&lt;f64&gt;&gt; <span class="kw">for </span>ScreenPt {
+    <span class="kw">fn </span>from(lp: winit::dpi::LogicalPosition&lt;f64&gt;) -&gt; ScreenPt {
+        ScreenPt { x: lp.x, y: lp.y }
     }
 }
 
-<span class="doccomment">/// ScreenRectangle is in units of logical pixels, as opposed to physical pixels.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ScreenRectangle</span> {
-    <span class="kw">pub</span> <span class="ident">x1</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">y1</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">x2</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">y2</span>: <span class="ident">f64</span>,
+<span class="doccomment">/// ScreenRectangle is in units of logical pixels, as opposed to physical pixels.
+</span><span class="attribute">#[derive(Clone, Debug)]
+</span><span class="kw">pub struct </span>ScreenRectangle {
+    <span class="kw">pub </span>x1: f64,
+    <span class="kw">pub </span>y1: f64,
+    <span class="kw">pub </span>x2: f64,
+    <span class="kw">pub </span>y2: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">ScreenRectangle</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">top_left</span>(<span class="ident">top_left</span>: <span class="ident">ScreenPt</span>, <span class="ident">dims</span>: <span class="ident">ScreenDims</span>) -&gt; <span class="ident">ScreenRectangle</span> {
-        <span class="ident">ScreenRectangle</span> {
-            <span class="ident">x1</span>: <span class="ident">top_left</span>.<span class="ident">x</span>,
-            <span class="ident">y1</span>: <span class="ident">top_left</span>.<span class="ident">y</span>,
-            <span class="ident">x2</span>: <span class="ident">top_left</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">dims</span>.<span class="ident">width</span>,
-            <span class="ident">y2</span>: <span class="ident">top_left</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">dims</span>.<span class="ident">height</span>,
+<span class="kw">impl </span>ScreenRectangle {
+    <span class="kw">pub fn </span>top_left(top_left: ScreenPt, dims: ScreenDims) -&gt; ScreenRectangle {
+        ScreenRectangle {
+            x1: top_left.x,
+            y1: top_left.y,
+            x2: top_left.x + dims.width,
+            y2: top_left.y + dims.height,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">placeholder</span>() -&gt; <span class="ident">ScreenRectangle</span> {
-        <span class="ident">ScreenRectangle</span> {
-            <span class="ident">x1</span>: <span class="number">0.0</span>,
-            <span class="ident">y1</span>: <span class="number">0.0</span>,
-            <span class="ident">x2</span>: <span class="number">0.0</span>,
-            <span class="ident">y2</span>: <span class="number">0.0</span>,
+    <span class="kw">pub fn </span>placeholder() -&gt; ScreenRectangle {
+        ScreenRectangle {
+            x1: <span class="number">0.0</span>,
+            y1: <span class="number">0.0</span>,
+            x2: <span class="number">0.0</span>,
+            y2: <span class="number">0.0</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">pt</span>.<span class="ident">x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">x1</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">x2</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">y1</span> <span class="op">&amp;&amp;</span> <span class="ident">pt</span>.<span class="ident">y</span> <span class="op">&lt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">y2</span>
+    <span class="kw">pub fn </span>contains(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: ScreenPt) -&gt; bool {
+        pt.x &gt;= <span class="self">self</span>.x1 &amp;&amp; pt.x &lt;= <span class="self">self</span>.x2 &amp;&amp; pt.y &gt;= <span class="self">self</span>.y1 &amp;&amp; pt.y &lt;= <span class="self">self</span>.y2
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pt_to_percent</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pt</span>: <span class="ident">ScreenPt</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">contains</span>(<span class="ident">pt</span>) {
+    <span class="kw">pub fn </span>pt_to_percent(<span class="kw-2">&amp;</span><span class="self">self</span>, pt: ScreenPt) -&gt; <span class="prelude-ty">Option</span>&lt;(f64, f64)&gt; {
+        <span class="kw">if </span><span class="self">self</span>.contains(pt) {
             <span class="prelude-val">Some</span>((
-                (<span class="ident">pt</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">x1</span>) <span class="op">/</span> <span class="self">self</span>.<span class="ident">width</span>(),
-                (<span class="ident">pt</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">y1</span>) <span class="op">/</span> <span class="self">self</span>.<span class="ident">height</span>(),
+                (pt.x - <span class="self">self</span>.x1) / <span class="self">self</span>.width(),
+                (pt.y - <span class="self">self</span>.y1) / <span class="self">self</span>.height(),
             ))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
-        }
+        } <span class="kw">else </span>{
+            <span class="prelude-val">None
+        </span>}
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">percent_to_pt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">x</span>: <span class="ident">f64</span>, <span class="ident">y</span>: <span class="ident">f64</span>) -&gt; <span class="ident">ScreenPt</span> {
-        <span class="ident">ScreenPt::new</span>(<span class="self">self</span>.<span class="ident">x1</span> <span class="op">+</span> <span class="ident">x</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">width</span>(), <span class="self">self</span>.<span class="ident">y1</span> <span class="op">+</span> <span class="ident">y</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">height</span>())
-    }
-
-    <span class="comment">// TODO Remove these in favor of dims()</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">width</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">x2</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">x1</span>
+    <span class="kw">pub fn </span>percent_to_pt(<span class="kw-2">&amp;</span><span class="self">self</span>, x: f64, y: f64) -&gt; ScreenPt {
+        ScreenPt::new(<span class="self">self</span>.x1 + x * <span class="self">self</span>.width(), <span class="self">self</span>.y1 + y * <span class="self">self</span>.height())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">height</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">f64</span> {
-        <span class="self">self</span>.<span class="ident">y2</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">y1</span>
+    <span class="comment">// TODO Remove these in favor of dims()
+    </span><span class="kw">pub fn </span>width(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.x2 - <span class="self">self</span>.x1
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dims</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="ident">ScreenDims::new</span>(<span class="self">self</span>.<span class="ident">x2</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">x1</span>, <span class="self">self</span>.<span class="ident">y2</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">y1</span>)
+    <span class="kw">pub fn </span>height(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; f64 {
+        <span class="self">self</span>.y2 - <span class="self">self</span>.y1
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">center</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">ScreenPt</span> {
-        <span class="ident">ScreenPt::new</span>((<span class="self">self</span>.<span class="ident">x1</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">x2</span>) <span class="op">/</span> <span class="number">2.0</span>, (<span class="self">self</span>.<span class="ident">y1</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">y2</span>) <span class="op">/</span> <span class="number">2.0</span>)
+    <span class="kw">pub fn </span>dims(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenDims {
+        ScreenDims::new(<span class="self">self</span>.x2 - <span class="self">self</span>.x1, <span class="self">self</span>.y2 - <span class="self">self</span>.y1)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_polygon</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Polygon</span> {
-        <span class="ident">Polygon::rectangle</span>(<span class="self">self</span>.<span class="ident">width</span>(), <span class="self">self</span>.<span class="ident">height</span>()).<span class="ident">translate</span>(<span class="self">self</span>.<span class="ident">x1</span>, <span class="self">self</span>.<span class="ident">y1</span>)
+    <span class="kw">pub fn </span>center(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; ScreenPt {
+        ScreenPt::new((<span class="self">self</span>.x1 + <span class="self">self</span>.x2) / <span class="number">2.0</span>, (<span class="self">self</span>.y1 + <span class="self">self</span>.y2) / <span class="number">2.0</span>)
+    }
+
+    <span class="kw">pub fn </span>to_polygon(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Polygon {
+        Polygon::rectangle(<span class="self">self</span>.width(), <span class="self">self</span>.height()).translate(<span class="self">self</span>.x1, <span class="self">self</span>.y1)
     }
 }
 
-<span class="comment">// REVIEW: Rename to something shorter? e.g. Dims / Size</span>
-<span class="doccomment">/// ScreenDims is in units of logical pixels, as opposed to physical pixels.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ScreenDims</span> {
-    <span class="kw">pub</span> <span class="ident">width</span>: <span class="ident">f64</span>,
-    <span class="kw">pub</span> <span class="ident">height</span>: <span class="ident">f64</span>,
+<span class="comment">// REVIEW: Rename to something shorter? e.g. Dims / Size
+</span><span class="doccomment">/// ScreenDims is in units of logical pixels, as opposed to physical pixels.
+</span><span class="attribute">#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>ScreenDims {
+    <span class="kw">pub </span>width: f64,
+    <span class="kw">pub </span>height: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">ScreenDims</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">width</span>: <span class="ident">f64</span>, <span class="ident">height</span>: <span class="ident">f64</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="ident">ScreenDims</span> {
-            <span class="ident">width</span>: <span class="ident">trim_f64</span>(<span class="ident">width</span>),
-            <span class="ident">height</span>: <span class="ident">trim_f64</span>(<span class="ident">height</span>),
+<span class="kw">impl </span>ScreenDims {
+    <span class="kw">pub fn </span>new(width: f64, height: f64) -&gt; ScreenDims {
+        ScreenDims {
+            width: trim_f64(width),
+            height: trim_f64(height),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">zero</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">ScreenDims</span> {
-            <span class="ident">width</span>: <span class="number">0.0</span>,
-            <span class="ident">height</span>: <span class="number">0.0</span>,
+    <span class="kw">pub fn </span>zero() -&gt; <span class="self">Self </span>{
+        ScreenDims {
+            width: <span class="number">0.0</span>,
+            height: <span class="number">0.0</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">square</span>(<span class="ident">square</span>: <span class="ident">f64</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident"><span class="self">Self</span>::new</span>(<span class="ident">square</span>, <span class="ident">square</span>)
+    <span class="kw">pub fn </span>square(square: f64) -&gt; <span class="self">Self </span>{
+        <span class="self">Self</span>::new(square, square)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">pad</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">edge_insets</span>: <span class="ident">EdgeInsets</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">width</span>: <span class="self">self</span>.<span class="ident">width</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">left</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">right</span>,
-            <span class="ident">height</span>: <span class="self">self</span>.<span class="ident">height</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">top</span> <span class="op">+</span> <span class="ident">edge_insets</span>.<span class="ident">bottom</span>,
+    <span class="kw">pub fn </span>pad(<span class="kw-2">&amp;</span><span class="self">self</span>, edge_insets: EdgeInsets) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            width: <span class="self">self</span>.width + edge_insets.left + edge_insets.right,
+            height: <span class="self">self</span>.height + edge_insets.top + edge_insets.bottom,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">top_left_for_corner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">corner</span>: <span class="ident">ScreenPt</span>, <span class="ident">canvas</span>: <span class="kw-2">&amp;</span><span class="ident">Canvas</span>) -&gt; <span class="ident">ScreenPt</span> {
-        <span class="comment">// TODO Ideally also avoid covered canvas areas</span>
-        <span class="kw">if</span> <span class="ident">corner</span>.<span class="ident">x</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">width</span> <span class="op">&lt;</span> <span class="ident">canvas</span>.<span class="ident">window_width</span> {
-            <span class="comment">// corner.x is the left corner</span>
-            <span class="kw">if</span> <span class="ident">corner</span>.<span class="ident">y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">height</span> <span class="op">&lt;</span> <span class="ident">canvas</span>.<span class="ident">window_height</span> {
-                <span class="comment">// corner.y is the top corner</span>
-                <span class="ident">corner</span>
-            } <span class="kw">else</span> {
-                <span class="comment">// corner.y is the bottom corner</span>
-                <span class="ident">ScreenPt::new</span>(<span class="ident">corner</span>.<span class="ident">x</span>, <span class="ident">corner</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">height</span>)
+    <span class="kw">pub fn </span>top_left_for_corner(<span class="kw-2">&amp;</span><span class="self">self</span>, corner: ScreenPt, canvas: <span class="kw-2">&amp;</span>Canvas) -&gt; ScreenPt {
+        <span class="comment">// TODO Ideally also avoid covered canvas areas
+        </span><span class="kw">if </span>corner.x + <span class="self">self</span>.width &lt; canvas.window_width {
+            <span class="comment">// corner.x is the left corner
+            </span><span class="kw">if </span>corner.y + <span class="self">self</span>.height &lt; canvas.window_height {
+                <span class="comment">// corner.y is the top corner
+                </span>corner
+            } <span class="kw">else </span>{
+                <span class="comment">// corner.y is the bottom corner
+                </span>ScreenPt::new(corner.x, corner.y - <span class="self">self</span>.height)
             }
-        } <span class="kw">else</span> {
-            <span class="comment">// corner.x is the right corner</span>
-            <span class="kw">if</span> <span class="ident">corner</span>.<span class="ident">y</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">height</span> <span class="op">&lt;</span> <span class="ident">canvas</span>.<span class="ident">window_height</span> {
-                <span class="comment">// corner.y is the top corner</span>
-                <span class="ident">ScreenPt::new</span>(<span class="ident">corner</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">width</span>, <span class="ident">corner</span>.<span class="ident">y</span>)
-            } <span class="kw">else</span> {
-                <span class="comment">// corner.y is the bottom corner</span>
-                <span class="ident">ScreenPt::new</span>(<span class="ident">corner</span>.<span class="ident">x</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">width</span>, <span class="ident">corner</span>.<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">height</span>)
+        } <span class="kw">else </span>{
+            <span class="comment">// corner.x is the right corner
+            </span><span class="kw">if </span>corner.y + <span class="self">self</span>.height &lt; canvas.window_height {
+                <span class="comment">// corner.y is the top corner
+                </span>ScreenPt::new(corner.x - <span class="self">self</span>.width, corner.y)
+            } <span class="kw">else </span>{
+                <span class="comment">// corner.y is the bottom corner
+                </span>ScreenPt::new(corner.x - <span class="self">self</span>.width, corner.y - <span class="self">self</span>.height)
             }
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">winit::dpi::LogicalSize</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">size</span>: <span class="ident">winit::dpi::LogicalSize</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="ident">ScreenDims</span> {
-            <span class="ident">width</span>: <span class="ident">size</span>.<span class="ident">width</span>,
-            <span class="ident">height</span>: <span class="ident">size</span>.<span class="ident">height</span>,
+<span class="kw">impl </span>From&lt;winit::dpi::LogicalSize&lt;f64&gt;&gt; <span class="kw">for </span>ScreenDims {
+    <span class="kw">fn </span>from(size: winit::dpi::LogicalSize&lt;f64&gt;) -&gt; ScreenDims {
+        ScreenDims {
+            width: size.width,
+            height: size.height,
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">winit::dpi::LogicalSize</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">dims</span>: <span class="ident">ScreenDims</span>) -&gt; <span class="ident">winit::dpi::LogicalSize</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
-        <span class="ident">winit::dpi::LogicalSize::new</span>(<span class="ident">dims</span>.<span class="ident">width</span>, <span class="ident">dims</span>.<span class="ident">height</span>)
+<span class="kw">impl </span>From&lt;ScreenDims&gt; <span class="kw">for </span>winit::dpi::LogicalSize&lt;f64&gt; {
+    <span class="kw">fn </span>from(dims: ScreenDims) -&gt; winit::dpi::LogicalSize&lt;f64&gt; {
+        winit::dpi::LogicalSize::new(dims.width, dims.height)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">square</span>: <span class="ident">f64</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="ident">ScreenDims::square</span>(<span class="ident">square</span>)
+<span class="kw">impl </span>From&lt;f64&gt; <span class="kw">for </span>ScreenDims {
+    <span class="kw">fn </span>from(square: f64) -&gt; ScreenDims {
+        ScreenDims::square(square)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">square</span>: <span class="ident">i64</span>) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="ident">ScreenDims::square</span>(<span class="ident">square</span> <span class="kw">as</span> <span class="ident">f64</span>)
+<span class="kw">impl </span>From&lt;i64&gt; <span class="kw">for </span>ScreenDims {
+    <span class="kw">fn </span>from(square: i64) -&gt; ScreenDims {
+        ScreenDims::square(square <span class="kw">as </span>f64)
     }
 }
 
-<span class="doccomment">/// (Width, Height) -&gt; ScreenDims</span>
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">width_and_height</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>)) -&gt; <span class="ident">ScreenDims</span> {
-        <span class="ident">ScreenDims::new</span>(<span class="ident">width_and_height</span>.<span class="number">0</span>, <span class="ident">width_and_height</span>.<span class="number">1</span>)
+<span class="doccomment">/// (Width, Height) -&gt; ScreenDims
+</span><span class="kw">impl </span>From&lt;(f64, f64)&gt; <span class="kw">for </span>ScreenDims {
+    <span class="kw">fn </span>from(width_and_height: (f64, f64)) -&gt; ScreenDims {
+        ScreenDims::new(width_and_height.<span class="number">0</span>, width_and_height.<span class="number">1</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">geom::Bounds</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ScreenDims</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">bounds</span>: <span class="ident">geom::Bounds</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">ScreenDims::new</span>(<span class="ident">bounds</span>.<span class="ident">width</span>(), <span class="ident">bounds</span>.<span class="ident">height</span>())
+<span class="kw">impl </span>From&lt;geom::Bounds&gt; <span class="kw">for </span>ScreenDims {
+    <span class="kw">fn </span>from(bounds: geom::Bounds) -&gt; <span class="self">Self </span>{
+        ScreenDims::new(bounds.width(), bounds.height())
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ScreenDims</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">taffy::geometry::Size</span><span class="op">&lt;</span><span class="ident">taffy::style::Dimension</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">dims</span>: <span class="ident">ScreenDims</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">width</span>: <span class="ident">taffy::style::Dimension::Points</span>(<span class="ident">dims</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">f32</span>),
-            <span class="ident">height</span>: <span class="ident">taffy::style::Dimension::Points</span>(<span class="ident">dims</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">f32</span>),
+<span class="kw">impl </span>From&lt;ScreenDims&gt; <span class="kw">for </span>taffy::geometry::Size&lt;taffy::style::Dimension&gt; {
+    <span class="kw">fn </span>from(dims: ScreenDims) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            width: taffy::style::Dimension::Points(dims.width <span class="kw">as </span>f32),
+            height: taffy::style::Dimension::Points(dims.height <span class="kw">as </span>f32),
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

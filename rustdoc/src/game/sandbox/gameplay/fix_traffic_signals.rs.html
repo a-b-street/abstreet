@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/fix_traffic_signals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fix_traffic_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/gameplay/fix_traffic_signals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>fix_traffic_signals.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../../normalize.css"><link rel="stylesheet" href="../../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../../ayu.css" disabled><link rel="stylesheet" href="../../../../dark.css" disabled><link rel="stylesheet" href="../../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../../storage.js"></script><script defer src="../../../../source-script.js"></script><script defer src="../../../../source-files.js"></script><script defer src="../../../../main.js"></script><noscript><link rel="stylesheet" href="../../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../../game/index.html"><img class="rust-logo" src="../../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -396,403 +396,403 @@
 <span id="396">396</span>
 <span id="397">397</span>
 <span id="398">398</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model::IntersectionID</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">Text</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>geom::{Duration, Time};
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::IntersectionID;
+<span class="kw">use </span>widgetry::{
+    Color, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, State, Text,
+    VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::Transition</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">FindDelayedIntersections</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::challenges::cutscene</span>::{<span class="ident">CutsceneBuilder</span>, <span class="ident">ShowMessage</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::challenges::HighScore</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::Warping</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::gameplay</span>::{<span class="ident">challenge_header</span>, <span class="ident">FinalScore</span>, <span class="ident">GameplayMode</span>, <span class="ident">GameplayState</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox</span>::{<span class="ident">Actions</span>, <span class="ident">SandboxControls</span>, <span class="ident">SandboxMode</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::Transition;
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, FindDelayedIntersections};
+<span class="kw">use </span><span class="kw">crate</span>::challenges::cutscene::{CutsceneBuilder, ShowMessage};
+<span class="kw">use </span><span class="kw">crate</span>::challenges::HighScore;
+<span class="kw">use </span><span class="kw">crate</span>::common::Warping;
+<span class="kw">use </span><span class="kw">crate</span>::edit::EditMode;
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::gameplay::{challenge_header, FinalScore, GameplayMode, GameplayState};
+<span class="kw">use </span><span class="kw">crate</span>::sandbox::{Actions, SandboxControls, SandboxMode};
 
-<span class="kw">const</span> <span class="ident">THRESHOLD</span>: <span class="ident">Duration</span> <span class="op">=</span> <span class="ident">Duration::const_seconds</span>(<span class="number">20.0</span> <span class="op">*</span> <span class="number">60.0</span>);
+<span class="kw">const </span>THRESHOLD: Duration = Duration::const_seconds(<span class="number">20.0 </span>* <span class="number">60.0</span>);
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FixTrafficSignals</span> {
-    <span class="ident">top_right</span>: <span class="ident">Panel</span>,
-    <span class="ident">time</span>: <span class="ident">Time</span>,
-    <span class="ident">worst</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">IntersectionID</span>, <span class="ident">Duration</span>)<span class="op">&gt;</span>,
-    <span class="ident">done_at</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Time</span><span class="op">&gt;</span>,
-    <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
+<span class="kw">pub struct </span>FixTrafficSignals {
+    top_right: Panel,
+    time: Time,
+    worst: <span class="prelude-ty">Option</span>&lt;(IntersectionID, Duration)&gt;,
+    done_at: <span class="prelude-ty">Option</span>&lt;Time&gt;,
+    mode: GameplayMode,
 }
 
-<span class="kw">impl</span> <span class="ident">FixTrafficSignals</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">GameplayState</span><span class="op">&gt;</span> {
-        <span class="ident">Box::new</span>(<span class="ident">FixTrafficSignals</span> {
-            <span class="ident">top_right</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">time</span>: <span class="ident">Time::START_OF_DAY</span>,
-            <span class="ident">worst</span>: <span class="prelude-val">None</span>,
-            <span class="ident">done_at</span>: <span class="prelude-val">None</span>,
-            <span class="ident">mode</span>: <span class="ident">GameplayMode::FixTrafficSignals</span>,
+<span class="kw">impl </span>FixTrafficSignals {
+    <span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Box&lt;<span class="kw">dyn </span>GameplayState&gt; {
+        Box::new(FixTrafficSignals {
+            top_right: Panel::empty(ctx),
+            time: Time::START_OF_DAY,
+            worst: <span class="prelude-val">None</span>,
+            done_at: <span class="prelude-val">None</span>,
+            mode: GameplayMode::FixTrafficSignals,
         })
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cutscene_pt1</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">GameplayMode</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">CutsceneBuilder::new</span>(<span class="string">&quot;Traffic signal survivor&quot;</span>)
-            .<span class="ident">boss</span>(<span class="string">&quot;I hope you&#39;ve had your coffee. There&#39;s a huge mess downtown.&quot;</span>)
-            .<span class="ident">player</span>(<span class="string">&quot;Did two buses get tangled together again?&quot;</span>)
-            .<span class="ident">boss</span>(<span class="string">&quot;Worse. SCOOT along Mercer is going haywire.&quot;</span>)
-            .<span class="ident">player</span>(<span class="string">&quot;SCOOT?&quot;</span>)
-            .<span class="ident">boss</span>(
+    <span class="kw">pub fn </span>cutscene_pt1(ctx: <span class="kw-2">&amp;mut </span>EventCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App, <span class="kw">_</span>: <span class="kw-2">&amp;</span>GameplayMode) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        CutsceneBuilder::new(<span class="string">&quot;Traffic signal survivor&quot;</span>)
+            .boss(<span class="string">&quot;I hope you&#39;ve had your coffee. There&#39;s a huge mess downtown.&quot;</span>)
+            .player(<span class="string">&quot;Did two buses get tangled together again?&quot;</span>)
+            .boss(<span class="string">&quot;Worse. SCOOT along Mercer is going haywire.&quot;</span>)
+            .player(<span class="string">&quot;SCOOT?&quot;</span>)
+            .boss(
                 <span class="string">&quot;You know, Split Cycle Offset Optimization Technique, the traffic signal \
                  coordination system? Did you sleep through college or what?&quot;</span>,
             )
-            .<span class="ident">boss</span>(
+            .boss(
                 <span class="string">&quot;It&#39;s offline. All the traffic signals look like they&#39;ve been reset to industry \
                  defaults.&quot;</span>,
             )
-            .<span class="ident">player</span>(<span class="string">&quot;Uh oh. Too much scooter traffic overwhelm it? Eh? EHH?&quot;</span>)
-            .<span class="ident">boss</span>(<span class="string">&quot;...&quot;</span>)
-            .<span class="ident">boss</span>(<span class="string">&quot;You know, not every problem you will face in life is caused by a pun.&quot;</span>)
-            .<span class="ident">boss</span>(
+            .player(<span class="string">&quot;Uh oh. Too much scooter traffic overwhelm it? Eh? EHH?&quot;</span>)
+            .boss(<span class="string">&quot;...&quot;</span>)
+            .boss(<span class="string">&quot;You know, not every problem you will face in life is caused by a pun.&quot;</span>)
+            .boss(
                 <span class="string">&quot;Most, in fact, will be caused by me ruining your life because you won&#39;t take \
                  your job seriously.&quot;</span>,
             )
-            .<span class="ident">player</span>(<span class="string">&quot;Sorry, boss.&quot;</span>)
-            .<span class="ident">extra</span>(
+            .player(<span class="string">&quot;Sorry, boss.&quot;</span>)
+            .extra(
                 <span class="string">&quot;parents.svg.gz&quot;</span>,
                 <span class="number">0.6</span>,
                 <span class="string">&quot;Hi, er, we&#39;re calling from Lower Queen Anne. What&#39;s going on?!&quot;</span>,
             )
-            .<span class="ident">extra</span>(
+            .extra(
                 <span class="string">&quot;parents.svg.gz&quot;</span>,
                 <span class="number">0.6</span>,
                 <span class="string">&quot;We just missed a VERY important appointment. Nobody&#39;s moving an inch!&quot;</span>,
             )
-            .<span class="ident">boss</span>(
+            .boss(
                 <span class="string">&quot;Oh no... reports are coming in, ALL of the traffic signals downtown are screwed \
                  up!&quot;</span>,
             )
-            .<span class="ident">boss</span>(
+            .boss(
                 <span class="string">&quot;You need to go fix all of them. But listen, you haven&#39;t got much time. Focus on \
                  the worst problems first.&quot;</span>,
             )
-            .<span class="ident">player</span>(<span class="string">&quot;Sigh... it&#39;s going to be a long day.&quot;</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">Box::new</span>(<span class="ident">cutscene_pt1_task</span>))
+            .player(<span class="string">&quot;Sigh... it&#39;s going to be a long day.&quot;</span>)
+            .build(ctx, Box::new(cutscene_pt1_task))
     }
 }
 
-<span class="kw">impl</span> <span class="ident">GameplayState</span> <span class="kw">for</span> <span class="ident">FixTrafficSignals</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">SandboxControls</span>,
-        <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Actions</span>,
-    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="comment">// Normally we just do this once at the beginning, but because there are other paths to</span>
-        <span class="comment">// resetting (like jump-to-time), it&#39;s safest just to do this.</span>
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>.<span class="ident">is_none</span>() {
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Box::new</span>(<span class="ident">FindDelayedIntersections</span> {
-                <span class="ident">halt_limit</span>: <span class="ident">THRESHOLD</span>,
-                <span class="ident">report_limit</span>: <span class="ident">Duration::minutes</span>(<span class="number">1</span>),
-                <span class="ident">currently_delayed</span>: <span class="ident">Vec::new</span>(),
+<span class="kw">impl </span>GameplayState <span class="kw">for </span>FixTrafficSignals {
+    <span class="kw">fn </span>event(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>SandboxControls,
+        <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>Actions,
+    ) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="comment">// Normally we just do this once at the beginning, but because there are other paths to
+        // resetting (like jump-to-time), it&#39;s safest just to do this.
+        </span><span class="kw">if </span>app.primary.sim_cb.is_none() {
+            app.primary.sim_cb = <span class="prelude-val">Some</span>(Box::new(FindDelayedIntersections {
+                halt_limit: THRESHOLD,
+                report_limit: Duration::minutes(<span class="number">1</span>),
+                currently_delayed: Vec::new(),
             }));
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">set_periodic_callback</span>(<span class="ident">Duration::minutes</span>(<span class="number">1</span>));
+            app.primary.sim.set_periodic_callback(Duration::minutes(<span class="number">1</span>));
         }
 
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">time</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">done_at</span>.<span class="ident">is_none</span>() {
-            <span class="self">self</span>.<span class="ident">time</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>();
+        <span class="kw">if </span><span class="self">self</span>.time != app.primary.sim.time() &amp;&amp; <span class="self">self</span>.done_at.is_none() {
+            <span class="self">self</span>.time = app.primary.sim.time();
 
-            <span class="self">self</span>.<span class="ident">worst</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">i</span>, <span class="ident">t</span>)) <span class="op">=</span> <span class="ident">app</span>
-                .<span class="ident">primary</span>
-                .<span class="ident">sim_cb</span>
-                .<span class="ident">as_mut</span>()
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">downcast_mut</span>::<span class="op">&lt;</span><span class="ident">FindDelayedIntersections</span><span class="op">&gt;</span>()
-                .<span class="ident">unwrap</span>()
-                .<span class="ident">currently_delayed</span>
-                .<span class="ident">get</span>(<span class="number">0</span>)
-                .<span class="ident">cloned</span>()
+            <span class="self">self</span>.worst = <span class="prelude-val">None</span>;
+            <span class="kw">if let </span><span class="prelude-val">Some</span>((i, t)) = app
+                .primary
+                .sim_cb
+                .as_mut()
+                .unwrap()
+                .downcast_mut::&lt;FindDelayedIntersections&gt;()
+                .unwrap()
+                .currently_delayed
+                .get(<span class="number">0</span>)
+                .cloned()
             {
-                <span class="self">self</span>.<span class="ident">worst</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">i</span>, <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="ident">t</span>));
+                <span class="self">self</span>.worst = <span class="prelude-val">Some</span>((i, app.primary.sim.time() - t));
             }
 
-            <span class="kw">if</span> <span class="self">self</span>
-                .<span class="ident">worst</span>
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">delay</span>)<span class="op">|</span> <span class="ident">delay</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">THRESHOLD</span>)
-                .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+            <span class="kw">if </span><span class="self">self
+                </span>.worst
+                .map(|(<span class="kw">_</span>, delay)| delay &gt;= THRESHOLD)
+                .unwrap_or(<span class="bool-val">false</span>)
             {
-                <span class="self">self</span>.<span class="ident">done_at</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
-                <span class="self">self</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="self">self</span>.done_at = <span class="prelude-val">Some</span>(app.primary.sim.time());
+                <span class="self">self</span>.recreate_panels(ctx, app);
 
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Transition::Push</span>(<span class="ident">final_score</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(), <span class="bool-val">true</span>)),
-                    <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>
-                            .<span class="ident">canonical_point</span>(<span class="ident">ID::Intersection</span>(<span class="self">self</span>.<span class="ident">worst</span>.<span class="ident">unwrap</span>().<span class="number">0</span>))
-                            .<span class="ident">unwrap</span>(),
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Multi(<span class="macro">vec!</span>[
+                    Transition::Push(final_score(ctx, app, <span class="self">self</span>.mode.clone(), <span class="bool-val">true</span>)),
+                    Transition::Push(Warping::new_state(
+                        ctx,
+                        app.primary
+                            .canonical_point(ID::Intersection(<span class="self">self</span>.worst.unwrap().<span class="number">0</span>))
+                            .unwrap(),
                         <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
                         <span class="prelude-val">None</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                        <span class="kw-2">&amp;mut </span>app.primary,
                     )),
                 ]));
-            } <span class="kw">else</span> {
-                <span class="self">self</span>.<span class="ident">recreate_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            } <span class="kw">else </span>{
+                <span class="self">self</span>.recreate_panels(ctx, app);
             }
 
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">is_done</span>() {
-                <span class="self">self</span>.<span class="ident">done_at</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>());
-                <span class="comment">// TODO The score is up to 1 min (report_limit) off.</span>
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">final_score</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>,
-                    <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+            <span class="kw">if </span>app.primary.sim.is_done() {
+                <span class="self">self</span>.done_at = <span class="prelude-val">Some</span>(app.primary.sim.time());
+                <span class="comment">// TODO The score is up to 1 min (report_limit) off.
+                </span><span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(final_score(
+                    ctx,
+                    app,
+                    <span class="self">self</span>.mode.clone(),
                     <span class="bool-val">false</span>,
                 )));
             }
         }
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;edit map&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">EditMode::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_right.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;edit map&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(EditMode::new_state(
+                        ctx,
+                        app,
+                        <span class="self">self</span>.mode.clone(),
                     )));
                 }
-                <span class="string">&quot;instructions&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">cutscene_pt1_task</span>(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ShowMessage::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">contents</span>,
-                        <span class="ident">Color::WHITE</span>,
+                <span class="string">&quot;instructions&quot; </span>=&gt; {
+                    <span class="kw">let </span>contents = cutscene_pt1_task(ctx);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
+                        ctx,
+                        contents,
+                        Color::WHITE,
                     )));
                 }
-                <span class="string">&quot;hint&quot;</span> =&gt; {
-                    <span class="comment">// TODO Multiple hints. Point to layers.</span>
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::from</span>(<span class="string">&quot;Hint&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-                    <span class="ident">txt</span>.<span class="ident">add_appended</span>(<span class="macro">vec!</span>[
-                        <span class="ident">Line</span>(<span class="string">&quot;Press &quot;</span>),
-                        <span class="ident">Key::L</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Line</span>(<span class="string">&quot; to open layers. Try &quot;</span>),
-                        <span class="ident">Key::D</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Line</span>(<span class="string">&quot;elay or worst traffic &quot;</span>),
-                        <span class="ident">Key::J</span>.<span class="ident">txt</span>(<span class="ident">ctx</span>),
-                        <span class="ident">Line</span>(<span class="string">&quot;ams&quot;</span>),
+                <span class="string">&quot;hint&quot; </span>=&gt; {
+                    <span class="comment">// TODO Multiple hints. Point to layers.
+                    </span><span class="kw">let </span><span class="kw-2">mut </span>txt = Text::from(<span class="string">&quot;Hint&quot;</span>);
+                    txt.add_line(<span class="string">&quot;&quot;</span>);
+                    txt.add_appended(<span class="macro">vec!</span>[
+                        Line(<span class="string">&quot;Press &quot;</span>),
+                        Key::L.txt(ctx),
+                        Line(<span class="string">&quot; to open layers. Try &quot;</span>),
+                        Key::D.txt(ctx),
+                        Line(<span class="string">&quot;elay or worst traffic &quot;</span>),
+                        Key::J.txt(ctx),
+                        Line(<span class="string">&quot;ams&quot;</span>),
                     ]);
-                    <span class="kw">let</span> <span class="ident">contents</span> <span class="op">=</span> <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ShowMessage::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">contents</span>,
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>,
+                    <span class="kw">let </span>contents = txt.into_widget(ctx);
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
+                        ctx,
+                        contents,
+                        app.cs.panel_bg,
                     )));
                 }
-                <span class="string">&quot;try again&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Replace</span>(<span class="ident">SandboxMode::simple_new</span>(
-                        <span class="ident">app</span>,
-                        <span class="self">self</span>.<span class="ident">mode</span>.<span class="ident">clone</span>(),
+                <span class="string">&quot;try again&quot; </span>=&gt; {
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Replace(SandboxMode::simple_new(
+                        app,
+                        <span class="self">self</span>.mode.clone(),
                     )));
                 }
-                <span class="string">&quot;go to slowest intersection&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">app</span>
-                        .<span class="ident">primary</span>
-                        .<span class="ident">sim_cb</span>
-                        .<span class="ident">as_ref</span>()
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">downcast_ref</span>::<span class="op">&lt;</span><span class="ident">FindDelayedIntersections</span><span class="op">&gt;</span>()
-                        .<span class="ident">unwrap</span>()
-                        .<span class="ident">currently_delayed</span>[<span class="number">0</span>]
+                <span class="string">&quot;go to slowest intersection&quot; </span>=&gt; {
+                    <span class="kw">let </span>i = app
+                        .primary
+                        .sim_cb
+                        .as_ref()
+                        .unwrap()
+                        .downcast_ref::&lt;FindDelayedIntersections&gt;()
+                        .unwrap()
+                        .currently_delayed[<span class="number">0</span>]
                         .<span class="number">0</span>;
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">ID::Intersection</span>(<span class="ident">i</span>)).<span class="ident">unwrap</span>(),
+                    <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(Warping::new_state(
+                        ctx,
+                        app.primary.canonical_point(ID::Intersection(i)).unwrap(),
                         <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
                         <span class="prelude-val">None</span>,
-                        <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                        <span class="kw-2">&amp;mut </span>app.primary,
                     )));
                 }
-                <span class="string">&quot;explain score&quot;</span> =&gt; {
-                    <span class="comment">// TODO Adjust wording</span>
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">ShowMessage::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                            <span class="ident">Line</span>(<span class="string">&quot;You changed some traffic signals in the middle of the day.&quot;</span>),
-                            <span class="ident">Line</span>(
+                <span class="string">&quot;explain score&quot; </span>=&gt; {
+                    <span class="comment">// TODO Adjust wording
+                    </span><span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(ShowMessage::new_state(
+                        ctx,
+                        Text::from_multiline(<span class="macro">vec!</span>[
+                            Line(<span class="string">&quot;You changed some traffic signals in the middle of the day.&quot;</span>),
+                            Line(
                                 <span class="string">&quot;First see if you can survive for a full day, making changes \
                                 along the way.&quot;</span>,
                             ),
-                            <span class="ident">Line</span>(<span class="string">&quot;Then you should check if your changes work from midnight.&quot;</span>),
+                            Line(<span class="string">&quot;Then you should check if your changes work from midnight.&quot;</span>),
                         ])
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                        <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>,
+                        .into_widget(ctx),
+                        app.cs.panel_bg,
                     )));
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.top_right.draw(g);
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">top_right</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-    }
-
-    <span class="kw">fn</span> <span class="ident">recreate_panels</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">time</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">done_at</span> {
-            <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Delay exceeded {} at {}&quot;</span>, <span class="ident">THRESHOLD</span>, <span class="ident">time</span>))
-                        .<span class="ident">fg</span>(<span class="ident">Color::RED</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">centered_vert</span>(),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;try again&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+    <span class="kw">fn </span>recreate_panels(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(time) = <span class="self">self</span>.done_at {
+            <span class="self">self</span>.top_right = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                challenge_header(ctx, <span class="string">&quot;Traffic signal survivor&quot;</span>),
+                Widget::row(<span class="macro">vec!</span>[
+                    Line(<span class="macro">format!</span>(<span class="string">&quot;Delay exceeded {} at {}&quot;</span>, THRESHOLD, time))
+                        .fg(Color::RED)
+                        .into_widget(ctx)
+                        .centered_vert(),
+                    ctx.style().btn_outline.text(<span class="string">&quot;try again&quot;</span>).build_def(ctx),
                 ]),
             ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
-        } <span class="kw">else</span> {
-            <span class="kw">let</span> <span class="ident">meter</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="self">self</span>.<span class="ident">worst</span>.<span class="ident">is_none</span>())
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;go to slowest intersection&quot;</span>),
-                <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Worst delay: &quot;</span>),
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="kw">_</span>, <span class="ident">delay</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">worst</span> {
-                        <span class="ident">Line</span>(<span class="ident">delay</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)).<span class="ident">fg</span>(<span class="kw">if</span> <span class="ident">delay</span> <span class="op">&lt;</span> <span class="ident">Duration::minutes</span>(<span class="number">5</span>) {
-                            <span class="ident">Color::hex</span>(<span class="string">&quot;#F9EC51&quot;</span>)
-                        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">delay</span> <span class="op">&lt;</span> <span class="ident">Duration::minutes</span>(<span class="number">15</span>) {
-                            <span class="ident">Color::hex</span>(<span class="string">&quot;#EE702E&quot;</span>)
-                        } <span class="kw">else</span> {
-                            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">signal_banned_turn</span>
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx);
+        } <span class="kw">else </span>{
+            <span class="kw">let </span>meter = Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_plain
+                    .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .disabled(<span class="self">self</span>.worst.is_none())
+                    .build_widget(ctx, <span class="string">&quot;go to slowest intersection&quot;</span>),
+                Text::from_all(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Worst delay: &quot;</span>),
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>((<span class="kw">_</span>, delay)) = <span class="self">self</span>.worst {
+                        Line(delay.to_string(<span class="kw-2">&amp;</span>app.opts.units)).fg(<span class="kw">if </span>delay &lt; Duration::minutes(<span class="number">5</span>) {
+                            Color::hex(<span class="string">&quot;#F9EC51&quot;</span>)
+                        } <span class="kw">else if </span>delay &lt; Duration::minutes(<span class="number">15</span>) {
+                            Color::hex(<span class="string">&quot;#EE702E&quot;</span>)
+                        } <span class="kw">else </span>{
+                            app.cs.signal_banned_turn
                         })
-                    } <span class="kw">else</span> {
-                        <span class="ident">Line</span>(<span class="string">&quot;none!&quot;</span>).<span class="ident">secondary</span>()
+                    } <span class="kw">else </span>{
+                        Line(<span class="string">&quot;none!&quot;</span>).secondary()
                     },
                 ])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">centered_vert</span>(),
-                <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">dirty_from_edits</span> {
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_plain</span>
-                        .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;explain score&quot;</span>)
-                        .<span class="ident">align_right</span>()
-                } <span class="kw">else</span> {
-                    <span class="ident">Widget::nothing</span>()
+                .into_widget(ctx)
+                .centered_vert(),
+                <span class="kw">if </span>app.primary.dirty_from_edits {
+                    ctx.style()
+                        .btn_plain
+                        .icon(<span class="string">&quot;system/assets/tools/info.svg&quot;</span>)
+                        .build_widget(ctx, <span class="string">&quot;explain score&quot;</span>)
+                        .align_right()
+                } <span class="kw">else </span>{
+                    Widget::nothing()
                 },
             ]);
 
-            <span class="self">self</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">challenge_header</span>(<span class="ident">ctx</span>, <span class="string">&quot;Traffic signal survivor&quot;</span>),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(
+            <span class="self">self</span>.top_right = Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+                challenge_header(ctx, <span class="string">&quot;Traffic signal survivor&quot;</span>),
+                Widget::row(<span class="macro">vec!</span>[
+                    Line(<span class="macro">format!</span>(
                         <span class="string">&quot;Keep delay at all intersections under {}&quot;</span>,
-                        <span class="ident">THRESHOLD</span>
+                        THRESHOLD
                     ))
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                    <span class="ident">ctx</span>.<span class="ident">style</span>()
-                        .<span class="ident">btn_plain</span>
-                        .<span class="ident">icon_text</span>(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;hint&quot;</span>)
-                        .<span class="ident">align_right</span>(),
+                    .into_widget(ctx),
+                    ctx.style()
+                        .btn_plain
+                        .icon_text(<span class="string">&quot;system/assets/tools/lightbulb.svg&quot;</span>, <span class="string">&quot;Hint&quot;</span>)
+                        .build_widget(ctx, <span class="string">&quot;hint&quot;</span>)
+                        .align_right(),
                 ]),
-                <span class="ident">meter</span>,
+                meter,
             ]))
-            .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Right</span>, <span class="ident">VerticalAlignment::Top</span>)
-            .<span class="ident">build</span>(<span class="ident">ctx</span>);
+            .aligned(HorizontalAlignment::Right, VerticalAlignment::Top)
+            .build(ctx);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">on_destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="macro">assert!</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span>.<span class="ident">is_some</span>());
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim_cb</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">unset_periodic_callback</span>();
+    <span class="kw">fn </span>on_destroy(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;mut </span>App) {
+        <span class="macro">assert!</span>(app.primary.sim_cb.is_some());
+        app.primary.sim_cb = <span class="prelude-val">None</span>;
+        app.primary.sim.unset_periodic_callback();
     }
 }
 
-<span class="kw">fn</span> <span class="ident">final_score</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-    <span class="ident">mode</span>: <span class="ident">GameplayMode</span>,
-    <span class="ident">failed</span>: <span class="ident">bool</span>,
-) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">score</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">time</span>() <span class="op">-</span> <span class="ident">Time::START_OF_DAY</span>;
-    <span class="ident">HighScore</span> {
-        <span class="ident">goal</span>: <span class="macro">format!</span>(
+<span class="kw">fn </span>final_score(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;mut </span>App,
+    mode: GameplayMode,
+    failed: bool,
+) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+    <span class="kw">let </span>score = app.primary.sim.time() - Time::START_OF_DAY;
+    HighScore {
+        goal: <span class="macro">format!</span>(
             <span class="string">&quot;make it {} without delay exceeding {}&quot;</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">get_end_of_day</span>() <span class="op">-</span> <span class="ident">Time::START_OF_DAY</span>,
-            <span class="ident">THRESHOLD</span>
+            app.primary.sim.get_end_of_day() - Time::START_OF_DAY,
+            THRESHOLD
         ),
-        <span class="ident">score</span>,
-        <span class="ident">edits_name</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">edits_name</span>.<span class="ident">clone</span>(),
+        score,
+        edits_name: app.primary.map.get_edits().edits_name.clone(),
     }
-    .<span class="ident">record</span>(<span class="ident">app</span>, <span class="ident">mode</span>.<span class="ident">clone</span>());
+    .record(app, mode.clone());
 
-    <span class="kw">let</span> <span class="ident">msg</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">failed</span> {
+    <span class="kw">let </span>msg = <span class="kw">if </span>failed {
         <span class="macro">format!</span>(
             <span class="string">&quot;You only made it {} before the traffic signals caused a jam. Lame!&quot;</span>,
-            <span class="ident">score</span>
+            score
         )
-    } <span class="kw">else</span> {
-        <span class="string">&quot;Wow, you managed to fix the signals. Great job!&quot;</span>.<span class="ident">to_string</span>()
+    } <span class="kw">else </span>{
+        <span class="string">&quot;Wow, you managed to fix the signals. Great job!&quot;</span>.to_string()
     };
-    <span class="ident">FinalScore::new_state</span>(<span class="ident">ctx</span>, <span class="ident">msg</span>, <span class="ident">mode</span>, <span class="prelude-val">None</span>)
+    FinalScore::new_state(ctx, msg, mode, <span class="prelude-val">None</span>)
 }
 
-<span class="comment">// TODO Can we automatically transform text and SVG colors?</span>
-<span class="kw">fn</span> <span class="ident">cutscene_pt1_task</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">icon_builder</span> <span class="op">=</span> <span class="ident">Image::empty</span>().<span class="ident">color</span>(<span class="ident">Color::BLACK</span>).<span class="ident">dims</span>(<span class="number">50.0</span>);
-    <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+<span class="comment">// TODO Can we automatically transform text and SVG colors?
+</span><span class="kw">fn </span>cutscene_pt1_task(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; Widget {
+    <span class="kw">let </span>icon_builder = Image::empty().color(Color::BLACK).dims(<span class="number">50.0</span>);
+    Widget::custom_col(<span class="macro">vec!</span>[
+        Text::from_multiline(<span class="macro">vec!</span>[
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;Don&#39;t let anyone be delayed by one traffic signal more than {}!&quot;</span>,
-                <span class="ident">THRESHOLD</span>
+                THRESHOLD
             ))
-            .<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
-            <span class="ident">Line</span>(<span class="string">&quot;Survive as long as possible through 24 hours of a busy weekday.&quot;</span>)
-                .<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
+            .fg(Color::BLACK),
+            Line(<span class="string">&quot;Survive as long as possible through 24 hours of a busy weekday.&quot;</span>)
+                .fg(Color::BLACK),
         ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-        .<span class="ident">margin_below</span>(<span class="number">30</span>),
-        <span class="ident">Widget::custom_row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Time&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">icon_builder</span>
-                    .<span class="ident">clone</span>()
-                    .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;24 hours&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+        .into_widget(ctx)
+        .margin_below(<span class="number">30</span>),
+        Widget::custom_row(<span class="macro">vec!</span>[
+            Widget::col(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Time&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                icon_builder
+                    .clone()
+                    .source_path(<span class="string">&quot;system/assets/tools/time.svg&quot;</span>)
+                    .into_widget(ctx),
+                Line(<span class="string">&quot;24 hours&quot;</span>).fg(Color::BLACK).into_widget(ctx),
             ]),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Goal&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">icon_builder</span>
-                    .<span class="ident">clone</span>()
-                    .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Keep delay at all intersections&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
-                    <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;under {}&quot;</span>, <span class="ident">THRESHOLD</span>)).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>),
+            Widget::col(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Goal&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                icon_builder
+                    .clone()
+                    .source_path(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                    .into_widget(ctx),
+                Text::from_multiline(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Keep delay at all intersections&quot;</span>).fg(Color::BLACK),
+                    Line(<span class="macro">format!</span>(<span class="string">&quot;under {}&quot;</span>, THRESHOLD)).fg(Color::BLACK),
                 ])
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                .into_widget(ctx),
             ]),
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">Line</span>(<span class="string">&quot;Score&quot;</span>).<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">icon_builder</span>
-                    .<span class="ident">source_path</span>(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-                <span class="ident">Line</span>(<span class="string">&quot;How long you survive&quot;</span>)
-                    .<span class="ident">fg</span>(<span class="ident">Color::BLACK</span>)
-                    .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+            Widget::col(<span class="macro">vec!</span>[
+                Line(<span class="string">&quot;Score&quot;</span>).fg(Color::BLACK).into_widget(ctx),
+                icon_builder
+                    .source_path(<span class="string">&quot;system/assets/tools/star.svg&quot;</span>)
+                    .into_widget(ctx),
+                Line(<span class="string">&quot;How long you survive&quot;</span>)
+                    .fg(Color::BLACK)
+                    .into_widget(ctx),
             ]),
         ])
-        .<span class="ident">evenly_spaced</span>(),
+        .evenly_spaced(),
     ])
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

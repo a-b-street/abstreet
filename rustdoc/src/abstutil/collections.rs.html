@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstutil/src/collections.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>collections.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstutil/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstutil/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstutil/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `abstutil/src/collections.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>collections.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../abstutil/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../abstutil/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../abstutil/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -425,432 +425,432 @@
 <span id="425">425</span>
 <span id="426">426</span>
 <span id="427">427</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ord</span>;
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
-<span class="kw">use</span> <span class="ident">std::marker::PhantomData</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::cmp::Ord;
+<span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
+<span class="kw">use </span>std::marker::PhantomData;
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
+<span class="kw">use </span>anyhow::Result;
 
-<span class="kw">use</span> <span class="ident">itertools::Itertools</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+<span class="kw">use </span>itertools::Itertools;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="comment">// TODO Ideally derive Serialize and Deserialize, but I can&#39;t seem to express the lifetimes</span>
-<span class="comment">// correctly.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">V</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>,
+<span class="comment">// TODO Ideally derive Serialize and Deserialize, but I can&#39;t seem to express the lifetimes
+// correctly.
+</span><span class="attribute">#[derive(PartialEq, Clone)]
+</span><span class="kw">pub struct </span>MultiMap&lt;K, V&gt;
+<span class="kw">where
+    </span>K: Ord + PartialEq + Clone,
+    V: Ord + PartialEq + Clone,
 {
-    <span class="ident">map</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">empty</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>,
+    map: BTreeMap&lt;K, BTreeSet&lt;V&gt;&gt;,
+    empty: BTreeSet&lt;V&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">V</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;K, V&gt; MultiMap&lt;K, V&gt;
+<span class="kw">where
+    </span>K: Ord + PartialEq + Clone,
+    V: Ord + PartialEq + Clone,
 {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="ident">MultiMap</span> {
-            <span class="ident">map</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">empty</span>: <span class="ident">BTreeSet::new</span>(),
+    <span class="kw">pub fn </span>new() -&gt; MultiMap&lt;K, V&gt; {
+        MultiMap {
+            map: BTreeMap::new(),
+            empty: BTreeSet::new(),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) {
-        <span class="self">self</span>.<span class="ident">map</span>
-            .<span class="ident">entry</span>(<span class="ident">key</span>)
-            .<span class="ident">or_insert_with</span>(<span class="ident">BTreeSet::new</span>)
-            .<span class="ident">insert</span>(<span class="ident">value</span>);
+    <span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) {
+        <span class="self">self</span>.map
+            .entry(key)
+            .or_insert_with(BTreeSet::new)
+            .insert(value);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) {
-        <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">map</span>.<span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>) {
+    <span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) {
+        <span class="kw">if </span>!<span class="self">self</span>.map.contains_key(<span class="kw-2">&amp;</span>key) {
             <span class="kw">return</span>;
         }
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>).<span class="ident">unwrap</span>().<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">value</span>);
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">map</span>[<span class="kw-2">&amp;</span><span class="ident">key</span>].<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>);
+        <span class="self">self</span>.map.get_mut(<span class="kw-2">&amp;</span>key).unwrap().remove(<span class="kw-2">&amp;</span>value);
+        <span class="kw">if </span><span class="self">self</span>.map[<span class="kw-2">&amp;</span>key].is_empty() {
+            <span class="self">self</span>.map.remove(<span class="kw-2">&amp;</span>key);
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">key</span>).<span class="ident">unwrap_or</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">empty</span>)
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: K) -&gt; <span class="kw-2">&amp;</span>BTreeSet&lt;V&gt; {
+        <span class="self">self</span>.map.get(<span class="kw-2">&amp;</span>key).unwrap_or(<span class="kw-2">&amp;</span><span class="self">self</span>.empty)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">values</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">insert</span>(<span class="ident">key</span>, <span class="ident">values</span>);
+    <span class="kw">pub fn </span>set(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, values: BTreeSet&lt;V&gt;) {
+        <span class="self">self</span>.map.insert(key, values);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">len</span>()
+    <span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.map.len()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>()
+    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.map.is_empty()
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::should_implement_trait</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">borrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>
+    <span class="attribute">#[allow(clippy::should_implement_trait)]
+    </span><span class="kw">pub fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BTreeMap&lt;K, BTreeSet&lt;V&gt;&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.map
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume</span>(<span class="self">self</span>) -&gt; <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map</span>
+    <span class="kw">pub fn </span>consume(<span class="self">self</span>) -&gt; BTreeMap&lt;K, BTreeSet&lt;V&gt;&gt; {
+        <span class="self">self</span>.map
     }
 }
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span>
-<span class="kw">where</span>
-    <span class="ident">K</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>,
-    <span class="ident">V</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span>,
+<span class="kw">impl</span>&lt;K, V&gt; Default <span class="kw">for </span>MultiMap&lt;K, V&gt;
+<span class="kw">where
+    </span>K: Ord + PartialEq + Clone,
+    V: Ord + PartialEq + Clone,
 {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="ident">MultiMap::new</span>()
+    <span class="kw">fn </span>default() -&gt; MultiMap&lt;K, V&gt; {
+        MultiMap::new()
     }
 }
 
-<span class="doccomment">/// A counter per key</span>
-<span class="comment">// Be careful with PartialEq -- some entries may have an explicit 0, others not</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> {
-    <span class="ident">map</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">usize</span><span class="op">&gt;</span>,
-    <span class="ident">sum</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// A counter per key
+</span><span class="comment">// Be careful with PartialEq -- some entries may have an explicit 0, others not
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, PartialEq)]
+</span><span class="kw">pub struct </span>Counter&lt;T: Ord + PartialEq + Clone&gt; {
+    map: BTreeMap&lt;T, usize&gt;,
+    sum: usize,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Counter::new</span>()
+<span class="kw">impl</span>&lt;T: Ord + PartialEq + Clone&gt; Default <span class="kw">for </span>Counter&lt;T&gt; {
+    <span class="kw">fn </span>default() -&gt; Counter&lt;T&gt; {
+        Counter::new()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span> <span class="op">+</span> <span class="ident">PartialEq</span> <span class="op">+</span> <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
-        <span class="ident">Counter</span> {
-            <span class="ident">map</span>: <span class="ident">BTreeMap::new</span>(),
-            <span class="ident">sum</span>: <span class="number">0</span>,
+<span class="kw">impl</span>&lt;T: Ord + PartialEq + Clone&gt; Counter&lt;T&gt; {
+    <span class="kw">pub fn </span>new() -&gt; Counter&lt;T&gt; {
+        Counter {
+            map: BTreeMap::new(),
+            sum: <span class="number">0</span>,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>, <span class="ident">amount</span>: <span class="ident">usize</span>) -&gt; <span class="ident">usize</span> {
-        <span class="kw">let</span> <span class="ident">entry</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">entry</span>(<span class="ident">val</span>).<span class="ident">or_insert</span>(<span class="number">0</span>);
-        <span class="kw-2">*</span><span class="ident">entry</span> <span class="op">+</span><span class="op">=</span> <span class="ident">amount</span>;
-        <span class="self">self</span>.<span class="ident">sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">amount</span>;
-        <span class="kw-2">*</span><span class="ident">entry</span>
+    <span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T, amount: usize) -&gt; usize {
+        <span class="kw">let </span>entry = <span class="self">self</span>.map.entry(val).or_insert(<span class="number">0</span>);
+        <span class="kw-2">*</span>entry += amount;
+        <span class="self">self</span>.sum += amount;
+        <span class="kw-2">*</span>entry
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inc</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">add</span>(<span class="ident">val</span>, <span class="number">1</span>)
-    }
-
-    <span class="doccomment">/// If the key is missing, returns 0</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">val</span>: <span class="ident">T</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">val</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>)
+    <span class="kw">pub fn </span>inc(<span class="kw-2">&amp;mut </span><span class="self">self</span>, val: T) -&gt; usize {
+        <span class="self">self</span>.add(val, <span class="number">1</span>)
     }
 
-    <span class="doccomment">/// Values with the same count are grouped together</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sorted_asc</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">iter</span>().<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-        <span class="ident">list</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">cnt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cnt</span>);
-        <span class="ident">list</span>.<span class="ident">into_iter</span>()
-            .<span class="ident">group_by</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">cnt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cnt</span>)
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">group</span>)<span class="op">|</span> <span class="ident">group</span>.<span class="ident">into_iter</span>().<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">val</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">val</span>.<span class="ident">clone</span>()).<span class="ident">collect</span>())
-            .<span class="ident">collect</span>()
+    <span class="doccomment">/// If the key is missing, returns 0
+    </span><span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, val: T) -&gt; usize {
+        <span class="self">self</span>.map.get(<span class="kw-2">&amp;</span>val).cloned().unwrap_or(<span class="number">0</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">highest_n</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">n</span>: <span class="ident">usize</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">map</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="ident">cnt</span>)<span class="op">|</span> (<span class="ident">key</span>.<span class="ident">clone</span>(), <span class="kw-2">*</span><span class="ident">cnt</span>))
-            .<span class="ident">collect</span>();
-        <span class="ident">list</span>.<span class="ident">sort_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">cnt</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">cnt</span>);
-        <span class="ident">list</span>.<span class="ident">reverse</span>();
-        <span class="ident">list</span>.<span class="ident">truncate</span>(<span class="ident">n</span>);
-        <span class="ident">list</span>
+    <span class="doccomment">/// Values with the same count are grouped together
+    </span><span class="kw">pub fn </span>sorted_asc(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Vec&lt;Vec&lt;T&gt;&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>list = <span class="self">self</span>.map.iter().collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
+        list.sort_by_key(|(<span class="kw">_</span>, cnt)| <span class="kw-2">*</span>cnt);
+        list.into_iter()
+            .group_by(|(<span class="kw">_</span>, cnt)| <span class="kw-2">*</span>cnt)
+            .into_iter()
+            .map(|(<span class="kw">_</span>, group)| group.into_iter().map(|(val, <span class="kw">_</span>)| val.clone()).collect())
+            .collect()
     }
 
-    <span class="doccomment">/// If two keys share the maximum, returns one of them arbitrarily (and deterministically)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">T</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">iter</span>().<span class="ident">max_by_key</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">1</span>).<span class="ident">unwrap</span>().<span class="number">0</span>.<span class="ident">clone</span>()
+    <span class="kw">pub fn </span>highest_n(<span class="kw-2">&amp;</span><span class="self">self</span>, n: usize) -&gt; Vec&lt;(T, usize)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>list: Vec&lt;(T, usize)&gt; = <span class="self">self
+            </span>.map
+            .iter()
+            .map(|(key, cnt)| (key.clone(), <span class="kw-2">*</span>cnt))
+            .collect();
+        list.sort_by_key(|(<span class="kw">_</span>, cnt)| <span class="kw-2">*</span>cnt);
+        list.reverse();
+        list.truncate(n);
+        list
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">values</span>().<span class="ident">max</span>().<span class="ident">cloned</span>().<span class="ident">unwrap_or</span>(<span class="number">0</span>)
-    }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">sum</span>
+    <span class="doccomment">/// If two keys share the maximum, returns one of them arbitrarily (and deterministically)
+    </span><span class="kw">pub fn </span>max_key(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; T {
+        <span class="self">self</span>.map.iter().max_by_key(|pair| pair.<span class="number">1</span>).unwrap().<span class="number">0</span>.clone()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">compare</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="kw-2">mut</span> <span class="ident">other</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">T</span>, <span class="ident">usize</span>, <span class="ident">usize</span>)<span class="op">&gt;</span> {
-        <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">keys</span>() {
-            <span class="ident">other</span>.<span class="ident">map</span>.<span class="ident">entry</span>(<span class="ident">key</span>.<span class="ident">clone</span>()).<span class="ident">or_insert</span>(<span class="number">0</span>);
+    <span class="kw">pub fn </span>max(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.map.values().max().cloned().unwrap_or(<span class="number">0</span>)
+    }
+    <span class="kw">pub fn </span>sum(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.sum
+    }
+
+    <span class="kw">pub fn </span>compare(<span class="kw-2">mut </span><span class="self">self</span>, <span class="kw-2">mut </span>other: Counter&lt;T&gt;) -&gt; Vec&lt;(T, usize, usize)&gt; {
+        <span class="kw">for </span>key <span class="kw">in </span><span class="self">self</span>.map.keys() {
+            other.map.entry(key.clone()).or_insert(<span class="number">0</span>);
         }
-        <span class="kw">for</span> <span class="ident">key</span> <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">map</span>.<span class="ident">keys</span>() {
-            <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">entry</span>(<span class="ident">key</span>.<span class="ident">clone</span>()).<span class="ident">or_insert</span>(<span class="number">0</span>);
+        <span class="kw">for </span>key <span class="kw">in </span>other.map.keys() {
+            <span class="self">self</span>.map.entry(key.clone()).or_insert(<span class="number">0</span>);
         }
-        <span class="self">self</span>.<span class="ident">map</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">cnt</span>)<span class="op">|</span> (<span class="ident">k</span>.<span class="ident">clone</span>(), <span class="ident">cnt</span>, <span class="ident">other</span>.<span class="ident">map</span>[<span class="kw-2">&amp;</span><span class="ident">k</span>]))
-            .<span class="ident">collect</span>()
+        <span class="self">self</span>.map
+            .into_iter()
+            .map(|(k, cnt)| (k.clone(), cnt, other.map[<span class="kw-2">&amp;</span>k]))
+            .collect()
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::should_implement_trait</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">borrow</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">map</span>
+    <span class="attribute">#[allow(clippy::should_implement_trait)]
+    </span><span class="kw">pub fn </span>borrow(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BTreeMap&lt;T, usize&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.map
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume</span>(<span class="self">self</span>) -&gt; <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">usize</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">map</span>
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">is_empty</span>()
+    <span class="kw">pub fn </span>consume(<span class="self">self</span>) -&gt; BTreeMap&lt;T, usize&gt; {
+        <span class="self">self</span>.map
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="ident">Counter</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">extend</span>(<span class="ident">other</span>.<span class="ident">map</span>);
-        <span class="self">self</span>.<span class="ident">sum</span> <span class="op">+</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">sum</span>;
+    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.map.is_empty()
     }
 
-    <span class="doccomment">/// Remove all entries that aren&#39;t in the specified set of keys</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">subset</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">keys</span>: <span class="kw-2">&amp;</span><span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="self">self</span>.<span class="ident">map</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">k</span>, <span class="ident">v</span><span class="op">|</span> {
-            <span class="kw">if</span> <span class="ident">keys</span>.<span class="ident">contains</span>(<span class="ident">k</span>) {
-                <span class="bool-val">true</span>
-            } <span class="kw">else</span> {
-                <span class="ident">sum</span> <span class="op">+</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">v</span>;
-                <span class="bool-val">false</span>
-            }
+    <span class="kw">pub fn </span>extend(<span class="kw-2">&amp;mut </span><span class="self">self</span>, other: Counter&lt;T&gt;) {
+        <span class="self">self</span>.map.extend(other.map);
+        <span class="self">self</span>.sum += other.sum;
+    }
+
+    <span class="doccomment">/// Remove all entries that aren&#39;t in the specified set of keys
+    </span><span class="kw">pub fn </span>subset(<span class="kw-2">&amp;mut </span><span class="self">self</span>, keys: <span class="kw-2">&amp;</span>BTreeSet&lt;T&gt;) {
+        <span class="kw">let </span><span class="kw-2">mut </span>sum = <span class="number">0</span>;
+        <span class="self">self</span>.map.retain(|k, v| {
+            <span class="kw">if </span>keys.contains(k) {
+                <span class="bool-val">true
+            </span>} <span class="kw">else </span>{
+                sum += <span class="kw-2">*</span>v;
+                <span class="bool-val">false
+            </span>}
         });
-        <span class="self">self</span>.<span class="ident">sum</span> <span class="op">-</span><span class="op">=</span> <span class="ident">sum</span>;
+        <span class="self">self</span>.sum -= sum;
     }
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wraparound_get</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>(<span class="ident">vec</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>], <span class="ident">idx</span>: <span class="ident">isize</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">T</span> {
-    <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">vec</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">isize</span>;
-    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">idx</span> <span class="op">%</span> <span class="ident">len</span>;
-    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span> { <span class="ident">idx</span> } <span class="kw">else</span> { <span class="ident">idx</span> <span class="op">+</span> <span class="ident">len</span> };
-    <span class="kw-2">&amp;</span><span class="ident">vec</span>[<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">usize</span>]
+<span class="kw">pub fn </span>wraparound_get&lt;T&gt;(vec: <span class="kw-2">&amp;</span>[T], idx: isize) -&gt; <span class="kw-2">&amp;</span>T {
+    <span class="kw">let </span>len = vec.len() <span class="kw">as </span>isize;
+    <span class="kw">let </span>idx = idx % len;
+    <span class="kw">let </span>idx = <span class="kw">if </span>idx &gt;= <span class="number">0 </span>{ idx } <span class="kw">else </span>{ idx + len };
+    <span class="kw-2">&amp;</span>vec[idx <span class="kw">as </span>usize]
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_duplicates</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Ord</span><span class="op">&gt;</span>(<span class="ident">vec</span>: <span class="kw-2">&amp;</span>[<span class="ident">T</span>]) -&gt; <span class="ident">bool</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">set</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
-    <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">vec</span> {
-        <span class="kw">if</span> <span class="ident">set</span>.<span class="ident">contains</span>(<span class="ident">item</span>) {
-            <span class="kw">return</span> <span class="bool-val">true</span>;
+<span class="kw">pub fn </span>contains_duplicates&lt;T: Ord&gt;(vec: <span class="kw-2">&amp;</span>[T]) -&gt; bool {
+    <span class="kw">let </span><span class="kw-2">mut </span>set = BTreeSet::new();
+    <span class="kw">for </span>item <span class="kw">in </span>vec {
+        <span class="kw">if </span>set.contains(item) {
+            <span class="kw">return </span><span class="bool-val">true</span>;
         }
-        <span class="ident">set</span>.<span class="ident">insert</span>(<span class="ident">item</span>);
+        set.insert(item);
     }
-    <span class="bool-val">false</span>
+    <span class="bool-val">false
+</span>}
+
+<span class="doccomment">/// Use when your key is just PartialEq, not Ord or Hash.
+</span><span class="kw">pub struct </span>VecMap&lt;K, V&gt; {
+    inner: Vec&lt;(K, V)&gt;,
 }
 
-<span class="doccomment">/// Use when your key is just PartialEq, not Ord or Hash.</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span>,
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="ident">VecMap</span> { <span class="ident">inner</span>: <span class="ident">Vec::new</span>() }
+<span class="kw">impl</span>&lt;K: Clone + PartialEq, V&gt; VecMap&lt;K, V&gt; {
+    <span class="kw">pub fn </span>new() -&gt; VecMap&lt;K, V&gt; {
+        VecMap { inner: Vec::new() }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">consume</span>(<span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">K</span>, <span class="ident">V</span>)<span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>
+    <span class="kw">pub fn </span>consume(<span class="self">self</span>) -&gt; Vec&lt;(K, V)&gt; {
+        <span class="self">self</span>.inner
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mut_or_insert</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>() -&gt; <span class="ident">V</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">ctor</span>: <span class="ident">F</span>) -&gt; <span class="kw-2">&amp;mut</span> <span class="ident">V</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="ident">key</span> <span class="op">==</span> <span class="kw-2">*</span><span class="ident">k</span>) {
-            <span class="kw">return</span> <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>[<span class="ident">idx</span>].<span class="number">1</span>;
+    <span class="kw">pub fn </span>mut_or_insert&lt;F: Fn() -&gt; V&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, ctor: F) -&gt; <span class="kw-2">&amp;mut </span>V {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = <span class="self">self</span>.inner.iter().position(|(k, <span class="kw">_</span>)| key == <span class="kw-2">*</span>k) {
+            <span class="kw">return </span><span class="kw-2">&amp;mut </span><span class="self">self</span>.inner[idx].<span class="number">1</span>;
         }
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">push</span>((<span class="ident">key</span>, <span class="ident">ctor</span>()));
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>().<span class="number">1</span>
+        <span class="self">self</span>.inner.push((key, ctor()));
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>.inner.last_mut().unwrap().<span class="number">1
+    </span>}
+
+    <span class="doccomment">/// Doesn&#39;t dedupe
+    </span><span class="kw">pub fn </span>push(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) {
+        <span class="self">self</span>.inner.push((key, value));
     }
 
-    <span class="doccomment">/// Doesn&#39;t dedupe</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">push</span>((<span class="ident">key</span>, <span class="ident">value</span>));
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">inner</span> {
-            <span class="kw">if</span> <span class="ident">k</span> <span class="op">==</span> <span class="ident">key</span> {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>);
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt; {
+        <span class="kw">for </span>(k, v) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.inner {
+            <span class="kw">if </span>k == key {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(v);
             }
         }
-        <span class="prelude-val">None</span>
+        <span class="prelude-val">None
+    </span>}
+
+    <span class="kw">pub fn </span>len(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize {
+        <span class="self">self</span>.inner.len()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">len</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">len</span>()
+    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.inner.is_empty()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">is_empty</span>()
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">clear</span>();
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">PartialEq</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">VecMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">VecMap::new</span>()
+    <span class="kw">pub fn </span>clear(<span class="kw-2">&amp;mut </span><span class="self">self</span>) {
+        <span class="self">self</span>.inner.clear();
     }
 }
 
-<span class="doccomment">/// Convenience functions around a string-&gt;string map</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Tags</span>(<span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>);
+<span class="kw">impl</span>&lt;K: Clone + PartialEq, V&gt; Default <span class="kw">for </span>VecMap&lt;K, V&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        VecMap::new()
+    }
+}
 
-<span class="kw">impl</span> <span class="ident">Tags</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">map</span>: <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span>) -&gt; <span class="ident">Tags</span> {
-        <span class="ident">Tags</span>(<span class="ident">map</span>)
+<span class="doccomment">/// Convenience functions around a string-&gt;string map
+</span><span class="attribute">#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+</span><span class="kw">pub struct </span>Tags(BTreeMap&lt;String, String&gt;);
+
+<span class="kw">impl </span>Tags {
+    <span class="kw">pub fn </span>new(map: BTreeMap&lt;String, String&gt;) -&gt; Tags {
+        Tags(map)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>() -&gt; <span class="ident">Tags</span> {
-        <span class="ident">Tags</span>(<span class="ident">BTreeMap::new</span>())
+    <span class="kw">pub fn </span>empty() -&gt; Tags {
+        Tags(BTreeMap::new())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">k</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="ident">k</span>)
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>String&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.get(k)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_result</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">k</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="ident">k</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;missing {}&quot;</span>, <span class="ident">k</span>))
+    <span class="kw">pub fn </span>get_result(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span>String&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.get(k).ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;missing {}&quot;</span>, k))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">k</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">contains_key</span>(<span class="ident">k</span>)
+    <span class="kw">pub fn </span>contains_key(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0</span>.contains_key(k)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_any</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">keys</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">keys</span>.<span class="ident">into_iter</span>().<span class="ident">any</span>(<span class="op">|</span><span class="ident">key</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">contains_key</span>(<span class="ident">key</span>))
+    <span class="kw">pub fn </span>has_any(<span class="kw-2">&amp;</span><span class="self">self</span>, keys: Vec&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; bool {
+        keys.into_iter().any(|key| <span class="self">self</span>.contains_key(key))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">k</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">v</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="ident">k</span>) <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">to_string</span>())
+    <span class="kw">pub fn </span>is(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>str, v: <span class="kw-2">&amp;</span>str) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0</span>.get(k) == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>v.to_string())
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_any</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">k</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">values</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">get</span>(<span class="ident">k</span>) {
-            <span class="ident">values</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">v</span>.<span class="ident">as_ref</span>())
-        } <span class="kw">else</span> {
-            <span class="bool-val">false</span>
-        }
+    <span class="kw">pub fn </span>is_any(<span class="kw-2">&amp;</span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>str, values: Vec&lt;<span class="kw-2">&amp;</span>str&gt;) -&gt; bool {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(v) = <span class="self">self</span>.<span class="number">0</span>.get(k) {
+            values.contains(<span class="kw-2">&amp;</span>v.as_ref())
+        } <span class="kw">else </span>{
+            <span class="bool-val">false
+        </span>}
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">V</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">k</span>: <span class="ident">K</span>, <span class="ident">v</span>: <span class="ident">V</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">insert</span>(<span class="ident">k</span>.<span class="ident">into</span>(), <span class="ident">v</span>.<span class="ident">into</span>());
+    <span class="kw">pub fn </span>insert&lt;K: Into&lt;String&gt;, V: Into&lt;String&gt;&gt;(<span class="kw-2">&amp;mut </span><span class="self">self</span>, k: K, v: V) {
+        <span class="self">self</span>.<span class="number">0</span>.insert(k.into(), v.into());
     }
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">k</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">remove</span>(<span class="ident">k</span>)
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_empty</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_empty</span>()
+    <span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, k: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
+        <span class="self">self</span>.<span class="number">0</span>.remove(k)
     }
 
-    <span class="comment">// TODO Really just iter()</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">inner</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>
+    <span class="kw">pub fn </span>is_empty(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.<span class="number">0</span>.is_empty()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="self">self</span>) -&gt; <span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="number">0</span>
-    }
+    <span class="comment">// TODO Really just iter()
+    </span><span class="kw">pub fn </span>inner(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>BTreeMap&lt;String, String&gt; {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0
+    </span>}
 
-    <span class="doccomment">/// Find all values that differ. Returns (key, value1, value2). If one set of tags is missing a</span>
-    <span class="doccomment">/// value, return a blank string.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">String</span>, <span class="ident">String</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v1</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">inner</span>() {
-            <span class="kw">let</span> <span class="ident">v2</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">get</span>(<span class="ident">k</span>).<span class="ident">cloned</span>().<span class="ident">unwrap_or_else</span>(<span class="ident">String::new</span>);
-            <span class="kw">if</span> <span class="ident">v1</span> <span class="op">!</span><span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">v2</span> {
-                <span class="ident">results</span>.<span class="ident">push</span>((<span class="ident">k</span>.<span class="ident">clone</span>(), <span class="ident">v1</span>.<span class="ident">clone</span>(), <span class="ident">v2</span>));
+    <span class="kw">pub fn </span>into_inner(<span class="self">self</span>) -&gt; BTreeMap&lt;String, String&gt; {
+        <span class="self">self</span>.<span class="number">0
+    </span>}
+
+    <span class="doccomment">/// Find all values that differ. Returns (key, value1, value2). If one set of tags is missing a
+    /// value, return a blank string.
+    </span><span class="kw">pub fn </span>diff(<span class="kw-2">&amp;</span><span class="self">self</span>, other: <span class="kw-2">&amp;</span>Tags) -&gt; Vec&lt;(String, String, String)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>results = Vec::new();
+        <span class="kw">for </span>(k, v1) <span class="kw">in </span><span class="self">self</span>.inner() {
+            <span class="kw">let </span>v2 = other.get(k).cloned().unwrap_or_else(String::new);
+            <span class="kw">if </span>v1 != <span class="kw-2">&amp;</span>v2 {
+                results.push((k.clone(), v1.clone(), v2));
             }
         }
-        <span class="kw">for</span> (<span class="ident">k</span>, <span class="ident">v2</span>) <span class="kw">in</span> <span class="ident">other</span>.<span class="ident">inner</span>() {
-            <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">contains_key</span>(<span class="ident">k</span>) {
-                <span class="ident">results</span>.<span class="ident">push</span>((<span class="ident">k</span>.<span class="ident">clone</span>(), <span class="ident">String::new</span>(), <span class="ident">v2</span>.<span class="ident">clone</span>()));
+        <span class="kw">for </span>(k, v2) <span class="kw">in </span>other.inner() {
+            <span class="kw">if </span>!<span class="self">self</span>.contains_key(k) {
+                results.push((k.clone(), String::new(), v2.clone()));
             }
         }
-        <span class="ident">results</span>
+        results
     }
 }
 
-<span class="doccomment">/// Use with `FixedMap`. From a particular key, extract a `usize`. These values should be</span>
-<span class="doccomment">/// roughly contiguous; the space used by the `FixedMap` will be `O(n)` with respect to the largest</span>
-<span class="doccomment">/// value returned here.</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IndexableKey</span> {
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">usize</span>;
+<span class="doccomment">/// Use with `FixedMap`. From a particular key, extract a `usize`. These values should be
+/// roughly contiguous; the space used by the `FixedMap` will be `O(n)` with respect to the largest
+/// value returned here.
+</span><span class="kw">pub trait </span>IndexableKey {
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
 }
 
-<span class="doccomment">/// A drop-in replacement for `BTreeMap`, where the keys have the property of being array indices.</span>
-<span class="doccomment">/// Some values may be missing. Much more efficient at operations on individual objects, because</span>
-<span class="doccomment">/// it just becomes a simple array lookup.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">IndexableKey</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="ident">inner</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span>,
-    <span class="ident">key_type</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span>,
+<span class="doccomment">/// A drop-in replacement for `BTreeMap`, where the keys have the property of being array indices.
+/// Some values may be missing. Much more efficient at operations on individual objects, because
+/// it just becomes a simple array lookup.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone)]
+</span><span class="kw">pub struct </span>FixedMap&lt;K: IndexableKey, V&gt; {
+    inner: Vec&lt;<span class="prelude-ty">Option</span>&lt;V&gt;&gt;,
+    key_type: PhantomData&lt;K&gt;,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">IndexableKey</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="ident">FixedMap</span> {
-            <span class="ident">inner</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">key_type</span>: <span class="ident">PhantomData</span>,
+<span class="kw">impl</span>&lt;K: IndexableKey, V&gt; FixedMap&lt;K, V&gt; {
+    <span class="kw">pub fn </span>new() -&gt; FixedMap&lt;K, V&gt; {
+        FixedMap {
+            inner: Vec::new(),
+            key_type: PhantomData,
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">insert</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="ident">K</span>, <span class="ident">value</span>: <span class="ident">V</span>) {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">key</span>.<span class="ident">index</span>();
-        <span class="comment">// Depending on the order of calls, this could wind up pushing one value at a time. It may</span>
-        <span class="comment">// be more efficient to resize less times and allocate more, but it&#39;ll require the caller</span>
-        <span class="comment">// to know about how many values it&#39;ll need.</span>
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&gt;</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">len</span>() {
-            <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">resize_with</span>(<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>, <span class="op">|</span><span class="op">|</span> <span class="prelude-val">None</span>);
+    <span class="kw">pub fn </span>insert(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: K, value: V) {
+        <span class="kw">let </span>idx = key.index();
+        <span class="comment">// Depending on the order of calls, this could wind up pushing one value at a time. It may
+        // be more efficient to resize less times and allocate more, but it&#39;ll require the caller
+        // to know about how many values it&#39;ll need.
+        </span><span class="kw">if </span>idx &gt;= <span class="self">self</span>.inner.len() {
+            <span class="self">self</span>.inner.resize_with(idx + <span class="number">1</span>, || <span class="prelude-val">None</span>);
         }
-        <span class="self">self</span>.<span class="ident">inner</span>[<span class="ident">idx</span>] <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">value</span>);
+        <span class="self">self</span>.inner[idx] = <span class="prelude-val">Some</span>(value);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get</span>(<span class="ident">key</span>.<span class="ident">index</span>())<span class="question-mark">?</span>.<span class="ident">as_ref</span>()
+    <span class="kw">pub fn </span>get(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>V&gt; {
+        <span class="self">self</span>.inner.get(key.index())<span class="question-mark">?</span>.as_ref()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_mut</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> <span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>.<span class="ident">index</span>())<span class="question-mark">?</span>.<span class="ident">as_mut</span>()
+    <span class="kw">pub fn </span>get_mut(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;mut </span>V&gt; {
+        <span class="self">self</span>.inner.get_mut(key.index())<span class="question-mark">?</span>.as_mut()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">contains_key</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>
-            .<span class="ident">get</span>(<span class="ident">key</span>.<span class="ident">index</span>())
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_some</span>())
-            .<span class="ident">unwrap_or</span>(<span class="bool-val">false</span>)
+    <span class="kw">pub fn </span>contains_key(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; bool {
+        <span class="self">self</span>.inner
+            .get(key.index())
+            .map(|x| x.is_some())
+            .unwrap_or(<span class="bool-val">false</span>)
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">remove</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">get_mut</span>(<span class="ident">key</span>.<span class="ident">index</span>())<span class="question-mark">?</span>.<span class="ident">take</span>()
+    <span class="kw">pub fn </span>remove(<span class="kw-2">&amp;mut </span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="prelude-ty">Option</span>&lt;V&gt; {
+        <span class="self">self</span>.inner.get_mut(key.index())<span class="question-mark">?</span>.take()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">values</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">std::iter::Flatten</span><span class="op">&lt;</span><span class="ident">std::slice::Iter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span>, <span class="ident">std::option::Option</span><span class="op">&lt;</span><span class="ident">V</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>.<span class="ident">iter</span>().<span class="ident">flatten</span>()
-    }
-}
-
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">IndexableKey</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="ident">FixedMap::new</span>()
+    <span class="kw">pub fn </span>values(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; std::iter::Flatten&lt;std::slice::Iter&lt;<span class="lifetime">&#39;_</span>, std::option::Option&lt;V&gt;&gt;&gt; {
+        <span class="self">self</span>.inner.iter().flatten()
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">K</span>: <span class="ident">IndexableKey</span>, <span class="ident">V</span><span class="op">&gt;</span> <span class="ident">std::ops::Index</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">K</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FixedMap</span><span class="op">&lt;</span><span class="ident">K</span>, <span class="ident">V</span><span class="op">&gt;</span> {
-    <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="ident">V</span>;
+<span class="kw">impl</span>&lt;K: IndexableKey, V&gt; Default <span class="kw">for </span>FixedMap&lt;K, V&gt; {
+    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
+        FixedMap::new()
+    }
+}
 
-    <span class="kw">fn</span> <span class="ident">index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">key</span>: <span class="kw-2">&amp;</span><span class="ident">K</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident"><span class="self">Self</span>::Output</span> {
-        <span class="self">self</span>.<span class="ident">inner</span>[<span class="ident">key</span>.<span class="ident">index</span>()].<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()
+<span class="kw">impl</span>&lt;K: IndexableKey, V&gt; std::ops::Index&lt;<span class="kw-2">&amp;</span>K&gt; <span class="kw">for </span>FixedMap&lt;K, V&gt; {
+    <span class="kw">type </span>Output = V;
+
+    <span class="kw">fn </span>index(<span class="kw-2">&amp;</span><span class="self">self</span>, key: <span class="kw-2">&amp;</span>K) -&gt; <span class="kw-2">&amp;</span><span class="self">Self</span>::Output {
+        <span class="self">self</span>.inner[key.index()].as_ref().unwrap()
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstutil" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="abstutil" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

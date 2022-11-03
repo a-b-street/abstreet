@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/minimap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>minimap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/sandbox/minimap.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>minimap.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -335,342 +335,342 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::prettyprint_usize</span>;
-<span class="kw">use</span> <span class="ident">map_gui::tools</span>::{<span class="ident">MinimapControls</span>, <span class="ident">Navigator</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">ControlState</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Panel</span>, <span class="ident">ScreenDims</span>, <span class="ident">Text</span>,
-    <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>,
+</pre><pre class="rust"><code><span class="kw">use </span>abstutil::prettyprint_usize;
+<span class="kw">use </span>map_gui::tools::{MinimapControls, Navigator};
+<span class="kw">use </span>widgetry::{
+    ControlState, EventCtx, GfxCtx, HorizontalAlignment, Image, Key, Line, Panel, ScreenDims, Text,
+    VerticalAlignment, Widget,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::App</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app::Transition</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::Warping</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::layer::PickLayer</span>;
+<span class="kw">use </span><span class="kw">crate</span>::app::App;
+<span class="kw">use </span><span class="kw">crate</span>::app::Transition;
+<span class="kw">use </span><span class="kw">crate</span>::common::Warping;
+<span class="kw">use </span><span class="kw">crate</span>::layer::PickLayer;
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">MinimapController</span>;
+<span class="kw">pub struct </span>MinimapController;
 
-<span class="kw">impl</span> <span class="ident">MinimapControls</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">MinimapController</span> {
-    <span class="kw">fn</span> <span class="ident">has_zorder</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">dev</span>
+<span class="kw">impl </span>MinimapControls&lt;App&gt; <span class="kw">for </span>MinimapController {
+    <span class="kw">fn </span>has_zorder(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; bool {
+        app.opts.dev
     }
-    <span class="kw">fn</span> <span class="ident">has_layer</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">bool</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span>.<span class="ident">is_some</span>()
+    <span class="kw">fn </span>has_layer(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; bool {
+        app.primary.layer.is_some()
     }
 
-    <span class="kw">fn</span> <span class="ident">draw_extra</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">l</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">layer</span> {
-            <span class="ident">l</span>.<span class="ident">draw_minimap</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw_extra(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>l) = app.primary.layer {
+            l.draw_minimap(g);
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">cache</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow_mut</span>();
-        <span class="ident">cache</span>.<span class="ident">draw_unzoomed_agents</span>(<span class="ident">g</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>cache = app.primary.agents.borrow_mut();
+        cache.draw_unzoomed_agents(g, <span class="kw-2">&amp;</span>app.primary.map, <span class="kw-2">&amp;</span>app.primary.sim, <span class="kw-2">&amp;</span>app.cs, <span class="kw-2">&amp;</span>app.opts);
     }
 
-    <span class="kw">fn</span> <span class="ident">make_unzoomed_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Panel</span> {
-        <span class="kw">let</span> <span class="ident">unzoomed_agents</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow</span>().<span class="ident">unzoomed_agents</span>;
-        <span class="kw">let</span> <span class="ident">is_enabled</span> <span class="op">=</span> [
-            <span class="ident">unzoomed_agents</span>.<span class="ident">cars</span>(),
-            <span class="ident">unzoomed_agents</span>.<span class="ident">bikes</span>(),
-            <span class="ident">unzoomed_agents</span>.<span class="ident">buses_and_trains</span>(),
-            <span class="ident">unzoomed_agents</span>.<span class="ident">peds</span>(),
+    <span class="kw">fn </span>make_unzoomed_panel(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Panel {
+        <span class="kw">let </span>unzoomed_agents = <span class="kw-2">&amp;</span>app.primary.agents.borrow().unzoomed_agents;
+        <span class="kw">let </span>is_enabled = [
+            unzoomed_agents.cars(),
+            unzoomed_agents.bikes(),
+            unzoomed_agents.buses_and_trains(),
+            unzoomed_agents.peds(),
         ];
-        <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">make_tool_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>).<span class="ident">align_right</span>(),
-            <span class="ident">Widget::col</span>(<span class="ident">make_agent_toggles</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">is_enabled</span>))
-                .<span class="ident">bg</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">panel_bg</span>)
-                .<span class="ident">padding</span>(<span class="number">16</span>),
+        Panel::new_builder(Widget::row(<span class="macro">vec!</span>[
+            make_tool_panel(ctx, app).align_right(),
+            Widget::col(make_agent_toggles(ctx, app, is_enabled))
+                .bg(app.cs.panel_bg)
+                .padding(<span class="number">16</span>),
         ]))
-        .<span class="ident">aligned</span>(
-            <span class="ident">HorizontalAlignment::Right</span>,
-            <span class="ident">VerticalAlignment::BottomAboveOSD</span>,
+        .aligned(
+            HorizontalAlignment::Right,
+            VerticalAlignment::BottomAboveOSD,
         )
-        .<span class="ident">build_custom</span>(<span class="ident">ctx</span>)
+        .build_custom(ctx)
     }
-    <span class="kw">fn</span> <span class="ident">make_legend</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">unzoomed_agents</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">agents</span>.<span class="ident">borrow</span>().<span class="ident">unzoomed_agents</span>;
-        <span class="kw">let</span> <span class="ident">is_enabled</span> <span class="op">=</span> [
-            <span class="ident">unzoomed_agents</span>.<span class="ident">cars</span>(),
-            <span class="ident">unzoomed_agents</span>.<span class="ident">bikes</span>(),
-            <span class="ident">unzoomed_agents</span>.<span class="ident">buses_and_trains</span>(),
-            <span class="ident">unzoomed_agents</span>.<span class="ident">peds</span>(),
+    <span class="kw">fn </span>make_legend(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        <span class="kw">let </span>unzoomed_agents = <span class="kw-2">&amp;</span>app.primary.agents.borrow().unzoomed_agents;
+        <span class="kw">let </span>is_enabled = [
+            unzoomed_agents.cars(),
+            unzoomed_agents.bikes(),
+            unzoomed_agents.buses_and_trains(),
+            unzoomed_agents.peds(),
         ];
 
-        <span class="ident">Widget::custom_row</span>(<span class="ident">make_agent_toggles</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">is_enabled</span>))
-            <span class="comment">// nudge to left-align with the map edge</span>
-            .<span class="ident">margin_left</span>(<span class="number">26</span>)
+        Widget::custom_row(make_agent_toggles(ctx, app, is_enabled))
+            <span class="comment">// nudge to left-align with the map edge
+            </span>.margin_left(<span class="number">26</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">make_zoomed_side_panel</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-        <span class="ident">make_tool_panel</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)
+    <span class="kw">fn </span>make_zoomed_side_panel(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+        make_tool_panel(ctx, app)
     }
 
-    <span class="kw">fn</span> <span class="ident">panel_clicked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Transition</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="ident">action</span> {
-            <span class="string">&quot;search&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Navigator::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+    <span class="kw">fn </span>panel_clicked(<span class="kw-2">&amp;</span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, action: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;Transition&gt; {
+        <span class="kw">match </span>action {
+            <span class="string">&quot;search&quot; </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(Navigator::new_state(ctx, app)));
             }
-            <span class="string">&quot;zoom out fully&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_bounds</span>().<span class="ident">get_rectangle</span>().<span class="ident">center</span>(),
-                    <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">min_zoom</span>()),
+            <span class="string">&quot;zoom out fully&quot; </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(Warping::new_state(
+                    ctx,
+                    app.primary.map.get_bounds().get_rectangle().center(),
+                    <span class="prelude-val">Some</span>(ctx.canvas.min_zoom()),
                     <span class="prelude-val">None</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                    <span class="kw-2">&amp;mut </span>app.primary,
                 )));
             }
-            <span class="string">&quot;zoom in fully&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                    <span class="ident">ctx</span>,
-                    <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">center_to_map_pt</span>(),
+            <span class="string">&quot;zoom in fully&quot; </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(Warping::new_state(
+                    ctx,
+                    ctx.canvas.center_to_map_pt(),
                     <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
                     <span class="prelude-val">None</span>,
-                    <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                    <span class="kw-2">&amp;mut </span>app.primary,
                 )));
             }
-            <span class="string">&quot;change layers&quot;</span> =&gt; {
-                <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">PickLayer::pick</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)));
+            <span class="string">&quot;change layers&quot; </span>=&gt; {
+                <span class="kw">return </span><span class="prelude-val">Some</span>(Transition::Push(PickLayer::pick(ctx, app)));
             }
-            <span class="string">&quot;more data&quot;</span> =&gt; <span class="prelude-val">Some</span>(<span class="ident">Transition::Push</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">dash_tab</span>.<span class="ident">launch</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+            <span class="string">&quot;more data&quot; </span>=&gt; <span class="prelude-val">Some</span>(Transition::Push(app.session.dash_tab.launch(ctx, app))),
+            <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
         }
     }
-    <span class="kw">fn</span> <span class="ident">panel_changed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">panel</span>: <span class="kw-2">&amp;</span><span class="ident">Panel</span>) {
-        <span class="kw">if</span> <span class="ident">panel</span>.<span class="ident">has_widget</span>(<span class="string">&quot;Car&quot;</span>) {
-            <span class="ident">app</span>.<span class="ident">primary</span>
-                .<span class="ident">agents</span>
-                .<span class="ident">borrow_mut</span>()
-                .<span class="ident">unzoomed_agents</span>
-                .<span class="ident">update</span>(<span class="ident">panel</span>);
+    <span class="kw">fn </span>panel_changed(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, panel: <span class="kw-2">&amp;</span>Panel) {
+        <span class="kw">if </span>panel.has_widget(<span class="string">&quot;Car&quot;</span>) {
+            app.primary
+                .agents
+                .borrow_mut()
+                .unzoomed_agents
+                .update(panel);
         }
     }
 }
 
-<span class="doccomment">/// `is_enabled`: are (car, bike, bus, pedestrian) toggles enabled</span>
-<span class="doccomment">/// returns Widgets for (car, bike, bus, pedestrian)</span>
-<span class="kw">fn</span> <span class="ident">make_agent_toggles</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">is_enabled</span>: [<span class="ident">bool</span>; <span class="number">4</span>]) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> {
-    <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">include_labeled_bytes</span>, <span class="ident">Color</span>, <span class="ident">GeomBatchStack</span>, <span class="ident">RewriteColor</span>, <span class="ident">Toggle</span>};
-    <span class="kw">let</span> [<span class="ident">is_car_enabled</span>, <span class="ident">is_bike_enabled</span>, <span class="ident">is_bus_enabled</span>, <span class="ident">is_pedestrian_enabled</span>] <span class="op">=</span> <span class="ident">is_enabled</span>;
+<span class="doccomment">/// `is_enabled`: are (car, bike, bus, pedestrian) toggles enabled
+/// returns Widgets for (car, bike, bus, pedestrian)
+</span><span class="kw">fn </span>make_agent_toggles(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, is_enabled: [bool; <span class="number">4</span>]) -&gt; Vec&lt;Widget&gt; {
+    <span class="kw">use </span>widgetry::{include_labeled_bytes, Color, GeomBatchStack, RewriteColor, Toggle};
+    <span class="kw">let </span>[is_car_enabled, is_bike_enabled, is_bus_enabled, is_pedestrian_enabled] = is_enabled;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">colored_checkbox</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-        <span class="ident">action</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">is_enabled</span>: <span class="ident">bool</span>,
-        <span class="ident">color</span>: <span class="ident">Color</span>,
-        <span class="ident">icon</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">label</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">tooltip</span>: <span class="ident">Text</span>,
-    ) -&gt; <span class="ident">Widget</span> {
-        <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">btn</span>()
-            .<span class="ident">label_text</span>(<span class="ident">label</span>)
-            .<span class="ident">padding</span>(<span class="number">4.0</span>)
-            .<span class="ident">tooltip</span>(<span class="ident">tooltip</span>)
-            .<span class="ident">image_color</span>(<span class="ident">RewriteColor::NoOp</span>, <span class="ident">ControlState::Default</span>);
+    <span class="kw">pub fn </span>colored_checkbox(
+        ctx: <span class="kw-2">&amp;</span>EventCtx,
+        action: <span class="kw-2">&amp;</span>str,
+        is_enabled: bool,
+        color: Color,
+        icon: <span class="kw-2">&amp;</span>str,
+        label: <span class="kw-2">&amp;</span>str,
+        tooltip: Text,
+    ) -&gt; Widget {
+        <span class="kw">let </span>buttons = ctx
+            .style()
+            .btn_plain
+            .btn()
+            .label_text(label)
+            .padding(<span class="number">4.0</span>)
+            .tooltip(tooltip)
+            .image_color(RewriteColor::NoOp, ControlState::Default);
 
-        <span class="kw">let</span> <span class="ident">icon_batch</span> <span class="op">=</span> <span class="ident">Image::from_path</span>(<span class="ident">icon</span>)
-            .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
-            .<span class="ident">expect</span>(<span class="string">&quot;invalid svg&quot;</span>)
+        <span class="kw">let </span>icon_batch = Image::from_path(icon)
+            .build_batch(ctx)
+            .expect(<span class="string">&quot;invalid svg&quot;</span>)
             .<span class="number">0</span>;
-        <span class="kw">let</span> <span class="ident">false_btn</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">checkbox</span> <span class="op">=</span> <span class="ident">Image::from_bytes</span>(<span class="macro">include_labeled_bytes!</span>(
-                <span class="string">&quot;../../../../widgetry/icons/checkbox_no_border_unchecked.svg&quot;</span>
-            ))
-            .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">color</span>.<span class="ident">alpha</span>(<span class="number">0.3</span>)));
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">GeomBatchStack::horizontal</span>(<span class="macro">vec!</span>[
-                <span class="ident">checkbox</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid svg&quot;</span>).<span class="number">0</span>,
-                <span class="ident">icon_batch</span>.<span class="ident">clone</span>(),
+        <span class="kw">let </span>false_btn = {
+            <span class="kw">let </span>checkbox = Image::from_bytes(<span class="macro">include_labeled_bytes!</span>(
+                <span class="string">&quot;../../../../widgetry/icons/checkbox_no_border_unchecked.svg&quot;
+            </span>))
+            .color(RewriteColor::Change(Color::BLACK, color.alpha(<span class="number">0.3</span>)));
+            <span class="kw">let </span><span class="kw-2">mut </span>row = GeomBatchStack::horizontal(<span class="macro">vec!</span>[
+                checkbox.build_batch(ctx).expect(<span class="string">&quot;invalid svg&quot;</span>).<span class="number">0</span>,
+                icon_batch.clone(),
             ]);
-            <span class="ident">row</span>.<span class="ident">set_spacing</span>(<span class="number">8.0</span>);
+            row.set_spacing(<span class="number">8.0</span>);
 
-            <span class="kw">let</span> <span class="ident">row_batch</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">batch</span>();
-            <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">row_batch</span>.<span class="ident">get_bounds</span>();
-            <span class="ident">buttons</span>.<span class="ident">clone</span>().<span class="ident">image_batch</span>(<span class="ident">row_batch</span>, <span class="ident">bounds</span>)
+            <span class="kw">let </span>row_batch = row.batch();
+            <span class="kw">let </span>bounds = row_batch.get_bounds();
+            buttons.clone().image_batch(row_batch, bounds)
         };
 
-        <span class="comment">// For typical checkboxes buttons, the checkbox *is* the image, but for the agent toggles</span>
-        <span class="comment">// we need both a checkbox *and* an additional icon. To do that, we combine the checkbox</span>
-        <span class="comment">// and icon into a single batch, and use that combined batch as the button&#39;s image.</span>
-        <span class="kw">let</span> <span class="ident">true_btn</span> <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">checkbox</span> <span class="op">=</span> <span class="ident">Image::from_bytes</span>(<span class="macro">include_labeled_bytes!</span>(
-                <span class="string">&quot;../../../../widgetry/icons/checkbox_no_border_checked.svg&quot;</span>
-            ))
-            .<span class="ident">color</span>(<span class="ident">RewriteColor::Change</span>(<span class="ident">Color::BLACK</span>, <span class="ident">color</span>));
+        <span class="comment">// For typical checkboxes buttons, the checkbox *is* the image, but for the agent toggles
+        // we need both a checkbox *and* an additional icon. To do that, we combine the checkbox
+        // and icon into a single batch, and use that combined batch as the button&#39;s image.
+        </span><span class="kw">let </span>true_btn = {
+            <span class="kw">let </span>checkbox = Image::from_bytes(<span class="macro">include_labeled_bytes!</span>(
+                <span class="string">&quot;../../../../widgetry/icons/checkbox_no_border_checked.svg&quot;
+            </span>))
+            .color(RewriteColor::Change(Color::BLACK, color));
 
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span> <span class="op">=</span> <span class="ident">GeomBatchStack::horizontal</span>(<span class="macro">vec!</span>[
-                <span class="ident">checkbox</span>.<span class="ident">build_batch</span>(<span class="ident">ctx</span>).<span class="ident">expect</span>(<span class="string">&quot;invalid svg&quot;</span>).<span class="number">0</span>,
-                <span class="ident">icon_batch</span>,
+            <span class="kw">let </span><span class="kw-2">mut </span>row = GeomBatchStack::horizontal(<span class="macro">vec!</span>[
+                checkbox.build_batch(ctx).expect(<span class="string">&quot;invalid svg&quot;</span>).<span class="number">0</span>,
+                icon_batch,
             ]);
-            <span class="ident">row</span>.<span class="ident">set_spacing</span>(<span class="number">8.0</span>);
+            row.set_spacing(<span class="number">8.0</span>);
 
-            <span class="kw">let</span> <span class="ident">row_batch</span> <span class="op">=</span> <span class="ident">row</span>.<span class="ident">batch</span>();
-            <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">row_batch</span>.<span class="ident">get_bounds</span>();
-            <span class="ident">buttons</span>.<span class="ident">image_batch</span>(<span class="ident">row_batch</span>, <span class="ident">bounds</span>)
+            <span class="kw">let </span>row_batch = row.batch();
+            <span class="kw">let </span>bounds = row_batch.get_bounds();
+            buttons.image_batch(row_batch, bounds)
         };
 
-        <span class="ident">Toggle::new_widget</span>(
-            <span class="ident">is_enabled</span>,
-            <span class="ident">false_btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>),
-            <span class="ident">true_btn</span>.<span class="ident">build</span>(<span class="ident">ctx</span>, <span class="ident">action</span>),
+        Toggle::new_widget(
+            is_enabled,
+            false_btn.build(ctx, action),
+            true_btn.build(ctx, action),
         )
-        .<span class="ident">named</span>(<span class="ident">action</span>)
-        .<span class="ident">container</span>()
-        <span class="comment">// avoid horizontal resize jitter as numbers fluctuate</span>
-        .<span class="ident">force_width</span>(<span class="number">137.0</span>)
+        .named(action)
+        .container()
+        <span class="comment">// avoid horizontal resize jitter as numbers fluctuate
+        </span>.force_width(<span class="number">137.0</span>)
     }
 
-    <span class="kw">let</span> <span class="ident">counts</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">sim</span>.<span class="ident">num_commuters_vehicles</span>();
+    <span class="kw">let </span>counts = app.primary.sim.num_commuters_vehicles();
 
-    <span class="kw">let</span> <span class="ident">pedestrian_details</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Pedestrians&quot;</span>),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">let </span>pedestrian_details = {
+        <span class="kw">let </span>tooltip = Text::from_multiline(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Pedestrians&quot;</span>),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;Walking commuters: {}&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">walking_commuters</span>)
+                prettyprint_usize(counts.walking_commuters)
             ))
-            .<span class="ident">secondary</span>(),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            .secondary(),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;To/from public transit: {}&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">walking_to_from_transit</span>)
+                prettyprint_usize(counts.walking_to_from_transit)
             ))
-            .<span class="ident">secondary</span>(),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            .secondary(),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;To/from a car: {}&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">walking_to_from_car</span>)
+                prettyprint_usize(counts.walking_to_from_car)
             ))
-            .<span class="ident">secondary</span>(),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            .secondary(),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;To/from a bike: {}&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">walking_to_from_bike</span>)
+                prettyprint_usize(counts.walking_to_from_bike)
             ))
-            .<span class="ident">secondary</span>(),
+            .secondary(),
         ]);
 
-        <span class="kw">let</span> <span class="ident">count</span> <span class="op">=</span> <span class="ident">prettyprint_usize</span>(
-            <span class="ident">counts</span>.<span class="ident">walking_commuters</span>
-                <span class="op">+</span> <span class="ident">counts</span>.<span class="ident">walking_to_from_transit</span>
-                <span class="op">+</span> <span class="ident">counts</span>.<span class="ident">walking_to_from_car</span>
-                <span class="op">+</span> <span class="ident">counts</span>.<span class="ident">walking_to_from_bike</span>,
+        <span class="kw">let </span>count = prettyprint_usize(
+            counts.walking_commuters
+                + counts.walking_to_from_transit
+                + counts.walking_to_from_car
+                + counts.walking_to_from_bike,
         );
 
-        <span class="ident">colored_checkbox</span>(
-            <span class="ident">ctx</span>,
+        colored_checkbox(
+            ctx,
             <span class="string">&quot;Walk&quot;</span>,
-            <span class="ident">is_pedestrian_enabled</span>,
-            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_pedestrian</span>,
+            is_pedestrian_enabled,
+            app.cs.unzoomed_pedestrian,
             <span class="string">&quot;system/assets/meters/pedestrian.svg&quot;</span>,
-            <span class="kw-2">&amp;</span><span class="ident">count</span>,
-            <span class="ident">tooltip</span>,
+            <span class="kw-2">&amp;</span>count,
+            tooltip,
         )
     };
 
-    <span class="kw">let</span> <span class="ident">bike_details</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Cyclists&quot;</span>),
-            <span class="ident">Line</span>(<span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">cyclists</span>)).<span class="ident">secondary</span>(),
+    <span class="kw">let </span>bike_details = {
+        <span class="kw">let </span>tooltip = Text::from_multiline(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Cyclists&quot;</span>),
+            Line(prettyprint_usize(counts.cyclists)).secondary(),
         ]);
 
-        <span class="ident">colored_checkbox</span>(
-            <span class="ident">ctx</span>,
+        colored_checkbox(
+            ctx,
             <span class="string">&quot;Bike&quot;</span>,
-            <span class="ident">is_bike_enabled</span>,
-            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bike</span>,
+            is_bike_enabled,
+            app.cs.unzoomed_bike,
             <span class="string">&quot;system/assets/meters/bike.svg&quot;</span>,
-            <span class="kw-2">&amp;</span><span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">cyclists</span>),
-            <span class="ident">tooltip</span>,
+            <span class="kw-2">&amp;</span>prettyprint_usize(counts.cyclists),
+            tooltip,
         )
     };
 
-    <span class="kw">let</span> <span class="ident">car_details</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Cars&quot;</span>),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">let </span>car_details = {
+        <span class="kw">let </span>tooltip = Text::from_multiline(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Cars&quot;</span>),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;Single-occupancy vehicles: {}&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">sov_drivers</span>)
+                prettyprint_usize(counts.sov_drivers)
             ))
-            .<span class="ident">secondary</span>(),
+            .secondary(),
         ]);
-        <span class="ident">colored_checkbox</span>(
-            <span class="ident">ctx</span>,
+        colored_checkbox(
+            ctx,
             <span class="string">&quot;Car&quot;</span>,
-            <span class="ident">is_car_enabled</span>,
-            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_car</span>,
+            is_car_enabled,
+            app.cs.unzoomed_car,
             <span class="string">&quot;system/assets/meters/car.svg&quot;</span>,
-            <span class="kw-2">&amp;</span><span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">sov_drivers</span>),
-            <span class="ident">tooltip</span>,
+            <span class="kw-2">&amp;</span>prettyprint_usize(counts.sov_drivers),
+            tooltip,
         )
     };
 
-    <span class="kw">let</span> <span class="ident">bus_details</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">tooltip</span> <span class="op">=</span> <span class="ident">Text::from_multiline</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Public transit&quot;</span>),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+    <span class="kw">let </span>bus_details = {
+        <span class="kw">let </span>tooltip = Text::from_multiline(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Public transit&quot;</span>),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{} passengers on {} buses&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">bus_riders</span>),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">buses</span>)
+                prettyprint_usize(counts.bus_riders),
+                prettyprint_usize(counts.buses)
             ))
-            .<span class="ident">secondary</span>(),
-            <span class="ident">Line</span>(<span class="macro">format!</span>(
+            .secondary(),
+            Line(<span class="macro">format!</span>(
                 <span class="string">&quot;{} passengers on {} trains&quot;</span>,
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">train_riders</span>),
-                <span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">trains</span>)
+                prettyprint_usize(counts.train_riders),
+                prettyprint_usize(counts.trains)
             ))
-            .<span class="ident">secondary</span>(),
+            .secondary(),
         ]);
 
-        <span class="ident">colored_checkbox</span>(
-            <span class="ident">ctx</span>,
+        colored_checkbox(
+            ctx,
             <span class="string">&quot;Bus&quot;</span>,
-            <span class="ident">is_bus_enabled</span>,
-            <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">unzoomed_bus</span>,
+            is_bus_enabled,
+            app.cs.unzoomed_bus,
             <span class="string">&quot;system/assets/meters/bus.svg&quot;</span>,
-            <span class="kw-2">&amp;</span><span class="ident">prettyprint_usize</span>(<span class="ident">counts</span>.<span class="ident">bus_riders</span> <span class="op">+</span> <span class="ident">counts</span>.<span class="ident">train_riders</span>),
-            <span class="ident">tooltip</span>,
+            <span class="kw-2">&amp;</span>prettyprint_usize(counts.bus_riders + counts.train_riders),
+            tooltip,
         )
     };
 
-    <span class="macro">vec!</span>[<span class="ident">car_details</span>, <span class="ident">bike_details</span>, <span class="ident">bus_details</span>, <span class="ident">pedestrian_details</span>]
+    <span class="macro">vec!</span>[car_details, bike_details, bus_details, pedestrian_details]
 }
 
-<span class="kw">fn</span> <span class="ident">make_tool_panel</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="ident">Widget</span> {
-    <span class="kw">let</span> <span class="ident">buttons</span> <span class="op">=</span> <span class="ident">ctx</span>
-        .<span class="ident">style</span>()
-        .<span class="ident">btn_floating</span>
-        .<span class="ident">btn</span>()
-        .<span class="ident">image_dims</span>(<span class="ident">ScreenDims::square</span>(<span class="number">20.0</span>))
-        <span class="comment">// the default transparent button background is jarring for these buttons which are floating</span>
-        <span class="comment">// in a transparent panel.</span>
-        .<span class="ident">bg_color</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">inner_panel_bg</span>, <span class="ident">ControlState::Default</span>)
-        .<span class="ident">padding</span>(<span class="number">8</span>);
+<span class="kw">fn </span>make_tool_panel(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) -&gt; Widget {
+    <span class="kw">let </span>buttons = ctx
+        .style()
+        .btn_floating
+        .btn()
+        .image_dims(ScreenDims::square(<span class="number">20.0</span>))
+        <span class="comment">// the default transparent button background is jarring for these buttons which are floating
+        // in a transparent panel.
+        </span>.bg_color(app.cs.inner_panel_bg, ControlState::Default)
+        .padding(<span class="number">8</span>);
 
-    <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        (<span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">is_zoomed</span>() {
-            <span class="ident">buttons</span>
-                .<span class="ident">clone</span>()
-                .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/zoom_out_fully.svg&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom out fully&quot;</span>)
-        } <span class="kw">else</span> {
-            <span class="ident">buttons</span>
-                .<span class="ident">clone</span>()
-                .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/minimap/zoom_in_fully.svg&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;zoom in fully&quot;</span>)
+    Widget::col(<span class="macro">vec!</span>[
+        (<span class="kw">if </span>ctx.canvas.is_zoomed() {
+            buttons
+                .clone()
+                .image_path(<span class="string">&quot;system/assets/minimap/zoom_out_fully.svg&quot;</span>)
+                .build_widget(ctx, <span class="string">&quot;zoom out fully&quot;</span>)
+        } <span class="kw">else </span>{
+            buttons
+                .clone()
+                .image_path(<span class="string">&quot;system/assets/minimap/zoom_in_fully.svg&quot;</span>)
+                .build_widget(ctx, <span class="string">&quot;zoom in fully&quot;</span>)
         }),
-        <span class="ident">buttons</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::L</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;change layers&quot;</span>),
-        <span class="ident">buttons</span>
-            .<span class="ident">clone</span>()
-            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::K</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;search&quot;</span>),
-        <span class="ident">buttons</span>
-            .<span class="ident">image_path</span>(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>)
-            .<span class="ident">hotkey</span>(<span class="ident">Key::Q</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;more data&quot;</span>),
+        buttons
+            .clone()
+            .image_path(<span class="string">&quot;system/assets/tools/layers.svg&quot;</span>)
+            .hotkey(Key::L)
+            .build_widget(ctx, <span class="string">&quot;change layers&quot;</span>),
+        buttons
+            .clone()
+            .image_path(<span class="string">&quot;system/assets/tools/search.svg&quot;</span>)
+            .hotkey(Key::K)
+            .build_widget(ctx, <span class="string">&quot;search&quot;</span>),
+        buttons
+            .image_path(<span class="string">&quot;system/assets/meters/trip_histogram.svg&quot;</span>)
+            .hotkey(Key::Q)
+            .build_widget(ctx, <span class="string">&quot;more data&quot;</span>),
     ])
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/impact/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/impact/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -234,241 +234,241 @@
 <span id="234">234</span>
 <span id="235">235</span>
 <span id="236">236</span>
-</pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">ui</span>;
+</pre><pre class="rust"><code><span class="kw">mod </span>ui;
 
-<span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
+<span class="kw">use </span>std::collections::BTreeSet;
 
-<span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">map_gui::tools::compare_counts::CompareCounts</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">PathConstraints</span>, <span class="ident">PathRequest</span>, <span class="ident">PathV2</span>, <span class="ident">Pathfinder</span>, <span class="ident">RoadID</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">Scenario</span>, <span class="ident">TrafficCounts</span>, <span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
-<span class="kw">use</span> <span class="ident">widgetry::EventCtx</span>;
+<span class="kw">use </span>abstio::MapName;
+<span class="kw">use </span>abstutil::Timer;
+<span class="kw">use </span>geom::{Duration, Time};
+<span class="kw">use </span>map_gui::tools::compare_counts::CompareCounts;
+<span class="kw">use </span>map_model::{PathConstraints, PathRequest, PathV2, Pathfinder, RoadID};
+<span class="kw">use </span>synthpop::{Scenario, TrafficCounts, TripEndpoint, TripMode};
+<span class="kw">use </span>widgetry::EventCtx;
 
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::ui::ShowResults</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::filters::ChangeKey</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
+<span class="kw">pub use </span><span class="self">self</span>::ui::ShowResults;
+<span class="kw">use </span><span class="kw">crate</span>::filters::ChangeKey;
+<span class="kw">use </span><span class="kw">crate</span>::App;
 
-<span class="comment">// TODO Configurable main road penalty, like in the pathfinding tool</span>
-<span class="comment">// TODO Share structure or pieces with Ungap&#39;s predict mode</span>
-<span class="comment">// ... can&#39;t we just produce data of a certain shape, and have a UI pretty tuned for that?</span>
+<span class="comment">// TODO Configurable main road penalty, like in the pathfinding tool
+// TODO Share structure or pieces with Ungap&#39;s predict mode
+// ... can&#39;t we just produce data of a certain shape, and have a UI pretty tuned for that?
 
-<span class="comment">// This gets incrementally recalculated when stuff changes.</span>
-<span class="comment">//</span>
-<span class="comment">// - all_trips and everything else depends just on the map (we only have one scenario per map now)</span>
-<span class="comment">// - filtered_trips depend on filters</span>
-<span class="comment">// - the &#39;b&#39; and &#39;relative&#39; parts of compare_counts depend on change_key (for when the map is edited)</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Impact</span> {
-    <span class="kw">pub</span> <span class="ident">map</span>: <span class="ident">MapName</span>,
-    <span class="kw">pub</span> <span class="ident">filters</span>: <span class="ident">Filters</span>,
+// This gets incrementally recalculated when stuff changes.
+//
+// - all_trips and everything else depends just on the map (we only have one scenario per map now)
+// - filtered_trips depend on filters
+// - the &#39;b&#39; and &#39;relative&#39; parts of compare_counts depend on change_key (for when the map is edited)
+</span><span class="kw">pub struct </span>Impact {
+    <span class="kw">pub </span>map: MapName,
+    <span class="kw">pub </span>filters: Filters,
 
-    <span class="comment">// Handles all modes</span>
-    <span class="comment">// TODO Maybe try to use this app-wide</span>
-    <span class="ident">pathfinder_before_changes</span>: <span class="ident">Pathfinder</span>,
+    <span class="comment">// Handles all modes
+    // TODO Maybe try to use this app-wide
+    </span>pathfinder_before_changes: Pathfinder,
 
-    <span class="ident">all_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathRequest</span><span class="op">&gt;</span>,
-    <span class="comment">// A subset of all_trips, and the number of times somebody takes the same trip</span>
-    <span class="ident">filtered_trips</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PathRequest</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>,
+    all_trips: Vec&lt;PathRequest&gt;,
+    <span class="comment">// A subset of all_trips, and the number of times somebody takes the same trip
+    </span>filtered_trips: Vec&lt;(PathRequest, usize)&gt;,
 
-    <span class="kw">pub</span> <span class="ident">compare_counts</span>: <span class="ident">CompareCounts</span>,
-    <span class="kw">pub</span> <span class="ident">change_key</span>: <span class="ident">ChangeKey</span>,
+    <span class="kw">pub </span>compare_counts: CompareCounts,
+    <span class="kw">pub </span>change_key: ChangeKey,
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Filters</span> {
-    <span class="kw">pub</span> <span class="ident">modes</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">TripMode</span><span class="op">&gt;</span>,
-    <span class="comment">// TODO Has no effect yet. Do we need to store the TripEndpoints / can we detect from the</span>
-    <span class="comment">// PathRequest reasonably?</span>
-    <span class="kw">pub</span> <span class="ident">include_borders</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">departure_time</span>: (<span class="ident">Time</span>, <span class="ident">Time</span>),
+<span class="attribute">#[derive(PartialEq)]
+</span><span class="kw">pub struct </span>Filters {
+    <span class="kw">pub </span>modes: BTreeSet&lt;TripMode&gt;,
+    <span class="comment">// TODO Has no effect yet. Do we need to store the TripEndpoints / can we detect from the
+    // PathRequest reasonably?
+    </span><span class="kw">pub </span>include_borders: bool,
+    <span class="kw">pub </span>departure_time: (Time, Time),
 }
 
-<span class="kw">impl</span> <span class="ident">Impact</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {
-            <span class="ident">map</span>: <span class="ident">MapName::blank</span>(),
-            <span class="ident">filters</span>: <span class="ident">Filters</span> {
-                <span class="ident">modes</span>: <span class="macro">vec!</span>[<span class="ident">TripMode::Drive</span>].<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-                <span class="ident">include_borders</span>: <span class="bool-val">true</span>,
-                <span class="ident">departure_time</span>: (<span class="ident">Time::START_OF_DAY</span>, <span class="ident">end_of_day</span>()),
+<span class="kw">impl </span>Impact {
+    <span class="kw">pub fn </span>empty(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; <span class="self">Self </span>{
+        <span class="self">Self </span>{
+            map: MapName::blank(),
+            filters: Filters {
+                modes: <span class="macro">vec!</span>[TripMode::Drive].into_iter().collect(),
+                include_borders: <span class="bool-val">true</span>,
+                departure_time: (Time::START_OF_DAY, end_of_day()),
             },
 
-            <span class="ident">pathfinder_before_changes</span>: <span class="ident">Pathfinder::empty</span>(),
+            pathfinder_before_changes: Pathfinder::empty(),
 
-            <span class="ident">all_trips</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">filtered_trips</span>: <span class="ident">Vec::new</span>(),
+            all_trips: Vec::new(),
+            filtered_trips: Vec::new(),
 
-            <span class="ident">compare_counts</span>: <span class="ident">CompareCounts::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">change_key</span>: <span class="ident">ChangeKey::default</span>(),
+            compare_counts: CompareCounts::empty(ctx),
+            change_key: ChangeKey::default(),
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">from_scenario</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">scenario</span>: <span class="ident">Scenario</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="ident">Impact</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">impact</span> <span class="op">=</span> <span class="ident">Impact::empty</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
+    <span class="kw">fn </span>from_scenario(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;</span>App,
+        scenario: Scenario,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; Impact {
+        <span class="kw">let </span><span class="kw-2">mut </span>impact = Impact::empty(ctx);
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
 
-        <span class="ident">impact</span>.<span class="ident">pathfinder_before_changes</span> <span class="op">=</span> <span class="ident">Pathfinder::new_ch</span>(
-            <span class="ident">map</span>,
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">routing_params_before_changes</span>.<span class="ident">clone</span>(),
-            <span class="ident">PathConstraints::all</span>(),
-            <span class="ident">timer</span>,
+        impact.pathfinder_before_changes = Pathfinder::new_ch(
+            map,
+            app.per_map.routing_params_before_changes.clone(),
+            PathConstraints::all(),
+            timer,
         );
 
-        <span class="ident">impact</span>.<span class="ident">map</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>().<span class="ident">clone</span>();
-        <span class="ident">impact</span>.<span class="ident">change_key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">get_change_key</span>();
-        <span class="ident">impact</span>.<span class="ident">all_trips</span> <span class="op">=</span> <span class="ident">timer</span>
-            .<span class="ident">parallelize</span>(<span class="string">&quot;analyze trips&quot;</span>, <span class="ident">scenario</span>.<span class="ident">all_trips</span>().<span class="ident">collect</span>(), <span class="op">|</span><span class="ident">trip</span><span class="op">|</span> {
-                <span class="ident">TripEndpoint::path_req</span>(<span class="ident">trip</span>.<span class="ident">origin</span>, <span class="ident">trip</span>.<span class="ident">destination</span>, <span class="ident">trip</span>.<span class="ident">mode</span>, <span class="ident">map</span>)
+        impact.map = app.per_map.map.get_name().clone();
+        impact.change_key = app.edits().get_change_key();
+        impact.all_trips = timer
+            .parallelize(<span class="string">&quot;analyze trips&quot;</span>, scenario.all_trips().collect(), |trip| {
+                TripEndpoint::path_req(trip.origin, trip.destination, trip.mode, map)
             })
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">flatten</span>()
-            .<span class="ident">collect</span>();
-        <span class="ident">impact</span>.<span class="ident">trips_changed</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
-        <span class="ident">impact</span>.<span class="ident">compare_counts</span>.<span class="ident">autoselect_layer</span>();
-        <span class="ident">impact</span>
+            .into_iter()
+            .flatten()
+            .collect();
+        impact.trips_changed(ctx, app, timer);
+        impact.compare_counts.autoselect_layer();
+        impact
     }
 
-    <span class="comment">// TODO Cache? It depends both on the change_key and modes belonging to filtered_trips.</span>
-    <span class="kw">fn</span> <span class="ident">pathfinder_after</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Pathfinder</span> {
-        <span class="kw">let</span> <span class="ident">constraints</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">filters</span>
-            .<span class="ident">modes</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">to_constraints</span>())
-            .<span class="ident">collect</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
-        <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
-        <span class="ident">Pathfinder::new_ch</span>(
-            <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>,
-            <span class="ident">params</span>,
-            <span class="ident">constraints</span>.<span class="ident">into_iter</span>().<span class="ident">collect</span>(),
-            <span class="ident">timer</span>,
+    <span class="comment">// TODO Cache? It depends both on the change_key and modes belonging to filtered_trips.
+    </span><span class="kw">fn </span>pathfinder_after(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; Pathfinder {
+        <span class="kw">let </span>constraints: BTreeSet&lt;PathConstraints&gt; = <span class="self">self
+            </span>.filters
+            .modes
+            .iter()
+            .map(|m| m.to_constraints())
+            .collect();
+        <span class="kw">let </span><span class="kw-2">mut </span>params = app.per_map.map.routing_params().clone();
+        app.edits().update_routing_params(<span class="kw-2">&amp;mut </span>params);
+        Pathfinder::new_ch(
+            <span class="kw-2">&amp;</span>app.per_map.map,
+            params,
+            constraints.into_iter().collect(),
+            timer,
         )
     }
 
-    <span class="kw">fn</span> <span class="ident">trips_changed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">constraints</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">PathConstraints</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>
-            .<span class="ident">filters</span>
-            .<span class="ident">modes</span>
-            .<span class="ident">iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">m</span><span class="op">|</span> <span class="ident">m</span>.<span class="ident">to_constraints</span>())
-            .<span class="ident">collect</span>();
-        <span class="self">self</span>.<span class="ident">filtered_trips</span> <span class="op">=</span> <span class="ident">PathRequest::deduplicate</span>(
-            <span class="ident">map</span>,
-            <span class="self">self</span>.<span class="ident">all_trips</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">req</span><span class="op">|</span> <span class="ident">constraints</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">req</span>.<span class="ident">constraints</span>))
-                .<span class="ident">cloned</span>()
-                .<span class="ident">collect</span>(),
+    <span class="kw">fn </span>trips_changed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
+        <span class="kw">let </span>constraints: BTreeSet&lt;PathConstraints&gt; = <span class="self">self
+            </span>.filters
+            .modes
+            .iter()
+            .map(|m| m.to_constraints())
+            .collect();
+        <span class="self">self</span>.filtered_trips = PathRequest::deduplicate(
+            map,
+            <span class="self">self</span>.all_trips
+                .iter()
+                .filter(|req| constraints.contains(<span class="kw-2">&amp;</span>req.constraints))
+                .cloned()
+                .collect(),
         );
 
-        <span class="kw">let</span> <span class="ident">counts_a</span> <span class="op">=</span> <span class="ident">TrafficCounts::from_path_requests</span>(
-            <span class="ident">map</span>,
-            <span class="comment">// Don&#39;t bother describing all the trip filtering</span>
-            <span class="string">&quot;before filters&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">filtered_trips</span>,
-            <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pathfinder_before_changes</span>,
-            <span class="ident">timer</span>,
+        <span class="kw">let </span>counts_a = TrafficCounts::from_path_requests(
+            map,
+            <span class="comment">// Don&#39;t bother describing all the trip filtering
+            </span><span class="string">&quot;before filters&quot;</span>.to_string(),
+            <span class="kw-2">&amp;</span><span class="self">self</span>.filtered_trips,
+            <span class="kw-2">&amp;</span><span class="self">self</span>.pathfinder_before_changes,
+            timer,
         );
 
-        <span class="kw">let</span> <span class="ident">counts_b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">counts_b</span>(<span class="ident">app</span>, <span class="ident">timer</span>);
+        <span class="kw">let </span>counts_b = <span class="self">self</span>.counts_b(app, timer);
 
-        <span class="kw">let</span> <span class="ident">clickable_roads</span> <span class="op">=</span> <span class="bool-val">true</span>;
-        <span class="self">self</span>.<span class="ident">compare_counts</span> <span class="op">=</span> <span class="ident">CompareCounts::new</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">counts_a</span>,
-            <span class="ident">counts_b</span>,
-            <span class="self">self</span>.<span class="ident">compare_counts</span>.<span class="ident">layer</span>,
-            <span class="ident">clickable_roads</span>,
+        <span class="kw">let </span>clickable_roads = <span class="bool-val">true</span>;
+        <span class="self">self</span>.compare_counts = CompareCounts::new(
+            ctx,
+            app,
+            counts_a,
+            counts_b,
+            <span class="self">self</span>.compare_counts.layer,
+            clickable_roads,
         );
     }
 
-    <span class="kw">fn</span> <span class="ident">map_edits_changed</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-        <span class="self">self</span>.<span class="ident">change_key</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">get_change_key</span>();
-        <span class="kw">let</span> <span class="ident">counts_b</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">counts_b</span>(<span class="ident">app</span>, <span class="ident">timer</span>);
-        <span class="self">self</span>.<span class="ident">compare_counts</span>.<span class="ident">recalculate_b</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">counts_b</span>);
+    <span class="kw">fn </span>map_edits_changed(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App, timer: <span class="kw-2">&amp;mut </span>Timer) {
+        <span class="self">self</span>.change_key = app.edits().get_change_key();
+        <span class="kw">let </span>counts_b = <span class="self">self</span>.counts_b(app, timer);
+        <span class="self">self</span>.compare_counts.recalculate_b(ctx, app, counts_b);
     }
 
-    <span class="kw">fn</span> <span class="ident">counts_b</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">TrafficCounts</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">pathfinder_after</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pathfinder_after</span>(<span class="ident">app</span>, <span class="ident">timer</span>);
+    <span class="kw">fn </span>counts_b(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App, timer: <span class="kw-2">&amp;mut </span>Timer) -&gt; TrafficCounts {
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
+        <span class="kw">let </span>pathfinder_after = <span class="self">self</span>.pathfinder_after(app, timer);
 
-        <span class="comment">// We can&#39;t simply use TrafficCounts::from_path_requests. Due to spurious diffs with paths,</span>
-        <span class="comment">// we need to skip cases where the path before and after have the same cost. It&#39;s easiest</span>
-        <span class="comment">// (code-wise) to just repeat some calculation here.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counts</span> <span class="op">=</span> <span class="ident">TrafficCounts::from_path_requests</span>(
-            <span class="ident">map</span>,
-            <span class="comment">// Don&#39;t bother describing all the trip filtering</span>
-            <span class="string">&quot;after filters&quot;</span>.<span class="ident">to_string</span>(),
+        <span class="comment">// We can&#39;t simply use TrafficCounts::from_path_requests. Due to spurious diffs with paths,
+        // we need to skip cases where the path before and after have the same cost. It&#39;s easiest
+        // (code-wise) to just repeat some calculation here.
+        </span><span class="kw">let </span><span class="kw-2">mut </span>counts = TrafficCounts::from_path_requests(
+            map,
+            <span class="comment">// Don&#39;t bother describing all the trip filtering
+            </span><span class="string">&quot;after filters&quot;</span>.to_string(),
             <span class="kw-2">&amp;</span><span class="macro">vec!</span>[],
-            <span class="kw-2">&amp;</span><span class="ident">pathfinder_after</span>,
-            <span class="ident">timer</span>,
+            <span class="kw-2">&amp;</span>pathfinder_after,
+            timer,
         );
 
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;calculate routes&quot;</span>, <span class="self">self</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> (<span class="ident">req</span>, <span class="ident">count</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">filtered_trips</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">path1</span>), <span class="prelude-val">Some</span>(<span class="ident">path2</span>)) <span class="op">=</span> (
-                <span class="self">self</span>.<span class="ident">pathfinder_before_changes</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>),
-                <span class="ident">pathfinder_after</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>),
+        timer.start_iter(<span class="string">&quot;calculate routes&quot;</span>, <span class="self">self</span>.filtered_trips.len());
+        <span class="kw">for </span>(req, count) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.filtered_trips {
+            timer.next();
+            <span class="kw">if let </span>(<span class="prelude-val">Some</span>(path1), <span class="prelude-val">Some</span>(path2)) = (
+                <span class="self">self</span>.pathfinder_before_changes.pathfind_v2(req.clone(), map),
+                pathfinder_after.pathfind_v2(req.clone(), map),
             ) {
-                <span class="kw">if</span> <span class="ident">path1</span>.<span class="ident">get_cost</span>() <span class="op">==</span> <span class="ident">path2</span>.<span class="ident">get_cost</span>() {
-                    <span class="comment">// When the path maybe changed but the cost is the same, just count it the same</span>
-                    <span class="comment">// as the original path</span>
-                    <span class="ident">counts</span>.<span class="ident">update_with_path</span>(<span class="ident">path1</span>, <span class="kw-2">*</span><span class="ident">count</span>, <span class="ident">map</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">counts</span>.<span class="ident">update_with_path</span>(<span class="ident">path2</span>, <span class="kw-2">*</span><span class="ident">count</span>, <span class="ident">map</span>);
+                <span class="kw">if </span>path1.get_cost() == path2.get_cost() {
+                    <span class="comment">// When the path maybe changed but the cost is the same, just count it the same
+                    // as the original path
+                    </span>counts.update_with_path(path1, <span class="kw-2">*</span>count, map);
+                } <span class="kw">else </span>{
+                    counts.update_with_path(path2, <span class="kw-2">*</span>count, map);
                 }
             }
         }
 
-        <span class="ident">counts</span>
+        counts
     }
 
-    <span class="doccomment">/// Returns routes that start or stop crossing the given road. Returns paths (before filters,</span>
-    <span class="doccomment">/// after)</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">find_changed_routes</span>(
+    <span class="doccomment">/// Returns routes that start or stop crossing the given road. Returns paths (before filters,
+    /// after)
+    </span><span class="kw">pub fn </span>find_changed_routes(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-        <span class="ident">r</span>: <span class="ident">RoadID</span>,
-        <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-    ) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">PathV2</span>, <span class="ident">PathV2</span>)<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
-        <span class="kw">let</span> <span class="ident">pathfinder_after</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pathfinder_after</span>(<span class="ident">app</span>, <span class="ident">timer</span>);
+        app: <span class="kw-2">&amp;</span>App,
+        r: RoadID,
+        timer: <span class="kw-2">&amp;mut </span>Timer,
+    ) -&gt; Vec&lt;(PathV2, PathV2)&gt; {
+        <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.per_map.map;
+        <span class="kw">let </span>pathfinder_after = <span class="self">self</span>.pathfinder_after(app, timer);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">changed</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;find changed routes&quot;</span>, <span class="self">self</span>.<span class="ident">filtered_trips</span>.<span class="ident">len</span>());
-        <span class="kw">for</span> (<span class="ident">req</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">filtered_trips</span> {
-            <span class="ident">timer</span>.<span class="ident">next</span>();
-            <span class="kw">if</span> <span class="kw">let</span> (<span class="prelude-val">Some</span>(<span class="ident">path1</span>), <span class="prelude-val">Some</span>(<span class="ident">path2</span>)) <span class="op">=</span> (
-                <span class="self">self</span>.<span class="ident">pathfinder_before_changes</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>),
-                <span class="ident">pathfinder_after</span>.<span class="ident">pathfind_v2</span>(<span class="ident">req</span>.<span class="ident">clone</span>(), <span class="ident">map</span>),
+        <span class="kw">let </span><span class="kw-2">mut </span>changed = Vec::new();
+        timer.start_iter(<span class="string">&quot;find changed routes&quot;</span>, <span class="self">self</span>.filtered_trips.len());
+        <span class="kw">for </span>(req, <span class="kw">_</span>) <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.filtered_trips {
+            timer.next();
+            <span class="kw">if let </span>(<span class="prelude-val">Some</span>(path1), <span class="prelude-val">Some</span>(path2)) = (
+                <span class="self">self</span>.pathfinder_before_changes.pathfind_v2(req.clone(), map),
+                pathfinder_after.pathfind_v2(req.clone(), map),
             ) {
-                <span class="comment">// Skip spurious changes where the cost matches.</span>
-                <span class="kw">if</span> <span class="ident">path1</span>.<span class="ident">get_cost</span>() <span class="op">==</span> <span class="ident">path2</span>.<span class="ident">get_cost</span>() {
+                <span class="comment">// Skip spurious changes where the cost matches.
+                </span><span class="kw">if </span>path1.get_cost() == path2.get_cost() {
                     <span class="kw">continue</span>;
                 }
 
-                <span class="kw">if</span> <span class="ident">path1</span>.<span class="ident">crosses_road</span>(<span class="ident">r</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">path2</span>.<span class="ident">crosses_road</span>(<span class="ident">r</span>) {
-                    <span class="ident">changed</span>.<span class="ident">push</span>((<span class="ident">path1</span>, <span class="ident">path2</span>));
+                <span class="kw">if </span>path1.crosses_road(r) != path2.crosses_road(r) {
+                    changed.push((path1, path2));
                 }
             }
         }
-        <span class="ident">changed</span>
+        changed
     }
 }
 
-<span class="comment">// TODO Fixed, and sadly not const</span>
-<span class="kw">fn</span> <span class="ident">end_of_day</span>() -&gt; <span class="ident">Time</span> {
-    <span class="ident">Time::START_OF_DAY</span> <span class="op">+</span> <span class="ident">Duration::hours</span>(<span class="number">24</span>)
+<span class="comment">// TODO Fixed, and sadly not const
+</span><span class="kw">fn </span>end_of_day() -&gt; Time {
+    Time::START_OF_DAY + Duration::hours(<span class="number">24</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/roads.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>roads.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/game/src/edit/roads.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>roads.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../game/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../game/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -1042,1049 +1042,1049 @@
 <span id="1042">1042</span>
 <span id="1043">1043</span>
 <span id="1044">1044</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>std::collections::HashMap;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Bounds</span>, <span class="ident">CornerRadii</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">UnitFmt</span>};
-<span class="kw">use</span> <span class="ident">map_gui::render</span>::{<span class="ident">Renderable</span>, <span class="ident">OUTLINE_THICKNESS</span>};
-<span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{
-    <span class="ident">BufferType</span>, <span class="ident">Direction</span>, <span class="ident">EditCmd</span>, <span class="ident">EditRoad</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">MapEdits</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>,
+<span class="kw">use </span>geom::{Bounds, CornerRadii, Distance, Polygon, Pt2D, UnitFmt};
+<span class="kw">use </span>map_gui::render::{Renderable, OUTLINE_THICKNESS};
+<span class="kw">use </span>map_gui::ID;
+<span class="kw">use </span>map_model::{
+    BufferType, Direction, EditCmd, EditRoad, LaneID, LaneSpec, LaneType, MapEdits, Road, RoadID,
 };
-<span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
-<span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DragDrop</span>, <span class="ident">Drawable</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>,
-    <span class="ident">GeomBatchStack</span>, <span class="ident">GfxCtx</span>, <span class="ident">HorizontalAlignment</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">PersistentSplit</span>,
-    <span class="ident">Spinner</span>, <span class="ident">StackAxis</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">TextExt</span>, <span class="ident">VerticalAlignment</span>, <span class="ident">Widget</span>, <span class="ident">DEFAULT_CORNER_RADIUS</span>,
+<span class="kw">use </span>widgetry::tools::PopupMsg;
+<span class="kw">use </span>widgetry::{
+    lctrl, Choice, Color, ControlState, DragDrop, Drawable, EdgeInsets, EventCtx, GeomBatch,
+    GeomBatchStack, GfxCtx, HorizontalAlignment, Image, Key, Line, Outcome, Panel, PersistentSplit,
+    Spinner, StackAxis, State, Text, TextExt, VerticalAlignment, Widget, DEFAULT_CORNER_RADIUS,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common::Warping</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit::zones::ZoneEditor</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">can_edit_lane</span>, <span class="ident">speed_limit_choices</span>};
+<span class="kw">use </span><span class="kw">crate</span>::app::{App, Transition};
+<span class="kw">use </span><span class="kw">crate</span>::common::Warping;
+<span class="kw">use </span><span class="kw">crate</span>::edit::zones::ZoneEditor;
+<span class="kw">use </span><span class="kw">crate</span>::edit::{apply_map_edits, can_edit_lane, speed_limit_choices};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RoadEditor</span> {
-    <span class="ident">r</span>: <span class="ident">RoadID</span>,
-    <span class="ident">selected_lane</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    <span class="comment">// This is only for hovering on a lane in the map, not for hovering on a lane card.</span>
-    <span class="ident">hovering_on_lane</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    <span class="ident">top_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">main_panel</span>: <span class="ident">Panel</span>,
-    <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable</span>,
+<span class="kw">pub struct </span>RoadEditor {
+    r: RoadID,
+    selected_lane: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
+    <span class="comment">// This is only for hovering on a lane in the map, not for hovering on a lane card.
+    </span>hovering_on_lane: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
+    top_panel: Panel,
+    main_panel: Panel,
+    fade_irrelevant: Drawable,
 
-    <span class="comment">// (cache_key: (selected, hovering), Drawable)</span>
-    <span class="ident">lane_highlights</span>: ((<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>), <span class="ident">Drawable</span>),
-    <span class="comment">// This gets updated during dragging, and is always cleared out when drag-and-drop ends.</span>
-    <span class="ident">draw_drop_position</span>: <span class="ident">Drawable</span>,
+    <span class="comment">// (cache_key: (selected, hovering), Drawable)
+    </span>lane_highlights: ((<span class="prelude-ty">Option</span>&lt;LaneID&gt;, <span class="prelude-ty">Option</span>&lt;LaneID&gt;), Drawable),
+    <span class="comment">// This gets updated during dragging, and is always cleared out when drag-and-drop ends.
+    </span>draw_drop_position: Drawable,
 
-    <span class="comment">// Undo/redo management</span>
-    <span class="ident">num_edit_cmds_originally</span>: <span class="ident">usize</span>,
-    <span class="ident">redo_stack</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">EditCmd</span><span class="op">&gt;</span>,
-    <span class="ident">orig_road_state</span>: <span class="ident">EditRoad</span>,
+    <span class="comment">// Undo/redo management
+    </span>num_edit_cmds_originally: usize,
+    redo_stack: Vec&lt;EditCmd&gt;,
+    orig_road_state: EditRoad,
 }
 
-<span class="kw">impl</span> <span class="ident">RoadEditor</span> {
-    <span class="doccomment">/// Always starts focused on a certain lane.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">RoadEditor::create</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>.<span class="ident">road</span>, <span class="prelude-val">Some</span>(<span class="ident">l</span>))
+<span class="kw">impl </span>RoadEditor {
+    <span class="doccomment">/// Always starts focused on a certain lane.
+    </span><span class="kw">pub fn </span>new_state(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, l: LaneID) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        RoadEditor::create(ctx, app, l.road, <span class="prelude-val">Some</span>(l))
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_state_without_lane</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">r</span>: <span class="ident">RoadID</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">RoadEditor::create</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>, <span class="prelude-val">None</span>)
+    <span class="kw">pub fn </span>new_state_without_lane(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        r: RoadID,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        RoadEditor::create(ctx, app, r, <span class="prelude-val">None</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">create</span>(
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">r</span>: <span class="ident">RoadID</span>,
-        <span class="ident">selected_lane</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+    <span class="kw">fn </span>create(
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        r: RoadID,
+        selected_lane: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
+    ) -&gt; Box&lt;<span class="kw">dyn </span>State&lt;App&gt;&gt; {
+        app.primary.current_selection = <span class="prelude-val">None</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">editor</span> <span class="op">=</span> <span class="ident">RoadEditor</span> {
-            <span class="ident">r</span>,
-            <span class="ident">selected_lane</span>,
-            <span class="ident">top_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">main_panel</span>: <span class="ident">Panel::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">fade_irrelevant</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">lane_highlights</span>: ((<span class="prelude-val">None</span>, <span class="prelude-val">None</span>), <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>)),
-            <span class="ident">draw_drop_position</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">hovering_on_lane</span>: <span class="prelude-val">None</span>,
+        <span class="kw">let </span><span class="kw-2">mut </span>editor = RoadEditor {
+            r,
+            selected_lane,
+            top_panel: Panel::empty(ctx),
+            main_panel: Panel::empty(ctx),
+            fade_irrelevant: Drawable::empty(ctx),
+            lane_highlights: ((<span class="prelude-val">None</span>, <span class="prelude-val">None</span>), Drawable::empty(ctx)),
+            draw_drop_position: Drawable::empty(ctx),
+            hovering_on_lane: <span class="prelude-val">None</span>,
 
-            <span class="ident">num_edit_cmds_originally</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>(),
-            <span class="ident">redo_stack</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">orig_road_state</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>),
+            num_edit_cmds_originally: app.primary.map.get_edits().commands.len(),
+            redo_stack: Vec::new(),
+            orig_road_state: app.primary.map.get_r_edit(r),
         };
-        <span class="ident">editor</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        <span class="ident">Box::new</span>(<span class="ident">editor</span>)
+        editor.recalc_all_panels(ctx, app);
+        Box::new(editor)
     }
 
-    <span class="kw">fn</span> <span class="ident">lane_for_idx</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">idx</span>: <span class="ident">usize</span>) -&gt; <span class="ident">LaneID</span> {
-        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">lanes</span>[<span class="ident">idx</span>].<span class="ident">id</span>
+    <span class="kw">fn </span>lane_for_idx(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App, idx: usize) -&gt; LaneID {
+        app.primary.map.get_r(<span class="self">self</span>.r).lanes[idx].id
     }
 
-    <span class="kw">fn</span> <span class="ident">modify_current_lane</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="ident">Fn</span>(<span class="kw-2">&amp;mut</span> <span class="ident">EditRoad</span>, <span class="ident">usize</span>)<span class="op">&gt;</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-        <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-        <span class="ident">select_new_lane_offset</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>,
-        <span class="ident">f</span>: <span class="ident">F</span>,
-    ) -&gt; <span class="ident">Transition</span> {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected_lane</span>.<span class="ident">unwrap</span>().<span class="ident">offset</span>;
-        <span class="kw">let</span> <span class="ident">cmd</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> (<span class="ident">f</span>)(<span class="ident">new</span>, <span class="ident">idx</span>));
+    <span class="kw">fn </span>modify_current_lane&lt;F: Fn(<span class="kw-2">&amp;mut </span>EditRoad, usize)&gt;(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+        app: <span class="kw-2">&amp;mut </span>App,
+        select_new_lane_offset: <span class="prelude-ty">Option</span>&lt;isize&gt;,
+        f: F,
+    ) -&gt; Transition {
+        <span class="kw">let </span>idx = <span class="self">self</span>.selected_lane.unwrap().offset;
+        <span class="kw">let </span>cmd = app.primary.map.edit_road_cmd(<span class="self">self</span>.r, |new| (f)(new, idx));
 
-        <span class="comment">// Special check here -- this invalid state can be reached in many ways.</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditCmd::ChangeRoad</span> { <span class="kw-2">ref</span> <span class="ident">new</span>, .. } <span class="op">=</span> <span class="ident">cmd</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">parking</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">driving</span> <span class="op">=</span> <span class="number">0</span>;
-            <span class="kw">for</span> <span class="ident">spec</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">new</span>.<span class="ident">lanes_ltr</span> {
-                <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Parking</span> {
-                    <span class="ident">parking</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">spec</span>.<span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Driving</span> {
-                    <span class="ident">driving</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+        <span class="comment">// Special check here -- this invalid state can be reached in many ways.
+        </span><span class="kw">if let </span>EditCmd::ChangeRoad { <span class="kw-2">ref </span>new, .. } = cmd {
+            <span class="kw">let </span><span class="kw-2">mut </span>parking = <span class="number">0</span>;
+            <span class="kw">let </span><span class="kw-2">mut </span>driving = <span class="number">0</span>;
+            <span class="kw">for </span>spec <span class="kw">in </span><span class="kw-2">&amp;</span>new.lanes_ltr {
+                <span class="kw">if </span>spec.lt == LaneType::Parking {
+                    parking += <span class="number">1</span>;
+                } <span class="kw">else if </span>spec.lt == LaneType::Driving {
+                    driving += <span class="number">1</span>;
                 }
             }
-            <span class="kw">if</span> <span class="ident">parking</span> <span class="op">&gt;</span> <span class="number">0</span> <span class="op">&amp;&amp;</span> <span class="ident">driving</span> <span class="op">==</span> <span class="number">0</span> {
-                <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(
-                    <span class="ident">ctx</span>,
+            <span class="kw">if </span>parking &gt; <span class="number">0 </span>&amp;&amp; driving == <span class="number">0 </span>{
+                <span class="kw">return </span>Transition::Push(PopupMsg::new_state(
+                    ctx,
                     <span class="string">&quot;Error&quot;</span>,
                     <span class="macro">vec!</span>[<span class="string">&quot;Parking can&#39;t exist without a driving lane to access it.&quot;</span>],
                 ));
             }
         }
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">cmd</span>);
-        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-        <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
+        <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+        edits.commands.push(cmd);
+        apply_map_edits(ctx, app, edits);
+        <span class="self">self</span>.redo_stack.clear();
 
-        <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="ident">select_new_lane_offset</span>
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">offset</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">lane_for_idx</span>(<span class="ident">app</span>, (<span class="ident">idx</span> <span class="kw">as</span> <span class="ident">isize</span> <span class="op">+</span> <span class="ident">offset</span>) <span class="kw">as</span> <span class="ident">usize</span>));
-        <span class="self">self</span>.<span class="ident">recalc_hovering</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.selected_lane = select_new_lane_offset
+            .map(|offset| <span class="self">self</span>.lane_for_idx(app, (idx <span class="kw">as </span>isize + offset) <span class="kw">as </span>usize));
+        <span class="self">self</span>.recalc_hovering(ctx, app);
 
-        <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.recalc_all_panels(ctx, app);
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">recalc_all_panels</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="self">self</span>.<span class="ident">main_panel</span> <span class="op">=</span> <span class="ident">make_main_panel</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>),
-            <span class="self">self</span>.<span class="ident">selected_lane</span>,
-            <span class="self">self</span>.<span class="ident">hovering_on_lane</span>,
+    <span class="kw">fn </span>recalc_all_panels(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="self">self</span>.main_panel = make_main_panel(
+            ctx,
+            app,
+            app.primary.map.get_r(<span class="self">self</span>.r),
+            <span class="self">self</span>.selected_lane,
+            <span class="self">self</span>.hovering_on_lane,
         );
 
-        <span class="self">self</span>.<span class="ident">top_panel</span> <span class="op">=</span> <span class="ident">make_top_panel</span>(
-            <span class="ident">ctx</span>,
-            <span class="ident">app</span>,
-            <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span>,
-            <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">is_empty</span>(),
-            <span class="self">self</span>.<span class="ident">r</span>,
-            <span class="self">self</span>.<span class="ident">orig_road_state</span>.<span class="ident">clone</span>(),
+        <span class="self">self</span>.top_panel = make_top_panel(
+            ctx,
+            app,
+            <span class="self">self</span>.num_edit_cmds_originally,
+            <span class="self">self</span>.redo_stack.is_empty(),
+            <span class="self">self</span>.r,
+            <span class="self">self</span>.orig_road_state.clone(),
         );
 
-        <span class="self">self</span>.<span class="ident">recalc_lane_highlights</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="self">self</span>.recalc_lane_highlights(ctx, app);
 
-        <span class="self">self</span>.<span class="ident">fade_irrelevant</span> <span class="op">=</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>);
+        <span class="self">self</span>.fade_irrelevant = fade_irrelevant(app, <span class="self">self</span>.r).upload(ctx);
     }
 
-    <span class="kw">fn</span> <span class="ident">recalc_lane_highlights</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="kw">let</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;lane cards&quot;</span>);
-        <span class="kw">let</span> <span class="ident">selected</span> <span class="op">=</span> <span class="ident">drag_drop</span>.<span class="ident">selected_value</span>().<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">selected_lane</span>);
-        <span class="kw">let</span> <span class="ident">hovering</span> <span class="op">=</span> <span class="ident">drag_drop</span>.<span class="ident">hovering_value</span>().<span class="ident">or</span>(<span class="self">self</span>.<span class="ident">hovering_on_lane</span>);
-        <span class="kw">if</span> (<span class="ident">selected</span>, <span class="ident">hovering</span>) <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">lane_highlights</span>.<span class="number">0</span> {
-            <span class="self">self</span>.<span class="ident">lane_highlights</span> <span class="op">=</span> <span class="ident">build_lane_highlights</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">selected</span>, <span class="ident">hovering</span>);
+    <span class="kw">fn </span>recalc_lane_highlights(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;</span>App) {
+        <span class="kw">let </span>drag_drop = <span class="self">self</span>.main_panel.find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">&quot;lane cards&quot;</span>);
+        <span class="kw">let </span>selected = drag_drop.selected_value().or(<span class="self">self</span>.selected_lane);
+        <span class="kw">let </span>hovering = drag_drop.hovering_value().or(<span class="self">self</span>.hovering_on_lane);
+        <span class="kw">if </span>(selected, hovering) != <span class="self">self</span>.lane_highlights.<span class="number">0 </span>{
+            <span class="self">self</span>.lane_highlights = build_lane_highlights(ctx, app, selected, hovering);
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">compress_edits</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">MapEdits</span><span class="op">&gt;</span> {
-        <span class="comment">// Compress all of the edits, unless there were 0 or 1 changes</span>
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span> <span class="op">+</span> <span class="number">2</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-            <span class="kw">let</span> <span class="ident">last_edit</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>() {
-                <span class="ident">EditCmd::ChangeRoad</span> { <span class="ident">new</span>, .. } =&gt; <span class="ident">new</span>,
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+    <span class="kw">fn </span>compress_edits(<span class="kw-2">&amp;</span><span class="self">self</span>, app: <span class="kw-2">&amp;</span>App) -&gt; <span class="prelude-ty">Option</span>&lt;MapEdits&gt; {
+        <span class="comment">// Compress all of the edits, unless there were 0 or 1 changes
+        </span><span class="kw">if </span>app.primary.map.get_edits().commands.len() &gt; <span class="self">self</span>.num_edit_cmds_originally + <span class="number">2 </span>{
+            <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+            <span class="kw">let </span>last_edit = <span class="kw">match </span>edits.commands.pop().unwrap() {
+                EditCmd::ChangeRoad { new, .. } =&gt; new,
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             };
-            <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">truncate</span>(<span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span> <span class="op">+</span> <span class="number">1</span>);
-            <span class="kw">match</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">last_mut</span>().<span class="ident">unwrap</span>() {
-                <span class="ident">EditCmd::ChangeRoad</span> { <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">new</span>, .. } =&gt; {
-                    <span class="kw-2">*</span><span class="ident">new</span> <span class="op">=</span> <span class="ident">last_edit</span>;
+            edits.commands.truncate(<span class="self">self</span>.num_edit_cmds_originally + <span class="number">1</span>);
+            <span class="kw">match </span>edits.commands.last_mut().unwrap() {
+                EditCmd::ChangeRoad { <span class="kw-2">ref mut </span>new, .. } =&gt; {
+                    <span class="kw-2">*</span>new = last_edit;
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
-            <span class="kw">return</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>);
+            <span class="kw">return </span><span class="prelude-val">Some</span>(edits);
         }
-        <span class="prelude-val">None</span>
-    }
+        <span class="prelude-val">None
+    </span>}
 
-    <span class="comment">// Lane IDs may change with every edit. So immediately after an edit, recalculate mouseover.</span>
-    <span class="kw">fn</span> <span class="ident">recalc_hovering</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-        <span class="ident">app</span>.<span class="ident">recalculate_current_selection</span>(<span class="ident">ctx</span>);
-        <span class="self">self</span>.<span class="ident">hovering_on_lane</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span>.<span class="ident">take</span>() {
-            <span class="prelude-val">Some</span>(<span class="ident">ID::Lane</span>(<span class="ident">l</span>)) <span class="kw">if</span> <span class="ident">can_edit_lane</span>(<span class="ident">app</span>, <span class="ident">l</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">l</span>),
-            <span class="kw">_</span> =&gt; <span class="prelude-val">None</span>,
+    <span class="comment">// Lane IDs may change with every edit. So immediately after an edit, recalculate mouseover.
+    </span><span class="kw">fn </span>recalc_hovering(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;</span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) {
+        app.recalculate_current_selection(ctx);
+        <span class="self">self</span>.hovering_on_lane = <span class="kw">match </span>app.primary.current_selection.take() {
+            <span class="prelude-val">Some</span>(ID::Lane(l)) <span class="kw">if </span>can_edit_lane(app, l) =&gt; <span class="prelude-val">Some</span>(l),
+            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
         };
     }
 }
 
-<span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RoadEditor</span> {
-    <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
-        <span class="ident">ctx</span>.<span class="ident">canvas_movement</span>();
+<span class="kw">impl </span>State&lt;App&gt; <span class="kw">for </span>RoadEditor {
+    <span class="kw">fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App) -&gt; Transition {
+        ctx.canvas_movement();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>panels_need_recalc = <span class="bool-val">false</span>;
 
-        <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;Finish&quot;</span> =&gt; {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">compress_edits</span>(<span class="ident">app</span>) {
-                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+        <span class="kw">if let </span>Outcome::Clicked(x) = <span class="self">self</span>.top_panel.event(ctx) {
+            <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;Finish&quot; </span>=&gt; {
+                    <span class="kw">if let </span><span class="prelude-val">Some</span>(edits) = <span class="self">self</span>.compress_edits(app) {
+                        apply_map_edits(ctx, app, edits);
                     }
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Cancel&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="kw">if</span> <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span> {
-                        <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">truncate</span>(<span class="self">self</span>.<span class="ident">num_edit_cmds_originally</span>);
-                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                <span class="string">&quot;Cancel&quot; </span>=&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    <span class="kw">if </span>edits.commands.len() != <span class="self">self</span>.num_edit_cmds_originally {
+                        edits.commands.truncate(<span class="self">self</span>.num_edit_cmds_originally);
+                        apply_map_edits(ctx, app, edits);
                     }
-                    <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
+                    <span class="kw">return </span>Transition::Pop;
                 }
-                <span class="string">&quot;Revert&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeRoad</span> {
-                        <span class="ident">r</span>: <span class="self">self</span>.<span class="ident">r</span>,
-                        <span class="ident">old</span>: <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="self">self</span>.<span class="ident">r</span>),
-                        <span class="ident">new</span>: <span class="ident">EditRoad::get_orig_from_osm</span>(
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>),
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>(),
+                <span class="string">&quot;Revert&quot; </span>=&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    edits.commands.push(EditCmd::ChangeRoad {
+                        r: <span class="self">self</span>.r,
+                        old: app.primary.map.get_r_edit(<span class="self">self</span>.r),
+                        new: EditRoad::get_orig_from_osm(
+                            app.primary.map.get_r(<span class="self">self</span>.r),
+                            app.primary.map.get_config(),
                         ),
                     });
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                    apply_map_edits(ctx, app, edits);
 
-                    <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
-                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">recalc_hovering</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="self">self</span>.redo_stack.clear();
+                    <span class="self">self</span>.selected_lane = <span class="prelude-val">None</span>;
+                    <span class="self">self</span>.recalc_hovering(ctx, app);
+                    panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;undo&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">push</span>(<span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>());
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                <span class="string">&quot;undo&quot; </span>=&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    <span class="self">self</span>.redo_stack.push(edits.commands.pop().unwrap());
+                    apply_map_edits(ctx, app, edits);
 
-                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">recalc_hovering</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="self">self</span>.selected_lane = <span class="prelude-val">None</span>;
+                    <span class="self">self</span>.recalc_hovering(ctx, app);
+                    panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;redo&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>());
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                <span class="string">&quot;redo&quot; </span>=&gt; {
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    edits.commands.push(<span class="self">self</span>.redo_stack.pop().unwrap());
+                    apply_map_edits(ctx, app, edits);
 
-                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-                    <span class="self">self</span>.<span class="ident">recalc_hovering</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="self">self</span>.selected_lane = <span class="prelude-val">None</span>;
+                    <span class="self">self</span>.recalc_hovering(ctx, app);
+                    panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;jump to road&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">Warping::new_state</span>(
-                        <span class="ident">ctx</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">canonical_point</span>(<span class="ident">ID::Road</span>(<span class="self">self</span>.<span class="ident">r</span>)).<span class="ident">unwrap</span>(),
+                <span class="string">&quot;jump to road&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Push(Warping::new_state(
+                        ctx,
+                        app.primary.canonical_point(ID::Road(<span class="self">self</span>.r)).unwrap(),
                         <span class="prelude-val">Some</span>(<span class="number">10.0</span>),
-                        <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="self">self</span>.<span class="ident">r</span>)),
-                        <span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">primary</span>,
+                        <span class="prelude-val">Some</span>(ID::Road(<span class="self">self</span>.r)),
+                        <span class="kw-2">&amp;mut </span>app.primary,
                     ));
                 }
-                <span class="string">&quot;Apply to multiple road segments&quot;</span> =&gt; {
-                    <span class="kw">return</span> <span class="ident">Transition::Push</span>(
-                        <span class="ident"><span class="kw">crate</span>::edit::multiple_roads::SelectSegments::new_state</span>(
-                            <span class="ident">ctx</span>,
-                            <span class="ident">app</span>,
-                            <span class="self">self</span>.<span class="ident">r</span>,
-                            <span class="self">self</span>.<span class="ident">orig_road_state</span>.<span class="ident">clone</span>(),
-                            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="self">self</span>.<span class="ident">r</span>),
-                            <span class="self">self</span>.<span class="ident">compress_edits</span>(<span class="ident">app</span>)
-                                .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>()),
+                <span class="string">&quot;Apply to multiple road segments&quot; </span>=&gt; {
+                    <span class="kw">return </span>Transition::Push(
+                        <span class="kw">crate</span>::edit::multiple_roads::SelectSegments::new_state(
+                            ctx,
+                            app,
+                            <span class="self">self</span>.r,
+                            <span class="self">self</span>.orig_road_state.clone(),
+                            app.primary.map.get_r_edit(<span class="self">self</span>.r),
+                            <span class="self">self</span>.compress_edits(app)
+                                .unwrap_or_else(|| app.primary.map.get_edits().clone()),
                         ),
                     );
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             }
         }
 
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;modify Lane #&quot;</span>) {
-                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">LaneID::decode_u32</span>(<span class="ident">idx</span>.<span class="ident">parse</span>().<span class="ident">unwrap</span>()));
-                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;delete lane&quot;</span> {
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">None</span>, <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">remove</span>(<span class="ident">idx</span>);
+        <span class="kw">match </span><span class="self">self</span>.main_panel.event(ctx) {
+            Outcome::Clicked(x) =&gt; {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(idx) = x.strip_prefix(<span class="string">&quot;modify Lane #&quot;</span>) {
+                    <span class="self">self</span>.selected_lane = <span class="prelude-val">Some</span>(LaneID::decode_u32(idx.parse().unwrap()));
+                    panels_need_recalc = <span class="bool-val">true</span>;
+                } <span class="kw">else if </span>x == <span class="string">&quot;delete lane&quot; </span>{
+                    <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">None</span>, |new, idx| {
+                        new.lanes_ltr.remove(idx);
                     });
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;flip direction&quot;</span> {
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">dir</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">dir</span>.<span class="ident">opposite</span>();
+                } <span class="kw">else if </span>x == <span class="string">&quot;flip direction&quot; </span>{
+                    <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
+                        new.lanes_ltr[idx].dir = new.lanes_ltr[idx].dir.opposite();
                     });
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;change to &quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">==</span> <span class="string">&quot;buffer&quot;</span> {
-                        <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;change to buffer&quot;</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">LaneType::from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>()
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(lt) = x.strip_prefix(<span class="string">&quot;change to &quot;</span>) {
+                    <span class="kw">let </span>lt = <span class="kw">if </span>lt == <span class="string">&quot;buffer&quot; </span>{
+                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;change to buffer&quot;</span>)
+                    } <span class="kw">else </span>{
+                        LaneType::from_short_name(lt).unwrap()
                     };
-                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span>
-                        <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lt</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">osm_tags</span>)
+                    <span class="kw">let </span>width =
+                        LaneSpec::typical_lane_widths(lt, <span class="kw-2">&amp;</span>app.primary.map.get_r(<span class="self">self</span>.r).osm_tags)
                             [<span class="number">0</span>]
                         .<span class="number">0</span>;
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">lt</span>;
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
+                    <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
+                        new.lanes_ltr[idx].lt = lt;
+                        new.lanes_ltr[idx].width = width;
                     });
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) <span class="op">=</span> <span class="ident">x</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;add &quot;</span>) {
-                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">==</span> <span class="string">&quot;buffer&quot;</span> {
-                        <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;add buffer&quot;</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">LaneType::from_short_name</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>()
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(lt) = x.strip_prefix(<span class="string">&quot;add &quot;</span>) {
+                    <span class="kw">let </span>lt = <span class="kw">if </span>lt == <span class="string">&quot;buffer&quot; </span>{
+                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;add buffer&quot;</span>)
+                    } <span class="kw">else </span>{
+                        LaneType::from_short_name(lt).unwrap()
                     };
 
-                    <span class="comment">// Special check here</span>
-                    <span class="kw">if</span> <span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Parking</span>
-                        <span class="op">&amp;&amp;</span> <span class="ident">app</span>
-                            .<span class="ident">primary</span>
-                            .<span class="ident">map</span>
-                            .<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>)
-                            .<span class="ident">lanes</span>
-                            .<span class="ident">iter</span>()
-                            .<span class="ident">all</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">lane_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">LaneType::Driving</span>)
+                    <span class="comment">// Special check here
+                    </span><span class="kw">if </span>lt == LaneType::Parking
+                        &amp;&amp; app
+                            .primary
+                            .map
+                            .get_r(<span class="self">self</span>.r)
+                            .lanes
+                            .iter()
+                            .all(|l| l.lane_type != LaneType::Driving)
                     {
-                        <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">PopupMsg::new_state</span>(<span class="ident">ctx</span>, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Add a driving lane first. Parking can&#39;t exist without a way to access it.&quot;</span>]));
+                        <span class="kw">return </span>Transition::Push(PopupMsg::new_state(ctx, <span class="string">&quot;Error&quot;</span>, <span class="macro">vec!</span>[<span class="string">&quot;Add a driving lane first. Parking can&#39;t exist without a way to access it.&quot;</span>]));
                     }
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="self">self</span>.<span class="ident">r</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">LaneSpec::add_new_lane</span>(
-                        <span class="kw-2">&amp;mut</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>,
-                        <span class="ident">lt</span>,
-                        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">osm_tags</span>,
-                        <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_config</span>().<span class="ident">driving_side</span>,
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    <span class="kw">let </span>old = app.primary.map.get_r_edit(<span class="self">self</span>.r);
+                    <span class="kw">let </span><span class="kw-2">mut </span>new = old.clone();
+                    <span class="kw">let </span>idx = LaneSpec::add_new_lane(
+                        <span class="kw-2">&amp;mut </span>new.lanes_ltr,
+                        lt,
+                        <span class="kw-2">&amp;</span>app.primary.map.get_r(<span class="self">self</span>.r).osm_tags,
+                        app.primary.map.get_config().driving_side,
                     );
-                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeRoad</span> {
-                        <span class="ident">r</span>: <span class="self">self</span>.<span class="ident">r</span>,
-                        <span class="ident">old</span>,
-                        <span class="ident">new</span>,
+                    edits.commands.push(EditCmd::ChangeRoad {
+                        r: <span class="self">self</span>.r,
+                        old,
+                        new,
                     });
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
+                    apply_map_edits(ctx, app, edits);
+                    <span class="self">self</span>.redo_stack.clear();
 
-                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">lane_for_idx</span>(<span class="ident">app</span>, <span class="ident">idx</span>));
-                    <span class="self">self</span>.<span class="ident">recalc_hovering</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Access restrictions&quot;</span> {
-                    <span class="comment">// The RoadEditor maintains an undo/redo stack for a single road, but the</span>
-                    <span class="comment">// ZoneEditor usually operates on multiple roads. So before we switch over to</span>
-                    <span class="comment">// it, compress and save the current edits.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">compress_edits</span>(<span class="ident">app</span>) {
-                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+                    <span class="self">self</span>.selected_lane = <span class="prelude-val">Some</span>(<span class="self">self</span>.lane_for_idx(app, idx));
+                    <span class="self">self</span>.recalc_hovering(ctx, app);
+                    panels_need_recalc = <span class="bool-val">true</span>;
+                } <span class="kw">else if </span>x == <span class="string">&quot;Access restrictions&quot; </span>{
+                    <span class="comment">// The RoadEditor maintains an undo/redo stack for a single road, but the
+                    // ZoneEditor usually operates on multiple roads. So before we switch over to
+                    // it, compress and save the current edits.
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(edits) = <span class="self">self</span>.compress_edits(app) {
+                        apply_map_edits(ctx, app, edits);
                     }
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">ZoneEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>));
-                } <span class="kw">else</span> {
+                    <span class="kw">return </span>Transition::Replace(ZoneEditor::new_state(ctx, app, <span class="self">self</span>.r));
+                } <span class="kw">else </span>{
                     <span class="macro">unreachable!</span>()
                 }
             }
-            <span class="ident">Outcome::Changed</span>(<span class="ident">x</span>) =&gt; <span class="kw">match</span> <span class="ident">x</span>.<span class="ident">as_ref</span>() {
-                <span class="string">&quot;speed limit&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">speed_limit</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;speed limit&quot;</span>);
+            Outcome::Changed(x) =&gt; <span class="kw">match </span>x.as_ref() {
+                <span class="string">&quot;speed limit&quot; </span>=&gt; {
+                    <span class="kw">let </span>speed_limit = <span class="self">self</span>.main_panel.dropdown_value(<span class="string">&quot;speed limit&quot;</span>);
 
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="kw">let</span> <span class="ident">old</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="self">self</span>.<span class="ident">r</span>);
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new</span> <span class="op">=</span> <span class="ident">old</span>.<span class="ident">clone</span>();
-                    <span class="ident">new</span>.<span class="ident">speed_limit</span> <span class="op">=</span> <span class="ident">speed_limit</span>;
-                    <span class="ident">edits</span>.<span class="ident">commands</span>.<span class="ident">push</span>(<span class="ident">EditCmd::ChangeRoad</span> {
-                        <span class="ident">r</span>: <span class="self">self</span>.<span class="ident">r</span>,
-                        <span class="ident">old</span>,
-                        <span class="ident">new</span>,
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    <span class="kw">let </span>old = app.primary.map.get_r_edit(<span class="self">self</span>.r);
+                    <span class="kw">let </span><span class="kw-2">mut </span>new = old.clone();
+                    new.speed_limit = speed_limit;
+                    edits.commands.push(EditCmd::ChangeRoad {
+                        r: <span class="self">self</span>.r,
+                        old,
+                        new,
                     });
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
+                    apply_map_edits(ctx, app, edits);
+                    <span class="self">self</span>.redo_stack.clear();
 
-                    <span class="comment">// Keep selecting the same lane, if one was selected</span>
-                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="self">self</span>
-                        .<span class="ident">selected_lane</span>
-                        .<span class="ident">map</span>(<span class="op">|</span><span class="ident">id</span><span class="op">|</span> <span class="self">self</span>.<span class="ident">lane_for_idx</span>(<span class="ident">app</span>, <span class="ident">id</span>.<span class="ident">offset</span>));
-                    <span class="self">self</span>.<span class="ident">recalc_hovering</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="comment">// Keep selecting the same lane, if one was selected
+                    </span><span class="self">self</span>.selected_lane = <span class="self">self
+                        </span>.selected_lane
+                        .map(|id| <span class="self">self</span>.lane_for_idx(app, id.offset));
+                    <span class="self">self</span>.recalc_hovering(ctx, app);
+                    panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;width preset&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">dropdown_value</span>(<span class="string">&quot;width preset&quot;</span>);
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
+                <span class="string">&quot;width preset&quot; </span>=&gt; {
+                    <span class="kw">let </span>width = <span class="self">self</span>.main_panel.dropdown_value(<span class="string">&quot;width preset&quot;</span>);
+                    <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
+                        new.lanes_ltr[idx].width = width;
                     });
                 }
-                <span class="string">&quot;width custom&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">spinner</span>(<span class="string">&quot;width custom&quot;</span>);
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
+                <span class="string">&quot;width custom&quot; </span>=&gt; {
+                    <span class="kw">let </span>width = <span class="self">self</span>.main_panel.spinner(<span class="string">&quot;width custom&quot;</span>);
+                    <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
+                        new.lanes_ltr[idx].width = width;
                     });
                 }
-                <span class="string">&quot;lane cards&quot;</span> =&gt; {
-                    <span class="comment">// hovering index changed</span>
-                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="string">&quot;lane cards&quot; </span>=&gt; {
+                    <span class="comment">// hovering index changed
+                    </span>panels_need_recalc = <span class="bool-val">true</span>;
                 }
-                <span class="string">&quot;dragging lane cards&quot;</span> =&gt; {
-                    <span class="kw">let</span> (<span class="ident">from</span>, <span class="ident">to</span>) <span class="op">=</span> <span class="self">self</span>
-                        .<span class="ident">main_panel</span>
-                        .<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;lane cards&quot;</span>)
-                        .<span class="ident">get_dragging_state</span>()
-                        .<span class="ident">unwrap</span>();
-                    <span class="self">self</span>.<span class="ident">draw_drop_position</span> <span class="op">=</span> <span class="ident">draw_drop_position</span>(<span class="ident">app</span>, <span class="self">self</span>.<span class="ident">r</span>, <span class="ident">from</span>, <span class="ident">to</span>).<span class="ident">upload</span>(<span class="ident">ctx</span>);
+                <span class="string">&quot;dragging lane cards&quot; </span>=&gt; {
+                    <span class="kw">let </span>(from, to) = <span class="self">self
+                        </span>.main_panel
+                        .find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">&quot;lane cards&quot;</span>)
+                        .get_dragging_state()
+                        .unwrap();
+                    <span class="self">self</span>.draw_drop_position = draw_drop_position(app, <span class="self">self</span>.r, from, to).upload(ctx);
                 }
-                <span class="string">&quot;change to buffer&quot;</span> =&gt; {
-                    <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;change to buffer&quot;</span>);
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">buffer_lane_type</span> <span class="op">=</span> <span class="ident">lt</span>;
-                    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span>
-                        <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lt</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="self">self</span>.<span class="ident">r</span>).<span class="ident">osm_tags</span>)
+                <span class="string">&quot;change to buffer&quot; </span>=&gt; {
+                    <span class="kw">let </span>lt = <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;change to buffer&quot;</span>);
+                    app.session.buffer_lane_type = lt;
+                    <span class="kw">let </span>width =
+                        LaneSpec::typical_lane_widths(lt, <span class="kw-2">&amp;</span>app.primary.map.get_r(<span class="self">self</span>.r).osm_tags)
                             [<span class="number">0</span>]
                         .<span class="number">0</span>;
-                    <span class="kw">return</span> <span class="self">self</span>.<span class="ident">modify_current_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="number">0</span>), <span class="op">|</span><span class="ident">new</span>, <span class="ident">idx</span><span class="op">|</span> {
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">lt</span> <span class="op">=</span> <span class="ident">lt</span>;
-                        <span class="ident">new</span>.<span class="ident">lanes_ltr</span>[<span class="ident">idx</span>].<span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>;
+                    <span class="kw">return </span><span class="self">self</span>.modify_current_lane(ctx, app, <span class="prelude-val">Some</span>(<span class="number">0</span>), |new, idx| {
+                        new.lanes_ltr[idx].lt = lt;
+                        new.lanes_ltr[idx].width = width;
                     });
                 }
-                <span class="string">&quot;add buffer&quot;</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">buffer_lane_type</span> <span class="op">=</span>
-                        <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">persistent_split_value</span>(<span class="string">&quot;add buffer&quot;</span>);
+                <span class="string">&quot;add buffer&quot; </span>=&gt; {
+                    app.session.buffer_lane_type =
+                        <span class="self">self</span>.main_panel.persistent_split_value(<span class="string">&quot;add buffer&quot;</span>);
                 }
-                <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
+                <span class="kw">_ </span>=&gt; <span class="macro">unreachable!</span>(),
             },
-            <span class="ident">Outcome::DragDropReleased</span>(<span class="kw">_</span>, <span class="ident">old_idx</span>, <span class="ident">new_idx</span>) =&gt; {
-                <span class="self">self</span>.<span class="ident">draw_drop_position</span> <span class="op">=</span> <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>);
+            Outcome::DragDropReleased(<span class="kw">_</span>, old_idx, new_idx) =&gt; {
+                <span class="self">self</span>.draw_drop_position = Drawable::empty(ctx);
 
-                <span class="kw">if</span> <span class="ident">old_idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">new_idx</span> {
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">edits</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">clone</span>();
-                    <span class="ident">edits</span>
-                        .<span class="ident">commands</span>
-                        .<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">edit_road_cmd</span>(<span class="self">self</span>.<span class="ident">r</span>, <span class="op">|</span><span class="ident">new</span><span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">spec</span> <span class="op">=</span> <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">remove</span>(<span class="ident">old_idx</span>);
-                            <span class="ident">new</span>.<span class="ident">lanes_ltr</span>.<span class="ident">insert</span>(<span class="ident">new_idx</span>, <span class="ident">spec</span>);
+                <span class="kw">if </span>old_idx != new_idx {
+                    <span class="kw">let </span><span class="kw-2">mut </span>edits = app.primary.map.get_edits().clone();
+                    edits
+                        .commands
+                        .push(app.primary.map.edit_road_cmd(<span class="self">self</span>.r, |new| {
+                            <span class="kw">let </span>spec = new.lanes_ltr.remove(old_idx);
+                            new.lanes_ltr.insert(new_idx, spec);
                         }));
-                    <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
-                    <span class="self">self</span>.<span class="ident">redo_stack</span>.<span class="ident">clear</span>();
+                    apply_map_edits(ctx, app, edits);
+                    <span class="self">self</span>.redo_stack.clear();
                 }
 
-                <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">lane_for_idx</span>(<span class="ident">app</span>, <span class="ident">new_idx</span>));
-                <span class="self">self</span>.<span class="ident">hovering_on_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">selected_lane</span>;
-                <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                <span class="self">self</span>.selected_lane = <span class="prelude-val">Some</span>(<span class="self">self</span>.lane_for_idx(app, new_idx));
+                <span class="self">self</span>.hovering_on_lane = <span class="self">self</span>.selected_lane;
+                panels_need_recalc = <span class="bool-val">true</span>;
             }
-            <span class="ident">Outcome::Nothing</span> =&gt; {}
-            <span class="kw">_</span> =&gt; <span class="macro">debug!</span>(<span class="string">&quot;main_panel had unhandled outcome&quot;</span>),
+            Outcome::Nothing =&gt; {}
+            <span class="kw">_ </span>=&gt; <span class="macro">debug!</span>(<span class="string">&quot;main_panel had unhandled outcome&quot;</span>),
         }
 
-        <span class="kw">if</span> <span class="self">self</span>
-            .<span class="ident">main_panel</span>
-            .<span class="ident">find</span>::<span class="op">&lt;</span><span class="ident">DragDrop</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span><span class="op">&gt;</span>(<span class="string">&quot;lane cards&quot;</span>)
-            .<span class="ident">get_dragging_state</span>()
-            .<span class="ident">is_some</span>()
+        <span class="kw">if </span><span class="self">self
+            </span>.main_panel
+            .find::&lt;DragDrop&lt;LaneID&gt;&gt;(<span class="string">&quot;lane cards&quot;</span>)
+            .get_dragging_state()
+            .is_some()
         {
-            <span class="comment">// Even if we drag the lane card into map-space, don&#39;t hover on anything in the map.</span>
-            <span class="self">self</span>.<span class="ident">hovering_on_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="comment">// Don&#39;t rebuild the panel -- that&#39;ll destroy the DragDrop we just started! But do</span>
-            <span class="comment">// update the outlines</span>
-            <span class="self">self</span>.<span class="ident">recalc_lane_highlights</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">redo_mouseover</span>() {
-            <span class="kw">let</span> <span class="ident">prev_hovering_on_lane</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_lane</span>;
-            <span class="self">self</span>.<span class="ident">recalc_hovering</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
-            <span class="kw">if</span> <span class="ident">prev_hovering_on_lane</span> <span class="op">!</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_lane</span> {
-                <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="comment">// Even if we drag the lane card into map-space, don&#39;t hover on anything in the map.
+            </span><span class="self">self</span>.hovering_on_lane = <span class="prelude-val">None</span>;
+            <span class="comment">// Don&#39;t rebuild the panel -- that&#39;ll destroy the DragDrop we just started! But do
+            // update the outlines
+            </span><span class="self">self</span>.recalc_lane_highlights(ctx, app);
+        } <span class="kw">else if </span>ctx.redo_mouseover() {
+            <span class="kw">let </span>prev_hovering_on_lane = <span class="self">self</span>.hovering_on_lane;
+            <span class="self">self</span>.recalc_hovering(ctx, app);
+            <span class="kw">if </span>prev_hovering_on_lane != <span class="self">self</span>.hovering_on_lane {
+                panels_need_recalc = <span class="bool-val">true</span>;
             }
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">hovering_on_lane</span> {
-            <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
-                <span class="kw">if</span> <span class="ident">l</span>.<span class="ident">road</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">r</span> {
-                    <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>);
-                    <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                } <span class="kw">else</span> {
-                    <span class="comment">// Switch to editing another road, first compressing the edits here if</span>
-                    <span class="comment">// needed.</span>
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">edits</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">compress_edits</span>(<span class="ident">app</span>) {
-                        <span class="ident">apply_map_edits</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">edits</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(l) = <span class="self">self</span>.hovering_on_lane {
+            <span class="kw">if </span>ctx.normal_left_click() {
+                <span class="kw">if </span>l.road == <span class="self">self</span>.r {
+                    <span class="self">self</span>.selected_lane = <span class="prelude-val">Some</span>(l);
+                    panels_need_recalc = <span class="bool-val">true</span>;
+                } <span class="kw">else </span>{
+                    <span class="comment">// Switch to editing another road, first compressing the edits here if
+                    // needed.
+                    </span><span class="kw">if let </span><span class="prelude-val">Some</span>(edits) = <span class="self">self</span>.compress_edits(app) {
+                        apply_map_edits(ctx, app, edits);
                     }
-                    <span class="kw">return</span> <span class="ident">Transition::Replace</span>(<span class="ident">RoadEditor::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">l</span>));
+                    <span class="kw">return </span>Transition::Replace(RoadEditor::new_state(ctx, app, l));
                 }
             }
-        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">selected_lane</span>.<span class="ident">is_some</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">get_cursor_in_map_space</span>().<span class="ident">is_some</span>()
-            <span class="op">&amp;&amp;</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>()
+        } <span class="kw">else if </span><span class="self">self</span>.selected_lane.is_some()
+            &amp;&amp; ctx.canvas.get_cursor_in_map_space().is_some()
+            &amp;&amp; ctx.normal_left_click()
         {
-            <span class="comment">// Deselect the current lane</span>
-            <span class="self">self</span>.<span class="ident">selected_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="self">self</span>.<span class="ident">hovering_on_lane</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="ident">panels_need_recalc</span> <span class="op">=</span> <span class="bool-val">true</span>;
+            <span class="comment">// Deselect the current lane
+            </span><span class="self">self</span>.selected_lane = <span class="prelude-val">None</span>;
+            <span class="self">self</span>.hovering_on_lane = <span class="prelude-val">None</span>;
+            panels_need_recalc = <span class="bool-val">true</span>;
         }
 
-        <span class="kw">if</span> <span class="ident">panels_need_recalc</span> {
-            <span class="self">self</span>.<span class="ident">recalc_all_panels</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="kw">if </span>panels_need_recalc {
+            <span class="self">self</span>.recalc_all_panels(ctx, app);
         }
 
-        <span class="ident">Transition::Keep</span>
+        Transition::Keep
     }
 
-    <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>, <span class="kw">_</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">fade_irrelevant</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">lane_highlights</span>.<span class="number">1</span>);
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_drop_position</span>);
-        <span class="self">self</span>.<span class="ident">top_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
-        <span class="self">self</span>.<span class="ident">main_panel</span>.<span class="ident">draw</span>(<span class="ident">g</span>);
+    <span class="kw">fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx, <span class="kw">_</span>: <span class="kw-2">&amp;</span>App) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.fade_irrelevant);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.lane_highlights.<span class="number">1</span>);
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_drop_position);
+        <span class="self">self</span>.top_panel.draw(g);
+        <span class="self">self</span>.main_panel.draw(g);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_top_panel</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">num_edit_cmds_originally</span>: <span class="ident">usize</span>,
-    <span class="ident">no_redo_cmds</span>: <span class="ident">bool</span>,
-    <span class="ident">r</span>: <span class="ident">RoadID</span>,
-    <span class="ident">orig_road_state</span>: <span class="ident">EditRoad</span>,
-) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">current_state</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r_edit</span>(<span class="ident">r</span>);
+<span class="kw">fn </span>make_top_panel(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    num_edit_cmds_originally: usize,
+    no_redo_cmds: bool,
+    r: RoadID,
+    orig_road_state: EditRoad,
+) -&gt; Panel {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>current_state = map.get_r_edit(r);
 
-    <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="macro">format!</span>(<span class="string">&quot;Edit {}&quot;</span>, <span class="ident">r</span>)).<span class="ident">small_heading</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;jump to road&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">text</span>(<span class="string">&quot;+ Apply to multiple&quot;</span>)
-                .<span class="ident">label_color</span>(<span class="ident">Color::hex</span>(<span class="string">&quot;#4CA7E9&quot;</span>), <span class="ident">ControlState::Default</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::M</span>)
-                .<span class="ident">disabled</span>(<span class="ident">current_state</span> <span class="op">==</span> <span class="ident">orig_road_state</span>)
-                .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;You have to edit one road segment first, then you can apply the changes to more segments.&quot;</span>)
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;Apply to multiple road segments&quot;</span>),
+    Panel::new_builder(Widget::col(<span class="macro">vec!</span>[
+        Widget::row(<span class="macro">vec!</span>[
+            Line(<span class="macro">format!</span>(<span class="string">&quot;Edit {}&quot;</span>, r)).small_heading().into_widget(ctx),
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/tools/location.svg&quot;</span>)
+                .build_widget(ctx, <span class="string">&quot;jump to road&quot;</span>),
+            ctx.style()
+                .btn_plain
+                .text(<span class="string">&quot;+ Apply to multiple&quot;</span>)
+                .label_color(Color::hex(<span class="string">&quot;#4CA7E9&quot;</span>), ControlState::Default)
+                .hotkey(Key::M)
+                .disabled(current_state == orig_road_state)
+                .disabled_tooltip(<span class="string">&quot;You have to edit one road segment first, then you can apply the changes to more segments.&quot;</span>)
+                .build_widget(ctx, <span class="string">&quot;Apply to multiple road segments&quot;</span>),
         ]),
-        <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_solid_primary</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Finish&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="ident">map</span>.<span class="ident">get_edits</span>().<span class="ident">commands</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="ident">num_edit_cmds_originally</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="ident">no_redo_cmds</span>)
-                <span class="comment">// TODO ctrl+shift+Z!</span>
-                .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Y</span>))
-                .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;redo&quot;</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain_destructive</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Revert&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="ident">current_state</span> <span class="op">==</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>), <span class="ident">map</span>.<span class="ident">get_config</span>()))
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-            <span class="ident">ctx</span>.<span class="ident">style</span>()
-                .<span class="ident">btn_plain</span>
-                .<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>)
-                .<span class="ident">hotkey</span>(<span class="ident">Key::Escape</span>)
-                .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+        Widget::row(<span class="macro">vec!</span>[
+            ctx.style()
+                .btn_solid_primary
+                .text(<span class="string">&quot;Finish&quot;</span>)
+                .hotkey(Key::Enter)
+                .build_def(ctx),
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
+                .disabled(map.get_edits().commands.len() == num_edit_cmds_originally)
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, <span class="string">&quot;undo&quot;</span>),
+            ctx.style()
+                .btn_plain
+                .icon(<span class="string">&quot;system/assets/tools/redo.svg&quot;</span>)
+                .disabled(no_redo_cmds)
+                <span class="comment">// TODO ctrl+shift+Z!
+                </span>.hotkey(lctrl(Key::Y))
+                .build_widget(ctx, <span class="string">&quot;redo&quot;</span>),
+            ctx.style()
+                .btn_plain_destructive
+                .text(<span class="string">&quot;Revert&quot;</span>)
+                .disabled(current_state == EditRoad::get_orig_from_osm(map.get_r(r), map.get_config()))
+                .build_def(ctx),
+            ctx.style()
+                .btn_plain
+                .text(<span class="string">&quot;Cancel&quot;</span>)
+                .hotkey(Key::Escape)
+                .build_def(ctx),
         ]),
     ]))
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Center</span>, <span class="ident">VerticalAlignment::Top</span>)
-    .<span class="ident">build</span>(<span class="ident">ctx</span>)
+    .aligned(HorizontalAlignment::Center, VerticalAlignment::Top)
+    .build(ctx)
 }
 
-<span class="kw">fn</span> <span class="ident">make_main_panel</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>,
-    <span class="ident">selected_lane</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    <span class="ident">hovering_on_lane</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-) -&gt; <span class="ident">Panel</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+<span class="kw">fn </span>make_main_panel(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    road: <span class="kw-2">&amp;</span>Road,
+    selected_lane: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
+    hovering_on_lane: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
+) -&gt; Panel {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
 
-    <span class="kw">let</span> <span class="ident">current_lt</span> <span class="op">=</span> <span class="ident">selected_lane</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>).<span class="ident">lane_type</span>);
+    <span class="kw">let </span>current_lt = selected_lane.map(|l| map.get_l(l).lane_type);
 
-    <span class="kw">let</span> <span class="ident">current_lts</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LaneType</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">lane_type</span>).<span class="ident">collect</span>();
+    <span class="kw">let </span>current_lts: Vec&lt;LaneType&gt; = road.lanes.iter().map(|l| l.lane_type).collect();
 
-    <span class="kw">let</span> <span class="ident">lane_types</span> <span class="op">=</span> [
-        (<span class="ident">LaneType::Driving</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::D</span>)),
-        (<span class="ident">LaneType::Biking</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::B</span>)),
-        (<span class="ident">LaneType::Bus</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::T</span>)),
-        (<span class="ident">LaneType::Sidewalk</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::S</span>)),
-        (<span class="ident">LaneType::Parking</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::P</span>)),
-        (<span class="ident">LaneType::Construction</span>, <span class="prelude-val">Some</span>(<span class="ident">Key::C</span>)),
+    <span class="kw">let </span>lane_types = [
+        (LaneType::Driving, <span class="prelude-val">Some</span>(Key::D)),
+        (LaneType::Biking, <span class="prelude-val">Some</span>(Key::B)),
+        (LaneType::Bus, <span class="prelude-val">Some</span>(Key::T)),
+        (LaneType::Sidewalk, <span class="prelude-val">Some</span>(Key::S)),
+        (LaneType::Parking, <span class="prelude-val">Some</span>(Key::P)),
+        (LaneType::Construction, <span class="prelude-val">Some</span>(Key::C)),
     ];
-    <span class="comment">// All the buffer lanes are grouped into a PersistentSplit</span>
-    <span class="kw">let</span> <span class="ident">moving_lane_idx</span> <span class="op">=</span> <span class="number">4</span>;
+    <span class="comment">// All the buffer lanes are grouped into a PersistentSplit
+    </span><span class="kw">let </span>moving_lane_idx = <span class="number">4</span>;
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lane_type_buttons</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
-    <span class="kw">for</span> (<span class="ident">lane_type</span>, <span class="ident">_key</span>) <span class="kw">in</span> <span class="ident">lane_types</span> {
-        <span class="kw">let</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">icon</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lane_type</span>).<span class="ident">unwrap</span>());
+    <span class="kw">let </span><span class="kw-2">mut </span>lane_type_buttons = HashMap::new();
+    <span class="kw">for </span>(lane_type, _key) <span class="kw">in </span>lane_types {
+        <span class="kw">let </span>btn = ctx
+            .style()
+            .btn_outline
+            .icon(lane_type_to_icon(lane_type).unwrap());
 
-        <span class="ident">lane_type_buttons</span>.<span class="ident">insert</span>(<span class="ident">lane_type</span>, <span class="ident">btn</span>);
+        lane_type_buttons.insert(lane_type, btn);
     }
 
-    <span class="kw">let</span> <span class="ident">make_buffer_picker</span> <span class="op">=</span> <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">prefix</span>, <span class="ident">initial_type</span><span class="op">|</span> {
-        <span class="ident">PersistentSplit::widget</span>(
-            <span class="ident">ctx</span>,
-            <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} buffer&quot;</span>, <span class="ident">prefix</span>),
-            <span class="ident">initial_type</span>,
+    <span class="kw">let </span>make_buffer_picker = |ctx, prefix, initial_type| {
+        PersistentSplit::widget(
+            ctx,
+            <span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;{} buffer&quot;</span>, prefix),
+            initial_type,
             <span class="prelude-val">None</span>,
             <span class="macro">vec!</span>[
-                <span class="ident">BufferType::Stripes</span>,
-                <span class="ident">BufferType::FlexPosts</span>,
-                <span class="ident">BufferType::Planters</span>,
-                <span class="ident">BufferType::JerseyBarrier</span>,
-                <span class="ident">BufferType::Curb</span>,
+                BufferType::Stripes,
+                BufferType::FlexPosts,
+                BufferType::Planters,
+                BufferType::JerseyBarrier,
+                BufferType::Curb,
             ]
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">buf</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">LaneType::Buffer</span>(<span class="ident">buf</span>);
-                <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">LaneSpec::typical_lane_widths</span>(<span class="ident">lt</span>, <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">osm_tags</span>)[<span class="number">0</span>].<span class="number">0</span>;
-                <span class="ident">Choice::new</span>(
-                    <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, <span class="ident">lt</span>.<span class="ident">short_name</span>(), <span class="ident">width</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
-                    <span class="ident">lt</span>,
+            .into_iter()
+            .map(|buf| {
+                <span class="kw">let </span>lt = LaneType::Buffer(buf);
+                <span class="kw">let </span>width = LaneSpec::typical_lane_widths(lt, <span class="kw-2">&amp;</span>road.osm_tags)[<span class="number">0</span>].<span class="number">0</span>;
+                Choice::new(
+                    <span class="macro">format!</span>(<span class="string">&quot;{} ({})&quot;</span>, lt.short_name(), width.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
+                    lt,
                 )
             })
-            .<span class="ident">collect</span>(),
+            .collect(),
         )
     };
 
-    <span class="kw">let</span> <span class="ident">add_lane_row</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="string">&quot;add new&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-        <span class="ident">Widget::row</span>({
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">lane_types</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">key</span>)<span class="op">|</span> {
-                    <span class="ident">lane_type_buttons</span>
-                        .<span class="ident">get</span>(<span class="ident">lt</span>)
-                        .<span class="ident">expect</span>(<span class="string">&quot;lane_type button should have been cached&quot;</span>)
-                        .<span class="ident">clone</span>()
-                        <span class="comment">// When we&#39;re modifying an existing lane, hotkeys change the lane, not add</span>
-                        <span class="comment">// new lanes.</span>
-                        .<span class="ident">hotkey</span>(<span class="kw">if</span> <span class="ident">selected_lane</span>.<span class="ident">is_none</span>() {
-                            <span class="ident">key</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">into</span>())
-                        } <span class="kw">else</span> {
-                            <span class="prelude-val">None</span>
-                        })
-                        .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;add {}&quot;</span>, <span class="ident">lt</span>.<span class="ident">short_name</span>()))
-                        .<span class="ident">centered_vert</span>()
+    <span class="kw">let </span>add_lane_row = Widget::row(<span class="macro">vec!</span>[
+        <span class="string">&quot;add new&quot;</span>.text_widget(ctx).centered_vert(),
+        Widget::row({
+            <span class="kw">let </span><span class="kw-2">mut </span>row: Vec&lt;Widget&gt; = lane_types
+                .iter()
+                .map(|(lt, key)| {
+                    lane_type_buttons
+                        .get(lt)
+                        .expect(<span class="string">&quot;lane_type button should have been cached&quot;</span>)
+                        .clone()
+                        <span class="comment">// When we&#39;re modifying an existing lane, hotkeys change the lane, not add
+                        // new lanes.
+                        </span>.hotkey(<span class="kw">if </span>selected_lane.is_none() {
+                            key.map(|k| k.into())
+                        } <span class="kw">else </span>{
+                            <span class="prelude-val">None
+                        </span>})
+                        .build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;add {}&quot;</span>, lt.short_name()))
+                        .centered_vert()
                 })
-                .<span class="ident">collect</span>();
-            <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">make_buffer_picker</span>(<span class="ident">ctx</span>, <span class="string">&quot;add&quot;</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">buffer_lane_type</span>));
-            <span class="ident">row</span>.<span class="ident">insert</span>(<span class="ident">moving_lane_idx</span>, <span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">40.0</span>));
-            <span class="ident">row</span>
+                .collect();
+            row.push(make_buffer_picker(ctx, <span class="string">&quot;add&quot;</span>, app.session.buffer_lane_type));
+            row.insert(moving_lane_idx, Widget::vert_separator(ctx, <span class="number">40.0</span>));
+            row
         }),
     ]);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">drag_drop</span> <span class="op">=</span> <span class="ident">DragDrop::new</span>(<span class="ident">ctx</span>, <span class="string">&quot;lane cards&quot;</span>, <span class="ident">StackAxis::Horizontal</span>);
+    <span class="kw">let </span><span class="kw-2">mut </span>drag_drop = DragDrop::new(ctx, <span class="string">&quot;lane cards&quot;</span>, StackAxis::Horizontal);
 
-    <span class="kw">let</span> <span class="ident">road_width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
+    <span class="kw">let </span>road_width = road.get_width();
 
-    <span class="kw">for</span> <span class="ident">l</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">road</span>.<span class="ident">lanes</span> {
-        <span class="kw">let</span> <span class="ident">idx</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">id</span>.<span class="ident">offset</span>;
-        <span class="kw">let</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">id</span>;
-        <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">dir</span>;
-        <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="ident">l</span>.<span class="ident">lane_type</span>;
+    <span class="kw">for </span>l <span class="kw">in </span><span class="kw-2">&amp;</span>road.lanes {
+        <span class="kw">let </span>idx = l.id.offset;
+        <span class="kw">let </span>id = l.id;
+        <span class="kw">let </span>dir = l.dir;
+        <span class="kw">let </span>lt = l.lane_type;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">icon_stack</span> <span class="op">=</span> <span class="ident">GeomBatchStack::vertical</span>(<span class="macro">vec!</span>[
-            <span class="ident">Image::from_path</span>(<span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>).<span class="ident">unwrap</span>())
-                .<span class="ident">dims</span>((<span class="number">60.0</span>, <span class="number">50.0</span>))
-                .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
-                .<span class="ident">unwrap</span>()
+        <span class="kw">let </span><span class="kw-2">mut </span>icon_stack = GeomBatchStack::vertical(<span class="macro">vec!</span>[
+            Image::from_path(lane_type_to_icon(lt).unwrap())
+                .dims((<span class="number">60.0</span>, <span class="number">50.0</span>))
+                .build_batch(ctx)
+                .unwrap()
                 .<span class="number">0</span>,
         ]);
-        <span class="ident">icon_stack</span>.<span class="ident">set_spacing</span>(<span class="number">20.0</span>);
+        icon_stack.set_spacing(<span class="number">20.0</span>);
 
-        <span class="kw">if</span> <span class="ident">can_reverse</span>(<span class="ident">lt</span>) {
-            <span class="ident">icon_stack</span>.<span class="ident">push</span>(
-                <span class="ident">Image::from_path</span>(<span class="kw">if</span> <span class="ident">dir</span> <span class="op">==</span> <span class="ident">Direction::Fwd</span> {
-                    <span class="string">&quot;system/assets/edit/forwards.svg&quot;</span>
-                } <span class="kw">else</span> {
-                    <span class="string">&quot;system/assets/edit/backwards.svg&quot;</span>
-                })
-                .<span class="ident">dims</span>((<span class="number">30.0</span>, <span class="number">30.0</span>))
-                .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
-                .<span class="ident">unwrap</span>()
+        <span class="kw">if </span>can_reverse(lt) {
+            icon_stack.push(
+                Image::from_path(<span class="kw">if </span>dir == Direction::Fwd {
+                    <span class="string">&quot;system/assets/edit/forwards.svg&quot;
+                </span>} <span class="kw">else </span>{
+                    <span class="string">&quot;system/assets/edit/backwards.svg&quot;
+                </span>})
+                .dims((<span class="number">30.0</span>, <span class="number">30.0</span>))
+                .build_batch(ctx)
+                .unwrap()
                 .<span class="number">0</span>,
             );
         }
-        <span class="kw">let</span> <span class="ident">lane_width</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">id</span>).<span class="ident">width</span>;
+        <span class="kw">let </span>lane_width = map.get_l(id).width;
 
-        <span class="ident">icon_stack</span>.<span class="ident">push</span>(<span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="ident">lane_width</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>))).<span class="ident">render</span>(<span class="ident">ctx</span>));
-        <span class="kw">let</span> <span class="ident">icon_batch</span> <span class="op">=</span> <span class="ident">icon_stack</span>.<span class="ident">batch</span>();
-        <span class="kw">let</span> <span class="ident">icon_bounds</span> <span class="op">=</span> <span class="ident">icon_batch</span>.<span class="ident">get_bounds</span>();
+        icon_stack.push(Text::from(Line(lane_width.to_string(<span class="kw-2">&amp;</span>app.opts.units))).render(ctx));
+        <span class="kw">let </span>icon_batch = icon_stack.batch();
+        <span class="kw">let </span>icon_bounds = icon_batch.get_bounds();
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rounding</span> <span class="op">=</span> <span class="ident">CornerRadii::zero</span>();
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="ident">rounding</span>.<span class="ident">top_left</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>rounding = CornerRadii::zero();
+        <span class="kw">if </span>idx == <span class="number">0 </span>{
+            rounding.top_left = DEFAULT_CORNER_RADIUS;
         }
-        <span class="kw">if</span> <span class="ident">idx</span> <span class="op">==</span> <span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
-            <span class="ident">rounding</span>.<span class="ident">top_right</span> <span class="op">=</span> <span class="ident">DEFAULT_CORNER_RADIUS</span>;
+        <span class="kw">if </span>idx == road.lanes.len() - <span class="number">1 </span>{
+            rounding.top_right = DEFAULT_CORNER_RADIUS;
         }
 
-        <span class="kw">let</span> (<span class="ident">card_bounds</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>) <span class="op">=</span> {
-            <span class="kw">let</span> <span class="ident">card_batch</span> <span class="op">=</span> <span class="op">|</span>(<span class="ident">icon_batch</span>, <span class="ident">is_hovering</span>, <span class="ident">is_selected</span>)<span class="op">|</span> -&gt; (<span class="ident">GeomBatch</span>, <span class="ident">Bounds</span>) {
-                <span class="kw">let</span> <span class="ident">road_width_px</span> <span class="op">=</span> <span class="number">700.0</span>;
-                <span class="kw">let</span> <span class="ident">icon_width</span> <span class="op">=</span> <span class="number">30.0</span>;
-                <span class="kw">let</span> <span class="ident">lane_ratio_of_road</span> <span class="op">=</span> <span class="ident">lane_width</span> <span class="op">/</span> <span class="ident">road_width</span>;
-                <span class="kw">let</span> <span class="ident">h_padding</span> <span class="op">=</span> ((<span class="ident">road_width_px</span> <span class="op">*</span> <span class="ident">lane_ratio_of_road</span> <span class="op">-</span> <span class="ident">icon_width</span>) <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">max</span>(<span class="number">2.0</span>);
+        <span class="kw">let </span>(card_bounds, default_batch, hovering_batch, selected_batch) = {
+            <span class="kw">let </span>card_batch = |(icon_batch, is_hovering, is_selected)| -&gt; (GeomBatch, Bounds) {
+                <span class="kw">let </span>road_width_px = <span class="number">700.0</span>;
+                <span class="kw">let </span>icon_width = <span class="number">30.0</span>;
+                <span class="kw">let </span>lane_ratio_of_road = lane_width / road_width;
+                <span class="kw">let </span>h_padding = ((road_width_px * lane_ratio_of_road - icon_width) / <span class="number">2.0</span>).max(<span class="number">2.0</span>);
 
-                <span class="ident">Image::from_batch</span>(<span class="ident">icon_batch</span>, <span class="ident">icon_bounds</span>)
-                    <span class="comment">// TODO: For selected/hover, rather than change the entire card&#39;s background, let&#39;s</span>
-                    <span class="comment">// just add an outline to match the styling of the corresponding lane in the map</span>
-                    .<span class="ident">bg_color</span>(<span class="kw">if</span> <span class="ident">is_selected</span> {
-                        <span class="ident">selected_lane_bg</span>(<span class="ident">ctx</span>)
-                    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">is_hovering</span> {
-                        <span class="ident">selected_lane_bg</span>(<span class="ident">ctx</span>).<span class="ident">dull</span>(<span class="number">0.3</span>)
-                    } <span class="kw">else</span> {
-                        <span class="ident">selected_lane_bg</span>(<span class="ident">ctx</span>).<span class="ident">dull</span>(<span class="number">0.15</span>)
+                Image::from_batch(icon_batch, icon_bounds)
+                    <span class="comment">// TODO: For selected/hover, rather than change the entire card&#39;s background, let&#39;s
+                    // just add an outline to match the styling of the corresponding lane in the map
+                    </span>.bg_color(<span class="kw">if </span>is_selected {
+                        selected_lane_bg(ctx)
+                    } <span class="kw">else if </span>is_hovering {
+                        selected_lane_bg(ctx).dull(<span class="number">0.3</span>)
+                    } <span class="kw">else </span>{
+                        selected_lane_bg(ctx).dull(<span class="number">0.15</span>)
                     })
-                    .<span class="ident">color</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">fg</span>)
-                    .<span class="ident">dims</span>((<span class="number">30.0</span>, <span class="number">100.0</span>))
-                    .<span class="ident">padding</span>(<span class="ident">EdgeInsets</span> {
-                        <span class="ident">top</span>: <span class="number">32.0</span>,
-                        <span class="ident">left</span>: <span class="ident">h_padding</span>,
-                        <span class="ident">bottom</span>: <span class="number">32.0</span>,
-                        <span class="ident">right</span>: <span class="ident">h_padding</span>,
+                    .color(ctx.style().btn_tab.fg)
+                    .dims((<span class="number">30.0</span>, <span class="number">100.0</span>))
+                    .padding(EdgeInsets {
+                        top: <span class="number">32.0</span>,
+                        left: h_padding,
+                        bottom: <span class="number">32.0</span>,
+                        right: h_padding,
                     })
-                    .<span class="ident">corner_rounding</span>(<span class="ident">rounding</span>)
-                    .<span class="ident">build_batch</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">unwrap</span>()
+                    .corner_rounding(rounding)
+                    .build_batch(ctx)
+                    .unwrap()
             };
 
-            <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">default_batch</span>, <span class="ident">bounds</span>) <span class="op">=</span> <span class="ident">card_batch</span>((<span class="ident">icon_batch</span>.<span class="ident">clone</span>(), <span class="bool-val">false</span>, <span class="bool-val">false</span>));
-            <span class="kw">let</span> <span class="ident">border</span> <span class="op">=</span> {
-                <span class="kw">let</span> <span class="ident">top_left</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">bounds</span>.<span class="ident">min_x</span>, <span class="ident">bounds</span>.<span class="ident">max_y</span> <span class="op">-</span> <span class="number">2.0</span>);
-                <span class="kw">let</span> <span class="ident">bottom_right</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="ident">bounds</span>.<span class="ident">max_x</span>, <span class="ident">bounds</span>.<span class="ident">max_y</span>);
-                <span class="ident">Polygon::rectangle_two_corners</span>(<span class="ident">top_left</span>, <span class="ident">bottom_right</span>).<span class="ident">unwrap</span>()
+            <span class="kw">let </span>(<span class="kw-2">mut </span>default_batch, bounds) = card_batch((icon_batch.clone(), <span class="bool-val">false</span>, <span class="bool-val">false</span>));
+            <span class="kw">let </span>border = {
+                <span class="kw">let </span>top_left = Pt2D::new(bounds.min_x, bounds.max_y - <span class="number">2.0</span>);
+                <span class="kw">let </span>bottom_right = Pt2D::new(bounds.max_x, bounds.max_y);
+                Polygon::rectangle_two_corners(top_left, bottom_right).unwrap()
             };
-            <span class="ident">default_batch</span>.<span class="ident">push</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">section_outline</span>.<span class="number">1</span>.<span class="ident">shade</span>(<span class="number">0.2</span>), <span class="ident">border</span>);
-            <span class="kw">let</span> (<span class="ident">hovering_batch</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">card_batch</span>((<span class="ident">icon_batch</span>.<span class="ident">clone</span>(), <span class="bool-val">true</span>, <span class="bool-val">false</span>));
-            <span class="kw">let</span> (<span class="ident">selected_batch</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">card_batch</span>((<span class="ident">icon_batch</span>, <span class="bool-val">false</span>, <span class="bool-val">true</span>));
-            (<span class="ident">bounds</span>, <span class="ident">default_batch</span>, <span class="ident">hovering_batch</span>, <span class="ident">selected_batch</span>)
+            default_batch.push(ctx.style().section_outline.<span class="number">1</span>.shade(<span class="number">0.2</span>), border);
+            <span class="kw">let </span>(hovering_batch, <span class="kw">_</span>) = card_batch((icon_batch.clone(), <span class="bool-val">true</span>, <span class="bool-val">false</span>));
+            <span class="kw">let </span>(selected_batch, <span class="kw">_</span>) = card_batch((icon_batch, <span class="bool-val">false</span>, <span class="bool-val">true</span>));
+            (bounds, default_batch, hovering_batch, selected_batch)
         };
 
-        <span class="ident">drag_drop</span>.<span class="ident">push_card</span>(
-            <span class="ident">id</span>,
-            <span class="ident">card_bounds</span>.<span class="ident">into</span>(),
-            <span class="ident">default_batch</span>,
-            <span class="ident">hovering_batch</span>,
-            <span class="ident">selected_batch</span>,
+        drag_drop.push_card(
+            id,
+            card_bounds.into(),
+            default_batch,
+            hovering_batch,
+            selected_batch,
         );
     }
-    <span class="ident">drag_drop</span>.<span class="ident">set_initial_state</span>(<span class="ident">selected_lane</span>, <span class="ident">hovering_on_lane</span>);
+    drag_drop.set_initial_state(selected_lane, hovering_on_lane);
 
-    <span class="kw">let</span> <span class="ident">modify_lane</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">l</span>) <span class="op">=</span> <span class="ident">selected_lane</span> {
-        <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="string">&quot;change to&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                <span class="ident">Widget::row</span>({
-                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">row</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Widget</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">lane_types</span>
-                        .<span class="ident">iter</span>()
-                        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">lt</span>, <span class="ident">key</span>)<span class="op">|</span> {
-                            <span class="kw">let</span> <span class="ident">lt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">lt</span>;
-                            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">btn</span> <span class="op">=</span> <span class="ident">lane_type_buttons</span>
-                                .<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">lt</span>)
-                                .<span class="ident">expect</span>(<span class="string">&quot;lane_type button should have been cached&quot;</span>)
-                                .<span class="ident">clone</span>()
-                                .<span class="ident">hotkey</span>(<span class="ident">key</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">k</span><span class="op">|</span> <span class="ident">k</span>.<span class="ident">into</span>()));
+    <span class="kw">let </span>modify_lane = <span class="kw">if let </span><span class="prelude-val">Some</span>(l) = selected_lane {
+        <span class="kw">let </span>lane = map.get_l(l);
+        Widget::col(<span class="macro">vec!</span>[
+            Widget::row(<span class="macro">vec!</span>[
+                <span class="string">&quot;change to&quot;</span>.text_widget(ctx).centered_vert(),
+                Widget::row({
+                    <span class="kw">let </span><span class="kw-2">mut </span>row: Vec&lt;Widget&gt; = lane_types
+                        .iter()
+                        .map(|(lt, key)| {
+                            <span class="kw">let </span>lt = <span class="kw-2">*</span>lt;
+                            <span class="kw">let </span><span class="kw-2">mut </span>btn = lane_type_buttons
+                                .get(<span class="kw-2">&amp;</span>lt)
+                                .expect(<span class="string">&quot;lane_type button should have been cached&quot;</span>)
+                                .clone()
+                                .hotkey(key.map(|k| k.into()));
 
-                            <span class="kw">if</span> <span class="ident">current_lt</span> <span class="op">==</span> <span class="prelude-val">Some</span>(<span class="ident">lt</span>) {
-                                <span class="comment">// If the selected lane is already this type, we can&#39;t change it. Hopefully no need to</span>
-                                <span class="comment">// explain this.</span>
-                                <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>.<span class="ident">disabled</span>(<span class="bool-val">true</span>);
-                            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Parking</span>
-                                <span class="op">&amp;&amp;</span> <span class="ident">current_lts</span>
-                                    .<span class="ident">iter</span>()
-                                    .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="kw-2">*</span><span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="ident">LaneType::Parking</span>)
-                                    .<span class="ident">count</span>()
-                                    <span class="op">==</span> <span class="number">2</span>
-                            {
-                                <span class="comment">// Max 2 parking lanes per road.</span>
-                                <span class="comment">//</span>
-                                <span class="comment">// (I&#39;ve seen cases in Ballard with angled parking in a median and also parking on both</span>
-                                <span class="comment">// shoulders. If this happens to be mapped as two adjacent one-way roads, it could</span>
-                                <span class="comment">// work. But the simulation layer doesn&#39;t understand 3 lanes on one road.)</span>
-                                <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>
-                                    .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                                    .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;This road already has two parking lanes&quot;</span>);
-                            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">lt</span> <span class="op">==</span> <span class="ident">LaneType::Sidewalk</span>
-                                <span class="op">&amp;&amp;</span> <span class="ident">current_lts</span>.<span class="ident">iter</span>().<span class="ident">filter</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">is_walkable</span>()).<span class="ident">count</span>() <span class="op">==</span> <span class="number">2</span>
-                            {
-                                <span class="comment">// Max 2 sidewalks or shoulders per road.</span>
-                                <span class="comment">//</span>
-                                <span class="comment">// (You could imagine some exceptions in reality, but this assumption of max 2 is</span>
-                                <span class="comment">// deeply baked into the map model and everything on top of it.)</span>
-                                <span class="ident">btn</span> <span class="op">=</span> <span class="ident">btn</span>
-                                    .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-                                    .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;This road already has two sidewalks&quot;</span>);
+                            <span class="kw">if </span>current_lt == <span class="prelude-val">Some</span>(lt) {
+                                <span class="comment">// If the selected lane is already this type, we can&#39;t change it. Hopefully no need to
+                                // explain this.
+                                </span>btn = btn.disabled(<span class="bool-val">true</span>);
+                            } <span class="kw">else if </span>lt == LaneType::Parking
+                                &amp;&amp; current_lts
+                                    .iter()
+                                    .filter(|x| <span class="kw-2">**</span>x == LaneType::Parking)
+                                    .count()
+                                    == <span class="number">2
+                            </span>{
+                                <span class="comment">// Max 2 parking lanes per road.
+                                //
+                                // (I&#39;ve seen cases in Ballard with angled parking in a median and also parking on both
+                                // shoulders. If this happens to be mapped as two adjacent one-way roads, it could
+                                // work. But the simulation layer doesn&#39;t understand 3 lanes on one road.)
+                                </span>btn = btn
+                                    .disabled(<span class="bool-val">true</span>)
+                                    .disabled_tooltip(<span class="string">&quot;This road already has two parking lanes&quot;</span>);
+                            } <span class="kw">else if </span>lt == LaneType::Sidewalk
+                                &amp;&amp; current_lts.iter().filter(|x| x.is_walkable()).count() == <span class="number">2
+                            </span>{
+                                <span class="comment">// Max 2 sidewalks or shoulders per road.
+                                //
+                                // (You could imagine some exceptions in reality, but this assumption of max 2 is
+                                // deeply baked into the map model and everything on top of it.)
+                                </span>btn = btn
+                                    .disabled(<span class="bool-val">true</span>)
+                                    .disabled_tooltip(<span class="string">&quot;This road already has two sidewalks&quot;</span>);
                             }
 
-                            <span class="ident">btn</span>.<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="macro">format!</span>(<span class="string">&quot;change to {}&quot;</span>, <span class="ident">lt</span>.<span class="ident">short_name</span>()))
+                            btn.build_widget(ctx, <span class="macro">format!</span>(<span class="string">&quot;change to {}&quot;</span>, lt.short_name()))
                         })
-                        .<span class="ident">collect</span>();
-                    <span class="ident">row</span>.<span class="ident">push</span>(<span class="ident">make_buffer_picker</span>(
-                        <span class="ident">ctx</span>,
+                        .collect();
+                    row.push(make_buffer_picker(
+                        ctx,
                         <span class="string">&quot;change to&quot;</span>,
-                        <span class="kw">match</span> <span class="ident">current_lt</span> {
-                            <span class="prelude-val">Some</span>(<span class="ident">lt</span> @ <span class="ident">LaneType::Buffer</span>(<span class="kw">_</span>)) =&gt; <span class="ident">lt</span>,
-                            <span class="kw">_</span> =&gt; <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">buffer_lane_type</span>,
+                        <span class="kw">match </span>current_lt {
+                            <span class="prelude-val">Some</span>(lt @ LaneType::Buffer(<span class="kw">_</span>)) =&gt; lt,
+                            <span class="kw">_ </span>=&gt; app.session.buffer_lane_type,
                         },
                     ));
-                    <span class="ident">row</span>.<span class="ident">insert</span>(<span class="ident">moving_lane_idx</span>, <span class="ident">Widget::vert_separator</span>(<span class="ident">ctx</span>, <span class="number">40.0</span>));
-                    <span class="ident">row</span>
+                    row.insert(moving_lane_idx, Widget::vert_separator(ctx, <span class="number">40.0</span>));
+                    row
                 }),
             ]),
-            <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_solid_destructive</span>
-                    .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span>)
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::Backspace</span>)
-                    .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;delete lane&quot;</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">ctx</span>.<span class="ident">style</span>()
-                    .<span class="ident">btn_plain</span>
-                    .<span class="ident">text</span>(<span class="string">&quot;flip direction&quot;</span>)
-                    .<span class="ident">disabled</span>(<span class="op">!</span><span class="ident">can_reverse</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span>))
-                    .<span class="ident">hotkey</span>(<span class="ident">Key::F</span>)
-                    .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-                    .<span class="ident">centered_vert</span>(),
-                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Line</span>(<span class="string">&quot;Width&quot;</span>).<span class="ident">secondary</span>().<span class="ident">into_widget</span>(<span class="ident">ctx</span>).<span class="ident">centered_vert</span>(),
-                    <span class="ident">Widget::dropdown</span>(<span class="ident">ctx</span>, <span class="string">&quot;width preset&quot;</span>, <span class="ident">lane</span>.<span class="ident">width</span>, <span class="ident">width_choices</span>(<span class="ident">app</span>, <span class="ident">l</span>)),
-                    <span class="ident">Spinner::widget_with_custom_rendering</span>(
-                        <span class="ident">ctx</span>,
+            Widget::row(<span class="macro">vec!</span>[
+                ctx.style()
+                    .btn_solid_destructive
+                    .icon(<span class="string">&quot;system/assets/tools/trash.svg&quot;</span>)
+                    .disabled(road.lanes.len() == <span class="number">1</span>)
+                    .hotkey(Key::Backspace)
+                    .build_widget(ctx, <span class="string">&quot;delete lane&quot;</span>)
+                    .centered_vert(),
+                ctx.style()
+                    .btn_plain
+                    .text(<span class="string">&quot;flip direction&quot;</span>)
+                    .disabled(!can_reverse(lane.lane_type))
+                    .hotkey(Key::F)
+                    .build_def(ctx)
+                    .centered_vert(),
+                Widget::row(<span class="macro">vec!</span>[
+                    Line(<span class="string">&quot;Width&quot;</span>).secondary().into_widget(ctx).centered_vert(),
+                    Widget::dropdown(ctx, <span class="string">&quot;width preset&quot;</span>, lane.width, width_choices(app, l)),
+                    Spinner::widget_with_custom_rendering(
+                        ctx,
                         <span class="string">&quot;width custom&quot;</span>,
-                        (<span class="ident">Distance::meters</span>(<span class="number">0.3</span>), <span class="ident">Distance::meters</span>(<span class="number">7.0</span>)),
-                        <span class="ident">lane</span>.<span class="ident">width</span>,
-                        <span class="ident">Distance::meters</span>(<span class="number">0.1</span>),
-                        <span class="comment">// Even if the user&#39;s settings are set to feet, our step size is in meters, so</span>
-                        <span class="comment">// just render in meters.</span>
-                        <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">UnitFmt::metric</span>())),
+                        (Distance::meters(<span class="number">0.3</span>), Distance::meters(<span class="number">7.0</span>)),
+                        lane.width,
+                        Distance::meters(<span class="number">0.1</span>),
+                        <span class="comment">// Even if the user&#39;s settings are set to feet, our step size is in meters, so
+                        // just render in meters.
+                        </span>Box::new(|x| x.to_string(<span class="kw-2">&amp;</span>UnitFmt::metric())),
                     ),
                 ])
-                .<span class="ident">section</span>(<span class="ident">ctx</span>),
+                .section(ctx),
             ]),
         ])
-    } <span class="kw">else</span> {
-        <span class="ident">Widget::nothing</span>()
+    } <span class="kw">else </span>{
+        Widget::nothing()
     };
 
-    <span class="kw">let</span> <span class="ident">total_width</span> <span class="op">=</span> {
-        <span class="kw">let</span> <span class="ident">line1</span> <span class="op">=</span> <span class="ident">Text::from_all</span>(<span class="macro">vec!</span>[
-            <span class="ident">Line</span>(<span class="string">&quot;Total width &quot;</span>).<span class="ident">secondary</span>(),
-            <span class="ident">Line</span>(<span class="ident">road_width</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)),
+    <span class="kw">let </span>total_width = {
+        <span class="kw">let </span>line1 = Text::from_all(<span class="macro">vec!</span>[
+            Line(<span class="string">&quot;Total width &quot;</span>).secondary(),
+            Line(road_width.to_string(<span class="kw-2">&amp;</span>app.opts.units)),
         ])
-        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>);
-        <span class="kw">let</span> <span class="ident">orig_width</span> <span class="op">=</span> <span class="ident">EditRoad::get_orig_from_osm</span>(<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">road</span>.<span class="ident">id</span>), <span class="ident">map</span>.<span class="ident">get_config</span>())
-            .<span class="ident">lanes_ltr</span>
-            .<span class="ident">into_iter</span>()
-            .<span class="ident">map</span>(<span class="op">|</span><span class="ident">spec</span><span class="op">|</span> <span class="ident">spec</span>.<span class="ident">width</span>)
-            .<span class="ident">sum</span>();
-        <span class="kw">let</span> <span class="ident">line2</span> <span class="op">=</span> <span class="ident">ctx</span>
-            .<span class="ident">style</span>()
-            .<span class="ident">btn_plain</span>
-            .<span class="ident">btn</span>()
-            .<span class="ident">label_styled_text</span>(
-                <span class="ident">Text::from</span>(<span class="kw">match</span> <span class="ident">road_width</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">orig_width</span>) {
-                    <span class="ident">std::cmp::Ordering::Equal</span> =&gt; <span class="ident">Line</span>(<span class="string">&quot;No change&quot;</span>).<span class="ident">secondary</span>(),
-                    <span class="ident">std::cmp::Ordering::Less</span> =&gt; <span class="ident">Line</span>(<span class="macro">format!</span>(
+        .into_widget(ctx);
+        <span class="kw">let </span>orig_width = EditRoad::get_orig_from_osm(map.get_r(road.id), map.get_config())
+            .lanes_ltr
+            .into_iter()
+            .map(|spec| spec.width)
+            .sum();
+        <span class="kw">let </span>line2 = ctx
+            .style()
+            .btn_plain
+            .btn()
+            .label_styled_text(
+                Text::from(<span class="kw">match </span>road_width.cmp(<span class="kw-2">&amp;</span>orig_width) {
+                    std::cmp::Ordering::Equal =&gt; Line(<span class="string">&quot;No change&quot;</span>).secondary(),
+                    std::cmp::Ordering::Less =&gt; Line(<span class="macro">format!</span>(
                         <span class="string">&quot;- {}&quot;</span>,
-                        (<span class="ident">orig_width</span> <span class="op">-</span> <span class="ident">road_width</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+                        (orig_width - road_width).to_string(<span class="kw-2">&amp;</span>app.opts.units)
                     ))
-                    .<span class="ident">fg</span>(<span class="ident">Color::GREEN</span>),
-                    <span class="ident">std::cmp::Ordering::Greater</span> =&gt; <span class="ident">Line</span>(<span class="macro">format!</span>(
+                    .fg(Color::GREEN),
+                    std::cmp::Ordering::Greater =&gt; Line(<span class="macro">format!</span>(
                         <span class="string">&quot;+ {}&quot;</span>,
-                        (<span class="ident">road_width</span> <span class="op">-</span> <span class="ident">orig_width</span>).<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>)
+                        (road_width - orig_width).to_string(<span class="kw-2">&amp;</span>app.opts.units)
                     ))
-                    .<span class="ident">fg</span>(<span class="ident">Color::RED</span>),
+                    .fg(Color::RED),
                 }),
-                <span class="ident">ControlState::Default</span>,
+                ControlState::Default,
             )
-            .<span class="ident">disabled</span>(<span class="bool-val">true</span>)
-            .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;The original road width is an estimate, so any changes might not require major construction.&quot;</span>)
-            .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;changes to total width&quot;</span>)
-            .<span class="ident">align_right</span>();
-        <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[<span class="ident">line1</span>, <span class="ident">line2</span>])
+            .disabled(<span class="bool-val">true</span>)
+            .disabled_tooltip(<span class="string">&quot;The original road width is an estimate, so any changes might not require major construction.&quot;</span>)
+            .build_widget(ctx, <span class="string">&quot;changes to total width&quot;</span>)
+            .align_right();
+        Widget::col(<span class="macro">vec!</span>[line1, line2])
     };
 
-    <span class="kw">let</span> <span class="ident">road_settings</span> <span class="op">=</span> <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-        <span class="ident">total_width</span>,
-        <span class="ident">Line</span>(<span class="string">&quot;Speed limit&quot;</span>)
-            .<span class="ident">secondary</span>()
-            .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
-        <span class="ident">Widget::dropdown</span>(
-            <span class="ident">ctx</span>,
+    <span class="kw">let </span>road_settings = Widget::row(<span class="macro">vec!</span>[
+        total_width,
+        Line(<span class="string">&quot;Speed limit&quot;</span>)
+            .secondary()
+            .into_widget(ctx)
+            .centered_vert(),
+        Widget::dropdown(
+            ctx,
             <span class="string">&quot;speed limit&quot;</span>,
-            <span class="ident">road</span>.<span class="ident">speed_limit</span>,
-            <span class="ident">speed_limit_choices</span>(<span class="ident">app</span>, <span class="prelude-val">Some</span>(<span class="ident">road</span>.<span class="ident">speed_limit</span>)),
+            road.speed_limit,
+            speed_limit_choices(app, <span class="prelude-val">Some</span>(road.speed_limit)),
         )
-        .<span class="ident">centered_vert</span>(),
-        <span class="ident">ctx</span>.<span class="ident">style</span>()
-            .<span class="ident">btn_outline</span>
-            .<span class="ident">text</span>(<span class="string">&quot;Access restrictions&quot;</span>)
-            .<span class="ident">build_def</span>(<span class="ident">ctx</span>)
-            .<span class="ident">centered_vert</span>(),
+        .centered_vert(),
+        ctx.style()
+            .btn_outline
+            .text(<span class="string">&quot;Access restrictions&quot;</span>)
+            .build_def(ctx)
+            .centered_vert(),
     ]);
 
-    <span class="ident">Panel::new_builder</span>(
-        <span class="ident">Widget::custom_col</span>(<span class="macro">vec!</span>[
-            <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                <span class="ident">road_settings</span>,
-                <span class="ident">Widget::horiz_separator</span>(<span class="ident">ctx</span>, <span class="number">1.0</span>),
-                <span class="ident">add_lane_row</span>,
+    Panel::new_builder(
+        Widget::custom_col(<span class="macro">vec!</span>[
+            Widget::col(<span class="macro">vec!</span>[
+                road_settings,
+                Widget::horiz_separator(ctx, <span class="number">1.0</span>),
+                add_lane_row,
             ])
-            .<span class="ident">section</span>(<span class="ident">ctx</span>)
-            .<span class="ident">margin_below</span>(<span class="number">16</span>),
-            <span class="ident">drag_drop</span>
-                .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                .<span class="ident">bg</span>(<span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">text_primary_color</span>.<span class="ident">tint</span>(<span class="number">0.3</span>))
-                .<span class="ident">margin_left</span>(<span class="number">16</span>),
-            <span class="comment">// We use a sort of &quot;tab&quot; metaphor for the selected lane above and this &quot;edit&quot; section</span>
-            <span class="ident">modify_lane</span>.<span class="ident">padding</span>(<span class="number">16.0</span>).<span class="ident">bg</span>(<span class="ident">selected_lane_bg</span>(<span class="ident">ctx</span>)),
+            .section(ctx)
+            .margin_below(<span class="number">16</span>),
+            drag_drop
+                .into_widget(ctx)
+                .bg(ctx.style().text_primary_color.tint(<span class="number">0.3</span>))
+                .margin_left(<span class="number">16</span>),
+            <span class="comment">// We use a sort of &quot;tab&quot; metaphor for the selected lane above and this &quot;edit&quot; section
+            </span>modify_lane.padding(<span class="number">16.0</span>).bg(selected_lane_bg(ctx)),
         ])
-        .<span class="ident">padding_left</span>(<span class="number">16</span>),
+        .padding_left(<span class="number">16</span>),
     )
-    .<span class="ident">aligned</span>(<span class="ident">HorizontalAlignment::Left</span>, <span class="ident">VerticalAlignment::Center</span>)
-    <span class="comment">// If we&#39;re hovering on a lane card, we&#39;ll immediately produce Outcome::Changed. Since this</span>
-    <span class="comment">// usually happens in recalc_all_panels, that&#39;s fine -- we&#39;ll look up the current lane card</span>
-    <span class="comment">// there anyway.</span>
-    .<span class="ident">ignore_initial_events</span>()
-    .<span class="ident">build_custom</span>(<span class="ident">ctx</span>)
+    .aligned(HorizontalAlignment::Left, VerticalAlignment::Center)
+    <span class="comment">// If we&#39;re hovering on a lane card, we&#39;ll immediately produce Outcome::Changed. Since this
+    // usually happens in recalc_all_panels, that&#39;s fine -- we&#39;ll look up the current lane card
+    // there anyway.
+    </span>.ignore_initial_events()
+    .build_custom(ctx)
 }
 
-<span class="kw">fn</span> <span class="ident">selected_lane_bg</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Color</span> {
-    <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_tab</span>.<span class="ident">bg_disabled</span>
+<span class="kw">fn </span>selected_lane_bg(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Color {
+    ctx.style().btn_tab.bg_disabled
 }
 
-<span class="kw">fn</span> <span class="ident">build_lane_highlights</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>,
-    <span class="ident">selected_lane</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-    <span class="ident">hovered_lane</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>,
-) -&gt; ((<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">LaneID</span><span class="op">&gt;</span>), <span class="ident">Drawable</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
+<span class="kw">fn </span>build_lane_highlights(
+    ctx: <span class="kw-2">&amp;</span>EventCtx,
+    app: <span class="kw-2">&amp;</span>App,
+    selected_lane: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
+    hovered_lane: <span class="prelude-ty">Option</span>&lt;LaneID&gt;,
+) -&gt; ((<span class="prelude-ty">Option</span>&lt;LaneID&gt;, <span class="prelude-ty">Option</span>&lt;LaneID&gt;), Drawable) {
+    <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
 
-    <span class="kw">let</span> <span class="ident">selected_color</span> <span class="op">=</span> <span class="ident">selected_lane_bg</span>(<span class="ident">ctx</span>);
-    <span class="kw">let</span> <span class="ident">hovered_color</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">selected</span>;
+    <span class="kw">let </span>selected_color = selected_lane_bg(ctx);
+    <span class="kw">let </span>hovered_color = app.cs.selected;
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">hovered_lane</span>) <span class="op">=</span> <span class="ident">hovered_lane</span> {
-        <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="ident">hovered_color</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">get_l</span>(<span class="ident">hovered_lane</span>).<span class="ident">get_outline</span>(<span class="ident">map</span>),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(hovered_lane) = hovered_lane {
+        batch.push(
+            hovered_color,
+            app.primary.draw_map.get_l(hovered_lane).get_outline(map),
         );
     }
 
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">selected_lane</span>) <span class="op">=</span> <span class="ident">selected_lane</span> {
-        <span class="ident">batch</span>.<span class="ident">push</span>(
-            <span class="ident">selected_color</span>,
-            <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">draw_map</span>.<span class="ident">get_l</span>(<span class="ident">selected_lane</span>).<span class="ident">get_outline</span>(<span class="ident">map</span>),
+    <span class="kw">if let </span><span class="prelude-val">Some</span>(selected_lane) = selected_lane {
+        batch.push(
+            selected_color,
+            app.primary.draw_map.get_l(selected_lane).get_outline(map),
         );
     }
 
-    ((<span class="ident">selected_lane</span>, <span class="ident">hovered_lane</span>), <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>))
+    ((selected_lane, hovered_lane), ctx.upload(batch))
 }
 
-<span class="kw">fn</span> <span class="ident">lane_type_to_icon</span>(<span class="ident">lt</span>: <span class="ident">LaneType</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">lt</span> {
-        <span class="ident">LaneType::Driving</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/driving.svg&quot;</span>),
-        <span class="ident">LaneType::Parking</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/parking.svg&quot;</span>),
-        <span class="ident">LaneType::Sidewalk</span> <span class="op">|</span> <span class="ident">LaneType::Shoulder</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/sidewalk.svg&quot;</span>),
-        <span class="ident">LaneType::Biking</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bike.svg&quot;</span>),
-        <span class="ident">LaneType::Bus</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bus.svg&quot;</span>),
-        <span class="ident">LaneType::SharedLeftTurn</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>),
-        <span class="ident">LaneType::Construction</span> =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/construction.svg&quot;</span>),
-        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Stripes</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/stripes.svg&quot;</span>),
-        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::FlexPosts</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/flex_posts.svg&quot;</span>),
-        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Planters</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/planters.svg&quot;</span>),
-        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::JerseyBarrier</span>) =&gt; {
+<span class="kw">fn </span>lane_type_to_icon(lt: LaneType) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; {
+    <span class="kw">match </span>lt {
+        LaneType::Driving =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/driving.svg&quot;</span>),
+        LaneType::Parking =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/parking.svg&quot;</span>),
+        LaneType::Sidewalk | LaneType::Shoulder =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/sidewalk.svg&quot;</span>),
+        LaneType::Biking =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bike.svg&quot;</span>),
+        LaneType::Bus =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/bus.svg&quot;</span>),
+        LaneType::SharedLeftTurn =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/map/shared_left_turn.svg&quot;</span>),
+        LaneType::Construction =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/construction.svg&quot;</span>),
+        LaneType::Buffer(BufferType::Stripes) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/stripes.svg&quot;</span>),
+        LaneType::Buffer(BufferType::FlexPosts) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/flex_posts.svg&quot;</span>),
+        LaneType::Buffer(BufferType::Planters) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/planters.svg&quot;</span>),
+        LaneType::Buffer(BufferType::JerseyBarrier) =&gt; {
             <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/jersey_barrier.svg&quot;</span>)
         }
-        <span class="ident">LaneType::Buffer</span>(<span class="ident">BufferType::Curb</span>) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/curb.svg&quot;</span>),
-        <span class="comment">// Don&#39;t allow creating these yet</span>
-        <span class="ident">LaneType::LightRail</span> <span class="op">|</span> <span class="ident">LaneType::Footway</span> <span class="op">|</span> <span class="ident">LaneType::SharedUse</span> =&gt; <span class="prelude-val">None</span>,
+        LaneType::Buffer(BufferType::Curb) =&gt; <span class="prelude-val">Some</span>(<span class="string">&quot;system/assets/edit/buffer/curb.svg&quot;</span>),
+        <span class="comment">// Don&#39;t allow creating these yet
+        </span>LaneType::LightRail | LaneType::Footway | LaneType::SharedUse =&gt; <span class="prelude-val">None</span>,
     }
 }
 
-<span class="kw">fn</span> <span class="ident">width_choices</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">l</span>: <span class="ident">LaneID</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Choice</span><span class="op">&lt;</span><span class="ident">Distance</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">lane</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">l</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">choices</span> <span class="op">=</span> <span class="ident">LaneSpec::typical_lane_widths</span>(
-        <span class="ident">lane</span>.<span class="ident">lane_type</span>,
-        <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">lane</span>.<span class="ident">id</span>.<span class="ident">road</span>).<span class="ident">osm_tags</span>,
+<span class="kw">fn </span>width_choices(app: <span class="kw-2">&amp;</span>App, l: LaneID) -&gt; Vec&lt;Choice&lt;Distance&gt;&gt; {
+    <span class="kw">let </span>lane = app.primary.map.get_l(l);
+    <span class="kw">let </span><span class="kw-2">mut </span>choices = LaneSpec::typical_lane_widths(
+        lane.lane_type,
+        <span class="kw-2">&amp;</span>app.primary.map.get_r(lane.id.road).osm_tags,
     );
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">choices</span>.<span class="ident">iter</span>().<span class="ident">any</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="kw">_</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">x</span> <span class="op">==</span> <span class="ident">lane</span>.<span class="ident">width</span>) {
-        <span class="ident">choices</span>.<span class="ident">push</span>((<span class="ident">lane</span>.<span class="ident">width</span>, <span class="string">&quot;custom&quot;</span>));
+    <span class="kw">if </span>!choices.iter().any(|(x, <span class="kw">_</span>)| <span class="kw-2">*</span>x == lane.width) {
+        choices.push((lane.width, <span class="string">&quot;custom&quot;</span>));
     }
-    <span class="ident">choices</span>.<span class="ident">sort</span>();
-    <span class="ident">choices</span>
-        .<span class="ident">into_iter</span>()
-        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">x</span>, <span class="ident">label</span>)<span class="op">|</span> <span class="ident">Choice::new</span>(<span class="macro">format!</span>(<span class="string">&quot;{} - {}&quot;</span>, <span class="ident">x</span>.<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">opts</span>.<span class="ident">units</span>), <span class="ident">label</span>), <span class="ident">x</span>))
-        .<span class="ident">collect</span>()
+    choices.sort();
+    choices
+        .into_iter()
+        .map(|(x, label)| Choice::new(<span class="macro">format!</span>(<span class="string">&quot;{} - {}&quot;</span>, x.to_string(<span class="kw-2">&amp;</span>app.opts.units), label), x))
+        .collect()
 }
 
-<span class="comment">// TODO We need to automatically fix the direction of sidewalks and parking as we initially place</span>
-<span class="comment">// them or shift them around. Until then, allow fixing in the UI manually.</span>
-<span class="kw">fn</span> <span class="ident">can_reverse</span>(<span class="kw">_</span>: <span class="ident">LaneType</span>) -&gt; <span class="ident">bool</span> {
-    <span class="bool-val">true</span>
-}
+<span class="comment">// TODO We need to automatically fix the direction of sidewalks and parking as we initially place
+// them or shift them around. Until then, allow fixing in the UI manually.
+</span><span class="kw">fn </span>can_reverse(<span class="kw">_</span>: LaneType) -&gt; bool {
+    <span class="bool-val">true
+</span>}
 <span class="comment">/*fn can_reverse(lt: LaneType) -&gt; bool {
     lt == LaneType::Driving || lt == LaneType::Biking || lt == LaneType::Bus
-}*/</span>
+}*/
 
-<span class="kw">fn</span> <span class="ident">fade_irrelevant</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>) -&gt; <span class="ident">GeomBatch</span> {
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">holes</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">road</span>.<span class="ident">get_thick_polygon</span>()];
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> [<span class="ident">road</span>.<span class="ident">src_i</span>, <span class="ident">road</span>.<span class="ident">dst_i</span>] {
-        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_i</span>(<span class="ident">i</span>);
-        <span class="ident">holes</span>.<span class="ident">push</span>(<span class="ident">i</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
+</span><span class="kw">fn </span>fade_irrelevant(app: <span class="kw-2">&amp;</span>App, r: RoadID) -&gt; GeomBatch {
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>road = map.get_r(r);
+    <span class="kw">let </span><span class="kw-2">mut </span>holes = <span class="macro">vec!</span>[road.get_thick_polygon()];
+    <span class="kw">for </span>i <span class="kw">in </span>[road.src_i, road.dst_i] {
+        <span class="kw">let </span>i = map.get_i(i);
+        holes.push(i.polygon.clone());
     }
 
-    <span class="comment">// The convex hull illuminates a bit more of the surrounding area, looks better</span>
-    <span class="kw">match</span> <span class="ident">Polygon::convex_hull</span>(<span class="ident">holes</span>) {
-        <span class="prelude-val">Ok</span>(<span class="ident">hole</span>) =&gt; {
-            <span class="kw">let</span> <span class="ident">fade_area</span> <span class="op">=</span> <span class="ident">Polygon::with_holes</span>(
-                <span class="ident">map</span>.<span class="ident">get_boundary_polygon</span>().<span class="ident">get_outer_ring</span>().<span class="ident">clone</span>(),
-                <span class="macro">vec!</span>[<span class="ident">hole</span>.<span class="ident">into_outer_ring</span>()],
+    <span class="comment">// The convex hull illuminates a bit more of the surrounding area, looks better
+    </span><span class="kw">match </span>Polygon::convex_hull(holes) {
+        <span class="prelude-val">Ok</span>(hole) =&gt; {
+            <span class="kw">let </span>fade_area = Polygon::with_holes(
+                map.get_boundary_polygon().get_outer_ring().clone(),
+                <span class="macro">vec!</span>[hole.into_outer_ring()],
             );
-            <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">fade_area</span>)])
+            GeomBatch::from(<span class="macro">vec!</span>[(app.cs.fade_map_dark, fade_area)])
         }
         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-            <span class="comment">// Just give up and don&#39;t fade anything</span>
-            <span class="ident">GeomBatch::new</span>()
+            <span class="comment">// Just give up and don&#39;t fade anything
+            </span>GeomBatch::new()
         }
     }
 }
 
-<span class="kw">fn</span> <span class="ident">draw_drop_position</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">r</span>: <span class="ident">RoadID</span>, <span class="ident">from</span>: <span class="ident">usize</span>, <span class="ident">to</span>: <span class="ident">usize</span>) -&gt; <span class="ident">GeomBatch</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-    <span class="kw">if</span> <span class="ident">from</span> <span class="op">==</span> <span class="ident">to</span> {
-        <span class="kw">return</span> <span class="ident">batch</span>;
+<span class="kw">fn </span>draw_drop_position(app: <span class="kw-2">&amp;</span>App, r: RoadID, from: usize, to: usize) -&gt; GeomBatch {
+    <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+    <span class="kw">if </span>from == to {
+        <span class="kw">return </span>batch;
     }
-    <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">map</span>;
-    <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">r</span>);
-    <span class="kw">let</span> <span class="ident">take_num</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">from</span> <span class="op">&lt;</span> <span class="ident">to</span> { <span class="ident">to</span> <span class="op">+</span> <span class="number">1</span> } <span class="kw">else</span> { <span class="ident">to</span> };
-    <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">road</span>.<span class="ident">lanes</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">take_num</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">width</span>).<span class="ident">sum</span>();
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">shift_from_left_side</span>(<span class="ident">width</span>) {
-        <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">selected</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="ident">OUTLINE_THICKNESS</span>));
+    <span class="kw">let </span>map = <span class="kw-2">&amp;</span>app.primary.map;
+    <span class="kw">let </span>road = map.get_r(r);
+    <span class="kw">let </span>take_num = <span class="kw">if </span>from &lt; to { to + <span class="number">1 </span>} <span class="kw">else </span>{ to };
+    <span class="kw">let </span>width = road.lanes.iter().take(take_num).map(|x| x.width).sum();
+    <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = road.shift_from_left_side(width) {
+        batch.push(app.cs.selected, pl.make_polygons(OUTLINE_THICKNESS));
     }
-    <span class="ident">batch</span>
+    batch
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="game" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

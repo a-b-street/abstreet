@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/backend_glow_native.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backend_glow_native.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `widgetry/src/backend_glow_native.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>backend_glow_native.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../widgetry/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../widgetry/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -77,84 +77,84 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend_glow</span>::{<span class="ident">build_program</span>, <span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ScreenDims</span>, <span class="ident">Settings</span>};
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards};
+<span class="kw">use crate</span>::{ScreenDims, Settings};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup</span>(<span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>) -&gt; (<span class="ident">PrerenderInnards</span>, <span class="ident">winit::event_loop::EventLoop</span><span class="op">&lt;</span>()<span class="op">&gt;</span>) {
-    <span class="kw">let</span> <span class="ident">event_loop</span> <span class="op">=</span> <span class="ident">winit::event_loop::EventLoop::new</span>();
-    <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">winit::window::WindowBuilder::new</span>()
-        .<span class="ident">with_title</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">window_title</span>)
-        .<span class="ident">with_maximized</span>(<span class="bool-val">true</span>);
-    <span class="comment">// TODO If people are hitting problems with context not matching what their GPU provides, dig up</span>
-    <span class="comment">// backend_glium.rs from git and bring the fallback behavior here. (Ideally, there&#39;d be</span>
-    <span class="comment">// something in glutin to directly express this.)</span>
-    <span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">glutin::ContextBuilder::new</span>()
-        <span class="comment">// 2 looks really bad, 4 looks alright. For thin lines at low zoom, 8 looks better, and</span>
-        <span class="comment">// should have common videocard support.</span>
-        .<span class="ident">with_multisampling</span>(<span class="number">8</span>)
-        .<span class="ident">with_depth_buffer</span>(<span class="number">2</span>)
-        .<span class="ident">build_windowed</span>(<span class="ident">window</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">event_loop</span>)
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-            <span class="macro">warn!</span>(<span class="string">&quot;Trying default graphics context after standard graphics context failed with error: {:?}&quot;</span>,  <span class="ident">err</span>);
-            <span class="ident">glutin::ContextBuilder::new</span>().<span class="ident">build_windowed</span>(<span class="ident">window</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">event_loop</span>)
+<span class="kw">pub fn </span>setup(settings: <span class="kw-2">&amp;</span>Settings) -&gt; (PrerenderInnards, winit::event_loop::EventLoop&lt;()&gt;) {
+    <span class="kw">let </span>event_loop = winit::event_loop::EventLoop::new();
+    <span class="kw">let </span>window = winit::window::WindowBuilder::new()
+        .with_title(<span class="kw-2">&amp;</span>settings.window_title)
+        .with_maximized(<span class="bool-val">true</span>);
+    <span class="comment">// TODO If people are hitting problems with context not matching what their GPU provides, dig up
+    // backend_glium.rs from git and bring the fallback behavior here. (Ideally, there&#39;d be
+    // something in glutin to directly express this.)
+    </span><span class="kw">let </span>context = glutin::ContextBuilder::new()
+        <span class="comment">// 2 looks really bad, 4 looks alright. For thin lines at low zoom, 8 looks better, and
+        // should have common videocard support.
+        </span>.with_multisampling(<span class="number">8</span>)
+        .with_depth_buffer(<span class="number">2</span>)
+        .build_windowed(window.clone(), <span class="kw-2">&amp;</span>event_loop)
+        .or_else(|err| {
+            <span class="macro">warn!</span>(<span class="string">&quot;Trying default graphics context after standard graphics context failed with error: {:?}&quot;</span>,  err);
+            glutin::ContextBuilder::new().build_windowed(window.clone(), <span class="kw-2">&amp;</span>event_loop)
         })
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-            <span class="macro">warn!</span>(<span class="string">&quot;Trying graphics context with vsync after default graphics context failed with error: {:?}&quot;</span>, <span class="ident">err</span>);
-            <span class="ident">glutin::ContextBuilder::new</span>()
-                .<span class="ident">with_vsync</span>(<span class="bool-val">true</span>)
-                .<span class="ident">build_windowed</span>(<span class="ident">window</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;</span><span class="ident">event_loop</span>)
-        }).<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-        <span class="macro">panic!</span>(<span class="string">&quot;Your videocard doesn&#39;t support the OpenGL mode requested. This is a common issue when running inside a virtual machine; please run natively if possible. See https://github.com/a-b-street/abstreet/issues/103 for more info, and feel free to ask for help using that issue.\n\nError: {:?}&quot;</span>, <span class="ident">err</span>);
+        .or_else(|err| {
+            <span class="macro">warn!</span>(<span class="string">&quot;Trying graphics context with vsync after default graphics context failed with error: {:?}&quot;</span>, err);
+            glutin::ContextBuilder::new()
+                .with_vsync(<span class="bool-val">true</span>)
+                .build_windowed(window.clone(), <span class="kw-2">&amp;</span>event_loop)
+        }).unwrap_or_else(|err| {
+        <span class="macro">panic!</span>(<span class="string">&quot;Your videocard doesn&#39;t support the OpenGL mode requested. This is a common issue when running inside a virtual machine; please run natively if possible. See https://github.com/a-b-street/abstreet/issues/103 for more info, and feel free to ask for help using that issue.\n\nError: {:?}&quot;</span>, err);
     });
 
-    <span class="kw">let</span> <span class="ident">windowed_context</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">context</span>.<span class="ident">make_current</span>().<span class="ident">unwrap</span>() };
-    <span class="kw">let</span> <span class="ident">gl</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-        <span class="ident">glow::Context::from_loader_function</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">windowed_context</span>.<span class="ident">get_proc_address</span>(<span class="ident">s</span>) <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span>)
+    <span class="kw">let </span>windowed_context = <span class="kw">unsafe </span>{ context.make_current().unwrap() };
+    <span class="kw">let </span>gl = <span class="kw">unsafe </span>{
+        glow::Context::from_loader_function(|s| windowed_context.get_proc_address(s) <span class="kw">as </span><span class="kw-2">*const </span><span class="kw">_</span>)
     };
 
-    <span class="kw">let</span> <span class="ident">program</span> <span class="op">=</span> <span class="kw">unsafe</span> {
-        <span class="ident">build_program</span>(
-            <span class="kw-2">&amp;</span><span class="ident">gl</span>,
+    <span class="kw">let </span>program = <span class="kw">unsafe </span>{
+        build_program(
+            <span class="kw-2">&amp;</span>gl,
             <span class="macro">include_str!</span>(<span class="string">&quot;../shaders/vertex_140.glsl&quot;</span>),
             <span class="macro">include_str!</span>(<span class="string">&quot;../shaders/fragment_140.glsl&quot;</span>),
         )
-        .<span class="ident">or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+        .or_else(|err| {
             <span class="macro">warn!</span>(
                 <span class="string">&quot;unable to build program with default shaderrs, falling back to v300. error: {:?}&quot;</span>,
-                <span class="ident">err</span>
+                err
             );
-            <span class="ident">build_program</span>(
-                <span class="kw-2">&amp;</span><span class="ident">gl</span>,
+            build_program(
+                <span class="kw-2">&amp;</span>gl,
                 <span class="macro">include_str!</span>(<span class="string">&quot;../shaders/vertex_300.glsl&quot;</span>),
                 <span class="macro">include_str!</span>(<span class="string">&quot;../shaders/fragment_300.glsl&quot;</span>),
             )
         })
-        .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
-            <span class="macro">panic!</span>(<span class="string">&quot;error building program: {:?}&quot;</span>, <span class="ident">err</span>);
+        .unwrap_or_else(|err| {
+            <span class="macro">panic!</span>(<span class="string">&quot;error building program: {:?}&quot;</span>, err);
         })
     };
 
     (
-        <span class="ident">PrerenderInnards::new</span>(<span class="ident">gl</span>, <span class="bool-val">true</span>, <span class="ident">program</span>, <span class="prelude-val">Some</span>(<span class="ident">WindowAdapter</span>(<span class="ident">windowed_context</span>))),
-        <span class="ident">event_loop</span>,
+        PrerenderInnards::new(gl, <span class="bool-val">true</span>, program, <span class="prelude-val">Some</span>(WindowAdapter(windowed_context))),
+        event_loop,
     )
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WindowAdapter</span>(<span class="ident">glutin::WindowedContext</span><span class="op">&lt;</span><span class="ident">glutin::PossiblyCurrent</span><span class="op">&gt;</span>);
+<span class="kw">pub struct </span>WindowAdapter(glutin::WindowedContext&lt;glutin::PossiblyCurrent&gt;);
 
-<span class="kw">impl</span> <span class="ident">WindowAdapter</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">winit::window::Window</span> {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">window</span>()
+<span class="kw">impl </span>WindowAdapter {
+    <span class="kw">pub fn </span>window(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span>winit::window::Window {
+        <span class="self">self</span>.<span class="number">0</span>.window()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">window_resized</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">new_size</span>: <span class="ident">ScreenDims</span>, <span class="ident">scale_factor</span>: <span class="ident">f64</span>) {
-        <span class="kw">let</span> <span class="ident">physical_size</span> <span class="op">=</span> <span class="ident">winit::dpi::LogicalSize::from</span>(<span class="ident">new_size</span>).<span class="ident">to_physical</span>(<span class="ident">scale_factor</span>);
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">resize</span>(<span class="ident">physical_size</span>);
+    <span class="kw">pub fn </span>window_resized(<span class="kw-2">&amp;</span><span class="self">self</span>, new_size: ScreenDims, scale_factor: f64) {
+        <span class="kw">let </span>physical_size = winit::dpi::LogicalSize::from(new_size).to_physical(scale_factor);
+        <span class="self">self</span>.<span class="number">0</span>.resize(physical_size);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw_finished</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_gfc_ctx_innards</span>: <span class="ident">GfxCtxInnards</span>) {
-        <span class="self">self</span>.<span class="number">0</span>.<span class="ident">swap_buffers</span>().<span class="ident">unwrap</span>();
+    <span class="kw">pub fn </span>draw_finished(<span class="kw-2">&amp;</span><span class="self">self</span>, _gfc_ctx_innards: GfxCtxInnards) {
+        <span class="self">self</span>.<span class="number">0</span>.swap_buffers().unwrap();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="widgetry" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

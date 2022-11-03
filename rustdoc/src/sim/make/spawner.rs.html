@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/spawner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>spawner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `sim/src/make/spawner.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>spawner.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../sim/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../sim/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -335,342 +335,342 @@
 <span id="335">335</span>
 <span id="336">336</span>
 <span id="337">337</span>
-</pre><pre class="rust"><code><span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:</span>
-<span class="doccomment">//! https://github.com/a-b-street/abstreet/issues/258</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Intermediate structures used to instantiate a Scenario. Badly needs simplification:
+//! https://github.com/a-b-street/abstreet/issues/258
 
-<span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
+</span><span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span>serde::{Deserialize, Serialize};
 
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BuildingID</span>, <span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Position</span>, <span class="ident">TransitRouteID</span>, <span class="ident">TransitStopID</span>};
-<span class="kw">use</span> <span class="ident">synthpop</span>::{<span class="ident">TripEndpoint</span>, <span class="ident">TripMode</span>};
+<span class="kw">use </span>map_model::{BuildingID, Map, PathConstraints, Position, TransitRouteID, TransitStopID};
+<span class="kw">use </span>synthpop::{TripEndpoint, TripMode};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">CarID</span>, <span class="ident">DrivingGoal</span>, <span class="ident">SidewalkSpot</span>, <span class="ident">TripLeg</span>, <span class="ident">VehicleType</span>, <span class="ident">SPAWN_DIST</span>};
+<span class="kw">use crate</span>::{CarID, DrivingGoal, SidewalkSpot, TripLeg, VehicleType, SPAWN_DIST};
 
-<span class="doccomment">/// We need to remember a few things from scenario instantiation that&#39;re used for starting the</span>
-<span class="doccomment">/// trip.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct</span> <span class="ident">StartTripArgs</span> {
-    <span class="kw">pub</span> <span class="ident">retry_if_no_room</span>: <span class="ident">bool</span>,
-    <span class="kw">pub</span> <span class="ident">use_vehicle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
+<span class="doccomment">/// We need to remember a few things from scenario instantiation that&#39;re used for starting the
+/// trip.
+</span><span class="attribute">#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">struct </span>StartTripArgs {
+    <span class="kw">pub </span>retry_if_no_room: bool,
+    <span class="kw">pub </span>use_vehicle: <span class="prelude-ty">Option</span>&lt;CarID&gt;,
 }
 
-<span class="comment">// TODO Some of these fields are unused now that we separately pass TripEndpoint</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">TripSpec</span> {
-    <span class="doccomment">/// Can be used to spawn from a border or anywhere for interactive debugging.</span>
-    <span class="ident">VehicleAppearing</span> {
-        <span class="ident">start_pos</span>: <span class="ident">Position</span>,
-        <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>,
-        <span class="doccomment">/// This must be a currently off-map vehicle owned by the person.</span>
-        <span class="ident">use_vehicle</span>: <span class="ident">CarID</span>,
-        <span class="ident">retry_if_no_room</span>: <span class="ident">bool</span>,
+<span class="comment">// TODO Some of these fields are unused now that we separately pass TripEndpoint
+</span><span class="attribute">#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+</span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum </span>TripSpec {
+    <span class="doccomment">/// Can be used to spawn from a border or anywhere for interactive debugging.
+    </span>VehicleAppearing {
+        start_pos: Position,
+        goal: DrivingGoal,
+        <span class="doccomment">/// This must be a currently off-map vehicle owned by the person.
+        </span>use_vehicle: CarID,
+        retry_if_no_room: bool,
     },
-    <span class="doccomment">/// Something went wrong spawning the trip.</span>
-    <span class="ident">SpawningFailure</span> {
-        <span class="ident">use_vehicle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
-        <span class="ident">error</span>: <span class="ident">String</span>,
+    <span class="doccomment">/// Something went wrong spawning the trip.
+    </span>SpawningFailure {
+        use_vehicle: <span class="prelude-ty">Option</span>&lt;CarID&gt;,
+        error: String,
     },
-    <span class="ident">UsingParkedCar</span> {
-        <span class="doccomment">/// This must be a currently parked vehicle owned by the person.</span>
-        <span class="ident">car</span>: <span class="ident">CarID</span>,
-        <span class="ident">start_bldg</span>: <span class="ident">BuildingID</span>,
-        <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>,
+    UsingParkedCar {
+        <span class="doccomment">/// This must be a currently parked vehicle owned by the person.
+        </span>car: CarID,
+        start_bldg: BuildingID,
+        goal: DrivingGoal,
     },
-    <span class="ident">JustWalking</span> {
-        <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>,
-        <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>,
+    JustWalking {
+        start: SidewalkSpot,
+        goal: SidewalkSpot,
     },
-    <span class="ident">UsingBike</span> {
-        <span class="ident">bike</span>: <span class="ident">CarID</span>,
-        <span class="ident">start</span>: <span class="ident">BuildingID</span>,
-        <span class="ident">goal</span>: <span class="ident">DrivingGoal</span>,
+    UsingBike {
+        bike: CarID,
+        start: BuildingID,
+        goal: DrivingGoal,
     },
-    <span class="ident">UsingTransit</span> {
-        <span class="ident">start</span>: <span class="ident">SidewalkSpot</span>,
-        <span class="ident">goal</span>: <span class="ident">SidewalkSpot</span>,
-        <span class="ident">route</span>: <span class="ident">TransitRouteID</span>,
-        <span class="ident">stop1</span>: <span class="ident">TransitStopID</span>,
-        <span class="ident">maybe_stop2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TransitStopID</span><span class="op">&gt;</span>,
+    UsingTransit {
+        start: SidewalkSpot,
+        goal: SidewalkSpot,
+        route: TransitRouteID,
+        stop1: TransitStopID,
+        maybe_stop2: <span class="prelude-ty">Option</span>&lt;TransitStopID&gt;,
     },
 }
 
-<span class="kw">impl</span> <span class="ident">TripSpec</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_plan</span>(<span class="self">self</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; (<span class="ident">TripSpec</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">TripLeg</span><span class="op">&gt;</span>) {
-        <span class="comment">// TODO We&#39;ll want to repeat this validation when we spawn stuff later for a second leg...</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">legs</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span> {
-            <span class="ident">TripSpec::VehicleAppearing</span> {
-                <span class="ident">start_pos</span>,
-                <span class="ident">goal</span>,
-                <span class="ident">use_vehicle</span>,
+<span class="kw">impl </span>TripSpec {
+    <span class="kw">pub fn </span>into_plan(<span class="self">self</span>, map: <span class="kw-2">&amp;</span>Map) -&gt; (TripSpec, Vec&lt;TripLeg&gt;) {
+        <span class="comment">// TODO We&#39;ll want to repeat this validation when we spawn stuff later for a second leg...
+        </span><span class="kw">let </span><span class="kw-2">mut </span>legs = Vec::new();
+        <span class="kw">match </span><span class="kw-2">&amp;</span><span class="self">self </span>{
+            TripSpec::VehicleAppearing {
+                start_pos,
+                goal,
+                use_vehicle,
                 ..
             } =&gt; {
-                <span class="kw">if</span> <span class="ident">start_pos</span>.<span class="ident">dist_along</span>() <span class="op">&gt;</span><span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">start_pos</span>.<span class="ident">lane</span>()).<span class="ident">length</span>() {
-                    <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t spawn at {}; it isn&#39;t that long&quot;</span>, <span class="ident">start_pos</span>);
+                <span class="kw">if </span>start_pos.dist_along() &gt;= map.get_l(start_pos.lane()).length() {
+                    <span class="macro">panic!</span>(<span class="string">&quot;Can&#39;t spawn at {}; it isn&#39;t that long&quot;</span>, start_pos);
                 }
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal::Border</span>(<span class="kw">_</span>, <span class="ident">end_lane</span>) <span class="op">=</span> <span class="ident">goal</span> {
-                    <span class="kw">if</span> <span class="ident">start_pos</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="kw-2">*</span><span class="ident">end_lane</span>
-                        <span class="op">&amp;&amp;</span> <span class="ident">start_pos</span>.<span class="ident">dist_along</span>() <span class="op">==</span> <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="kw-2">*</span><span class="ident">end_lane</span>).<span class="ident">length</span>()
+                <span class="kw">if let </span>DrivingGoal::Border(<span class="kw">_</span>, end_lane) = goal {
+                    <span class="kw">if </span>start_pos.lane() == <span class="kw-2">*</span>end_lane
+                        &amp;&amp; start_pos.dist_along() == map.get_l(<span class="kw-2">*</span>end_lane).length()
                     {
                         <span class="macro">panic!</span>(
                             <span class="string">&quot;Can&#39;t start at {}; it&#39;s the edge of a border already&quot;</span>,
-                            <span class="ident">start_pos</span>
+                            start_pos
                         );
                     }
                 }
 
-                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">use_vehicle</span>.<span class="ident">vehicle_type</span> <span class="op">==</span> <span class="ident">VehicleType::Bike</span> {
-                    <span class="ident">PathConstraints::Bike</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">PathConstraints::Car</span>
+                <span class="kw">let </span>constraints = <span class="kw">if </span>use_vehicle.vehicle_type == VehicleType::Bike {
+                    PathConstraints::Bike
+                } <span class="kw">else </span>{
+                    PathConstraints::Car
                 };
 
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Drive</span>(<span class="kw-2">*</span><span class="ident">use_vehicle</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
-                <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">goal</span> {
-                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
+                legs.push(TripLeg::Drive(<span class="kw-2">*</span>use_vehicle, goal.clone()));
+                <span class="kw">if let </span>DrivingGoal::ParkNear(b) = goal {
+                    legs.push(TripLeg::Walk(SidewalkSpot::building(<span class="kw-2">*</span>b, map)));
                 }
 
-                <span class="kw">if</span> <span class="ident">goal</span>.<span class="ident">goal_pos</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">is_none</span>() {
-                    <span class="kw">return</span> <span class="ident">TripSpec::SpawningFailure</span> {
-                        <span class="ident">use_vehicle</span>: <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">use_vehicle</span>),
-                        <span class="ident">error</span>: <span class="macro">format!</span>(<span class="string">&quot;goal_pos to {:?} for a {:?} failed&quot;</span>, <span class="ident">goal</span>, <span class="ident">constraints</span>),
+                <span class="kw">if </span>goal.goal_pos(constraints, map).is_none() {
+                    <span class="kw">return </span>TripSpec::SpawningFailure {
+                        use_vehicle: <span class="prelude-val">Some</span>(<span class="kw-2">*</span>use_vehicle),
+                        error: <span class="macro">format!</span>(<span class="string">&quot;goal_pos to {:?} for a {:?} failed&quot;</span>, goal, constraints),
                     }
-                    .<span class="ident">into_plan</span>(<span class="ident">map</span>);
+                    .into_plan(map);
                 }
             }
-            <span class="ident">TripSpec::SpawningFailure</span> { .. } =&gt; {
-                <span class="comment">// TODO The legs are a lie. Since the trip gets cancelled, this doesn&#39;t matter.</span>
-                <span class="comment">// I&#39;m not going to bother doing better because I think TripLeg will get</span>
-                <span class="comment">// revamped soon anyway.</span>
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::RideBus</span>(<span class="ident">TransitRouteID</span>(<span class="number">0</span>), <span class="prelude-val">None</span>));
+            TripSpec::SpawningFailure { .. } =&gt; {
+                <span class="comment">// TODO The legs are a lie. Since the trip gets cancelled, this doesn&#39;t matter.
+                // I&#39;m not going to bother doing better because I think TripLeg will get
+                // revamped soon anyway.
+                </span>legs.push(TripLeg::RideBus(TransitRouteID(<span class="number">0</span>), <span class="prelude-val">None</span>));
             }
-            <span class="ident">TripSpec::UsingParkedCar</span> { <span class="ident">car</span>, <span class="ident">goal</span>, .. } =&gt; {
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::deferred_parking_spot</span>()));
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Drive</span>(<span class="kw-2">*</span><span class="ident">car</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
-                <span class="kw">match</span> <span class="ident">goal</span> {
-                    <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) =&gt; {
-                        <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
+            TripSpec::UsingParkedCar { car, goal, .. } =&gt; {
+                legs.push(TripLeg::Walk(SidewalkSpot::deferred_parking_spot()));
+                legs.push(TripLeg::Drive(<span class="kw-2">*</span>car, goal.clone()));
+                <span class="kw">match </span>goal {
+                    DrivingGoal::ParkNear(b) =&gt; {
+                        legs.push(TripLeg::Walk(SidewalkSpot::building(<span class="kw-2">*</span>b, map)));
                     }
-                    <span class="ident">DrivingGoal::Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
+                    DrivingGoal::Border(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
                 }
             }
-            <span class="ident">TripSpec::JustWalking</span> { <span class="ident">start</span>, <span class="ident">goal</span>, .. } =&gt; {
-                <span class="kw">if</span> <span class="ident">start</span> <span class="op">==</span> <span class="ident">goal</span> {
+            TripSpec::JustWalking { start, goal, .. } =&gt; {
+                <span class="kw">if </span>start == goal {
                     <span class="macro">panic!</span>(
                         <span class="string">&quot;A trip just walking from {:?} to {:?} doesn&#39;t make sense&quot;</span>,
-                        <span class="ident">start</span>, <span class="ident">goal</span>
+                        start, goal
                     );
                 }
-                <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()));
+                legs.push(TripLeg::Walk(goal.clone()));
             }
-            <span class="ident">TripSpec::UsingBike</span> { <span class="ident">start</span>, <span class="ident">goal</span>, <span class="ident">bike</span> } =&gt; {
-                <span class="comment">// TODO Might not be possible to walk to the same border if there&#39;s no sidewalk</span>
-                <span class="kw">let</span> <span class="ident">backup_plan</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">goal</span> {
-                    <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">TripSpec::JustWalking</span> {
-                        <span class="ident">start</span>: <span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>),
-                        <span class="ident">goal</span>: <span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>),
+            TripSpec::UsingBike { start, goal, bike } =&gt; {
+                <span class="comment">// TODO Might not be possible to walk to the same border if there&#39;s no sidewalk
+                </span><span class="kw">let </span>backup_plan = <span class="kw">match </span>goal {
+                    DrivingGoal::ParkNear(b) =&gt; <span class="prelude-val">Some</span>(TripSpec::JustWalking {
+                        start: SidewalkSpot::building(<span class="kw-2">*</span>start, map),
+                        goal: SidewalkSpot::building(<span class="kw-2">*</span>b, map),
                     }),
-                    <span class="ident">DrivingGoal::Border</span>(<span class="ident">i</span>, <span class="kw">_</span>) =&gt; {
-                        <span class="ident">SidewalkSpot::end_at_border</span>(<span class="kw-2">*</span><span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">goal</span><span class="op">|</span> <span class="ident">TripSpec::JustWalking</span> {
-                            <span class="ident">start</span>: <span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>),
-                            <span class="ident">goal</span>,
+                    DrivingGoal::Border(i, <span class="kw">_</span>) =&gt; {
+                        SidewalkSpot::end_at_border(<span class="kw-2">*</span>i, map).map(|goal| TripSpec::JustWalking {
+                            start: SidewalkSpot::building(<span class="kw-2">*</span>start, map),
+                            goal,
                         })
                     }
                 };
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">start_spot</span>) <span class="op">=</span> <span class="ident">SidewalkSpot::bike_rack</span>(<span class="kw-2">*</span><span class="ident">start</span>, <span class="ident">map</span>) {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">goal</span> {
-                        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">goal_spot</span>) <span class="op">=</span> <span class="ident">SidewalkSpot::bike_rack</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>) {
-                            <span class="kw">if</span> <span class="ident">start_spot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>() <span class="op">==</span> <span class="ident">goal_spot</span>.<span class="ident">sidewalk_pos</span>.<span class="ident">lane</span>() {
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(start_spot) = SidewalkSpot::bike_rack(<span class="kw-2">*</span>start, map) {
+                    <span class="kw">if let </span>DrivingGoal::ParkNear(b) = goal {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(goal_spot) = SidewalkSpot::bike_rack(<span class="kw-2">*</span>b, map) {
+                            <span class="kw">if </span>start_spot.sidewalk_pos.lane() == goal_spot.sidewalk_pos.lane() {
                                 <span class="macro">info!</span>(
                                     <span class="string">&quot;Bike trip from {} to {} will just walk; it&#39;s the same \
                                      sidewalk!&quot;</span>,
-                                    <span class="ident">start</span>, <span class="ident">b</span>
+                                    start, b
                                 );
-                                <span class="kw">return</span> <span class="ident">backup_plan</span>.<span class="ident">unwrap</span>().<span class="ident">into_plan</span>(<span class="ident">map</span>);
+                                <span class="kw">return </span>backup_plan.unwrap().into_plan(map);
                             }
-                        } <span class="kw">else</span> {
+                        } <span class="kw">else </span>{
                             <span class="macro">info!</span>(
                                 <span class="string">&quot;Can&#39;t find biking connection for goal {}, walking instead&quot;</span>,
-                                <span class="ident">b</span>
+                                b
                             );
-                            <span class="kw">return</span> <span class="ident">backup_plan</span>.<span class="ident">unwrap</span>().<span class="ident">into_plan</span>(<span class="ident">map</span>);
+                            <span class="kw">return </span>backup_plan.unwrap().into_plan(map);
                         }
                     }
 
-                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">start_spot</span>));
-                    <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Drive</span>(<span class="kw-2">*</span><span class="ident">bike</span>, <span class="ident">goal</span>.<span class="ident">clone</span>()));
-                    <span class="kw">match</span> <span class="ident">goal</span> {
-                        <span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>) =&gt; {
-                            <span class="ident">legs</span>.<span class="ident">push</span>(<span class="ident">TripLeg::Walk</span>(<span class="ident">SidewalkSpot::building</span>(<span class="kw-2">*</span><span class="ident">b</span>, <span class="ident">map</span>)));
+                    legs.push(TripLeg::Walk(start_spot));
+                    legs.push(TripLeg::Drive(<span class="kw-2">*</span>bike, goal.clone()));
+                    <span class="kw">match </span>goal {
+                        DrivingGoal::ParkNear(b) =&gt; {
+                            legs.push(TripLeg::Walk(SidewalkSpot::building(<span class="kw-2">*</span>b, map)));
                         }
-                        <span class="ident">DrivingGoal::Border</span>(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
+                        DrivingGoal::Border(<span class="kw">_</span>, <span class="kw">_</span>) =&gt; {}
                     }
-                } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">plan</span>) <span class="op">=</span> <span class="ident">backup_plan</span> {
-                    <span class="macro">info!</span>(<span class="string">&quot;Can&#39;t start biking from {}. Walking instead&quot;</span>, <span class="ident">start</span>);
-                    <span class="kw">return</span> <span class="ident">plan</span>.<span class="ident">into_plan</span>(<span class="ident">map</span>);
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="ident">TripSpec::SpawningFailure</span> {
-                        <span class="ident">use_vehicle</span>: <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">bike</span>),
-                        <span class="ident">error</span>: <span class="macro">format!</span>(
+                } <span class="kw">else if let </span><span class="prelude-val">Some</span>(plan) = backup_plan {
+                    <span class="macro">info!</span>(<span class="string">&quot;Can&#39;t start biking from {}. Walking instead&quot;</span>, start);
+                    <span class="kw">return </span>plan.into_plan(map);
+                } <span class="kw">else </span>{
+                    <span class="kw">return </span>TripSpec::SpawningFailure {
+                        use_vehicle: <span class="prelude-val">Some</span>(<span class="kw-2">*</span>bike),
+                        error: <span class="macro">format!</span>(
                             <span class="string">&quot;Can&#39;t start biking from {} and can&#39;t walk either! Goal is {:?}&quot;</span>,
-                            <span class="ident">start</span>, <span class="ident">goal</span>
+                            start, goal
                         ),
                     }
-                    .<span class="ident">into_plan</span>(<span class="ident">map</span>);
+                    .into_plan(map);
                 }
             }
-            <span class="ident">TripSpec::UsingTransit</span> {
-                <span class="ident">route</span>,
-                <span class="ident">stop1</span>,
-                <span class="ident">maybe_stop2</span>,
-                <span class="ident">goal</span>,
+            TripSpec::UsingTransit {
+                route,
+                stop1,
+                maybe_stop2,
+                goal,
                 ..
             } =&gt; {
-                <span class="kw">let</span> <span class="ident">walk_to</span> <span class="op">=</span> <span class="ident">SidewalkSpot::bus_stop</span>(<span class="kw-2">*</span><span class="ident">stop1</span>, <span class="ident">map</span>);
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">stop2</span>) <span class="op">=</span> <span class="ident">maybe_stop2</span> {
-                    <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec!</span>[
-                        <span class="ident">TripLeg::Walk</span>(<span class="ident">walk_to</span>),
-                        <span class="ident">TripLeg::RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">Some</span>(<span class="kw-2">*</span><span class="ident">stop2</span>)),
-                        <span class="ident">TripLeg::Walk</span>(<span class="ident">goal</span>.<span class="ident">clone</span>()),
+                <span class="kw">let </span>walk_to = SidewalkSpot::bus_stop(<span class="kw-2">*</span>stop1, map);
+                <span class="kw">if let </span><span class="prelude-val">Some</span>(stop2) = maybe_stop2 {
+                    legs = <span class="macro">vec!</span>[
+                        TripLeg::Walk(walk_to),
+                        TripLeg::RideBus(<span class="kw-2">*</span>route, <span class="prelude-val">Some</span>(<span class="kw-2">*</span>stop2)),
+                        TripLeg::Walk(goal.clone()),
                     ];
-                } <span class="kw">else</span> {
-                    <span class="ident">legs</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">TripLeg::Walk</span>(<span class="ident">walk_to</span>), <span class="ident">TripLeg::RideBus</span>(<span class="kw-2">*</span><span class="ident">route</span>, <span class="prelude-val">None</span>)];
+                } <span class="kw">else </span>{
+                    legs = <span class="macro">vec!</span>[TripLeg::Walk(walk_to), TripLeg::RideBus(<span class="kw-2">*</span>route, <span class="prelude-val">None</span>)];
                 }
             }
         };
 
-        (<span class="self">self</span>, <span class="ident">legs</span>)
+        (<span class="self">self</span>, legs)
     }
 
-    <span class="doccomment">/// Turn an origin/destination pair and mode into a specific plan for instantiating a trip.</span>
-    <span class="doccomment">/// Decisions like how to use public transit happen here.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_new</span>(
-        <span class="ident">from</span>: <span class="ident">TripEndpoint</span>,
-        <span class="ident">to</span>: <span class="ident">TripEndpoint</span>,
-        <span class="ident">mode</span>: <span class="ident">TripMode</span>,
-        <span class="ident">use_vehicle</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">CarID</span><span class="op">&gt;</span>,
-        <span class="ident">retry_if_no_room</span>: <span class="ident">bool</span>,
-        <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-    ) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">TripSpec</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Ok</span>(<span class="kw">match</span> <span class="ident">mode</span> {
-            <span class="ident">TripMode::Drive</span> <span class="op">|</span> <span class="ident">TripMode::Bike</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">constraints</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">TripMode::Drive</span> {
-                    <span class="ident">PathConstraints::Car</span>
-                } <span class="kw">else</span> {
-                    <span class="ident">PathConstraints::Bike</span>
+    <span class="doccomment">/// Turn an origin/destination pair and mode into a specific plan for instantiating a trip.
+    /// Decisions like how to use public transit happen here.
+    </span><span class="kw">pub fn </span>maybe_new(
+        from: TripEndpoint,
+        to: TripEndpoint,
+        mode: TripMode,
+        use_vehicle: <span class="prelude-ty">Option</span>&lt;CarID&gt;,
+        retry_if_no_room: bool,
+        map: <span class="kw-2">&amp;</span>Map,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;TripSpec&gt; {
+        <span class="prelude-val">Ok</span>(<span class="kw">match </span>mode {
+            TripMode::Drive | TripMode::Bike =&gt; {
+                <span class="kw">let </span>constraints = <span class="kw">if </span>mode == TripMode::Drive {
+                    PathConstraints::Car
+                } <span class="kw">else </span>{
+                    PathConstraints::Bike
                 };
-                <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="ident">driving_goal</span>(<span class="ident">to</span>, <span class="ident">constraints</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
-                <span class="kw">match</span> <span class="ident">from</span> {
-                    <span class="ident">TripEndpoint::Building</span>(<span class="ident">start_bldg</span>) =&gt; {
-                        <span class="kw">if</span> <span class="ident">mode</span> <span class="op">==</span> <span class="ident">TripMode::Drive</span> {
-                            <span class="ident">TripSpec::UsingParkedCar</span> {
-                                <span class="ident">start_bldg</span>,
-                                <span class="ident">goal</span>,
-                                <span class="ident">car</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
+                <span class="kw">let </span>goal = driving_goal(to, constraints, map)<span class="question-mark">?</span>;
+                <span class="kw">match </span>from {
+                    TripEndpoint::Building(start_bldg) =&gt; {
+                        <span class="kw">if </span>mode == TripMode::Drive {
+                            TripSpec::UsingParkedCar {
+                                start_bldg,
+                                goal,
+                                car: use_vehicle.unwrap(),
                             }
-                        } <span class="kw">else</span> {
-                            <span class="ident">TripSpec::UsingBike</span> {
-                                <span class="ident">start</span>: <span class="ident">start_bldg</span>,
-                                <span class="ident">goal</span>,
-                                <span class="ident">bike</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
+                        } <span class="kw">else </span>{
+                            TripSpec::UsingBike {
+                                start: start_bldg,
+                                goal,
+                                bike: use_vehicle.unwrap(),
                             }
                         }
                     }
-                    <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; {
-                        <span class="kw">let</span> <span class="ident">start_lane</span> <span class="op">=</span> <span class="ident">map</span>
-                            .<span class="ident">get_i</span>(<span class="ident">i</span>)
-                            .<span class="ident">some_outgoing_road</span>(<span class="ident">map</span>)
-                            <span class="comment">// TODO Since we&#39;re now doing this right when the trip is starting,</span>
-                            <span class="comment">// pick the least loaded lane or similar.</span>
-                            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">dr</span><span class="op">|</span> <span class="ident">dr</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>).<span class="ident">pop</span>())
-                            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> {
-                                <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t start a {} trip from {}&quot;</span>, <span class="ident">mode</span>.<span class="ident">ongoing_verb</span>(), <span class="ident">i</span>)
+                    TripEndpoint::Border(i) =&gt; {
+                        <span class="kw">let </span>start_lane = map
+                            .get_i(i)
+                            .some_outgoing_road(map)
+                            <span class="comment">// TODO Since we&#39;re now doing this right when the trip is starting,
+                            // pick the least loaded lane or similar.
+                            </span>.and_then(|dr| dr.lanes(constraints, map).pop())
+                            .ok_or_else(|| {
+                                <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t start a {} trip from {}&quot;</span>, mode.ongoing_verb(), i)
                             })<span class="question-mark">?</span>;
-                        <span class="ident">TripSpec::VehicleAppearing</span> {
-                            <span class="ident">start_pos</span>: <span class="ident">Position::new</span>(<span class="ident">start_lane</span>, <span class="ident">SPAWN_DIST</span>),
-                            <span class="ident">goal</span>,
-                            <span class="ident">use_vehicle</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
-                            <span class="ident">retry_if_no_room</span>,
+                        TripSpec::VehicleAppearing {
+                            start_pos: Position::new(start_lane, SPAWN_DIST),
+                            goal,
+                            use_vehicle: use_vehicle.unwrap(),
+                            retry_if_no_room,
                         }
                     }
-                    <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">start_pos</span>) =&gt; <span class="ident">TripSpec::VehicleAppearing</span> {
-                        <span class="ident">start_pos</span>,
-                        <span class="ident">goal</span>,
-                        <span class="ident">use_vehicle</span>: <span class="ident">use_vehicle</span>.<span class="ident">unwrap</span>(),
-                        <span class="ident">retry_if_no_room</span>,
+                    TripEndpoint::SuddenlyAppear(start_pos) =&gt; TripSpec::VehicleAppearing {
+                        start_pos,
+                        goal,
+                        use_vehicle: use_vehicle.unwrap(),
+                        retry_if_no_room,
                     },
                 }
             }
-            <span class="ident">TripMode::Walk</span> =&gt; <span class="ident">TripSpec::JustWalking</span> {
-                <span class="ident">start</span>: <span class="ident">start_sidewalk_spot</span>(<span class="ident">from</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
-                <span class="ident">goal</span>: <span class="ident">end_sidewalk_spot</span>(<span class="ident">to</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
+            TripMode::Walk =&gt; TripSpec::JustWalking {
+                start: start_sidewalk_spot(from, map)<span class="question-mark">?</span>,
+                goal: end_sidewalk_spot(to, map)<span class="question-mark">?</span>,
             },
-            <span class="ident">TripMode::Transit</span> =&gt; {
-                <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">start_sidewalk_spot</span>(<span class="ident">from</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
-                <span class="kw">let</span> <span class="ident">goal</span> <span class="op">=</span> <span class="ident">end_sidewalk_spot</span>(<span class="ident">to</span>, <span class="ident">map</span>)<span class="question-mark">?</span>;
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">stop1</span>, <span class="ident">maybe_stop2</span>, <span class="ident">route</span>)) <span class="op">=</span>
-                    <span class="ident">map</span>.<span class="ident">should_use_transit</span>(<span class="ident">start</span>.<span class="ident">sidewalk_pos</span>, <span class="ident">goal</span>.<span class="ident">sidewalk_pos</span>)
+            TripMode::Transit =&gt; {
+                <span class="kw">let </span>start = start_sidewalk_spot(from, map)<span class="question-mark">?</span>;
+                <span class="kw">let </span>goal = end_sidewalk_spot(to, map)<span class="question-mark">?</span>;
+                <span class="kw">if let </span><span class="prelude-val">Some</span>((stop1, maybe_stop2, route)) =
+                    map.should_use_transit(start.sidewalk_pos, goal.sidewalk_pos)
                 {
-                    <span class="ident">TripSpec::UsingTransit</span> {
-                        <span class="ident">start</span>,
-                        <span class="ident">goal</span>,
-                        <span class="ident">route</span>,
-                        <span class="ident">stop1</span>,
-                        <span class="ident">maybe_stop2</span>,
+                    TripSpec::UsingTransit {
+                        start,
+                        goal,
+                        route,
+                        stop1,
+                        maybe_stop2,
                     }
-                } <span class="kw">else</span> {
-                    <span class="comment">//warn!(&quot;{:?} not actually using transit, because pathfinding didn&#39;t find any</span>
-                    <span class="comment">// useful route&quot;, trip);</span>
-                    <span class="ident">TripSpec::JustWalking</span> { <span class="ident">start</span>, <span class="ident">goal</span> }
+                } <span class="kw">else </span>{
+                    <span class="comment">//warn!(&quot;{:?} not actually using transit, because pathfinding didn&#39;t find any
+                    // useful route&quot;, trip);
+                    </span>TripSpec::JustWalking { start, goal }
                 }
             }
         })
     }
 }
 
-<span class="kw">fn</span> <span class="ident">start_sidewalk_spot</span>(<span class="ident">endpt</span>: <span class="ident">TripEndpoint</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">endpt</span> {
-        <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot::building</span>(<span class="ident">b</span>, <span class="ident">map</span>)),
-        <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; <span class="ident">SidewalkSpot::start_at_border</span>(<span class="ident">i</span>, <span class="ident">map</span>)
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t start walking from {}&quot;</span>, <span class="ident">i</span>)),
-        <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">pos</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot::suddenly_appear</span>(<span class="ident">pos</span>, <span class="ident">map</span>)),
+<span class="kw">fn </span>start_sidewalk_spot(endpt: TripEndpoint, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;SidewalkSpot&gt; {
+    <span class="kw">match </span>endpt {
+        TripEndpoint::Building(b) =&gt; <span class="prelude-val">Ok</span>(SidewalkSpot::building(b, map)),
+        TripEndpoint::Border(i) =&gt; SidewalkSpot::start_at_border(i, map)
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t start walking from {}&quot;</span>, i)),
+        TripEndpoint::SuddenlyAppear(pos) =&gt; <span class="prelude-val">Ok</span>(SidewalkSpot::suddenly_appear(pos, map)),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">end_sidewalk_spot</span>(<span class="ident">endpt</span>: <span class="ident">TripEndpoint</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SidewalkSpot</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">endpt</span> {
-        <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">SidewalkSpot::building</span>(<span class="ident">b</span>, <span class="ident">map</span>)),
-        <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; {
-            <span class="ident">SidewalkSpot::end_at_border</span>(<span class="ident">i</span>, <span class="ident">map</span>).<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t end walking at {}&quot;</span>, <span class="ident">i</span>))
+<span class="kw">fn </span>end_sidewalk_spot(endpt: TripEndpoint, map: <span class="kw-2">&amp;</span>Map) -&gt; <span class="prelude-ty">Result</span>&lt;SidewalkSpot&gt; {
+    <span class="kw">match </span>endpt {
+        TripEndpoint::Building(b) =&gt; <span class="prelude-val">Ok</span>(SidewalkSpot::building(b, map)),
+        TripEndpoint::Border(i) =&gt; {
+            SidewalkSpot::end_at_border(i, map).ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t end walking at {}&quot;</span>, i))
         }
-        <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+        TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
     }
 }
 
-<span class="kw">fn</span> <span class="ident">driving_goal</span>(
-    <span class="ident">endpt</span>: <span class="ident">TripEndpoint</span>,
-    <span class="ident">constraints</span>: <span class="ident">PathConstraints</span>,
-    <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>,
-) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrivingGoal</span><span class="op">&gt;</span> {
-    <span class="kw">match</span> <span class="ident">endpt</span> {
-        <span class="ident">TripEndpoint::Building</span>(<span class="ident">b</span>) =&gt; <span class="prelude-val">Ok</span>(<span class="ident">DrivingGoal::ParkNear</span>(<span class="ident">b</span>)),
-        <span class="comment">// TODO Duplicates some logic from TripEndpoint::pos</span>
-        <span class="ident">TripEndpoint::Border</span>(<span class="ident">i</span>) =&gt; <span class="ident">map</span>
-            .<span class="ident">get_i</span>(<span class="ident">i</span>)
-            .<span class="ident">some_incoming_road</span>(<span class="ident">map</span>)
-            .<span class="ident">and_then</span>(<span class="op">|</span><span class="ident">dr</span><span class="op">|</span> {
-                <span class="kw">let</span> <span class="ident">lanes</span> <span class="op">=</span> <span class="ident">dr</span>.<span class="ident">lanes</span>(<span class="ident">constraints</span>, <span class="ident">map</span>);
-                <span class="kw">if</span> <span class="ident">lanes</span>.<span class="ident">is_empty</span>() {
-                    <span class="prelude-val">None</span>
-                } <span class="kw">else</span> {
-                    <span class="comment">// TODO ideally could use any</span>
-                    <span class="prelude-val">Some</span>(<span class="ident">DrivingGoal::Border</span>(<span class="ident">dr</span>.<span class="ident">dst_i</span>(<span class="ident">map</span>), <span class="ident">lanes</span>[<span class="number">0</span>]))
+<span class="kw">fn </span>driving_goal(
+    endpt: TripEndpoint,
+    constraints: PathConstraints,
+    map: <span class="kw-2">&amp;</span>Map,
+) -&gt; <span class="prelude-ty">Result</span>&lt;DrivingGoal&gt; {
+    <span class="kw">match </span>endpt {
+        TripEndpoint::Building(b) =&gt; <span class="prelude-val">Ok</span>(DrivingGoal::ParkNear(b)),
+        <span class="comment">// TODO Duplicates some logic from TripEndpoint::pos
+        </span>TripEndpoint::Border(i) =&gt; map
+            .get_i(i)
+            .some_incoming_road(map)
+            .and_then(|dr| {
+                <span class="kw">let </span>lanes = dr.lanes(constraints, map);
+                <span class="kw">if </span>lanes.is_empty() {
+                    <span class="prelude-val">None
+                </span>} <span class="kw">else </span>{
+                    <span class="comment">// TODO ideally could use any
+                    </span><span class="prelude-val">Some</span>(DrivingGoal::Border(dr.dst_i(map), lanes[<span class="number">0</span>]))
                 }
             })
-            .<span class="ident">ok_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t end at {} for {:?}&quot;</span>, <span class="ident">i</span>, <span class="ident">constraints</span>)),
-        <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
+            .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;can&#39;t end at {} for {:?}&quot;</span>, i, constraints)),
+        TripEndpoint::SuddenlyAppear(<span class="kw">_</span>) =&gt; <span class="macro">unreachable!</span>(),
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="sim" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

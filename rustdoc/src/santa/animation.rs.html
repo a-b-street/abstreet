@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/animation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>animation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/santa/src/animation.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>animation.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../santa/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../santa/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -231,238 +231,238 @@
 <span id="231">231</span>
 <span id="232">232</span>
 <span id="233">233</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
-<span class="kw">use</span> <span class="ident">rand_xorshift::XorShiftRng</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>rand::{Rng, SeedableRng};
+<span class="kw">use </span>rand_xorshift::XorShiftRng;
 
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">PolyLine</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>};
+<span class="kw">use </span>geom::{Distance, Duration, PolyLine, Pt2D, Time};
+<span class="kw">use </span>widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Animator</span> {
-    <span class="ident">active</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Animation</span><span class="op">&gt;</span>,
-    <span class="ident">draw_mapspace</span>: <span class="ident">Drawable</span>,
-    <span class="ident">draw_screenspace</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Drawable</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>Animator {
+    active: Vec&lt;Animation&gt;,
+    draw_mapspace: Drawable,
+    draw_screenspace: <span class="prelude-ty">Option</span>&lt;Drawable&gt;,
 }
 
-<span class="kw">struct</span> <span class="ident">Animation</span> {
-    <span class="ident">start</span>: <span class="ident">Time</span>,
-    <span class="ident">end</span>: <span class="ident">Time</span>,
-    <span class="ident">effect</span>: <span class="ident">Effect</span>,
-    <span class="ident">screenspace</span>: <span class="ident">bool</span>,
+<span class="kw">struct </span>Animation {
+    start: Time,
+    end: Time,
+    effect: Effect,
+    screenspace: bool,
 }
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Effect</span> {
-    <span class="ident">Scale</span> {
-        <span class="ident">orig</span>: <span class="ident">GeomBatch</span>,
-        <span class="ident">center</span>: <span class="ident">Pt2D</span>,
-        <span class="ident">lerp_scale</span>: (<span class="ident">f64</span>, <span class="ident">f64</span>),
+<span class="kw">pub enum </span>Effect {
+    Scale {
+        orig: GeomBatch,
+        center: Pt2D,
+        lerp_scale: (f64, f64),
     },
-    <span class="ident">FollowPath</span> {
-        <span class="ident">color</span>: <span class="ident">Color</span>,
-        <span class="ident">width</span>: <span class="ident">Distance</span>,
-        <span class="ident">pl</span>: <span class="ident">PolyLine</span>,
+    FollowPath {
+        color: Color,
+        width: Distance,
+        pl: PolyLine,
     },
-    <span class="ident">Flash</span> {
-        <span class="ident">orig</span>: <span class="ident">GeomBatch</span>,
-        <span class="ident">alpha_scale</span>: (<span class="ident">f32</span>, <span class="ident">f32</span>),
-        <span class="ident">cycles</span>: <span class="ident">usize</span>,
+    Flash {
+        orig: GeomBatch,
+        alpha_scale: (f32, f32),
+        cycles: usize,
     },
 }
 
-<span class="kw">impl</span> <span class="ident">Animator</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>) -&gt; <span class="ident">Animator</span> {
-        <span class="ident">Animator</span> {
-            <span class="ident">active</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">draw_mapspace</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
-            <span class="ident">draw_screenspace</span>: <span class="prelude-val">None</span>,
+<span class="kw">impl </span>Animator {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;</span>EventCtx) -&gt; Animator {
+        Animator {
+            active: Vec::new(),
+            draw_mapspace: Drawable::empty(ctx),
+            draw_screenspace: <span class="prelude-val">None</span>,
         }
     }
 
-    <span class="doccomment">/// Pass in a future value for `now` to schedule a delayed effect</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>, <span class="ident">effect</span>: <span class="ident">Effect</span>) {
-        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">push</span>(<span class="ident">Animation</span> {
-            <span class="ident">start</span>: <span class="ident">now</span>,
-            <span class="ident">end</span>: <span class="ident">now</span> <span class="op">+</span> <span class="ident">duration</span>,
-            <span class="ident">effect</span>,
-            <span class="ident">screenspace</span>: <span class="bool-val">false</span>,
+    <span class="doccomment">/// Pass in a future value for `now` to schedule a delayed effect
+    </span><span class="kw">pub fn </span>add(<span class="kw-2">&amp;mut </span><span class="self">self</span>, now: Time, duration: Duration, effect: Effect) {
+        <span class="self">self</span>.active.push(Animation {
+            start: now,
+            end: now + duration,
+            effect,
+            screenspace: <span class="bool-val">false</span>,
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_screenspace</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">duration</span>: <span class="ident">Duration</span>, <span class="ident">effect</span>: <span class="ident">Effect</span>) {
-        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">push</span>(<span class="ident">Animation</span> {
-            <span class="ident">start</span>: <span class="ident">now</span>,
-            <span class="ident">end</span>: <span class="ident">now</span> <span class="op">+</span> <span class="ident">duration</span>,
-            <span class="ident">effect</span>,
-            <span class="ident">screenspace</span>: <span class="bool-val">true</span>,
+    <span class="kw">pub fn </span>add_screenspace(<span class="kw-2">&amp;mut </span><span class="self">self</span>, now: Time, duration: Duration, effect: Effect) {
+        <span class="self">self</span>.active.push(Animation {
+            start: now,
+            end: now + duration,
+            effect,
+            screenspace: <span class="bool-val">true</span>,
         });
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">now</span>: <span class="ident">Time</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">is_empty</span>() {
+    <span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, now: Time) {
+        <span class="kw">if </span><span class="self">self</span>.active.is_empty() {
             <span class="kw">return</span>;
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mapspace</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">screenspace</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">anim</span><span class="op">|</span> {
-            <span class="kw">let</span> <span class="ident">pct</span> <span class="op">=</span> (<span class="ident">now</span> <span class="op">-</span> <span class="ident">anim</span>.<span class="ident">start</span>) <span class="op">/</span> (<span class="ident">anim</span>.<span class="ident">end</span> <span class="op">-</span> <span class="ident">anim</span>.<span class="ident">start</span>);
-            <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-                <span class="comment">// Hasn&#39;t started yet</span>
-                <span class="bool-val">true</span>
-            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">pct</span> <span class="op">&gt;</span> <span class="number">1.0</span> {
-                <span class="bool-val">false</span>
-            } <span class="kw">else</span> {
-                <span class="kw">if</span> <span class="ident">anim</span>.<span class="ident">screenspace</span> {
-                    <span class="ident">anim</span>.<span class="ident">effect</span>.<span class="ident">render</span>(<span class="ident">pct</span>, <span class="kw-2">&amp;mut</span> <span class="ident">screenspace</span>);
-                } <span class="kw">else</span> {
-                    <span class="ident">anim</span>.<span class="ident">effect</span>.<span class="ident">render</span>(<span class="ident">pct</span>, <span class="kw-2">&amp;mut</span> <span class="ident">mapspace</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>mapspace = GeomBatch::new();
+        <span class="kw">let </span><span class="kw-2">mut </span>screenspace = GeomBatch::new();
+        <span class="self">self</span>.active.retain(|anim| {
+            <span class="kw">let </span>pct = (now - anim.start) / (anim.end - anim.start);
+            <span class="kw">if </span>pct &lt; <span class="number">0.0 </span>{
+                <span class="comment">// Hasn&#39;t started yet
+                </span><span class="bool-val">true
+            </span>} <span class="kw">else if </span>pct &gt; <span class="number">1.0 </span>{
+                <span class="bool-val">false
+            </span>} <span class="kw">else </span>{
+                <span class="kw">if </span>anim.screenspace {
+                    anim.effect.render(pct, <span class="kw-2">&amp;mut </span>screenspace);
+                } <span class="kw">else </span>{
+                    anim.effect.render(pct, <span class="kw-2">&amp;mut </span>mapspace);
                 }
-                <span class="bool-val">true</span>
-            }
+                <span class="bool-val">true
+            </span>}
         });
-        <span class="self">self</span>.<span class="ident">draw_mapspace</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">mapspace</span>);
-        <span class="kw">if</span> <span class="ident">screenspace</span>.<span class="ident">is_empty</span>() {
-            <span class="self">self</span>.<span class="ident">draw_screenspace</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">draw_screenspace</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">screenspace</span>));
+        <span class="self">self</span>.draw_mapspace = ctx.upload(mapspace);
+        <span class="kw">if </span>screenspace.is_empty() {
+            <span class="self">self</span>.draw_screenspace = <span class="prelude-val">None</span>;
+        } <span class="kw">else </span>{
+            <span class="self">self</span>.draw_screenspace = <span class="prelude-val">Some</span>(ctx.upload(screenspace));
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw_mapspace</span>);
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">d</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">draw_screenspace</span> {
-            <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
-            <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="ident">d</span>);
-            <span class="ident">g</span>.<span class="ident">unfork</span>();
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw_mapspace);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref </span>d) = <span class="self">self</span>.draw_screenspace {
+            g.fork_screenspace();
+            g.redraw(d);
+            g.unfork();
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_done</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="self">self</span>.<span class="ident">active</span>.<span class="ident">is_empty</span>()
+    <span class="kw">pub fn </span>is_done(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
+        <span class="self">self</span>.active.is_empty()
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Effect</span> {
-    <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">pct</span>: <span class="ident">f64</span>, <span class="ident">batch</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GeomBatch</span>) {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Effect::Scale</span> {
-                <span class="kw-2">ref</span> <span class="ident">orig</span>,
-                <span class="ident">center</span>,
-                <span class="ident">lerp_scale</span>,
+<span class="kw">impl </span>Effect {
+    <span class="kw">fn </span>render(<span class="kw-2">&amp;</span><span class="self">self</span>, pct: f64, batch: <span class="kw-2">&amp;mut </span>GeomBatch) {
+        <span class="kw">match </span><span class="self">self </span>{
+            Effect::Scale {
+                <span class="kw-2">ref </span>orig,
+                center,
+                lerp_scale,
             } =&gt; {
-                <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="ident">lerp_scale</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">pct</span> <span class="op">*</span> (<span class="ident">lerp_scale</span>.<span class="number">1</span> <span class="op">-</span> <span class="ident">lerp_scale</span>.<span class="number">0</span>);
-                <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">orig</span>.<span class="ident">clone</span>().<span class="ident">scale</span>(<span class="ident">scale</span>).<span class="ident">centered_on</span>(<span class="kw-2">*</span><span class="ident">center</span>));
+                <span class="kw">let </span>scale = lerp_scale.<span class="number">0 </span>+ pct * (lerp_scale.<span class="number">1 </span>- lerp_scale.<span class="number">0</span>);
+                batch.append(orig.clone().scale(scale).centered_on(<span class="kw-2">*</span>center));
             }
-            <span class="ident">Effect::FollowPath</span> {
-                <span class="ident">color</span>,
-                <span class="ident">width</span>,
-                <span class="kw-2">ref</span> <span class="ident">pl</span>,
+            Effect::FollowPath {
+                color,
+                width,
+                <span class="kw-2">ref </span>pl,
             } =&gt; {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">pl</span>.<span class="ident">maybe_exact_slice</span>(<span class="ident">Distance::ZERO</span>, <span class="ident">pct</span> <span class="op">*</span> <span class="ident">pl</span>.<span class="ident">length</span>()) {
-                    <span class="ident">batch</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">color</span>, <span class="ident">pl</span>.<span class="ident">make_polygons</span>(<span class="kw-2">*</span><span class="ident">width</span>));
+                <span class="kw">if let </span><span class="prelude-val">Ok</span>(pl) = pl.maybe_exact_slice(Distance::ZERO, pct * pl.length()) {
+                    batch.push(<span class="kw-2">*</span>color, pl.make_polygons(<span class="kw-2">*</span>width));
                 }
             }
-            <span class="ident">Effect::Flash</span> {
-                <span class="kw-2">ref</span> <span class="ident">orig</span>,
-                <span class="ident">alpha_scale</span>,
-                <span class="ident">cycles</span>,
+            Effect::Flash {
+                <span class="kw-2">ref </span>orig,
+                alpha_scale,
+                cycles,
             } =&gt; {
-                <span class="comment">// -1 to 1</span>
-                <span class="kw">let</span> <span class="ident">shift</span> <span class="op">=</span> (<span class="ident">pct</span> <span class="op">*</span> (<span class="kw-2">*</span><span class="ident">cycles</span> <span class="kw">as</span> <span class="ident">f64</span>) <span class="op">*</span> (<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std::f64::consts::PI</span>)).<span class="ident">sin</span>() <span class="kw">as</span> <span class="ident">f32</span>;
-                <span class="kw">let</span> <span class="ident">midpt</span> <span class="op">=</span> (<span class="ident">alpha_scale</span>.<span class="number">0</span> <span class="op">+</span> <span class="ident">alpha_scale</span>.<span class="number">1</span>) <span class="op">/</span> <span class="number">2.0</span>;
-                <span class="kw">let</span> <span class="ident">half_range</span> <span class="op">=</span> (<span class="ident">alpha_scale</span>.<span class="number">1</span> <span class="op">-</span> <span class="ident">alpha_scale</span>.<span class="number">0</span>) <span class="op">/</span> <span class="number">2.0</span>;
-                <span class="kw">let</span> <span class="ident">alpha</span> <span class="op">=</span> <span class="ident">midpt</span> <span class="op">+</span> <span class="ident">shift</span> <span class="op">*</span> <span class="ident">half_range</span>;
+                <span class="comment">// -1 to 1
+                </span><span class="kw">let </span>shift = (pct * (<span class="kw-2">*</span>cycles <span class="kw">as </span>f64) * (<span class="number">2.0 </span>* std::f64::consts::PI)).sin() <span class="kw">as </span>f32;
+                <span class="kw">let </span>midpt = (alpha_scale.<span class="number">0 </span>+ alpha_scale.<span class="number">1</span>) / <span class="number">2.0</span>;
+                <span class="kw">let </span>half_range = (alpha_scale.<span class="number">1 </span>- alpha_scale.<span class="number">0</span>) / <span class="number">2.0</span>;
+                <span class="kw">let </span>alpha = midpt + shift * half_range;
 
-                <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">orig</span>.<span class="ident">clone</span>().<span class="ident">color</span>(<span class="ident">RewriteColor::ChangeAlpha</span>(<span class="ident">alpha</span>)));
+                batch.append(orig.clone().color(RewriteColor::ChangeAlpha(alpha)));
             }
         }
     }
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SnowEffect</span> {
-    <span class="ident">rng</span>: <span class="ident">XorShiftRng</span>,
-    <span class="ident">flakes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Snowflake</span><span class="op">&gt;</span>,
+<span class="kw">pub struct </span>SnowEffect {
+    rng: XorShiftRng,
+    flakes: Vec&lt;Snowflake&gt;,
 
-    <span class="ident">draw</span>: <span class="ident">Drawable</span>,
+    draw: Drawable,
 }
 
-<span class="kw">struct</span> <span class="ident">Snowflake</span> {
-    <span class="ident">start</span>: <span class="ident">Time</span>,
-    <span class="ident">initial_pos</span>: <span class="ident">Pt2D</span>,
-    <span class="ident">fall_speed</span>: <span class="ident">f64</span>,
-    <span class="ident">swoop_period</span>: <span class="ident">f64</span>,
-    <span class="ident">max_swoop</span>: <span class="ident">f64</span>,
+<span class="kw">struct </span>Snowflake {
+    start: Time,
+    initial_pos: Pt2D,
+    fall_speed: f64,
+    swoop_period: f64,
+    max_swoop: f64,
 }
 
-<span class="kw">impl</span> <span class="ident">Snowflake</span> {
-    <span class="kw">fn</span> <span class="ident">pos</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">time</span>: <span class="ident">Time</span>) -&gt; <span class="ident">Pt2D</span> {
-        <span class="kw">let</span> <span class="ident">arg</span> <span class="op">=</span>
-            (<span class="number">2.0</span> <span class="op">*</span> <span class="ident">std::f64::consts::PI</span>) <span class="op">*</span> (<span class="ident">time</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>).<span class="ident">inner_seconds</span>() <span class="op">/</span> <span class="self">self</span>.<span class="ident">swoop_period</span>;
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">initial_pos</span>.<span class="ident">x</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">max_swoop</span> <span class="op">*</span> <span class="ident">arg</span>.<span class="ident">cos</span>();
-        <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">initial_pos</span>.<span class="ident">y</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">fall_speed</span> <span class="op">*</span> (<span class="ident">time</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>).<span class="ident">inner_seconds</span>();
-        <span class="ident">Pt2D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>)
+<span class="kw">impl </span>Snowflake {
+    <span class="kw">fn </span>pos(<span class="kw-2">&amp;</span><span class="self">self</span>, time: Time) -&gt; Pt2D {
+        <span class="kw">let </span>arg =
+            (<span class="number">2.0 </span>* std::f64::consts::PI) * (time - <span class="self">self</span>.start).inner_seconds() / <span class="self">self</span>.swoop_period;
+        <span class="kw">let </span>x = <span class="self">self</span>.initial_pos.x() + <span class="self">self</span>.max_swoop * arg.cos();
+        <span class="kw">let </span>y = <span class="self">self</span>.initial_pos.y() + <span class="self">self</span>.fall_speed * (time - <span class="self">self</span>.start).inner_seconds();
+        Pt2D::new(x, y)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">SnowEffect</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>) -&gt; <span class="ident">SnowEffect</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">snow</span> <span class="op">=</span> <span class="ident">SnowEffect</span> {
-            <span class="ident">rng</span>: <span class="ident">XorShiftRng::seed_from_u64</span>(<span class="number">42</span>),
-            <span class="ident">flakes</span>: <span class="ident">Vec::new</span>(),
-            <span class="ident">draw</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
+<span class="kw">impl </span>SnowEffect {
+    <span class="kw">pub fn </span>new(ctx: <span class="kw-2">&amp;mut </span>EventCtx) -&gt; SnowEffect {
+        <span class="kw">let </span><span class="kw-2">mut </span>snow = SnowEffect {
+            rng: XorShiftRng::seed_from_u64(<span class="number">42</span>),
+            flakes: Vec::new(),
+            draw: Drawable::empty(ctx),
         };
 
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Time::START_OF_DAY</span>;
-        <span class="comment">// TODO Amp back up after fixing slow performance in debug mode</span>
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">20</span> {
-            <span class="kw">let</span> <span class="ident">initial_pos</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(
-                <span class="ident">snow</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>),
-                <span class="ident">snow</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span>),
+        <span class="kw">let </span>now = Time::START_OF_DAY;
+        <span class="comment">// TODO Amp back up after fixing slow performance in debug mode
+        </span><span class="kw">for _ in </span><span class="number">0</span>..<span class="number">20 </span>{
+            <span class="kw">let </span>initial_pos = Pt2D::new(
+                snow.rng.gen_range(<span class="number">0.0</span>..ctx.canvas.window_width),
+                snow.rng.gen_range(<span class="number">0.0</span>..ctx.canvas.window_height),
             );
-            <span class="kw">let</span> <span class="ident">flake</span> <span class="op">=</span> <span class="ident">snow</span>.<span class="ident">spawn_new</span>(<span class="ident">now</span>, <span class="ident">initial_pos</span>);
-            <span class="ident">snow</span>.<span class="ident">flakes</span>.<span class="ident">push</span>(<span class="ident">flake</span>);
+            <span class="kw">let </span>flake = snow.spawn_new(now, initial_pos);
+            snow.flakes.push(flake);
         }
-        <span class="ident">snow</span>.<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="ident">now</span>);
+        snow.event(ctx, now);
 
-        <span class="ident">snow</span>
+        snow
     }
 
-    <span class="kw">fn</span> <span class="ident">spawn_new</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">now</span>: <span class="ident">Time</span>, <span class="ident">initial_pos</span>: <span class="ident">Pt2D</span>) -&gt; <span class="ident">Snowflake</span> {
-        <span class="ident">Snowflake</span> {
-            <span class="ident">start</span>: <span class="ident">now</span>,
-            <span class="ident">initial_pos</span>,
-            <span class="comment">// Pixels per second</span>
-            <span class="comment">// TODO It&#39;d be neat to speed this up as time runs out</span>
-            <span class="ident">fall_speed</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">150.0</span>..<span class="number">300.0</span>),
-            <span class="ident">swoop_period</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">1.0</span>..<span class="number">5.0</span>),
-            <span class="comment">// Pixels</span>
-            <span class="ident">max_swoop</span>: <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="number">50.0</span>),
+    <span class="kw">fn </span>spawn_new(<span class="kw-2">&amp;mut </span><span class="self">self</span>, now: Time, initial_pos: Pt2D) -&gt; Snowflake {
+        Snowflake {
+            start: now,
+            initial_pos,
+            <span class="comment">// Pixels per second
+            // TODO It&#39;d be neat to speed this up as time runs out
+            </span>fall_speed: <span class="self">self</span>.rng.gen_range(<span class="number">150.0</span>..<span class="number">300.0</span>),
+            swoop_period: <span class="self">self</span>.rng.gen_range(<span class="number">1.0</span>..<span class="number">5.0</span>),
+            <span class="comment">// Pixels
+            </span>max_swoop: <span class="self">self</span>.rng.gen_range(<span class="number">0.0</span>..<span class="number">50.0</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">now</span>: <span class="ident">Time</span>) {
-        <span class="kw">let</span> <span class="ident">shape</span> <span class="op">=</span> <span class="ident">GeomBatch::load_svg</span>(<span class="ident">ctx</span>, <span class="string">&quot;system/assets/map/snowflake.svg&quot;</span>).<span class="ident">scale</span>(<span class="number">0.1</span>);
+    <span class="kw">pub fn </span>event(<span class="kw-2">&amp;mut </span><span class="self">self</span>, ctx: <span class="kw-2">&amp;mut </span>EventCtx, now: Time) {
+        <span class="kw">let </span>shape = GeomBatch::load_svg(ctx, <span class="string">&quot;system/assets/map/snowflake.svg&quot;</span>).scale(<span class="number">0.1</span>);
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">let</span> <span class="ident">prev_flakes</span> <span class="op">=</span> <span class="ident">std::mem::take</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">flakes</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_flakes</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> <span class="ident">flake</span> <span class="kw">in</span> <span class="ident">prev_flakes</span> {
-            <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">flake</span>.<span class="ident">pos</span>(<span class="ident">now</span>);
-            <span class="kw">if</span> <span class="ident">pt</span>.<span class="ident">y</span>() <span class="op">&gt;</span> <span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> {
-                <span class="kw">let</span> <span class="ident">initial_pos</span> <span class="op">=</span> <span class="ident">Pt2D::new</span>(<span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="ident">ctx</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span>), <span class="number">0.0</span>);
-                <span class="ident">new_flakes</span>.<span class="ident">push</span>(<span class="self">self</span>.<span class="ident">spawn_new</span>(<span class="ident">now</span>, <span class="ident">initial_pos</span>));
-            } <span class="kw">else</span> {
-                <span class="ident">batch</span>.<span class="ident">append</span>(<span class="ident">shape</span>.<span class="ident">clone</span>().<span class="ident">translate</span>(<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()));
-                <span class="ident">new_flakes</span>.<span class="ident">push</span>(<span class="ident">flake</span>);
+        <span class="kw">let </span><span class="kw-2">mut </span>batch = GeomBatch::new();
+        <span class="kw">let </span>prev_flakes = std::mem::take(<span class="kw-2">&amp;mut </span><span class="self">self</span>.flakes);
+        <span class="kw">let </span><span class="kw-2">mut </span>new_flakes = Vec::new();
+        <span class="kw">for </span>flake <span class="kw">in </span>prev_flakes {
+            <span class="kw">let </span>pt = flake.pos(now);
+            <span class="kw">if </span>pt.y() &gt; ctx.canvas.window_height {
+                <span class="kw">let </span>initial_pos = Pt2D::new(<span class="self">self</span>.rng.gen_range(<span class="number">0.0</span>..ctx.canvas.window_width), <span class="number">0.0</span>);
+                new_flakes.push(<span class="self">self</span>.spawn_new(now, initial_pos));
+            } <span class="kw">else </span>{
+                batch.append(shape.clone().translate(pt.x(), pt.y()));
+                new_flakes.push(flake);
             }
         }
-        <span class="self">self</span>.<span class="ident">flakes</span> <span class="op">=</span> <span class="ident">new_flakes</span>;
-        <span class="self">self</span>.<span class="ident">draw</span> <span class="op">=</span> <span class="ident">ctx</span>.<span class="ident">upload</span>(<span class="ident">batch</span>);
+        <span class="self">self</span>.flakes = new_flakes;
+        <span class="self">self</span>.draw = ctx.upload(batch);
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">draw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">g</span>: <span class="kw-2">&amp;mut</span> <span class="ident">GfxCtx</span>) {
-        <span class="ident">g</span>.<span class="ident">fork_screenspace</span>();
-        <span class="ident">g</span>.<span class="ident">redraw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">draw</span>);
-        <span class="ident">g</span>.<span class="ident">unfork</span>();
+    <span class="kw">pub fn </span>draw(<span class="kw-2">&amp;</span><span class="self">self</span>, g: <span class="kw-2">&amp;mut </span>GfxCtx) {
+        g.fork_screenspace();
+        g.redraw(<span class="kw-2">&amp;</span><span class="self">self</span>.draw);
+        g.unfork();
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="santa" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

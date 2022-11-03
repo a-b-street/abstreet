@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `traffic_signal_data/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../traffic_signal_data/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../traffic_signal_data/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../traffic_signal_data/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `traffic_signal_data/src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../normalize.css"><link rel="stylesheet" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../ayu.css" disabled><link rel="stylesheet" href="../../dark.css" disabled><link rel="stylesheet" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../traffic_signal_data/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../traffic_signal_data/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../traffic_signal_data/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -108,115 +108,115 @@
 <span id="108">108</span>
 <span id="109">109</span>
 <span id="110">110</span>
-</pre><pre class="rust"><code><span class="doccomment">//! A representation of traffic signal configuration that references OpenStreetMap IDs and is</span>
-<span class="doccomment">//! hopefully robust to minor edits over time.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! A representation of traffic signal configuration that references OpenStreetMap IDs and is
+//! hopefully robust to minor edits over time.
 
-<span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
+</span><span class="kw">use </span>serde::{Deserialize, Serialize};
+<span class="kw">use </span>std::collections::{BTreeMap, BTreeSet};
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TrafficSignal</span> {
-    <span class="doccomment">/// The ID of the OSM node representing the intersection with the traffic signal. This node</span>
-    <span class="doccomment">/// should be tagged `highway = traffic_signals` in OSM.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// TODO Describe how consolidated intersections are handled.</span>
-    <span class="kw">pub</span> <span class="ident">intersection_osm_node_id</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// The traffic signal uses configuration from one plan at a time. The plans must be listed in</span>
-    <span class="doccomment">/// order of ascending `start_time_seconds`, the first plan must begin at `0` (midnight), and</span>
-    <span class="doccomment">/// the last plan must not start after 24 hours.</span>
-    <span class="kw">pub</span> <span class="ident">plans</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Plan</span><span class="op">&gt;</span>,
+<span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>TrafficSignal {
+    <span class="doccomment">/// The ID of the OSM node representing the intersection with the traffic signal. This node
+    /// should be tagged `highway = traffic_signals` in OSM.
+    ///
+    /// TODO Describe how consolidated intersections are handled.
+    </span><span class="kw">pub </span>intersection_osm_node_id: i64,
+    <span class="doccomment">/// The traffic signal uses configuration from one plan at a time. The plans must be listed in
+    /// order of ascending `start_time_seconds`, the first plan must begin at `0` (midnight), and
+    /// the last plan must not start after 24 hours.
+    </span><span class="kw">pub </span>plans: Vec&lt;Plan&gt;,
 }
 
-<span class="doccomment">/// A plan describes how a traffic signal is configured during some period of time. Multiple plans</span>
-<span class="doccomment">/// allow a single intersection to behave differently in the middle of the night with low traffic,</span>
-<span class="doccomment">/// compared to the middle of rush hour.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Plan</span> {
-    <span class="doccomment">/// This plan takes effect at this local time, measured in seconds after midnight. The plan</span>
-    <span class="doccomment">/// lasts until the next plan in the listed sequence starts, or ends at midnight if it&#39;s the</span>
-    <span class="doccomment">/// last plan.</span>
-    <span class="kw">pub</span> <span class="ident">start_time_seconds</span>: <span class="ident">usize</span>,
-    <span class="doccomment">/// The traffic signal repeatedly cycles through these stages. During each stage, only some</span>
-    <span class="doccomment">/// turns are protected and permitted through the intersection.</span>
-    <span class="kw">pub</span> <span class="ident">stages</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Stage</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// Relative to a central clock, delay the first stage by this many seconds.</span>
-    <span class="kw">pub</span> <span class="ident">offset_seconds</span>: <span class="ident">usize</span>,
+<span class="doccomment">/// A plan describes how a traffic signal is configured during some period of time. Multiple plans
+/// allow a single intersection to behave differently in the middle of the night with low traffic,
+/// compared to the middle of rush hour.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>Plan {
+    <span class="doccomment">/// This plan takes effect at this local time, measured in seconds after midnight. The plan
+    /// lasts until the next plan in the listed sequence starts, or ends at midnight if it&#39;s the
+    /// last plan.
+    </span><span class="kw">pub </span>start_time_seconds: usize,
+    <span class="doccomment">/// The traffic signal repeatedly cycles through these stages. During each stage, only some
+    /// turns are protected and permitted through the intersection.
+    </span><span class="kw">pub </span>stages: Vec&lt;Stage&gt;,
+    <span class="doccomment">/// Relative to a central clock, delay the first stage by this many seconds.
+    </span><span class="kw">pub </span>offset_seconds: usize,
 }
 
-<span class="doccomment">/// A traffic signal is in one stage at any time. The stage describes what movements are possible.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stage</span> {
-    <span class="doccomment">/// During this stage, these turns can be performed with the highest priority, protected by a</span>
-    <span class="doccomment">/// green light. No two protected turns in the same stage should cross; that would be a</span>
-    <span class="doccomment">/// conflict.</span>
-    <span class="kw">pub</span> <span class="ident">protected_turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// During this stage, these turns can be performed after yielding. For example, an unprotected</span>
-    <span class="doccomment">/// left turn after yielding to oncoming traffic, or a right turn on red after yielding to</span>
-    <span class="doccomment">/// oncoming traffic and crosswalks.</span>
-    <span class="kw">pub</span> <span class="ident">permitted_turns</span>: <span class="ident">BTreeSet</span><span class="op">&lt;</span><span class="ident">Turn</span><span class="op">&gt;</span>,
-    <span class="doccomment">/// The stage lasts this long before moving to the next one.</span>
-    <span class="kw">pub</span> <span class="ident">stage_type</span>: <span class="ident">StageType</span>,
+<span class="doccomment">/// A traffic signal is in one stage at any time. The stage describes what movements are possible.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+</span><span class="kw">pub struct </span>Stage {
+    <span class="doccomment">/// During this stage, these turns can be performed with the highest priority, protected by a
+    /// green light. No two protected turns in the same stage should cross; that would be a
+    /// conflict.
+    </span><span class="kw">pub </span>protected_turns: BTreeSet&lt;Turn&gt;,
+    <span class="doccomment">/// During this stage, these turns can be performed after yielding. For example, an unprotected
+    /// left turn after yielding to oncoming traffic, or a right turn on red after yielding to
+    /// oncoming traffic and crosswalks.
+    </span><span class="kw">pub </span>permitted_turns: BTreeSet&lt;Turn&gt;,
+    <span class="doccomment">/// The stage lasts this long before moving to the next one.
+    </span><span class="kw">pub </span>stage_type: StageType,
 }
 
-<span class="doccomment">/// How long a stage lasts before moving to the next one.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StageType</span> {
-    <span class="doccomment">/// A fixed number of seconds.</span>
-    <span class="ident">Fixed</span>(<span class="ident">usize</span>),
-    <span class="doccomment">/// Minimum, Delay, Additional</span>
-    <span class="doccomment">/// Minimum is the minimum cycle duration, 0 allows it to be skipped if no demand.</span>
-    <span class="doccomment">/// Delay is the duration with no demand needed to end a cycle, 0 ends as soon as there is no</span>
-    <span class="doccomment">/// demand. Additional is the maximum additional duration for an extended cycle. If minimum</span>
-    <span class="doccomment">/// is 20, and additional is 40, the maximum cycle duration is 60.</span>
-    <span class="doccomment">/// If there are crosswalks, the minimum is the minimum for the maximum crosswalks</span>
-    <span class="ident">Variable</span>(<span class="ident">usize</span>, <span class="ident">usize</span>, <span class="ident">usize</span>),
+<span class="doccomment">/// How long a stage lasts before moving to the next one.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+</span><span class="kw">pub enum </span>StageType {
+    <span class="doccomment">/// A fixed number of seconds.
+    </span>Fixed(usize),
+    <span class="doccomment">/// Minimum, Delay, Additional
+    /// Minimum is the minimum cycle duration, 0 allows it to be skipped if no demand.
+    /// Delay is the duration with no demand needed to end a cycle, 0 ends as soon as there is no
+    /// demand. Additional is the maximum additional duration for an extended cycle. If minimum
+    /// is 20, and additional is 40, the maximum cycle duration is 60.
+    /// If there are crosswalks, the minimum is the minimum for the maximum crosswalks
+    </span>Variable(usize, usize, usize),
 }
 
-<span class="doccomment">/// A movement through an intersection.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// Movements over crosswalks are a little confusing to understand. See the crosswalk_turns.png</span>
-<span class="doccomment">/// diagram in this repository for some clarification.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Turn</span> {
-    <span class="doccomment">/// The movement begins at the end of this road segment.</span>
-    <span class="kw">pub</span> <span class="ident">from</span>: <span class="ident">DirectedRoad</span>,
-    <span class="doccomment">/// The movement ends at the beginning of this road segment.</span>
-    <span class="kw">pub</span> <span class="ident">to</span>: <span class="ident">DirectedRoad</span>,
-    <span class="doccomment">/// The ID of the OSM node representing the intersection. This is redundant for turns performed</span>
-    <span class="doccomment">/// by vehicles, but is necessary for disambiguating the 4 cases of crosswalks.</span>
-    <span class="kw">pub</span> <span class="ident">intersection_osm_node_id</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// True iff the movement is along a crosswalk. Note that moving over a crosswalk has a</span>
-    <span class="doccomment">/// different `Turn` for each direction.</span>
-    <span class="kw">pub</span> <span class="ident">is_crosswalk</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// A movement through an intersection.
+///
+/// Movements over crosswalks are a little confusing to understand. See the crosswalk_turns.png
+/// diagram in this repository for some clarification.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+</span><span class="kw">pub struct </span>Turn {
+    <span class="doccomment">/// The movement begins at the end of this road segment.
+    </span><span class="kw">pub </span>from: DirectedRoad,
+    <span class="doccomment">/// The movement ends at the beginning of this road segment.
+    </span><span class="kw">pub </span>to: DirectedRoad,
+    <span class="doccomment">/// The ID of the OSM node representing the intersection. This is redundant for turns performed
+    /// by vehicles, but is necessary for disambiguating the 4 cases of crosswalks.
+    </span><span class="kw">pub </span>intersection_osm_node_id: i64,
+    <span class="doccomment">/// True iff the movement is along a crosswalk. Note that moving over a crosswalk has a
+    /// different `Turn` for each direction.
+    </span><span class="kw">pub </span>is_crosswalk: bool,
 }
 
-<span class="doccomment">/// A road segment connecting two intersections, and a direction along the segment.</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>, <span class="ident">PartialOrd</span>, <span class="ident">Ord</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DirectedRoad</span> {
-    <span class="doccomment">/// The ID of the OSM way representing the road.</span>
-    <span class="kw">pub</span> <span class="ident">osm_way_id</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// The ID of the OSM node at the start of this road segment.</span>
-    <span class="kw">pub</span> <span class="ident">osm_node1</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// The ID of the OSM node at the end of this road segment.</span>
-    <span class="kw">pub</span> <span class="ident">osm_node2</span>: <span class="ident">i64</span>,
-    <span class="doccomment">/// The direction along the road segment. See</span>
-    <span class="doccomment">/// https://wiki.openstreetmap.org/wiki/Forward_%26_backward,_left_%26_right for details.</span>
-    <span class="kw">pub</span> <span class="ident">is_forwards</span>: <span class="ident">bool</span>,
+<span class="doccomment">/// A road segment connecting two intersections, and a direction along the segment.
+</span><span class="attribute">#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+</span><span class="kw">pub struct </span>DirectedRoad {
+    <span class="doccomment">/// The ID of the OSM way representing the road.
+    </span><span class="kw">pub </span>osm_way_id: i64,
+    <span class="doccomment">/// The ID of the OSM node at the start of this road segment.
+    </span><span class="kw">pub </span>osm_node1: i64,
+    <span class="doccomment">/// The ID of the OSM node at the end of this road segment.
+    </span><span class="kw">pub </span>osm_node2: i64,
+    <span class="doccomment">/// The direction along the road segment. See
+    /// https://wiki.openstreetmap.org/wiki/Forward_%26_backward,_left_%26_right for details.
+    </span><span class="kw">pub </span>is_forwards: bool,
 }
 
-<span class="comment">// &quot;&quot; means include all files within data. My hacks to the include_dir crate need a better API.</span>
-<span class="kw">static</span> <span class="ident">DATA</span>: <span class="ident">include_dir::Dir</span> <span class="op">=</span> <span class="macro">include_dir::include_dir!</span>(<span class="string">&quot;data&quot;</span>, <span class="string">&quot;&quot;</span>);
+<span class="comment">// &quot;&quot; means include all files within data. My hacks to the include_dir crate need a better API.
+</span><span class="kw">static </span>DATA: include_dir::Dir = <span class="macro">include_dir::include_dir!</span>(<span class="string">&quot;data&quot;</span>, <span class="string">&quot;&quot;</span>);
 
-<span class="doccomment">/// Returns all traffic signal data compiled into this build, keyed by OSM node ID. If any single</span>
-<span class="doccomment">/// file is broken, returns an error for the entire load.</span>
-<span class="comment">// TODO Use a build script to do this. But have to generate Rust code to populate the struct?</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">load_all_data</span>() -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">BTreeMap</span><span class="op">&lt;</span><span class="ident">i64</span>, <span class="ident">TrafficSignal</span><span class="op">&gt;</span>, <span class="ident">std::io::Error</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">results</span> <span class="op">=</span> <span class="ident">BTreeMap::new</span>();
-    <span class="kw">for</span> <span class="ident">f</span> <span class="kw">in</span> <span class="ident">DATA</span>.<span class="ident">files</span>() {
-        <span class="kw">let</span> <span class="ident">ts</span>: <span class="ident">TrafficSignal</span> <span class="op">=</span> <span class="ident">serde_json::from_slice</span>(<span class="ident">f</span>.<span class="ident">contents</span>())<span class="question-mark">?</span>;
-        <span class="ident">results</span>.<span class="ident">insert</span>(<span class="ident">ts</span>.<span class="ident">intersection_osm_node_id</span>, <span class="ident">ts</span>);
+<span class="doccomment">/// Returns all traffic signal data compiled into this build, keyed by OSM node ID. If any single
+/// file is broken, returns an error for the entire load.
+</span><span class="comment">// TODO Use a build script to do this. But have to generate Rust code to populate the struct?
+</span><span class="kw">pub fn </span>load_all_data() -&gt; <span class="prelude-ty">Result</span>&lt;BTreeMap&lt;i64, TrafficSignal&gt;, std::io::Error&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>results = BTreeMap::new();
+    <span class="kw">for </span>f <span class="kw">in </span>DATA.files() {
+        <span class="kw">let </span>ts: TrafficSignal = serde_json::from_slice(f.contents())<span class="question-mark">?</span>;
+        results.insert(ts.intersection_osm_node_id, ts);
     }
-    <span class="prelude-val">Ok</span>(<span class="ident">results</span>)
+    <span class="prelude-val">Ok</span>(results)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="traffic_signal_data" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="traffic_signal_data" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>

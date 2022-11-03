@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/edit/freehand_filters.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>freehand_filters.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `apps/ltn/src/edit/freehand_filters.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>freehand_filters.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" href="../../../normalize.css"><link rel="stylesheet" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" href="../../../ayu.css" disabled><link rel="stylesheet" href="../../../dark.css" disabled><link rel="stylesheet" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a><h2 class="location"></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../../../ltn/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div></a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../ltn/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1"><a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -81,88 +81,88 @@
 <span id="81">81</span>
 <span id="82">82</span>
 <span id="83">83</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::PolyLine</span>;
-<span class="kw">use</span> <span class="ident">widgetry::EventCtx</span>;
+</pre><pre class="rust"><code><span class="kw">use </span>geom::PolyLine;
+<span class="kw">use </span>widgetry::EventCtx;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">EditMode</span>, <span class="ident">EditOutcome</span>};
-<span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">mut_edits</span>, <span class="ident">redraw_all_filters</span>, <span class="ident">App</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>,
-    <span class="ident">Transition</span>,
+<span class="kw">use </span><span class="kw">crate</span>::edit::{EditMode, EditOutcome};
+<span class="kw">use crate</span>::{
+    mut_edits, redraw_all_filters, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter,
+    Transition,
 };
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">event</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>) -&gt; <span class="ident">EditOutcome</span> {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="ident">EditMode::FreehandFilters</span>(<span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">lasso</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pl</span>) <span class="op">=</span> <span class="ident">lasso</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="comment">// Reset the tool</span>
-            <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">edit_mode</span> <span class="op">=</span> <span class="ident">EditMode::Filters</span>;
-            <span class="ident">EditOutcome::Transition</span>(<span class="ident">make_filters_along_path</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">neighbourhood</span>, <span class="ident">pl</span>))
-        } <span class="kw">else</span> {
-            <span class="comment">// Do this instead of EditOutcome::Nothing to interrupt other processing</span>
-            <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Keep</span>)
+<span class="kw">pub fn </span>event(ctx: <span class="kw-2">&amp;mut </span>EventCtx, app: <span class="kw-2">&amp;mut </span>App, neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood) -&gt; EditOutcome {
+    <span class="kw">if let </span>EditMode::FreehandFilters(<span class="kw-2">ref mut </span>lasso) = app.session.edit_mode {
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(pl) = lasso.event(ctx) {
+            <span class="comment">// Reset the tool
+            </span>app.session.edit_mode = EditMode::Filters;
+            EditOutcome::Transition(make_filters_along_path(ctx, app, neighbourhood, pl))
+        } <span class="kw">else </span>{
+            <span class="comment">// Do this instead of EditOutcome::Nothing to interrupt other processing
+            </span>EditOutcome::Transition(Transition::Keep)
         }
-    } <span class="kw">else</span> {
+    } <span class="kw">else </span>{
         <span class="macro">unreachable!</span>()
     }
 }
 
-<span class="kw">fn</span> <span class="ident">make_filters_along_path</span>(
-    <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
-    <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
-    <span class="ident">neighbourhood</span>: <span class="kw-2">&amp;</span><span class="ident">Neighbourhood</span>,
-    <span class="ident">path</span>: <span class="ident">PolyLine</span>,
-) -&gt; <span class="ident">Transition</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">oneways</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bus_roads</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
+<span class="kw">fn </span>make_filters_along_path(
+    ctx: <span class="kw-2">&amp;mut </span>EventCtx,
+    app: <span class="kw-2">&amp;mut </span>App,
+    neighbourhood: <span class="kw-2">&amp;</span>Neighbourhood,
+    path: PolyLine,
+) -&gt; Transition {
+    <span class="kw">let </span><span class="kw-2">mut </span>oneways = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>bus_roads = Vec::new();
 
-    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">before_edit</span>();
-    <span class="kw">for</span> <span class="ident">r</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">orig_perimeter</span>.<span class="ident">interior</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>) {
+    app.per_map.proposals.before_edit();
+    <span class="kw">for </span>r <span class="kw">in </span><span class="kw-2">&amp;</span>neighbourhood.orig_perimeter.interior {
+        <span class="kw">if </span>app.edits().roads.contains_key(r) {
             <span class="kw">continue</span>;
         }
-        <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
-        <span class="comment">// Don&#39;t show error messages</span>
-        <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">is_deadend_for_driving</span>(<span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>) {
+        <span class="kw">let </span>road = app.per_map.map.get_r(<span class="kw-2">*</span>r);
+        <span class="comment">// Don&#39;t show error messages
+        </span><span class="kw">if </span>road.is_deadend_for_driving(<span class="kw-2">&amp;</span>app.per_map.map) {
             <span class="kw">continue</span>;
         }
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">pt</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">intersection</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
-            <span class="kw">if</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>().<span class="ident">is_some</span>() {
-                <span class="ident">oneways</span>.<span class="ident">push</span>(<span class="kw-2">*</span><span class="ident">r</span>);
+        <span class="kw">if let </span><span class="prelude-val">Some</span>((pt, <span class="kw">_</span>)) = road.center_pts.intersection(<span class="kw-2">&amp;</span>path) {
+            <span class="kw">if </span>road.oneway_for_driving().is_some() {
+                oneways.push(<span class="kw-2">*</span>r);
                 <span class="kw">continue</span>;
             }
 
-            <span class="kw">let</span> <span class="ident">dist</span> <span class="op">=</span> <span class="ident">road</span>
-                .<span class="ident">center_pts</span>
-                .<span class="ident">dist_along_of_point</span>(<span class="ident">pt</span>)
-                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pair</span><span class="op">|</span> <span class="ident">pair</span>.<span class="number">0</span>)
-                .<span class="ident">unwrap_or</span>(<span class="ident">road</span>.<span class="ident">center_pts</span>.<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>);
+            <span class="kw">let </span>dist = road
+                .center_pts
+                .dist_along_of_point(pt)
+                .map(|pair| pair.<span class="number">0</span>)
+                .unwrap_or(road.center_pts.length() / <span class="number">2.0</span>);
 
-            <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> <span class="op">!</span><span class="op">=</span> <span class="ident">FilterType::BusGate</span>
-                <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_bus_routes_on_road</span>(<span class="kw-2">*</span><span class="ident">r</span>).<span class="ident">is_empty</span>()
+            <span class="kw">if </span>app.session.filter_type != FilterType::BusGate
+                &amp;&amp; !app.per_map.map.get_bus_routes_on_road(<span class="kw-2">*</span>r).is_empty()
             {
-                <span class="ident">bus_roads</span>.<span class="ident">push</span>((<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">dist</span>));
+                bus_roads.push((<span class="kw-2">*</span>r, dist));
                 <span class="kw">continue</span>;
             }
 
-            <span class="macro">mut_edits!</span>(<span class="ident">app</span>)
-                .<span class="ident">roads</span>
-                .<span class="ident">insert</span>(<span class="kw-2">*</span><span class="ident">r</span>, <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">dist</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>));
+            <span class="macro">mut_edits!</span>(app)
+                .roads
+                .insert(<span class="kw-2">*</span>r, RoadFilter::new_by_user(dist, app.session.filter_type));
         }
     }
-    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">neighbourhood</span>.<span class="ident">interior_intersections</span> {
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_i</span>(<span class="kw-2">*</span><span class="ident">i</span>).<span class="ident">polygon</span>.<span class="ident">intersects_polyline</span>(<span class="kw-2">&amp;</span><span class="ident">path</span>) {
-            <span class="comment">// We probably won&#39;t guess the right one, but make an attempt</span>
-            <span class="ident">DiagonalFilter::cycle_through_alternatives</span>(<span class="ident">app</span>, <span class="kw-2">*</span><span class="ident">i</span>);
+    <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>neighbourhood.interior_intersections {
+        <span class="kw">if </span>app.per_map.map.get_i(<span class="kw-2">*</span>i).polygon.intersects_polyline(<span class="kw-2">&amp;</span>path) {
+            <span class="comment">// We probably won&#39;t guess the right one, but make an attempt
+            </span>DiagonalFilter::cycle_through_alternatives(app, <span class="kw-2">*</span>i);
         }
     }
-    <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    redraw_all_filters(ctx, app);
 
-    <span class="kw">if</span> <span class="op">!</span><span class="ident">oneways</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::ResolveOneWayAndFilter::new_state</span>(<span class="ident">ctx</span>, <span class="ident">oneways</span>))
-    } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="ident">bus_roads</span>.<span class="ident">is_empty</span>() {
-        <span class="ident">Transition::Push</span>(<span class="ident"><span class="kw">super</span>::ResolveBusGate::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">bus_roads</span>))
-    } <span class="kw">else</span> {
-        <span class="ident">Transition::Recreate</span>
+    <span class="kw">if </span>!oneways.is_empty() {
+        Transition::Push(<span class="kw">super</span>::ResolveOneWayAndFilter::new_state(ctx, oneways))
+    } <span class="kw">else if </span>!bus_roads.is_empty() {
+        Transition::Push(<span class="kw">super</span>::ResolveBusGate::new_state(ctx, app, bus_roads))
+    } <span class="kw">else </span>{
+        Transition::Recreate
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.65.0 (897e37553 2022-11-02)" ></div></body></html>
